@@ -48,6 +48,26 @@ button {
   -webkit-user-select: none;
 }
 
+button {
+  transition:
+    transform 0.12s ease,
+    filter 0.12s ease;
+}
+
+@media (hover: hover) {
+  button:hover {
+    transform: scale(0.95);
+    filter: brightness(0.95);
+  }
+}
+
+@media (hover: none) {
+  button:active {
+    transform: scale(0.95);
+    filter: brightness(0.95);
+  }
+}
+
 * {
   scrollbar-color: #3f5fa5 rgba(12, 20, 37, 0.8);
   scrollbar-width: thin;
