@@ -21,6 +21,7 @@
 
   let valueText = `${Math.max(min, Math.floor(value))}`;
   let inputEl: HTMLInputElement | null = null;
+  let modalShellEl: HTMLElement | null = null;
 
   function parseValue() {
     const parsed = Number.parseInt(valueText, 10);
@@ -51,6 +52,27 @@
     valueText = "0";
   }
 
+  function handleFocus() {
+    // Give the virtual keyboard a moment to open before scrolling.
+    setTimeout(() => {
+      inputEl?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 50);
+  }
+
+  function updateKeyboardOffset() {
+    if (!modalShellEl) return;
+    const viewport = window.visualViewport;
+    if (!viewport) {
+      modalShellEl.style.removeProperty("--keyboard-offset");
+      return;
+    }
+    const keyboardOffset = Math.max(
+      0,
+      window.innerHeight - (viewport.height + viewport.offsetTop),
+    );
+    modalShellEl.style.setProperty("--keyboard-offset", `${keyboardOffset}px`);
+  }
+
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -61,6 +83,23 @@
   onMount(() => {
     inputEl?.focus();
     inputEl?.select();
+    modalShellEl = inputEl
+      ? (inputEl.closest(".modal-shell") as HTMLElement | null)
+      : null;
+    updateKeyboardOffset();
+    const viewport = window.visualViewport;
+    const handleViewportChange = () => {
+      updateKeyboardOffset();
+    };
+    viewport?.addEventListener("resize", handleViewportChange);
+    viewport?.addEventListener("scroll", handleViewportChange);
+    window.addEventListener("orientationchange", handleViewportChange);
+    return () => {
+      viewport?.removeEventListener("resize", handleViewportChange);
+      viewport?.removeEventListener("scroll", handleViewportChange);
+      window.removeEventListener("orientationchange", handleViewportChange);
+      modalShellEl?.style.removeProperty("--keyboard-offset");
+    };
   });
 </script>
 
@@ -102,6 +141,7 @@
       value={valueText}
       on:input={handleInput}
       on:blur={clampValueText}
+      on:focus={handleFocus}
       on:keydown={handleKeydown}
     />
     <button
@@ -133,6 +173,11 @@
   .modal-content {
     display: grid;
     gap: 12px;
+  }
+
+  :global(.modal-shell) {
+    transform: translateY(calc(-1 * var(--keyboard-offset, 0px) * 0.45));
+    transition: transform 150ms ease;
   }
 
   .modal-header {
