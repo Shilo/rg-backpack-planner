@@ -189,7 +189,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 0px;
     overflow: hidden;
     z-index: 9;
   }
@@ -200,24 +200,18 @@
 
   .side-menu__content {
     display: grid;
-    gap: 18px;
+    gap: 10px;
     overflow-y: auto;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0 10px;
     scrollbar-gutter: stable;
-    max-height: calc(100% - 58px);
   }
 
-  .side-menu__content::before {
-    content: "";
-    height: 0px;
-    display: block;
+  .side-menu__content > :global(:first-child) {
+    margin-top: 8px;
   }
 
-  .side-menu__content::after {
-    content: "";
-    height: 0px;
-    display: block;
+  .side-menu__content > :global(:last-child) {
+    margin-bottom: 10px;
   }
 
   .side-menu__footer {

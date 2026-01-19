@@ -12,7 +12,7 @@
 <style>
   .side-menu-section {
     display: grid;
-    gap: 10px;
+    gap: 6px;
   }
 
   .side-menu-section__title {
@@ -26,6 +26,6 @@
 
   .side-menu-section__content {
     display: grid;
-    gap: 10px;
+    gap: 6px;
   }
 </style>
