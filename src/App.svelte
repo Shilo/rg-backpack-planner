@@ -1,6 +1,7 @@
 <script lang="ts">
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
+  import Tooltip from "./lib/Tooltip.svelte";
 
   let isMenuOpen = false;
   let tabsRef: { centerActiveTree?: () => void } | null = null;
@@ -105,6 +106,7 @@
   <main class="app-main">
     <Tabs bind:this={tabsRef} {tabs} onMenuClick={toggleMenu} {isMenuOpen} />
   </main>
+  <Tooltip />
 </div>
 
 <style>

@@ -3,6 +3,8 @@
 </script>
 
 <script lang="ts">
+  import { tooltip } from "./tooltip";
+
   export let id: string;
   export let label: string = "";
   export let level: number = 0;
@@ -10,7 +12,13 @@
   export let state: NodeState = "locked";
 </script>
 
-<button class="node {state}" aria-label={label || id} data-node-id={id}>
+<button
+  class="node {state}"
+  aria-label={label || id}
+  data-node-id={id}
+  data-tooltip={label || id}
+  use:tooltip
+>
   <span class="node-icon" aria-hidden="true"></span>
   <span class="node-level">{level}/{maxLevel}</span>
   {#if label}

@@ -19,6 +19,7 @@
     startLongPress,
     type LongPressState,
   } from "./longPress";
+  import { hideTooltip, suppressTooltip } from "./tooltip";
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
@@ -133,6 +134,8 @@
       const pointer = pointers.get(pointerId);
       if (!pointer || panActive || pointers.size !== 1) return false;
       if (!pointer.nodeId) return false;
+      suppressTooltip(pointerId);
+      hideTooltip();
       contextMenu = { id: pointer.nodeId, x: pointer.x, y: pointer.y };
       return true;
     });

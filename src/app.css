@@ -91,3 +91,25 @@ button {
 *::-webkit-scrollbar-thumb:hover {
   background: rgba(79, 111, 191, 0.85);
 }
+
+.tooltip {
+  position: fixed;
+  z-index: 30;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(20, 28, 46, 0.96);
+  border: 1px solid rgba(60, 86, 140, 0.6);
+  color: #e7efff;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  max-width: 240px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(9, 13, 25, 0.45);
+  pointer-events: none;
+}
+
+@media (hover: none) {
+  .tooltip {
+    transform: translateY(-32px);
+  }
+}

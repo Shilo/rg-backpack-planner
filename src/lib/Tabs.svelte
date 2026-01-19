@@ -18,6 +18,8 @@
     startLongPress,
     type LongPressState,
   } from "./longPress";
+  import { tooltip } from "./tooltip";
+  import { hideTooltip, suppressTooltip } from "./tooltip";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
@@ -36,9 +38,11 @@
   const tabPressState: LongPressState = { timer: null, fired: false };
   let tabPressStart: { x: number; y: number } | null = null;
   let tabPressPoint: { x: number; y: number } | null = null;
+  let tabPressPointerId: number | null = null;
   const backgroundPressState: LongPressState = { timer: null, fired: false };
   let backgroundPressStart: { x: number; y: number } | null = null;
   let backgroundPressPoint: { x: number; y: number } | null = null;
+  let backgroundPressPointerId: number | null = null;
 
   onMount(() => {
     if (!tabsBarEl) return;
@@ -63,14 +67,18 @@
     clearLongPress(tabPressState);
     tabPressStart = null;
     tabPressPoint = null;
+    tabPressPointerId = null;
   }
 
   function startTabPress(event: PointerEvent, tab: TabConfig) {
     tabPressStart = { x: event.clientX, y: event.clientY };
     tabPressPoint = { x: event.clientX, y: event.clientY };
+    tabPressPointerId = event.pointerId;
     startLongPress(tabPressState, () => {
       const point = tabPressPoint ?? tabPressStart;
       if (!point) return false;
+      suppressTooltip(tabPressPointerId);
+      hideTooltip();
       tabContextMenu = {
         id: tab.id,
         label: tab.label,
@@ -100,6 +108,7 @@
     clearLongPress(backgroundPressState);
     backgroundPressStart = null;
     backgroundPressPoint = null;
+    backgroundPressPointerId = null;
   }
 
   function isContextMenuTarget(target: EventTarget | null) {
@@ -116,9 +125,12 @@
     if (!activeTab) return;
     backgroundPressStart = { x: event.clientX, y: event.clientY };
     backgroundPressPoint = { x: event.clientX, y: event.clientY };
+    backgroundPressPointerId = event.pointerId;
     startLongPress(backgroundPressState, () => {
       const point = backgroundPressPoint ?? backgroundPressStart;
       if (!point) return false;
+      suppressTooltip(backgroundPressPointerId);
+      hideTooltip();
       tabContextMenu = {
         id: activeTab.id,
         label: activeTab.label,
@@ -146,6 +158,7 @@
 
   function openTabMenu(event: MouseEvent, tab: TabConfig) {
     event.preventDefault();
+    hideTooltip();
     tabContextMenu = {
       id: tab.id,
       label: tab.label,
@@ -187,6 +200,8 @@
         <button
           class="button button-sm"
           class:active={index === activeIndex}
+          data-tooltip={tab.label}
+          use:tooltip
           on:click={() => handleTabClick(index)}
           on:contextmenu={(event) => openTabMenu(event, tab)}
           on:pointerdown={(event) => startTabPress(event, tab)}
@@ -203,6 +218,8 @@
   <button
     class="menu-button button-sm"
     aria-label={isMenuOpen ? "Close menu" : "Menu"}
+    data-tooltip={isMenuOpen ? "Close menu" : "Open menu"}
+    use:tooltip={isMenuOpen}
     on:click={() => onMenuClick?.()}
   >
     {isMenuOpen ? "✕" : "⋮"}
