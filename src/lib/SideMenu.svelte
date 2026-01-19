@@ -46,8 +46,8 @@
     right: 0;
     height: 100%;
     width: 78vw;
-    min-width: 260px;
     max-width: 85%;
+    min-width: min(260px, 85%);
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
