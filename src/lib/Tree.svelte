@@ -120,27 +120,36 @@
       })),
     );
 
+  function getLevelFrom(levelsSnapshot: Record<string, number>, id: string) {
+    return levelsSnapshot[id] ?? 0;
+  }
+
   function getLevel(id: string) {
-    return levels[id] ?? 0;
+    return getLevelFrom(levels, id);
   }
 
-  function isAvailable(node: TreeNode) {
+  function isAvailable(node: TreeNode, levelsSnapshot: Record<string, number>) {
     if (!node.parentIds || node.parentIds.length === 0) return true;
-    return node.parentIds.every((parentId) => getLevel(parentId) > 0);
+    return node.parentIds.every(
+      (parentId) => getLevelFrom(levelsSnapshot, parentId) > 0,
+    );
   }
 
-  function getState(node: TreeNode): NodeState {
-    const level = getLevel(node.id);
+  function getState(
+    node: TreeNode,
+    levelsSnapshot: Record<string, number>,
+  ): NodeState {
+    const level = getLevelFrom(levelsSnapshot, node.id);
     if (level >= node.maxLevel) return "maxed";
     if (level > 0) return "active";
-    if (isAvailable(node)) return "available";
+    if (isAvailable(node, levelsSnapshot)) return "available";
     return "locked";
   }
 
   function levelUp(id: string) {
     const node = nodeById.get(id);
     if (!node) return false;
-    const state = getState(node);
+    const state = getState(node, levels);
     if (state === "locked") return false;
     const level = getLevel(id);
     const nextLevel = Math.min(level + 1, node.maxLevel);
@@ -160,7 +169,7 @@
   function maxNode(id: string) {
     const node = nodeById.get(id);
     if (!node) return;
-    if (getState(node) === "locked") return;
+    if (getState(node, levels) === "locked") return;
     const level = getLevel(id);
     if (level >= node.maxLevel) return;
     updateLevels({ ...levels, [id]: node.maxLevel });
@@ -548,13 +557,15 @@
                 y1={from.y + 32}
                 x2={to.x + 32}
                 y2={to.y + 32}
-                class:link-active={getLevel(link.from) > 0}
+                class:link-active={getLevelFrom(levels, link.from) > 0}
               />
             {/if}
           {/each}
         </svg>
 
         {#each nodes as node}
+          {@const level = getLevelFrom(levels, node.id)}
+          {@const state = getState(node, levels)}
           <div
             class="node-wrapper"
             style={`left: ${node.x}px; top: ${node.y}px;`}
@@ -562,9 +573,9 @@
             <Node
               id={node.id}
               label={node.label ?? ""}
-              level={getLevel(node.id)}
+              {level}
               maxLevel={node.maxLevel}
-              state={getState(node)}
+              {state}
             />
           </div>
         {/each}
