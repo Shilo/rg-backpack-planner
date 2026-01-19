@@ -107,7 +107,15 @@
       >
         Share build
       </Button>
-      <Button on:click={() => onHelp?.()} icon={HelpCircle}>Help</Button>
+      <Button
+        on:click={() => {
+          onHelp?.();
+          // onClose?.();
+        }}
+        icon={HelpCircle}
+      >
+        Help
+      </Button>
     </SideMenuSection>
   </nav>
   <h2 class="side-menu__title">{title}</h2>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
   import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
@@ -6,6 +7,7 @@
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
   import ModalHost from "./lib/ModalHost.svelte";
+  import { openHelpModal } from "./lib/helpModal";
   import {
     initTechCrystalTrees,
     applyTechCrystalDeltaForTree,
@@ -23,6 +25,7 @@
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
+  const helpStorageKey = "rg-backpack-planner-help-seen";
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -118,6 +121,10 @@
     isMenuOpen = false;
   }
 
+  function openHelp() {
+    openHelpModal();
+  }
+
   function resetSwipeState() {
     swipeStartX = null;
     swipeStartY = null;
@@ -171,6 +178,17 @@
   ) {
     applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
   }
+
+  onMount(() => {
+    try {
+      if (!localStorage.getItem(helpStorageKey)) {
+        openHelpModal();
+        localStorage.setItem(helpStorageKey, "true");
+      }
+    } catch {
+      openHelpModal();
+    }
+  });
 </script>
 
 <div
@@ -189,9 +207,10 @@
     onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
     onResetTree={() => tabsRef?.resetActiveTree?.()}
     onResetAll={() => tabsRef?.resetAllTrees?.()}
+    onHelp={openHelp}
     {activeTreeName}
   />
-  <AppTitleDisplay />
+  <AppTitleDisplay onHelp={openHelp} />
   <TechCrystalsDisplay />
   <main class="app-main">
     <Tabs

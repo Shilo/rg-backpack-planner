@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
   import AlertModal from "./modals/AlertModal.svelte";
   import ConfirmModal from "./modals/ConfirmModal.svelte";
+  import HelpModal from "./modals/HelpModal.svelte";
   import InputModal from "./modals/InputModal.svelte";
   import { closeModal, modalStore } from "./modalStore";
 
@@ -91,6 +92,14 @@
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
+        />
+      {:else if $modalStore.type === "help"}
+        <HelpModal
+          title={$modalStore.title}
+          titleIcon={$modalStore.titleIcon ?? null}
+          message={$modalStore.message}
+          confirmLabel={$modalStore.confirmLabel ?? "Close"}
+          onConfirm={handleConfirm}
         />
       {:else if $modalStore.type === "input"}
         <InputModal

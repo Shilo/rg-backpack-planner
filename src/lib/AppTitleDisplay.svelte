@@ -4,6 +4,7 @@
   import Button from "./Button.svelte";
 
   const title = packageInfo.name;
+  export let onHelp: (() => void) | null = null;
 </script>
 
 <Button
@@ -13,6 +14,7 @@
   aria-label={title}
   icon={HelpCircle}
   iconClass="app-title-icon"
+  on:click={() => onHelp?.()}
 >
   {title}
 </Button>
