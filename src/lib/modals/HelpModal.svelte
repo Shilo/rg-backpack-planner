@@ -4,6 +4,7 @@
   import {
     Clock,
     Hand,
+    Hexagon,
     Menu,
     Mouse,
     MousePointer2,
@@ -38,91 +39,77 @@
     {
       id: "pointer-node",
       label: "Click a node",
-      description: "Increase the node level.",
+      description: "Increase node level and spend currency",
       icon: MousePointer2,
       device: "pointer",
     },
     {
       id: "pointer-node-menu",
       label: "Right-click a node",
-      description: "Show node options.",
+      description: "Show node options",
       icon: MousePointer2,
       device: "pointer",
     },
     {
       id: "pointer-tree-menu",
-      label: "Right-click empty space",
-      description: "Show tree options.",
-      icon: MousePointer2,
-      device: "pointer",
-    },
-    {
-      id: "pointer-tab-menu",
-      label: "Right-click a tab",
-      description: "Show tree options for tab.",
+      label: "Right-click empty space or tab",
+      description: "Show tree options",
       icon: MousePointer2,
       device: "pointer",
     },
     {
       id: "pointer-pan",
       label: "Click and drag",
-      description: "Pan around the tree.",
+      description: "Pan around tree",
       icon: Move,
       device: "pointer",
     },
     {
       id: "pointer-zoom",
       label: "Scroll wheel or trackpad",
-      description: "Zoom in and out on the tree.",
+      description: "Zoom in and out on tree",
       icon: Mouse,
       device: "pointer",
     },
     {
       id: "touch-node",
       label: "Tap a node",
-      description: "Increase the node level.",
+      description: "Increase node level and spend currency",
       icon: Hand,
       device: "touch",
     },
     {
       id: "touch-node-menu",
-      label: "Long-press a node",
-      description: "Show node options.",
+      label: "long press a node",
+      description: "Show node options",
       icon: Clock,
       device: "touch",
     },
     {
       id: "touch-tree-menu",
-      label: "Long-press empty space",
-      description: "Show tree options.",
-      icon: Clock,
-      device: "touch",
-    },
-    {
-      id: "touch-tab-menu",
-      label: "Long-press a tab",
-      description: "Show tree options for tab.",
+      label: "long press empty space or tab",
+      description: "Show tree options",
       icon: Clock,
       device: "touch",
     },
     {
       id: "touch-pan",
       label: "Drag with one finger",
-      description: "Pan around the tree.",
+      description: "Pan around tree",
       icon: Move,
       device: "touch",
     },
     {
       id: "touch-zoom",
       label: "Pinch with two fingers",
-      description: "Zoom in and out on the tree.",
+      description: "Zoom in and out on tree",
       icon: ZoomIn,
       device: "touch",
     },
     {
       id: "touch-menu-swipe",
-      label: "Swipe right on the menu",
-      description: "Close the side menu.",
+      label: "Swipe right on side menu",
+      description: "Close side menu",
       icon: Hand,
       device: "touch",
     },
@@ -186,15 +173,29 @@
       {/if}
     </div>
     <div class="help-controls">
-      <div class="help-shortcut">
-        <span class="control-icon" aria-hidden="true">
-          <Menu />
-        </span>
-        <div class="control-text">
-          <p class="control-label">Side menu button</p>
-          <p class="control-desc">Show or hide additional options.</p>
-        </div>
-      </div>
+      <section class="help-section">
+        <h3>On-screen buttons</h3>
+        <ul class="control-list">
+          <div class="help-shortcut">
+            <span class="control-icon" aria-hidden="true">
+              <Hexagon />
+            </span>
+            <div class="control-text">
+              <p class="control-label">Tech Crystals (Currency)</p>
+              <p class="control-desc">View spent and set owned amount</p>
+            </div>
+          </div>
+          <div class="help-shortcut">
+            <span class="control-icon" aria-hidden="true">
+              <Menu />
+            </span>
+            <div class="control-text">
+              <p class="control-label">Side menu button</p>
+              <p class="control-desc">Show or hide additional options</p>
+            </div>
+          </div>
+        </ul>
+      </section>
       {#if true}
         <section class="help-section">
           <h3>Touch controls</h3>
@@ -253,9 +254,9 @@
   .help-scroll {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
     overflow-y: auto;
-    padding: 0 6px 58px;
+    padding: 0 2px 46px;
   }
 
   .modal-header {
@@ -284,7 +285,7 @@
 
   .help-intro {
     display: grid;
-    gap: 6px;
+    gap: 0px;
   }
 
   .help-app-name {
@@ -312,7 +313,7 @@
 
   .help-controls {
     display: grid;
-    gap: 16px;
+    gap: 10px;
   }
 
   .help-shortcut {
@@ -323,7 +324,7 @@
   }
 
   .help-section h3 {
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     font-size: 0.85rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -331,7 +332,7 @@
   }
 
   .help-section + .help-section {
-    margin-top: 6px;
+    margin-top: 2px;
   }
 
   .control-list {
@@ -387,8 +388,6 @@
     right: 0;
     bottom: 0;
     left: 0;
-    padding-top: 12px;
-    padding-bottom: 6px;
     background: linear-gradient(
       to bottom,
       rgba(14, 21, 36, 0),
