@@ -20,6 +20,11 @@ body {
   -webkit-user-select: none;
 }
 
+:root {
+  --bar-pad: 10px;
+  --tab-height: 32px;
+}
+
 #app {
   width: 100%;
   height: 100%;

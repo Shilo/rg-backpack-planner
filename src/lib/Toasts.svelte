@@ -40,16 +40,19 @@
 
 <div class="toast-region" aria-live="polite" aria-atomic="true">
   {#each $toastStore as toast (toast.id)}
-    <div class="toast toast--{toast.tone}">
+    <div
+      class="toast toast--{toast.tone}"
+      role="button"
+      tabindex="0"
+      on:click={() => dismissToast(toast.id)}
+      on:keydown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          dismissToast(toast.id);
+        }
+      }}
+    >
       <span class="toast__message">{toast.message}</span>
-      <button
-        class="toast__close"
-        type="button"
-        aria-label="Dismiss notification"
-        on:click={() => dismissToast(toast.id)}
-      >
-        ×
-      </button>
     </div>
   {/each}
 </div>
@@ -57,8 +60,8 @@
 <style>
   .toast-region {
     position: fixed;
-    right: 18px;
-    bottom: 18px;
+    right: var(--bar-pad, 10px);
+    bottom: calc(var(--bar-pad, 10px) + var(--tab-height, 32px) + 10px);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -91,21 +94,5 @@
 
   .toast__message {
     flex: 1;
-  }
-
-  .toast__close {
-    border: none;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    color: inherit;
-    width: 26px;
-    height: 26px;
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .toast__close:hover {
-    background: rgba(255, 255, 255, 0.22);
   }
 </style>
