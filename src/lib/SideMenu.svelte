@@ -18,15 +18,6 @@
     <button type="button">Load build</button>
     <button type="button">Save build</button>
     <button type="button">Reset points</button>
-    <button type="button">Favorite build presets</button>
-    <button type="button">Export build summary</button>
-    <button type="button">Import build template</button>
-    <button type="button">Share build link</button>
-    <button type="button">View build history</button>
-    <button type="button">Manage saved loadouts</button>
-    <button type="button">Clear recent changes</button>
-    <button type="button">Open settings</button>
-    <button type="button">Help and tips</button>
   </nav>
   <h2 class="side-menu__title">{title}</h2>
 </aside>

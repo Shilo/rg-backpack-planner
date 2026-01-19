@@ -71,7 +71,7 @@
 <style>
   .tabs-root {
     --bar-pad: 10px;
-    --menu-width: 40px;
+    --menu-width: 32px;
     --menu-gap: 10px;
     --tab-height: 32px;
     display: flex;
