@@ -1,5 +1,6 @@
 <script lang="ts">
   import ContextMenu from "./ContextMenu.svelte";
+  import TreeContextMenuList from "./TreeContextMenuList.svelte";
 
   export let tabId: string | null = null;
   export let tabLabel = "";
@@ -7,11 +8,11 @@
   export let y = 0;
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
-  export let onCenter: ((tabId: string) => void) | null = null;
+  export let onFocusInView: ((tabId: string) => void) | null = null;
 
-  function handleCenter() {
+  function handleFocusInView() {
     if (!tabId) return;
-    onCenter?.(tabId);
+    onFocusInView?.(tabId);
   }
 </script>
 
@@ -23,12 +24,5 @@
   ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
   {onClose}
 >
-  <button
-    type="button"
-    class="button button-md"
-    on:click={handleCenter}
-    disabled={!tabId}
-  >
-    Center view
-  </button>
+  <TreeContextMenuList onFocusInView={handleFocusInView} />
 </ContextMenu>

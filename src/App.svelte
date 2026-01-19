@@ -4,7 +4,7 @@
   import Tooltip from "./lib/Tooltip.svelte";
 
   let isMenuOpen = false;
-  let tabsRef: { centerActiveTree?: () => void } | null = null;
+  let tabsRef: { focusActiveTreeInView?: () => void } | null = null;
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -101,7 +101,7 @@
   <SideMenu
     isOpen={isMenuOpen}
     onClose={closeMenu}
-    onCenterView={() => tabsRef?.centerActiveTree?.()}
+    onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
   />
   <main class="app-main">
     <Tabs bind:this={tabsRef} {tabs} onMenuClick={toggleMenu} {isMenuOpen} />

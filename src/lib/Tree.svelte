@@ -387,7 +387,7 @@
     offsetY = clamped.y;
   }
 
-  export function centerTree() {
+  export function focusTreeInView() {
     if (!viewportEl || nodes.length === 0) return;
     const xs = nodes.map((node) => node.x);
     const ys = nodes.map((node) => node.y);
@@ -416,9 +416,9 @@
   }
 
   onMount(() => {
-    centerTree();
+    focusTreeInView();
     const handleResize = () => {
-      centerTree();
+      focusTreeInView();
     };
     window.addEventListener("resize", handleResize, { passive: true });
     return () => {
@@ -427,7 +427,7 @@
   });
 
   $: if (viewportEl) {
-    centerTree();
+    focusTreeInView();
   }
 
   $: if (gesturesDisabled) {

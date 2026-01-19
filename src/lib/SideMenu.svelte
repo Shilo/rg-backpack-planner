@@ -1,20 +1,21 @@
 <script lang="ts">
   import packageInfo from "../../package.json";
   import SideMenuSection from "./SideMenuSection.svelte";
+  import TreeContextMenuList from "./TreeContextMenuList.svelte";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
   export let onLoadBuild: (() => void) | null = null;
   export let onSaveBuild: (() => void) | null = null;
   export let onResetPoints: (() => void) | null = null;
-  export let onCenterView: (() => void) | null = null;
+  export let onFocusInView: (() => void) | null = null;
   const title = packageInfo.name;
 
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
 
-  function handleCenterView() {
-    onCenterView?.();
+  function handleFocusInView() {
+    onFocusInView?.();
     onClose?.();
   }
 
@@ -50,13 +51,7 @@
       </button>
     </SideMenuSection>
     <SideMenuSection title="View">
-      <button
-        class="button button-md"
-        type="button"
-        on:click={handleCenterView}
-      >
-        Center view
-      </button>
+      <TreeContextMenuList onFocusInView={handleFocusInView} />
     </SideMenuSection>
     <SideMenuSection title="Settings">
       <button class="button button-md" type="button" on:click={onResetPoints}>

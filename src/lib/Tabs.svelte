@@ -28,8 +28,10 @@
   let activeIndex = 0;
   let bottomInset = 0;
   let tabsBarEl: HTMLDivElement | null = null;
-  let treeRef: { centerTree?: () => void; cancelGestures?: () => void } | null =
-    null;
+  let treeRef: {
+    focusTreeInView?: () => void;
+    cancelGestures?: () => void;
+  } | null = null;
   let tabContextMenu: {
     id: string;
     label: string;
@@ -188,17 +190,17 @@
     tabContextMenu = null;
   }
 
-  async function centerTab(tabId: string) {
+  async function focusTabInView(tabId: string) {
     const index = tabs.findIndex((tab) => tab.id === tabId);
     if (index === -1) return;
     setActive(index);
     await tick();
-    centerActiveTree();
+    focusActiveTreeInView();
     closeTabMenu();
   }
 
-  export function centerActiveTree() {
-    treeRef?.centerTree?.();
+  export function focusActiveTreeInView() {
+    treeRef?.focusTreeInView?.();
   }
 
   function handleTabClick(index: number) {
@@ -270,7 +272,7 @@
     y={tabContextMenu?.y ?? 0}
     isOpen={!!tabContextMenu}
     onClose={closeTabMenu}
-    onCenter={centerTab}
+    onFocusInView={focusTabInView}
   />
 </div>
 
