@@ -22,12 +22,12 @@
     type LongPressState,
   } from "./longPress";
   import {
-    ensureTabLevels,
-    resetAllTabLevels,
-    resetTabLevels,
-    setTabLevels,
-    tabLevels,
-  } from "./tabLevelsStore";
+    ensureTreeLevels,
+    resetAllTreeLevels,
+    resetTreeLevels,
+    setTreeLevels,
+    treeLevels,
+  } from "./treeLevelsStore";
   import { techCrystalsSpentByTree } from "./techCrystalsStore";
   import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
 
@@ -114,7 +114,7 @@
     activeLabel = tabs[activeIndex]?.label ?? tabs[0].label;
   }
 
-  $: ensureTabLevels(tabs);
+  $: ensureTreeLevels(tabs);
 
   function clearTabPress() {
     clearLongPress(tabPressState);
@@ -262,7 +262,7 @@
   }
 
   function resetLevelsForTab(index: number) {
-    resetTabLevels(index, tabs);
+    resetTreeLevels(index, tabs);
     if (index === activeIndex) {
       treeRef?.triggerFade?.();
     }
@@ -286,7 +286,7 @@
     for (let index = 0; index < tabs.length; index += 1) {
       refundTreeSpent(index);
     }
-    resetAllTabLevels(tabs);
+    resetAllTreeLevels(tabs);
     treeRef?.triggerFade?.();
 
     closeTabMenu();
@@ -306,7 +306,7 @@
   }
 
   function handleLevelsChange(nextLevels: Record<string, number>) {
-    setTabLevels(activeIndex, { ...nextLevels });
+    setTreeLevels(activeIndex, { ...nextLevels });
   }
 </script>
 
@@ -358,7 +358,7 @@
         <Tree
           bind:this={treeRef}
           nodes={tabs[activeIndex].nodes}
-          levelsById={$tabLevels[activeIndex] ?? {}}
+          levelsById={$treeLevels[activeIndex] ?? {}}
           onLevelsChange={handleLevelsChange}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
