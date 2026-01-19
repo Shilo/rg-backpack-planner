@@ -317,6 +317,21 @@
     return Math.min(Math.max(value, min), max);
   }
 
+  function onWheel(event: WheelEvent) {
+    if (gesturesDisabled) return;
+    if (!viewportEl) return;
+    if (pointers.size > 0) return;
+    const rect = viewportEl.getBoundingClientRect();
+    const localX = event.clientX - rect.left;
+    const localY = event.clientY - rect.top;
+    const world = screenToWorld(localX, localY);
+    const zoomFactor = Math.exp(-event.deltaY * 0.002);
+    const nextScale = clamp(scale * zoomFactor, minScale, maxScale);
+    scale = nextScale;
+    offsetX = localX - world.x * scale;
+    offsetY = localY - world.y * scale;
+  }
+
   export function centerTree() {
     if (!viewportEl || nodes.length === 0) return;
     const xs = nodes.map((node) => node.x);
@@ -373,6 +388,7 @@
     on:pointerup={onPointerUp}
     on:pointercancel={onPointerUp}
     on:pointerleave={onPointerUp}
+    on:wheel|passive={onWheel}
   >
     <div
       class="tree-canvas"
@@ -437,6 +453,7 @@
     flex: 1;
     overflow: hidden;
     touch-action: none;
+    overscroll-behavior: none;
   }
 
   .tree-canvas {
