@@ -23,6 +23,7 @@
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
+  export let gesturesDisabled = false;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -129,6 +130,24 @@
     return target instanceof HTMLElement && !!target.closest(".context-menu");
   }
 
+  function cancelActiveGestures() {
+    if (viewportEl) {
+      for (const pointerId of pointers.keys()) {
+        viewportEl.releasePointerCapture(pointerId);
+      }
+    }
+    pointers.clear();
+    panStart = null;
+    pinchStart = null;
+    primaryPointerId = null;
+    primaryStart = null;
+    panActive = false;
+  }
+
+  export function cancelGestures() {
+    cancelActiveGestures();
+  }
+
   function startNodeLongPress(pointerId: number) {
     startLongPress(longPressState, () => {
       const pointer = pointers.get(pointerId);
@@ -137,6 +156,7 @@
       suppressTooltip(pointerId);
       hideTooltip();
       contextMenu = { id: pointer.nodeId, x: pointer.x, y: pointer.y };
+      cancelActiveGestures();
       return true;
     });
   }
@@ -149,6 +169,13 @@
 
   function onPointerDown(event: PointerEvent) {
     if (!viewportEl) return;
+    if (gesturesDisabled) return;
+    if (contextMenu) {
+      if (isInContextMenu(event.target)) return;
+      closeContextMenu();
+      cancelActiveGestures();
+      return;
+    }
     viewportEl.setPointerCapture(event.pointerId);
     const nodeId = getNodeIdFromTarget(event.target);
     pointers.set(event.pointerId, {
@@ -158,9 +185,6 @@
       startY: event.clientY,
       nodeId,
     });
-    if (!isInContextMenu(event.target)) {
-      closeContextMenu();
-    }
     longPressState.fired = false;
 
     if (pointers.size === 1) {
@@ -190,6 +214,7 @@
   }
 
   function onPointerMove(event: PointerEvent) {
+    if (gesturesDisabled) return;
     if (!pointers.has(event.pointerId)) return;
     const pointer = pointers.get(event.pointerId)!;
     pointers.set(event.pointerId, {
@@ -332,6 +357,10 @@
 
   $: if (viewportEl) {
     centerTree();
+  }
+
+  $: if (gesturesDisabled) {
+    cancelActiveGestures();
   }
 </script>
 
