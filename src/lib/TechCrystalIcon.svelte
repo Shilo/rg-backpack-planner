@@ -4,11 +4,8 @@
   export let className = "";
 </script>
 
-<span
-  class={`currency-icon ${className}`.trim()}
-  aria-hidden="true"
->
-  <Hexagon size={22} fill="currentColor" stroke="none" />
+<span class={`currency-icon ${className}`.trim()} aria-hidden="true">
+  <Hexagon size={20} fill="currentColor" stroke="none" />
 </span>
 
 <style>
@@ -20,6 +17,6 @@
     justify-content: center;
     flex: 0 0 auto;
     margin-left: 2px;
-    color: #7dd3fc;
+    color: #4fa3d9;
   }
 </style>
