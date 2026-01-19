@@ -9,6 +9,7 @@
     Mouse,
     MousePointer2,
     Move,
+    Share2,
     ZoomIn,
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
@@ -174,7 +175,7 @@
     </div>
     <div class="help-controls">
       <section class="help-section">
-        <h3>On-screen buttons</h3>
+        <h3>On-screen HUD</h3>
         <ul class="control-list">
           <div class="help-shortcut">
             <span class="control-icon" aria-hidden="true">
@@ -185,6 +186,11 @@
               <p class="control-desc">View spent and set owned amount</p>
             </div>
           </div>
+        </ul>
+      </section>
+      <section class="help-section">
+        <h3>Side menu</h3>
+        <ul class="control-list">
           <div class="help-shortcut">
             <span class="control-icon" aria-hidden="true">
               <Menu />
@@ -192,6 +198,15 @@
             <div class="control-text">
               <p class="control-label">Side menu button</p>
               <p class="control-desc">Show or hide additional options</p>
+            </div>
+          </div>
+          <div class="help-shortcut">
+            <span class="control-icon" aria-hidden="true">
+              <Share2 />
+            </span>
+            <div class="control-text">
+              <p class="control-label">Share button</p>
+              <p class="control-desc">Copy a shareable build link</p>
             </div>
           </div>
         </ul>
@@ -216,7 +231,7 @@
       {/if}
       {#if showPointer}
         <section class="help-section">
-          <h3>Pointer controls</h3>
+          <h3>Mouse controls</h3>
           <ul class="control-list">
             {#each pointerControls as control (control.id)}
               <li class="control-item">

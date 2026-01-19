@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, Hexagon, Share2, Trash2 } from "lucide-svelte";
-  import packageInfo from "../../package.json";
+  import { Github, HelpCircle, Hexagon, Share2, Trash2 } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -22,8 +21,6 @@
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
   export let activeTreeName = "";
-  const title = packageInfo.name;
-
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
 
@@ -95,30 +92,40 @@
         }}
       />
     </SideMenuSection>
-    <SideMenuSection title="SUPPORT">
-      <Button
-        on:click={() => {
-          onShareBuild?.();
-        }}
-        toastMessage={onShareBuild
-          ? "Share link copied to clipboard"
-          : undefined}
-        icon={Share2}
-      >
-        Share build
-      </Button>
-      <Button
-        on:click={() => {
-          onHelp?.();
-          // onClose?.();
-        }}
-        icon={HelpCircle}
-      >
-        Help
-      </Button>
-    </SideMenuSection>
   </nav>
-  <h2 class="side-menu__title">{title}</h2>
+  <div class="side-menu__footer">
+    <Button
+      class="side-menu__footer-button"
+      on:click={() => onShareBuild?.()}
+      toastMessage={onShareBuild ? "Share link copied to clipboard" : undefined}
+      icon={Share2}
+      aria-label="Share build"
+      tooltipText="Share build"
+      small
+    ></Button>
+    <Button
+      class="side-menu__footer-button"
+      on:click={() => onHelp?.()}
+      icon={HelpCircle}
+      aria-label="Help"
+      tooltipText="Help"
+      small
+    ></Button>
+    <Button
+      class="side-menu__footer-button"
+      on:click={() => {
+        window.open(
+          "https://github.com/shilo/rg-backpack-planner",
+          "_blank",
+          "noopener,noreferrer",
+        );
+      }}
+      icon={Github}
+      aria-label="GitHub"
+      tooltipText="View source on GitHub"
+      small
+    ></Button>
+  </div>
 </aside>
 
 <style>
@@ -163,24 +170,6 @@
     transform: translateX(0);
   }
 
-  .side-menu__title {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    height: 32px;
-    width: calc(100% - 10px - 32px - 10px);
-    line-height: 32px;
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin: 0;
-    font-size: 0.85rem;
-    color: #e7efff;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
   .side-menu__content {
     display: grid;
     gap: 18px;
@@ -188,7 +177,7 @@
     padding-left: 10px;
     padding-right: 10px;
     scrollbar-gutter: stable;
-    max-height: calc(100% - 42px);
+    max-height: calc(100% - 58px);
   }
 
   .side-menu__content::before {
@@ -201,5 +190,19 @@
     content: "";
     height: 0px;
     display: block;
+  }
+
+  .side-menu__footer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding: 0 10px 10px;
+
+    :global(button) {
+      width: 32px;
+      height: 32px;
+    }
   }
 </style>
