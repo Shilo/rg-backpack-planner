@@ -510,9 +510,7 @@
       focusTreeInView();
     }
     const handleResize = () => {
-      if (autoFocus) {
-        focusTreeInView();
-      }
+      focusTreeInView();
     };
     window.addEventListener("resize", handleResize, { passive: true });
     return () => {
