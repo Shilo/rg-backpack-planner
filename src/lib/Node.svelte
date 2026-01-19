@@ -3,23 +3,40 @@
 </script>
 
 <script lang="ts">
+  import { CheckCircle2, Crown, Lock, Plus } from "lucide-svelte";
+  import Button from "./Button.svelte";
+
   export let id: string;
   export let label: string = "";
   export let level: number = 0;
   export let maxLevel: number = 1;
   export let state: NodeState = "locked";
+
+  const stateIcons = {
+    locked: Lock,
+    available: Plus,
+    active: CheckCircle2,
+    maxed: Crown,
+  } as const;
+
+  $: NodeIcon = stateIcons[state] ?? Lock;
 </script>
 
-<button class="node {state}" aria-label={label || id} data-node-id={id}>
-  <span class="node-icon" aria-hidden="true"></span>
+<Button
+  class={`node ${state}`}
+  aria-label={label || id}
+  data-node-id={id}
+  icon={NodeIcon}
+  iconClass="node-icon"
+>
   <span class="node-level">{level}/{maxLevel}</span>
   {#if label}
     <span class="node-label">{label}</span>
   {/if}
-</button>
+</Button>
 
 <style>
-  .node {
+  :global(.button.node) {
     position: relative;
     width: 64px;
     height: 64px;
@@ -34,13 +51,18 @@
     touch-action: none;
     user-select: none;
     padding: 0;
+    text-align: center;
   }
 
-  .node-icon {
+  :global(.button.node.with-icon) {
+    display: grid;
+    justify-content: center;
+    gap: 0;
+  }
+
+  :global(.node-icon) {
     width: 24px;
     height: 24px;
-    border-radius: 6px;
-    background: currentColor;
     opacity: 0.7;
   }
 
@@ -59,28 +81,28 @@
     opacity: 0.75;
   }
 
-  .locked {
+  :global(.button.node.locked) {
     background: #1b2235;
     border-color: #2c3550;
     color: #6c7aa1;
     cursor: not-allowed;
   }
 
-  .available {
+  :global(.button.node.available) {
     background: #1c2f52;
     border-color: #4c6fff;
     color: #cdd7ff;
     box-shadow: 0 0 0 2px rgba(76, 111, 255, 0.2);
   }
 
-  .active {
+  :global(.button.node.active) {
     background: #2a3f73;
     border-color: #5aa6ff;
     color: #e1f0ff;
     box-shadow: 0 0 0 2px rgba(90, 166, 255, 0.3);
   }
 
-  .maxed {
+  :global(.button.node.maxed) {
     background: #4a2e0a;
     border-color: #ffb347;
     color: #ffe8c7;

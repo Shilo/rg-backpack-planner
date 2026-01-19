@@ -120,5 +120,4 @@
     color: rgba(201, 214, 245, 0.75);
     padding-left: 4px;
   }
-
 </style>

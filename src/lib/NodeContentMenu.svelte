@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { ArrowUp, RotateCcw } from "lucide-svelte";
+  import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
 
   export let nodeId = "";
@@ -18,20 +20,15 @@
   ariaLabel="Node actions"
   {onClose}
 >
-  <button
-    type="button"
-    class="button button-md"
-    on:click={() => onMax?.(nodeId)}
-    disabled={!nodeId}
-  >
+  <Button on:click={() => onMax?.(nodeId)} disabled={!nodeId} icon={ArrowUp}>
     Max
-  </button>
-  <button
-    type="button"
-    class="button button-md button-negative"
+  </Button>
+  <Button
     on:click={() => onReset?.(nodeId)}
     disabled={!nodeId}
+    icon={RotateCcw}
+    negative
   >
     Reset
-  </button>
+  </Button>
 </ContextMenu>

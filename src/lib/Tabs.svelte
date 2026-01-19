@@ -9,7 +9,9 @@
 </script>
 
 <script lang="ts">
+  import { Menu, TreePine, X } from "lucide-svelte";
   import { onMount, tick } from "svelte";
+  import Button from "./Button.svelte";
   import Tree from "./Tree.svelte";
   import TreeContextMenu from "./TreeContextMenu.svelte";
   import {
@@ -253,30 +255,34 @@
   <div class="tabs-bar" bind:this={tabsBarEl}>
     <div class="tab-buttons">
       {#each tabs as tab, index}
-        <button
-          class="button button-sm"
-          class:active={index === activeIndex}
+        <Button
+          class={index === activeIndex ? "active" : ""}
           on:click={() => onTabClick(index)}
-          on:contextmenu={(event) => openTabMenu(event, tab)}
-          on:pointerdown={(event) => startTabPress(event, tab)}
-          on:pointermove={moveTabPress}
+          on:contextmenu={(event: Event) =>
+            openTabMenu(event as MouseEvent, tab)}
+          on:pointerdown={(event: Event) =>
+            startTabPress(event as PointerEvent, tab)}
+          on:pointermove={(event: Event) => moveTabPress(event as PointerEvent)}
           on:pointerup={clearTabPress}
           on:pointercancel={clearTabPress}
           on:pointerleave={clearTabPress}
+          icon={TreePine}
+          small
         >
           {tab.label}
-        </button>
+        </Button>
       {/each}
     </div>
   </div>
-  <button
-    class="menu-button button-sm"
+  <Button
+    class="menu-button"
     aria-label={isMenuOpen ? "Close menu" : "Menu"}
-    use:tooltip={isMenuOpen ? "Close menu" : "Open menu"}
+    tooltipText={isMenuOpen ? "Close menu" : "Open menu"}
     on:click={() => onMenuClick?.()}
-  >
-    {isMenuOpen ? "✕" : "⋮"}
-  </button>
+    icon={isMenuOpen ? X : Menu}
+    iconClass="menu-button-icon"
+    small
+  ></Button>
 
   <div
     class="tabs-content"
@@ -350,7 +356,7 @@
     min-width: 0;
   }
 
-  .tab-buttons button {
+  :global(.tab-buttons button) {
     color: #8fa4ce;
     padding: 0 10px;
     height: var(--tab-height);
@@ -363,15 +369,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
   }
 
-  .tab-buttons button.active {
+  :global(.tab-buttons button.active) {
     background: rgba(34, 49, 82, 0.78);
     color: #e7efff;
     border-color: #4f6fbf;
   }
 
-  .menu-button {
+  :global(.menu-button) {
     border: 1px solid #2c3c61;
     background: rgba(17, 27, 45, 0.7);
     color: #c9d6f5;
@@ -387,6 +394,11 @@
     right: var(--bar-pad);
     bottom: var(--bar-pad);
     z-index: 12;
+  }
+
+  :global(.menu-button-icon) {
+    width: 18px;
+    height: 18px;
   }
 
   .tabs-content {

@@ -1,23 +1,23 @@
 <script lang="ts">
-  import { tooltip } from "./tooltip";
+  import { Focus, RotateCcw } from "lucide-svelte";
+  import Button from "./Button.svelte";
 
   export let onFocusInView: (() => void) | null = null;
   export let onReset: (() => void) | null = null;
 </script>
 
-<button
-  type="button"
-  class="button button-md"
+<Button
   on:click={() => onFocusInView?.()}
-  use:tooltip={"Fit nodes in view by resetting zoom and pan"}
+  tooltipText={"Fit nodes in view by resetting zoom and pan"}
+  icon={Focus}
 >
   Focus in view
-</button>
-<button
-  type="button"
-  class="button button-md button-negative"
+</Button>
+<Button
   on:click={() => onReset?.()}
-  use:tooltip={"Revert tree nodes to level 0 and refund all Tech Crystals"}
+  tooltipText={"Revert tree nodes to level 0 and refund all Tech Crystals"}
+  icon={RotateCcw}
+  negative
 >
   Reset tree
-</button>
+</Button>

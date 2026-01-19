@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { HelpCircle, RotateCcw, Share2, X } from "lucide-svelte";
   import packageInfo from "../../package.json";
+  import Button from "./Button.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
-  import { tooltip } from "./tooltip";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
@@ -29,24 +30,23 @@
   }
 </script>
 
-<button
-  class="menu-backdrop"
+<Button
+  class={`menu-backdrop${isOpen ? " visible" : ""}`}
   aria-label="Close menu"
-  class:visible={isOpen}
-  bind:this={backdropEl}
+  bind:element={backdropEl}
   tabindex={isOpen ? 0 : -1}
   inert={!isOpen}
   on:click={() => onClose?.()}
-></button>
+  icon={X}
+  iconClass="menu-backdrop-icon"
+></Button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
     <SideMenuSection title="General">
-      <button class="button button-md" type="button" on:click={onShareBuild}>
+      <Button on:click={() => onShareBuild?.()} icon={Share2}>
         Share build
-      </button>
-      <button class="button button-md" type="button" on:click={onHelp}>
-        Help
-      </button>
+      </Button>
+      <Button on:click={() => onHelp?.()} icon={HelpCircle}>Help</Button>
     </SideMenuSection>
     <SideMenuSection title={`${activeTreeName} Tree`}>
       <TreeContextMenuList
@@ -61,24 +61,24 @@
       />
     </SideMenuSection>
     <SideMenuSection title="Global">
-      <button
-        class="button button-md button-negative"
-        type="button"
+      <Button
         on:click={() => {
           onResetAll?.();
           onClose?.();
         }}
-        use:tooltip={"Revert all nodes to level 0 and refund Tech Crystals"}
+        tooltipText={"Revert all nodes to level 0 and refund Tech Crystals"}
+        icon={RotateCcw}
+        negative
       >
         Reset all
-      </button>
+      </Button>
     </SideMenuSection>
   </nav>
   <h2 class="side-menu__title">{title}</h2>
 </aside>
 
 <style>
-  .menu-backdrop {
+  :global(.menu-backdrop) {
     position: fixed;
     inset: 0;
     background: rgba(3, 6, 15, 0.6);
@@ -90,7 +90,17 @@
     z-index: 7;
   }
 
-  .menu-backdrop.visible {
+  :global(.menu-backdrop-icon) {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    color: #d4e1ff;
+    opacity: 0.7;
+  }
+
+  :global(.menu-backdrop.visible) {
     opacity: 1;
     pointer-events: auto;
   }
