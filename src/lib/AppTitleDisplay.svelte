@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { HelpCircle } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
 
@@ -12,7 +11,6 @@
   type="button"
   small
   aria-label={title}
-  icon={HelpCircle}
   iconClass="app-title-icon"
   on:click={() => onHelp?.()}
 >
@@ -24,7 +22,7 @@
     position: fixed;
     top: 10px;
     left: 10px;
-    z-index: 10;
+    z-index: 8;
     border-radius: 999px !important;
     display: inline-flex;
     align-items: center;
