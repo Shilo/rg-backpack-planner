@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from "./Button.svelte";
+  import TechCrystalIcon from "./TechCrystalIcon.svelte";
 
   export let available = 0;
   export let owned: number = 0;
@@ -31,11 +32,7 @@
     <span class="currency-separator"> / </span>
     <span class="currency-owned">{ownedText}</span>
   {/if}
-  <span class="currency-icon" aria-hidden="true">
-    <svg viewBox="0 0 24 24" role="img" focusable="false">
-      <path d="M12 2l6 6-6 14-6-14 6-6z" fill="currentColor" />
-    </svg>
-  </span>
+  <TechCrystalIcon />
 </Button>
 
 <style>
@@ -69,19 +66,5 @@
 
   .currency-owned {
     color: #c7d6ff;
-  }
-
-  .currency-icon {
-    width: 22px;
-    height: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #7dd3fc;
-  }
-
-  .currency-icon svg {
-    width: 100%;
-    height: 100%;
   }
 </style>

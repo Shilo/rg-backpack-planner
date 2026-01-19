@@ -17,7 +17,7 @@
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
-  let techCrystals: [available: number, owned: number] = [0, 0];
+  let techCrystals: [available: number, owned: number] = [1, 1];
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
