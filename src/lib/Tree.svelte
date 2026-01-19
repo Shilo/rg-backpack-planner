@@ -12,6 +12,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Node, { type NodeState } from "./Node.svelte";
+  import NodeContentMenu from "./NodeContentMenu.svelte";
+  import {
+    LONG_PRESS_MOVE_THRESHOLD,
+    clearLongPress,
+    startLongPress,
+    type LongPressState,
+  } from "./longPress";
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
@@ -55,11 +62,7 @@
   let primaryStart: { x: number; y: number; nodeId: string | null } | null =
     null;
 
-  let longPressTimer: number | null = null;
-  let longPressFired = false;
-
-  const LONG_PRESS_MS = 450;
-  const DRAG_THRESHOLD = 8;
+  const longPressState: LongPressState = { timer: null, fired: false };
 
   $: {
     for (const node of nodes) {
@@ -125,23 +128,14 @@
     return target instanceof HTMLElement && !!target.closest(".context-menu");
   }
 
-  function clearLongPress() {
-    if (longPressTimer !== null) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  }
-
-  function startLongPress(pointerId: number) {
-    clearLongPress();
-    longPressFired = false;
-    longPressTimer = window.setTimeout(() => {
+  function startNodeLongPress(pointerId: number) {
+    startLongPress(longPressState, () => {
       const pointer = pointers.get(pointerId);
-      if (!pointer || panActive || pointers.size !== 1) return;
-      if (!pointer.nodeId) return;
-      longPressFired = true;
+      if (!pointer || panActive || pointers.size !== 1) return false;
+      if (!pointer.nodeId) return false;
       contextMenu = { id: pointer.nodeId, x: pointer.x, y: pointer.y };
-    }, LONG_PRESS_MS);
+      return true;
+    });
   }
 
   function getNodeIdFromTarget(target: EventTarget | null) {
@@ -164,7 +158,7 @@
     if (!isInContextMenu(event.target)) {
       closeContextMenu();
     }
-    longPressFired = false;
+    longPressState.fired = false;
 
     if (pointers.size === 1) {
       primaryPointerId = event.pointerId;
@@ -177,11 +171,11 @@
         offsetY,
       };
       if (nodeId) {
-        startLongPress(event.pointerId);
+        startNodeLongPress(event.pointerId);
       }
     } else if (pointers.size === 2) {
-      clearLongPress();
-      longPressFired = false;
+      clearLongPress(longPressState);
+      longPressState.fired = false;
       const [p1, p2] = Array.from(pointers.values());
       const centerX = (p1.x + p2.x) / 2;
       const centerY = (p1.y + p2.y) / 2;
@@ -209,9 +203,9 @@
       const dxTotal = event.clientX - (primaryStart?.x ?? event.clientX);
       const dyTotal = event.clientY - (primaryStart?.y ?? event.clientY);
       const distance = Math.hypot(dxTotal, dyTotal);
-      if (!panActive && distance > DRAG_THRESHOLD) {
+      if (!panActive && distance > LONG_PRESS_MOVE_THRESHOLD) {
         panActive = true;
-        clearLongPress();
+        clearLongPress(longPressState);
       }
 
       if (panActive) {
@@ -224,7 +218,7 @@
     }
 
     if (pointers.size === 2 && pinchStart) {
-      clearLongPress();
+      clearLongPress(longPressState);
       panActive = false;
       const [p1, p2] = Array.from(pointers.values());
       const centerX = (p1.x + p2.x) / 2;
@@ -247,13 +241,13 @@
     }
     const pointer = pointers.get(event.pointerId);
     pointers.delete(event.pointerId);
-    clearLongPress();
+    clearLongPress(longPressState);
 
     if (
       pointer &&
       event.pointerId === primaryPointerId &&
       !panActive &&
-      !longPressFired &&
+      !longPressState.fired &&
       pointers.size === 0 &&
       pointer.nodeId
     ) {
@@ -283,7 +277,7 @@
       primaryPointerId = null;
       primaryStart = null;
       panActive = false;
-      longPressFired = false;
+      longPressState.fired = false;
     }
   }
 
@@ -384,15 +378,15 @@
       {/each}
     </div>
 
-    {#if contextMenu}
-      <div
-        class="context-menu"
-        style={`left: ${contextMenu.x}px; top: ${contextMenu.y}px;`}
-      >
-        <button on:click={() => maxNode(contextMenu!.id)}>Max</button>
-        <button on:click={() => resetNode(contextMenu!.id)}>Reset</button>
-      </div>
-    {/if}
+    <NodeContentMenu
+      nodeId={contextMenu?.id ?? null}
+      x={contextMenu?.x ?? 0}
+      y={contextMenu?.y ?? 0}
+      isOpen={!!contextMenu}
+      onClose={closeContextMenu}
+      onMax={maxNode}
+      onReset={resetNode}
+    />
   </div>
 </div>
 
@@ -438,26 +432,5 @@
 
   .node-wrapper {
     position: absolute;
-  }
-
-  .context-menu {
-    position: fixed;
-    transform: translate(-50%, -10%);
-    background: #0f192b;
-    border: 1px solid #2f3f66;
-    border-radius: 10px;
-    padding: 8px;
-    display: grid;
-    gap: 6px;
-    z-index: 20;
-  }
-
-  .context-menu button {
-    background: #1c2b4a;
-    border: 1px solid #33456e;
-    color: #e7efff;
-    font-size: 0.75rem;
-    padding: 6px 10px;
-    border-radius: 8px;
   }
 </style>

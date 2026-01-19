@@ -9,8 +9,15 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import Tree from "./Tree.svelte";
+  import TreeContextMenu from "./TreeContextMenu.svelte";
+  import {
+    clearLongPress,
+    isLongPressMovement,
+    startLongPress,
+    type LongPressState,
+  } from "./longPress";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
@@ -20,6 +27,15 @@
   let bottomInset = 0;
   let tabsBarEl: HTMLDivElement | null = null;
   let treeRef: { centerTree?: () => void } | null = null;
+  let tabContextMenu: {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+  } | null = null;
+  const tabPressState: LongPressState = { timer: null, fired: false };
+  let tabPressStart: { x: number; y: number } | null = null;
+  let tabPressPoint: { x: number; y: number } | null = null;
 
   onMount(() => {
     if (!tabsBarEl) return;
@@ -40,8 +56,76 @@
     activeIndex = clampIndex(index);
   }
 
+  function clearTabPress() {
+    clearLongPress(tabPressState);
+    tabPressStart = null;
+    tabPressPoint = null;
+  }
+
+  function startTabPress(event: PointerEvent, tab: TabConfig) {
+    tabPressStart = { x: event.clientX, y: event.clientY };
+    tabPressPoint = { x: event.clientX, y: event.clientY };
+    startLongPress(tabPressState, () => {
+      const point = tabPressPoint ?? tabPressStart;
+      if (!point) return false;
+      tabContextMenu = {
+        id: tab.id,
+        label: tab.label,
+        x: point.x,
+        y: point.y,
+      };
+      return true;
+    });
+  }
+
+  function moveTabPress(event: PointerEvent) {
+    if (!tabPressStart) return;
+    tabPressPoint = { x: event.clientX, y: event.clientY };
+    if (
+      isLongPressMovement(
+        tabPressStart.x,
+        tabPressStart.y,
+        event.clientX,
+        event.clientY,
+      )
+    ) {
+      clearTabPress();
+    }
+  }
+
+  function openTabMenu(event: MouseEvent, tab: TabConfig) {
+    event.preventDefault();
+    tabContextMenu = {
+      id: tab.id,
+      label: tab.label,
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+
+  function closeTabMenu() {
+    tabContextMenu = null;
+  }
+
+  async function centerTab(tabId: string) {
+    const index = tabs.findIndex((tab) => tab.id === tabId);
+    if (index === -1) return;
+    setActive(index);
+    await tick();
+    centerActiveTree();
+    closeTabMenu();
+  }
+
   export function centerActiveTree() {
     treeRef?.centerTree?.();
+  }
+
+  function handleTabClick(index: number) {
+    if (tabPressState.fired) {
+      tabPressState.fired = false;
+      return;
+    }
+    setActive(index);
   }
 </script>
 
@@ -51,7 +135,13 @@
       {#each tabs as tab, index}
         <button
           class:active={index === activeIndex}
-          on:click={() => setActive(index)}
+          on:click={() => handleTabClick(index)}
+          on:contextmenu={(event) => openTabMenu(event, tab)}
+          on:pointerdown={(event) => startTabPress(event, tab)}
+          on:pointermove={moveTabPress}
+          on:pointerup={clearTabPress}
+          on:pointercancel={clearTabPress}
+          on:pointerleave={clearTabPress}
         >
           {tab.label}
         </button>
@@ -71,6 +161,16 @@
       <Tree bind:this={treeRef} nodes={tabs[activeIndex].nodes} {bottomInset} />
     {/if}
   </div>
+
+  <TreeContextMenu
+    tabId={tabContextMenu?.id ?? null}
+    tabLabel={tabContextMenu?.label ?? ""}
+    x={tabContextMenu?.x ?? 0}
+    y={tabContextMenu?.y ?? 0}
+    isOpen={!!tabContextMenu}
+    onClose={closeTabMenu}
+    onCenter={centerTab}
+  />
 </div>
 
 <style>
