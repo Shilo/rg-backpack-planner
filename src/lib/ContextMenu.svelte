@@ -13,6 +13,9 @@
   let boundedY = 0;
 
   const MENU_MARGIN = 8;
+  const TOUCH_OFFSET_Y = 32;
+
+  const isCoarsePointer = () => window.matchMedia("(pointer: coarse)").matches;
 
   function handleDocumentPointer(event: PointerEvent) {
     if (!isOpen) return;
@@ -34,9 +37,10 @@
   function updateBounds() {
     if (!menuEl) {
       boundedX = x;
-      boundedY = y;
+      boundedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
       return;
     }
+    const adjustedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
     const rect = menuEl.getBoundingClientRect();
     const offsetX = rect.width / 2;
     const offsetY = rect.height * 0.1;
@@ -49,7 +53,7 @@
       window.innerHeight - rect.height - MENU_MARGIN,
     );
     const left = clamp(x - offsetX, MENU_MARGIN, maxLeft);
-    const top = clamp(y - offsetY, MENU_MARGIN, maxTop);
+    const top = clamp(adjustedY - offsetY, MENU_MARGIN, maxTop);
     boundedX = left + offsetX;
     boundedY = top + offsetY;
   }
