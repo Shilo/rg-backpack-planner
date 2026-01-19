@@ -108,6 +108,17 @@
           ["Cannon", `${$treeLevelsCannon}`],
         ]}
       />
+      <CodeBlockTable
+        headers={["Backpack Skill", "Boost"]}
+        rows={[
+          ["TODO", "TODO"],
+          ["Attack Boost", "10,000%"],
+          ["Defense Boost", "30,000%"],
+          ["Critical Hit", "160%"],
+          ["Global ATK", "200%"],
+          ["Final Damage Boost", "20%"],
+        ]}
+      />
     </SideMenuSection>
   </nav>
   <div class="side-menu__footer">
