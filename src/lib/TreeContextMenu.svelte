@@ -19,6 +19,7 @@
   {x}
   {y}
   {isOpen}
+  title={tabLabel || "Tab actions"}
   ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
   {onClose}
 >

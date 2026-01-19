@@ -20,7 +20,14 @@
   }
 </script>
 
-<ContextMenu {x} {y} {isOpen} ariaLabel="Node actions" {onClose}>
+<ContextMenu
+  {x}
+  {y}
+  {isOpen}
+  title={nodeId ?? "Node actions"}
+  ariaLabel="Node actions"
+  {onClose}
+>
   <button type="button" on:click={handleMax} disabled={!nodeId}>Max</button>
   <button type="button" on:click={handleReset} disabled={!nodeId}>Reset</button>
 </ContextMenu>

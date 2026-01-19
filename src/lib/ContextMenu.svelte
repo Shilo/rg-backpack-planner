@@ -4,6 +4,7 @@
   export let x = 0;
   export let y = 0;
   export let isOpen = false;
+  export let title = "Menu";
   export let ariaLabel = "Context menu";
   export let onClose: (() => void) | null = null;
 
@@ -88,6 +89,7 @@
     role="menu"
     aria-label={ariaLabel}
   >
+    <div class="context-menu__title">{title}</div>
     <slot />
   </div>
 {/if}
@@ -104,6 +106,14 @@
     gap: 6px;
     z-index: 20;
     width: max-content;
+  }
+
+  .context-menu__title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(201, 214, 245, 0.75);
+    padding: 2px 4px;
   }
 
   :global(.context-menu button) {
