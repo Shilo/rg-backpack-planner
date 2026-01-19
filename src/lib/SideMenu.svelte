@@ -2,6 +2,7 @@
   import { HelpCircle, Share2, Trash2 } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
+  import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
 
@@ -13,6 +14,7 @@
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
   export let activeTreeName = "";
+  export let techCrystals: [number, number] = [0, 0];
   const title = packageInfo.name;
 
   let backdropEl: HTMLButtonElement | null = null;
@@ -42,12 +44,19 @@
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
     <SideMenuSection title="Tech Crystals Spent">
+      <CodeBlockTable
+        headers={["Item", "Amount"]}
+        rows={[
+          ["Spent", `${techCrystals[0]}`],
+          ["Owned", `${techCrystals[1]}`],
+        ]}
+      />
       <Button
         on:click={() => {
           onResetAll?.();
           onClose?.();
         }}
-        toastMessage={onResetAll ? "All trees reset." : undefined}
+        toastMessage={onResetAll ? "All trees reset" : undefined}
         toastNegative
         tooltipText={"Revert all nodes to level 0 and refund Tech Crystals"}
         icon={Trash2}
@@ -74,7 +83,7 @@
           onShareBuild?.();
         }}
         toastMessage={onShareBuild
-          ? "Share link copied to clipboard."
+          ? "Share link copied to clipboard"
           : undefined}
         icon={Share2}
       >

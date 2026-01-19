@@ -181,6 +181,7 @@
     onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
     onResetTree={() => tabsRef?.resetActiveTree?.()}
     onResetAll={() => tabsRef?.resetAllTrees?.()}
+    {techCrystals}
     {activeTreeName}
   />
   <TechCrystalsDisplay available={techCrystals[0]} owned={techCrystals[1]} />

@@ -25,7 +25,7 @@
       if (!nodeId || !onMax) return;
       onMax(nodeId);
     }}
-    toastMessage={nodeId && onMax ? `Maxed ${nodeId}.` : undefined}
+    toastMessage={nodeId && onMax ? `Maxed ${nodeId}` : undefined}
     disabled={!nodeId}
     icon={ArrowUp}
   >
@@ -36,7 +36,7 @@
       if (!nodeId || !onReset) return;
       onReset(nodeId);
     }}
-    toastMessage={nodeId && onReset ? `Reset ${nodeId}.` : undefined}
+    toastMessage={nodeId && onReset ? `Reset ${nodeId}` : undefined}
     toastNegative
     disabled={!nodeId}
     icon={RotateCcw}

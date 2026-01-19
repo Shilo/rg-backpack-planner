@@ -64,6 +64,7 @@
     bottom: calc(var(--bar-pad, 10px) + var(--tab-height, 32px) + 10px);
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: 10px;
     z-index: 40;
     pointer-events: none;
@@ -75,8 +76,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
-    min-width: 220px;
-    max-width: 320px;
+    width: fit-content;
     border-radius: 10px;
     background: rgba(31, 45, 72, 0.96);
     border: 1px solid rgba(89, 118, 188, 0.6);

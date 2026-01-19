@@ -8,7 +8,7 @@
 
 <Button
   on:click={() => onFocusInView?.()}
-  toastMessage={onFocusInView ? "Tree focused in view." : undefined}
+  toastMessage={onFocusInView ? "Tree focused in view" : undefined}
   tooltipText={"Fit nodes in view by resetting zoom and pan"}
   icon={Focus}
 >
@@ -16,7 +16,7 @@
 </Button>
 <Button
   on:click={() => onReset?.()}
-  toastMessage={onReset ? "Tree reset." : undefined}
+  toastMessage={onReset ? "Tree reset" : undefined}
   toastNegative
   tooltipText={"Revert tree nodes to level 0 and refund all Tech Crystals"}
   icon={RotateCcw}
