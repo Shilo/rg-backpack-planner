@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from "./tooltip";
+  import Button from "./Button.svelte";
 
   export let available = 0;
   export let owned: number = 0;
@@ -14,11 +14,12 @@
     : `${tooltipPrefix} spent`;
 </script>
 
-<button
+<Button
   class="currency-display"
   type="button"
+  small
   aria-label="Tech Crystals"
-  use:tooltip={tooltipText}
+  {tooltipText}
 >
   <span
     class="currency-available"
@@ -35,32 +36,21 @@
       <path d="M12 2l6 6-6 14-6-14 6-6z" fill="currentColor" />
     </svg>
   </span>
-</button>
+</Button>
 
 <style>
-  .currency-display {
-    border: 1px solid rgba(92, 126, 200, 0.6);
-    background: rgba(17, 27, 45, 0.7);
-    cursor: default;
-    font: inherit;
-    color: inherit;
-    padding: 6px 10px 6px 12px;
-    text-align: left;
-    -webkit-user-select: none;
-    user-select: none;
-    appearance: none;
-    -webkit-appearance: none;
+  :global(.currency-display) {
     position: fixed;
     top: 10px;
     right: 10px;
     z-index: 25;
+    border-radius: 999px !important;
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    border-radius: 999px;
-    box-shadow: none;
+    padding: 6px 10px 6px 12px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.95rem !important;
     letter-spacing: 0.02em;
   }
 
