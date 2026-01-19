@@ -80,7 +80,7 @@
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 10px;
   }
 
   .tab-buttons button {
