@@ -4,73 +4,57 @@
 
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import {
-    usePress,
-    useTap,
-    type PressCustomEvent,
-    type TapCustomEvent,
-  } from "svelte-gestures";
 
   export let id: string;
   export let label: string = "";
   export let level: number = 0;
   export let maxLevel: number = 1;
   export let state: NodeState = "locked";
-  export let interactionLocked: boolean = false;
 
   const dispatch = createEventDispatcher<{
     level: { id: string };
     context: { id: string; x: number; y: number };
   }>();
 
-  let pressBlocked = false;
-  let pressResetTimer: number | null = null;
+  let longPressTimer: number | null = null;
+  let longPressTriggered = false;
 
-  function resetPressBlock() {
-    if (pressResetTimer !== null) {
-      clearTimeout(pressResetTimer);
-      pressResetTimer = null;
+  const LONG_PRESS_MS = 450;
+
+  function clearLongPress() {
+    if (longPressTimer !== null) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
     }
-    pressBlocked = false;
   }
 
-  function onTap(event: TapCustomEvent) {
-    if (interactionLocked || pressBlocked) return;
+  function onPointerDown(event: PointerEvent) {
+    longPressTriggered = false;
+    clearLongPress();
+    longPressTimer = window.setTimeout(() => {
+      longPressTriggered = true;
+      dispatch("context", { id, x: event.clientX, y: event.clientY });
+    }, LONG_PRESS_MS);
+  }
+
+  function onPointerUp() {
+    clearLongPress();
+  }
+
+  function onClick() {
+    if (longPressTriggered) return;
     if (state === "locked") return;
     if (level >= maxLevel) return;
     dispatch("level", { id });
-  }
-
-  function onPress(event: PressCustomEvent) {
-    if (interactionLocked) return;
-    pressBlocked = true;
-    if (pressResetTimer !== null) {
-      clearTimeout(pressResetTimer);
-    }
-    pressResetTimer = window.setTimeout(() => {
-      pressBlocked = false;
-    }, 300);
-
-    const target = event.detail.target as HTMLElement | null;
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
-    dispatch("context", {
-      id,
-      x: rect.left + event.detail.x,
-      y: rect.top + event.detail.y,
-    });
   }
 </script>
 
 <button
   class="node {state}"
-  {...useTap(onTap, () => ({ timeframe: 240, touchAction: "none" }))}
-  {...usePress(onPress, () => ({
-    timeframe: 450,
-    triggerBeforeFinished: true,
-    spread: 8,
-    touchAction: "none",
-  }))}
+  on:pointerdown|stopPropagation={onPointerDown}
+  on:pointerup|stopPropagation={onPointerUp}
+  on:pointercancel|stopPropagation={onPointerUp}
+  on:click|stopPropagation={onClick}
   aria-label={label || id}
 >
   <span class="node-icon" aria-hidden="true"></span>
