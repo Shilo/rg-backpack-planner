@@ -11,6 +11,11 @@
     resetAllTrees?: () => void;
   } | null = null;
   let activeTreeName = "";
+  let swipeStartX: number | null = null;
+  let swipeStartY: number | null = null;
+  let swipeLastX: number | null = null;
+  let isSwiping = false;
+  const swipeCloseThreshold = 70;
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -103,9 +108,67 @@
   function closeMenu() {
     isMenuOpen = false;
   }
+
+  function resetSwipeState() {
+    swipeStartX = null;
+    swipeStartY = null;
+    swipeLastX = null;
+    isSwiping = false;
+  }
+
+  function handleTouchStart(event: TouchEvent) {
+    if (!isMenuOpen || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    swipeStartX = touch.clientX;
+    swipeStartY = touch.clientY;
+    swipeLastX = touch.clientX;
+    isSwiping = false;
+  }
+
+  function handleTouchMove(event: TouchEvent) {
+    if (!isMenuOpen || swipeStartX === null || swipeStartY === null) return;
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - swipeStartX;
+    const deltaY = touch.clientY - swipeStartY;
+    swipeLastX = touch.clientX;
+
+    if (!isSwiping) {
+      if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 10) {
+        isSwiping = true;
+      } else {
+        return;
+      }
+    }
+
+    if (isSwiping) {
+      event.preventDefault();
+    }
+  }
+
+  function handleTouchEnd() {
+    if (!isMenuOpen || swipeStartX === null || swipeLastX === null) {
+      resetSwipeState();
+      return;
+    }
+
+    const deltaX = swipeLastX - swipeStartX;
+    if (isSwiping && deltaX > swipeCloseThreshold) {
+      closeMenu();
+    }
+
+    resetSwipeState();
+  }
 </script>
 
-<div class="app-shell" role="application" on:contextmenu|preventDefault>
+<div
+  class="app-shell"
+  role="application"
+  on:contextmenu|preventDefault
+  on:touchstart={handleTouchStart}
+  on:touchmove={handleTouchMove}
+  on:touchend={handleTouchEnd}
+  on:touchcancel={handleTouchEnd}
+>
   <SideMenu
     isOpen={isMenuOpen}
     onClose={closeMenu}
