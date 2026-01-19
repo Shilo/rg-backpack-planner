@@ -24,7 +24,7 @@
     position: fixed;
     top: 10px;
     left: 10px;
-    z-index: 6;
+    z-index: 10;
     border-radius: 999px !important;
     display: inline-flex;
     align-items: center;
