@@ -29,6 +29,9 @@
   export let onNodeLevelChange:
     | ((delta: number, nodeId?: string) => void)
     | null = null;
+  export let levelsById: Record<string, number> | null = null;
+  export let onLevelsChange: ((levels: Record<string, number>) => void) | null =
+    null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -72,11 +75,29 @@
   const longPressState: LongPressState = { timer: null, fired: false };
   let fadeKey = 0;
 
+  function updateLevels(nextLevels: Record<string, number>) {
+    levels = nextLevels;
+    onLevelsChange?.(levels);
+  }
+
+  $: if (levelsById) {
+    levels = { ...levelsById };
+  }
+
   $: {
+    let nextLevels = levels;
+    let changed = false;
     for (const node of nodes) {
-      if (!(node.id in levels)) {
-        levels = { ...levels, [node.id]: 0 };
+      if (!(node.id in nextLevels)) {
+        if (nextLevels === levels) {
+          nextLevels = { ...levels };
+        }
+        nextLevels[node.id] = 0;
+        changed = true;
       }
+    }
+    if (changed) {
+      updateLevels(nextLevels);
     }
   }
 
@@ -116,7 +137,7 @@
     const level = getLevel(id);
     const nextLevel = Math.min(level + 1, node.maxLevel);
     if (nextLevel === level) return false;
-    levels = { ...levels, [id]: nextLevel };
+    updateLevels({ ...levels, [id]: nextLevel });
     onNodeLevelChange?.(1, id);
     return true;
   }
@@ -124,7 +145,7 @@
   function resetNode(id: string) {
     const level = getLevel(id);
     if (level === 0) return;
-    levels = { ...levels, [id]: 0 };
+    updateLevels({ ...levels, [id]: 0 });
     onNodeLevelChange?.(-level, id);
   }
 
@@ -134,7 +155,7 @@
     if (getState(node) === "locked") return;
     const level = getLevel(id);
     if (level >= node.maxLevel) return;
-    levels = { ...levels, [id]: node.maxLevel };
+    updateLevels({ ...levels, [id]: node.maxLevel });
     onNodeLevelChange?.(node.maxLevel - level, id);
   }
 
@@ -143,7 +164,7 @@
       (sum, value) => sum + value,
       0,
     );
-    levels = Object.fromEntries(nodes.map((node) => [node.id, 0]));
+    updateLevels(Object.fromEntries(nodes.map((node) => [node.id, 0])));
     if (totalSpent > 0) {
       onNodeLevelChange?.(-totalSpent, "all");
     }

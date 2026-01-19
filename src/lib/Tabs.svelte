@@ -48,6 +48,7 @@
     x: number;
     y: number;
   } | null = null;
+  let tabLevels: Record<string, number>[] = [];
   let hasMounted = false;
   let lastActiveTabId = "";
   const tabPressState: LongPressState = { timer: null, fired: false };
@@ -105,6 +106,16 @@
 
   $: if (tabs.length > 0) {
     activeLabel = tabs[activeIndex]?.label ?? tabs[0].label;
+  }
+
+  function initLevels(nodes: TreeNode[]) {
+    return Object.fromEntries(nodes.map((node) => [node.id, 0]));
+  }
+
+  $: if (tabs.length > 0) {
+    tabLevels = tabs.map(
+      (tab, index) => tabLevels[index] ?? initLevels(tab.nodes),
+    );
   }
 
   function clearTabPress() {
@@ -279,6 +290,7 @@
     }
 
     resetActiveTree();
+    tabLevels = tabs.map((tab) => initLevels(tab.nodes));
 
     closeTabMenu();
   }
@@ -294,6 +306,12 @@
   function handleNodeLevelChange(techCrystalDelta: number, nodeId?: string) {
     if (!tabs[activeIndex]) return;
     onNodeLevelChange?.(activeIndex, techCrystalDelta, nodeId);
+  }
+
+  function handleLevelsChange(nextLevels: Record<string, number>) {
+    tabLevels = tabLevels.map((levels, index) =>
+      index === activeIndex ? { ...nextLevels } : levels,
+    );
   }
 </script>
 
@@ -345,6 +363,8 @@
         <Tree
           bind:this={treeRef}
           nodes={tabs[activeIndex].nodes}
+          levelsById={tabLevels[activeIndex] ?? {}}
+          onLevelsChange={handleLevelsChange}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
           {onNodeLevelUp}
