@@ -68,8 +68,12 @@
     left: 18px;
     bottom: 10px;
     height: 36px;
-    display: flex;
-    align-items: center;
+    width: calc(100% - 18px - 56px);
+    line-height: 36px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     margin: 0;
     font-size: 1rem;
     color: #e7efff;
