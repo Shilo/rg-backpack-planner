@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, Share2, Trash2 } from "lucide-svelte";
+  import { HelpCircle, Hexagon, Share2, Trash2 } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
@@ -43,14 +43,25 @@
 ></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <SideMenuSection title="Tech Crystals Spent">
+    <SideMenuSection title="Tech Crystals">
       <CodeBlockTable
-        headers={["Item", "Amount"]}
+        headers={["Spent", "Amount"]}
         rows={[
-          ["Spent", `${techCrystals[0]}`],
-          ["Owned", `${techCrystals[1]}`],
+          ["Total", `${techCrystals[0]}`],
+          ["Guardian", `${techCrystals[0]}`],
+          ["Vanguard", `${techCrystals[0]}`],
+          ["Cannon", `${techCrystals[0]}`],
         ]}
       />
+      <Button
+        on:click={() => {
+          //todo
+        }}
+        tooltipText={"Change Tech Crystal budget"}
+        icon={Hexagon}
+      >
+        Owned: {techCrystals[1]}
+      </Button>
       <Button
         on:click={() => {
           onResetAll?.();
@@ -120,7 +131,7 @@
     height: 100%;
     width: 78vw;
     max-width: 85%;
-    width: min(260px, 85%);
+    width: min(217px, 85%);
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
@@ -149,7 +160,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: #e7efff;
     letter-spacing: 0.08em;
     text-transform: uppercase;

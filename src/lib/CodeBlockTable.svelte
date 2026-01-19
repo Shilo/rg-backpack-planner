@@ -81,19 +81,33 @@
   .codeblock-table {
     display: grid;
     gap: 8px;
+    border: 1px solid rgba(74, 110, 184, 0.35);
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .codeblock-table__table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 0.8rem;
   }
 
   .codeblock-table__table th,
   .codeblock-table__table td {
-    border: 1px solid rgba(74, 110, 184, 0.35);
+    border-top: 1px solid rgba(74, 110, 184, 0.35);
+    border-left: 1px solid rgba(74, 110, 184, 0.35);
     padding: 6px 8px;
     text-align: left;
+  }
+
+  .codeblock-table__table thead tr:first-child th {
+    border-top: none;
+  }
+
+  .codeblock-table__table th:first-child,
+  .codeblock-table__table td:first-child {
+    border-left: none;
   }
 
   .codeblock-table__table thead {
@@ -113,23 +127,13 @@
   }
 
   :global(.codeblock-table__copy) {
-    margin-left: auto;
-    white-space: nowrap;
-    padding: 4px;
-    min-height: 24px;
-    border-radius: 8px;
-    background: transparent;
-    border-color: transparent;
-    color: #a7b7e6;
-  }
-
-  :global(.codeblock-table__copy:hover) {
-    background: rgba(15, 23, 42, 0.4);
-    border-color: rgba(74, 110, 184, 0.35);
-    color: #dbe6ff;
-  }
-
-  :global(.codeblock-table__copy:active) {
-    transform: scale(0.96);
+    padding: 0px !important;
+    min-height: 0px !important;
+    border-radius: 0px !important;
+    background: transparent !important;
+    border: none !important;
+    color: #a7b7e6 !important;
+    width: 17px !important;
+    height: 17px !important;
   }
 </style>

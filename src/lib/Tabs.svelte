@@ -286,7 +286,7 @@
           on:pointerleave={clearTabPress}
           small
         >
-          {tab.label}
+          <span class="tab-label">{tab.label}</span>
         </Button>
       {/each}
     </div>
@@ -340,7 +340,7 @@
   .tabs-root {
     --bar-pad: 10px;
     --menu-width: 32px;
-    --menu-gap: 10px;
+    --menu-gap: 6px;
     --tab-height: 32px;
     display: flex;
     flex-direction: column;
@@ -370,7 +370,7 @@
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    gap: 6px;
     min-width: 0;
   }
 
@@ -381,13 +381,19 @@
     border-radius: 10px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    min-width: 0;
+  }
+
+  .tab-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
   }
 
   :global(.tab-buttons button.active) {

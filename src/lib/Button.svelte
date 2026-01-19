@@ -98,6 +98,7 @@
     color: #d4e1ff;
     border-radius: 12px;
     text-align: left;
+    line-height: 1;
     transition:
       border-color 0.2s ease,
       color 0.2s ease,
@@ -144,14 +145,15 @@
   }
 
   .button-sm {
-    min-height: 32px;
+    height: 32px;
     font-size: 0.75rem;
   }
 
   .button-md {
-    min-height: 42px;
-    padding: 10px 14px;
-    font-size: 0.9rem;
+    min-height: 38px;
+    height: 38px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
 
   .button-negative {

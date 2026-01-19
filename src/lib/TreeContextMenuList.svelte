@@ -7,14 +7,6 @@
 </script>
 
 <Button
-  on:click={() => onFocusInView?.()}
-  toastMessage={onFocusInView ? "Tree focused in view" : undefined}
-  tooltipText={"Fit nodes in view by resetting zoom and pan"}
-  icon={Focus}
->
-  Focus in view
-</Button>
-<Button
   on:click={() => onReset?.()}
   toastMessage={onReset ? "Tree reset" : undefined}
   toastNegative
@@ -23,4 +15,12 @@
   negative
 >
   Reset tree
+</Button>
+<Button
+  on:click={() => onFocusInView?.()}
+  toastMessage={onFocusInView ? "Tree focused in view" : undefined}
+  tooltipText={"Fit nodes in view by resetting zoom and pan"}
+  icon={Focus}
+>
+  Focus in view
 </Button>

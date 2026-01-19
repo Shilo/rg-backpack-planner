@@ -40,7 +40,7 @@
     position: fixed;
     top: 10px;
     right: 10px;
-    z-index: 25;
+    z-index: 6;
     border-radius: 999px !important;
     display: inline-flex;
     align-items: center;
