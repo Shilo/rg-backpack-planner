@@ -60,20 +60,15 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    position: relative;
+    background: radial-gradient(circle at top, #162238, #0c1425 75%);
   }
 
   .tabs-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px 10px 0;
     background: transparent;
-    z-index: 5;
   }
 
   .tab-buttons {
@@ -113,6 +108,5 @@
   .tabs-content {
     flex: 1;
     min-height: 0;
-    height: 100%;
   }
 </style>

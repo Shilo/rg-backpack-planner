@@ -36,14 +36,23 @@
   };
   const pointers = new Map<number, PointerState>();
 
-  let panStart: { x: number; y: number; offsetX: number; offsetY: number } | null = null;
-  let pinchStart:
-    | { distance: number; worldX: number; worldY: number; scale: number }
-    | null = null;
+  let panStart: {
+    x: number;
+    y: number;
+    offsetX: number;
+    offsetY: number;
+  } | null = null;
+  let pinchStart: {
+    distance: number;
+    worldX: number;
+    worldY: number;
+    scale: number;
+  } | null = null;
   let panActive = false;
 
   let primaryPointerId: number | null = null;
-  let primaryStart: { x: number; y: number; nodeId: string | null } | null = null;
+  let primaryStart: { x: number; y: number; nodeId: string | null } | null =
+    null;
 
   let longPressTimer: number | null = null;
   let longPressFired = false;
@@ -66,8 +75,8 @@
     nodes.flatMap((node) =>
       (node.parentIds ?? []).map((parentId) => ({
         from: parentId,
-        to: node.id
-      }))
+        to: node.id,
+      })),
     );
 
   function getLevel(id: string) {
@@ -149,7 +158,7 @@
       y: event.clientY,
       startX: event.clientX,
       startY: event.clientY,
-      nodeId
+      nodeId,
     });
     if (!isInContextMenu(event.target)) {
       closeContextMenu();
@@ -164,7 +173,7 @@
         x: event.clientX,
         y: event.clientY,
         offsetX,
-        offsetY
+        offsetY,
       };
       if (nodeId) {
         startLongPress(event.pointerId);
@@ -188,10 +197,14 @@
     pointers.set(event.pointerId, {
       ...pointer,
       x: event.clientX,
-      y: event.clientY
+      y: event.clientY,
     });
 
-    if (pointers.size === 1 && panStart && primaryPointerId === event.pointerId) {
+    if (
+      pointers.size === 1 &&
+      panStart &&
+      primaryPointerId === event.pointerId
+    ) {
       const dxTotal = event.clientX - (primaryStart?.x ?? event.clientX);
       const dyTotal = event.clientY - (primaryStart?.y ?? event.clientY);
       const distance = Math.hypot(dxTotal, dyTotal);
@@ -219,7 +232,7 @@
       const nextScale = clamp(
         pinchStart.scale * (distance / pinchStart.distance),
         minScale,
-        maxScale
+        maxScale,
       );
       scale = nextScale;
       offsetX = centerX - pinchStart.worldX * scale;
@@ -253,14 +266,14 @@
       primaryStart = {
         x: remaining.x,
         y: remaining.y,
-        nodeId: remaining.nodeId
+        nodeId: remaining.nodeId,
       };
       panActive = false;
       panStart = {
         x: remaining.x,
         y: remaining.y,
         offsetX,
-        offsetY
+        offsetY,
       };
       pinchStart = null;
     } else if (pointers.size === 0) {
@@ -289,11 +302,19 @@
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
-    const width = maxX - minX;
-    const height = maxY - minY;
+    const width = maxX - minX + 64;
+    const height = maxY - minY + 64;
     const rect = viewportEl.getBoundingClientRect();
-    offsetX = rect.width / 2 - (minX + width / 2);
-    offsetY = rect.height / 2 - (minY + height / 2);
+    const padding = 24;
+    const availableW = Math.max(rect.width - padding * 2, 1);
+    const availableH = Math.max(rect.height - padding * 2, 1);
+    scale = clamp(
+      Math.min(availableW / width, availableH / height),
+      minScale,
+      maxScale,
+    );
+    offsetX = rect.width / 2 - (minX + width / 2) * scale;
+    offsetY = rect.height / 2 - (minY + height / 2) * scale;
   }
 
   onMount(() => {
@@ -373,7 +394,6 @@
     position: relative;
     flex: 1;
     overflow: hidden;
-    background: radial-gradient(circle at top, #162238, #0c1425 75%);
     touch-action: none;
   }
 
