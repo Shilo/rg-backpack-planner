@@ -40,7 +40,7 @@
     pointer-events: none;
     transition: opacity 0.2s ease;
     border: none;
-    padding: 0 0 64px;
+    padding: 10px 0 64px;
     z-index: 7;
   }
 
@@ -75,10 +75,10 @@
 
   .side-menu__title {
     position: absolute;
-    left: 18px;
+    left: 10px;
     bottom: 10px;
     height: 36px;
-    width: calc(100% - 18px - 56px);
+    width: calc(100% - 10px - 56px);
     line-height: 36px;
     display: block;
     overflow: hidden;
@@ -95,12 +95,19 @@
     display: grid;
     gap: 12px;
     overflow-y: auto;
-    padding-left: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
     scrollbar-gutter: stable;
     max-height: calc(100% - 46px);
   }
 
   .side-menu__content::before {
+    content: "";
+    height: 0px;
+    display: block;
+  }
+
+  .side-menu__content::after {
     content: "";
     height: 0px;
     display: block;
