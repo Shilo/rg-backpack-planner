@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
 
   export let x = 0;
   export let y = 0;
@@ -8,6 +8,10 @@
   export let onClose: (() => void) | null = null;
 
   let menuEl: HTMLDivElement | null = null;
+  let boundedX = 0;
+  let boundedY = 0;
+
+  const MENU_MARGIN = 8;
 
   function handleDocumentPointer(event: PointerEvent) {
     if (!isOpen) return;
@@ -22,25 +26,65 @@
     }
   }
 
+  function clamp(value: number, min: number, max: number) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function updateBounds() {
+    if (!menuEl) {
+      boundedX = x;
+      boundedY = y;
+      return;
+    }
+    const rect = menuEl.getBoundingClientRect();
+    const offsetX = rect.width / 2;
+    const offsetY = rect.height * 0.1;
+    const maxLeft = Math.max(
+      MENU_MARGIN,
+      window.innerWidth - rect.width - MENU_MARGIN,
+    );
+    const maxTop = Math.max(
+      MENU_MARGIN,
+      window.innerHeight - rect.height - MENU_MARGIN,
+    );
+    const left = clamp(x - offsetX, MENU_MARGIN, maxLeft);
+    const top = clamp(y - offsetY, MENU_MARGIN, maxTop);
+    boundedX = left + offsetX;
+    boundedY = top + offsetY;
+  }
+
   onMount(() => {
     document.addEventListener("pointerdown", handleDocumentPointer, {
       capture: true,
     });
     document.addEventListener("keydown", handleKeydown);
+    const handleResize = () => {
+      if (isOpen) {
+        updateBounds();
+      }
+    };
+    window.addEventListener("resize", handleResize);
     return () => {
       document.removeEventListener("pointerdown", handleDocumentPointer, {
         capture: true,
       });
       document.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("resize", handleResize);
     };
   });
+
+  $: if (isOpen) {
+    x;
+    y;
+    tick().then(updateBounds);
+  }
 </script>
 
 {#if isOpen}
   <div
     class="context-menu"
     bind:this={menuEl}
-    style={`left: ${x}px; top: ${y}px;`}
+    style={`left: ${boundedX}px; top: ${boundedY}px;`}
     role="menu"
     aria-label={ariaLabel}
   >
@@ -59,6 +103,7 @@
     display: grid;
     gap: 6px;
     z-index: 20;
+    width: max-content;
   }
 
   :global(.context-menu button) {
