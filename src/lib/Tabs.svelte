@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { TreeNode } from "./Tree.svelte";
+  import type { TreeNode, TreeViewState } from "./Tree.svelte";
 
   export type TabConfig = {
     id: string;
@@ -48,6 +48,7 @@
     resetAllNodes?: () => void;
     triggerFade?: () => void;
     cancelGestures?: () => void;
+    getViewState?: () => TreeViewState;
   } | null = null;
   let tabContextMenu: {
     id: string;
@@ -65,6 +66,7 @@
   let backgroundPressStart: { x: number; y: number } | null = null;
   let backgroundPressPoint: { x: number; y: number } | null = null;
   let backgroundPressPointerId: number | null = null;
+  let lastViewState: TreeViewState | null = null;
 
   function getPointerEvent(event: Event) {
     const detail = (event as CustomEvent<PointerEvent>).detail;
@@ -99,6 +101,7 @@
   }
 
   function setActive(index: number) {
+    lastViewState = treeRef?.getViewState?.() ?? lastViewState;
     activeIndex = clampIndex(index);
   }
 
@@ -362,6 +365,7 @@
           onLevelsChange={handleLevelsChange}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
+          initialViewState={lastViewState}
           {onNodeLevelUp}
           onNodeLevelChange={handleNodeLevelChange}
         />

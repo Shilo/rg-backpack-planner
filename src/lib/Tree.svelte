@@ -7,6 +7,12 @@
     label?: string;
     parentIds?: string[];
   };
+
+  export type TreeViewState = {
+    offsetX: number;
+    offsetY: number;
+    scale: number;
+  };
 </script>
 
 <script lang="ts">
@@ -25,6 +31,7 @@
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
   export let gesturesDisabled = false;
+  export let initialViewState: TreeViewState | null = null;
   export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
   export let onNodeLevelChange:
     | ((delta: number, nodeId?: string) => void)
@@ -74,6 +81,7 @@
 
   const longPressState: LongPressState = { timer: null, fired: false };
   let fadeKey = 0;
+  let autoFocus = true;
 
   function updateLevels(nextLevels: Record<string, number>) {
     levels = nextLevels;
@@ -167,6 +175,23 @@
     updateLevels(Object.fromEntries(nodes.map((node) => [node.id, 0])));
     if (totalSpent > 0) {
       onNodeLevelChange?.(-totalSpent, "all");
+    }
+  }
+
+  export function getViewState() {
+    return { offsetX, offsetY, scale };
+  }
+
+  export function setViewState(view: TreeViewState | null) {
+    if (!view) return;
+    autoFocus = false;
+    scale = clamp(view.scale, minScale, maxScale);
+    offsetX = view.offsetX;
+    offsetY = view.offsetY;
+    if (viewportEl) {
+      const clamped = clampOffsets(offsetX, offsetY);
+      offsetX = clamped.x;
+      offsetY = clamped.y;
     }
   }
 
@@ -470,9 +495,15 @@
   }
 
   onMount(() => {
-    focusTreeInView();
-    const handleResize = () => {
+    if (initialViewState) {
+      setViewState(initialViewState);
+    } else {
       focusTreeInView();
+    }
+    const handleResize = () => {
+      if (autoFocus) {
+        focusTreeInView();
+      }
     };
     window.addEventListener("resize", handleResize, { passive: true });
     return () => {
@@ -480,7 +511,7 @@
     };
   });
 
-  $: if (viewportEl) {
+  $: if (viewportEl && autoFocus) {
     focusTreeInView();
   }
 
