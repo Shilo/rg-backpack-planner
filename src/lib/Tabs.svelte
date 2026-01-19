@@ -9,8 +9,9 @@
 </script>
 
 <script lang="ts">
-  import { Menu, TreePine, X } from "lucide-svelte";
+  import { Menu, X } from "lucide-svelte";
   import { onMount, tick } from "svelte";
+  import { get } from "svelte/store";
   import Button from "./Button.svelte";
   import Tree from "./Tree.svelte";
   import TreeContextMenu from "./TreeContextMenu.svelte";
@@ -20,6 +21,7 @@
     startLongPress,
     type LongPressState,
   } from "./longPress";
+  import { techCrystalsSpentByTree } from "./techCrystalsStore";
   import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
 
   export let tabs: TabConfig[] = [];
@@ -246,6 +248,13 @@
   async function resetTabTree(tabId: string) {
     const index = tabs.findIndex((tab) => tab.id === tabId);
     if (index === -1) return;
+    const wasActive = index === activeIndex;
+    if (!wasActive) {
+      const spent = get(techCrystalsSpentByTree)[index] ?? 0;
+      if (spent !== 0) {
+        onNodeLevelChange?.(index, -spent, "all");
+      }
+    }
     setActive(index);
     await tick();
     resetActiveTree();
@@ -258,8 +267,20 @@
   }
 
   export function resetAllTrees() {
-    // TODO
+    if (tabs.length === 0) return;
+    const spentByTree = get(techCrystalsSpentByTree);
+
+    for (let index = 0; index < tabs.length; index += 1) {
+      if (index === activeIndex) continue;
+      const spent = spentByTree[index] ?? 0;
+      if (spent !== 0) {
+        onNodeLevelChange?.(index, -spent, "all");
+      }
+    }
+
     resetActiveTree();
+
+    closeTabMenu();
   }
 
   function onTabClick(index: number) {
