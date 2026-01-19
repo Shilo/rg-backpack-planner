@@ -48,7 +48,7 @@
   }
 
   function handleReset() {
-    valueText = `${Math.max(min, Math.floor(value))}`;
+    valueText = "0";
   }
 
   function handleKeydown(event: KeyboardEvent) {
