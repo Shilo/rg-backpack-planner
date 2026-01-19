@@ -98,7 +98,7 @@
   .context-menu {
     position: fixed;
     transform: translate(-50%, -10%);
-    background: #0f192b;
+    background: rgba(10, 16, 28, 0.98);
     border: 1px solid #2f3f66;
     border-radius: 10px;
     padding: 8px;
