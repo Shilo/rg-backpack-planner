@@ -34,6 +34,11 @@ export function initTechCrystalTrees(tabs: TabConfig[]) {
   techCrystalsSpentByTree.set(tabs.map(() => 0));
 }
 
+export function setTechCrystalsOwned(value: number) {
+  const nextValue = Math.max(0, Math.floor(value));
+  techCrystalsOwned.set(nextValue);
+}
+
 export function applyTechCrystalDeltaForTree(
   tabIndex: number,
   techCrystalDelta: number,

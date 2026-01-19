@@ -5,6 +5,7 @@
   import TechCrystalsDisplay from "./lib/TechCrystalsDisplay.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
+  import ModalHost from "./lib/ModalHost.svelte";
   import {
     initTechCrystalTrees,
     applyTechCrystalDeltaForTree,
@@ -203,6 +204,7 @@
     />
   </main>
   <Toasts />
+  <ModalHost />
   <Tooltip />
 </div>
 

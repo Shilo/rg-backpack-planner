@@ -5,12 +5,14 @@
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
+  import { openModal } from "./modalStore";
   import {
     techCrystalsOwned,
     techCrystalsSpentTotal,
     techCrystalsSpentGuardian,
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
+    setTechCrystalsOwned,
   } from "./techCrystalsStore";
 
   export let isOpen = false;
@@ -49,7 +51,7 @@
 ></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <SideMenuSection title="Tech Crystals">
+    <SideMenuSection title="TECH CRYSTALS">
       <CodeBlockTable
         headers={["Spent", "Amount"]}
         rows={[
@@ -61,7 +63,23 @@
       />
       <Button
         on:click={() => {
-          //todo
+          openModal({
+            type: "input",
+            title: "TECH CRYSTALS OWNED",
+            input: {
+              label: "Set your budget",
+              value: $techCrystalsOwned,
+              min: 0,
+              step: 1,
+            },
+            confirmLabel: "Save",
+            cancelLabel: "Cancel",
+            onConfirm: (value) => {
+              if (typeof value === "number") {
+                setTechCrystalsOwned(value);
+              }
+            },
+          });
         }}
         tooltipText={"Change Tech Crystal budget"}
         icon={Hexagon}
@@ -82,7 +100,7 @@
         Reset all
       </Button>
     </SideMenuSection>
-    <SideMenuSection title={`${activeTreeName} Tree`}>
+    <SideMenuSection title={`${activeTreeName.toUpperCase()} TREE`}>
       <TreeContextMenuList
         onFocusInView={() => {
           onFocusInView?.();
@@ -94,7 +112,7 @@
         }}
       />
     </SideMenuSection>
-    <SideMenuSection title="Support">
+    <SideMenuSection title="SUPPORT">
       <Button
         on:click={() => {
           onShareBuild?.();
