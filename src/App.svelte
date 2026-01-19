@@ -147,9 +147,6 @@
       }
     }
 
-    if (isSwiping) {
-      event.preventDefault();
-    }
   }
 
   function handleTouchEnd() {
@@ -177,10 +174,11 @@
 
 <div
   class="app-shell"
+  class:menu-open={isMenuOpen}
   role="application"
   on:contextmenu|preventDefault
-  on:touchstart={handleTouchStart}
-  on:touchmove={handleTouchMove}
+  on:touchstart|passive={handleTouchStart}
+  on:touchmove|passive={handleTouchMove}
   on:touchend={handleTouchEnd}
   on:touchcancel={handleTouchEnd}
 >
@@ -213,6 +211,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  .app-shell.menu-open {
+    touch-action: pan-y;
   }
 
   .app-main {
