@@ -65,7 +65,7 @@
         }}
       />
     </SideMenuSection>
-    <SideMenuSection title="TECH CRYSTALS">
+    <SideMenuSection title="TECH CRYSTAL">
       <Button
         on:click={() => {
           onResetAll?.();
@@ -88,8 +88,10 @@
       >
         Owned: {$techCrystalsOwned}
       </Button>
+    </SideMenuSection>
+    <SideMenuSection title="STATISTICS">
       <CodeBlockTable
-        headers={["Spent", "Amount"]}
+        headers={["Tech Crystal", "Spent"]}
         rows={[
           ["Total", `${$techCrystalsSpentTotal}`],
           ["Guardian", `${$techCrystalsSpentGuardian}`],
@@ -97,10 +99,8 @@
           ["Cannon", `${$techCrystalsSpentCannon}`],
         ]}
       />
-    </SideMenuSection>
-    <SideMenuSection title="LEVELS">
       <CodeBlockTable
-        headers={["Spent", "Amount"]}
+        headers={["Backpack Node", "Levels"]}
         rows={[
           ["Total", `${$treeLevelsTotal}`],
           ["Guardian", `${$treeLevelsGuardian}`],
@@ -170,7 +170,7 @@
     height: 100%;
     width: 78vw;
     max-width: 85%;
-    width: min(217px, 85%);
+    width: min(239px, 85%);
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
