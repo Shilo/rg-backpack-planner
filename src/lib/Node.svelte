@@ -3,60 +3,14 @@
 </script>
 
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-
   export let id: string;
   export let label: string = "";
   export let level: number = 0;
   export let maxLevel: number = 1;
   export let state: NodeState = "locked";
-
-  const dispatch = createEventDispatcher<{
-    level: { id: string };
-    context: { id: string; x: number; y: number };
-  }>();
-
-  let longPressTimer: number | null = null;
-  let longPressTriggered = false;
-
-  const LONG_PRESS_MS = 450;
-
-  function clearLongPress() {
-    if (longPressTimer !== null) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-  }
-
-  function onPointerDown(event: PointerEvent) {
-    longPressTriggered = false;
-    clearLongPress();
-    longPressTimer = window.setTimeout(() => {
-      longPressTriggered = true;
-      dispatch("context", { id, x: event.clientX, y: event.clientY });
-    }, LONG_PRESS_MS);
-  }
-
-  function onPointerUp() {
-    clearLongPress();
-  }
-
-  function onClick() {
-    if (longPressTriggered) return;
-    if (state === "locked") return;
-    if (level >= maxLevel) return;
-    dispatch("level", { id });
-  }
 </script>
 
-<button
-  class="node {state}"
-  on:pointerdown|stopPropagation={onPointerDown}
-  on:pointerup|stopPropagation={onPointerUp}
-  on:pointercancel|stopPropagation={onPointerUp}
-  on:click|stopPropagation={onClick}
-  aria-label={label || id}
->
+<button class="node {state}" aria-label={label || id} data-node-id={id}>
   <span class="node-icon" aria-hidden="true"></span>
   <span class="node-level">{level}/{maxLevel}</span>
   {#if label}

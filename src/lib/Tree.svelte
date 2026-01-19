@@ -27,13 +27,29 @@
   const minScale = 0.6;
   const maxScale = 2.2;
 
-  type PointerState = { x: number; y: number };
+  type PointerState = {
+    x: number;
+    y: number;
+    startX: number;
+    startY: number;
+    nodeId: string | null;
+  };
   const pointers = new Map<number, PointerState>();
 
   let panStart: { x: number; y: number; offsetX: number; offsetY: number } | null = null;
   let pinchStart:
     | { distance: number; worldX: number; worldY: number; scale: number }
     | null = null;
+  let panActive = false;
+
+  let primaryPointerId: number | null = null;
+  let primaryStart: { x: number; y: number; nodeId: string | null } | null = null;
+
+  let longPressTimer: number | null = null;
+  let longPressFired = false;
+
+  const LONG_PRESS_MS = 450;
+  const DRAG_THRESHOLD = 8;
 
   $: {
     for (const node of nodes) {
@@ -95,19 +111,67 @@
     contextMenu = null;
   }
 
+  function isInContextMenu(target: EventTarget | null) {
+    return target instanceof HTMLElement && !!target.closest(".context-menu");
+  }
+
+  function clearLongPress() {
+    if (longPressTimer !== null) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  }
+
+  function startLongPress(pointerId: number) {
+    clearLongPress();
+    longPressFired = false;
+    longPressTimer = window.setTimeout(() => {
+      const pointer = pointers.get(pointerId);
+      if (!pointer || panActive || pointers.size !== 1) return;
+      if (!pointer.nodeId) return;
+      longPressFired = true;
+      contextMenu = { id: pointer.nodeId, x: pointer.x, y: pointer.y };
+    }, LONG_PRESS_MS);
+  }
+
+  function getNodeIdFromTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) return null;
+    const nodeEl = target.closest("[data-node-id]");
+    return nodeEl?.getAttribute("data-node-id") ?? null;
+  }
+
   function onPointerDown(event: PointerEvent) {
     if (!viewportEl) return;
     viewportEl.setPointerCapture(event.pointerId);
-    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const nodeId = getNodeIdFromTarget(event.target);
+    pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY,
+      startX: event.clientX,
+      startY: event.clientY,
+      nodeId
+    });
+    if (!isInContextMenu(event.target)) {
+      closeContextMenu();
+    }
+    longPressFired = false;
 
     if (pointers.size === 1) {
+      primaryPointerId = event.pointerId;
+      primaryStart = { x: event.clientX, y: event.clientY, nodeId };
+      panActive = false;
       panStart = {
         x: event.clientX,
         y: event.clientY,
         offsetX,
         offsetY
       };
+      if (nodeId) {
+        startLongPress(event.pointerId);
+      }
     } else if (pointers.size === 2) {
+      clearLongPress();
+      longPressFired = false;
       const [p1, p2] = Array.from(pointers.values());
       const centerX = (p1.x + p2.x) / 2;
       const centerY = (p1.y + p2.y) / 2;
@@ -120,17 +184,34 @@
 
   function onPointerMove(event: PointerEvent) {
     if (!pointers.has(event.pointerId)) return;
-    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const pointer = pointers.get(event.pointerId)!;
+    pointers.set(event.pointerId, {
+      ...pointer,
+      x: event.clientX,
+      y: event.clientY
+    });
 
-    if (pointers.size === 1 && panStart) {
-      const dx = event.clientX - panStart.x;
-      const dy = event.clientY - panStart.y;
-      offsetX = panStart.offsetX + dx;
-      offsetY = panStart.offsetY + dy;
+    if (pointers.size === 1 && panStart && primaryPointerId === event.pointerId) {
+      const dxTotal = event.clientX - (primaryStart?.x ?? event.clientX);
+      const dyTotal = event.clientY - (primaryStart?.y ?? event.clientY);
+      const distance = Math.hypot(dxTotal, dyTotal);
+      if (!panActive && distance > DRAG_THRESHOLD) {
+        panActive = true;
+        clearLongPress();
+      }
+
+      if (panActive) {
+        const dx = event.clientX - panStart.x;
+        const dy = event.clientY - panStart.y;
+        offsetX = panStart.offsetX + dx;
+        offsetY = panStart.offsetY + dy;
+      }
       return;
     }
 
     if (pointers.size === 2 && pinchStart) {
+      clearLongPress();
+      panActive = false;
       const [p1, p2] = Array.from(pointers.values());
       const centerX = (p1.x + p2.x) / 2;
       const centerY = (p1.y + p2.y) / 2;
@@ -150,9 +231,31 @@
     if (viewportEl) {
       viewportEl.releasePointerCapture(event.pointerId);
     }
+    const pointer = pointers.get(event.pointerId);
     pointers.delete(event.pointerId);
+    clearLongPress();
+
+    if (
+      pointer &&
+      event.pointerId === primaryPointerId &&
+      !panActive &&
+      !longPressFired &&
+      pointers.size === 0 &&
+      pointer.nodeId
+    ) {
+      levelUp(pointer.nodeId);
+    }
+
     if (pointers.size === 1) {
-      const [remaining] = Array.from(pointers.values());
+      const remainingId = Array.from(pointers.keys())[0];
+      const remaining = Array.from(pointers.values())[0];
+      primaryPointerId = remainingId;
+      primaryStart = {
+        x: remaining.x,
+        y: remaining.y,
+        nodeId: remaining.nodeId
+      };
+      panActive = false;
       panStart = {
         x: remaining.x,
         y: remaining.y,
@@ -163,6 +266,10 @@
     } else if (pointers.size === 0) {
       panStart = null;
       pinchStart = null;
+      primaryPointerId = null;
+      primaryStart = null;
+      panActive = false;
+      longPressFired = false;
     }
   }
 
@@ -203,7 +310,6 @@
     on:pointerup={onPointerUp}
     on:pointercancel={onPointerUp}
     on:pointerleave={onPointerUp}
-    on:click={closeContextMenu}
   >
     <div
       class="tree-canvas"
@@ -236,10 +342,6 @@
             level={getLevel(node.id)}
             maxLevel={node.maxLevel}
             state={getState(node)}
-            on:level={(event) => levelUp(event.detail.id)}
-            on:context={(event) => {
-              contextMenu = event.detail;
-            }}
           />
         </div>
       {/each}
