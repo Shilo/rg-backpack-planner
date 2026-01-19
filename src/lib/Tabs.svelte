@@ -143,6 +143,21 @@
     });
   }
 
+  function openBackgroundMenu(event: MouseEvent) {
+    if (isContextMenuTarget(event.target) || isNodeTarget(event.target)) return;
+    const activeTab = tabs[activeIndex];
+    if (!activeTab) return;
+    event.preventDefault();
+    hideTooltip();
+    tabContextMenu = {
+      id: activeTab.id,
+      label: activeTab.label,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    treeRef?.cancelGestures?.();
+  }
+
   function moveBackgroundPress(event: PointerEvent) {
     if (!backgroundPressStart) return;
     backgroundPressPoint = { x: event.clientX, y: event.clientY };
@@ -226,6 +241,8 @@
 
   <div
     class="tabs-content"
+    role="presentation"
+    on:contextmenu={openBackgroundMenu}
     on:pointerdown={startBackgroundPress}
     on:pointermove={moveBackgroundPress}
     on:pointerup={clearBackgroundPress}

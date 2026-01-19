@@ -167,6 +167,16 @@
     return nodeEl?.getAttribute("data-node-id") ?? null;
   }
 
+  function onContextMenu(event: MouseEvent) {
+    if (gesturesDisabled) return;
+    const nodeId = getNodeIdFromTarget(event.target);
+    if (!nodeId) return;
+    event.preventDefault();
+    hideTooltip();
+    contextMenu = { id: nodeId, x: event.clientX, y: event.clientY };
+    cancelActiveGestures();
+  }
+
   function onPointerDown(event: PointerEvent) {
     if (!viewportEl) return;
     if (gesturesDisabled) return;
@@ -383,6 +393,8 @@
   <div
     class="tree-viewport"
     bind:this={viewportEl}
+    role="presentation"
+    on:contextmenu={onContextMenu}
     on:pointerdown={onPointerDown}
     on:pointermove={onPointerMove}
     on:pointerup={onPointerUp}
