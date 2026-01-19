@@ -5,14 +5,13 @@
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
-  import { openModal } from "./modalStore";
+  import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
   import {
     techCrystalsOwned,
     techCrystalsSpentTotal,
     techCrystalsSpentGuardian,
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
-    setTechCrystalsOwned,
   } from "./techCrystalsStore";
 
   export let isOpen = false;
@@ -63,24 +62,7 @@
       />
       <Button
         on:click={() => {
-          openModal({
-            type: "input",
-            title: "TECH CRYSTALS OWNED",
-            titleIcon: Hexagon,
-            input: {
-              label: "Set your budget",
-              value: $techCrystalsOwned,
-              min: 0,
-              step: 1,
-            },
-            confirmLabel: "Save",
-            cancelLabel: "Cancel",
-            onConfirm: (value) => {
-              if (typeof value === "number") {
-                setTechCrystalsOwned(value);
-              }
-            },
-          });
+          openTechCrystalsOwnedModal($techCrystalsOwned);
         }}
         tooltipText={"Change Tech Crystal budget"}
         icon={Hexagon}

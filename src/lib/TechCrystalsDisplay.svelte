@@ -1,6 +1,7 @@
 <script lang="ts">
   import Button from "./Button.svelte";
   import TechCrystalIcon from "./TechCrystalIcon.svelte";
+  import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
   import {
     techCrystalsAvailable,
     techCrystalsOwned,
@@ -20,6 +21,7 @@
   small
   aria-label="Tech Crystals"
   {tooltipText}
+  on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
 >
   <span
     class="currency-available"
