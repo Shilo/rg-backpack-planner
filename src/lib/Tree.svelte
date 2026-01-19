@@ -11,6 +11,7 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
@@ -65,6 +66,7 @@
     null;
 
   const longPressState: LongPressState = { timer: null, fired: false };
+  let fadeKey = 0;
 
   $: {
     for (const node of nodes) {
@@ -120,6 +122,15 @@
     if (!node) return;
     if (getState(node) === "locked") return;
     levels = { ...levels, [id]: node.maxLevel };
+  }
+
+  export function resetAllNodes() {
+    levels = Object.fromEntries(nodes.map((node) => [node.id, 0]));
+    // TODO
+  }
+
+  export function triggerFade() {
+    fadeKey += 1;
   }
 
   function closeContextMenu() {
@@ -435,66 +446,68 @@
   }
 </script>
 
-<div class="tree-root">
-  <div
-    class="tree-viewport"
-    bind:this={viewportEl}
-    role="presentation"
-    on:contextmenu={onContextMenu}
-    on:pointerdown={onPointerDown}
-    on:pointermove={onPointerMove}
-    on:pointerup={onPointerUp}
-    on:pointercancel={onPointerUp}
-    on:pointerleave={onPointerUp}
-    on:wheel|passive={onWheel}
-  >
+{#key fadeKey}
+  <div class="tree-root" in:fade={{ duration: 300 }}>
     <div
-      class="tree-canvas"
-      style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
+      class="tree-viewport"
+      bind:this={viewportEl}
+      role="presentation"
+      on:contextmenu={onContextMenu}
+      on:pointerdown={onPointerDown}
+      on:pointermove={onPointerMove}
+      on:pointerup={onPointerUp}
+      on:pointercancel={onPointerUp}
+      on:pointerleave={onPointerUp}
+      on:wheel|passive={onWheel}
     >
-      <svg class="tree-links">
-        {#each links() as link}
-          {#if nodeById.has(link.from) && nodeById.has(link.to)}
-            {@const from = nodeById.get(link.from)!}
-            {@const to = nodeById.get(link.to)!}
-            <line
-              x1={from.x + 32}
-              y1={from.y + 32}
-              x2={to.x + 32}
-              y2={to.y + 32}
-              class:link-active={getLevel(link.from) > 0}
+      <div
+        class="tree-canvas"
+        style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
+      >
+        <svg class="tree-links">
+          {#each links() as link}
+            {#if nodeById.has(link.from) && nodeById.has(link.to)}
+              {@const from = nodeById.get(link.from)!}
+              {@const to = nodeById.get(link.to)!}
+              <line
+                x1={from.x + 32}
+                y1={from.y + 32}
+                x2={to.x + 32}
+                y2={to.y + 32}
+                class:link-active={getLevel(link.from) > 0}
+              />
+            {/if}
+          {/each}
+        </svg>
+
+        {#each nodes as node}
+          <div
+            class="node-wrapper"
+            style={`left: ${node.x}px; top: ${node.y}px;`}
+          >
+            <Node
+              id={node.id}
+              label={node.label ?? ""}
+              level={getLevel(node.id)}
+              maxLevel={node.maxLevel}
+              state={getState(node)}
             />
-          {/if}
+          </div>
         {/each}
-      </svg>
+      </div>
 
-      {#each nodes as node}
-        <div
-          class="node-wrapper"
-          style={`left: ${node.x}px; top: ${node.y}px;`}
-        >
-          <Node
-            id={node.id}
-            label={node.label ?? ""}
-            level={getLevel(node.id)}
-            maxLevel={node.maxLevel}
-            state={getState(node)}
-          />
-        </div>
-      {/each}
+      <NodeContentMenu
+        nodeId={contextMenu?.id ?? ""}
+        x={contextMenu?.x ?? 0}
+        y={contextMenu?.y ?? 0}
+        isOpen={!!contextMenu}
+        onClose={closeContextMenu}
+        onMax={maxNode}
+        onReset={resetNode}
+      />
     </div>
-
-    <NodeContentMenu
-      nodeId={contextMenu?.id ?? null}
-      x={contextMenu?.x ?? 0}
-      y={contextMenu?.y ?? 0}
-      isOpen={!!contextMenu}
-      onClose={closeContextMenu}
-      onMax={maxNode}
-      onReset={resetNode}
-    />
   </div>
-</div>
+{/key}
 
 <style>
   .tree-root {

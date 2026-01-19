@@ -4,7 +4,11 @@
   import Tooltip from "./lib/Tooltip.svelte";
 
   let isMenuOpen = false;
-  let tabsRef: { focusActiveTreeInView?: () => void } | null = null;
+  let tabsRef: {
+    focusActiveTreeInView?: () => void;
+    resetActiveTree?: () => void;
+    resetAllTrees?: () => void;
+  } | null = null;
   let activeTreeName = "";
 
   const baseTree = [
@@ -105,6 +109,8 @@
     isOpen={isMenuOpen}
     onClose={closeMenu}
     onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
+    onResetTree={() => tabsRef?.resetActiveTree?.()}
+    onResetAll={() => tabsRef?.resetAllTrees?.()}
     {activeTreeName}
   />
   <main class="app-main">

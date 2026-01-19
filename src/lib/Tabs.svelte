@@ -10,7 +10,6 @@
 
 <script lang="ts">
   import { onMount, tick } from "svelte";
-  import { fade } from "svelte/transition";
   import Tree from "./Tree.svelte";
   import TreeContextMenu from "./TreeContextMenu.svelte";
   import {
@@ -31,6 +30,8 @@
   let tabsBarEl: HTMLDivElement | null = null;
   let treeRef: {
     focusTreeInView?: () => void;
+    resetAllNodes?: () => void;
+    triggerFade?: () => void;
     cancelGestures?: () => void;
   } | null = null;
   let tabContextMenu: {
@@ -39,7 +40,8 @@
     x: number;
     y: number;
   } | null = null;
-  let focusInViewKey = 0;
+  let hasMounted = false;
+  let lastActiveTabId = "";
   const tabPressState: LongPressState = { timer: null, fired: false };
   let tabPressStart: { x: number; y: number } | null = null;
   let tabPressPoint: { x: number; y: number } | null = null;
@@ -50,6 +52,7 @@
   let backgroundPressPointerId: number | null = null;
 
   onMount(() => {
+    hasMounted = true;
     if (!tabsBarEl) return;
     const observer = new ResizeObserver(() => {
       bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
@@ -66,6 +69,14 @@
 
   function setActive(index: number) {
     activeIndex = clampIndex(index);
+  }
+
+  $: {
+    const nextId = tabs[activeIndex]?.id ?? "";
+    if (hasMounted && nextId && nextId !== lastActiveTabId) {
+      lastActiveTabId = nextId;
+      void tick().then(() => treeRef?.triggerFade?.());
+    }
   }
 
   $: if (tabs.length > 0) {
@@ -207,7 +218,26 @@
 
   export function focusActiveTreeInView() {
     treeRef?.focusTreeInView?.();
-    focusInViewKey += 1;
+    treeRef?.triggerFade?.();
+  }
+
+  async function resetTabTree(tabId: string) {
+    const index = tabs.findIndex((tab) => tab.id === tabId);
+    if (index === -1) return;
+    setActive(index);
+    await tick();
+    resetActiveTree();
+    closeTabMenu();
+  }
+
+  export function resetActiveTree() {
+    treeRef?.resetAllNodes?.();
+    treeRef?.triggerFade?.();
+  }
+
+  export function resetAllTrees() {
+    // TODO
+    resetActiveTree();
   }
 
   function onTabClick(index: number) {
@@ -259,8 +289,8 @@
     on:pointerleave={clearBackgroundPress}
   >
     {#if tabs[activeIndex]}
-      {#key `${tabs[activeIndex].id}-${focusInViewKey}`}
-        <div class="tree-stage" in:fade={{ duration: 300 }}>
+      {#key tabs[activeIndex].id}
+        <div class="tree-stage">
           <Tree
             bind:this={treeRef}
             nodes={tabs[activeIndex].nodes}
@@ -280,6 +310,7 @@
     isOpen={!!tabContextMenu}
     onClose={closeTabMenu}
     onFocusInView={focusTabInView}
+    onReset={resetTabTree}
   />
 </div>
 
