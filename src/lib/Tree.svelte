@@ -138,7 +138,7 @@
   }
 
   function isInContextMenu(target: EventTarget | null) {
-    return target instanceof HTMLElement && !!target.closest(".context-menu");
+    return target instanceof Element && !!target.closest(".context-menu");
   }
 
   function cancelActiveGestures() {
@@ -173,7 +173,7 @@
   }
 
   function getNodeIdFromTarget(target: EventTarget | null) {
-    if (!(target instanceof HTMLElement)) return null;
+    if (!(target instanceof Element)) return null;
     const nodeEl = target.closest("[data-node-id]");
     return nodeEl?.getAttribute("data-node-id") ?? null;
   }

@@ -134,11 +134,11 @@
   }
 
   function isContextMenuTarget(target: EventTarget | null) {
-    return target instanceof HTMLElement && !!target.closest(".context-menu");
+    return target instanceof Element && !!target.closest(".context-menu");
   }
 
   function isNodeTarget(target: EventTarget | null) {
-    return target instanceof HTMLElement && !!target.closest("[data-node-id]");
+    return target instanceof Element && !!target.closest("[data-node-id]");
   }
 
   function startBackgroundPress(event: PointerEvent) {
