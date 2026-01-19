@@ -2,26 +2,66 @@
   import { Copy } from "lucide-svelte";
   import Button from "./Button.svelte";
   import { showToast } from "./toast";
+  import appPackage from "../../package.json";
 
   export let headers: [string, string] = ["Column A", "Column B"];
   export let rows: Array<[string, string]> = [];
   export let emptyMessage = "No data";
   export let copyLabel = "Copy";
 
+  const appName = (appPackage?.name ?? "Backpack Planner") as string;
+  const appGithubUrl = (appPackage?.github ?? undefined) as string | undefined;
+
   const normalizeCell = (value: string) =>
     value.replace(/\r?\n/g, " ").replace(/\|/g, "\\|").trim();
 
+  const padCell = (value: string, width: number) => value.padEnd(width, " ");
+  const getColumnWidths = (
+    headerValues: [string, string],
+    rowValues: Array<[string, string]>,
+  ): [number, number] => {
+    let widths: [number, number] = [
+      headerValues[0].length,
+      headerValues[1].length,
+    ];
+    for (const [first, second] of rowValues) {
+      widths = [
+        Math.max(widths[0], first.length),
+        Math.max(widths[1], second.length),
+      ];
+    }
+    return widths;
+  };
+
   $: displayRows = rows.length > 0 ? rows : [[emptyMessage, ""]];
-  $: headerRow = `| ${normalizeCell(headers[0])} | ${normalizeCell(
-    headers[1],
+  $: normalizedHeaders = headers.map((value) => normalizeCell(value)) as [
+    string,
+    string,
+  ];
+  $: normalizedRows = displayRows.map(([first, second]) => [
+    normalizeCell(first),
+    normalizeCell(second),
+  ]) as Array<[string, string]>;
+  $: columnWidths = getColumnWidths(normalizedHeaders, normalizedRows);
+  $: headerRow = `| ${padCell(
+    normalizedHeaders[0],
+    columnWidths[0],
+  )} | ${padCell(normalizedHeaders[1], columnWidths[1])} |`;
+  $: dividerRow = `| ${"-".repeat(Math.max(3, columnWidths[0]))} | ${"-".repeat(
+    Math.max(3, columnWidths[1]),
   )} |`;
-  $: dividerRow = "| --- | --- |";
-  $: markdownRows = displayRows.map(
+  $: markdownRows = normalizedRows.map(
     ([first, second]) =>
-      `| ${normalizeCell(first)} | ${normalizeCell(second)} |`,
+      `| ${padCell(first, columnWidths[0])} | ${padCell(
+        second,
+        columnWidths[1],
+      )} |`,
   );
   $: markdownTable = [headerRow, dividerRow, ...markdownRows].join("\n");
-  $: codeblockText = `\`\`\`\n${markdownTable}\n\`\`\``;
+  $: codeblockFooter = `-# ${
+    appGithubUrl ? `[${appName}](${appGithubUrl})` : appName
+  }`;
+  $: codeblockText = `\`\`\`\n${markdownTable}\n\`\`\`\n${codeblockFooter}`;
 
   async function copyCodeblock() {
     try {

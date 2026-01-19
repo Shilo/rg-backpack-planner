@@ -5,6 +5,7 @@
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
+  import appPackage from "../../package.json";
   import {
     treeLevelsTotal,
     treeLevelsGuardian,
@@ -29,6 +30,7 @@
   export let activeTreeName = "";
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
+  const appGithubUrl = (appPackage?.github ?? undefined) as string | undefined;
 
   $: if (!isOpen) {
     const active = document.activeElement;
@@ -143,7 +145,7 @@
       class="side-menu__footer-button"
       on:click={() => {
         window.open(
-          "https://github.com/shilo/rg-backpack-planner",
+          appGithubUrl ?? "https://github.com/shilo",
           "_blank",
           "noopener,noreferrer",
         );
