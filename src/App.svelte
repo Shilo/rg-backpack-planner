@@ -1,6 +1,7 @@
 <script lang="ts">
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
+  import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
   import TechCrystalsDisplay from "./lib/TechCrystalsDisplay.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
@@ -189,6 +190,7 @@
     onResetAll={() => tabsRef?.resetAllTrees?.()}
     {activeTreeName}
   />
+  <AppTitleDisplay />
   <TechCrystalsDisplay />
   <main class="app-main">
     <Tabs
