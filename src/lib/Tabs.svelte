@@ -78,6 +78,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
+    overflow: hidden;
     background: radial-gradient(circle at top, #162238, #0c1425 75%);
     position: relative;
   }
@@ -93,14 +94,16 @@
     padding: 0 calc(var(--bar-pad) + var(--menu-width) + var(--menu-gap))
       var(--bar-pad) var(--bar-pad);
     background: transparent;
+    min-width: 0;
     z-index: 6;
   }
 
   .tab-buttons {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
+    min-width: 0;
   }
 
   .tab-buttons button {
@@ -113,6 +116,9 @@
     border-radius: 10px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .tab-buttons button.active {
