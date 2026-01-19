@@ -122,6 +122,14 @@
   <label class="modal-label" for="modal-input">{label}</label>
   <div class="modal-input-row">
     <button
+      class="stepper stepper-icon reset-button"
+      type="button"
+      aria-label="Reset value"
+      on:click={handleReset}
+    >
+      <RotateCcw class="stepper-icon__svg" aria-hidden="true" />
+    </button>
+    <button
       class="stepper stepper-icon"
       type="button"
       aria-label="Decrease value"
@@ -152,16 +160,16 @@
     >
       <Plus class="stepper-icon__svg" aria-hidden="true" />
     </button>
+    <button
+      class="stepper stepper-wide"
+      type="button"
+      aria-label="Increase value by 100"
+      on:click={() => stepValue(100)}
+    >
+      +100
+    </button>
   </div>
   <div class="modal-actions">
-    <button
-      class="stepper stepper-icon reset-button"
-      type="button"
-      aria-label="Reset value"
-      on:click={handleReset}
-    >
-      <RotateCcw class="stepper-icon__svg" aria-hidden="true" />
-    </button>
     <div class="modal-actions__right">
       <Button on:click={() => onCancel?.()} negative>{cancelLabel}</Button>
       <Button on:click={handleConfirm}>{confirmLabel}</Button>
@@ -220,7 +228,7 @@
 
   .modal-input-row {
     display: grid;
-    grid-template-columns: 44px 1fr 44px;
+    grid-template-columns: 44px 44px 1fr 44px 64px;
     gap: 10px;
     align-items: center;
   }
@@ -251,21 +259,24 @@
     background: rgba(20, 30, 50, 0.9);
     color: #d7e2ff;
     font-size: 1.2rem;
-    font-weight: 600;
   }
 
   .stepper:active {
     transform: scale(0.96);
   }
 
-  .stepper-icon__svg {
+  :global(.stepper-icon__svg) {
     width: 18px;
     height: 18px;
   }
 
+  .stepper-wide {
+    width: 64px;
+  }
+
   .modal-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 10px;
   }
