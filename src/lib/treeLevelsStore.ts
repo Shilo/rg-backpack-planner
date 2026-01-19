@@ -1,9 +1,28 @@
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 import type { TreeNode } from "./Tree.svelte";
 
 export type LevelsById = Record<string, number>;
 
 export const treeLevels = writable<LevelsById[]>([]);
+
+const sumLevels = (levels: LevelsById | undefined) =>
+  Object.values(levels ?? {}).reduce((total, value) => total + value, 0);
+
+export const treeLevelsTotal = derived(treeLevels, ($trees) =>
+  $trees.reduce((total, levels) => total + sumLevels(levels), 0),
+);
+
+export const treeLevelsGuardian = derived(treeLevels, ($trees) =>
+  sumLevels($trees[0]),
+);
+
+export const treeLevelsVanguard = derived(treeLevels, ($trees) =>
+  sumLevels($trees[1]),
+);
+
+export const treeLevelsCannon = derived(treeLevels, ($trees) =>
+  sumLevels($trees[2]),
+);
 
 function initLevels(nodes: TreeNode[]): LevelsById {
   return Object.fromEntries(nodes.map((node) => [node.id, 0]));

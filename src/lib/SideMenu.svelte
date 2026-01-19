@@ -6,6 +6,12 @@
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
   import {
+    treeLevelsTotal,
+    treeLevelsGuardian,
+    treeLevelsVanguard,
+    treeLevelsCannon,
+  } from "./treeLevelsStore";
+  import {
     techCrystalsOwned,
     techCrystalsSpentTotal,
     techCrystalsSpentGuardian,
@@ -47,25 +53,19 @@
 ></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <SideMenuSection title="TECH CRYSTALS">
-      <CodeBlockTable
-        headers={["Spent", "Amount"]}
-        rows={[
-          ["Total", `${$techCrystalsSpentTotal}`],
-          ["Guardian", `${$techCrystalsSpentGuardian}`],
-          ["Vanguard", `${$techCrystalsSpentVanguard}`],
-          ["Cannon", `${$techCrystalsSpentCannon}`],
-        ]}
-      />
-      <Button
-        on:click={() => {
-          openTechCrystalsOwnedModal($techCrystalsOwned);
+    <SideMenuSection title={`${activeTreeName.toUpperCase()} TREE`}>
+      <TreeContextMenuList
+        onFocusInView={() => {
+          onFocusInView?.();
+          onClose?.();
         }}
-        tooltipText={"Change Tech Crystal budget"}
-        icon={Hexagon}
-      >
-        Owned: {$techCrystalsOwned}
-      </Button>
+        onReset={() => {
+          onResetTree?.();
+          onClose?.();
+        }}
+      />
+    </SideMenuSection>
+    <SideMenuSection title="TECH CRYSTALS">
       <Button
         on:click={() => {
           onResetAll?.();
@@ -77,19 +77,36 @@
         icon={Trash2}
         negative
       >
-        Reset all
+        Reset all trees
       </Button>
+      <Button
+        on:click={() => {
+          openTechCrystalsOwnedModal($techCrystalsOwned);
+        }}
+        tooltipText={"Change Tech Crystal budget"}
+        icon={Hexagon}
+      >
+        Owned: {$techCrystalsOwned}
+      </Button>
+      <CodeBlockTable
+        headers={["Spent", "Amount"]}
+        rows={[
+          ["Total", `${$techCrystalsSpentTotal}`],
+          ["Guardian", `${$techCrystalsSpentGuardian}`],
+          ["Vanguard", `${$techCrystalsSpentVanguard}`],
+          ["Cannon", `${$techCrystalsSpentCannon}`],
+        ]}
+      />
     </SideMenuSection>
-    <SideMenuSection title={`${activeTreeName.toUpperCase()} TREE`}>
-      <TreeContextMenuList
-        onFocusInView={() => {
-          onFocusInView?.();
-          onClose?.();
-        }}
-        onReset={() => {
-          onResetTree?.();
-          onClose?.();
-        }}
+    <SideMenuSection title="LEVELS">
+      <CodeBlockTable
+        headers={["Spent", "Amount"]}
+        rows={[
+          ["Total", `${$treeLevelsTotal}`],
+          ["Guardian", `${$treeLevelsGuardian}`],
+          ["Vanguard", `${$treeLevelsVanguard}`],
+          ["Cannon", `${$treeLevelsCannon}`],
+        ]}
       />
     </SideMenuSection>
   </nav>
