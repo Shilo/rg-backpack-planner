@@ -114,7 +114,7 @@
 
   .context-menu__title {
     margin: 0;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(201, 214, 245, 0.75);

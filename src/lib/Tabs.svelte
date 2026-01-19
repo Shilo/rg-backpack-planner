@@ -54,6 +54,22 @@
   let backgroundPressPoint: { x: number; y: number } | null = null;
   let backgroundPressPointerId: number | null = null;
 
+  function getPointerEvent(event: Event) {
+    const detail = (event as CustomEvent<PointerEvent>).detail;
+    if (detail && typeof detail.clientX === "number") {
+      return detail;
+    }
+    return event as PointerEvent;
+  }
+
+  function getMouseEvent(event: Event) {
+    const detail = (event as CustomEvent<MouseEvent>).detail;
+    if (detail && typeof detail.clientX === "number") {
+      return detail;
+    }
+    return event as MouseEvent;
+  }
+
   onMount(() => {
     hasMounted = true;
     if (!tabsBarEl) return;
@@ -260,10 +276,11 @@
           class={index === activeIndex ? "active" : ""}
           on:click={() => onTabClick(index)}
           on:contextmenu={(event: Event) =>
-            openTabMenu(event as MouseEvent, tab)}
+            openTabMenu(getMouseEvent(event), tab)}
           on:pointerdown={(event: Event) =>
-            startTabPress(event as PointerEvent, tab)}
-          on:pointermove={(event: Event) => moveTabPress(event as PointerEvent)}
+            startTabPress(getPointerEvent(event), tab)}
+          on:pointermove={(event: Event) =>
+            moveTabPress(getPointerEvent(event))}
           on:pointerup={clearTabPress}
           on:pointercancel={clearTabPress}
           on:pointerleave={clearTabPress}
