@@ -56,7 +56,7 @@
       aria-label="Menu"
       on:click={() => onMenuClick?.()}
     >
-      ☰
+      ⋮
     </button>
   </div>
 
@@ -99,7 +99,7 @@
 
   .tab-buttons button {
     border: 1px solid #2c3c61;
-    background: #111b2d;
+    background: rgba(17, 27, 45, 0.7);
     color: #8fa4ce;
     font-size: 0.75rem;
     padding: 8px 10px;
@@ -109,19 +109,19 @@
   }
 
   .tab-buttons button.active {
-    background: #223152;
+    background: rgba(34, 49, 82, 0.78);
     color: #e7efff;
     border-color: #4f6fbf;
   }
 
   .menu-button {
     border: 1px solid #2c3c61;
-    background: #111b2d;
+    background: rgba(17, 27, 45, 0.7);
     color: #c9d6f5;
     width: 40px;
     height: 36px;
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: 1.35rem;
   }
 
   .tabs-content {
