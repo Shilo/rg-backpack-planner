@@ -36,6 +36,9 @@
   const tabPressState: LongPressState = { timer: null, fired: false };
   let tabPressStart: { x: number; y: number } | null = null;
   let tabPressPoint: { x: number; y: number } | null = null;
+  const backgroundPressState: LongPressState = { timer: null, fired: false };
+  let backgroundPressStart: { x: number; y: number } | null = null;
+  let backgroundPressPoint: { x: number; y: number } | null = null;
 
   onMount(() => {
     if (!tabsBarEl) return;
@@ -90,6 +93,54 @@
       )
     ) {
       clearTabPress();
+    }
+  }
+
+  function clearBackgroundPress() {
+    clearLongPress(backgroundPressState);
+    backgroundPressStart = null;
+    backgroundPressPoint = null;
+  }
+
+  function isContextMenuTarget(target: EventTarget | null) {
+    return target instanceof HTMLElement && !!target.closest(".context-menu");
+  }
+
+  function isNodeTarget(target: EventTarget | null) {
+    return target instanceof HTMLElement && !!target.closest("[data-node-id]");
+  }
+
+  function startBackgroundPress(event: PointerEvent) {
+    if (isContextMenuTarget(event.target) || isNodeTarget(event.target)) return;
+    const activeTab = tabs[activeIndex];
+    if (!activeTab) return;
+    backgroundPressStart = { x: event.clientX, y: event.clientY };
+    backgroundPressPoint = { x: event.clientX, y: event.clientY };
+    startLongPress(backgroundPressState, () => {
+      const point = backgroundPressPoint ?? backgroundPressStart;
+      if (!point) return false;
+      tabContextMenu = {
+        id: activeTab.id,
+        label: activeTab.label,
+        x: point.x,
+        y: point.y,
+      };
+      return true;
+    });
+  }
+
+  function moveBackgroundPress(event: PointerEvent) {
+    if (!backgroundPressStart) return;
+    backgroundPressPoint = { x: event.clientX, y: event.clientY };
+    if (
+      isLongPressMovement(
+        backgroundPressStart.x,
+        backgroundPressStart.y,
+        event.clientX,
+        event.clientY,
+      )
+    ) {
+      clearBackgroundPress();
     }
   }
 
@@ -156,7 +207,14 @@
     {isMenuOpen ? "✕" : "⋮"}
   </button>
 
-  <div class="tabs-content">
+  <div
+    class="tabs-content"
+    on:pointerdown={startBackgroundPress}
+    on:pointermove={moveBackgroundPress}
+    on:pointerup={clearBackgroundPress}
+    on:pointercancel={clearBackgroundPress}
+    on:pointerleave={clearBackgroundPress}
+  >
     {#if tabs[activeIndex]}
       <Tree bind:this={treeRef} nodes={tabs[activeIndex].nodes} {bottomInset} />
     {/if}
