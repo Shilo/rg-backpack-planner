@@ -14,6 +14,7 @@
   import Node, { type NodeState } from "./Node.svelte";
 
   export let nodes: TreeNode[] = [];
+  export let topInset = 0;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -296,6 +297,21 @@
 
   function centerTree() {
     if (!viewportEl || nodes.length === 0) return;
+    // #region agent log
+    fetch("http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        location: "Tree.svelte:centerTree:entry",
+        message: "centerTree entry",
+        data: { topInset, nodesCount: nodes.length },
+        timestamp: Date.now(),
+        sessionId: "debug-session",
+        runId: "post-fix",
+        hypothesisId: "B",
+      }),
+    }).catch(() => {});
+    // #endregion agent log
     const xs = nodes.map((node) => node.x);
     const ys = nodes.map((node) => node.y);
     const minX = Math.min(...xs);
@@ -307,19 +323,98 @@
     const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
-    const availableH = Math.max(rect.height - padding * 2, 1);
+    const availableH = Math.max(rect.height - topInset - padding * 2, 1);
+    const paddedCenterX = padding + availableW / 2;
+    const paddedCenterY = topInset + padding + availableH / 2;
+    // #region agent log
+    fetch("http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        location: "Tree.svelte:centerTree:bounds",
+        message: "bounds/rect",
+        data: {
+          minX,
+          maxX,
+          minY,
+          maxY,
+          width,
+          height,
+          rectW: rect.width,
+          rectH: rect.height,
+          topInset,
+          availableW,
+          availableH,
+          padding,
+          paddedCenterX,
+          paddedCenterY,
+        },
+        timestamp: Date.now(),
+        sessionId: "debug-session",
+        runId: "post-fix",
+        hypothesisId: "B",
+      }),
+    }).catch(() => {});
+    // #endregion agent log
     scale = clamp(
       Math.min(availableW / width, availableH / height),
       minScale,
       maxScale,
     );
-    offsetX = rect.width / 2 - (minX + width / 2) * scale;
-    offsetY = rect.height / 2 - (minY + height / 2) * scale;
+    offsetX = paddedCenterX - (minX + width / 2) * scale;
+    offsetY = paddedCenterY - (minY + height / 2) * scale;
+    const paddedOffsetX = paddedCenterX - (minX + width / 2) * scale;
+    const paddedOffsetY = paddedCenterY - (minY + height / 2) * scale;
+    // #region agent log
+    fetch("http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        location: "Tree.svelte:centerTree:result",
+        message: "offset/scale",
+        data: {
+          scale,
+          offsetX,
+          offsetY,
+          paddedOffsetX,
+          paddedOffsetY,
+          deltaX: offsetX - paddedOffsetX,
+          deltaY: offsetY - paddedOffsetY,
+        },
+        timestamp: Date.now(),
+        sessionId: "debug-session",
+        runId: "post-fix",
+        hypothesisId: "B",
+      }),
+    }).catch(() => {});
+    // #endregion agent log
   }
 
   onMount(() => {
     centerTree();
     const handleResize = () => {
+      // #region agent log
+      fetch(
+        "http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            location: "Tree.svelte:resize",
+            message: "window resize",
+            data: {
+              innerW: window.innerWidth,
+              innerH: window.innerHeight,
+              topInset,
+            },
+            timestamp: Date.now(),
+            sessionId: "debug-session",
+            runId: "post-fix",
+            hypothesisId: "C",
+          }),
+        },
+      ).catch(() => {});
+      // #endregion agent log
       centerTree();
     };
     window.addEventListener("resize", handleResize, { passive: true });
@@ -327,6 +422,10 @@
       window.removeEventListener("resize", handleResize);
     };
   });
+
+  $: if (viewportEl) {
+    centerTree();
+  }
 </script>
 
 <div class="tree-root">
