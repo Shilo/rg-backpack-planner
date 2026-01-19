@@ -77,10 +77,12 @@
     position: absolute;
     left: 10px;
     bottom: 10px;
-    height: 36px;
+    height: 32px;
     width: calc(100% - 10px - 56px);
-    line-height: 36px;
-    display: block;
+    line-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -98,7 +100,7 @@
     padding-left: 10px;
     padding-right: 10px;
     scrollbar-gutter: stable;
-    max-height: calc(100% - 46px);
+    max-height: calc(100% - 42px);
   }
 
   .side-menu__content::before {

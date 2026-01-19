@@ -73,7 +73,7 @@
     --bar-pad: 10px;
     --menu-width: 40px;
     --menu-gap: 10px;
-    --tab-height: 36px;
+    --tab-height: 32px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -111,7 +111,7 @@
     background: rgba(17, 27, 45, 0.7);
     color: #8fa4ce;
     font-size: 0.75rem;
-    padding: 8px 10px;
+    padding: 0 10px;
     height: var(--tab-height);
     border-radius: 10px;
     text-transform: uppercase;
@@ -119,6 +119,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .tab-buttons button.active {
@@ -135,6 +138,10 @@
     height: var(--tab-height);
     border-radius: 10px;
     font-size: 1.35rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: fixed;
     right: var(--bar-pad);
     bottom: var(--bar-pad);
