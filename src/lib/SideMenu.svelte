@@ -41,19 +41,7 @@
 ></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <SideMenuSection title={`${activeTreeName} Tree`}>
-      <TreeContextMenuList
-        onFocusInView={() => {
-          onFocusInView?.();
-          onClose?.();
-        }}
-        onReset={() => {
-          onResetTree?.();
-          onClose?.();
-        }}
-      />
-    </SideMenuSection>
-    <SideMenuSection title="Global">
+    <SideMenuSection title="Tech Crystals Spent">
       <Button
         on:click={() => {
           onResetAll?.();
@@ -67,6 +55,18 @@
       >
         Reset all
       </Button>
+    </SideMenuSection>
+    <SideMenuSection title={`${activeTreeName} Tree`}>
+      <TreeContextMenuList
+        onFocusInView={() => {
+          onFocusInView?.();
+          onClose?.();
+        }}
+        onReset={() => {
+          onResetTree?.();
+          onClose?.();
+        }}
+      />
     </SideMenuSection>
     <SideMenuSection title="Support">
       <Button
