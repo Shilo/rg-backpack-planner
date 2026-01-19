@@ -15,9 +15,9 @@
 </button>
 <button
   type="button"
-  class="button button-md"
+  class="button button-md button-negative"
   on:click={() => onReset?.()}
-  use:tooltip={"Revert nodes to level 0 and refund Tech Crystals"}
+  use:tooltip={"Revert tree nodes to level 0 and refund all Tech Crystals"}
 >
   Reset tree
 </button>

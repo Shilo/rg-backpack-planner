@@ -38,6 +38,12 @@
   font-size: 0.9rem;
 }
 
+.button-negative {
+  border-color: rgba(180, 72, 72, 0.9);
+  background: rgba(84, 26, 32, 0.85);
+  color: #ffd7d7;
+}
+
 html,
 body {
   margin: 0;

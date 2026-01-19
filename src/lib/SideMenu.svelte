@@ -6,8 +6,8 @@
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
-  export let onLoadBuild: (() => void) | null = null;
-  export let onSaveBuild: (() => void) | null = null;
+  export let onShareBuild: (() => void) | null = null;
+  export let onHelp: (() => void) | null = null;
   export let onResetAll: (() => void) | null = null;
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
@@ -40,12 +40,12 @@
 ></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <SideMenuSection title="Build">
-      <button class="button button-md" type="button" on:click={onLoadBuild}>
-        Load build
+    <SideMenuSection title="General">
+      <button class="button button-md" type="button" on:click={onShareBuild}>
+        Share build
       </button>
-      <button class="button button-md" type="button" on:click={onSaveBuild}>
-        Save build
+      <button class="button button-md" type="button" on:click={onHelp}>
+        Help
       </button>
     </SideMenuSection>
     <SideMenuSection title={`${activeTreeName} Tree`}>
@@ -62,13 +62,13 @@
     </SideMenuSection>
     <SideMenuSection title="Global">
       <button
-        class="button button-md"
+        class="button button-md button-negative"
         type="button"
         on:click={() => {
           onResetAll?.();
           onClose?.();
         }}
-        use:tooltip={"Revert nodes to level 0 and refund Tech Crystals"}
+        use:tooltip={"Revert all nodes to level 0 and refund Tech Crystals"}
       >
         Reset all
       </button>

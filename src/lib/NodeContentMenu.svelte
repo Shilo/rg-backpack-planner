@@ -28,7 +28,7 @@
   </button>
   <button
     type="button"
-    class="button button-md"
+    class="button button-md button-negative"
     on:click={() => onReset?.(nodeId)}
     disabled={!nodeId}
   >
