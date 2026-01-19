@@ -1,9 +1,13 @@
 <script lang="ts">
+  import type { ComponentType } from "svelte";
   import { Minus, Plus, RotateCcw } from "lucide-svelte";
   import { onMount } from "svelte";
   import Button from "../Button.svelte";
 
   export let title = "";
+  export let titleIcon: ComponentType | null = null;
+  export let titleIconClass = "";
+  export let titleIconAriaHidden = true;
   export let message: string | undefined = undefined;
   export let label = "Value";
   export let value = 0;
@@ -62,21 +66,22 @@
 
 <div class="modal-content">
   <header class="modal-header">
-    <h2>{title}</h2>
+    <div class="modal-title">
+      {#if titleIcon}
+        <svelte:component
+          this={titleIcon}
+          class={`modal-title-icon ${titleIconClass}`.trim()}
+          aria-hidden={titleIconAriaHidden}
+        />
+      {/if}
+      <h2>{title}</h2>
+    </div>
   </header>
   {#if message}
     <p class="modal-message">{message}</p>
   {/if}
   <label class="modal-label" for="modal-input">{label}</label>
   <div class="modal-input-row">
-    <button
-      class="stepper stepper-icon"
-      type="button"
-      aria-label="Reset value"
-      on:click={handleReset}
-    >
-      <RotateCcw class="stepper-icon__svg" aria-hidden="true" />
-    </button>
     <button
       class="stepper stepper-icon"
       type="button"
@@ -109,8 +114,18 @@
     </button>
   </div>
   <div class="modal-actions">
-    <Button on:click={() => onCancel?.()} negative>{cancelLabel}</Button>
-    <Button on:click={handleConfirm}>{confirmLabel}</Button>
+    <button
+      class="stepper stepper-icon reset-button"
+      type="button"
+      aria-label="Reset value"
+      on:click={handleReset}
+    >
+      <RotateCcw class="stepper-icon__svg" aria-hidden="true" />
+    </button>
+    <div class="modal-actions__right">
+      <Button on:click={() => onCancel?.()} negative>{cancelLabel}</Button>
+      <Button on:click={handleConfirm}>{confirmLabel}</Button>
+    </div>
   </div>
 </div>
 
@@ -120,10 +135,28 @@
     gap: 12px;
   }
 
+  .modal-header {
+    display: flex;
+    align-items: center;
+  }
+
+  .modal-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .modal-header h2 {
     margin: 0;
     font-size: 1.05rem;
     color: #f1f5ff;
+    line-height: 1;
+  }
+
+  :global(.modal-title-icon) {
+    width: 18px;
+    height: 18px;
+    color: #b9c7ec;
   }
 
   .modal-message {
@@ -142,7 +175,7 @@
 
   .modal-input-row {
     display: grid;
-    grid-template-columns: 44px 44px 1fr 44px;
+    grid-template-columns: 44px 1fr 44px;
     gap: 10px;
     align-items: center;
   }
@@ -187,7 +220,18 @@
 
   .modal-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 10px;
+  }
+
+  .modal-actions__right {
+    display: flex;
+    gap: 10px;
+  }
+
+  .reset-button {
+    height: 38px;
+    flex: 0 0 auto;
   }
 </style>

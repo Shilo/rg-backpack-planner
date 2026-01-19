@@ -77,6 +77,7 @@
       {#if $modalStore.type === "alert"}
         <AlertModal
           title={$modalStore.title}
+          titleIcon={$modalStore.titleIcon ?? null}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "OK"}
           onConfirm={handleConfirm}
@@ -84,6 +85,7 @@
       {:else if $modalStore.type === "confirm"}
         <ConfirmModal
           title={$modalStore.title}
+          titleIcon={$modalStore.titleIcon ?? null}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "Confirm"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
@@ -93,6 +95,7 @@
       {:else if $modalStore.type === "input"}
         <InputModal
           title={$modalStore.title}
+          titleIcon={$modalStore.titleIcon ?? null}
           message={$modalStore.message}
           label={$modalStore.input?.label ?? "Value"}
           value={$modalStore.input?.value ?? 0}

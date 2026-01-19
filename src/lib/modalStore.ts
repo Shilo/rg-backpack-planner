@@ -1,3 +1,4 @@
+import type { ComponentType } from "svelte";
 import { writable } from "svelte/store";
 
 export type ModalType = "alert" | "confirm" | "input";
@@ -13,6 +14,7 @@ export type ModalInputConfig = {
 export type ModalPayload = {
   type: ModalType;
   title: string;
+  titleIcon?: ComponentType | null;
   message?: string;
   confirmLabel?: string;
   cancelLabel?: string;

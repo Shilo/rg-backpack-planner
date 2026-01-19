@@ -66,6 +66,7 @@
           openModal({
             type: "input",
             title: "TECH CRYSTALS OWNED",
+            titleIcon: Hexagon,
             input: {
               label: "Set your budget",
               value: $techCrystalsOwned,
