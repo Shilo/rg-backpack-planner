@@ -355,24 +355,18 @@
     const paddedRight = rect.width - padding;
     const paddedBottom = Math.max(usableHeight - padding, padding);
 
-    const panInsetX = (bounds.maxX - bounds.minX) * scale;
-    const panInsetY = (bounds.maxY - bounds.minY) * scale;
+    const centerWorldX = (bounds.minX + bounds.maxX) / 2;
+    const centerWorldY = (bounds.minY + bounds.maxY) / 2;
+    const centerScreenX = nextOffsetX + centerWorldX * scale;
+    const centerScreenY = nextOffsetY + centerWorldY * scale;
 
-    const minOffsetX = padding - bounds.minX * scale - panInsetX;
-    const maxOffsetX = paddedRight - bounds.maxX * scale + panInsetX;
-    const minOffsetY = padding - bounds.minY * scale - panInsetY;
-    const maxOffsetY = paddedBottom - bounds.maxY * scale + panInsetY;
+    const clampedCenterX = clamp(centerScreenX, padding, paddedRight);
+    const clampedCenterY = clamp(centerScreenY, padding, paddedBottom);
 
-    const clampedX =
-      minOffsetX > maxOffsetX
-        ? (minOffsetX + maxOffsetX) / 2
-        : clamp(nextOffsetX, minOffsetX, maxOffsetX);
-    const clampedY =
-      minOffsetY > maxOffsetY
-        ? (minOffsetY + maxOffsetY) / 2
-        : clamp(nextOffsetY, minOffsetY, maxOffsetY);
-
-    return { x: clampedX, y: clampedY };
+    return {
+      x: nextOffsetX + (clampedCenterX - centerScreenX),
+      y: nextOffsetY + (clampedCenterY - centerScreenY),
+    };
   }
 
   function onWheel(event: WheelEvent) {
