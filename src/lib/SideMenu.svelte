@@ -221,10 +221,12 @@
     gap: 10px;
     margin-top: auto;
     padding: 0 10px 10px;
+    margin-right: 42px;
 
     :global(button) {
       width: 32px;
       height: 32px;
+      min-width: 0;
     }
   }
 </style>
