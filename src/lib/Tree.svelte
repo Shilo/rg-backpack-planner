@@ -249,8 +249,11 @@
       if (panActive) {
         const dx = event.clientX - panStart.x;
         const dy = event.clientY - panStart.y;
-        offsetX = panStart.offsetX + dx;
-        offsetY = panStart.offsetY + dy;
+        const nextOffsetX = panStart.offsetX + dx;
+        const nextOffsetY = panStart.offsetY + dy;
+        const clamped = clampOffsets(nextOffsetX, nextOffsetY);
+        offsetX = clamped.x;
+        offsetY = clamped.y;
       }
       return;
     }
@@ -268,8 +271,11 @@
         maxScale,
       );
       scale = nextScale;
-      offsetX = centerX - pinchStart.worldX * scale;
-      offsetY = centerY - pinchStart.worldY * scale;
+      const nextOffsetX = centerX - pinchStart.worldX * scale;
+      const nextOffsetY = centerY - pinchStart.worldY * scale;
+      const clamped = clampOffsets(nextOffsetX, nextOffsetY);
+      offsetX = clamped.x;
+      offsetY = clamped.y;
     }
   }
 
@@ -327,6 +333,48 @@
     return Math.min(Math.max(value, min), max);
   }
 
+  function getWorldBounds() {
+    if (nodes.length === 0) return null;
+    const xs = nodes.map((node) => node.x);
+    const ys = nodes.map((node) => node.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs) + 64;
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys) + 64;
+    return { minX, maxX, minY, maxY };
+  }
+
+  function clampOffsets(nextOffsetX: number, nextOffsetY: number) {
+    if (!viewportEl) return { x: nextOffsetX, y: nextOffsetY };
+    const bounds = getWorldBounds();
+    if (!bounds) return { x: nextOffsetX, y: nextOffsetY };
+
+    const rect = viewportEl.getBoundingClientRect();
+    const padding = 24;
+    const usableHeight = Math.max(rect.height - bottomInset, 1);
+    const paddedRight = rect.width - padding;
+    const paddedBottom = Math.max(usableHeight - padding, padding);
+
+    const panInsetX = (bounds.maxX - bounds.minX) * scale;
+    const panInsetY = (bounds.maxY - bounds.minY) * scale;
+
+    const minOffsetX = padding - bounds.minX * scale - panInsetX;
+    const maxOffsetX = paddedRight - bounds.maxX * scale + panInsetX;
+    const minOffsetY = padding - bounds.minY * scale - panInsetY;
+    const maxOffsetY = paddedBottom - bounds.maxY * scale + panInsetY;
+
+    const clampedX =
+      minOffsetX > maxOffsetX
+        ? (minOffsetX + maxOffsetX) / 2
+        : clamp(nextOffsetX, minOffsetX, maxOffsetX);
+    const clampedY =
+      minOffsetY > maxOffsetY
+        ? (minOffsetY + maxOffsetY) / 2
+        : clamp(nextOffsetY, minOffsetY, maxOffsetY);
+
+    return { x: clampedX, y: clampedY };
+  }
+
   function onWheel(event: WheelEvent) {
     if (gesturesDisabled) return;
     if (!viewportEl) return;
@@ -338,8 +386,11 @@
     const zoomFactor = Math.exp(-event.deltaY * 0.002);
     const nextScale = clamp(scale * zoomFactor, minScale, maxScale);
     scale = nextScale;
-    offsetX = localX - world.x * scale;
-    offsetY = localY - world.y * scale;
+    const nextOffsetX = localX - world.x * scale;
+    const nextOffsetY = localY - world.y * scale;
+    const clamped = clampOffsets(nextOffsetX, nextOffsetY);
+    offsetX = clamped.x;
+    offsetY = clamped.y;
   }
 
   export function centerTree() {
@@ -365,8 +416,9 @@
     );
     offsetX = paddedCenterX - (minX + width / 2) * scale;
     offsetY = paddedCenterY - (minY + height / 2) * scale;
-    const paddedOffsetX = paddedCenterX - (minX + width / 2) * scale;
-    const paddedOffsetY = paddedCenterY - (minY + height / 2) * scale;
+    const clamped = clampOffsets(offsetX, offsetY);
+    offsetX = clamped.x;
+    offsetY = clamped.y;
   }
 
   onMount(() => {
