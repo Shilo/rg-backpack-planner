@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bar-pad: 10px;
+  --tab-height: 32px;
+}
+
+* {
+  text-transform: uppercase;
+}
+
 html,
 body {
   margin: 0;
@@ -18,11 +27,6 @@ body {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-}
-
-:root {
-  --bar-pad: 10px;
-  --tab-height: 32px;
 }
 
 #app {
