@@ -14,6 +14,7 @@
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
+  export let isMenuOpen = false;
 
   let activeIndex = 0;
   let bottomInset = 0;
@@ -51,14 +52,14 @@
         </button>
       {/each}
     </div>
-    <button
-      class="menu-button"
-      aria-label="Menu"
-      on:click={() => onMenuClick?.()}
-    >
-      ⋮
-    </button>
   </div>
+  <button
+    class="menu-button"
+    aria-label={isMenuOpen ? "Close menu" : "Menu"}
+    on:click={() => onMenuClick?.()}
+  >
+    {isMenuOpen ? "✕" : "⋮"}
+  </button>
 
   <div class="tabs-content">
     {#if tabs[activeIndex]}
@@ -69,6 +70,10 @@
 
 <style>
   .tabs-root {
+    --bar-pad: 10px;
+    --menu-width: 40px;
+    --menu-gap: 10px;
+    --tab-height: 36px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -84,10 +89,11 @@
     right: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 10px 10px;
+    gap: var(--menu-gap);
+    padding: 0 calc(var(--bar-pad) + var(--menu-width) + var(--menu-gap))
+      var(--bar-pad) var(--bar-pad);
     background: transparent;
-    z-index: 5;
+    z-index: 6;
   }
 
   .tab-buttons {
@@ -103,6 +109,7 @@
     color: #8fa4ce;
     font-size: 0.75rem;
     padding: 8px 10px;
+    height: var(--tab-height);
     border-radius: 10px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -118,10 +125,14 @@
     border: 1px solid #2c3c61;
     background: rgba(17, 27, 45, 0.7);
     color: #c9d6f5;
-    width: 40px;
-    height: 36px;
+    width: var(--tab-height);
+    height: var(--tab-height);
     border-radius: 10px;
     font-size: 1.35rem;
+    position: fixed;
+    right: var(--bar-pad);
+    bottom: var(--bar-pad);
+    z-index: 12;
   }
 
   .tabs-content {

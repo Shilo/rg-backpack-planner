@@ -1,5 +1,8 @@
 <script lang="ts">
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
+  import SideMenu from "./lib/SideMenu.svelte";
+
+  let isMenuOpen = false;
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -82,11 +85,20 @@
       })),
     },
   ];
+
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+  }
+
+  function closeMenu() {
+    isMenuOpen = false;
+  }
 </script>
 
 <div class="app-shell" role="application" on:contextmenu|preventDefault>
+  <SideMenu isOpen={isMenuOpen} onClose={closeMenu} />
   <main class="app-main">
-    <Tabs {tabs} />
+    <Tabs {tabs} onMenuClick={toggleMenu} {isMenuOpen} />
   </main>
 </div>
 

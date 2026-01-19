@@ -5,6 +5,7 @@
     "target": "ES2022",
     "useDefineForClassFields": true,
     "module": "ESNext",
+    "resolveJsonModule": true,
     "types": ["svelte", "vite/client"],
     "noEmit": true,
     /**
