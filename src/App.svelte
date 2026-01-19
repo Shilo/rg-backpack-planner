@@ -1,6 +1,7 @@
 <script lang="ts">
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
+  import TechCrystalsDisplay from "./lib/TechCrystalsDisplay.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
 
@@ -16,6 +17,7 @@
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
+  let techCrystals: [available: number, owned: number] = [0, 0];
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -177,6 +179,7 @@
     onResetAll={() => tabsRef?.resetAllTrees?.()}
     {activeTreeName}
   />
+  <TechCrystalsDisplay available={techCrystals[0]} owned={techCrystals[1]} />
   <main class="app-main">
     <Tabs
       bind:this={tabsRef}

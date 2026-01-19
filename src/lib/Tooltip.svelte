@@ -19,16 +19,29 @@
       boundedY = $tooltipStore.y;
       return;
     }
+    const viewport = window.visualViewport;
+    const viewportWidth = viewport?.width ?? window.innerWidth;
+    const viewportHeight = viewport?.height ?? window.innerHeight;
+    const viewportLeft = viewport?.offsetLeft ?? 0;
+    const viewportTop = viewport?.offsetTop ?? 0;
     const rect = tooltipEl.getBoundingClientRect();
+    const maxLeft = Math.max(
+      TOOLTIP_MARGIN + viewportLeft,
+      viewportLeft + viewportWidth - rect.width - TOOLTIP_MARGIN,
+    );
+    const maxTop = Math.max(
+      TOOLTIP_MARGIN + viewportTop,
+      viewportTop + viewportHeight - rect.height - TOOLTIP_MARGIN,
+    );
     const left = clamp(
       $tooltipStore.x - rect.width / 2,
-      TOOLTIP_MARGIN,
-      window.innerWidth - rect.width - TOOLTIP_MARGIN,
+      TOOLTIP_MARGIN + viewportLeft,
+      maxLeft,
     );
     const top = clamp(
       $tooltipStore.y - rect.height - TOOLTIP_OFFSET,
-      TOOLTIP_MARGIN,
-      window.innerHeight - rect.height - TOOLTIP_MARGIN,
+      TOOLTIP_MARGIN + viewportTop,
+      maxTop,
     );
     boundedX = left;
     boundedY = top;
@@ -40,8 +53,15 @@
         updateBounds();
       }
     };
+    const viewport = window.visualViewport;
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    viewport?.addEventListener("resize", handleResize);
+    viewport?.addEventListener("scroll", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      viewport?.removeEventListener("resize", handleResize);
+      viewport?.removeEventListener("scroll", handleResize);
+    };
   });
 
   $: if ($tooltipStore.isOpen) {

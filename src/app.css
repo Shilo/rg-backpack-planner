@@ -78,6 +78,6 @@ button {
 
 @media (hover: none) {
   .tooltip {
-    transform: translateY(-32px);
+    transform: none;
   }
 }
