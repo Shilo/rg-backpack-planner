@@ -266,7 +266,6 @@
           on:pointerup={clearTabPress}
           on:pointercancel={clearTabPress}
           on:pointerleave={clearTabPress}
-          icon={TreePine}
           small
         >
           {tab.label}

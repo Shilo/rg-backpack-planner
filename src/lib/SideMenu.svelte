@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, RotateCcw, Share2, X } from "lucide-svelte";
+  import { HelpCircle, Share2, Trash2, X } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -67,7 +67,7 @@
           onClose?.();
         }}
         tooltipText={"Revert all nodes to level 0 and refund Tech Crystals"}
-        icon={RotateCcw}
+        icon={Trash2}
         negative
       >
         Reset all
