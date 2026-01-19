@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, Share2, Trash2, X } from "lucide-svelte";
+  import { HelpCircle, Share2, Trash2 } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -30,16 +30,15 @@
   }
 </script>
 
-<Button
+<button
   class={`menu-backdrop${isOpen ? " visible" : ""}`}
   aria-label="Close menu"
-  bind:element={backdropEl}
+  bind:this={backdropEl}
   tabindex={isOpen ? 0 : -1}
   inert={!isOpen}
   on:click={() => onClose?.()}
-  icon={X}
-  iconClass="menu-backdrop-icon"
-></Button>
+  type="button"
+></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
     <SideMenuSection title={`${activeTreeName} Tree`}>
@@ -96,18 +95,8 @@
     pointer-events: none;
     transition: opacity 0.2s ease;
     border: none;
-    padding: 10px 0 64px;
+    padding: 0;
     z-index: 7;
-  }
-
-  :global(.menu-backdrop-icon) {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 18px;
-    height: 18px;
-    color: #d4e1ff;
-    opacity: 0.7;
   }
 
   :global(.menu-backdrop.visible) {
