@@ -18,6 +18,15 @@
     <button type="button">Load build</button>
     <button type="button">Save build</button>
     <button type="button">Reset points</button>
+    <button type="button">Favorite build presets</button>
+    <button type="button">Export build summary</button>
+    <button type="button">Import build template</button>
+    <button type="button">Share build link</button>
+    <button type="button">View build history</button>
+    <button type="button">Manage saved loadouts</button>
+    <button type="button">Clear recent changes</button>
+    <button type="button">Open settings</button>
+    <button type="button">Help and tips</button>
   </nav>
   <h2 class="side-menu__title">{title}</h2>
 </aside>
@@ -31,7 +40,7 @@
     pointer-events: none;
     transition: opacity 0.2s ease;
     border: none;
-    padding: 0;
+    padding: 0 0 64px;
     z-index: 7;
   }
 
@@ -52,10 +61,11 @@
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
     transition: transform 0.25s ease;
-    padding: 16px 18px 64px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     gap: 18px;
+    overflow: hidden;
     z-index: 9;
   }
 
@@ -84,6 +94,16 @@
   .side-menu__content {
     display: grid;
     gap: 12px;
+    overflow-y: auto;
+    padding-left: 18px;
+    scrollbar-gutter: stable;
+    max-height: calc(100% - 46px);
+  }
+
+  .side-menu__content::before {
+    content: "";
+    height: 0px;
+    display: block;
   }
 
   .side-menu__content button {

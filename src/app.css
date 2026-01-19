@@ -30,3 +30,27 @@ button {
   user-select: none;
   -webkit-user-select: none;
 }
+
+* {
+  scrollbar-color: #3f5fa5 rgba(12, 20, 37, 0.8);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(12, 20, 37, 0.8);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(79, 111, 191, 0.6);
+  border-radius: 999px;
+  border: 2px solid rgba(12, 20, 37, 0.8);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 111, 191, 0.85);
+}
