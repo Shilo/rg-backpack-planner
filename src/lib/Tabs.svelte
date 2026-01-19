@@ -21,6 +21,13 @@
     startLongPress,
     type LongPressState,
   } from "./longPress";
+  import {
+    ensureTabLevels,
+    resetAllTabLevels,
+    resetTabLevels,
+    setTabLevels,
+    tabLevels,
+  } from "./tabLevelsStore";
   import { techCrystalsSpentByTree } from "./techCrystalsStore";
   import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
 
@@ -48,7 +55,6 @@
     x: number;
     y: number;
   } | null = null;
-  let tabLevels: Record<string, number>[] = [];
   let hasMounted = false;
   let lastActiveTabId = "";
   const tabPressState: LongPressState = { timer: null, fired: false };
@@ -108,15 +114,7 @@
     activeLabel = tabs[activeIndex]?.label ?? tabs[0].label;
   }
 
-  function initLevels(nodes: TreeNode[]) {
-    return Object.fromEntries(nodes.map((node) => [node.id, 0]));
-  }
-
-  $: if (tabs.length > 0) {
-    tabLevels = tabs.map(
-      (tab, index) => tabLevels[index] ?? initLevels(tab.nodes),
-    );
-  }
+  $: ensureTabLevels(tabs);
 
   function clearTabPress() {
     clearLongPress(tabPressState);
@@ -256,41 +254,40 @@
     treeRef?.triggerFade?.();
   }
 
-  async function resetTabTree(tabId: string) {
+  function refundTreeSpent(index: number) {
+    const spent = get(techCrystalsSpentByTree)[index] ?? 0;
+    if (spent !== 0) {
+      onNodeLevelChange?.(index, -spent, "all");
+    }
+  }
+
+  function resetLevelsForTab(index: number) {
+    resetTabLevels(index, tabs);
+    if (index === activeIndex) {
+      treeRef?.triggerFade?.();
+    }
+  }
+
+  function resetTabTree(tabId: string) {
     const index = tabs.findIndex((tab) => tab.id === tabId);
     if (index === -1) return;
-    const wasActive = index === activeIndex;
-    if (!wasActive) {
-      const spent = get(techCrystalsSpentByTree)[index] ?? 0;
-      if (spent !== 0) {
-        onNodeLevelChange?.(index, -spent, "all");
-      }
-    }
-    setActive(index);
-    await tick();
-    resetActiveTree();
+    resetLevelsForTab(index);
+    refundTreeSpent(index);
     closeTabMenu();
   }
 
   export function resetActiveTree() {
-    treeRef?.resetAllNodes?.();
-    treeRef?.triggerFade?.();
+    resetLevelsForTab(activeIndex);
+    refundTreeSpent(activeIndex);
   }
 
   export function resetAllTrees() {
     if (tabs.length === 0) return;
-    const spentByTree = get(techCrystalsSpentByTree);
-
     for (let index = 0; index < tabs.length; index += 1) {
-      if (index === activeIndex) continue;
-      const spent = spentByTree[index] ?? 0;
-      if (spent !== 0) {
-        onNodeLevelChange?.(index, -spent, "all");
-      }
+      refundTreeSpent(index);
     }
-
-    resetActiveTree();
-    tabLevels = tabs.map((tab) => initLevels(tab.nodes));
+    resetAllTabLevels(tabs);
+    treeRef?.triggerFade?.();
 
     closeTabMenu();
   }
@@ -309,9 +306,7 @@
   }
 
   function handleLevelsChange(nextLevels: Record<string, number>) {
-    tabLevels = tabLevels.map((levels, index) =>
-      index === activeIndex ? { ...nextLevels } : levels,
-    );
+    setTabLevels(activeIndex, { ...nextLevels });
   }
 </script>
 
@@ -363,7 +358,7 @@
         <Tree
           bind:this={treeRef}
           nodes={tabs[activeIndex].nodes}
-          levelsById={tabLevels[activeIndex] ?? {}}
+          levelsById={$tabLevels[activeIndex] ?? {}}
           onLevelsChange={handleLevelsChange}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
