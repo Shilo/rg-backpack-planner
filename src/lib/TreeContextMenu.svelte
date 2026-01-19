@@ -25,7 +25,7 @@
 >
   <button
     type="button"
-    class="button-md"
+    class="button button-md"
     on:click={handleCenter}
     disabled={!tabId}
   >

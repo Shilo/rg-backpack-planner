@@ -1,6 +1,5 @@
 <script lang="ts">
   import packageInfo from "../../package.json";
-  import SideMenuButton from "./SideMenuButton.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
 
   export let isOpen = false;
@@ -43,14 +42,26 @@
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
     <SideMenuSection title="Build">
-      <SideMenuButton label="Load build" onClick={onLoadBuild} />
-      <SideMenuButton label="Save build" onClick={onSaveBuild} />
+      <button class="button button-md" type="button" on:click={onLoadBuild}>
+        Load build
+      </button>
+      <button class="button button-md" type="button" on:click={onSaveBuild}>
+        Save build
+      </button>
     </SideMenuSection>
     <SideMenuSection title="View">
-      <SideMenuButton label="Center view" onClick={handleCenterView} />
+      <button
+        class="button button-md"
+        type="button"
+        on:click={handleCenterView}
+      >
+        Center view
+      </button>
     </SideMenuSection>
     <SideMenuSection title="Settings">
-      <SideMenuButton label="Reset points" onClick={onResetPoints} />
+      <button class="button button-md" type="button" on:click={onResetPoints}>
+        Reset points
+      </button>
     </SideMenuSection>
   </nav>
   <h2 class="side-menu__title">{title}</h2>

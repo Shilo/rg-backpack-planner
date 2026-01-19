@@ -30,7 +30,7 @@
 >
   <button
     type="button"
-    class="button-md"
+    class="button button-md"
     on:click={handleMax}
     disabled={!nodeId}
   >
@@ -38,7 +38,7 @@
   </button>
   <button
     type="button"
-    class="button-md"
+    class="button button-md"
     on:click={handleReset}
     disabled={!nodeId}
   >
