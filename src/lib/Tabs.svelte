@@ -38,6 +38,7 @@
     x: number;
     y: number;
   } | null = null;
+  let focusInViewKey = 0;
   const tabPressState: LongPressState = { timer: null, fired: false };
   let tabPressStart: { x: number; y: number } | null = null;
   let tabPressPoint: { x: number; y: number } | null = null;
@@ -201,6 +202,7 @@
 
   export function focusActiveTreeInView() {
     treeRef?.focusTreeInView?.();
+    focusInViewKey += 1;
   }
 
   function handleTabClick(index: number) {
@@ -252,7 +254,7 @@
     on:pointerleave={clearBackgroundPress}
   >
     {#if tabs[activeIndex]}
-      {#key tabs[activeIndex].id}
+      {#key `${tabs[activeIndex].id}-${focusInViewKey}`}
         <div class="tree-stage" in:fade={{ duration: 300 }}>
           <Tree
             bind:this={treeRef}
