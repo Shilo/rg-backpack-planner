@@ -78,11 +78,9 @@
     left: 10px;
     bottom: 10px;
     height: 32px;
-    width: calc(100% - 10px - 56px);
+    width: calc(100% - 10px - 32px - 10px);
     line-height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
