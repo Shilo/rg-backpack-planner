@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import { onMount, tick } from "svelte";
+  import { fade } from "svelte/transition";
   import Tree from "./Tree.svelte";
   import TreeContextMenu from "./TreeContextMenu.svelte";
   import {
@@ -232,12 +233,16 @@
     on:pointerleave={clearBackgroundPress}
   >
     {#if tabs[activeIndex]}
-      <Tree
-        bind:this={treeRef}
-        nodes={tabs[activeIndex].nodes}
-        {bottomInset}
-        gesturesDisabled={!!tabContextMenu}
-      />
+      {#key tabs[activeIndex].id}
+        <div class="tree-stage" in:fade={{ duration: 300 }}>
+          <Tree
+            bind:this={treeRef}
+            nodes={tabs[activeIndex].nodes}
+            {bottomInset}
+            gesturesDisabled={!!tabContextMenu}
+          />
+        </div>
+      {/key}
     {/if}
   </div>
 
@@ -332,5 +337,9 @@
   .tabs-content {
     flex: 1;
     min-height: 0;
+  }
+
+  .tree-stage {
+    height: 100%;
   }
 </style>
