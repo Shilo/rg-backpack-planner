@@ -8,8 +8,10 @@
   export let onClose: (() => void) | null = null;
   export let onLoadBuild: (() => void) | null = null;
   export let onSaveBuild: (() => void) | null = null;
-  export let onResetNodes: (() => void) | null = null;
+  export let onResetAll: (() => void) | null = null;
+  export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
+  export let activeTreeName = "";
   const title = packageInfo.name;
 
   let backdropEl: HTMLButtonElement | null = null;
@@ -46,22 +48,29 @@
         Save build
       </button>
     </SideMenuSection>
-    <SideMenuSection title="View">
+    <SideMenuSection title={`${activeTreeName} Tree`}>
       <TreeContextMenuList
         onFocusInView={() => {
           onFocusInView?.();
           onClose?.();
         }}
+        onReset={() => {
+          onResetTree?.();
+          onClose?.();
+        }}
       />
     </SideMenuSection>
-    <SideMenuSection title="Settings">
+    <SideMenuSection title="Global">
       <button
         class="button button-md"
         type="button"
-        on:click={onResetNodes}
+        on:click={() => {
+          onResetAll?.();
+          onClose?.();
+        }}
         use:tooltip={"Revert nodes to level 0 and refund Tech Crystals"}
       >
-        Reset
+        Reset all
       </button>
     </SideMenuSection>
   </nav>

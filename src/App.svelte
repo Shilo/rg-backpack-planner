@@ -5,6 +5,7 @@
 
   let isMenuOpen = false;
   let tabsRef: { focusActiveTreeInView?: () => void } | null = null;
+  let activeTreeName = "";
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -88,6 +89,8 @@
     },
   ];
 
+  activeTreeName = tabs[0]?.label ?? "";
+
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
@@ -102,9 +105,16 @@
     isOpen={isMenuOpen}
     onClose={closeMenu}
     onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
+    {activeTreeName}
   />
   <main class="app-main">
-    <Tabs bind:this={tabsRef} {tabs} onMenuClick={toggleMenu} {isMenuOpen} />
+    <Tabs
+      bind:this={tabsRef}
+      bind:activeLabel={activeTreeName}
+      {tabs}
+      onMenuClick={toggleMenu}
+      {isMenuOpen}
+    />
   </main>
   <Tooltip />
 </div>

@@ -2,8 +2,7 @@
   import { tooltip } from "./tooltip";
 
   export let onFocusInView: (() => void) | null = null;
-  export let onResetNodes: (() => void) | null = null;
-  export let showResetNodes = false;
+  export let onReset: (() => void) | null = null;
 </script>
 
 <button
@@ -14,13 +13,11 @@
 >
   Focus in view
 </button>
-{#if showResetNodes}
-  <button
-    type="button"
-    class="button button-md"
-    on:click={() => onResetNodes?.()}
-    use:tooltip={"Revert nodes to level 0 and refund Tech Crystals"}
-  >
-    Reset
-  </button>
-{/if}
+<button
+  type="button"
+  class="button button-md"
+  on:click={() => onReset?.()}
+  use:tooltip={"Revert nodes to level 0 and refund Tech Crystals"}
+>
+  Reset tree
+</button>

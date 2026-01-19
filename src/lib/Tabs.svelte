@@ -24,6 +24,7 @@
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
   export let isMenuOpen = false;
+  export let activeLabel = "";
 
   let activeIndex = 0;
   let bottomInset = 0;
@@ -65,6 +66,10 @@
 
   function setActive(index: number) {
     activeIndex = clampIndex(index);
+  }
+
+  $: if (tabs.length > 0) {
+    activeLabel = tabs[activeIndex]?.label ?? tabs[0].label;
   }
 
   function clearTabPress() {

@@ -9,7 +9,7 @@
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
   export let onFocusInView: ((tabId: string) => void) | null = null;
-  export let onResetNodes: ((tabId: string) => void) | null = null;
+  export let onReset: ((tabId: string) => void) | null = null;
 </script>
 
 <ContextMenu
@@ -22,7 +22,6 @@
 >
   <TreeContextMenuList
     onFocusInView={() => onFocusInView?.(tabId)}
-    onResetNodes={() => onResetNodes?.(tabId)}
-    showResetNodes={true}
+    onReset={() => onReset?.(tabId)}
   />
 </ContextMenu>
