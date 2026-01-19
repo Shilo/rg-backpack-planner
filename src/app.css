@@ -4,6 +4,23 @@
   box-sizing: border-box;
 }
 
+.button {
+  border: 1px solid #2c3c61;
+  background: rgba(17, 27, 45, 0.7);
+}
+
+
+.button-sm {
+  min-height: 32px;
+  font-size: 0.75rem;
+}
+
+.button-md {
+  min-height: 42px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
 html,
 body {
   margin: 0;

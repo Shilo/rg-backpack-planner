@@ -23,7 +23,7 @@
   ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
   {onClose}
 >
-  <button type="button" on:click={handleCenter} disabled={!tabId}>
+  <button type="button" class="button-md" on:click={handleCenter} disabled={!tabId}>
     Center view
   </button>
 </ContextMenu>

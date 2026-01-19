@@ -185,6 +185,7 @@
     <div class="tab-buttons">
       {#each tabs as tab, index}
         <button
+          class="button button-sm"
           class:active={index === activeIndex}
           on:click={() => handleTabClick(index)}
           on:contextmenu={(event) => openTabMenu(event, tab)}
@@ -200,7 +201,7 @@
     </div>
   </div>
   <button
-    class="menu-button"
+    class="menu-button button-sm"
     aria-label={isMenuOpen ? "Close menu" : "Menu"}
     on:click={() => onMenuClick?.()}
   >
@@ -270,10 +271,7 @@
   }
 
   .tab-buttons button {
-    border: 1px solid #2c3c61;
-    background: rgba(17, 27, 45, 0.7);
     color: #8fa4ce;
-    font-size: 0.75rem;
     padding: 0 10px;
     height: var(--tab-height);
     border-radius: 10px;

@@ -5,7 +5,7 @@
 </script>
 
 <button
-  class="side-menu-button"
+  class="side-menu-button button-md"
   type="button"
   {disabled}
   on:click={() => onClick?.()}
@@ -18,9 +18,7 @@
     border: 1px solid #2c3c61;
     background: rgba(17, 27, 45, 0.7);
     color: #d4e1ff;
-    padding: 12px 14px;
     border-radius: 12px;
-    font-size: 0.9rem;
     text-align: left;
     transition:
       border-color 0.2s ease,
@@ -38,3 +36,4 @@
     outline-offset: 2px;
   }
 </style>
+

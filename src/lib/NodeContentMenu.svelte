@@ -28,6 +28,10 @@
   ariaLabel="Node actions"
   {onClose}
 >
-  <button type="button" on:click={handleMax} disabled={!nodeId}>Max</button>
-  <button type="button" on:click={handleReset} disabled={!nodeId}>Reset</button>
+  <button type="button" class="button-md" on:click={handleMax} disabled={!nodeId}>
+    Max
+  </button>
+  <button type="button" class="button-md" on:click={handleReset} disabled={!nodeId}>
+    Reset
+  </button>
 </ContextMenu>
