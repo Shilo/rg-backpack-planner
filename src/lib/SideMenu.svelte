@@ -11,20 +11,36 @@
   export let onCenterView: (() => void) | null = null;
   const title = packageInfo.name;
 
+  let backdropEl: HTMLButtonElement | null = null;
+  let menuEl: HTMLElement | null = null;
+
   function handleCenterView() {
     onCenterView?.();
     onClose?.();
+  }
+
+  $: if (!isOpen) {
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement &&
+      ((backdropEl && backdropEl.contains(active)) ||
+        (menuEl && menuEl.contains(active)))
+    ) {
+      active.blur();
+    }
   }
 </script>
 
 <button
   class="menu-backdrop"
-  aria-hidden={!isOpen}
   aria-label="Close menu"
   class:visible={isOpen}
+  bind:this={backdropEl}
+  tabindex={isOpen ? 0 : -1}
+  inert={!isOpen}
   on:click={() => onClose?.()}
 ></button>
-<aside class="side-menu" class:open={isOpen} aria-hidden={!isOpen}>
+<aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
     <SideMenuSection title="Build">
       <SideMenuButton label="Load build" onClick={onLoadBuild} />

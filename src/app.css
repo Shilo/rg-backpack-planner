@@ -68,6 +68,25 @@ button {
   }
 }
 
+.menu-backdrop {
+  transform: none;
+  filter: none;
+}
+
+@media (hover: hover) {
+  .menu-backdrop:hover {
+    transform: none;
+    filter: none;
+  }
+}
+
+@media (hover: none) {
+  .menu-backdrop:active {
+    transform: none;
+    filter: none;
+  }
+}
+
 * {
   scrollbar-color: #3f5fa5 rgba(12, 20, 37, 0.8);
   scrollbar-width: thin;

@@ -200,8 +200,7 @@
         <button
           class="button button-sm"
           class:active={index === activeIndex}
-          data-tooltip={tab.label}
-          use:tooltip
+          use:tooltip={tab.label}
           on:click={() => handleTabClick(index)}
           on:contextmenu={(event) => openTabMenu(event, tab)}
           on:pointerdown={(event) => startTabPress(event, tab)}
@@ -218,8 +217,7 @@
   <button
     class="menu-button button-sm"
     aria-label={isMenuOpen ? "Close menu" : "Menu"}
-    data-tooltip={isMenuOpen ? "Close menu" : "Open menu"}
-    use:tooltip={isMenuOpen}
+    use:tooltip={isMenuOpen ? "Close menu" : "Open menu"}
     on:click={() => onMenuClick?.()}
   >
     {isMenuOpen ? "✕" : "⋮"}

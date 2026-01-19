@@ -16,8 +16,7 @@
   class="node {state}"
   aria-label={label || id}
   data-node-id={id}
-  data-tooltip={label || id}
-  use:tooltip
+  use:tooltip={label || id}
 >
   <span class="node-icon" aria-hidden="true"></span>
   <span class="node-level">{level}/{maxLevel}</span>

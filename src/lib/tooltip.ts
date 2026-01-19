@@ -72,14 +72,13 @@ function isSuppressed(pointerId: number | null) {
   return pointerId !== null && suppressedPointerIds.has(pointerId);
 }
 
-export function tooltip(node: HTMLElement, _value?: unknown) {
-  let text = node.getAttribute("data-tooltip") ?? "";
+export function tooltip(node: HTMLElement, value?: string) {
+  let text = value ?? "";
   let hoverTimer: number | null = null;
   let pressTimer: number | null = null;
   let activePointerId: number | null = null;
   let lastPoint: Point = { x: 0, y: 0 };
   let pressStart: Point | null = null;
-  let observer: MutationObserver | null = null;
   let globalPointerEnd: ((event: PointerEvent) => void) | null = null;
 
   const canHover = () =>
@@ -97,11 +96,6 @@ export function tooltip(node: HTMLElement, _value?: unknown) {
       window.clearTimeout(pressTimer);
       pressTimer = null;
     }
-  };
-
-  const refreshText = () => {
-    text = node.getAttribute("data-tooltip") ?? "";
-    updateTooltipText(node, text);
   };
 
   const scheduleHover = (event: PointerEvent) => {
@@ -202,19 +196,16 @@ export function tooltip(node: HTMLElement, _value?: unknown) {
   node.addEventListener("pointerdown", handlePointerDown);
   node.addEventListener("pointerup", handlePointerUp);
   node.addEventListener("pointercancel", handlePointerCancel);
-  observer = new MutationObserver(refreshText);
-  observer.observe(node, { attributes: true, attributeFilter: ["data-tooltip"] });
-
   return {
-    update() {
-      queueMicrotask(refreshText);
+    update(nextValue?: string) {
+      text = nextValue ?? "";
+      updateTooltipText(node, text);
     },
     destroy() {
       clearHoverTimer();
       clearPressTimer();
       hideTooltip(node);
       pressStart = null;
-      observer?.disconnect();
       if (globalPointerEnd) {
         window.removeEventListener("pointerup", globalPointerEnd, true);
         window.removeEventListener("pointercancel", globalPointerEnd, true);
