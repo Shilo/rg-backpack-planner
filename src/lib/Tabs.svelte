@@ -290,14 +290,12 @@
   >
     {#if tabs[activeIndex]}
       {#key tabs[activeIndex].id}
-        <div class="tree-stage">
-          <Tree
-            bind:this={treeRef}
-            nodes={tabs[activeIndex].nodes}
-            {bottomInset}
-            gesturesDisabled={!!tabContextMenu}
-          />
-        </div>
+        <Tree
+          bind:this={treeRef}
+          nodes={tabs[activeIndex].nodes}
+          {bottomInset}
+          gesturesDisabled={!!tabContextMenu}
+        />
       {/key}
     {/if}
   </div>
@@ -394,9 +392,5 @@
   .tabs-content {
     flex: 1;
     min-height: 0;
-  }
-
-  .tree-stage {
-    height: 100%;
   }
 </style>
