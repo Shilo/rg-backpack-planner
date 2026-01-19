@@ -20,11 +20,24 @@
   ariaLabel="Node actions"
   {onClose}
 >
-  <Button on:click={() => onMax?.(nodeId)} disabled={!nodeId} icon={ArrowUp}>
+  <Button
+    on:click={() => {
+      if (!nodeId || !onMax) return;
+      onMax(nodeId);
+    }}
+    toastMessage={nodeId && onMax ? `Maxed ${nodeId}.` : undefined}
+    disabled={!nodeId}
+    icon={ArrowUp}
+  >
     Max
   </Button>
   <Button
-    on:click={() => onReset?.(nodeId)}
+    on:click={() => {
+      if (!nodeId || !onReset) return;
+      onReset(nodeId);
+    }}
+    toastMessage={nodeId && onReset ? `Reset ${nodeId}.` : undefined}
+    toastNegative
     disabled={!nodeId}
     icon={RotateCcw}
     negative

@@ -2,6 +2,7 @@
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
+  import Toasts from "./lib/Toasts.svelte";
 
   let isMenuOpen = false;
   let tabsRef: {
@@ -122,6 +123,7 @@
       {isMenuOpen}
     />
   </main>
+  <Toasts />
   <Tooltip />
 </div>
 

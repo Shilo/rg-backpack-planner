@@ -43,7 +43,15 @@
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
     <SideMenuSection title="General">
-      <Button on:click={() => onShareBuild?.()} icon={Share2}>
+      <Button
+        on:click={() => {
+          onShareBuild?.();
+        }}
+        toastMessage={onShareBuild
+          ? "Share link copied to clipboard."
+          : undefined}
+        icon={Share2}
+      >
         Share build
       </Button>
       <Button on:click={() => onHelp?.()} icon={HelpCircle}>Help</Button>
@@ -66,6 +74,8 @@
           onResetAll?.();
           onClose?.();
         }}
+        toastMessage={onResetAll ? "All trees reset." : undefined}
+        toastNegative
         tooltipText={"Revert all nodes to level 0 and refund Tech Crystals"}
         icon={Trash2}
         negative

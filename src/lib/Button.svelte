@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ComponentType } from "svelte";
   import { createEventDispatcher } from "svelte";
+  import { showToast } from "./toast";
   import { tooltip } from "./tooltip";
 
   export let icon: ComponentType | null = null;
@@ -12,6 +13,9 @@
   export let disabled: boolean | undefined = undefined;
   export let tooltipText: string | undefined = undefined;
   export let element: HTMLButtonElement | null = null;
+  export let toastMessage: string | undefined = undefined;
+  export let toastNegative = false;
+  export let toastDurationMs: number | undefined = undefined;
 
   let restClass: string | undefined;
   let buttonProps: Record<string, unknown> = {};
@@ -50,6 +54,16 @@
       event as never,
     );
   };
+
+  const handleClick = (event: MouseEvent) => {
+    forward(event);
+    if (toastMessage) {
+      showToast(toastMessage, {
+        tone: toastNegative ? "negative" : "positive",
+        durationMs: toastDurationMs,
+      });
+    }
+  };
 </script>
 
 <button
@@ -58,7 +72,7 @@
   bind:this={element}
   {disabled}
   use:tooltip={tooltipText}
-  on:click={forward}
+  on:click={handleClick}
   on:contextmenu={forward}
   on:pointerdown={forward}
   on:pointermove={forward}
