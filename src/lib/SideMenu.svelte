@@ -1,9 +1,20 @@
 <script lang="ts">
   import packageInfo from "../../package.json";
+  import SideMenuButton from "./SideMenuButton.svelte";
+  import SideMenuSection from "./SideMenuSection.svelte";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
+  export let onLoadBuild: (() => void) | null = null;
+  export let onSaveBuild: (() => void) | null = null;
+  export let onResetPoints: (() => void) | null = null;
+  export let onCenterView: (() => void) | null = null;
   const title = packageInfo.name;
+
+  function handleCenterView() {
+    onCenterView?.();
+    onClose?.();
+  }
 </script>
 
 <button
@@ -15,9 +26,16 @@
 ></button>
 <aside class="side-menu" class:open={isOpen} aria-hidden={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <button type="button">Load build</button>
-    <button type="button">Save build</button>
-    <button type="button">Reset points</button>
+    <SideMenuSection title="Build">
+      <SideMenuButton label="Load build" onClick={onLoadBuild} />
+      <SideMenuButton label="Save build" onClick={onSaveBuild} />
+    </SideMenuSection>
+    <SideMenuSection title="View">
+      <SideMenuButton label="Center view" onClick={handleCenterView} />
+    </SideMenuSection>
+    <SideMenuSection title="Settings">
+      <SideMenuButton label="Reset points" onClick={onResetPoints} />
+    </SideMenuSection>
   </nav>
   <h2 class="side-menu__title">{title}</h2>
 </aside>
@@ -84,7 +102,7 @@
 
   .side-menu__content {
     display: grid;
-    gap: 12px;
+    gap: 18px;
     overflow-y: auto;
     padding-left: 10px;
     padding-right: 10px;
@@ -102,15 +120,5 @@
     content: "";
     height: 0px;
     display: block;
-  }
-
-  .side-menu__content button {
-    border: 1px solid #2c3c61;
-    background: rgba(17, 27, 45, 0.7);
-    color: #d4e1ff;
-    padding: 12px 14px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    text-align: left;
   }
 </style>

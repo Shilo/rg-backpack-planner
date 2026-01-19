@@ -295,7 +295,7 @@
     return Math.min(Math.max(value, min), max);
   }
 
-  function centerTree() {
+  export function centerTree() {
     if (!viewportEl || nodes.length === 0) return;
     const xs = nodes.map((node) => node.x);
     const ys = nodes.map((node) => node.y);

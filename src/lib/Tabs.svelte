@@ -19,6 +19,7 @@
   let activeIndex = 0;
   let bottomInset = 0;
   let tabsBarEl: HTMLDivElement | null = null;
+  let treeRef: { centerTree?: () => void } | null = null;
 
   onMount(() => {
     if (!tabsBarEl) return;
@@ -37,6 +38,10 @@
 
   function setActive(index: number) {
     activeIndex = clampIndex(index);
+  }
+
+  export function centerActiveTree() {
+    treeRef?.centerTree?.();
   }
 </script>
 
@@ -63,7 +68,7 @@
 
   <div class="tabs-content">
     {#if tabs[activeIndex]}
-      <Tree nodes={tabs[activeIndex].nodes} {bottomInset} />
+      <Tree bind:this={treeRef} nodes={tabs[activeIndex].nodes} {bottomInset} />
     {/if}
   </div>
 </div>

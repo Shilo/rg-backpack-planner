@@ -3,6 +3,7 @@
   import SideMenu from "./lib/SideMenu.svelte";
 
   let isMenuOpen = false;
+  let tabsRef: { centerActiveTree?: () => void } | null = null;
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -96,9 +97,13 @@
 </script>
 
 <div class="app-shell" role="application" on:contextmenu|preventDefault>
-  <SideMenu isOpen={isMenuOpen} onClose={closeMenu} />
+  <SideMenu
+    isOpen={isMenuOpen}
+    onClose={closeMenu}
+    onCenterView={() => tabsRef?.centerActiveTree?.()}
+  />
   <main class="app-main">
-    <Tabs {tabs} onMenuClick={toggleMenu} {isMenuOpen} />
+    <Tabs bind:this={tabsRef} {tabs} onMenuClick={toggleMenu} {isMenuOpen} />
   </main>
 </div>
 
