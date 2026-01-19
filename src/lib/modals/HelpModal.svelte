@@ -4,6 +4,7 @@
   import {
     Clock,
     Hand,
+    Menu,
     Mouse,
     MousePointer2,
     Move,
@@ -35,6 +36,34 @@
 
   const controls: ControlItem[] = [
     {
+      id: "pointer-node",
+      label: "Click a node",
+      description: "Increase the node level.",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
+      id: "pointer-node-menu",
+      label: "Right-click a node",
+      description: "Show node options.",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
+      id: "pointer-tree-menu",
+      label: "Right-click empty space",
+      description: "Show tree options.",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
+      id: "pointer-tab-menu",
+      label: "Right-click a tab",
+      description: "Show tree options for tab.",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
       id: "pointer-pan",
       label: "Click and drag",
       description: "Pan around the tree.",
@@ -49,32 +78,32 @@
       device: "pointer",
     },
     {
-      id: "pointer-node",
-      label: "Click a node",
-      description: "Increase the node level if available.",
-      icon: MousePointer2,
-      device: "pointer",
+      id: "touch-node",
+      label: "Tap a node",
+      description: "Increase the node level.",
+      icon: Hand,
+      device: "touch",
     },
     {
-      id: "pointer-node-menu",
-      label: "Right-click a node",
-      description: "Open node options.",
-      icon: MousePointer2,
-      device: "pointer",
+      id: "touch-node-menu",
+      label: "Long-press a node",
+      description: "Show node options.",
+      icon: Clock,
+      device: "touch",
     },
     {
-      id: "pointer-tree-menu",
-      label: "Right-click empty space",
-      description: "Open tree options for the active tab.",
-      icon: MousePointer2,
-      device: "pointer",
+      id: "touch-tree-menu",
+      label: "Long-press empty space",
+      description: "Show tree options.",
+      icon: Clock,
+      device: "touch",
     },
     {
-      id: "pointer-tab-menu",
-      label: "Right-click a tab",
-      description: "Open tab options.",
-      icon: MousePointer2,
-      device: "pointer",
+      id: "touch-tab-menu",
+      label: "Long-press a tab",
+      description: "Show tree options for tab.",
+      icon: Clock,
+      device: "touch",
     },
     {
       id: "touch-pan",
@@ -88,34 +117,6 @@
       label: "Pinch with two fingers",
       description: "Zoom in and out on the tree.",
       icon: ZoomIn,
-      device: "touch",
-    },
-    {
-      id: "touch-node",
-      label: "Tap a node",
-      description: "Increase the node level if available.",
-      icon: Hand,
-      device: "touch",
-    },
-    {
-      id: "touch-node-menu",
-      label: "Long-press a node",
-      description: "Open node options.",
-      icon: Clock,
-      device: "touch",
-    },
-    {
-      id: "touch-tree-menu",
-      label: "Long-press empty space",
-      description: "Open tree options for the active tab.",
-      icon: Clock,
-      device: "touch",
-    },
-    {
-      id: "touch-tab-menu",
-      label: "Long-press a tab",
-      description: "Open tab options.",
-      icon: Clock,
       device: "touch",
     },
     {
@@ -185,11 +186,20 @@
       {/if}
     </div>
     <div class="help-controls">
-      {#if showPointer}
+      <div class="help-shortcut">
+        <span class="control-icon" aria-hidden="true">
+          <Menu />
+        </span>
+        <div class="control-text">
+          <p class="control-label">Side menu button</p>
+          <p class="control-desc">Show or hide additional options.</p>
+        </div>
+      </div>
+      {#if true}
         <section class="help-section">
-          <h3>Pointer controls</h3>
+          <h3>Touch controls</h3>
           <ul class="control-list">
-            {#each pointerControls as control (control.id)}
+            {#each touchControls as control (control.id)}
               <li class="control-item">
                 <span class="control-icon" aria-hidden="true">
                   <svelte:component this={control.icon} />
@@ -203,11 +213,11 @@
           </ul>
         </section>
       {/if}
-      {#if showTouch}
+      {#if showPointer}
         <section class="help-section">
-          <h3>Touch controls</h3>
+          <h3>Pointer controls</h3>
           <ul class="control-list">
-            {#each touchControls as control (control.id)}
+            {#each pointerControls as control (control.id)}
               <li class="control-item">
                 <span class="control-icon" aria-hidden="true">
                   <svelte:component this={control.icon} />
@@ -235,15 +245,17 @@
   }
 
   .help-content {
-    max-height: min(80vh, 520px);
+    max-height: min(80dvh, 520px);
     grid-template-rows: auto minmax(0, 1fr);
     position: relative;
   }
 
   .help-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     overflow-y: auto;
-    padding-right: 4px;
-    padding-bottom: 58px;
+    padding: 0 6px 58px;
   }
 
   .modal-header {
@@ -303,12 +315,23 @@
     gap: 16px;
   }
 
+  .help-shortcut {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 10px;
+    align-items: start;
+  }
+
   .help-section h3 {
     margin: 0 0 8px;
     font-size: 0.85rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #b9c7ec;
+  }
+
+  .help-section + .help-section {
+    margin-top: 6px;
   }
 
   .control-list {
