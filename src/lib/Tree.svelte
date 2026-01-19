@@ -14,7 +14,7 @@
   import Node, { type NodeState } from "./Node.svelte";
 
   export let nodes: TreeNode[] = [];
-  export let topInset = 0;
+  export let bottomInset = 0;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -304,7 +304,7 @@
       body: JSON.stringify({
         location: "Tree.svelte:centerTree:entry",
         message: "centerTree entry",
-        data: { topInset, nodesCount: nodes.length },
+        data: { bottomInset, nodesCount: nodes.length },
         timestamp: Date.now(),
         sessionId: "debug-session",
         runId: "post-fix",
@@ -323,9 +323,9 @@
     const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
-    const availableH = Math.max(rect.height - topInset - padding * 2, 1);
+    const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
     const paddedCenterX = padding + availableW / 2;
-    const paddedCenterY = topInset + padding + availableH / 2;
+    const paddedCenterY = padding + availableH / 2;
     // #region agent log
     fetch("http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8", {
       method: "POST",
@@ -342,7 +342,7 @@
           height,
           rectW: rect.width,
           rectH: rect.height,
-          topInset,
+          bottomInset,
           availableW,
           availableH,
           padding,
@@ -405,7 +405,7 @@
             data: {
               innerW: window.innerWidth,
               innerH: window.innerHeight,
-              topInset,
+              bottomInset,
             },
             timestamp: Date.now(),
             sessionId: "debug-session",

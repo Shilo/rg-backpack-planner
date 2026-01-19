@@ -16,13 +16,13 @@
   export let onMenuClick: (() => void) | null = null;
 
   let activeIndex = 0;
-  let topInset = 0;
+  let bottomInset = 0;
   let tabsBarEl: HTMLDivElement | null = null;
 
   onMount(() => {
     if (!tabsBarEl) return;
     const observer = new ResizeObserver(() => {
-      topInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
+      bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
       // #region agent log
       fetch(
         "http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8",
@@ -33,7 +33,7 @@
             location: "Tabs.svelte:resizeObserver",
             message: "tabsBar resize",
             data: {
-              topInset,
+              bottomInset,
               hasEl: !!tabsBarEl,
               height: tabsBarEl?.offsetHeight,
             },
@@ -47,7 +47,7 @@
       // #endregion agent log
     });
     observer.observe(tabsBarEl);
-    topInset = tabsBarEl.offsetHeight;
+    bottomInset = tabsBarEl.offsetHeight;
     // #region agent log
     fetch("http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8", {
       method: "POST",
@@ -55,7 +55,11 @@
       body: JSON.stringify({
         location: "Tabs.svelte:onMount",
         message: "tabsBar init",
-        data: { topInset, hasEl: !!tabsBarEl, height: tabsBarEl?.offsetHeight },
+        data: {
+          bottomInset,
+          hasEl: !!tabsBarEl,
+          height: tabsBarEl?.offsetHeight,
+        },
         timestamp: Date.now(),
         sessionId: "debug-session",
         runId: "post-fix",
@@ -99,7 +103,7 @@
 
   <div class="tabs-content">
     {#if tabs[activeIndex]}
-      <Tree nodes={tabs[activeIndex].nodes} {topInset} />
+      <Tree nodes={tabs[activeIndex].nodes} {bottomInset} />
     {/if}
   </div>
 </div>
@@ -116,13 +120,13 @@
 
   .tabs-bar {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 10px 0;
+    padding: 0 10px 10px;
     background: transparent;
     z-index: 5;
   }
