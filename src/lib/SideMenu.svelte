@@ -42,20 +42,6 @@
 ></Button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
   <nav class="side-menu__content" aria-label="Primary">
-    <SideMenuSection title="General">
-      <Button
-        on:click={() => {
-          onShareBuild?.();
-        }}
-        toastMessage={onShareBuild
-          ? "Share link copied to clipboard."
-          : undefined}
-        icon={Share2}
-      >
-        Share build
-      </Button>
-      <Button on:click={() => onHelp?.()} icon={HelpCircle}>Help</Button>
-    </SideMenuSection>
     <SideMenuSection title={`${activeTreeName} Tree`}>
       <TreeContextMenuList
         onFocusInView={() => {
@@ -82,6 +68,20 @@
       >
         Reset all
       </Button>
+    </SideMenuSection>
+    <SideMenuSection title="Support">
+      <Button
+        on:click={() => {
+          onShareBuild?.();
+        }}
+        toastMessage={onShareBuild
+          ? "Share link copied to clipboard."
+          : undefined}
+        icon={Share2}
+      >
+        Share build
+      </Button>
+      <Button on:click={() => onHelp?.()} icon={HelpCircle}>Help</Button>
     </SideMenuSection>
   </nav>
   <h2 class="side-menu__title">{title}</h2>
