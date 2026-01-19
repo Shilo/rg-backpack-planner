@@ -17,7 +17,11 @@
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
-  let techCrystals: [available: number, owned: number] = [1, 1];
+  let techCrystals: [available: number, owned: number] = [0, 0];
+
+  function handleNodeLevelUp() {
+    techCrystals = [techCrystals[0] - 1, techCrystals[1]];
+  }
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -186,6 +190,7 @@
       bind:activeLabel={activeTreeName}
       {tabs}
       onMenuClick={toggleMenu}
+      onNodeLevelUp={handleNodeLevelUp}
       {isMenuOpen}
     />
   </main>

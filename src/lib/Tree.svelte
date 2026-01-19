@@ -25,6 +25,7 @@
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
   export let gesturesDisabled = false;
+  export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -106,11 +107,14 @@
 
   function levelUp(id: string) {
     const node = nodeById.get(id);
-    if (!node) return;
+    if (!node) return false;
     const state = getState(node);
-    if (state === "locked") return;
+    if (state === "locked") return false;
     const level = getLevel(id);
-    levels = { ...levels, [id]: Math.min(level + 1, node.maxLevel) };
+    const nextLevel = Math.min(level + 1, node.maxLevel);
+    if (nextLevel === level) return false;
+    levels = { ...levels, [id]: nextLevel };
+    return true;
   }
 
   function resetNode(id: string) {
@@ -306,7 +310,9 @@
       pointers.size === 0 &&
       pointer.nodeId
     ) {
-      levelUp(pointer.nodeId);
+      if (levelUp(pointer.nodeId)) {
+        onNodeLevelUp?.(pointer.nodeId);
+      }
     }
 
     if (pointers.size === 1) {

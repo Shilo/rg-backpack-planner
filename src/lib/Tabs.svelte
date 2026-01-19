@@ -26,6 +26,7 @@
   export let onMenuClick: (() => void) | null = null;
   export let isMenuOpen = false;
   export let activeLabel = "";
+  export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
 
   let activeIndex = 0;
   let bottomInset = 0;
@@ -300,6 +301,7 @@
           nodes={tabs[activeIndex].nodes}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
+          {onNodeLevelUp}
         />
       {/key}
     {/if}
