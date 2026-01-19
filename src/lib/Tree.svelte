@@ -319,6 +319,13 @@
 
   onMount(() => {
     centerTree();
+    const handleResize = () => {
+      centerTree();
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   });
 </script>
 
