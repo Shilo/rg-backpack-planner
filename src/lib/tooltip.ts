@@ -100,6 +100,7 @@ export function tooltip(node: HTMLElement, value?: string) {
 
   const scheduleHover = (event: PointerEvent) => {
     if (event.pointerType === "touch") return;
+    if (event.buttons !== 0) return;
     if (!canHover() || !text) return;
     lastPoint = { x: event.clientX, y: event.clientY };
     clearHoverTimer();
