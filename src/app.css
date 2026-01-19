@@ -56,16 +56,13 @@ button {
 
 @media (hover: hover) {
   button:hover {
-    transform: scale(0.95);
-    filter: brightness(0.95);
+    filter: brightness(1.25);
   }
 }
 
-@media (hover: none) {
-  button:active {
-    transform: scale(0.95);
-    filter: brightness(0.95);
-  }
+button:active {
+  transform: scale(0.95);
+  filter: brightness(1.25);
 }
 
 .menu-backdrop {
