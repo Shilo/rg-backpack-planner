@@ -23,50 +23,9 @@
     if (!tabsBarEl) return;
     const observer = new ResizeObserver(() => {
       bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "Tabs.svelte:resizeObserver",
-            message: "tabsBar resize",
-            data: {
-              bottomInset,
-              hasEl: !!tabsBarEl,
-              height: tabsBarEl?.offsetHeight,
-            },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "post-fix",
-            hypothesisId: "A",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion agent log
     });
     observer.observe(tabsBarEl);
     bottomInset = tabsBarEl.offsetHeight;
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/2d7cab1a-a0b0-46a8-8740-af356464e2e8", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "Tabs.svelte:onMount",
-        message: "tabsBar init",
-        data: {
-          bottomInset,
-          hasEl: !!tabsBarEl,
-          height: tabsBarEl?.offsetHeight,
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "post-fix",
-        hypothesisId: "A",
-      }),
-    }).catch(() => {});
-    // #endregion agent log
     return () => observer.disconnect();
   });
   function clampIndex(index: number) {
