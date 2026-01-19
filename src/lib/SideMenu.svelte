@@ -2,22 +2,18 @@
   import packageInfo from "../../package.json";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
+  import { tooltip } from "./tooltip";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
   export let onLoadBuild: (() => void) | null = null;
   export let onSaveBuild: (() => void) | null = null;
-  export let onResetPoints: (() => void) | null = null;
+  export let onResetNodes: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
   const title = packageInfo.name;
 
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-
-  function handleFocusInView() {
-    onFocusInView?.();
-    onClose?.();
-  }
 
   $: if (!isOpen) {
     const active = document.activeElement;
@@ -51,11 +47,21 @@
       </button>
     </SideMenuSection>
     <SideMenuSection title="View">
-      <TreeContextMenuList onFocusInView={handleFocusInView} />
+      <TreeContextMenuList
+        onFocusInView={() => {
+          onFocusInView?.();
+          onClose?.();
+        }}
+      />
     </SideMenuSection>
     <SideMenuSection title="Settings">
-      <button class="button button-md" type="button" on:click={onResetPoints}>
-        Reset points
+      <button
+        class="button button-md"
+        type="button"
+        on:click={onResetNodes}
+        use:tooltip={"Revert nodes to level 0 and refund Tech Crystals"}
+      >
+        Reset
       </button>
     </SideMenuSection>
   </nav>

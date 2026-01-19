@@ -205,7 +205,7 @@
     focusInViewKey += 1;
   }
 
-  function handleTabClick(index: number) {
+  function onTabClick(index: number) {
     if (tabPressState.fired) {
       tabPressState.fired = false;
       return;
@@ -221,7 +221,7 @@
         <button
           class="button button-sm"
           class:active={index === activeIndex}
-          on:click={() => handleTabClick(index)}
+          on:click={() => onTabClick(index)}
           on:contextmenu={(event) => openTabMenu(event, tab)}
           on:pointerdown={(event) => startTabPress(event, tab)}
           on:pointermove={moveTabPress}
@@ -268,7 +268,7 @@
   </div>
 
   <TreeContextMenu
-    tabId={tabContextMenu?.id ?? null}
+    tabId={tabContextMenu?.id ?? ""}
     tabLabel={tabContextMenu?.label ?? ""}
     x={tabContextMenu?.x ?? 0}
     y={tabContextMenu?.y ?? 0}

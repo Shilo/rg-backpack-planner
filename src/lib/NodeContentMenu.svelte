@@ -1,23 +1,13 @@
 <script lang="ts">
   import ContextMenu from "./ContextMenu.svelte";
 
-  export let nodeId: string | null = null;
+  export let nodeId = "";
   export let x = 0;
   export let y = 0;
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
   export let onMax: ((id: string) => void) | null = null;
   export let onReset: ((id: string) => void) | null = null;
-
-  function handleMax() {
-    if (!nodeId) return;
-    onMax?.(nodeId);
-  }
-
-  function handleReset() {
-    if (!nodeId) return;
-    onReset?.(nodeId);
-  }
 </script>
 
 <ContextMenu
@@ -31,7 +21,7 @@
   <button
     type="button"
     class="button button-md"
-    on:click={handleMax}
+    on:click={() => onMax?.(nodeId)}
     disabled={!nodeId}
   >
     Max
@@ -39,7 +29,7 @@
   <button
     type="button"
     class="button button-md"
-    on:click={handleReset}
+    on:click={() => onReset?.(nodeId)}
     disabled={!nodeId}
   >
     Reset

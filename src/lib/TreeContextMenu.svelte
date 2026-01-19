@@ -2,18 +2,14 @@
   import ContextMenu from "./ContextMenu.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
 
-  export let tabId: string | null = null;
+  export let tabId = "";
   export let tabLabel = "";
   export let x = 0;
   export let y = 0;
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
   export let onFocusInView: ((tabId: string) => void) | null = null;
-
-  function handleFocusInView() {
-    if (!tabId) return;
-    onFocusInView?.(tabId);
-  }
+  export let onResetNodes: ((tabId: string) => void) | null = null;
 </script>
 
 <ContextMenu
@@ -24,5 +20,9 @@
   ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
   {onClose}
 >
-  <TreeContextMenuList onFocusInView={handleFocusInView} />
+  <TreeContextMenuList
+    onFocusInView={() => onFocusInView?.(tabId)}
+    onResetNodes={() => onResetNodes?.(tabId)}
+    showResetNodes={true}
+  />
 </ContextMenu>
