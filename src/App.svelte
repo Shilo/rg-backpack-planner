@@ -84,7 +84,7 @@
   ];
 </script>
 
-<div class="app-shell">
+<div class="app-shell" role="application" on:contextmenu|preventDefault>
   <main class="app-main">
     <Tabs {tabs} />
   </main>

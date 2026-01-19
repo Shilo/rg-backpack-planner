@@ -16,6 +16,8 @@ body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #app {
@@ -25,4 +27,6 @@ body {
 
 button {
   font: inherit;
+  user-select: none;
+  -webkit-user-select: none;
 }
