@@ -1,4 +1,135 @@
-<script lang="ts">
+<script lang="ts" context="module">
+  export type NodeState = "locked" | "available" | "active" | "maxed";
 </script>
 
-<div>Node</div>
+<script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
+  export let id: string;
+  export let label: string = "";
+  export let level: number = 0;
+  export let maxLevel: number = 1;
+  export let state: NodeState = "locked";
+
+  const dispatch = createEventDispatcher<{
+    level: { id: string };
+    context: { id: string; x: number; y: number };
+  }>();
+
+  let longPressTimer: number | null = null;
+  let longPressTriggered = false;
+
+  const LONG_PRESS_MS = 450;
+
+  function clearLongPress() {
+    if (longPressTimer !== null) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  }
+
+  function onPointerDown(event: PointerEvent) {
+    longPressTriggered = false;
+    clearLongPress();
+    longPressTimer = window.setTimeout(() => {
+      longPressTriggered = true;
+      dispatch("context", { id, x: event.clientX, y: event.clientY });
+    }, LONG_PRESS_MS);
+  }
+
+  function onPointerUp() {
+    clearLongPress();
+  }
+
+  function onClick() {
+    if (longPressTriggered) return;
+    if (state === "locked") return;
+    if (level >= maxLevel) return;
+    dispatch("level", { id });
+  }
+</script>
+
+<button
+  class="node {state}"
+  on:pointerdown|stopPropagation={onPointerDown}
+  on:pointerup|stopPropagation={onPointerUp}
+  on:pointercancel|stopPropagation={onPointerUp}
+  on:click|stopPropagation={onClick}
+  aria-label={label || id}
+>
+  <span class="node-icon" aria-hidden="true"></span>
+  <span class="node-level">{level}/{maxLevel}</span>
+  {#if label}
+    <span class="node-label">{label}</span>
+  {/if}
+</button>
+
+<style>
+  .node {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    display: grid;
+    place-items: center;
+    background: #1f2a44;
+    color: #e8eefc;
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    padding: 0;
+  }
+
+  .node-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  .node-level {
+    position: absolute;
+    bottom: 6px;
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+
+  .node-label {
+    position: absolute;
+    top: -18px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0.75;
+  }
+
+  .locked {
+    background: #1b2235;
+    border-color: #2c3550;
+    color: #6c7aa1;
+    cursor: not-allowed;
+  }
+
+  .available {
+    background: #1c2f52;
+    border-color: #4c6fff;
+    color: #cdd7ff;
+    box-shadow: 0 0 0 2px rgba(76, 111, 255, 0.2);
+  }
+
+  .active {
+    background: #2a3f73;
+    border-color: #5aa6ff;
+    color: #e1f0ff;
+    box-shadow: 0 0 0 2px rgba(90, 166, 255, 0.3);
+  }
+
+  .maxed {
+    background: #4a2e0a;
+    border-color: #ffb347;
+    color: #ffe8c7;
+    box-shadow: 0 0 0 2px rgba(255, 179, 71, 0.35);
+  }
+</style>
