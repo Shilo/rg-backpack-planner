@@ -18,8 +18,7 @@
     startLongPress,
     type LongPressState,
   } from "./longPress";
-  import { tooltip } from "./tooltip";
-  import { hideTooltip, suppressTooltip } from "./tooltip";
+  import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
@@ -200,7 +199,6 @@
         <button
           class="button button-sm"
           class:active={index === activeIndex}
-          use:tooltip={tab.label}
           on:click={() => handleTabClick(index)}
           on:contextmenu={(event) => openTabMenu(event, tab)}
           on:pointerdown={(event) => startTabPress(event, tab)}
