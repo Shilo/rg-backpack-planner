@@ -4,6 +4,10 @@
   import TechCrystalsDisplay from "./lib/TechCrystalsDisplay.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
+  import {
+    initTechCrystalTrees,
+    applyTechCrystalDeltaForTree,
+  } from "./lib/techCrystalsStore";
 
   let isMenuOpen = false;
   let tabsRef: {
@@ -17,11 +21,6 @@
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
-  let techCrystals: [available: number, owned: number] = [0, 0];
-
-  function handleNodeLevelUp() {
-    techCrystals = [techCrystals[0] - 1, techCrystals[1]];
-  }
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -105,6 +104,8 @@
     },
   ];
 
+  initTechCrystalTrees(tabs);
+
   activeTreeName = tabs[0]?.label ?? "";
 
   function toggleMenu() {
@@ -164,6 +165,14 @@
 
     resetSwipeState();
   }
+
+  function handleNodeLevelChange(
+    tabIndex: number,
+    techCrystalDelta: number,
+    _nodeId?: string,
+  ) {
+    applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
+  }
 </script>
 
 <div
@@ -181,17 +190,16 @@
     onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
     onResetTree={() => tabsRef?.resetActiveTree?.()}
     onResetAll={() => tabsRef?.resetAllTrees?.()}
-    {techCrystals}
     {activeTreeName}
   />
-  <TechCrystalsDisplay available={techCrystals[0]} owned={techCrystals[1]} />
+  <TechCrystalsDisplay />
   <main class="app-main">
     <Tabs
       bind:this={tabsRef}
       bind:activeLabel={activeTreeName}
       {tabs}
       onMenuClick={toggleMenu}
-      onNodeLevelUp={handleNodeLevelUp}
+      onNodeLevelChange={handleNodeLevelChange}
       {isMenuOpen}
     />
   </main>

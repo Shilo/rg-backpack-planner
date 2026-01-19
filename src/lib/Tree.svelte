@@ -26,6 +26,9 @@
   export let bottomInset = 0;
   export let gesturesDisabled = false;
   export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
+  export let onNodeLevelChange:
+    | ((delta: number, nodeId?: string) => void)
+    | null = null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -114,23 +117,36 @@
     const nextLevel = Math.min(level + 1, node.maxLevel);
     if (nextLevel === level) return false;
     levels = { ...levels, [id]: nextLevel };
+    onNodeLevelChange?.(1, id);
     return true;
   }
 
   function resetNode(id: string) {
+    const level = getLevel(id);
+    if (level === 0) return;
     levels = { ...levels, [id]: 0 };
+    onNodeLevelChange?.(-level, id);
   }
 
   function maxNode(id: string) {
     const node = nodeById.get(id);
     if (!node) return;
     if (getState(node) === "locked") return;
+    const level = getLevel(id);
+    if (level >= node.maxLevel) return;
     levels = { ...levels, [id]: node.maxLevel };
+    onNodeLevelChange?.(node.maxLevel - level, id);
   }
 
   export function resetAllNodes() {
+    const totalSpent = Object.values(levels).reduce(
+      (sum, value) => sum + value,
+      0,
+    );
     levels = Object.fromEntries(nodes.map((node) => [node.id, 0]));
-    // TODO
+    if (totalSpent > 0) {
+      onNodeLevelChange?.(-totalSpent, "all");
+    }
   }
 
   export function triggerFade() {

@@ -5,6 +5,13 @@
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
+  import {
+    techCrystalsOwned,
+    techCrystalsSpentTotal,
+    techCrystalsSpentGuardian,
+    techCrystalsSpentVanguard,
+    techCrystalsSpentCannon,
+  } from "./techCrystalsStore";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
@@ -14,7 +21,6 @@
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
   export let activeTreeName = "";
-  export let techCrystals: [number, number] = [0, 0];
   const title = packageInfo.name;
 
   let backdropEl: HTMLButtonElement | null = null;
@@ -47,10 +53,10 @@
       <CodeBlockTable
         headers={["Spent", "Amount"]}
         rows={[
-          ["Total", `${techCrystals[0]}`],
-          ["Guardian", `${techCrystals[0]}`],
-          ["Vanguard", `${techCrystals[0]}`],
-          ["Cannon", `${techCrystals[0]}`],
+          ["Total", `${$techCrystalsSpentTotal}`],
+          ["Guardian", `${$techCrystalsSpentGuardian}`],
+          ["Vanguard", `${$techCrystalsSpentVanguard}`],
+          ["Cannon", `${$techCrystalsSpentCannon}`],
         ]}
       />
       <Button
@@ -60,7 +66,7 @@
         tooltipText={"Change Tech Crystal budget"}
         icon={Hexagon}
       >
-        Owned: {techCrystals[1]}
+        Owned: {$techCrystalsOwned}
       </Button>
       <Button
         on:click={() => {

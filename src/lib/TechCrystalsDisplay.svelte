@@ -1,13 +1,12 @@
 <script lang="ts">
   import Button from "./Button.svelte";
   import TechCrystalIcon from "./TechCrystalIcon.svelte";
+  import {
+    techCrystalsAvailable,
+    techCrystalsOwned,
+  } from "./techCrystalsStore";
 
-  export let available = 0;
-  export let owned: number = 0;
-
-  $: hasOwned = owned > 0;
-  $: availableText = `${available}`;
-  $: ownedText = `${owned}`;
+  $: hasOwned = $techCrystalsOwned > 0;
 
   const tooltipPrefix = "Tech Crystals";
   $: tooltipText = hasOwned
@@ -24,13 +23,13 @@
 >
   <span
     class="currency-available"
-    class:is-negative={available < 0 && hasOwned}
+    class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
   >
-    {availableText}
+    {`${$techCrystalsAvailable}`}
   </span>
   {#if hasOwned}
     <span class="currency-separator"> / </span>
-    <span class="currency-owned">{ownedText}</span>
+    <span class="currency-owned">{`${$techCrystalsOwned}`}</span>
   {/if}
   <TechCrystalIcon />
 </Button>

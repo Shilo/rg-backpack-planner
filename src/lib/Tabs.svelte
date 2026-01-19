@@ -27,6 +27,9 @@
   export let isMenuOpen = false;
   export let activeLabel = "";
   export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
+  export let onNodeLevelChange:
+    | ((tabIndex: number, techCrystalDelta: number, nodeId?: string) => void)
+    | null = null;
 
   let activeIndex = 0;
   let bottomInset = 0;
@@ -266,6 +269,11 @@
     }
     setActive(index);
   }
+
+  function handleNodeLevelChange(techCrystalDelta: number, nodeId?: string) {
+    if (!tabs[activeIndex]) return;
+    onNodeLevelChange?.(activeIndex, techCrystalDelta, nodeId);
+  }
 </script>
 
 <div class="tabs-root">
@@ -319,6 +327,7 @@
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
           {onNodeLevelUp}
+          onNodeLevelChange={handleNodeLevelChange}
         />
       {/key}
     {/if}
