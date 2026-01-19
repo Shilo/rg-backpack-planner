@@ -11,6 +11,13 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
+  import {
+    usePan,
+    usePinch,
+    type GestureCustomEvent,
+    type PanCustomEvent,
+    type PinchCustomEvent
+  } from "svelte-gestures";
   import Node, { type NodeState } from "./Node.svelte";
 
   export let nodes: TreeNode[] = [];
@@ -27,13 +34,13 @@
   const minScale = 0.6;
   const maxScale = 2.2;
 
-  type PointerState = { x: number; y: number };
-  const pointers = new Map<number, PointerState>();
-
   let panStart: { x: number; y: number; offsetX: number; offsetY: number } | null = null;
   let pinchStart:
-    | { distance: number; worldX: number; worldY: number; scale: number }
+    | { centerX: number; centerY: number; worldX: number; worldY: number; scale: number }
     | null = null;
+
+  let interactionLocked = false;
+  let interactionUnlockTimer: number | null = null;
 
   $: {
     for (const node of nodes) {
@@ -95,75 +102,98 @@
     contextMenu = null;
   }
 
-  function onPointerDown(event: PointerEvent) {
-    if (!viewportEl) return;
-    viewportEl.setPointerCapture(event.pointerId);
-    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-    if (pointers.size === 1) {
-      panStart = {
-        x: event.clientX,
-        y: event.clientY,
-        offsetX,
-        offsetY
-      };
-    } else if (pointers.size === 2) {
-      const [p1, p2] = Array.from(pointers.values());
-      const centerX = (p1.x + p2.x) / 2;
-      const centerY = (p1.y + p2.y) / 2;
-      const distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-      const world = screenToWorld(centerX, centerY);
-      pinchStart = { distance, worldX: world.x, worldY: world.y, scale };
-      panStart = null;
+  function lockInteractions() {
+    interactionLocked = true;
+    if (interactionUnlockTimer !== null) {
+      clearTimeout(interactionUnlockTimer);
+      interactionUnlockTimer = null;
     }
   }
 
-  function onPointerMove(event: PointerEvent) {
-    if (!pointers.has(event.pointerId)) return;
-    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-
-    if (pointers.size === 1 && panStart) {
-      const dx = event.clientX - panStart.x;
-      const dy = event.clientY - panStart.y;
-      offsetX = panStart.offsetX + dx;
-      offsetY = panStart.offsetY + dy;
-      return;
+  function unlockInteractionsSoon() {
+    if (interactionUnlockTimer !== null) {
+      clearTimeout(interactionUnlockTimer);
     }
-
-    if (pointers.size === 2 && pinchStart) {
-      const [p1, p2] = Array.from(pointers.values());
-      const centerX = (p1.x + p2.x) / 2;
-      const centerY = (p1.y + p2.y) / 2;
-      const distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-      const nextScale = clamp(
-        pinchStart.scale * (distance / pinchStart.distance),
-        minScale,
-        maxScale
-      );
-      scale = nextScale;
-      offsetX = centerX - pinchStart.worldX * scale;
-      offsetY = centerY - pinchStart.worldY * scale;
-    }
+    interactionUnlockTimer = window.setTimeout(() => {
+      interactionLocked = false;
+      interactionUnlockTimer = null;
+    }, 80);
   }
 
-  function onPointerUp(event: PointerEvent) {
-    if (viewportEl) {
-      viewportEl.releasePointerCapture(event.pointerId);
+  function onPanDown(event: GestureCustomEvent) {
+    const pointerEvent = event.detail.event;
+    const attachmentNode = event.detail.attachmentNode;
+    if (pointerEvent?.pointerId !== undefined) {
+      attachmentNode.setPointerCapture(pointerEvent.pointerId);
     }
-    pointers.delete(event.pointerId);
-    if (pointers.size === 1) {
-      const [remaining] = Array.from(pointers.values());
-      panStart = {
-        x: remaining.x,
-        y: remaining.y,
-        offsetX,
-        offsetY
+    panStart = {
+      x: event.detail.x,
+      y: event.detail.y,
+      offsetX,
+      offsetY
+    };
+  }
+
+  function onPanMove(event: GestureCustomEvent) {
+    if (!panStart) return;
+    lockInteractions();
+    const dx = event.detail.x - panStart.x;
+    const dy = event.detail.y - panStart.y;
+    offsetX = panStart.offsetX + dx;
+    offsetY = panStart.offsetY + dy;
+  }
+
+  function onPanUp(event: GestureCustomEvent) {
+    const pointerEvent = event.detail.event;
+    const attachmentNode = event.detail.attachmentNode;
+    if (pointerEvent?.pointerId !== undefined) {
+      attachmentNode.releasePointerCapture(pointerEvent.pointerId);
+    }
+    panStart = null;
+    unlockInteractionsSoon();
+  }
+
+  function onPan(event: PanCustomEvent) {
+    onPanMove(event as unknown as GestureCustomEvent);
+  }
+
+  function onPinchDown(event: GestureCustomEvent) {
+    const world = screenToWorld(event.detail.x, event.detail.y);
+    pinchStart = {
+      centerX: event.detail.x,
+      centerY: event.detail.y,
+      worldX: world.x,
+      worldY: world.y,
+      scale
+    };
+    panStart = null;
+  }
+
+  function onPinch(event: PinchCustomEvent) {
+    lockInteractions();
+    if (!pinchStart) {
+      const world = screenToWorld(event.detail.center.x, event.detail.center.y);
+      pinchStart = {
+        centerX: event.detail.center.x,
+        centerY: event.detail.center.y,
+        worldX: world.x,
+        worldY: world.y,
+        scale
       };
-      pinchStart = null;
-    } else if (pointers.size === 0) {
-      panStart = null;
-      pinchStart = null;
     }
+    const nextScale = clamp(
+      pinchStart.scale * event.detail.scale,
+      minScale,
+      maxScale
+    );
+    scale = nextScale;
+    offsetX = pinchStart.centerX - pinchStart.worldX * scale;
+    offsetY = pinchStart.centerY - pinchStart.worldY * scale;
+  }
+
+  function onPinchUp() {
+    pinchStart = null;
+    unlockInteractionsSoon();
   }
 
   function screenToWorld(x: number, y: number) {
@@ -198,11 +228,15 @@
   <div
     class="tree-viewport"
     bind:this={viewportEl}
-    on:pointerdown={onPointerDown}
-    on:pointermove={onPointerMove}
-    on:pointerup={onPointerUp}
-    on:pointercancel={onPointerUp}
-    on:pointerleave={onPointerUp}
+    {...usePan(onPan, () => ({ delay: 0, touchAction: "none" }), {
+      onpandown: onPanDown,
+      onpanmove: onPanMove,
+      onpanup: onPanUp
+    })}
+    {...usePinch(onPinch, () => ({ touchAction: "none" }), {
+      onpinchdown: onPinchDown,
+      onpinchup: onPinchUp
+    })}
     on:click={closeContextMenu}
   >
     <div
@@ -236,6 +270,7 @@
             level={getLevel(node.id)}
             maxLevel={node.maxLevel}
             state={getState(node)}
+            interactionLocked={interactionLocked}
             on:level={(event) => levelUp(event.detail.id)}
             on:context={(event) => {
               contextMenu = event.detail;
