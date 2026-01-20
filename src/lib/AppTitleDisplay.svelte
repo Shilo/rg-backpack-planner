@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { HelpCircle } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
 
@@ -12,6 +13,7 @@
   small
   aria-label={title}
   iconClass="app-title-icon"
+  icon={HelpCircle}
   on:click={() => onHelp?.()}
 >
   {title}
@@ -31,10 +33,27 @@
     font-size: 0.85rem !important;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    --app-title-display-duration: 5s;
+    --app-title-display-fade: 200ms;
+    animation: app-title-fade var(--app-title-display-fade) ease-in forwards;
+    animation-delay: var(--app-title-display-duration);
   }
 
   :global(.app-title-icon) {
     width: 16px;
     height: 16px;
+  }
+
+  @keyframes app-title-fade {
+    0% {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
   }
 </style>
