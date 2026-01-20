@@ -303,15 +303,6 @@
     gap: 0px;
   }
 
-  .help-app-name {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #e7efff;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
   .help-description {
     margin: 0;
     font-size: 0.92rem;
