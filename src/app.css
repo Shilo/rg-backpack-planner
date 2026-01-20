@@ -76,6 +76,7 @@ button {
   letter-spacing: 0.02em;
   max-width: 240px;
   text-align: center;
+  white-space: pre-line;
   box-shadow: 0 8px 20px rgba(9, 13, 25, 0.45);
   pointer-events: none;
 }

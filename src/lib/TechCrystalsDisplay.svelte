@@ -9,7 +9,7 @@
 
   $: hasOwned = $techCrystalsOwned > 0;
 
-  const tooltipPrefix = "Tech Crystals";
+  const tooltipPrefix = "Tech Crystals\n";
   $: tooltipText = hasOwned
     ? `${tooltipPrefix} available / owned`
     : `${tooltipPrefix} spent`;
