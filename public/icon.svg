@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 512 512" role="img" aria-label="Tech Crystal">
+  <g fill="none" stroke="#6a8dff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="256,20 460,120 500,288 256,492 12,288 52,120" />
+    <line x1="256" y1="20" x2="256" y2="492" />
+    <line x1="52" y1="120" x2="256" y2="256" />
+    <line x1="460" y1="120" x2="256" y2="256" />
+    <line x1="12" y1="288" x2="256" y2="256" />
+    <line x1="500" y1="288" x2="256" y2="256" />
+  </g>
+</svg>
