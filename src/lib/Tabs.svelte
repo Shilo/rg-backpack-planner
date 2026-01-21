@@ -28,7 +28,7 @@
     setTreeLevels,
     treeLevels,
   } from "./treeLevelsStore";
-  import { techCrystalsSpentByTree } from "./techCrystalsStore";
+  import { techCrystalsSpentByTree } from "./techCrystalStore";
   import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
 
   export let tabs: TabConfig[] = [];

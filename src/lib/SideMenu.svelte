@@ -6,7 +6,7 @@
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import ResetAllTreesButton from "./buttons/ResetAllTreesButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
-  import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
+  import { openTechCrystalsOwnedModal } from "./techCrystalModal";
   import appPackage from "../../package.json";
   import {
     treeLevels,
@@ -21,7 +21,7 @@
     techCrystalsSpentGuardian,
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
-  } from "./techCrystalsStore";
+  } from "./techCrystalStore";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;

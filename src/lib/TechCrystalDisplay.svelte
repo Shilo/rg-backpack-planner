@@ -1,11 +1,11 @@
 <script lang="ts">
   import { Hexagon } from "lucide-svelte";
   import Button from "./Button.svelte";
-  import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
+  import { openTechCrystalsOwnedModal } from "./techCrystalModal";
   import {
     techCrystalsAvailable,
     techCrystalsOwned,
-  } from "./techCrystalsStore";
+  } from "./techCrystalStore";
 
   $: hasOwned = $techCrystalsOwned > 0;
 

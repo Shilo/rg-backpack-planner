@@ -3,7 +3,7 @@
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
   import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
-  import TechCrystalsDisplay from "./lib/TechCrystalsDisplay.svelte";
+  import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
   import ModalHost from "./lib/ModalHost.svelte";
@@ -12,7 +12,7 @@
   import {
     initTechCrystalTrees,
     applyTechCrystalDeltaForTree,
-  } from "./lib/techCrystalsStore";
+  } from "./lib/techCrystalStore";
 
   let isMenuOpen = false;
   let tabsRef: {
@@ -231,7 +231,7 @@
   {#if showAppTitle}
     <AppTitleDisplay onHelp={openHelp} />
   {/if}
-  <TechCrystalsDisplay />
+  <TechCrystalDisplay />
   <main class="app-main">
     <Tabs
       bind:this={tabsRef}

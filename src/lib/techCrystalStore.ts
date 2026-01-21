@@ -24,7 +24,6 @@ export const techCrystalsSpentCannon = derived(
   ($trees) => $trees[2] ?? 0,
 );
 
-
 export const techCrystalsAvailable = derived(
   [techCrystalsOwned, techCrystalsSpentTotal],
   ([$owned, $spentTotal]) => $owned - $spentTotal,

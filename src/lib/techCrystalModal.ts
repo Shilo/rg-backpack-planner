@@ -1,6 +1,6 @@
 import { Hexagon } from "lucide-svelte";
 import { openModal } from "./modalStore";
-import { setTechCrystalsOwned } from "./techCrystalsStore";
+import { setTechCrystalsOwned } from "./techCrystalStore";
 
 export function openTechCrystalsOwnedModal(currentOwned: number) {
   openModal({
