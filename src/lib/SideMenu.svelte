@@ -205,8 +205,8 @@
     height: 18px !important;
 
     :global(.button-icon) {
-      width: 18px !important;
-      height: 18px !important;
+      width: 100% !important;
+      height: 100% !important;
     }
   }
 
