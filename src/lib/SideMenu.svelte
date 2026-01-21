@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { Copy, HelpCircle, Hexagon, Share2 } from "lucide-svelte";
+  import { HelpCircle, Hexagon, Share2 } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
+  import CopyStatsButton from "./buttons/CopyStatsButton.svelte";
   import ResetAllTreesButton from "./buttons/ResetAllTreesButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
@@ -24,7 +25,6 @@
   } from "./techCrystalStore";
 
   $: hasOwned = $techCrystalsOwned > 0;
-  const statsCopyLabel = "Copy";
   let statsRows: Array<[string, string]> = [];
   $: statsRows = [
     ["Tech Crystals Spent", ""],
@@ -129,14 +129,10 @@
           />
         </SideMenuSection>
         <SideMenuSection title="STATISTICS">
-          <Button
+          <CopyStatsButton
             slot="action"
             class="side-menu__stats-copy"
-            small
-            icon={Copy}
-            on:click={() => statsTable?.copy()}
-            tooltipText={statsCopyLabel}
-            aria-label={statsCopyLabel}
+            onCopy={() => statsTable?.copy()}
           />
           <div class="side-menu__stats-card">
             <CodeBlockTable bind:this={statsTable} rows={statsRows} />
