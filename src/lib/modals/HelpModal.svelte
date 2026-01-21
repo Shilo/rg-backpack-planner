@@ -29,8 +29,11 @@
 
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
-  const modalTitle =
-    appName && title ? `${appName} - ${title}` : appName || title;
+  const appVersion = packageInfo.version ?? "";
+  const modalTitle = appName && title ? `${appName} - ${title}` : appName || title;
+  const modalTitleWithVersion = appVersion
+    ? `${modalTitle} v${appVersion}`
+    : modalTitle;
   const appIconUrl = `${import.meta.env.BASE_URL}icon.svg`;
   const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
     | string
@@ -197,7 +200,7 @@
                 aria-hidden={titleIconAriaHidden}
               />
             {/if}
-            <h2>{modalTitle}</h2>
+            <h2>{modalTitleWithVersion}</h2>
           </div>
         </header>
         <div class="help-intro">
