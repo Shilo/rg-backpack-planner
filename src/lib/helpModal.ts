@@ -1,4 +1,3 @@
-import { HelpCircle } from "lucide-svelte";
 import { openModal } from "./modalStore";
 import packageInfo from "../../package.json";
 
@@ -16,8 +15,7 @@ export function openHelpModal(options: HelpModalOptions = {}) {
   openModal({
     type: "help",
     title: "",
-    titleIcon: HelpCircle,
-    message: `• ${ownerLink}<br>• ${gameLink}`,
+    message: `For ${gameLink} - By ${ownerLink}`,
     actionsClass: "help-actions-opaque",
     confirmLabel: "Close",
     onConfirm: options.onClose,

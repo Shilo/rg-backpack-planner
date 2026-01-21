@@ -207,6 +207,13 @@
             <p class="modal-message">{@html message}</p>
           {/if}
         </div>
+        <div class="help-brand">
+          <img
+            src="/icon.svg"
+            alt={`${appName || "App"} icon`}
+            class="help-brand__icon"
+          />
+        </div>
         <div class="help-controls">
           <section class="help-section">
             <h3>On-screen HUD</h3>
@@ -297,7 +304,10 @@
       <div class="help-scroll__fade" aria-hidden="true"></div>
     </div>
   </div>
-  <div class={`modal-actions ${actionsClass}`.trim()} on:wheel={handleCloseWheel}>
+  <div
+    class={`modal-actions ${actionsClass}`.trim()}
+    on:wheel={handleCloseWheel}
+  >
     <Button
       icon={Github}
       aria-label="GitHub"
@@ -369,15 +379,27 @@
     pointer-events: none;
   }
 
+  .help-brand {
+    display: flex;
+    justify-content: center;
+  }
+
+  .help-brand__icon {
+    width: 32px;
+    height: 32px;
+  }
+
   .modal-header {
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   .modal-title {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    justify-content: center;
   }
 
   .modal-header h2 {
@@ -396,6 +418,7 @@
   .help-intro {
     display: grid;
     gap: 0px;
+    text-align: center;
   }
 
   .help-description {
