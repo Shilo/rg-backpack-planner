@@ -1,19 +1,22 @@
-<script lang="ts">
-  import { onMount } from "svelte";
-  import { Download } from "lucide-svelte";
-  import Button from "../Button.svelte";
-  import { triggerHaptic } from "../haptics";
-
-  export let className = "";
-
+<script module lang="ts">
   type BeforeInstallPromptEvent = Event & {
     prompt: () => Promise<void>;
     userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
   };
 
-  let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
-  let canInstall = false;
-  let isInstalled = false;
+  type InstallState = {
+    deferredInstallPrompt: BeforeInstallPromptEvent | null;
+    canInstall: boolean;
+    isInstalled: boolean;
+  };
+
+  const listeners = new Set<(state: InstallState) => void>();
+  const sharedState: InstallState = {
+    deferredInstallPrompt: null,
+    canInstall: false,
+    isInstalled: false,
+  };
+  let hasInitialized = false;
 
   function detectStandalone() {
     if (typeof window === "undefined") {
@@ -28,37 +31,86 @@
     );
   }
 
+  function emitState() {
+    for (const notify of listeners) {
+      notify(sharedState);
+    }
+  }
+
+  export function ensureInstallListeners() {
+    if (hasInitialized || typeof window === "undefined") {
+      return;
+    }
+    hasInitialized = true;
+    sharedState.isInstalled = detectStandalone();
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      sharedState.deferredInstallPrompt = event as BeforeInstallPromptEvent;
+      sharedState.canInstall = true;
+      emitState();
+    };
+    const handleAppInstalled = () => {
+      sharedState.isInstalled = true;
+      sharedState.canInstall = false;
+      sharedState.deferredInstallPrompt = null;
+      emitState();
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+  }
+
+  export function subscribeInstallState(listener: (state: InstallState) => void) {
+    listeners.add(listener);
+    listener(sharedState);
+    return () => {
+      listeners.delete(listener);
+    };
+  }
+
+  export async function promptInstall() {
+    if (!sharedState.deferredInstallPrompt) {
+      return false;
+    }
+    await sharedState.deferredInstallPrompt.prompt();
+    await sharedState.deferredInstallPrompt.userChoice;
+    sharedState.deferredInstallPrompt = null;
+    sharedState.canInstall = false;
+    emitState();
+    return true;
+  }
+</script>
+
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { Download } from "lucide-svelte";
+  import Button from "../Button.svelte";
+  import { triggerHaptic } from "../haptics";
+
+  export let className = "";
+
+  let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
+  let canInstall = false;
+  let isInstalled = false;
+
+  function updateLocalState(state: InstallState) {
+    deferredInstallPrompt = state.deferredInstallPrompt;
+    canInstall = state.canInstall;
+    isInstalled = state.isInstalled;
+  }
+
   async function handleInstallClick() {
     if (!deferredInstallPrompt) {
       return;
     }
     triggerHaptic();
-    await deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    canInstall = false;
+    await promptInstall();
   }
 
   onMount(() => {
-    isInstalled = detectStandalone();
-    const handleBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      deferredInstallPrompt = event as BeforeInstallPromptEvent;
-      canInstall = true;
-    };
-    const handleAppInstalled = () => {
-      isInstalled = true;
-      canInstall = false;
-      deferredInstallPrompt = null;
-    };
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    window.addEventListener("appinstalled", handleAppInstalled);
+    ensureInstallListeners();
+    const unsubscribe = subscribeInstallState(updateLocalState);
     return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt,
-      );
-      window.removeEventListener("appinstalled", handleAppInstalled);
+      unsubscribe();
     };
   });
 </script>

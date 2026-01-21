@@ -31,7 +31,8 @@
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
   const appVersion = packageInfo.version ?? "";
-  const modalTitle = appName && title ? `${appName} - ${title}` : appName || title;
+  const modalTitle =
+    appName && title ? `${appName} - ${title}` : appName || title;
   const modalTitleWithVersion = appVersion
     ? `${modalTitle} v${appVersion}`
     : modalTitle;
@@ -313,7 +314,7 @@
     class={`modal-actions ${actionsClass}`.trim()}
     on:wheel={handleCloseWheel}
   >
-    <InstallPwaButton className="help-install-button" />
+    <InstallPwaButton />
     <Button
       icon={Github}
       aria-label="GitHub"
@@ -530,9 +531,5 @@
 
   .modal-actions :global(button) {
     pointer-events: auto;
-  }
-
-  :global(.help-install-button) {
-    margin-right: auto;
   }
 </style>

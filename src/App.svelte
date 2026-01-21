@@ -10,6 +10,7 @@
   import ModalHost from "./lib/ModalHost.svelte";
   import type { TreeViewState } from "./lib/Tree.svelte";
   import { openHelpModal } from "./lib/helpModal";
+  import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
   import { treeLevels, type LevelsById } from "./lib/treeLevelsStore";
   import packageInfo from "../package.json";
   import {
@@ -193,6 +194,7 @@
   }
 
   onMount(() => {
+    ensureInstallListeners();
     try {
       if (localStorage.getItem(helpStorageKey) !== appVersion) {
         showAppTitle = false;
