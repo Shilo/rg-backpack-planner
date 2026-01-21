@@ -239,7 +239,7 @@
       minmax(20px, 1fr)
       minmax(0, 44px)
       minmax(0, 60px);
-    gap: 10px;
+    gap: 6px;
     align-items: center;
   }
 
