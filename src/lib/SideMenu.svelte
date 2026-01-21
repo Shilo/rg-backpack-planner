@@ -15,12 +15,15 @@
     treeLevelsCannon,
   } from "./treeLevelsStore";
   import {
+    techCrystalsAvailable,
     techCrystalsOwned,
     techCrystalsSpentTotal,
     techCrystalsSpentGuardian,
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
   } from "./techCrystalStore";
+
+  $: hasOwned = $techCrystalsOwned > 0;
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
@@ -70,7 +73,14 @@
             iconClass="button-icon button-icon-filled"
           >
             Tech Crystals:<br />
-            {$techCrystalsOwned}
+            <span
+              class="tech-crystals-available"
+              class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
+            >
+              {`${$techCrystalsAvailable}`}
+            </span>
+            <span class="tech-crystals-separator"> / </span>
+            <span class="tech-crystals-owned">{`${$techCrystalsOwned}`}</span>
           </Button>
           <ResetAllTreesButton
             onResetAll={() => {
@@ -150,6 +160,22 @@
 </aside>
 
 <style>
+  .tech-crystals-available {
+    color: #e6f0ff;
+  }
+
+  .tech-crystals-available.is-negative {
+    color: #f87171;
+  }
+
+  .tech-crystals-separator {
+    color: #94a3c7;
+  }
+
+  .tech-crystals-owned {
+    color: #c7d6ff;
+  }
+
   :global(.menu-backdrop) {
     position: fixed;
     inset: 0;
