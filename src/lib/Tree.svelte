@@ -88,7 +88,6 @@
 
   const longPressState: LongPressState = { timer: null, fired: false };
   let fadeKey = 0;
-  let autoFocus = true;
 
   function updateLevels(nextLevels: Record<string, number>) {
     levels = nextLevels;
@@ -200,7 +199,6 @@
 
   export function setViewState(view: TreeViewState | null) {
     if (!view) return;
-    autoFocus = false;
     scale = clamp(view.scale, minScale, maxScale);
     offsetX = view.offsetX;
     offsetY = view.offsetY;
@@ -284,7 +282,6 @@
       const nodeId = getNodeIdFromTarget(event.target);
       if (!nodeId) {
         event.preventDefault();
-        autoFocus = true;
         if (onFocusInView) {
           onFocusInView();
         } else {
@@ -562,10 +559,6 @@
       window.removeEventListener("resize", handleResize);
     };
   });
-
-  $: if (viewportEl && autoFocus) {
-    focusTreeInView();
-  }
 
   $: if (gesturesDisabled) {
     cancelActiveGestures();
