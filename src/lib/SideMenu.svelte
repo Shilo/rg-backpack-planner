@@ -92,6 +92,7 @@
         </SideMenuSection>
         <SideMenuSection title={`${activeTreeName.toUpperCase()} TREE`}>
           <TreeContextMenuList
+            tabLabel={activeTreeName}
             onFocusInView={() => {
               onFocusInView?.();
               onClose?.();

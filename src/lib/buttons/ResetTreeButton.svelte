@@ -16,17 +16,18 @@
   $: disabled = !onReset || (totalLevels !== null && totalLevels === 0);
   $: trimmedTreeLabel = treeLabel.trim();
   $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
-  $: modalTitle = trimmedTreeLabel ? `RESET ${trimmedTreeLabel} TREE?` : "RESET TREE?";
+  $: modalTitle = trimmedTreeLabel
+    ? `RESET ${trimmedTreeLabel} TREE?`
+    : "RESET TREE?";
   $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
 
   const handleReset = () => {
     if (!onReset) return;
-    onPress?.();
     openModal({
       type: "confirm",
       title: modalTitle,
       titleIcon: RotateCcw,
-      message: `Set all nodes in the ${treeName} to level 0 and refund all Tech Crystals.`,
+      message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
       confirmLabel: confirmText,
       cancelLabel: "Cancel",
       confirmNegative: true,
@@ -34,12 +35,15 @@
         onReset();
       },
     });
+    queueMicrotask(() => {
+      onPress?.();
+    });
   };
 </script>
 
 <Button
   on:click={handleReset}
-  tooltipText={"Revert tree nodes to level 0 and refund all Tech Crystals"}
+  tooltipText={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree`}
   icon={RotateCcw}
   negative
   {disabled}

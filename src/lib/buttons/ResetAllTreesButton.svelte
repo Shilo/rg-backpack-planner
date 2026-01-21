@@ -22,7 +22,7 @@
       type: "confirm",
       title: "RESET ALL TREES?",
       titleIcon: Trash2,
-      message: "Set all nodes to level 0 and refund Tech Crystals.",
+      message: "Revert all nodes to level 0 and refund all Tech Crystals.",
       confirmLabel: "Reset all",
       cancelLabel: "Cancel",
       confirmNegative: true,
@@ -35,7 +35,7 @@
 
 <Button
   on:click={handleResetAll}
-  tooltipText={"Revert all nodes to level 0 and refund Tech Crystals"}
+  tooltipText={"Revert all nodes to level 0 and refund all Tech Crystals"}
   icon={Trash2}
   negative
   {disabled}
