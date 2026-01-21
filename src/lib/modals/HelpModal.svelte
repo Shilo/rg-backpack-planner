@@ -31,6 +31,7 @@
   const appDescription = packageInfo.description ?? "";
   const modalTitle =
     appName && title ? `${appName} - ${title}` : appName || title;
+  const appIconUrl = `${import.meta.env.BASE_URL}icon.svg`;
   const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
     | string
     | undefined;
@@ -209,7 +210,7 @@
         </div>
         <div class="help-brand">
           <img
-            src="/icon.svg"
+            src={appIconUrl}
             alt={`${appName || "App"} icon`}
             class="help-brand__icon"
           />
