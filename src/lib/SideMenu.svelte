@@ -27,7 +27,7 @@
   const statsCopyLabel = "Copy";
   let statsRows: Array<[string, string]> = [];
   $: statsRows = [
-    ["Tech Crystal Spent", ""],
+    ["Tech Crystals Spent", ""],
     ["Total", `${$techCrystalsSpentTotal}`],
     ["Guardian", `${$techCrystalsSpentGuardian}`],
     ["Vanguard", `${$techCrystalsSpentVanguard}`],
@@ -37,7 +37,7 @@
     ["Guardian", `${$treeLevelsGuardian}`],
     ["Vanguard", `${$treeLevelsVanguard}`],
     ["Cannon", `${$treeLevelsCannon}`],
-    ["Backpack Skill Boost", ""],
+    ["Backpack Skill Boosts", ""],
     ["TODO", "TODO"],
     ["Attack Boost", "10,000%"],
     ["Defense Boost", "30,000%"],
@@ -131,7 +131,7 @@
         <SideMenuSection title="STATISTICS">
           <Button
             slot="action"
-            class="side-menu__stats-copy button-sm"
+            class="side-menu__stats-copy"
             small
             icon={Copy}
             on:click={() => statsTable?.copy()}
@@ -201,8 +201,13 @@
     background: transparent !important;
     border: none !important;
     color: #a7b7e6 !important;
-    width: 17px !important;
-    height: 17px !important;
+    width: 18px !important;
+    height: 18px !important;
+
+    :global(.button-icon) {
+      width: 18px !important;
+      height: 18px !important;
+    }
   }
 
   :global(.menu-backdrop) {
