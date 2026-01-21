@@ -83,9 +83,8 @@ button {
 
 .modal-message a {
   color: #9fb6ff;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .modal-message a:hover,

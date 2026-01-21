@@ -361,8 +361,8 @@
   .help-scroll__content {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 10px 0;
+    gap: 6px;
+    padding-top: 10px;
     padding-bottom: calc(var(--help-scroll-fade-height) + 10px);
   }
 
