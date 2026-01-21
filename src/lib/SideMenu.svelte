@@ -5,6 +5,7 @@
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import CopyStatsButton from "./buttons/CopyStatsButton.svelte";
+  import InstallPwaButton from "./buttons/InstallPwaButton.svelte";
   import ResetAllTreesButton from "./buttons/ResetAllTreesButton.svelte";
   import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
@@ -165,6 +166,7 @@
       aria-label="Help"
       tooltipText="Help"
     ></Button>
+    <InstallPwaButton className="side-menu__footer-button" />
   </div>
 </aside>
 

@@ -17,6 +17,7 @@
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
+  import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
 
   export let title = "Help";
   export let titleIcon: ComponentType | null = null;
@@ -312,6 +313,7 @@
     class={`modal-actions ${actionsClass}`.trim()}
     on:wheel={handleCloseWheel}
   >
+    <InstallPwaButton className="help-install-button" />
     <Button
       icon={Github}
       aria-label="GitHub"
@@ -528,5 +530,9 @@
 
   .modal-actions :global(button) {
     pointer-events: auto;
+  }
+
+  :global(.help-install-button) {
+    margin-right: auto;
   }
 </style>
