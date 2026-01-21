@@ -1,10 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Backpack Planner Maskable">
   <rect width="512" height="512" fill="#0b1220" />
-  <rect x="96" y="96" width="320" height="320" rx="72" fill="#1b2a47" />
-  <rect x="156" y="176" width="200" height="190" rx="30" fill="#25375c" stroke="#6a8dff" stroke-width="10" />
-  <rect x="196" y="132" width="120" height="58" rx="29" fill="#16243f" stroke="#6a8dff" stroke-width="10" />
-  <rect x="196" y="254" width="120" height="28" rx="14" fill="#6a8dff" />
-  <text x="256" y="322" text-anchor="middle" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="54" fill="#eef2ff" letter-spacing="6">
-    BP
-  </text>
+  <rect x="48" y="48" width="416" height="416" rx="96" fill="#1b2a47" />
+  <rect x="112" y="160" width="288" height="256" rx="40" fill="#25375c" stroke="#6a8dff" stroke-width="12" />
+  <rect x="176" y="104" width="160" height="76" rx="38" fill="#16243f" stroke="#6a8dff" stroke-width="12" />
+  <rect x="184" y="268" width="144" height="32" rx="16" fill="#6a8dff" />
 </svg>
