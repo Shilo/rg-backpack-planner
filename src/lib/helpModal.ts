@@ -7,14 +7,17 @@ type HelpModalOptions = {
 };
 
 export function openHelpModal(options: HelpModalOptions = {}) {
-  const ownerName = packageInfo?.author?.name ?? "Shilo";
-  const ownerUrl = packageInfo?.author?.url ?? "https://github.com/shilo";
+  const ownerName = packageInfo.author.name;
+  const ownerUrl = packageInfo.author.url;
+  const gameName = packageInfo.game.name;
+  const gameUrl = packageInfo.game.url;
   const ownerLink = `<a href="${ownerUrl}" target="_blank" rel="noopener noreferrer">${ownerName}</a>`;
+  const gameLink = `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${gameName}</a>`;
   openModal({
     type: "help",
     title: "",
     titleIcon: HelpCircle,
-    message: `♛ Owner: ${ownerLink}`,
+    message: `• ${ownerLink}<br>• ${gameLink}`,
     actionsClass: "help-actions-opaque",
     confirmLabel: "Close",
     onConfirm: options.onClose,

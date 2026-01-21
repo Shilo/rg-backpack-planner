@@ -1,10 +1,14 @@
 {
   "name": "Backpack Planner",
-  "description": "Plan and share Backpack Tech builds for Run! Goddess.",
+  "description": "Plan and share Backpack Tech builds.",
   "github": "https://github.com/shilo/rg-backpack-planner",
   "author": {
     "name": "Shilo",
     "url": "https://github.com/shilo"
+  },
+  "game": {
+    "name": "Run! Goddess",
+    "url": "https://rungoddess.topgamesinc.com"
   },
   "private": true,
   "version": "0.0.0",
