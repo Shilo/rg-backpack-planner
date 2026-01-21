@@ -11,6 +11,7 @@
   import type { TreeViewState } from "./lib/Tree.svelte";
   import { openHelpModal } from "./lib/helpModal";
   import { treeLevels, type LevelsById } from "./lib/treeLevelsStore";
+  import packageInfo from "../package.json";
   import {
     initTechCrystalTrees,
     applyTechCrystalDeltaForTree,
@@ -31,7 +32,8 @@
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
-  const helpStorageKey = "rg-backpack-planner-help-seen";
+  const appVersion = packageInfo.version ?? "unknown";
+  const helpStorageKey = "rg-backpack-planner-help-seen-version";
   let showAppTitle = true;
   const sumLevels = (levels: LevelsById | undefined) =>
     Object.values(levels ?? {}).reduce((total, value) => total + value, 0);
@@ -192,14 +194,14 @@
 
   onMount(() => {
     try {
-      if (!localStorage.getItem(helpStorageKey)) {
+      if (localStorage.getItem(helpStorageKey) !== appVersion) {
         showAppTitle = false;
         openHelpModal({
           onClose: () => {
             showAppTitle = true;
           },
         });
-        localStorage.setItem(helpStorageKey, "true");
+        localStorage.setItem(helpStorageKey, appVersion);
       }
     } catch {
       showAppTitle = false;
