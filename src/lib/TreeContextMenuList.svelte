@@ -11,9 +11,10 @@
   export let focusViewState: TreeViewState | null = null;
   export let levelsById: LevelsById | null = null;
   export let hideView0ptions = false;
+  export let tabLabel = "";
 </script>
 
-<ResetTreeButton {onReset} {levelsById} onPress={onButtonPress} />
+<ResetTreeButton {onReset} {levelsById} treeLabel={tabLabel} onPress={onButtonPress} />
 {#if !hideView0ptions}
   <FocusInViewButton
     {onFocusInView}

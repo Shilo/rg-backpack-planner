@@ -295,15 +295,14 @@
 
   function resetLevelsForTab(index: number) {
     resetTreeLevels(index, tabs);
-    if (index === activeIndex) {
-      treeRef?.triggerFade?.();
-    }
+    treeRef?.triggerFade?.();
   }
 
   function resetTreeByIndex(index: number) {
     resetLevelsForTab(index);
     refundTreeSpent(index);
-    showToast("Tree reset", { tone: "negative" });
+    const tabLabel = tabs[index].label;
+    showToast(`Reset ${tabLabel} tree`, { tone: "negative" });
   }
 
   function resetTabTree(tabId: string) {
@@ -324,7 +323,7 @@
       refundTreeSpent(index);
     }
     resetAllTreeLevels(tabs);
-    showToast("All trees reset", { tone: "negative" });
+    showToast("Reset all trees", { tone: "negative" });
     treeRef?.triggerFade?.();
 
     closeTabMenu();

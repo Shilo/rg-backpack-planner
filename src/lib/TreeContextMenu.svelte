@@ -36,6 +36,7 @@
     onFocusInView={() => onFocusInView?.(menuTabId)}
     onReset={() => onReset?.(menuTabId)}
     onButtonPress={onClose}
+    {tabLabel}
     {hideView0ptions}
     {levelsById}
     {viewState}

@@ -534,7 +534,7 @@
     offsetY = next.offsetY;
     scale = next.scale;
     if (announce) {
-      showToast("Tree focused in view");
+      showToast("Focused tree in view");
     }
   }
 

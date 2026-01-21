@@ -7,22 +7,27 @@
   export let onReset: (() => void) | null = null;
   export let onPress: (() => void) | null = null;
   export let levelsById: LevelsById | null = null;
+  export let treeLabel = "";
 
   const sumLevels = (levels: LevelsById | null) =>
     Object.values(levels ?? {}).reduce((total, value) => total + value, 0);
 
   $: totalLevels = levelsById ? sumLevels(levelsById) : null;
   $: disabled = !onReset || (totalLevels !== null && totalLevels === 0);
+  $: trimmedTreeLabel = treeLabel.trim();
+  $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
+  $: modalTitle = trimmedTreeLabel ? `RESET ${trimmedTreeLabel} TREE?` : "RESET TREE?";
+  $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
 
   const handleReset = () => {
     if (!onReset) return;
     onPress?.();
     openModal({
       type: "confirm",
-      title: "RESET TREE?",
+      title: modalTitle,
       titleIcon: RotateCcw,
-      message: "Set all nodes to level 0 and refund all Tech Crystals.",
-      confirmLabel: "Reset",
+      message: `Set all nodes in the ${treeName} to level 0 and refund all Tech Crystals.`,
+      confirmLabel: confirmText,
       cancelLabel: "Cancel",
       confirmNegative: true,
       onConfirm: () => {
