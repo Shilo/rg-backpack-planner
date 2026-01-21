@@ -10,6 +10,7 @@
     Mouse,
     MousePointer2,
     Move,
+    RotateCcw,
     Share2,
     X,
     ZoomIn,
@@ -217,6 +218,15 @@
                 <div class="control-text">
                   <p class="control-label">Tech Crystals (Currency)</p>
                   <p class="control-desc">View spent and set owned amount</p>
+                </div>
+              </div>
+              <div class="help-shortcut">
+                <span class="control-icon" aria-hidden="true">
+                  <RotateCcw />
+                </span>
+                <div class="control-text">
+                  <p class="control-label">Reset active tree</p>
+                  <p class="control-desc">Refund Tech Crystals for this tree</p>
                 </div>
               </div>
             </ul>
