@@ -59,11 +59,10 @@
       ? [...markdownRows, dividerRow].join("\n")
       : dividerRow;
   const backpackIcon = "🎒";
-  $: codeblockHeader = `### ${backpackIcon} ${
-    appProductionUrl
-      ? `[${appName} Statistics](${appProductionUrl})`
-      : `${appName} Statistics`
-  }`;
+  $: codeblockTitle = appProductionUrl
+    ? `[${appName}](${appProductionUrl})`
+    : appName;
+  $: codeblockHeader = `### ${backpackIcon} ${codeblockTitle} Statistics`;
   $: codeblockText = `${codeblockHeader}\n\`\`\`\n${markdownTable}\n\`\`\``;
 
   async function copyCodeblock() {
