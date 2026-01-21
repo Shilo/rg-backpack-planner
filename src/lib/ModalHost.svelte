@@ -28,15 +28,19 @@
   function handleCancel() {
     const payload = $modalStore;
     if (!payload) return;
-    payload.onCancel?.();
     closeModal();
+    queueMicrotask(() => {
+      payload.onCancel?.();
+    });
   }
 
   function handleConfirm(value?: number) {
     const payload = $modalStore;
     if (!payload) return;
-    payload.onConfirm?.(value);
     closeModal();
+    queueMicrotask(() => {
+      payload.onConfirm?.(value);
+    });
   }
 
   function handleBackdropClick(event: MouseEvent) {
