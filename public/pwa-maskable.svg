@@ -1,7 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Backpack Planner Maskable">
   <rect width="512" height="512" fill="#0b1220" />
-  <rect x="48" y="48" width="416" height="416" rx="96" fill="#1b2a47" />
-  <rect x="112" y="160" width="288" height="256" rx="40" fill="#25375c" stroke="#6a8dff" stroke-width="12" />
-  <rect x="176" y="104" width="160" height="76" rx="38" fill="#16243f" stroke="#6a8dff" stroke-width="12" />
-  <rect x="184" y="268" width="144" height="32" rx="16" fill="#6a8dff" />
+  <rect x="40" y="40" width="432" height="432" rx="108" fill="#1b2a47" />
+  <g fill="none" stroke="#6a8dff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="256,112 360,176 392,288 256,400 120,288 152,176" />
+    <line x1="256" y1="112" x2="256" y2="400" />
+    <line x1="152" y1="176" x2="256" y2="264" />
+    <line x1="360" y1="176" x2="256" y2="264" />
+    <line x1="120" y1="288" x2="256" y2="264" />
+    <line x1="392" y1="288" x2="256" y2="264" />
+  </g>
 </svg>
