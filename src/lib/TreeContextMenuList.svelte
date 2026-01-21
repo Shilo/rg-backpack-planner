@@ -9,7 +9,10 @@
   export let viewState: TreeViewState | null = null;
   export let focusViewState: TreeViewState | null = null;
   export let levelsById: LevelsById | null = null;
+  export let hideView0ptions = false;
 </script>
 
 <ResetTreeButton {onReset} {levelsById} />
-<FocusInViewButton {onFocusInView} {viewState} {focusViewState} />
+{#if !hideView0ptions}
+  <FocusInViewButton {onFocusInView} {viewState} {focusViewState} />
+{/if}

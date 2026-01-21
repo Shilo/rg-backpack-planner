@@ -29,5 +29,5 @@
   icon={Focus}
   {disabled}
 >
-  Focus in view
+  Focus tree in view
 </Button>

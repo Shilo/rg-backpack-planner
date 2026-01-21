@@ -15,6 +15,7 @@
   export let onClose: (() => void) | null = null;
   export let onFocusInView: ((tabId: string) => void) | null = null;
   export let onReset: ((tabId: string) => void) | null = null;
+  export let hideView0ptions = false;
 </script>
 
 <ContextMenu
@@ -28,6 +29,7 @@
   <TreeContextMenuList
     onFocusInView={() => onFocusInView?.(tabId)}
     onReset={() => onReset?.(tabId)}
+    {hideView0ptions}
     {levelsById}
     {viewState}
     {focusViewState}
