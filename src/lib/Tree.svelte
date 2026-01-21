@@ -268,9 +268,17 @@
     cancelActiveGestures();
   }
 
+  function isPrimaryPointer(event: PointerEvent) {
+    if (event.pointerType === "mouse") {
+      return event.button === 0;
+    }
+    return true;
+  }
+
   function onPointerDown(event: PointerEvent) {
     if (!viewportEl) return;
     if (gesturesDisabled) return;
+    if (!isPrimaryPointer(event)) return;
     if (contextMenu) {
       if (isInContextMenu(event.target)) return;
       closeContextMenu();
@@ -371,6 +379,7 @@
   }
 
   function onPointerUp(event: PointerEvent) {
+    if (!isPrimaryPointer(event)) return;
     if (viewportEl) {
       viewportEl.releasePointerCapture(event.pointerId);
     }
