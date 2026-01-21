@@ -37,6 +37,7 @@ On-screen HUD:
 Side menu:
 - Side menu button: show or hide additional options.
 - Share button: copy a shareable link of your build.
+- Install app: install the PWA for offline access (appears when available).
 
 Touch controls:
 - Tap a node: add a node level and spend Tech Crystals.

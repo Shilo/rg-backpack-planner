@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import {
     Clock,
+    Download,
     Github,
     Hand,
     Hexagon,
@@ -17,7 +18,10 @@
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
-  import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
+  import InstallPwaButton, {
+    ensureInstallListeners,
+    subscribeInstallState,
+  } from "../buttons/InstallPwaButton.svelte";
 
   export let title = "Help";
   export let titleIcon: ComponentType | null = null;
@@ -136,6 +140,8 @@
   let touchControls: ControlItem[] = [];
   let helpScrollEl: HTMLDivElement | null = null;
   let helpContentEl: HTMLDivElement | null = null;
+  let canInstall = false;
+  let isInstalled = false;
 
   function detectInputSupport() {
     let supportsTouch = false;
@@ -164,6 +170,11 @@
 
   onMount(() => {
     detectInputSupport();
+    ensureInstallListeners();
+    const unsubscribe = subscribeInstallState((state) => {
+      canInstall = state.canInstall;
+      isInstalled = state.isInstalled;
+    });
     requestAnimationFrame(() => {
       const scrollEl = helpScrollEl;
       if (helpContentEl && scrollEl) {
@@ -174,6 +185,9 @@
         );
       }
     });
+    return () => {
+      unsubscribe();
+    };
   });
 
   function handleCloseWheel(event: WheelEvent) {
@@ -256,6 +270,19 @@
                   <p class="control-desc">Show or hide additional options</p>
                 </div>
               </div>
+              {#if canInstall && !isInstalled}
+                <div class="help-shortcut">
+                  <span class="control-icon" aria-hidden="true">
+                    <Download />
+                  </span>
+                  <div class="control-text">
+                    <p class="control-label">Install app</p>
+                    <p class="control-desc">
+                      Install the PWA for offline access
+                    </p>
+                  </div>
+                </div>
+              {/if}
               <div class="help-shortcut">
                 <span class="control-icon" aria-hidden="true">
                   <Share2 />
