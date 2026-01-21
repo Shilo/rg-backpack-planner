@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { HelpCircle, Hexagon, Share2 } from "lucide-svelte";
+  import { HelpCircle, Hexagon } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import CopyStatsButton from "./buttons/CopyStatsButton.svelte";
   import ResetAllTreesButton from "./buttons/ResetAllTreesButton.svelte";
+  import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
   import {
@@ -143,17 +144,14 @@
     </nav>
   </div>
   <div class="side-menu__footer">
-    <Button
+    <ShareBuildButton
       class="side-menu__footer-button"
-      on:click={() => onShareBuild?.()}
+      onShare={() => onShareBuild?.()}
       toastMessage={onShareBuild
         ? "Share link copied to clipboard"
         : "Share is not implemented yet"}
       toastNegative={!onShareBuild}
-      icon={Share2}
-      aria-label="Share build"
-      tooltipText="Share build"
-    ></Button>
+    />
     <Button
       class="side-menu__footer-button"
       on:click={() => onHelp?.()}
