@@ -24,29 +24,20 @@
   } from "./techCrystalStore";
 
   $: hasOwned = $techCrystalsOwned > 0;
-  const statsTechCrystalHeaders: [string, string] = ["Tech Crystal", "Spent"];
-  const statsBackpackNodeHeaders: [string, string] = [
-    "Backpack Node",
-    "Levels",
-  ];
-  const statsBackpackSkillHeaders: [string, string] = [
-    "Backpack Skill",
-    "Boost",
-  ];
   const statsCopyLabel = "Copy";
   let statsRows: Array<[string, string]> = [];
   $: statsRows = [
-    [`${statsTechCrystalHeaders[0]} ${statsTechCrystalHeaders[1]}`, ""],
+    ["Tech Crystal Spent", ""],
     ["Total", `${$techCrystalsSpentTotal}`],
     ["Guardian", `${$techCrystalsSpentGuardian}`],
     ["Vanguard", `${$techCrystalsSpentVanguard}`],
     ["Cannon", `${$techCrystalsSpentCannon}`],
-    [`${statsBackpackNodeHeaders[0]} ${statsBackpackNodeHeaders[1]}`, ""],
+    ["Backpack Node Levels", ""],
     ["Total", `${$treeLevelsTotal}`],
     ["Guardian", `${$treeLevelsGuardian}`],
     ["Vanguard", `${$treeLevelsVanguard}`],
     ["Cannon", `${$treeLevelsCannon}`],
-    [`${statsBackpackSkillHeaders[0]} ${statsBackpackSkillHeaders[1]}`, ""],
+    ["Backpack Skill Boost", ""],
     ["TODO", "TODO"],
     ["Attack Boost", "10,000%"],
     ["Defense Boost", "30,000%"],
