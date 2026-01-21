@@ -6,7 +6,7 @@
   export let emptyMessage = "No data";
 
   const appName = (appPackage?.name ?? "Backpack Planner") as string;
-  const appProductionUrl = (appPackage?.productionUrl ?? undefined) as
+  const appProductionUrl = (appPackage?.app?.productionUrl ?? undefined) as
     | string
     | undefined;
 

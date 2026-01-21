@@ -30,7 +30,9 @@
   const appDescription = packageInfo.description ?? "";
   const modalTitle =
     appName && title ? `${appName} - ${title}` : appName || title;
-  const appGithubUrl = (packageInfo?.github ?? undefined) as string | undefined;
+  const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
+    | string
+    | undefined;
 
   type ControlDevice = "pointer" | "touch" | "both";
   type ControlItem = {

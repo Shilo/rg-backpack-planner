@@ -1,8 +1,10 @@
 {
   "name": "Backpack Planner",
   "description": "Plan and share Backpack Tech builds.",
-  "github": "https://github.com/shilo/rg-backpack-planner",
-  "productionUrl": "https://shilo.github.io/rg-backpack-planner",
+  "app": {
+    "sourceUrl": "https://github.com/shilo/rg-backpack-planner",
+    "productionUrl": "https://shilo.github.io/rg-backpack-planner"
+  },
   "author": {
     "name": "Shilo",
     "url": "https://github.com/shilo"
