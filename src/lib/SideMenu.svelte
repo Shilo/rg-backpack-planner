@@ -208,7 +208,7 @@
   }
 
   .side-menu__content {
-    --side-menu-fade-height: 32px;
+    --side-menu-fade-height: 48px;
     display: block;
     height: 100%;
     overflow-y: auto;
@@ -219,7 +219,7 @@
   .side-menu__content-inner {
     display: grid;
     gap: 10px;
-    padding-bottom: calc(var(--side-menu-fade-height) + 6px);
+    padding-bottom: var(--side-menu-fade-height);
   }
 
   .side-menu__content-inner > :global(:first-child) {
@@ -234,6 +234,7 @@
     position: relative;
     flex: 1;
     min-height: 0;
+    height: 100%;
   }
 
   .side-menu__scroll-fade {
@@ -255,12 +256,20 @@
   }
 
   .side-menu__footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     gap: 10px;
-    margin-top: auto;
     padding: 0 10px 10px;
     margin-right: 42px;
+    pointer-events: none;
+  }
+
+  .side-menu__footer :global(button) {
+    pointer-events: auto;
   }
 </style>

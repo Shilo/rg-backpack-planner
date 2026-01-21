@@ -162,6 +162,18 @@
       }
     });
   });
+
+  function handleCloseWheel(event: WheelEvent) {
+    if (!helpScrollEl) {
+      return;
+    }
+    event.preventDefault();
+    helpScrollEl.scrollBy({
+      top: event.deltaY,
+      left: event.deltaX,
+      behavior: "auto",
+    });
+  }
 </script>
 
 <div class="modal-content help-content" bind:this={helpContentEl}>
@@ -267,7 +279,7 @@
       <div class="help-scroll__fade" aria-hidden="true"></div>
     </div>
   </div>
-  <div class="modal-actions">
+  <div class="modal-actions" on:wheel={handleCloseWheel}>
     <Button
       icon={X}
       aria-label={confirmLabel}
