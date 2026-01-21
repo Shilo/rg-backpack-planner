@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import {
     Clock,
+    Github,
     Hand,
     Hexagon,
     Menu,
@@ -27,6 +28,7 @@
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
   const modalTitle = appName ? `${appName} - ${title}` : title;
+  const appGithubUrl = (packageInfo?.github ?? undefined) as string | undefined;
 
   type ControlDevice = "pointer" | "touch" | "both";
   type ControlItem = {
@@ -41,7 +43,7 @@
     {
       id: "pointer-node",
       label: "Click a node",
-      description: "Increase node level and spend currency",
+      description: "Add a node level and spend Tech Crystals",
       icon: MousePointer2,
       device: "pointer",
     },
@@ -76,7 +78,7 @@
     {
       id: "touch-node",
       label: "Tap a node",
-      description: "Increase node level and spend currency",
+      description: "Add a node level and spend Tech Crystals",
       icon: Hand,
       device: "touch",
     },
@@ -233,7 +235,9 @@
                 </span>
                 <div class="control-text">
                   <p class="control-label">Share button</p>
-                  <p class="control-desc">Copy a shareable build link</p>
+                  <p class="control-desc">
+                    Copy a shareable link of your build
+                  </p>
                 </div>
               </div>
             </ul>
@@ -280,6 +284,18 @@
     </div>
   </div>
   <div class="modal-actions" on:wheel={handleCloseWheel}>
+    <Button
+      icon={Github}
+      aria-label="GitHub"
+      tooltipText="View source on GitHub"
+      on:click={() => {
+        window.open(
+          appGithubUrl ?? "https://github.com/shilo",
+          "_blank",
+          "noopener,noreferrer",
+        );
+      }}
+    />
     <Button
       icon={X}
       aria-label={confirmLabel}

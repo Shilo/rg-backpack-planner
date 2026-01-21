@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Github, HelpCircle, Hexagon, Share2 } from "lucide-svelte";
+  import { HelpCircle, Hexagon, Share2 } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -7,7 +7,6 @@
   import ResetAllTreesButton from "./buttons/ResetAllTreesButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
-  import appPackage from "../../package.json";
   import {
     treeLevels,
     treeLevelsTotal,
@@ -36,8 +35,6 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-  const appGithubUrl = (appPackage?.github ?? undefined) as string | undefined;
-
   $: if (!isOpen) {
     const active = document.activeElement;
     if (
@@ -141,19 +138,6 @@
       icon={Share2}
       aria-label="Share build"
       tooltipText="Share build"
-    ></Button>
-    <Button
-      class="side-menu__footer-button"
-      on:click={() => {
-        window.open(
-          appGithubUrl ?? "https://github.com/shilo",
-          "_blank",
-          "noopener,noreferrer",
-        );
-      }}
-      icon={Github}
-      aria-label="GitHub"
-      tooltipText="View source on GitHub"
     ></Button>
     <Button
       class="side-menu__footer-button"
