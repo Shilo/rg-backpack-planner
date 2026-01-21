@@ -245,7 +245,7 @@
     border: 1px solid rgba(72, 102, 172, 0.6);
     background: rgba(12, 18, 32, 0.9);
     color: #e7efff;
-    font-size: 1rem;
+    font-size: 1.2rem;
     text-align: center;
   }
 
@@ -292,7 +292,7 @@
   }
 
   .reset-button {
-    height: 38px;
+    height: 44px;
     flex: 0 0 auto;
   }
 </style>
