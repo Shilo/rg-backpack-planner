@@ -233,12 +233,18 @@
 
   .modal-input-row {
     display: grid;
-    grid-template-columns: 44px 44px 1fr 44px 64px;
+    grid-template-columns:
+      minmax(0, 44px)
+      minmax(0, 44px)
+      minmax(20px, 1fr)
+      minmax(0, 44px)
+      minmax(0, 60px);
     gap: 10px;
     align-items: center;
   }
 
   .modal-input {
+    min-width: 0;
     width: 100%;
     height: 44px;
     border-radius: 12px;
@@ -255,6 +261,7 @@
   }
 
   .stepper {
+    width: 100%;
     height: 44px;
     display: inline-flex;
     align-items: center;
@@ -276,7 +283,10 @@
   }
 
   .stepper-wide {
-    width: 64px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .modal-actions {
