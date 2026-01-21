@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Trash2 } from "lucide-svelte";
   import Button from "../Button.svelte";
+  import { openModal } from "../modalStore";
+  import { showToast } from "../toast";
   import type { LevelsById } from "../treeLevelsStore";
 
   export let onResetAll: (() => void) | null = null;
@@ -14,12 +16,27 @@
     0,
   );
   $: disabled = !onResetAll || totalLevels === 0;
+
+  const handleResetAll = () => {
+    if (!onResetAll) return;
+    openModal({
+      type: "confirm",
+      title: "RESET ALL TREES?",
+      titleIcon: Trash2,
+      message: "Set all nodes to level 0 and refund Tech Crystals.",
+      confirmLabel: "Reset all",
+      cancelLabel: "Cancel",
+      confirmNegative: true,
+      onConfirm: () => {
+        onResetAll();
+        showToast("All trees reset", { tone: "negative" });
+      },
+    });
+  };
 </script>
 
 <Button
-  on:click={() => onResetAll?.()}
-  toastMessage={onResetAll ? "All trees reset" : undefined}
-  toastNegative
+  on:click={handleResetAll}
   tooltipText={"Revert all nodes to level 0 and refund Tech Crystals"}
   icon={Trash2}
   negative

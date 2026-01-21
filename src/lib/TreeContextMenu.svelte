@@ -29,6 +29,7 @@
   <TreeContextMenuList
     onFocusInView={() => onFocusInView?.(tabId)}
     onReset={() => onReset?.(tabId)}
+    onButtonPress={onClose}
     {hideView0ptions}
     {levelsById}
     {viewState}

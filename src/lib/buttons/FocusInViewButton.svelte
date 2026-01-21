@@ -4,6 +4,7 @@
   import type { TreeViewState } from "../Tree.svelte";
 
   export let onFocusInView: (() => void) | null = null;
+  export let onPress: (() => void) | null = null;
   export let viewState: TreeViewState | null = null;
   export let focusViewState: TreeViewState | null = null;
 
@@ -23,7 +24,11 @@
 </script>
 
 <Button
-  on:click={() => onFocusInView?.()}
+  on:click={() => {
+    if (!onFocusInView) return;
+    onPress?.();
+    onFocusInView();
+  }}
   toastMessage={onFocusInView ? "Tree focused in view" : undefined}
   tooltipText={"Fit nodes in view by resetting zoom and pan"}
   icon={Focus}

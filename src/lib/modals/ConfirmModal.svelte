@@ -9,6 +9,7 @@
   export let message: string | undefined = undefined;
   export let confirmLabel = "Confirm";
   export let cancelLabel = "Cancel";
+  export let confirmNegative = false;
   export let onConfirm: (() => void) | null = null;
   export let onCancel: (() => void) | null = null;
 </script>
@@ -30,8 +31,10 @@
     <p class="modal-message">{message}</p>
   {/if}
   <div class="modal-actions">
-    <Button on:click={() => onCancel?.()} negative>{cancelLabel}</Button>
-    <Button on:click={() => onConfirm?.()}>{confirmLabel}</Button>
+    <Button on:click={() => onCancel?.()}>{cancelLabel}</Button>
+    <Button on:click={() => onConfirm?.()} negative={confirmNegative}>
+      {confirmLabel}
+    </Button>
   </div>
 </div>
 
