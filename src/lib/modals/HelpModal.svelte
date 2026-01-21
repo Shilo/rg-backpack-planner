@@ -369,7 +369,7 @@
 
   .help-scroll__fade {
     position: sticky;
-    bottom: 0;
+    bottom: -1px; /* workaround fix for fade not being aligned to bottom of modal */
     height: var(--help-scroll-fade-height);
     margin-top: calc(-1 * var(--help-scroll-fade-height));
     background: linear-gradient(
