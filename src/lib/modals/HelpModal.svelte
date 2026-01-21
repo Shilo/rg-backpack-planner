@@ -22,6 +22,7 @@
   export let titleIconClass = "";
   export let titleIconAriaHidden = true;
   export let message: string | undefined = undefined;
+  export let actionsClass = "";
   export let confirmLabel = "Close";
   export let onConfirm: (() => void) | null = null;
 
@@ -284,7 +285,7 @@
       <div class="help-scroll__fade" aria-hidden="true"></div>
     </div>
   </div>
-  <div class="modal-actions" on:wheel={handleCloseWheel}>
+  <div class={`modal-actions ${actionsClass}`.trim()} on:wheel={handleCloseWheel}>
     <Button
       icon={Github}
       aria-label="GitHub"
@@ -478,6 +479,11 @@
     bottom: 0;
     left: 0;
     pointer-events: none;
+  }
+
+  .modal-actions.help-actions-opaque :global(.button) {
+    background: #111b2d;
+    border-color: #2c3c61;
   }
 
   .modal-actions :global(button) {

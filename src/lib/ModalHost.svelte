@@ -101,6 +101,7 @@
           titleIcon={$modalStore.titleIcon ?? null}
           titleIconClass={$modalStore.titleIconClass ?? ""}
           message={$modalStore.message}
+          actionsClass={$modalStore.actionsClass ?? ""}
           confirmLabel={$modalStore.confirmLabel ?? "Close"}
           onConfirm={handleConfirm}
         />

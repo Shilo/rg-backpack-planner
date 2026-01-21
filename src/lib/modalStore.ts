@@ -17,6 +17,7 @@ export type ModalPayload = {
   titleIcon?: ComponentType | null;
   titleIconClass?: string;
   message?: string;
+  actionsClass?: string;
   confirmLabel?: string;
   cancelLabel?: string;
   input?: ModalInputConfig;

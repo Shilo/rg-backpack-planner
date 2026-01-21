@@ -15,6 +15,7 @@ export function openHelpModal(options: HelpModalOptions = {}) {
     title: "",
     titleIcon: HelpCircle,
     message: `♛ Owner: ${ownerLink}`,
+    actionsClass: "help-actions-opaque",
     confirmLabel: "Close",
     onConfirm: options.onClose,
     onCancel: options.onClose,
