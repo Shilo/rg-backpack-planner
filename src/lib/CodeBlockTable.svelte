@@ -2,25 +2,23 @@
   import { showToast } from "./toast";
   import appPackage from "../../package.json";
 
-  export let headers: [string, string] = ["Column A", "Column B"];
   export let rows: Array<[string, string]> = [];
   export let emptyMessage = "No data";
 
   const appName = (appPackage?.name ?? "Backpack Planner") as string;
-  const appGithubUrl = (appPackage?.github ?? undefined) as string | undefined;
+  const appProductionUrl = (appPackage?.productionUrl ?? undefined) as
+    | string
+    | undefined;
 
   const normalizeCell = (value: string) =>
     value.replace(/\r?\n/g, " ").replace(/\|/g, "\\|").trim();
 
   const padCell = (value: string, width: number) => value.padEnd(width, " ");
   const getColumnWidths = (
-    headerValues: [string, string],
     rowValues: Array<[string, string]>,
+    minWidths: [number, number],
   ): [number, number] => {
-    let widths: [number, number] = [
-      headerValues[0].length,
-      headerValues[1].length,
-    ];
+    let widths: [number, number] = [minWidths[0], minWidths[1]];
     for (const [first, second] of rowValues) {
       widths = [
         Math.max(widths[0], first.length),
@@ -31,34 +29,42 @@
   };
 
   $: displayRows = rows.length > 0 ? rows : [[emptyMessage, ""]];
-  $: normalizedHeaders = headers.map((value) => normalizeCell(value)) as [
-    string,
-    string,
-  ];
   $: normalizedRows = displayRows.map(([first, second]) => [
     normalizeCell(first),
     normalizeCell(second),
   ]) as Array<[string, string]>;
-  $: columnWidths = getColumnWidths(normalizedHeaders, normalizedRows);
-  $: headerRow = `| ${padCell(
-    normalizedHeaders[0],
-    columnWidths[0],
-  )} | ${padCell(normalizedHeaders[1], columnWidths[1])} |`;
-  $: dividerRow = `| ${"-".repeat(Math.max(3, columnWidths[0]))} | ${"-".repeat(
-    Math.max(3, columnWidths[1]),
-  )} |`;
-  $: markdownRows = normalizedRows.map(
-    ([first, second]) =>
+  $: dataRows = normalizedRows.filter(([, second]) => second !== "");
+  $: columnWidths = getColumnWidths(dataRows, [3, 3]);
+  $: sectionTitles = normalizedRows
+    .filter(([, second]) => second === "")
+    .map(([title]) => title.length);
+  $: sectionWidth = Math.max(
+    columnWidths[0] + columnWidths[1] + 3,
+    sectionTitles.length > 0 ? Math.max(...sectionTitles) : 0,
+  );
+  $: dividerRow = `| ${"-".repeat(Math.max(3, sectionWidth))} |`;
+  $: markdownRows = normalizedRows.flatMap(([first, second]) => {
+    if (second === "") {
+      return [dividerRow, `| ${padCell(first, sectionWidth)} |`, dividerRow];
+    }
+    return [
       `| ${padCell(first, columnWidths[0])} | ${padCell(
         second,
         columnWidths[1],
       )} |`,
-  );
-  $: markdownTable = [headerRow, dividerRow, ...markdownRows].join("\n");
-  $: codeblockFooter = `-# ${
-    appGithubUrl ? `[${appName}](${appGithubUrl})` : appName
+    ];
+  });
+  $: markdownTable =
+    markdownRows.length > 0
+      ? [...markdownRows, dividerRow].join("\n")
+      : dividerRow;
+  const backpackIcon = "🎒";
+  $: codeblockHeader = `### ${backpackIcon} ${
+    appProductionUrl
+      ? `[${appName} Statistics](${appProductionUrl})`
+      : `${appName} Statistics`
   }`;
-  $: codeblockText = `\`\`\`\n${markdownTable}\n\`\`\`\n${codeblockFooter}`;
+  $: codeblockText = `${codeblockHeader}\n\`\`\`\n${markdownTable}\n\`\`\``;
 
   async function copyCodeblock() {
     try {
@@ -92,8 +98,12 @@
     <tbody>
       {#each displayRows as row}
         <tr>
-          <td>{row[0]}</td>
-          <td>{row[1]}</td>
+          {#if row[1] === ""}
+            <td class="codeblock-table__section" colspan="2">{row[0]}</td>
+          {:else}
+            <td>{row[0]}</td>
+            <td>{row[1]}</td>
+          {/if}
         </tr>
       {/each}
     </tbody>
@@ -130,5 +140,12 @@
 
   .codeblock-table__table tbody {
     color: #c8d7ff;
+  }
+
+  .codeblock-table__section {
+    background: rgba(15, 23, 42, 0.6);
+    color: #dbe6ff;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
 </style>

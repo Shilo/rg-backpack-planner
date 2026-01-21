@@ -34,6 +34,26 @@
     "Boost",
   ];
   const statsCopyLabel = "Copy";
+  let statsRows: Array<[string, string]> = [];
+  $: statsRows = [
+    [`${statsTechCrystalHeaders[0]} ${statsTechCrystalHeaders[1]}`, ""],
+    ["Total", `${$techCrystalsSpentTotal}`],
+    ["Guardian", `${$techCrystalsSpentGuardian}`],
+    ["Vanguard", `${$techCrystalsSpentVanguard}`],
+    ["Cannon", `${$techCrystalsSpentCannon}`],
+    [`${statsBackpackNodeHeaders[0]} ${statsBackpackNodeHeaders[1]}`, ""],
+    ["Total", `${$treeLevelsTotal}`],
+    ["Guardian", `${$treeLevelsGuardian}`],
+    ["Vanguard", `${$treeLevelsVanguard}`],
+    ["Cannon", `${$treeLevelsCannon}`],
+    [`${statsBackpackSkillHeaders[0]} ${statsBackpackSkillHeaders[1]}`, ""],
+    ["TODO", "TODO"],
+    ["Attack Boost", "10,000%"],
+    ["Defense Boost", "30,000%"],
+    ["Critical Hit", "160%"],
+    ["Global ATK", "200%"],
+    ["Final Damage Boost", "20%"],
+  ];
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
@@ -48,9 +68,7 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-  let techCrystalTable: CodeBlockTable | null = null;
-  let backpackNodeTable: CodeBlockTable | null = null;
-  let backpackSkillTable: CodeBlockTable | null = null;
+  let statsTable: CodeBlockTable | null = null;
   $: if (!isOpen) {
     const active = document.activeElement;
     if (
@@ -120,82 +138,17 @@
           />
         </SideMenuSection>
         <SideMenuSection title="STATISTICS">
+          <Button
+            slot="action"
+            class="side-menu__stats-copy button-sm"
+            small
+            icon={Copy}
+            on:click={() => statsTable?.copy()}
+            tooltipText={statsCopyLabel}
+            aria-label={statsCopyLabel}
+          />
           <div class="side-menu__stats-card">
-            <div class="side-menu__stats-header">
-              <span
-                >{`${statsTechCrystalHeaders[0]} ${statsTechCrystalHeaders[1]}`}</span
-              >
-              <Button
-                class="side-menu__stats-copy"
-                small
-                icon={Copy}
-                on:click={() => techCrystalTable?.copy()}
-                tooltipText={statsCopyLabel}
-                aria-label={statsCopyLabel}
-              />
-            </div>
-            <CodeBlockTable
-              bind:this={techCrystalTable}
-              headers={statsTechCrystalHeaders}
-              rows={[
-                ["Total", `${$techCrystalsSpentTotal}`],
-                ["Guardian", `${$techCrystalsSpentGuardian}`],
-                ["Vanguard", `${$techCrystalsSpentVanguard}`],
-                ["Cannon", `${$techCrystalsSpentCannon}`],
-              ]}
-            />
-          </div>
-          <div class="side-menu__stats-card">
-            <div class="side-menu__stats-header">
-              <span
-                >{`${statsBackpackNodeHeaders[0]} ${statsBackpackNodeHeaders[1]}`}</span
-              >
-              <Button
-                class="side-menu__stats-copy button-sm"
-                small
-                icon={Copy}
-                on:click={() => backpackNodeTable?.copy()}
-                tooltipText={statsCopyLabel}
-                aria-label={statsCopyLabel}
-              />
-            </div>
-            <CodeBlockTable
-              bind:this={backpackNodeTable}
-              headers={statsBackpackNodeHeaders}
-              rows={[
-                ["Total", `${$treeLevelsTotal}`],
-                ["Guardian", `${$treeLevelsGuardian}`],
-                ["Vanguard", `${$treeLevelsVanguard}`],
-                ["Cannon", `${$treeLevelsCannon}`],
-              ]}
-            />
-          </div>
-          <div class="side-menu__stats-card">
-            <div class="side-menu__stats-header">
-              <span
-                >{`${statsBackpackSkillHeaders[0]} ${statsBackpackSkillHeaders[1]}`}</span
-              >
-              <Button
-                class="side-menu__stats-copy button-sm"
-                small
-                icon={Copy}
-                on:click={() => backpackSkillTable?.copy()}
-                tooltipText={statsCopyLabel}
-                aria-label={statsCopyLabel}
-              />
-            </div>
-            <CodeBlockTable
-              bind:this={backpackSkillTable}
-              headers={statsBackpackSkillHeaders}
-              rows={[
-                ["TODO", "TODO"],
-                ["Attack Boost", "10,000%"],
-                ["Defense Boost", "30,000%"],
-                ["Critical Hit", "160%"],
-                ["Global ATK", "200%"],
-                ["Final Damage Boost", "20%"],
-              ]}
-            />
+            <CodeBlockTable bind:this={statsTable} rows={statsRows} />
           </div>
         </SideMenuSection>
       </div>
@@ -247,23 +200,6 @@
     border: 1px solid rgba(74, 110, 184, 0.35);
     border-radius: 12px;
     overflow: hidden;
-  }
-
-  .side-menu__stats-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    background: rgba(15, 23, 42, 0.6);
-    color: #dbe6ff;
-    font-size: 0.8rem;
-    border-bottom: 1px solid rgba(74, 110, 184, 0.35);
-  }
-
-  .side-menu__stats-header span {
-    display: inline-flex;
-    align-items: center;
   }
 
   :global(.side-menu__stats-copy) {
