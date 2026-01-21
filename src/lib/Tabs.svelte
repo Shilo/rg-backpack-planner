@@ -358,7 +358,7 @@
     </div>
   </div>
   <Button
-    class="menu-button"
+    class={isMenuOpen ? "menu-button menu-button-open" : "menu-button"}
     aria-label={isMenuOpen ? "Close menu" : "Menu"}
     tooltipText={isMenuOpen ? "Close menu" : "Open menu"}
     on:click={() => onMenuClick?.()}
@@ -496,6 +496,10 @@
     right: var(--bar-pad);
     bottom: var(--bar-pad);
     z-index: 12;
+  }
+
+  :global(.menu-button.menu-button-open) {
+    background: #111b2d;
   }
 
   :global(.menu-button-icon) {
