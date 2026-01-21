@@ -7,6 +7,6 @@
   stroke-linejoin="round"
   aria-hidden="true"
 >
-  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
   <polyline points="9 12 12 15 16 9"></polyline>
 </svg>
