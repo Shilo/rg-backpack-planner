@@ -35,12 +35,14 @@
   export let onMenuClick: (() => void) | null = null;
   export let isMenuOpen = false;
   export let activeLabel = "";
+  export let activeIndex = 0;
+  export let activeViewState: TreeViewState | null = null;
+  export let activeFocusViewState: TreeViewState | null = null;
   export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
   export let onNodeLevelChange:
     | ((tabIndex: number, techCrystalDelta: number, nodeId?: string) => void)
     | null = null;
 
-  let activeIndex = 0;
   let bottomInset = 0;
   let tabsBarEl: HTMLDivElement | null = null;
   let treeRef: {
@@ -49,12 +51,14 @@
     triggerFade?: () => void;
     cancelGestures?: () => void;
     getViewState?: () => TreeViewState;
+    getFocusViewState?: () => TreeViewState | null;
   } | null = null;
   let tabContextMenu: {
     id: string;
     label: string;
     x: number;
     y: number;
+    index: number;
   } | null = null;
   let hasMounted = false;
   let lastActiveTabId = "";
@@ -105,6 +109,20 @@
     activeIndex = clampIndex(index);
   }
 
+  $: if (treeRef) {
+    activeViewState = treeRef.getViewState?.() ?? activeViewState;
+    activeFocusViewState =
+      treeRef.getFocusViewState?.() ?? activeFocusViewState;
+  }
+
+  function handleViewStateChange(next: TreeViewState) {
+    activeViewState = next;
+  }
+
+  function handleFocusViewStateChange(next: TreeViewState | null) {
+    activeFocusViewState = next;
+  }
+
   $: {
     const nextId = tabs[activeIndex]?.id ?? "";
     if (hasMounted && nextId && nextId !== lastActiveTabId) {
@@ -126,7 +144,7 @@
     tabPressPointerId = null;
   }
 
-  function startTabPress(event: PointerEvent, tab: TabConfig) {
+  function startTabPress(event: PointerEvent, tab: TabConfig, index: number) {
     tabPressStart = { x: event.clientX, y: event.clientY };
     tabPressPoint = { x: event.clientX, y: event.clientY };
     tabPressPointerId = event.pointerId;
@@ -140,6 +158,7 @@
         label: tab.label,
         x: point.x,
         y: point.y,
+        index,
       };
       return true;
     });
@@ -192,6 +211,7 @@
         label: activeTab.label,
         x: point.x,
         y: point.y,
+        index: activeIndex,
       };
       treeRef?.cancelGestures?.();
       return true;
@@ -209,6 +229,7 @@
       label: activeTab.label,
       x: event.clientX,
       y: event.clientY,
+      index: activeIndex,
     };
     treeRef?.cancelGestures?.();
   }
@@ -228,7 +249,7 @@
     }
   }
 
-  function openTabMenu(event: MouseEvent, tab: TabConfig) {
+  function openTabMenu(event: MouseEvent, tab: TabConfig, index: number) {
     event.preventDefault();
     hideTooltip();
     tabContextMenu = {
@@ -236,6 +257,7 @@
       label: tab.label,
       x: event.clientX,
       y: event.clientY,
+      index,
     };
   }
 
@@ -321,15 +343,14 @@
           class={index === activeIndex ? "active" : ""}
           on:click={() => onTabClick(index)}
           on:contextmenu={(event: Event) =>
-            openTabMenu(getMouseEvent(event), tab)}
+            openTabMenu(getMouseEvent(event), tab, index)}
           on:pointerdown={(event: Event) =>
-            startTabPress(getPointerEvent(event), tab)}
+            startTabPress(getPointerEvent(event), tab, index)}
           on:pointermove={(event: Event) =>
             moveTabPress(getPointerEvent(event))}
           on:pointerup={clearTabPress}
           on:pointercancel={clearTabPress}
           on:pointerleave={clearTabPress}
-          small
         >
           <span class="tab-label">{tab.label}</span>
         </Button>
@@ -343,7 +364,6 @@
     on:click={() => onMenuClick?.()}
     icon={isMenuOpen ? X : Menu}
     iconClass="menu-button-icon"
-    small
   ></Button>
 
   <div
@@ -368,6 +388,8 @@
           initialViewState={lastViewState}
           {onNodeLevelUp}
           onNodeLevelChange={handleNodeLevelChange}
+          onViewStateChange={handleViewStateChange}
+          onFocusViewStateChange={handleFocusViewStateChange}
         />
       {/key}
     {/if}
@@ -379,6 +401,11 @@
     x={tabContextMenu?.x ?? 0}
     y={tabContextMenu?.y ?? 0}
     isOpen={!!tabContextMenu}
+    levelsById={$treeLevels[tabContextMenu?.index ?? -1] ?? null}
+    viewState={tabContextMenu?.index === activeIndex ? activeViewState : null}
+    focusViewState={tabContextMenu?.index === activeIndex
+      ? activeFocusViewState
+      : null}
     onClose={closeTabMenu}
     onFocusInView={focusTabInView}
     onReset={resetTabTree}
@@ -435,6 +462,7 @@
     justify-content: center;
     gap: 6px;
     min-width: 0;
+    overflow: hidden;
   }
 
   .tab-label {
@@ -443,6 +471,7 @@
     white-space: nowrap;
     min-width: 0;
     max-width: 100%;
+    flex: 1 1 auto;
   }
 
   :global(.tab-buttons button.active) {

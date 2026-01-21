@@ -36,6 +36,7 @@
   .modal-content {
     display: grid;
     gap: 12px;
+    padding: 10px;
   }
 
   .modal-header {

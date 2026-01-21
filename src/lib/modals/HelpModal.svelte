@@ -10,6 +10,7 @@
     MousePointer2,
     Move,
     Share2,
+    X,
     ZoomIn,
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
@@ -120,6 +121,8 @@
   let showTouch = true;
   let pointerControls: ControlItem[] = [];
   let touchControls: ControlItem[] = [];
+  let helpScrollEl: HTMLDivElement | null = null;
+  let helpContentEl: HTMLDivElement | null = null;
 
   function detectInputSupport() {
     let supportsTouch = false;
@@ -148,109 +151,129 @@
 
   onMount(() => {
     detectInputSupport();
+    requestAnimationFrame(() => {
+      const scrollEl = helpScrollEl;
+      if (helpContentEl && scrollEl) {
+        const scrollbarWidth = scrollEl.offsetWidth - scrollEl.clientWidth;
+        helpContentEl.style.setProperty(
+          "--help-scrollbar-width",
+          `${Math.max(0, scrollbarWidth)}px`,
+        );
+      }
+    });
   });
 </script>
 
-<div class="modal-content help-content">
-  <header class="modal-header">
-    <div class="modal-title">
-      {#if titleIcon}
-        <svelte:component
-          this={titleIcon}
-          class={`modal-title-icon ${titleIconClass}`.trim()}
-          aria-hidden={titleIconAriaHidden}
-        />
-      {/if}
-      <h2>{modalTitle}</h2>
-    </div>
-  </header>
-  <div class="help-scroll">
-    <div class="help-intro">
-      {#if appDescription}
-        <p class="help-description">{appDescription}</p>
-      {/if}
-      {#if message}
-        <p class="modal-message">{message}</p>
-      {/if}
-    </div>
-    <div class="help-controls">
-      <section class="help-section">
-        <h3>On-screen HUD</h3>
-        <ul class="control-list">
-          <div class="help-shortcut">
-            <span class="control-icon" aria-hidden="true">
-              <Hexagon />
-            </span>
-            <div class="control-text">
-              <p class="control-label">Tech Crystals (Currency)</p>
-              <p class="control-desc">View spent and set owned amount</p>
-            </div>
+<div class="modal-content help-content" bind:this={helpContentEl}>
+  <div class="help-scroll-area">
+    <div class="help-scroll" bind:this={helpScrollEl}>
+      <div class="help-scroll__content">
+        <header class="modal-header">
+          <div class="modal-title">
+            {#if titleIcon}
+              <svelte:component
+                this={titleIcon}
+                class={`modal-title-icon ${titleIconClass}`.trim()}
+                aria-hidden={titleIconAriaHidden}
+              />
+            {/if}
+            <h2>{modalTitle}</h2>
           </div>
-        </ul>
-      </section>
-      <section class="help-section">
-        <h3>Side menu</h3>
-        <ul class="control-list">
-          <div class="help-shortcut">
-            <span class="control-icon" aria-hidden="true">
-              <Menu />
-            </span>
-            <div class="control-text">
-              <p class="control-label">Side menu button</p>
-              <p class="control-desc">Show or hide additional options</p>
-            </div>
-          </div>
-          <div class="help-shortcut">
-            <span class="control-icon" aria-hidden="true">
-              <Share2 />
-            </span>
-            <div class="control-text">
-              <p class="control-label">Share button</p>
-              <p class="control-desc">Copy a shareable build link</p>
-            </div>
-          </div>
-        </ul>
-      </section>
-      {#if true}
-        <section class="help-section">
-          <h3>Touch controls</h3>
-          <ul class="control-list">
-            {#each touchControls as control (control.id)}
-              <li class="control-item">
+        </header>
+        <div class="help-intro">
+          {#if appDescription}
+            <p class="help-description">{appDescription}</p>
+          {/if}
+          {#if message}
+            <p class="modal-message">{message}</p>
+          {/if}
+        </div>
+        <div class="help-controls">
+          <section class="help-section">
+            <h3>On-screen HUD</h3>
+            <ul class="control-list">
+              <div class="help-shortcut">
                 <span class="control-icon" aria-hidden="true">
-                  <svelte:component this={control.icon} />
+                  <Hexagon fill="currentColor" />
                 </span>
                 <div class="control-text">
-                  <p class="control-label">{control.label}</p>
-                  <p class="control-desc">{control.description}</p>
+                  <p class="control-label">Tech Crystals (Currency)</p>
+                  <p class="control-desc">View spent and set owned amount</p>
                 </div>
-              </li>
-            {/each}
-          </ul>
-        </section>
-      {/if}
-      {#if showPointer}
-        <section class="help-section">
-          <h3>Mouse controls</h3>
-          <ul class="control-list">
-            {#each pointerControls as control (control.id)}
-              <li class="control-item">
+              </div>
+            </ul>
+          </section>
+          <section class="help-section">
+            <h3>Side menu</h3>
+            <ul class="control-list">
+              <div class="help-shortcut">
                 <span class="control-icon" aria-hidden="true">
-                  <svelte:component this={control.icon} />
+                  <Menu />
                 </span>
                 <div class="control-text">
-                  <p class="control-label">{control.label}</p>
-                  <p class="control-desc">{control.description}</p>
+                  <p class="control-label">Side menu button</p>
+                  <p class="control-desc">Show or hide additional options</p>
                 </div>
-              </li>
-            {/each}
-          </ul>
-        </section>
-      {/if}
+              </div>
+              <div class="help-shortcut">
+                <span class="control-icon" aria-hidden="true">
+                  <Share2 />
+                </span>
+                <div class="control-text">
+                  <p class="control-label">Share button</p>
+                  <p class="control-desc">Copy a shareable build link</p>
+                </div>
+              </div>
+            </ul>
+          </section>
+          {#if true}
+            <section class="help-section">
+              <h3>Touch controls</h3>
+              <ul class="control-list">
+                {#each touchControls as control (control.id)}
+                  <li class="control-item">
+                    <span class="control-icon" aria-hidden="true">
+                      <svelte:component this={control.icon} />
+                    </span>
+                    <div class="control-text">
+                      <p class="control-label">{control.label}</p>
+                      <p class="control-desc">{control.description}</p>
+                    </div>
+                  </li>
+                {/each}
+              </ul>
+            </section>
+          {/if}
+          {#if showPointer}
+            <section class="help-section">
+              <h3>Mouse controls</h3>
+              <ul class="control-list">
+                {#each pointerControls as control (control.id)}
+                  <li class="control-item">
+                    <span class="control-icon" aria-hidden="true">
+                      <svelte:component this={control.icon} />
+                    </span>
+                    <div class="control-text">
+                      <p class="control-label">{control.label}</p>
+                      <p class="control-desc">{control.description}</p>
+                    </div>
+                  </li>
+                {/each}
+              </ul>
+            </section>
+          {/if}
+        </div>
+      </div>
+      <div class="help-scroll__fade" aria-hidden="true"></div>
     </div>
   </div>
   <div class="modal-actions">
-    <Button on:click={() => onConfirm?.()}>{confirmLabel}</Button>
+    <Button
+      icon={X}
+      aria-label={confirmLabel}
+      tooltipText={confirmLabel}
+      on:click={() => onConfirm?.()}
+    />
   </div>
 </div>
 
@@ -262,16 +285,46 @@
 
   .help-content {
     max-height: min(80dvh, 520px);
-    grid-template-rows: auto minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
     position: relative;
   }
 
+  .help-scroll-area {
+    position: relative;
+    min-height: 0;
+    flex: 1;
+  }
+
   .help-scroll {
+    --help-scroll-fade-height: 48px;
+    display: block;
+    overflow-y: auto;
+    padding: 0 10px;
+    scrollbar-gutter: stable;
+    position: relative;
+    height: 100%;
+  }
+
+  .help-scroll__content {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    overflow-y: auto;
-    padding: 0 2px 46px;
+    padding: 10px 0;
+    padding-bottom: calc(var(--help-scroll-fade-height) + 10px);
+  }
+
+  .help-scroll__fade {
+    position: sticky;
+    bottom: 0;
+    height: var(--help-scroll-fade-height);
+    margin-top: calc(-1 * var(--help-scroll-fade-height));
+    background: linear-gradient(
+      to bottom,
+      rgba(10, 16, 28, 0) 0%,
+      rgba(10, 16, 28, 1) 100%
+    );
+    pointer-events: none;
   }
 
   .modal-header {
@@ -390,16 +443,11 @@
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    padding: 10px;
     position: absolute;
-    right: 0;
+    right: 5px;
     bottom: 0;
     left: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(14, 21, 36, 0),
-      rgba(14, 21, 36, 0.98) 60%,
-      rgba(14, 21, 36, 0.98)
-    );
     pointer-events: none;
   }
 

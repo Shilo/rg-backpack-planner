@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { Hexagon } from "lucide-svelte";
   import Button from "./Button.svelte";
-  import TechCrystalIcon from "./TechCrystalIcon.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalsModal";
   import {
     techCrystalsAvailable,
@@ -10,15 +10,12 @@
   $: hasOwned = $techCrystalsOwned > 0;
 
   const tooltipPrefix = "Tech Crystals\n";
-  $: tooltipText = hasOwned
-    ? `${tooltipPrefix} available / owned`
-    : `${tooltipPrefix} spent`;
+  $: tooltipText = `${tooltipPrefix} available` + (hasOwned ? ` / owned` : "");
 </script>
 
 <Button
   class="currency-display"
   type="button"
-  small
   aria-label="Tech Crystals"
   {tooltipText}
   on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
@@ -33,7 +30,7 @@
     <span class="currency-separator"> / </span>
     <span class="currency-owned">{`${$techCrystalsOwned}`}</span>
   {/if}
-  <TechCrystalIcon />
+  <Hexagon size={20} fill="currentColor" aria-hidden="true" />
 </Button>
 
 <style>

@@ -79,6 +79,7 @@
         <AlertModal
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
+          titleIconClass={$modalStore.titleIconClass ?? ""}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "OK"}
           onConfirm={handleConfirm}
@@ -87,6 +88,7 @@
         <ConfirmModal
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
+          titleIconClass={$modalStore.titleIconClass ?? ""}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "Confirm"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
@@ -97,6 +99,7 @@
         <HelpModal
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
+          titleIconClass={$modalStore.titleIconClass ?? ""}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "Close"}
           onConfirm={handleConfirm}
@@ -105,6 +108,7 @@
         <InputModal
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
+          titleIconClass={$modalStore.titleIconClass ?? ""}
           message={$modalStore.message}
           label={$modalStore.input?.label ?? "Value"}
           value={$modalStore.input?.value ?? 0}
@@ -139,7 +143,8 @@
     background: rgba(14, 21, 36, 0.98);
     border: 1px solid rgba(82, 112, 189, 0.5);
     box-shadow: 0 20px 40px rgba(6, 9, 18, 0.55);
-    padding: 18px 16px;
+    padding: 0;
+    overflow: hidden;
     display: grid;
     gap: 14px;
   }
@@ -147,7 +152,7 @@
   @media (max-width: 480px) {
     .modal-shell {
       width: min(92vw, 340px);
-      padding: 16px 14px;
+      padding: 0;
     }
   }
 </style>

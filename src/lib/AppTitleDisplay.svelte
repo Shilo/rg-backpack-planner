@@ -10,7 +10,6 @@
 <Button
   class="app-title-display"
   type="button"
-  small
   aria-label={title}
   iconClass="app-title-icon"
   icon={HelpCircle}

@@ -71,6 +71,7 @@
     bottom: 6px;
     font-size: 0.65rem;
     opacity: 0.8;
+    pointer-events: none;
   }
 
   .node-label {
@@ -79,6 +80,7 @@
     font-size: 0.65rem;
     white-space: nowrap;
     opacity: 0.75;
+    pointer-events: none;
   }
 
   :global(.button.node.locked) {

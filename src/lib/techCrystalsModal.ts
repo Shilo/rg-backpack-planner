@@ -7,6 +7,7 @@ export function openTechCrystalsOwnedModal(currentOwned: number) {
     type: "input",
     title: "TECH CRYSTALS OWNED",
     titleIcon: Hexagon,
+    titleIconClass: "modal-title-icon-filled",
     input: {
       label: "Set your budget",
       value: currentOwned,

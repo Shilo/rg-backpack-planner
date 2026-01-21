@@ -7,6 +7,7 @@
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
   import ModalHost from "./lib/ModalHost.svelte";
+  import type { TreeViewState } from "./lib/Tree.svelte";
   import { openHelpModal } from "./lib/helpModal";
   import {
     initTechCrystalTrees,
@@ -20,12 +21,16 @@
     resetAllTrees?: () => void;
   } | null = null;
   let activeTreeName = "";
+  let activeTreeIndex = 0;
+  let activeTreeViewState: TreeViewState | null = null;
+  let activeTreeFocusViewState: TreeViewState | null = null;
   let swipeStartX: number | null = null;
   let swipeStartY: number | null = null;
   let swipeLastX: number | null = null;
   let isSwiping = false;
   const swipeCloseThreshold = 70;
   const helpStorageKey = "rg-backpack-planner-help-seen";
+  let showAppTitle = true;
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -182,11 +187,21 @@
   onMount(() => {
     try {
       if (!localStorage.getItem(helpStorageKey)) {
-        openHelpModal();
+        showAppTitle = false;
+        openHelpModal({
+          onClose: () => {
+            showAppTitle = true;
+          },
+        });
         localStorage.setItem(helpStorageKey, "true");
       }
     } catch {
-      openHelpModal();
+      showAppTitle = false;
+      openHelpModal({
+        onClose: () => {
+          showAppTitle = true;
+        },
+      });
     }
   });
 </script>
@@ -208,14 +223,22 @@
     onResetTree={() => tabsRef?.resetActiveTree?.()}
     onResetAll={() => tabsRef?.resetAllTrees?.()}
     onHelp={openHelp}
+    {activeTreeIndex}
+    {activeTreeViewState}
+    {activeTreeFocusViewState}
     {activeTreeName}
   />
-  <AppTitleDisplay onHelp={openHelp} />
+  {#if showAppTitle}
+    <AppTitleDisplay onHelp={openHelp} />
+  {/if}
   <TechCrystalsDisplay />
   <main class="app-main">
     <Tabs
       bind:this={tabsRef}
       bind:activeLabel={activeTreeName}
+      bind:activeIndex={activeTreeIndex}
+      bind:activeViewState={activeTreeViewState}
+      bind:activeFocusViewState={activeTreeFocusViewState}
       {tabs}
       onMenuClick={toggleMenu}
       onNodeLevelChange={handleNodeLevelChange}

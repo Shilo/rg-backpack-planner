@@ -88,7 +88,9 @@
       aria-hidden={iconAriaHidden}
     />
   {/if}
-  <slot />
+  <span class="button-text">
+    <slot />
+  </span>
 </button>
 
 <style>
@@ -105,10 +107,25 @@
       background 0.2s ease;
   }
 
+  .button:not(:disabled) {
+    cursor: pointer;
+  }
+
   .button.with-icon {
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .button:has(.button-text:empty) {
+    padding: 0 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    text-align: center !important;
+  }
+
+  .button-text {
+    line-height: 1.1;
   }
 
   .button-icon {
@@ -118,8 +135,13 @@
   }
 
   .button:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    border-color: rgba(46, 63, 98, 0.7);
+    background: rgba(12, 18, 31, 0.6);
+    color: rgba(152, 170, 210, 0.75);
+    filter: none;
+    transform: none;
   }
 
   .button:focus-visible {
@@ -134,25 +156,26 @@
   }
 
   @media (hover: hover) {
-    .button:hover {
-      filter: brightness(1.25);
+    .button:not(:disabled):hover {
+      filter: brightness(1.18);
     }
   }
 
-  .button:active {
-    transform: scale(0.95);
-    filter: brightness(1.25);
+  .button:not(:disabled):active {
+    transform: scale(0.97);
+    filter: brightness(1.2);
   }
 
   .button-sm {
     height: 32px;
+    min-width: 32px;
     font-size: 0.75rem;
   }
 
   .button-md {
     min-height: 38px;
-    height: 38px;
-    padding: 8px 12px;
+    min-width: 38px;
+    padding: 4px 12px;
     font-size: 0.85rem;
   }
 

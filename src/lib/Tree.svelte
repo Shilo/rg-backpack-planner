@@ -39,6 +39,10 @@
   export let levelsById: Record<string, number> | null = null;
   export let onLevelsChange: ((levels: Record<string, number>) => void) | null =
     null;
+  export let onViewStateChange: ((view: TreeViewState) => void) | null = null;
+  export let onFocusViewStateChange:
+    | ((view: TreeViewState | null) => void)
+    | null = null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -48,6 +52,7 @@
   let offsetX = 0;
   let offsetY = 0;
   let scale = 1;
+  let focusViewState: TreeViewState | null = null;
 
   const minScale = 0.6;
   const maxScale = 2.2;
@@ -198,7 +203,7 @@
     offsetX = view.offsetX;
     offsetY = view.offsetY;
     if (viewportEl) {
-      const clamped = clampOffsets(offsetX, offsetY);
+      const clamped = clampOffsets(offsetX, offsetY, scale);
       offsetX = clamped.x;
       offsetY = clamped.y;
     }
@@ -337,7 +342,7 @@
         const dy = event.clientY - panStart.y;
         const nextOffsetX = panStart.offsetX + dx;
         const nextOffsetY = panStart.offsetY + dy;
-        const clamped = clampOffsets(nextOffsetX, nextOffsetY);
+        const clamped = clampOffsets(nextOffsetX, nextOffsetY, scale);
         offsetX = clamped.x;
         offsetY = clamped.y;
       }
@@ -359,7 +364,7 @@
       scale = nextScale;
       const nextOffsetX = centerX - pinchStart.worldX * scale;
       const nextOffsetY = centerY - pinchStart.worldY * scale;
-      const clamped = clampOffsets(nextOffsetX, nextOffsetY);
+      const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
       offsetX = clamped.x;
       offsetY = clamped.y;
     }
@@ -421,6 +426,33 @@
     return Math.min(Math.max(value, min), max);
   }
 
+  function computeFocusViewState(): TreeViewState | null {
+    if (!viewportEl || nodes.length === 0) return null;
+    const xs = nodes.map((node) => node.x);
+    const ys = nodes.map((node) => node.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const width = maxX - minX + 64;
+    const height = maxY - minY + 64;
+    const rect = viewportEl.getBoundingClientRect();
+    const padding = 24;
+    const availableW = Math.max(rect.width - padding * 2, 1);
+    const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
+    const paddedCenterX = padding + availableW / 2;
+    const paddedCenterY = padding + availableH / 2;
+    const nextScale = clamp(
+      Math.min(availableW / width, availableH / height),
+      minScale,
+      maxScale,
+    );
+    const nextOffsetX = paddedCenterX - (minX + width / 2) * nextScale;
+    const nextOffsetY = paddedCenterY - (minY + height / 2) * nextScale;
+    const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
+    return { offsetX: clamped.x, offsetY: clamped.y, scale: nextScale };
+  }
+
   function getWorldBounds() {
     if (nodes.length === 0) return null;
     const xs = nodes.map((node) => node.x);
@@ -432,7 +464,11 @@
     return { minX, maxX, minY, maxY };
   }
 
-  function clampOffsets(nextOffsetX: number, nextOffsetY: number) {
+  function clampOffsets(
+    nextOffsetX: number,
+    nextOffsetY: number,
+    nextScale = scale,
+  ) {
     if (!viewportEl) return { x: nextOffsetX, y: nextOffsetY };
     const bounds = getWorldBounds();
     if (!bounds) return { x: nextOffsetX, y: nextOffsetY };
@@ -445,8 +481,8 @@
 
     const centerWorldX = (bounds.minX + bounds.maxX) / 2;
     const centerWorldY = (bounds.minY + bounds.maxY) / 2;
-    const centerScreenX = nextOffsetX + centerWorldX * scale;
-    const centerScreenY = nextOffsetY + centerWorldY * scale;
+    const centerScreenX = nextOffsetX + centerWorldX * nextScale;
+    const centerScreenY = nextOffsetY + centerWorldY * nextScale;
 
     const clampedCenterX = clamp(centerScreenX, padding, paddedRight);
     const clampedCenterY = clamp(centerScreenY, padding, paddedBottom);
@@ -470,37 +506,21 @@
     scale = nextScale;
     const nextOffsetX = localX - world.x * scale;
     const nextOffsetY = localY - world.y * scale;
-    const clamped = clampOffsets(nextOffsetX, nextOffsetY);
+    const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
     offsetX = clamped.x;
     offsetY = clamped.y;
   }
 
   export function focusTreeInView() {
-    if (!viewportEl || nodes.length === 0) return;
-    const xs = nodes.map((node) => node.x);
-    const ys = nodes.map((node) => node.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    const width = maxX - minX + 64;
-    const height = maxY - minY + 64;
-    const rect = viewportEl.getBoundingClientRect();
-    const padding = 24;
-    const availableW = Math.max(rect.width - padding * 2, 1);
-    const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
-    const paddedCenterX = padding + availableW / 2;
-    const paddedCenterY = padding + availableH / 2;
-    scale = clamp(
-      Math.min(availableW / width, availableH / height),
-      minScale,
-      maxScale,
-    );
-    offsetX = paddedCenterX - (minX + width / 2) * scale;
-    offsetY = paddedCenterY - (minY + height / 2) * scale;
-    const clamped = clampOffsets(offsetX, offsetY);
-    offsetX = clamped.x;
-    offsetY = clamped.y;
+    const next = computeFocusViewState();
+    if (!next) return;
+    offsetX = next.offsetX;
+    offsetY = next.offsetY;
+    scale = next.scale;
+  }
+
+  export function getFocusViewState() {
+    return focusViewState ?? computeFocusViewState();
   }
 
   onMount(() => {
@@ -525,12 +545,20 @@
   $: if (gesturesDisabled) {
     cancelActiveGestures();
   }
+
+  $: {
+    focusViewState = computeFocusViewState();
+    onFocusViewStateChange?.(focusViewState);
+  }
+
+  $: onViewStateChange?.({ offsetX, offsetY, scale });
 </script>
 
 {#key fadeKey}
   <div class="tree-root" in:fade={{ duration: 300 }}>
     <div
       class="tree-viewport"
+      class:pan-enabled={!gesturesDisabled}
       bind:this={viewportEl}
       role="presentation"
       on:contextmenu={onContextMenu}
@@ -608,6 +636,14 @@
     overflow: hidden;
     touch-action: none;
     overscroll-behavior: none;
+  }
+
+  .tree-viewport.pan-enabled {
+    cursor: grab;
+  }
+
+  .tree-viewport.pan-enabled:active {
+    cursor: grabbing;
   }
 
   .tree-canvas {
