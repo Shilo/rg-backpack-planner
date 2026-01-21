@@ -144,7 +144,12 @@
     <Button
       class="side-menu__footer-button"
       on:click={() => onShareBuild?.()}
-      toastMessage={onShareBuild ? "Share link copied to clipboard" : undefined}
+      toastMessage={
+        onShareBuild
+          ? "Share link copied to clipboard"
+          : "Share is not implemented yet"
+      }
+      toastNegative={!onShareBuild}
       icon={Share2}
       aria-label="Share build"
       tooltipText="Share build"
