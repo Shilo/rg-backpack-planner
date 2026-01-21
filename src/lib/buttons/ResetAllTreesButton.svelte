@@ -2,7 +2,6 @@
   import { Trash2 } from "lucide-svelte";
   import Button from "../Button.svelte";
   import { openModal } from "../modalStore";
-  import { showToast } from "../toast";
   import type { LevelsById } from "../treeLevelsStore";
 
   export let onResetAll: (() => void) | null = null;
@@ -29,7 +28,6 @@
       confirmNegative: true,
       onConfirm: () => {
         onResetAll();
-        showToast("All trees reset", { tone: "negative" });
       },
     });
   };

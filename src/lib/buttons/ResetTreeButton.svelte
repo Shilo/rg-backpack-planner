@@ -2,7 +2,6 @@
   import { RotateCcw } from "lucide-svelte";
   import Button from "../Button.svelte";
   import { openModal } from "../modalStore";
-  import { showToast } from "../toast";
   import type { LevelsById } from "../treeLevelsStore";
 
   export let onReset: (() => void) | null = null;
@@ -28,7 +27,6 @@
       confirmNegative: true,
       onConfirm: () => {
         onReset();
-        showToast("Tree reset", { tone: "negative" });
       },
     });
   };

@@ -26,8 +26,8 @@
     startLongPress,
     type LongPressState,
   } from "./longPress";
-  import { hideTooltip, suppressTooltip } from "./tooltip";
   import { showToast } from "./toast";
+  import { hideTooltip, suppressTooltip } from "./tooltip";
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
@@ -44,6 +44,7 @@
   export let onFocusViewStateChange:
     | ((view: TreeViewState | null) => void)
     | null = null;
+  export let onFocusInView: (() => void) | null = null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -284,8 +285,11 @@
       if (!nodeId) {
         event.preventDefault();
         autoFocus = true;
-        focusTreeInView();
-        showToast("Tree focused in view");
+        if (onFocusInView) {
+          onFocusInView();
+        } else {
+          focusTreeInView();
+        }
         return;
       }
     }
@@ -537,6 +541,7 @@
     offsetX = next.offsetX;
     offsetY = next.offsetY;
     scale = next.scale;
+    showToast("Tree focused in view");
   }
 
   export function getFocusViewState() {

@@ -29,7 +29,6 @@
     onPress?.();
     onFocusInView();
   }}
-  toastMessage={onFocusInView ? "Tree focused in view" : undefined}
   tooltipText={"Fit nodes in view by resetting zoom and pan"}
   icon={Focus}
   {disabled}

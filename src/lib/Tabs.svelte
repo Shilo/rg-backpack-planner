@@ -29,6 +29,7 @@
     treeLevels,
   } from "./treeLevelsStore";
   import { techCrystalsSpentByTree } from "./techCrystalStore";
+  import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
 
   export let tabs: TabConfig[] = [];
@@ -280,8 +281,9 @@
   }
 
   export function focusActiveTreeInView() {
-    treeRef?.focusTreeInView?.();
-    treeRef?.triggerFade?.();
+    if (!treeRef?.focusTreeInView) return;
+    treeRef.focusTreeInView();
+    treeRef.triggerFade?.();
   }
 
   function refundTreeSpent(index: number) {
@@ -298,17 +300,22 @@
     }
   }
 
+  function resetTreeByIndex(index: number) {
+    resetLevelsForTab(index);
+    refundTreeSpent(index);
+    showToast("Tree reset", { tone: "negative" });
+  }
+
   function resetTabTree(tabId: string) {
     const index = tabs.findIndex((tab) => tab.id === tabId);
     if (index === -1) return;
-    resetLevelsForTab(index);
-    refundTreeSpent(index);
+    resetTreeByIndex(index);
     closeTabMenu();
   }
 
   export function resetActiveTree() {
-    resetLevelsForTab(activeIndex);
-    refundTreeSpent(activeIndex);
+    if (!tabs[activeIndex]) return;
+    resetTreeByIndex(activeIndex);
   }
 
   export function resetAllTrees() {
@@ -317,6 +324,7 @@
       refundTreeSpent(index);
     }
     resetAllTreeLevels(tabs);
+    showToast("All trees reset", { tone: "negative" });
     treeRef?.triggerFade?.();
 
     closeTabMenu();
