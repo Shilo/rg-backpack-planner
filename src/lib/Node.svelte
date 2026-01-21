@@ -58,12 +58,24 @@
     display: grid;
     justify-content: center;
     gap: 0;
+    place-items: center;
+    grid-template-areas: "stack";
   }
 
   :global(.node-icon) {
     width: 24px;
     height: 24px;
     opacity: 0.7;
+    grid-area: stack;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  :global(.button.node .button-text) {
+    grid-area: stack;
+    display: contents;
   }
 
   .node-level {

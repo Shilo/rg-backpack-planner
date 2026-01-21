@@ -2,10 +2,7 @@
   import { Hexagon } from "lucide-svelte";
   import Button from "./Button.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
-  import {
-    techCrystalsAvailable,
-    techCrystalsOwned,
-  } from "./techCrystalStore";
+  import { techCrystalsAvailable, techCrystalsOwned } from "./techCrystalStore";
 
   $: hasOwned = $techCrystalsOwned > 0;
 
@@ -45,8 +42,19 @@
     gap: 2px;
     padding: 6px 10px 6px 12px;
     font-weight: 600;
-    font-size: 0.95rem !important;
+    font-size: 1.25rem !important;
     letter-spacing: 0.02em;
+  }
+
+  :global(.currency-display .button-text) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1;
+  }
+
+  :global(.currency-display svg) {
+    display: block;
   }
 
   .currency-available {
