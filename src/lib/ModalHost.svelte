@@ -5,6 +5,7 @@
   import HelpModal from "./modals/HelpModal.svelte";
   import InputModal from "./modals/InputModal.svelte";
   import { closeModal, modalStore } from "./modalStore";
+  import { triggerHaptic } from "./haptics";
 
   let lastActiveElement: HTMLElement | null = null;
 
@@ -45,6 +46,7 @@
 
   function handleBackdropClick(event: MouseEvent) {
     if (event.target !== event.currentTarget) return;
+    triggerHaptic();
     handleCancel();
   }
 

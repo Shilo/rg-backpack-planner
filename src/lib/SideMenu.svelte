@@ -9,6 +9,7 @@
   import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
+  import { triggerHaptic } from "./haptics";
   import {
     treeLevels,
     treeLevelsTotal,
@@ -71,6 +72,11 @@
       active.blur();
     }
   }
+
+  function handleBackdropClick() {
+    triggerHaptic();
+    onClose?.();
+  }
 </script>
 
 <button
@@ -79,7 +85,7 @@
   bind:this={backdropEl}
   tabindex={isOpen ? 0 : -1}
   inert={!isOpen}
-  on:click={() => onClose?.()}
+  on:click={handleBackdropClick}
   type="button"
 ></button>
 <aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>

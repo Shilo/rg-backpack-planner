@@ -3,6 +3,7 @@
   import { createEventDispatcher } from "svelte";
   import { showToast } from "./toast";
   import { tooltip } from "./tooltip";
+  import { triggerHaptic } from "./haptics";
 
   export let icon: ComponentType | null = null;
   export let iconClass = "button-icon";
@@ -65,6 +66,11 @@
       });
     }
   };
+
+  const handlePointerDown = (event: PointerEvent) => {
+    triggerHaptic();
+    forward(event);
+  };
 </script>
 
 <button
@@ -75,7 +81,7 @@
   use:tooltip={tooltipText}
   on:click={handleClick}
   on:contextmenu={forward}
-  on:pointerdown={forward}
+  on:pointerdown={handlePointerDown}
   on:pointermove={forward}
   on:pointerup={forward}
   on:pointercancel={forward}

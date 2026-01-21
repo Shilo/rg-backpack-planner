@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { dismissToast, toastStore, type Toast } from "./toast";
+  import { triggerHaptic } from "./haptics";
 
   const timeouts = new Map<string, number>();
 
@@ -44,7 +45,10 @@
       class="toast toast--{toast.tone}"
       role="button"
       tabindex="0"
-      on:click={() => dismissToast(toast.id)}
+      on:click={() => {
+        triggerHaptic();
+        dismissToast(toast.id);
+      }}
       on:keydown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();

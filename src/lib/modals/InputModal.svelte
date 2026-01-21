@@ -3,6 +3,7 @@
   import { Minus, Plus, RotateCcw } from "lucide-svelte";
   import { onMount } from "svelte";
   import Button from "../Button.svelte";
+  import { triggerHaptic } from "../haptics";
 
   export let title = "";
   export let titleIcon: ComponentType | null = null;
@@ -50,6 +51,11 @@
 
   function handleReset() {
     valueText = "0";
+  }
+
+  function handleStepperClick(action: () => void) {
+    triggerHaptic();
+    action();
   }
 
   function handleFocus() {
@@ -125,7 +131,7 @@
       class="stepper stepper-icon reset-button"
       type="button"
       aria-label="Reset value"
-      on:click={handleReset}
+      on:click={() => handleStepperClick(handleReset)}
     >
       <RotateCcw class="stepper-icon__svg" aria-hidden="true" />
     </button>
@@ -133,7 +139,7 @@
       class="stepper stepper-icon"
       type="button"
       aria-label="Decrease value"
-      on:click={() => stepValue(-step)}
+      on:click={() => handleStepperClick(() => stepValue(-step))}
     >
       <Minus class="stepper-icon__svg" aria-hidden="true" />
     </button>
@@ -156,7 +162,7 @@
       class="stepper stepper-icon"
       type="button"
       aria-label="Increase value"
-      on:click={() => stepValue(step)}
+      on:click={() => handleStepperClick(() => stepValue(step))}
     >
       <Plus class="stepper-icon__svg" aria-hidden="true" />
     </button>
@@ -164,7 +170,7 @@
       class="stepper stepper-wide"
       type="button"
       aria-label="Increase value by 100"
-      on:click={() => stepValue(100)}
+      on:click={() => handleStepperClick(() => stepValue(100))}
     >
       +100
     </button>
