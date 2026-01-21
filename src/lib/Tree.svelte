@@ -27,6 +27,7 @@
     type LongPressState,
   } from "./longPress";
   import { hideTooltip, suppressTooltip } from "./tooltip";
+  import { showToast } from "./toast";
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
@@ -278,6 +279,16 @@
   function onPointerDown(event: PointerEvent) {
     if (!viewportEl) return;
     if (gesturesDisabled) return;
+    if (event.pointerType === "mouse" && event.button === 1) {
+      const nodeId = getNodeIdFromTarget(event.target);
+      if (!nodeId) {
+        event.preventDefault();
+        autoFocus = true;
+        focusTreeInView();
+        showToast("Tree focused in view");
+        return;
+      }
+    }
     if (!isPrimaryPointer(event)) return;
     if (contextMenu) {
       if (isInContextMenu(event.target)) return;
