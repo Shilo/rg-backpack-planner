@@ -233,7 +233,7 @@
                 </span>
                 <div class="control-text">
                   <p class="control-label">Reset active tree</p>
-                  <p class="control-desc">Refund Tech Crystals for this tree</p>
+                  <p class="control-desc">Refund Tech Crystals for tree</p>
                 </div>
               </div>
             </ul>
