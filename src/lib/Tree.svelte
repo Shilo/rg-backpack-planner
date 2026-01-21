@@ -44,7 +44,6 @@
   export let onFocusViewStateChange:
     | ((view: TreeViewState | null) => void)
     | null = null;
-  export let onFocusInView: (() => void) | null = null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -282,11 +281,7 @@
       const nodeId = getNodeIdFromTarget(event.target);
       if (!nodeId) {
         event.preventDefault();
-        if (onFocusInView) {
-          onFocusInView();
-        } else {
-          focusTreeInView();
-        }
+        focusTreeInView();
         return;
       }
     }
