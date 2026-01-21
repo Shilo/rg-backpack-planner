@@ -236,9 +236,8 @@
     top: 0;
     right: 0;
     height: 100%;
-    width: 78vw;
-    max-width: 85%;
-    width: min(255px, 85%);
+    max-width: 100%;
+    width: fit-content;
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
