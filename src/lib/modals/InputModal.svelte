@@ -171,8 +171,8 @@
   </div>
   <div class="modal-actions">
     <div class="modal-actions__right">
-      <Button on:click={() => onCancel?.()} negative>{cancelLabel}</Button>
-      <Button on:click={handleConfirm}>{confirmLabel}</Button>
+      <Button on:click={() => onCancel?.()}>{cancelLabel}</Button>
+      <Button on:click={handleConfirm} positive>{confirmLabel}</Button>
     </div>
   </div>
 </div>

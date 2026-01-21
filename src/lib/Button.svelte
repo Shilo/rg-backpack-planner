@@ -10,6 +10,7 @@
   export let type: "button" | "submit" | "reset" = "button";
   export let small = false;
   export let negative = false;
+  export let positive = false;
   export let disabled: boolean | undefined = undefined;
   export let tooltipText: string | undefined = undefined;
   export let element: HTMLButtonElement | null = null;
@@ -24,7 +25,7 @@
   $: computedClass = [
     "button",
     small ? "button-sm" : "button-md",
-    negative ? "button-negative" : "",
+    negative ? "button-negative" : positive ? "button-positive" : "",
     restClass,
     icon ? "with-icon" : "",
   ]
@@ -183,5 +184,11 @@
     border-color: rgba(180, 72, 72, 0.9);
     background: rgba(84, 26, 32, 0.85);
     color: #ffd7d7;
+  }
+
+  .button-positive {
+    border-color: rgba(70, 162, 120, 0.9);
+    background: rgba(18, 54, 40, 0.85);
+    color: #d9ffe9;
   }
 </style>
