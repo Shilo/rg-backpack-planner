@@ -18,16 +18,10 @@ export default defineConfig({
         theme_color: '#0b1220',
         icons: [
           {
-            src: 'pwa.svg',
+            src: 'icon.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any',
-          },
-          {
-            src: 'pwa-maskable.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'maskable',
           },
         ],
       },
