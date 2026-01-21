@@ -16,6 +16,12 @@
   export let onFocusInView: ((tabId: string) => void) | null = null;
   export let onReset: ((tabId: string) => void) | null = null;
   export let hideView0ptions = false;
+
+  // Capture the tab id when the menu opens so closing it won't clear callbacks.
+  let menuTabId = "";
+  $: if (isOpen) {
+    menuTabId = tabId;
+  }
 </script>
 
 <ContextMenu
@@ -27,8 +33,8 @@
   {onClose}
 >
   <TreeContextMenuList
-    onFocusInView={() => onFocusInView?.(tabId)}
-    onReset={() => onReset?.(tabId)}
+    onFocusInView={() => onFocusInView?.(menuTabId)}
+    onReset={() => onReset?.(menuTabId)}
     onButtonPress={onClose}
     {hideView0ptions}
     {levelsById}
