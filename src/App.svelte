@@ -16,7 +16,7 @@
 
   let isMenuOpen = false;
   let tabsRef: {
-    focusActiveTreeInView?: () => void;
+    focusActiveTreeInView?: (announce?: boolean) => void;
     resetActiveTree?: () => void;
     resetAllTrees?: () => void;
   } | null = null;
@@ -219,7 +219,7 @@
   <SideMenu
     isOpen={isMenuOpen}
     onClose={closeMenu}
-    onFocusInView={() => tabsRef?.focusActiveTreeInView?.()}
+    onFocusInView={() => tabsRef?.focusActiveTreeInView?.(true)}
     onResetTree={() => tabsRef?.resetActiveTree?.()}
     onResetAll={() => tabsRef?.resetAllTrees?.()}
     onHelp={openHelp}

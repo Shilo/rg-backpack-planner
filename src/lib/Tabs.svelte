@@ -47,7 +47,7 @@
   let bottomInset = 0;
   let tabsBarEl: HTMLDivElement | null = null;
   let treeRef: {
-    focusTreeInView?: () => void;
+    focusTreeInView?: (announce?: boolean) => void;
     resetAllNodes?: () => void;
     triggerFade?: () => void;
     cancelGestures?: () => void;
@@ -276,13 +276,13 @@
     if (index === -1) return;
     setActive(index);
     await tick();
-    focusActiveTreeInView();
+    focusActiveTreeInView(true);
     closeTabMenu();
   }
 
-  export function focusActiveTreeInView() {
+  export function focusActiveTreeInView(announce = false) {
     if (!treeRef?.focusTreeInView) return;
-    treeRef.focusTreeInView();
+    treeRef.focusTreeInView(announce);
     treeRef.triggerFade?.();
   }
 

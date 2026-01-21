@@ -527,13 +527,15 @@
     offsetY = clamped.y;
   }
 
-  export function focusTreeInView() {
+  export function focusTreeInView(announce = false) {
     const next = computeFocusViewState();
     if (!next) return;
     offsetX = next.offsetX;
     offsetY = next.offsetY;
     scale = next.scale;
-    showToast("Tree focused in view");
+    if (announce) {
+      showToast("Tree focused in view");
+    }
   }
 
   export function getFocusViewState() {
