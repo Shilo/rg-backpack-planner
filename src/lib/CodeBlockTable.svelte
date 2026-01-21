@@ -1,13 +1,10 @@
 <script lang="ts">
-  import { Copy } from "lucide-svelte";
-  import Button from "./Button.svelte";
   import { showToast } from "./toast";
   import appPackage from "../../package.json";
 
   export let headers: [string, string] = ["Column A", "Column B"];
   export let rows: Array<[string, string]> = [];
   export let emptyMessage = "No data";
-  export let copyLabel = "Copy";
 
   const appName = (appPackage?.name ?? "Backpack Planner") as string;
   const appGithubUrl = (appPackage?.github ?? undefined) as string | undefined;
@@ -84,28 +81,14 @@
       }
     }
   }
+
+  export async function copy() {
+    await copyCodeblock();
+  }
 </script>
 
 <div class="codeblock-table">
   <table class="codeblock-table__table">
-    <thead>
-      <tr>
-        <th>{headers[0]}</th>
-        <th>
-          <div class="codeblock-table__th">
-            <span>{headers[1]}</span>
-            <Button
-              class="codeblock-table__copy"
-              small
-              icon={Copy}
-              on:click={copyCodeblock}
-              tooltipText={copyLabel}
-              aria-label={copyLabel}
-            />
-          </div>
-        </th>
-      </tr>
-    </thead>
     <tbody>
       {#each displayRows as row}
         <tr>
@@ -121,9 +104,6 @@
   .codeblock-table {
     display: grid;
     gap: 8px;
-    border: 1px solid rgba(74, 110, 184, 0.35);
-    border-radius: 12px;
-    overflow: hidden;
   }
 
   .codeblock-table__table {
@@ -133,7 +113,6 @@
     font-size: 0.8rem;
   }
 
-  .codeblock-table__table th,
   .codeblock-table__table td {
     border-top: 1px solid rgba(74, 110, 184, 0.35);
     border-left: 1px solid rgba(74, 110, 184, 0.35);
@@ -141,39 +120,15 @@
     text-align: left;
   }
 
-  .codeblock-table__table thead tr:first-child th {
+  .codeblock-table__table tbody tr:first-child td {
     border-top: none;
   }
 
-  .codeblock-table__table th:first-child,
   .codeblock-table__table td:first-child {
     border-left: none;
   }
 
-  .codeblock-table__table thead {
-    background: rgba(15, 23, 42, 0.6);
-    color: #dbe6ff;
-  }
-
   .codeblock-table__table tbody {
     color: #c8d7ff;
-  }
-
-  .codeblock-table__th {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.codeblock-table__copy) {
-    padding: 0px !important;
-    min-height: 0px !important;
-    border-radius: 0px !important;
-    background: transparent !important;
-    border: none !important;
-    color: #a7b7e6 !important;
-    width: 17px !important;
-    height: 17px !important;
   }
 </style>

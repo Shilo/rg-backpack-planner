@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, Hexagon, Share2 } from "lucide-svelte";
+  import { Copy, HelpCircle, Hexagon, Share2 } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -24,6 +24,16 @@
   } from "./techCrystalStore";
 
   $: hasOwned = $techCrystalsOwned > 0;
+  const statsTechCrystalHeaders: [string, string] = ["Tech Crystal", "Spent"];
+  const statsBackpackNodeHeaders: [string, string] = [
+    "Backpack Node",
+    "Levels",
+  ];
+  const statsBackpackSkillHeaders: [string, string] = [
+    "Backpack Skill",
+    "Boost",
+  ];
+  const statsCopyLabel = "Copy";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
@@ -38,6 +48,9 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
+  let techCrystalTable: CodeBlockTable | null = null;
+  let backpackNodeTable: CodeBlockTable | null = null;
+  let backpackSkillTable: CodeBlockTable | null = null;
   $: if (!isOpen) {
     const active = document.activeElement;
     if (
@@ -107,35 +120,83 @@
           />
         </SideMenuSection>
         <SideMenuSection title="STATISTICS">
-          <CodeBlockTable
-            headers={["Tech Crystal", "Spent"]}
-            rows={[
-              ["Total", `${$techCrystalsSpentTotal}`],
-              ["Guardian", `${$techCrystalsSpentGuardian}`],
-              ["Vanguard", `${$techCrystalsSpentVanguard}`],
-              ["Cannon", `${$techCrystalsSpentCannon}`],
-            ]}
-          />
-          <CodeBlockTable
-            headers={["Backpack Node", "Levels"]}
-            rows={[
-              ["Total", `${$treeLevelsTotal}`],
-              ["Guardian", `${$treeLevelsGuardian}`],
-              ["Vanguard", `${$treeLevelsVanguard}`],
-              ["Cannon", `${$treeLevelsCannon}`],
-            ]}
-          />
-          <CodeBlockTable
-            headers={["Backpack Skill", "Boost"]}
-            rows={[
-              ["TODO", "TODO"],
-              ["Attack Boost", "10,000%"],
-              ["Defense Boost", "30,000%"],
-              ["Critical Hit", "160%"],
-              ["Global ATK", "200%"],
-              ["Final Damage Boost", "20%"],
-            ]}
-          />
+          <div class="side-menu__stats-card">
+            <div class="side-menu__stats-header">
+              <span
+                >{`${statsTechCrystalHeaders[0]} ${statsTechCrystalHeaders[1]}`}</span
+              >
+              <Button
+                class="side-menu__stats-copy"
+                small
+                icon={Copy}
+                on:click={() => techCrystalTable?.copy()}
+                tooltipText={statsCopyLabel}
+                aria-label={statsCopyLabel}
+              />
+            </div>
+            <CodeBlockTable
+              bind:this={techCrystalTable}
+              headers={statsTechCrystalHeaders}
+              rows={[
+                ["Total", `${$techCrystalsSpentTotal}`],
+                ["Guardian", `${$techCrystalsSpentGuardian}`],
+                ["Vanguard", `${$techCrystalsSpentVanguard}`],
+                ["Cannon", `${$techCrystalsSpentCannon}`],
+              ]}
+            />
+          </div>
+          <div class="side-menu__stats-card">
+            <div class="side-menu__stats-header">
+              <span
+                >{`${statsBackpackNodeHeaders[0]} ${statsBackpackNodeHeaders[1]}`}</span
+              >
+              <Button
+                class="side-menu__stats-copy button-sm"
+                small
+                icon={Copy}
+                on:click={() => backpackNodeTable?.copy()}
+                tooltipText={statsCopyLabel}
+                aria-label={statsCopyLabel}
+              />
+            </div>
+            <CodeBlockTable
+              bind:this={backpackNodeTable}
+              headers={statsBackpackNodeHeaders}
+              rows={[
+                ["Total", `${$treeLevelsTotal}`],
+                ["Guardian", `${$treeLevelsGuardian}`],
+                ["Vanguard", `${$treeLevelsVanguard}`],
+                ["Cannon", `${$treeLevelsCannon}`],
+              ]}
+            />
+          </div>
+          <div class="side-menu__stats-card">
+            <div class="side-menu__stats-header">
+              <span
+                >{`${statsBackpackSkillHeaders[0]} ${statsBackpackSkillHeaders[1]}`}</span
+              >
+              <Button
+                class="side-menu__stats-copy button-sm"
+                small
+                icon={Copy}
+                on:click={() => backpackSkillTable?.copy()}
+                tooltipText={statsCopyLabel}
+                aria-label={statsCopyLabel}
+              />
+            </div>
+            <CodeBlockTable
+              bind:this={backpackSkillTable}
+              headers={statsBackpackSkillHeaders}
+              rows={[
+                ["TODO", "TODO"],
+                ["Attack Boost", "10,000%"],
+                ["Defense Boost", "30,000%"],
+                ["Critical Hit", "160%"],
+                ["Global ATK", "200%"],
+                ["Final Damage Boost", "20%"],
+              ]}
+            />
+          </div>
         </SideMenuSection>
       </div>
       <div class="side-menu__scroll-fade" aria-hidden="true"></div>
@@ -145,11 +206,9 @@
     <Button
       class="side-menu__footer-button"
       on:click={() => onShareBuild?.()}
-      toastMessage={
-        onShareBuild
-          ? "Share link copied to clipboard"
-          : "Share is not implemented yet"
-      }
+      toastMessage={onShareBuild
+        ? "Share link copied to clipboard"
+        : "Share is not implemented yet"}
       toastNegative={!onShareBuild}
       icon={Share2}
       aria-label="Share build"
@@ -182,6 +241,43 @@
     color: #c7d6ff;
   }
 
+  .side-menu__stats-card {
+    display: grid;
+    gap: 0;
+    border: 1px solid rgba(74, 110, 184, 0.35);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .side-menu__stats-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: rgba(15, 23, 42, 0.6);
+    color: #dbe6ff;
+    font-size: 0.8rem;
+    border-bottom: 1px solid rgba(74, 110, 184, 0.35);
+  }
+
+  .side-menu__stats-header span {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  :global(.side-menu__stats-copy) {
+    justify-self: end;
+    padding: 0px !important;
+    min-height: 0px !important;
+    border-radius: 0px !important;
+    background: transparent !important;
+    border: none !important;
+    color: #a7b7e6 !important;
+    width: 17px !important;
+    height: 17px !important;
+  }
+
   :global(.menu-backdrop) {
     position: fixed;
     inset: 0;
@@ -206,7 +302,7 @@
     height: 100%;
     width: 78vw;
     max-width: 85%;
-    width: min(242px, 85%);
+    width: min(255px, 85%);
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
