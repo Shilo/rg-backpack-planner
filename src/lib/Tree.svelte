@@ -16,7 +16,7 @@
 </script>
 
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
@@ -529,13 +529,14 @@
 
   export function focusTreeInView(announce = false) {
     const next = computeFocusViewState();
-    if (!next) return;
+    if (!next) return false;
     offsetX = next.offsetX;
     offsetY = next.offsetY;
     scale = next.scale;
     if (announce) {
       showToast("Focused tree in view");
     }
+    return true;
   }
 
   export function getFocusViewState() {
@@ -543,11 +544,19 @@
   }
 
   onMount(() => {
-    if (initialViewState) {
-      setViewState(initialViewState);
-    } else {
-      focusTreeInView();
-    }
+    const initializeView = async () => {
+      await tick();
+      if (initialViewState) {
+        setViewState(initialViewState);
+        return;
+      }
+      if (!focusTreeInView()) {
+        requestAnimationFrame(() => {
+          focusTreeInView();
+        });
+      }
+    };
+    void initializeView();
     const handleResize = () => {
       focusTreeInView();
     };
