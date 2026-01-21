@@ -3,12 +3,14 @@
   import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
   import SideMenu from "./lib/SideMenu.svelte";
   import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
+  import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
   import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
   import Tooltip from "./lib/Tooltip.svelte";
   import Toasts from "./lib/Toasts.svelte";
   import ModalHost from "./lib/ModalHost.svelte";
   import type { TreeViewState } from "./lib/Tree.svelte";
   import { openHelpModal } from "./lib/helpModal";
+  import { treeLevels, type LevelsById } from "./lib/treeLevelsStore";
   import {
     initTechCrystalTrees,
     applyTechCrystalDeltaForTree,
@@ -31,6 +33,10 @@
   const swipeCloseThreshold = 70;
   const helpStorageKey = "rg-backpack-planner-help-seen";
   let showAppTitle = true;
+  const sumLevels = (levels: LevelsById | undefined) =>
+    Object.values(levels ?? {}).reduce((total, value) => total + value, 0);
+  $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
+  $: canResetActiveTree = activeTreeLevelsTotal > 0;
 
   const baseTree = [
     { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
@@ -231,7 +237,14 @@
   {#if showAppTitle}
     <AppTitleDisplay onHelp={openHelp} />
   {/if}
-  <TechCrystalDisplay />
+  <div class="top-right-actions">
+    <TechCrystalDisplay />
+    <ActiveTreeResetButton
+      onReset={() => tabsRef?.resetActiveTree?.()}
+      treeLabel={activeTreeName}
+      canReset={canResetActiveTree}
+    />
+  </div>
   <main class="app-main">
     <Tabs
       bind:this={tabsRef}
@@ -265,5 +278,16 @@
   .app-main {
     flex: 1;
     min-height: 0;
+  }
+
+  .top-right-actions {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 6;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
   }
 </style>
