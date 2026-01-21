@@ -1,10 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 512 512" role="img" aria-label="Tech Crystal">
-  <g fill="none" stroke="#6a8dff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="256,20 460,120 500,288 256,492 12,288 52,120" />
-    <line x1="256" y1="20" x2="256" y2="492" />
-    <line x1="52" y1="120" x2="256" y2="256" />
-    <line x1="460" y1="120" x2="256" y2="256" />
-    <line x1="12" y1="288" x2="256" y2="256" />
-    <line x1="500" y1="288" x2="256" y2="256" />
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="-5 25 1080 1010" fill="none">
+  <g stroke="#6a8dff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
+    <!-- outer -->
+    <path d="M 885.0,138.0 L 557.0,45.0 L 237.0,112.0 L 61.0,373.0 L 15.0,644.0 L 191.0,914.0 L 454.0,1015.0 L 785.0,971.0 L 1007.0,684.0 L 1055.0,473.0 Z"/>
+    <!-- inner -->
+    <line x1="245.7" y1="119.7" x2="277.3" y2="171.3"/>
+    <line x1="277.3" y1="171.3" x2="677.0" y2="185.2"/>
+    <line x1="677.0" y1="185.2" x2="866.2" y2="144.0"/>
+    <line x1="277.3" y1="171.3" x2="133.0" y2="488.8"/>
+    <line x1="677.0" y1="185.2" x2="748.0" y2="487.8"/>
+    <line x1="133.0" y1="488.8" x2="409.3" y2="686.3"/>
+    <line x1="748.0" y1="487.8" x2="409.3" y2="686.3"/>
+    <line x1="409.3" y1="686.3" x2="452.7" y2="1003.7"/>
+    <line x1="133.0" y1="488.8" x2="27.8" y2="630.0"/>
+    <line x1="748.0" y1="487.8" x2="998.3" y2="677.3"/>
   </g>
 </svg>
