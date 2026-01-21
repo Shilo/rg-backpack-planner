@@ -208,7 +208,7 @@
   }
 
   .side-menu__content {
-    --side-menu-fade-height: 58px;
+    --side-menu-fade-height: 68px;
     display: block;
     height: 100%;
     overflow-y: auto;
@@ -245,7 +245,7 @@
     background: linear-gradient(
       to bottom,
       rgba(10, 16, 28, 0) 0%,
-      rgba(10, 16, 28, 1) 20%
+      rgba(10, 16, 28, 1) 28%
     );
     pointer-events: none;
   }
@@ -271,9 +271,5 @@
 
   .side-menu__footer :global(button) {
     pointer-events: auto;
-  }
-
-  .side-menu__footer :global(.button) {
-    background: #111b2d;
   }
 </style>
