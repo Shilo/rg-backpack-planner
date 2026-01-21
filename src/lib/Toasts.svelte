@@ -60,8 +60,8 @@
 <style>
   .toast-region {
     position: fixed;
-    left: var(--bar-pad, 10px);
-    bottom: calc(var(--bar-pad, 10px) + var(--tab-height, 32px) + 10px);
+    left: var(--bar-pad);
+    bottom: calc(var(--bar-pad) + var(--tab-height) + 20px);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
