@@ -415,7 +415,7 @@
 <style>
   .tabs-root {
     --bar-pad: 10px;
-    --menu-width: 32px;
+    --menu-width: 38px;
     --menu-gap: 6px;
     --tab-height: 32px;
     display: flex;
