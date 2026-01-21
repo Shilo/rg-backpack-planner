@@ -81,6 +81,18 @@ button {
   pointer-events: none;
 }
 
+.modal-message a {
+  color: #9fb6ff;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.modal-message a:hover,
+.modal-message a:focus-visible {
+  color: #c8d6ff;
+}
+
 @media (hover: none) {
   .tooltip {
     transform: none;

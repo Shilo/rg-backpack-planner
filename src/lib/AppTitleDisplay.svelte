@@ -11,8 +11,6 @@
   class="app-title-display"
   type="button"
   aria-label={title}
-  iconClass="app-title-icon"
-  icon={HelpCircle}
   on:click={() => onHelp?.()}
 >
   {title}

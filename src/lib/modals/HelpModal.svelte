@@ -27,7 +27,8 @@
 
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
-  const modalTitle = appName ? `${appName} - ${title}` : title;
+  const modalTitle =
+    appName && title ? `${appName} - ${title}` : appName || title;
   const appGithubUrl = (packageInfo?.github ?? undefined) as string | undefined;
 
   type ControlDevice = "pointer" | "touch" | "both";
@@ -199,7 +200,7 @@
             <p class="help-description">{appDescription}</p>
           {/if}
           {#if message}
-            <p class="modal-message">{message}</p>
+            <p class="modal-message">{@html message}</p>
           {/if}
         </div>
         <div class="help-controls">
