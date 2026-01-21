@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { HelpCircle } from "lucide-svelte";
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
 
@@ -23,22 +22,15 @@
     left: 10px;
     z-index: 8;
     border-radius: 999px !important;
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
     font-weight: 600;
     font-size: 0.85rem !important;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    padding: 6px 12px;
     --app-title-display-duration: 5s;
     --app-title-display-fade: 200ms;
     animation: app-title-fade var(--app-title-display-fade) ease-in forwards;
     animation-delay: var(--app-title-display-duration);
-  }
-
-  :global(.app-title-icon) {
-    width: 16px;
-    height: 16px;
   }
 
   @keyframes app-title-fade {
