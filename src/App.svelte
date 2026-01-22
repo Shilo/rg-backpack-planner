@@ -17,10 +17,12 @@
         type LevelsById,
     } from "./lib/treeLevelsStore";
     import packageInfo from "../package.json";
+
     import {
         initTechCrystalTrees,
         applyTechCrystalDeltaForTree,
     } from "./lib/techCrystalStore";
+    import { baseTree } from "./config/baseTreeConfig";
 
     let isMenuOpen = false;
     let tabsRef: {
@@ -43,65 +45,7 @@
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
 
-    const baseTree = [
-        { id: "core", x: 240, y: 220, maxLevel: 10, label: "Core" },
-        {
-            id: "atk-1",
-            x: 160,
-            y: 140,
-            maxLevel: 5,
-            label: "Atk",
-            parentIds: ["core"],
-        },
-        {
-            id: "atk-2",
-            x: 320,
-            y: 140,
-            maxLevel: 5,
-            label: "Atk",
-            parentIds: ["core"],
-        },
-        {
-            id: "def-1",
-            x: 120,
-            y: 240,
-            maxLevel: 5,
-            label: "Def",
-            parentIds: ["core"],
-        },
-        {
-            id: "def-2",
-            x: 360,
-            y: 240,
-            maxLevel: 5,
-            label: "Def",
-            parentIds: ["core"],
-        },
-        {
-            id: "sup-1",
-            x: 200,
-            y: 320,
-            maxLevel: 5,
-            label: "Sup",
-            parentIds: ["def-1"],
-        },
-        {
-            id: "sup-2",
-            x: 280,
-            y: 320,
-            maxLevel: 5,
-            label: "Sup",
-            parentIds: ["def-2"],
-        },
-        {
-            id: "ult-1",
-            x: 240,
-            y: 400,
-            maxLevel: 3,
-            label: "Ult",
-            parentIds: ["sup-1", "sup-2"],
-        },
-    ];
+    // ...baseTree is now imported from config/baseTreeConfig
 
     const tabs: TabConfig[] = [
         { id: "guardian", label: "Guardian", nodes: baseTree },
