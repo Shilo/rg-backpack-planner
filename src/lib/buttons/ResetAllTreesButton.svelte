@@ -1,44 +1,42 @@
 <script lang="ts">
-  import { Trash2 } from "lucide-svelte";
-  import Button from "../Button.svelte";
-  import { openModal } from "../modalStore";
-  import type { LevelsById } from "../treeLevelsStore";
+    import { Trash2 } from "lucide-svelte";
+    import Button from "../Button.svelte";
+    import { openModal } from "../modalStore";
+    import { sumLevels, type LevelsById } from "../treeLevelsStore";
 
-  export let onResetAll: (() => void) | null = null;
-  export let levelsByTree: LevelsById[] | null = null;
+    export let onResetAll: (() => void) | null = null;
+    export let levelsByTree: LevelsById[] | null = null;
 
-  const sumLevels = (levels: LevelsById | null) =>
-    Object.values(levels ?? {}).reduce((total, value) => total + value, 0);
+    $: totalLevels = (levelsByTree ?? []).reduce(
+        (total, levels) => total + sumLevels(levels),
+        0,
+    );
+    $: disabled = !onResetAll || totalLevels === 0;
 
-  $: totalLevels = (levelsByTree ?? []).reduce(
-    (total, levels) => total + sumLevels(levels),
-    0,
-  );
-  $: disabled = !onResetAll || totalLevels === 0;
-
-  const handleResetAll = () => {
-    if (!onResetAll) return;
-    openModal({
-      type: "confirm",
-      title: "RESET ALL TREES?",
-      titleIcon: Trash2,
-      message: "Revert all nodes to level 0 and refund all Tech Crystals.",
-      confirmLabel: "Reset all",
-      cancelLabel: "Cancel",
-      confirmNegative: true,
-      onConfirm: () => {
-        onResetAll();
-      },
-    });
-  };
+    const handleResetAll = () => {
+        if (!onResetAll) return;
+        openModal({
+            type: "confirm",
+            title: "RESET ALL TREES?",
+            titleIcon: Trash2,
+            message:
+                "Revert all nodes to level 0 and refund all Tech Crystals.",
+            confirmLabel: "Reset all",
+            cancelLabel: "Cancel",
+            confirmNegative: true,
+            onConfirm: () => {
+                onResetAll();
+            },
+        });
+    };
 </script>
 
 <Button
-  on:click={handleResetAll}
-  tooltipText={"Revert all nodes to level 0 and refund all Tech Crystals"}
-  icon={Trash2}
-  negative
-  {disabled}
+    on:click={handleResetAll}
+    tooltipText={"Revert all nodes to level 0 and refund all Tech Crystals"}
+    icon={Trash2}
+    negative
+    {disabled}
 >
-  Reset all trees
+    Reset all trees
 </Button>
