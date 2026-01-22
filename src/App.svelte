@@ -11,18 +11,16 @@
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { openHelpModal } from "./lib/helpModal";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import {
-        treeLevels,
-        sumLevels,
-        type LevelsById,
-    } from "./lib/treeLevelsStore";
+    import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import packageInfo from "../package.json";
 
     import {
         initTechCrystalTrees,
         applyTechCrystalDeltaForTree,
     } from "./lib/techCrystalStore";
-    import { baseTree } from "./config/baseTreeConfig";
+    import { guardianTree } from "./config/guardianTree";
+    import { vanguardTree } from "./config/vanguardTree";
+    import { cannonTree } from "./config/cannonTree";
 
     let isMenuOpen = false;
     let tabsRef: {
@@ -45,28 +43,10 @@
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
 
-    // ...baseTree is now imported from config/baseTreeConfig
-
     const tabs: TabConfig[] = [
-        { id: "guardian", label: "Guardian", nodes: baseTree },
-        {
-            id: "vanguard",
-            label: "Vanguard",
-            nodes: baseTree.map((node) => ({
-                ...node,
-                id: `v-${node.id}`,
-                parentIds: node.parentIds?.map((parentId) => `v-${parentId}`),
-            })),
-        },
-        {
-            id: "cannon",
-            label: "Cannon",
-            nodes: baseTree.map((node) => ({
-                ...node,
-                id: `c-${node.id}`,
-                parentIds: node.parentIds?.map((parentId) => `c-${parentId}`),
-            })),
-        },
+        { id: "guardian", label: "Guardian", nodes: guardianTree },
+        { id: "vanguard", label: "Vanguard", nodes: vanguardTree },
+        { id: "cannon", label: "Cannon", nodes: cannonTree },
     ];
 
     initTechCrystalTrees(tabs);
