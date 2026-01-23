@@ -718,6 +718,9 @@
         onReset={resetNode}
         onDecrement={levelDown}
         onIncrement={levelUp}
+        level={contextMenu?.id ? getLevelFrom(levels, contextMenu.id) : 0}
+        maxLevel={contextMenu?.id && nodeById.has(contextMenu.id) ? nodeById.get(contextMenu.id)!.maxLevel : 0}
+        state={contextMenu?.id ? getState(nodeById.get(contextMenu.id)!, levels) : "locked"}
       />
     </div>
   </div>

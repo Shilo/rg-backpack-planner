@@ -32,7 +32,9 @@
   iconClass="node-icon"
   style={`width: ${64 * radius}px; height: ${64 * radius}px; --node-radius: ${radius};`}
 >
-  <span class="node-level" style={`transform: translate(-50%, 50%) scale(${1 / scale});`}>{level}/{maxLevel}</span>
+  {#if level > 0}
+    <span class="node-level" style={`transform: translate(-50%, 50%) scale(${1 / scale});`}>{level}</span>
+  {/if}
 </Button>
 
 <style>
