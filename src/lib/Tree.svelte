@@ -199,6 +199,14 @@
     return true;
   }
 
+  function levelDown(id: string) {
+    const level = getLevel(id);
+    if (level === 0) return;
+    const nextLevel = level - 1;
+    updateLevels({ ...levels, [id]: nextLevel });
+    onNodeLevelChange?.(-1, id);
+  }
+
   function resetNode(id: string) {
     const level = getLevel(id);
     if (level === 0) return;
@@ -694,6 +702,7 @@
               maxLevel={node.maxLevel}
               {state}
               radius={node.radius ?? 1}
+              scale={scale}
             />
           </div>
         {/each}
@@ -707,6 +716,8 @@
         onClose={closeContextMenu}
         onMax={maxNode}
         onReset={resetNode}
+        onDecrement={levelDown}
+        onIncrement={levelUp}
       />
     </div>
   </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowUp, RotateCcw } from "lucide-svelte";
+  import { ArrowDown, ArrowUp, ChevronsUp, RotateCcw } from "lucide-svelte";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
 
@@ -10,6 +10,8 @@
   export let onClose: (() => void) | null = null;
   export let onMax: ((id: string) => void) | null = null;
   export let onReset: ((id: string) => void) | null = null;
+  export let onDecrement: ((id: string) => void) | null = null;
+  export let onIncrement: ((id: string) => void) | null = null;
 </script>
 
 <ContextMenu
@@ -27,9 +29,31 @@
     }}
     toastMessage={nodeId && onMax ? `Maxed ${nodeId}` : undefined}
     disabled={!nodeId}
-    icon={ArrowUp}
+    icon={ChevronsUp}
   >
     Max
+  </Button>
+  <Button
+    on:click={() => {
+      if (!nodeId || !onIncrement) return;
+      onIncrement(nodeId);
+    }}
+    toastMessage={nodeId && onIncrement ? `Increased ${nodeId}` : undefined}
+    disabled={!nodeId}
+    icon={ArrowUp}
+  >
+    Increase
+  </Button>
+  <Button
+    on:click={() => {
+      if (!nodeId || !onDecrement) return;
+      onDecrement(nodeId);
+    }}
+    toastMessage={nodeId && onDecrement ? `Decreased ${nodeId}` : undefined}
+    disabled={!nodeId}
+    icon={ArrowDown}
+  >
+    Decrease
   </Button>
   <Button
     on:click={() => {

@@ -12,6 +12,7 @@
   export let maxLevel: number = 1;
   export let state: NodeState = "locked";
   export let radius: number = 1;
+  export let scale: number = 1;
 
   const stateIcons = {
     locked: Lock,
@@ -31,7 +32,7 @@
   iconClass="node-icon"
   style={`width: ${64 * radius}px; height: ${64 * radius}px; --node-radius: ${radius};`}
 >
-  <span class="node-level">{level}/{maxLevel}</span>
+  <span class="node-level" style={`transform: translate(-50%, 50%) scale(${1 / scale});`}>{level}/{maxLevel}</span>
 </Button>
 
 <style>
@@ -81,7 +82,6 @@
     position: absolute;
     bottom: 0;
     left: 50%;
-    transform: translate(-50%, 50%);
     pointer-events: none;
     white-space: nowrap;
     line-height: 1.2;
@@ -95,8 +95,8 @@
       -1px 0 2px rgba(0, 0, 0, 0.9);
     background: rgba(0, 0, 0, 0.4);
     padding: 2px 4px;
-    border-radius: 3px;
-    backdrop-filter: blur(2px);
+    border-radius: 8px;
+    transform-origin: center bottom;
   }
 
   :global(.button.node.locked) {
