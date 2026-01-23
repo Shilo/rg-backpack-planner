@@ -44,15 +44,24 @@
   {onClose}
 >
   <div class="node-stats">
-    <div class="stat-row">
-      <span class="stat-label">Levels:</span>
-      <span class="stat-value">{level} / {maxLevel}</span>
+    <div class="node-icon-wrapper">
+      <svelte:component this={NodeIcon} />
     </div>
-    <div class="level-progress">
-      <div
-        class="level-progress-bar"
-        style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
-      ></div>
+    <div class="node-stats-content">
+      <div class="stat-row">
+        <span class="stat-label">DB & Val ATK Bonus</span>
+        <span class="stat-value">30000%</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Levels:</span>
+        <span class="stat-value">{level} / {maxLevel}</span>
+      </div>
+      <div class="level-progress">
+        <div
+          class="level-progress-bar"
+          style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
+        ></div>
+      </div>
     </div>
   </div>
   <div class="button-columns">
@@ -117,6 +126,28 @@
     padding: 8px 12px;
     border-bottom: 1px solid rgba(44, 60, 97, 0.5);
     display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .node-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .node-icon-wrapper :global(svg) {
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
+  }
+
+  .node-stats-content {
+    flex: 1;
+    display: flex;
     flex-direction: column;
     gap: 6px;
   }
@@ -125,6 +156,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     font-size: 0.875rem;
   }
 
