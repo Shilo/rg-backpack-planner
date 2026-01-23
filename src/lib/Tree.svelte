@@ -175,6 +175,19 @@
     return [...regularLinks, ...rootLinks];
   };
 
+  function hasChildren(nodeId: string): boolean {
+    // Check if any node has this node as a parent
+    return regularNodes.some(
+      (node) => node.parentIds?.includes(nodeId) ?? false,
+    );
+  }
+
+  function isLeafNode(node: TreeNode): boolean {
+    // Leaf node: has at least 1 parent (explicit parentIds) but no children
+    const hasParent = (node.parentIds?.length ?? 0) > 0;
+    return hasParent && !hasChildren(node.id);
+  }
+
   function getLevelFrom(levelsSnapshot: Record<string, number>, id: string) {
     return levelsSnapshot[id] ?? 0;
   }
@@ -859,6 +872,7 @@
           {@const level = getLevelFrom(levels, node.id)}
           {@const state = getState(node, levels)}
           {@const region = getNodeRegion(node)}
+          {@const isLeaf = isLeafNode(node)}
           <div
             class="node-wrapper"
             style={`left: ${node.x}px; top: ${node.y}px;`}
@@ -872,6 +886,7 @@
               radius={node.radius ?? 1}
               {scale}
               {region}
+              {isLeaf}
             />
           </div>
         {/each}

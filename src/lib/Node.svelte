@@ -14,6 +14,7 @@
   export let radius: number = 1;
   export let scale: number = 1;
   export let region: "top-left" | "bottom-left" | "right" = "right";
+  export let isLeaf: boolean = false;
 
   const stateIcons = {
     locked: Lock,
@@ -26,7 +27,7 @@
 </script>
 
 <Button
-  class={`node ${state} region-${region}`}
+  class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
   aria-label={label || id}
   data-node-id={id}
   icon={NodeIcon}
@@ -59,6 +60,92 @@
     user-select: none;
     padding: 0;
     text-align: center;
+  }
+
+  /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
+  :global(.button.node.node-hexagon) {
+    border-radius: 0;
+    border: none;
+    position: relative;
+    overflow: visible;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  }
+
+  /* Create border using pseudo-element that follows the hexagon shape */
+  :global(.button.node.node-hexagon::before) {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Create inner hexagon mask to show only the border */
+  :global(.button.node.node-hexagon::after) {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    background: inherit;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Top-left region border colors */
+  :global(.button.node.region-top-left.node-hexagon.locked::before) {
+    background: #7a3f2f;
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.available::before),
+  :global(.button.node.region-top-left.node-hexagon.active::before) {
+    background: #ff6b35;
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.maxed::before) {
+    background: #ff8c5a;
+  }
+
+  /* Bottom-left region border colors */
+  :global(.button.node.region-bottom-left.node-hexagon.locked::before) {
+    background: #5a5a1a;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.available::before),
+  :global(.button.node.region-bottom-left.node-hexagon.active::before) {
+    background: #ffd700;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.maxed::before) {
+    background: #ffeb3b;
+  }
+
+  /* Right region border colors */
+  :global(.button.node.region-right.node-hexagon.locked::before) {
+    background: #2c3550;
+  }
+
+  :global(.button.node.region-right.node-hexagon.available::before),
+  :global(.button.node.region-right.node-hexagon.active::before) {
+    background: #4a90e2;
+  }
+
+  :global(.button.node.region-right.node-hexagon.maxed::before) {
+    background: #6bb6ff;
+  }
+
+  /* Fallback for nodes without region */
+  :global(.button.node.node-hexagon.locked::before) {
+    background: #2c3550;
+  }
+
+  :global(.button.node.node-hexagon.available::before),
+  :global(.button.node.node-hexagon.active::before) {
+    background: #4c6fff;
+  }
+
+  :global(.button.node.node-hexagon.maxed::before) {
+    background: #ffb347;
   }
 
   :global(.button.node.with-icon) {
