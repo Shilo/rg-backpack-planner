@@ -26,7 +26,7 @@
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
   } from "./techCrystalStore";
-  import { defaultZoom200 } from "./defaultZoomStore";
+  import { closeUpView } from "./closeUpViewStore";
   import ToggleSwitch from "./ToggleSwitch.svelte";
 
   $: hasOwned = $techCrystalsOwned > 0;
@@ -141,10 +141,11 @@
         </SideMenuSection>
         <SideMenuSection title="SETTINGS">
           <ToggleSwitch
-            checked={$defaultZoom200}
-            label="Default 200% Zoom"
-            ariaLabel="Default zoom 200%"
-            onToggle={() => defaultZoom200.toggle()}
+            checked={$closeUpView}
+            label="Close-up View"
+            ariaLabel="Close-up view (200% zoom)"
+            tooltipText="Double the initial zoom scale."
+            onToggle={() => closeUpView.toggle()}
           />
         </SideMenuSection>
         <SideMenuSection title="STATISTICS">

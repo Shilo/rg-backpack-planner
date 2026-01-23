@@ -2,8 +2,10 @@
   export let checked = false;
   export let label = "";
   export let ariaLabel: string | undefined = undefined;
+  export let tooltipText: string | undefined = undefined;
   export let onToggle: (() => void) | null = null;
   import { triggerHaptic } from "./haptics";
+  import { tooltip } from "./tooltip";
 </script>
 
 <button
@@ -16,6 +18,7 @@
   role="switch"
   aria-checked={checked}
   aria-label={ariaLabel ?? label}
+  use:tooltip={tooltipText}
 >
   {#if label}
     <span class="toggle-row__label">{label}</span>

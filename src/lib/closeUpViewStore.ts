@@ -1,35 +1,35 @@
 import { writable } from "svelte/store";
 
-const STORAGE_KEY = "defaultZoom200";
+const STORAGE_KEY = "closeUpView";
 
-function getDefaultZoom(): boolean {
+function getCloseUpView(): boolean {
   if (typeof window === "undefined") return false;
   const stored = localStorage.getItem(STORAGE_KEY);
   return stored === "true";
 }
 
-function setDefaultZoom(value: boolean) {
+function setCloseUpView(value: boolean) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, value ? "true" : "false");
+  localStorage.setItem(STORAGE_KEY, value.toString());
 }
 
-function createDefaultZoomStore() {
-  const { subscribe, set, update } = writable(getDefaultZoom());
+function createCloseUpViewStore() {
+  const { subscribe, set, update } = writable(getCloseUpView());
 
   return {
     subscribe,
     set: (value: boolean) => {
-      setDefaultZoom(value);
+      setCloseUpView(value);
       set(value);
     },
     toggle: () => {
       update((value) => {
         const next = !value;
-        setDefaultZoom(next);
+        setCloseUpView(next);
         return next;
       });
     },
   };
 }
 
-export const defaultZoom200 = createDefaultZoomStore();
+export const closeUpView = createCloseUpViewStore();
