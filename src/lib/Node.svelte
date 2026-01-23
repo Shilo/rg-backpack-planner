@@ -44,6 +44,93 @@
 </Button>
 
 <style>
+  /* CSS Custom Properties - All color variables defined here */
+  :global(.button.node) {
+    /* Brightness values for locked states */
+    --brightness-locked-hexagon: 0.4;
+    --brightness-locked: 0.5;
+
+    /* Fallback variables for nodes without region */
+    --fallback-bg-available: #1c2f52;
+    --fallback-bg-active: #2a3f73;
+    --fallback-bg-maxed: #4a2e0a;
+    --fallback-border-color: #4c6fff;
+    --fallback-border-color-active: #5aa6ff;
+    --fallback-border-color-maxed: #ffb347;
+    --fallback-text-color: #cdd7ff;
+    --fallback-text-color-active: #e1f0ff;
+    --fallback-text-color-maxed: #ffe8c7;
+  }
+
+  /* Top-left region (Orange theme) */
+  :global(.button.node.region-top-left) {
+    --bg-available: #6b3f1f;
+    --bg-active: #8b4f2f;
+    --bg-maxed: #ab5f3f;
+    --border-color: #ff6b35;
+    --border-color-maxed: #ff8c5a;
+    --text-color: #ffd4b8;
+    --text-color-maxed: #ffe8d4;
+  }
+
+  /* Bottom-left region (Yellow theme) */
+  :global(.button.node.region-bottom-left) {
+    --bg-available: #3d3d0a;
+    --bg-active: #5a5a1a;
+    --bg-maxed: #6a6a2a;
+    --border-color: #ffd700;
+    --border-color-maxed: #ffeb3b;
+    --text-color: #fff9cc;
+    --text-color-maxed: #fffdd0;
+  }
+
+  /* Right region (Blue theme) */
+  :global(.button.node.region-right) {
+    --bg-available: #1c2f52;
+    --bg-active: #2a3f73;
+    --bg-maxed: #3a4f83;
+    --border-color: #4a90e2;
+    --border-color-maxed: #6bb6ff;
+    --text-color: #b8d9ff;
+    --text-color-active: #c8e5ff;
+    --text-color-maxed: #e1f0ff;
+  }
+
+  /* Hexagon border colors */
+  :global(.button.node.region-top-left.node-hexagon) {
+    --border-color: #ff6b35;
+    --border-color-maxed: #ff8c5a;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon) {
+    --border-color: #ffd700;
+    --border-color-maxed: #ffeb3b;
+  }
+
+  :global(.button.node.region-right.node-hexagon) {
+    --border-color: #4a90e2;
+    --border-color-maxed: #6bb6ff;
+  }
+
+  :global(.button.node.node-hexagon) {
+    --border-color: #4c6fff;
+    --border-color-maxed: #ffb347;
+  }
+
+  /* Hexagon background colors */
+  :global(.button.node.region-top-left.node-hexagon) {
+    --hex-bg: #2f2e2a;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon) {
+    --hex-bg: #2f2f2a;
+  }
+
+  :global(.button.node.region-right.node-hexagon) {
+    --hex-bg: #2a3441;
+  }
+
+  /* Base node styles */
   :global(.button.node) {
     position: relative;
     width: 64px;
@@ -93,14 +180,9 @@
   }
 
   /* Top-left region border colors */
-  :global(.button.node.region-top-left.node-hexagon) {
-    --border-color: #ff6b35;
-    --border-color-maxed: #ff8c5a;
-  }
-
   :global(.button.node.region-top-left.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(0.4);
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.region-top-left.node-hexagon.available::before) {
@@ -122,14 +204,9 @@
   }
 
   /* Bottom-left region border colors */
-  :global(.button.node.region-bottom-left.node-hexagon) {
-    --border-color: #ffd700;
-    --border-color-maxed: #ffeb3b;
-  }
-
   :global(.button.node.region-bottom-left.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(0.4);
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.available::before) {
@@ -151,14 +228,9 @@
   }
 
   /* Right region border colors */
-  :global(.button.node.region-right.node-hexagon) {
-    --border-color: #4a90e2;
-    --border-color-maxed: #6bb6ff;
-  }
-
   :global(.button.node.region-right.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(0.4);
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.region-right.node-hexagon.available::before) {
@@ -180,14 +252,9 @@
   }
 
   /* Fallback for nodes without region */
-  :global(.button.node.node-hexagon) {
-    --border-color: #4c6fff;
-    --border-color-maxed: #ffb347;
-  }
-
   :global(.button.node.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(0.4);
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.node-hexagon.available::before) {
@@ -210,7 +277,6 @@
 
   /* Hexagon inner colors - dark slate gray with theme variants */
   :global(.button.node.region-top-left.node-hexagon) {
-    --hex-bg: #2f2e2a;
     background: var(--hex-bg) !important;
   }
 
@@ -234,7 +300,6 @@
   }
 
   :global(.button.node.region-bottom-left.node-hexagon) {
-    --hex-bg: #2f2f2a;
     background: var(--hex-bg) !important;
   }
 
@@ -258,7 +323,6 @@
   }
 
   :global(.button.node.region-right.node-hexagon) {
-    --hex-bg: #2a3441;
     background: var(--hex-bg) !important;
   }
 
@@ -347,22 +411,12 @@
   }
 
   /* Top-left region (Orange theme - colorblind-friendly red-orange) */
-  :global(.button.node.region-top-left) {
-    --bg-available: #6b3f1f;
-    --bg-active: #8b4f2f;
-    --bg-maxed: #ab5f3f;
-    --border-color: #ff6b35;
-    --border-color-maxed: #ff8c5a;
-    --text-color: #ffd4b8;
-    --text-color-maxed: #ffe8d4;
-  }
-
   :global(.button.node.region-top-left.locked) {
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
     cursor: not-allowed;
-    filter: brightness(0.5);
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.region-top-left.available) {
@@ -387,22 +441,12 @@
   }
 
   /* Bottom-left region (Yellow theme - bright gold for colorblind-friendly) */
-  :global(.button.node.region-bottom-left) {
-    --bg-available: #3d3d0a;
-    --bg-active: #5a5a1a;
-    --bg-maxed: #6a6a2a;
-    --border-color: #ffd700;
-    --border-color-maxed: #ffeb3b;
-    --text-color: #fff9cc;
-    --text-color-maxed: #fffdd0;
-  }
-
   :global(.button.node.region-bottom-left.locked) {
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
     cursor: not-allowed;
-    filter: brightness(0.5);
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.region-bottom-left.available) {
@@ -427,23 +471,12 @@
   }
 
   /* Right region (Blue theme - saturated blue for colorblind-friendly) */
-  :global(.button.node.region-right) {
-    --bg-available: #1c2f52;
-    --bg-active: #2a3f73;
-    --bg-maxed: #3a4f83;
-    --border-color: #4a90e2;
-    --border-color-maxed: #6bb6ff;
-    --text-color: #b8d9ff;
-    --text-color-active: #c8e5ff;
-    --text-color-maxed: #e1f0ff;
-  }
-
   :global(.button.node.region-right.locked) {
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
     cursor: not-allowed;
-    filter: brightness(0.5);
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.region-right.available) {
@@ -468,24 +501,12 @@
   }
 
   /* Fallback for nodes without region (shouldn't happen) */
-  :global(.button.node) {
-    --fallback-bg-available: #1c2f52;
-    --fallback-bg-active: #2a3f73;
-    --fallback-bg-maxed: #4a2e0a;
-    --fallback-border-color: #4c6fff;
-    --fallback-border-color-active: #5aa6ff;
-    --fallback-border-color-maxed: #ffb347;
-    --fallback-text-color: #cdd7ff;
-    --fallback-text-color-active: #e1f0ff;
-    --fallback-text-color-maxed: #ffe8c7;
-  }
-
   :global(.button.node.locked) {
     background: var(--fallback-bg-available);
     border-color: var(--fallback-border-color);
     color: var(--fallback-text-color);
     cursor: not-allowed;
-    filter: brightness(0.5);
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.available) {
