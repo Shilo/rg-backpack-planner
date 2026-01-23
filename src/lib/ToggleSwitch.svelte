@@ -1,8 +1,11 @@
 <script lang="ts">
+  import type { ComponentType } from "svelte";
   export let checked = false;
   export let label = "";
   export let ariaLabel: string | undefined = undefined;
   export let tooltipText: string | undefined = undefined;
+  export let icon: ComponentType | null = null;
+  export let iconClass = "toggle-icon";
   export let onToggle: (() => void) | null = null;
   import { triggerHaptic } from "./haptics";
   import { tooltip } from "./tooltip";
@@ -20,6 +23,9 @@
   aria-label={ariaLabel ?? label}
   use:tooltip={tooltipText}
 >
+  {#if icon}
+    <svelte:component this={icon} class={iconClass} aria-hidden="true" />
+  {/if}
   {#if label}
     <span class="toggle-row__label">{label}</span>
   {/if}
@@ -35,6 +41,7 @@
     justify-content: space-between;
     gap: 12px;
     width: 100%;
+    height: 40px;
     padding: 10px 12px;
     border: 1px solid #2c3c61;
     background: rgba(17, 27, 45, 0.7);
@@ -67,6 +74,13 @@
   .toggle-row:active {
     transform: scale(0.97);
     filter: brightness(1.2);
+  }
+
+  .toggle-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: currentColor;
   }
 
   .toggle-row__label {

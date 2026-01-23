@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, Hexagon } from "lucide-svelte";
+  import { HelpCircle, Hexagon, ZoomIn } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -95,7 +95,7 @@
   <div class="side-menu__scroll-area">
     <nav class="side-menu__content" aria-label="Primary">
       <div class="side-menu__content-inner">
-        <SideMenuSection title="GLOBAL">
+        <SideMenuSection title="SETTINGS">
           <Button
             on:click={() => {
               openTechCrystalsOwnedModal($techCrystalsOwned);
@@ -114,6 +114,14 @@
             <span class="tech-crystals-separator"> / </span>
             <span class="tech-crystals-owned">{`${$techCrystalsOwned}`}</span>
           </Button>
+          <ToggleSwitch
+            checked={$closeUpView}
+            label="Close-up View"
+            ariaLabel="Close-up view (200% zoom)"
+            tooltipText="Double the initial zoom scale."
+            icon={ZoomIn}
+            onToggle={() => closeUpView.toggle()}
+          />
           <ResetAllTreesButton
             onResetAll={() => {
               onResetAll?.();
@@ -137,15 +145,6 @@
             viewState={activeTreeViewState}
             focusViewState={activeTreeFocusViewState}
             levelsById={$treeLevels[activeTreeIndex] ?? null}
-          />
-        </SideMenuSection>
-        <SideMenuSection title="SETTINGS">
-          <ToggleSwitch
-            checked={$closeUpView}
-            label="Close-up View"
-            ariaLabel="Close-up view (200% zoom)"
-            tooltipText="Double the initial zoom scale."
-            onToggle={() => closeUpView.toggle()}
           />
         </SideMenuSection>
         <SideMenuSection title="STATISTICS">
