@@ -167,7 +167,7 @@
     {#if showAppTitle}
         <AppTitleDisplay onHelp={openHelp} />
     {/if}
-    <div class="top-left-actions">
+    <div class="top-right-actions">
         <TechCrystalDisplay />
         <ActiveTreeResetButton
             onReset={() => tabsRef?.resetActiveTree?.()}
@@ -210,14 +210,14 @@
         min-height: 0;
     }
 
-    .top-left-actions {
+    .top-right-actions {
         position: fixed;
         top: 10px;
-        left: 10px;
+        right: 10px;
         z-index: 6;
         display: inline-flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: flex-end;
         gap: 10px;
     }
 </style>
