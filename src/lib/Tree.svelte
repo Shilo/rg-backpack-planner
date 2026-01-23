@@ -46,6 +46,9 @@
   export let onFocusViewStateChange:
     | ((view: TreeViewState | null) => void)
     | null = null;
+  export let onOpenTreeContextMenu:
+    | ((x: number, y: number) => void)
+    | null = null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -375,7 +378,7 @@
         offsetX,
         offsetY,
       };
-      if (nodeId) {
+      if (nodeId && nodeId !== "root") {
         startNodeLongPress(event.pointerId);
       }
     } else if (pointers.size === 2) {
@@ -464,7 +467,14 @@
       pointers.size === 0 &&
       pointer.nodeId
     ) {
-      if (levelUp(pointer.nodeId)) {
+      if (pointer.nodeId === "root") {
+        // Root node opens tree context menu
+        if (onOpenTreeContextMenu) {
+          onOpenTreeContextMenu(event.clientX, event.clientY);
+        } else {
+          focusTreeInView(true);
+        }
+      } else if (levelUp(pointer.nodeId)) {
         onNodeLevelUp?.(pointer.nodeId);
       }
     }
@@ -506,15 +516,22 @@
 
   function computeFocusViewState(): TreeViewState | null {
     if (!viewportEl || nodes.length === 0) return null;
-    const maxRadius = Math.max(...nodes.map((node) => (node.radius ?? 1) * 64));
-    const xs = nodes.map((node) => node.x);
-    const ys = nodes.map((node) => node.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    const width = maxX - minX + maxRadius;
-    const height = maxY - minY + maxRadius;
+    // Since nodes are centered, we need to account for radius on all sides
+    const nodeBounds = nodes.map((node) => {
+      const radius = (node.radius ?? 1) * 32; // Half the node size
+      return {
+        minX: node.x - radius,
+        maxX: node.x + radius,
+        minY: node.y - radius,
+        maxY: node.y + radius,
+      };
+    });
+    const minX = Math.min(...nodeBounds.map((b) => b.minX));
+    const maxX = Math.max(...nodeBounds.map((b) => b.maxX));
+    const minY = Math.min(...nodeBounds.map((b) => b.minY));
+    const maxY = Math.max(...nodeBounds.map((b) => b.maxY));
+    const width = maxX - minX;
+    const height = maxY - minY;
     const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
@@ -534,13 +551,20 @@
 
   function getWorldBounds() {
     if (nodes.length === 0) return null;
-    const maxRadius = Math.max(...nodes.map((node) => (node.radius ?? 1) * 64));
-    const xs = nodes.map((node) => node.x);
-    const ys = nodes.map((node) => node.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs) + maxRadius;
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys) + maxRadius;
+    // Since nodes are centered, we need to account for radius on all sides
+    const nodeBounds = nodes.map((node) => {
+      const radius = (node.radius ?? 1) * 32; // Half the node size
+      return {
+        minX: node.x - radius,
+        maxX: node.x + radius,
+        minY: node.y - radius,
+        maxY: node.y + radius,
+      };
+    });
+    const minX = Math.min(...nodeBounds.map((b) => b.minX));
+    const maxX = Math.max(...nodeBounds.map((b) => b.maxX));
+    const minY = Math.min(...nodeBounds.map((b) => b.minY));
+    const maxY = Math.max(...nodeBounds.map((b) => b.maxY));
     return { minX, maxX, minY, maxY };
   }
 
@@ -712,7 +736,22 @@
           {@const rootSize = 64 * rootRadius}
           <div
             class="root-wrapper"
+            data-node-id="root"
             style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${rootSize}px; height: ${rootSize}px; --node-radius: ${rootRadius};`}
+            on:keydown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                if (onOpenTreeContextMenu) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  onOpenTreeContextMenu(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                } else {
+                  focusTreeInView(true);
+                }
+              }
+            }}
+            role="button"
+            tabindex="0"
+            aria-label="Tree actions"
           >
             <RootNode />
           </div>
@@ -808,6 +847,7 @@
   .root-wrapper {
     position: absolute;
     transform: translate(-50%, -50%);
+    cursor: pointer;
   }
 
   .node-wrapper {
