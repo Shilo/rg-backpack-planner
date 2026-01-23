@@ -46,9 +46,8 @@
   export let onFocusViewStateChange:
     | ((view: TreeViewState | null) => void)
     | null = null;
-  export let onOpenTreeContextMenu:
-    | ((x: number, y: number) => void)
-    | null = null;
+  export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
+    null;
 
   let levels: Record<string, number> = {};
   let contextMenu: { id: string; x: number; y: number } | null = null;
@@ -66,11 +65,11 @@
     // Reference viewportSize to make this reactive to viewport size changes
     void viewportSize.width;
     void viewportSize.height;
-    
+
     if (!viewportEl || nodes.length === 0) {
       return { minScale: 0.1, maxScale: 2.2 };
     }
-    
+
     const xs = nodes.map((node) => node.x);
     const ys = nodes.map((node) => node.y);
     const minX = Math.min(...xs);
@@ -79,19 +78,19 @@
     const maxY = Math.max(...ys);
     const width = maxX - minX + 64;
     const height = maxY - minY + 64;
-    
+
     const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
-    
+
     // Minimum scale: fit all nodes in viewport with some extra zoom out capability
     const minScaleToFit = Math.min(availableW / width, availableH / height);
     const minScale = Math.max(minScaleToFit * 0.5, 0.1); // Allow zooming out to 50% of fit scale, but not below 0.1
-    
+
     // Maximum scale: allow zooming in reasonably
     const maxScale = 2.2;
-    
+
     return { minScale, maxScale };
   })();
   $: minScale = scaleBounds.minScale;
@@ -187,13 +186,11 @@
   function isAvailable(node: TreeNode, levelsSnapshot: Record<string, number>) {
     // Nodes without parentIds are linked to root, which is always available
     if (!node.parentIds || node.parentIds.length === 0) return true;
-    return node.parentIds.every(
-      (parentId) => {
-        // Root is always considered "available" for linking purposes
-        if (parentId === "root") return true;
-        return getLevelFrom(levelsSnapshot, parentId) > 0;
-      },
-    );
+    return node.parentIds.every((parentId) => {
+      // Root is always considered "available" for linking purposes
+      if (parentId === "root") return true;
+      return getLevelFrom(levelsSnapshot, parentId) > 0;
+    });
   }
 
   function getState(
@@ -215,10 +212,10 @@
   function getBaseRegionFromPosition(node: TreeNode): NodeRegion {
     // Root node doesn't have a region
     if (node.id === "root") return "right";
-    
+
     // Right side: x > 0
     if (node.x > 0) return "right";
-    
+
     // Left side: x < 0 or x === 0
     // Top-left: y < 0 (above root)
     // Bottom-left: y >= 0 (below root)
@@ -241,10 +238,11 @@
     }
 
     // If node is directly connected to root, determine region from position
-    const isRootConnected = !node.parentIds || 
-                            node.parentIds.length === 0 || 
-                            node.parentIds.includes("root");
-    
+    const isRootConnected =
+      !node.parentIds ||
+      node.parentIds.length === 0 ||
+      node.parentIds.includes("root");
+
     if (isRootConnected) {
       const region = getBaseRegionFromPosition(node);
       regionCache.set(node.id, region);
@@ -285,14 +283,19 @@
     }
   }
 
-  function getLinkColor(from: TreeNode, to: TreeNode, isActive: boolean): string {
+  function getLinkColor(
+    from: TreeNode,
+    to: TreeNode,
+    isActive: boolean,
+  ): string {
     const toRegion = getNodeRegion(to);
     const opacity = isActive ? 0.8 : 0.4;
-    
+
     // Use the target node's region color for the link
-    if (toRegion === "top-left") return `rgba(255, 140, 0, ${opacity})`; // Orange
-    if (toRegion === "bottom-left") return `rgba(255, 215, 0, ${opacity})`; // Yellow
-    return `rgba(70, 130, 255, ${opacity})`; // Blue
+    // Colorblind-friendly: Orange (more red-orange), Yellow (bright gold), Blue (saturated)
+    if (toRegion === "top-left") return `rgba(255, 107, 53, ${opacity})`; // Red-orange
+    if (toRegion === "bottom-left") return `rgba(255, 215, 0, ${opacity})`; // Bright gold
+    return `rgba(74, 144, 226, ${opacity})`; // Saturated blue
   }
 
   function levelUp(id: string) {
@@ -722,7 +725,7 @@
   let resizeObserver: ResizeObserver | null = null;
 
   // Set up ResizeObserver when viewportEl is available
-  $: if (viewportEl && typeof ResizeObserver !== 'undefined') {
+  $: if (viewportEl && typeof ResizeObserver !== "undefined") {
     if (resizeObserver) {
       resizeObserver.disconnect();
     }
@@ -760,7 +763,7 @@
       focusTreeInView();
     };
     window.addEventListener("resize", handleResize, { passive: true });
-    
+
     return () => {
       window.removeEventListener("resize", handleResize);
       if (resizeObserver) {
@@ -804,11 +807,13 @@
         <svg class="tree-links">
           {#each links() as link}
             {#if (link.from === "root" || nodeById.has(link.from)) && nodeById.has(link.to)}
-              {@const from = link.from === "root" ? rootNode! : nodeById.get(link.from)!}
+              {@const from =
+                link.from === "root" ? rootNode! : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
-              {@const isActive = link.from === "root" || getLevelFrom(levels, link.from) > 0}
+              {@const isActive =
+                link.from === "root" || getLevelFrom(levels, link.from) > 0}
               {@const linkColor = getLinkColor(from, to, isActive)}
               <line
                 x1={from.x}
@@ -833,7 +838,10 @@
                 e.preventDefault();
                 if (onOpenTreeContextMenu) {
                   const rect = e.currentTarget.getBoundingClientRect();
-                  onOpenTreeContextMenu(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                  onOpenTreeContextMenu(
+                    rect.left + rect.width / 2,
+                    rect.top + rect.height / 2,
+                  );
                 } else {
                   focusTreeInView(true);
                 }
@@ -862,7 +870,7 @@
               maxLevel={node.maxLevel}
               {state}
               radius={node.radius ?? 1}
-              scale={scale}
+              {scale}
               {region}
             />
           </div>
@@ -880,8 +888,12 @@
         onDecrement={levelDown}
         onIncrement={levelUp}
         level={contextMenu?.id ? getLevelFrom(levels, contextMenu.id) : 0}
-        maxLevel={contextMenu?.id && nodeById.has(contextMenu.id) ? nodeById.get(contextMenu.id)!.maxLevel : 0}
-        state={contextMenu?.id ? getState(nodeById.get(contextMenu.id)!, levels) : "locked"}
+        maxLevel={contextMenu?.id && nodeById.has(contextMenu.id)
+          ? nodeById.get(contextMenu.id)!.maxLevel
+          : 0}
+        state={contextMenu?.id
+          ? getState(nodeById.get(contextMenu.id)!, levels)
+          : "locked"}
       />
     </div>
   </div>
