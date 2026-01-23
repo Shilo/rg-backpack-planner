@@ -6,6 +6,7 @@
     maxLevel: number;
     label?: string;
     parentIds?: string[];
+    radius?: number; // 0 to 1, where 1 is the maximum size
   };
 
   export type TreeViewState = {
@@ -478,14 +479,15 @@
 
   function computeFocusViewState(): TreeViewState | null {
     if (!viewportEl || nodes.length === 0) return null;
+    const maxRadius = Math.max(...nodes.map((node) => (node.radius ?? 1) * 64));
     const xs = nodes.map((node) => node.x);
     const ys = nodes.map((node) => node.y);
     const minX = Math.min(...xs);
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
-    const width = maxX - minX + 64;
-    const height = maxY - minY + 64;
+    const width = maxX - minX + maxRadius;
+    const height = maxY - minY + maxRadius;
     const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
@@ -505,12 +507,13 @@
 
   function getWorldBounds() {
     if (nodes.length === 0) return null;
+    const maxRadius = Math.max(...nodes.map((node) => (node.radius ?? 1) * 64));
     const xs = nodes.map((node) => node.x);
     const ys = nodes.map((node) => node.y);
     const minX = Math.min(...xs);
-    const maxX = Math.max(...xs) + 64;
+    const maxX = Math.max(...xs) + maxRadius;
     const minY = Math.min(...ys);
-    const maxY = Math.max(...ys) + 64;
+    const maxY = Math.max(...ys) + maxRadius;
     return { minX, maxX, minY, maxY };
   }
 
@@ -664,11 +667,13 @@
             {#if nodeById.has(link.from) && nodeById.has(link.to)}
               {@const from = nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
+              {@const fromRadius = (from.radius ?? 1) * 32}
+              {@const toRadius = (to.radius ?? 1) * 32}
               <line
-                x1={from.x + 32}
-                y1={from.y + 32}
-                x2={to.x + 32}
-                y2={to.y + 32}
+                x1={from.x + fromRadius}
+                y1={from.y + fromRadius}
+                x2={to.x + toRadius}
+                y2={to.y + toRadius}
                 class:link-active={getLevelFrom(levels, link.from) > 0}
               />
             {/if}
@@ -688,6 +693,7 @@
               {level}
               maxLevel={node.maxLevel}
               {state}
+              radius={node.radius ?? 1}
             />
           </div>
         {/each}

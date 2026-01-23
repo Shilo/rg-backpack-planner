@@ -11,6 +11,7 @@
   export let level: number = 0;
   export let maxLevel: number = 1;
   export let state: NodeState = "locked";
+  export let radius: number = 1;
 
   const stateIcons = {
     locked: Lock,
@@ -28,11 +29,9 @@
   data-node-id={id}
   icon={NodeIcon}
   iconClass="node-icon"
+  style={`width: ${64 * radius}px; height: ${64 * radius}px; --node-radius: ${radius};`}
 >
   <span class="node-level">{level}/{maxLevel}</span>
-  {#if label}
-    <span class="node-label">{label}</span>
-  {/if}
 </Button>
 
 <style>
@@ -63,8 +62,8 @@
   }
 
   :global(.node-icon) {
-    width: 24px;
-    height: 24px;
+    width: calc(24px * var(--node-radius, 1));
+    height: calc(24px * var(--node-radius, 1));
     opacity: 0.7;
     grid-area: stack;
     position: absolute;
@@ -80,19 +79,24 @@
 
   .node-level {
     position: absolute;
-    bottom: 6px;
-    font-size: 0.65rem;
-    opacity: 0.8;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 50%);
     pointer-events: none;
-  }
-
-  .node-label {
-    position: absolute;
-    top: -18px;
-    font-size: 0.65rem;
     white-space: nowrap;
-    opacity: 0.75;
-    pointer-events: none;
+    line-height: 1.2;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 4px rgba(0, 0, 0, 0.6),
+      1px 0 2px rgba(0, 0, 0, 0.9),
+      -1px 0 2px rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2px 4px;
+    border-radius: 3px;
+    backdrop-filter: blur(2px);
   }
 
   :global(.button.node.locked) {
