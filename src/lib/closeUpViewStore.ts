@@ -15,12 +15,24 @@ function setCloseUpView(value: boolean) {
 
 function createCloseUpViewStore() {
   const { subscribe, set, update } = writable(getCloseUpView());
+  let onChangeCallback: (() => void) | null = null;
+
+  const notifyChange = () => {
+    // Use setTimeout to ensure store update has propagated before calling callback
+    setTimeout(() => {
+      onChangeCallback?.();
+    }, 0);
+  };
 
   return {
     subscribe,
+    setOnChange: (callback: (() => void) | null) => {
+      onChangeCallback = callback;
+    },
     set: (value: boolean) => {
       setCloseUpView(value);
       set(value);
+      notifyChange();
     },
     toggle: () => {
       update((value) => {
@@ -28,6 +40,7 @@ function createCloseUpViewStore() {
         setCloseUpView(next);
         return next;
       });
+      notifyChange();
     },
   };
 }

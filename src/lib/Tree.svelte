@@ -780,19 +780,11 @@
     resizeObserver = null;
   }
 
-  // Track previous close-up view value to detect changes
-  let previousCloseUpView = $closeUpView;
-  
-  // Reactive statement: when close-up view setting changes, focus tree in view (without toast)
-  $: if (previousCloseUpView !== $closeUpView) {
-    previousCloseUpView = $closeUpView;
-    // Use tick to ensure store update has propagated
-    tick().then(() => {
+  onMount(() => {
+    // Set up callback for close-up view changes to trigger focus without toast
+    closeUpView.setOnChange(() => {
       focusTreeInView(false);
     });
-  }
-
-  onMount(() => {
     const initializeView = async () => {
       await tick();
       if (initialViewState) {
@@ -822,6 +814,7 @@
         resizeObserver.disconnect();
         resizeObserver = null;
       }
+      closeUpView.setOnChange(null);
     };
   });
 
@@ -830,8 +823,6 @@
   }
 
   $: {
-    // Explicitly reference $closeUpView to ensure reactivity
-    void $closeUpView;
     focusViewState = computeFocusViewState();
     onFocusViewStateChange?.(focusViewState);
   }
