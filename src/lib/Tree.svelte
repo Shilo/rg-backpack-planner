@@ -31,6 +31,7 @@
   import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip } from "./tooltip";
   import { closeUpView } from "./closeUpViewStore";
+  import { singleLevelUp } from "./singleLevelUpStore";
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
@@ -607,8 +608,14 @@
         } else {
           focusTreeInView(true);
         }
-      } else if (levelUp(pointer.nodeId)) {
-        onNodeLevelUp?.(pointer.nodeId);
+      } else {
+        // Check single level-up setting: if enabled, increment by 1; if disabled, max the node
+        const success = $singleLevelUp
+          ? levelUp(pointer.nodeId)
+          : maxNode(pointer.nodeId);
+        if (success) {
+          onNodeLevelUp?.(pointer.nodeId);
+        }
       }
     }
 

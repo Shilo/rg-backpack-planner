@@ -219,5 +219,10 @@
         flex-direction: column;
         align-items: flex-end;
         gap: 10px;
+        pointer-events: none;
+    }
+
+    .top-right-actions > :global(*) {
+        pointer-events: auto;
     }
 </style>

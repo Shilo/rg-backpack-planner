@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HelpCircle, Hexagon, ZoomIn } from "lucide-svelte";
+  import { ArrowUp, HelpCircle, Hexagon, ZoomIn } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
@@ -27,6 +27,7 @@
     techCrystalsSpentCannon,
   } from "./techCrystalStore";
   import { closeUpView } from "./closeUpViewStore";
+  import { singleLevelUp } from "./singleLevelUpStore";
   import ToggleSwitch from "./ToggleSwitch.svelte";
 
   $: hasOwned = $techCrystalsOwned > 0;
@@ -114,6 +115,14 @@
             <span class="tech-crystals-separator"> / </span>
             <span class="tech-crystals-owned">{`${$techCrystalsOwned}`}</span>
           </Button>
+          <ToggleSwitch
+            checked={$singleLevelUp}
+            label="Single Level-up"
+            ariaLabel="Single level-up mode"
+            tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node maxes it out."
+            icon={ArrowUp}
+            onToggle={() => singleLevelUp.toggle()}
+          />
           <ToggleSwitch
             checked={$closeUpView}
             label="Close-up View"
