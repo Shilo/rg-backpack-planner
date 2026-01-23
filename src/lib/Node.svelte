@@ -87,9 +87,10 @@
     position: absolute;
     inset: 2px;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    background: inherit;
     z-index: -1;
     pointer-events: none;
+    /* Default dark slate gray */
+    background: #2a3441;
   }
 
   /* Top-left region border colors */
@@ -146,6 +147,45 @@
 
   :global(.button.node.node-hexagon.maxed::before) {
     background: #ffb347;
+  }
+
+  /* Hexagon inner colors - dark slate gray with theme variants */
+  /* Override main element background for hexagon nodes */
+  :global(.button.node.region-top-left.node-hexagon) {
+    /* Dark slate gray with slight warm/orange tint */
+    background: #2f2e2a !important;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon) {
+    /* Dark slate gray with slight warm/yellow tint */
+    background: #2f2f2a !important;
+  }
+
+  :global(.button.node.region-right.node-hexagon) {
+    /* Dark slate gray with slight blue tint */
+    background: #2a3441 !important;
+  }
+
+  /* Fallback for nodes without region */
+  :global(.button.node.node-hexagon) {
+    background: #2a3441 !important;
+  }
+
+  /* Set ::after to match main element */
+  :global(.button.node.region-top-left.node-hexagon::after) {
+    background: #2f2e2a;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon::after) {
+    background: #2f2f2a;
+  }
+
+  :global(.button.node.region-right.node-hexagon::after) {
+    background: #2a3441;
+  }
+
+  :global(.button.node.node-hexagon::after) {
+    background: #2a3441;
   }
 
   :global(.button.node.with-icon) {
