@@ -320,25 +320,25 @@
     if (nextLevel === level) return false;
     updateLevels({ ...levels, [id]: nextLevel });
     onNodeLevelChange?.(1, id);
-    
+
     // Recursively level zero-leveled parent nodes
     levelZeroParents(id);
-    
+
     return true;
   }
 
   function levelZeroParents(nodeId: string) {
     const node = nodeById.get(nodeId);
     if (!node || !node.parentIds) return;
-    
+
     // Check all parent nodes
     for (const parentId of node.parentIds) {
       // Skip root as it cannot be leveled
       if (parentId === "root") continue;
-      
+
       const parentNode = nodeById.get(parentId);
       if (!parentNode) continue;
-      
+
       const parentLevel = getLevel(parentId);
       // If the parent is at level 0, level it recursively
       if (parentLevel === 0) {
@@ -706,18 +706,16 @@
     nextScale = scale,
   ) {
     if (!viewportEl) return { x: nextOffsetX, y: nextOffsetY };
-    const bounds = getWorldBounds();
-    if (!bounds) return { x: nextOffsetX, y: nextOffsetY };
 
     const rect = viewportEl.getBoundingClientRect();
-    const padding = 24;
     const usableHeight = Math.max(rect.height - bottomInset, 1);
 
-    // Clamp origin so tree bounds stay within viewport
-    const minOffsetX = padding - bounds.maxX * nextScale;
-    const maxOffsetX = rect.width - padding - bounds.minX * nextScale;
-    const minOffsetY = padding - bounds.maxY * nextScale;
-    const maxOffsetY = usableHeight - padding - bounds.minY * nextScale;
+    // Scale bounds with zoom level - only expand when zoomed in (scale >= 1)
+    const effectiveScale = Math.max(nextScale, 1);
+    const minOffsetX = -rect.width * (effectiveScale - 1);
+    const maxOffsetX = rect.width * effectiveScale;
+    const minOffsetY = -usableHeight * (effectiveScale - 1);
+    const maxOffsetY = usableHeight * effectiveScale;
 
     return {
       x: clamp(nextOffsetX, minOffsetX, maxOffsetX),
