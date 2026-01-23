@@ -27,7 +27,10 @@ export function showToast(
     tone: options?.tone ?? "positive",
     durationMs: options?.durationMs ?? DEFAULT_DURATION_MS,
   };
-  toastStore.update((toasts) => [...toasts, toast]);
+  toastStore.update((toasts) => {
+    const updated = [...toasts, toast];
+    return updated.slice(-3); // Keep only the last 3 toasts
+  });
   return toast.id;
 }
 

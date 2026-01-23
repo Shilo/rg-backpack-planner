@@ -123,6 +123,7 @@
         <SideMenuSection title={`${activeTreeName.toUpperCase()} TREE`}>
           <TreeContextMenuList
             tabLabel={activeTreeName}
+            hideStats={true}
             onFocusInView={() => {
               onFocusInView?.();
               onClose?.();
@@ -172,7 +173,7 @@
 
 <style>
   .tech-crystals-available {
-    color: #e6f0ff;
+    color: #ffffff;
   }
 
   .tech-crystals-available.is-negative {
@@ -180,11 +181,11 @@
   }
 
   .tech-crystals-separator {
-    color: #94a3c7;
+    color: #c7d6ff;
   }
 
   .tech-crystals-owned {
-    color: #c7d6ff;
+    color: #e6f0ff;
   }
 
   .side-menu__stats-card {

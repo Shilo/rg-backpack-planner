@@ -55,7 +55,7 @@
 
   .currency-available {
     text-align: right;
-    color: #e6f0ff;
+    color: #ffffff;
   }
 
   .currency-available.is-negative {
@@ -63,10 +63,10 @@
   }
 
   .currency-separator {
-    color: #94a3c7;
+    color: #c7d6ff;
   }
 
   .currency-owned {
-    color: #c7d6ff;
+    color: #e6f0ff;
   }
 </style>

@@ -12,6 +12,7 @@
   export let focusViewState: TreeViewState | null = null;
   export let levelsById: LevelsById | null = null;
   export let hideView0ptions = false;
+  export let hideStats = false;
   export let tabLabel = "";
   export let tabIndex = -1;
   export let nodes: TreeNode[] = [];
@@ -27,21 +28,29 @@
     .reduce((sum, node) => sum + node.maxLevel, 0);
 
   // Get tech crystals spent for this tree
-  $: techCrystalsSpent = tabIndex >= 0 ? $techCrystalsSpentByTree[tabIndex] ?? 0 : 0;
+  $: techCrystalsSpent =
+    tabIndex >= 0 ? ($techCrystalsSpentByTree[tabIndex] ?? 0) : 0;
 </script>
 
-<div class="tree-stats">
-  <div class="stat-row">
-    <span class="stat-label">Tech Crystals:</span>
-    <span class="stat-value">{techCrystalsSpent}</span>
+{#if !hideStats}
+  <div class="tree-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tech Crystals:</span>
+      <span class="stat-value">{techCrystalsSpent}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Levels:</span>
+      <span class="stat-value">{currentLevel} / {maxLevel}</span>
+    </div>
   </div>
-  <div class="stat-row">
-    <span class="stat-label">Levels:</span>
-    <span class="stat-value">{currentLevel} / {maxLevel}</span>
-  </div>
-</div>
+{/if}
 
-<ResetTreeButton {onReset} {levelsById} treeLabel={tabLabel} onPress={onButtonPress} />
+<ResetTreeButton
+  {onReset}
+  {levelsById}
+  treeLabel={tabLabel}
+  onPress={onButtonPress}
+/>
 {#if !hideView0ptions}
   <FocusInViewButton
     {onFocusInView}
