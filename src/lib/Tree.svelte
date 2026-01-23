@@ -315,14 +315,42 @@
     if (id === "root") return false; // Root cannot be leveled up
     const node = nodeById.get(id);
     if (!node) return false;
-    const state = getState(node, levels);
-    if (state === "locked") return false;
     const level = getLevel(id);
     const nextLevel = Math.min(level + 1, node.maxLevel);
     if (nextLevel === level) return false;
     updateLevels({ ...levels, [id]: nextLevel });
     onNodeLevelChange?.(1, id);
+    
+    // Recursively level zero-leveled parent nodes
+    levelZeroParents(id);
+    
     return true;
+  }
+
+  function levelZeroParents(nodeId: string) {
+    const node = nodeById.get(nodeId);
+    if (!node || !node.parentIds) return;
+    
+    // Check all parent nodes
+    for (const parentId of node.parentIds) {
+      // Skip root as it cannot be leveled
+      if (parentId === "root") continue;
+      
+      const parentNode = nodeById.get(parentId);
+      if (!parentNode) continue;
+      
+      const parentLevel = getLevel(parentId);
+      // If the parent is at level 0, level it recursively
+      if (parentLevel === 0) {
+        const nextLevel = Math.min(1, parentNode.maxLevel);
+        if (nextLevel > 0) {
+          updateLevels({ ...levels, [parentId]: nextLevel });
+          onNodeLevelChange?.(1, parentId);
+          // Recursively level this parent's parents
+          levelZeroParents(parentId);
+        }
+      }
+    }
   }
 
   function levelDown(id: string) {
