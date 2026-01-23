@@ -49,14 +49,48 @@
   let contextMenu: { id: string; x: number; y: number } | null = null;
 
   let viewportEl: HTMLDivElement | null = null;
+  let viewportSize = { width: 0, height: 0 };
 
   let offsetX = 0;
   let offsetY = 0;
   let scale = 1;
   let focusViewState: TreeViewState | null = null;
 
-  const minScale = 0.6;
-  const maxScale = 2.2;
+  // Calculate dynamic min/max scale based on node bounds
+  $: scaleBounds = (() => {
+    // Reference viewportSize to make this reactive to viewport size changes
+    void viewportSize.width;
+    void viewportSize.height;
+    
+    if (!viewportEl || nodes.length === 0) {
+      return { minScale: 0.1, maxScale: 2.2 };
+    }
+    
+    const xs = nodes.map((node) => node.x);
+    const ys = nodes.map((node) => node.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const width = maxX - minX + 64;
+    const height = maxY - minY + 64;
+    
+    const rect = viewportEl.getBoundingClientRect();
+    const padding = 24;
+    const availableW = Math.max(rect.width - padding * 2, 1);
+    const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
+    
+    // Minimum scale: fit all nodes in viewport with some extra zoom out capability
+    const minScaleToFit = Math.min(availableW / width, availableH / height);
+    const minScale = Math.max(minScaleToFit * 0.5, 0.1); // Allow zooming out to 50% of fit scale, but not below 0.1
+    
+    // Maximum scale: allow zooming in reasonably
+    const maxScale = 2.2;
+    
+    return { minScale, maxScale };
+  })();
+  $: minScale = scaleBounds.minScale;
+  $: maxScale = scaleBounds.maxScale;
 
   type PointerState = {
     x: number;
@@ -543,6 +577,25 @@
     return focusViewState ?? computeFocusViewState();
   }
 
+  let resizeObserver: ResizeObserver | null = null;
+
+  // Set up ResizeObserver when viewportEl is available
+  $: if (viewportEl && typeof ResizeObserver !== 'undefined') {
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+    }
+    resizeObserver = new ResizeObserver(() => {
+      if (viewportEl) {
+        const rect = viewportEl.getBoundingClientRect();
+        viewportSize = { width: rect.width, height: rect.height };
+      }
+    });
+    resizeObserver.observe(viewportEl);
+  } else if (!viewportEl && resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
+
   onMount(() => {
     const initializeView = async () => {
       await tick();
@@ -558,11 +611,20 @@
     };
     void initializeView();
     const handleResize = () => {
+      if (viewportEl) {
+        const rect = viewportEl.getBoundingClientRect();
+        viewportSize = { width: rect.width, height: rect.height };
+      }
       focusTreeInView();
     };
     window.addEventListener("resize", handleResize, { passive: true });
+    
     return () => {
       window.removeEventListener("resize", handleResize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
     };
   });
 
