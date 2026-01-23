@@ -26,6 +26,8 @@
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
   } from "./techCrystalStore";
+  import { defaultZoom200 } from "./defaultZoomStore";
+  import ToggleSwitch from "./ToggleSwitch.svelte";
 
   $: hasOwned = $techCrystalsOwned > 0;
   let statsRows: Array<[string, string]> = [];
@@ -135,6 +137,14 @@
             viewState={activeTreeViewState}
             focusViewState={activeTreeFocusViewState}
             levelsById={$treeLevels[activeTreeIndex] ?? null}
+          />
+        </SideMenuSection>
+        <SideMenuSection title="SETTINGS">
+          <ToggleSwitch
+            checked={$defaultZoom200}
+            label="Default 200% Zoom"
+            ariaLabel="Default zoom 200%"
+            onToggle={() => defaultZoom200.toggle()}
           />
         </SideMenuSection>
         <SideMenuSection title="STATISTICS">

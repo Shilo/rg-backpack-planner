@@ -30,6 +30,7 @@
   } from "./longPress";
   import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip } from "./tooltip";
+  import { defaultZoom200 } from "./defaultZoomStore";
 
   export let nodes: TreeNode[] = [];
   export let bottomInset = 0;
@@ -670,8 +671,11 @@
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
     const paddedCenterX = padding + availableW / 2;
     const paddedCenterY = padding + availableH / 2;
+    // Calculate scale needed to fit all nodes in viewport (old behavior, always 100% base)
+    const fitScale = Math.min(availableW / width, availableH / height);
+    // If 200% setting is enabled, double the scale; otherwise use the fit scale as-is
     const nextScale = clamp(
-      Math.min(availableW / width, availableH / height),
+      $defaultZoom200 ? fitScale * 2 : fitScale,
       minScale,
       maxScale,
     );
@@ -776,6 +780,18 @@
     resizeObserver = null;
   }
 
+  // Track previous zoom value to detect changes
+  let previousZoom200 = $defaultZoom200;
+  
+  // Reactive statement: when zoom setting changes, focus tree in view (without toast)
+  $: if (previousZoom200 !== $defaultZoom200) {
+    previousZoom200 = $defaultZoom200;
+    // Use tick to ensure store update has propagated
+    tick().then(() => {
+      focusTreeInView(false);
+    });
+  }
+
   onMount(() => {
     const initializeView = async () => {
       await tick();
@@ -790,6 +806,7 @@
       }
     };
     void initializeView();
+    
     const handleResize = () => {
       if (viewportEl) {
         const rect = viewportEl.getBoundingClientRect();
@@ -813,6 +830,8 @@
   }
 
   $: {
+    // Explicitly reference $defaultZoom200 to ensure reactivity
+    void $defaultZoom200;
     focusViewState = computeFocusViewState();
     onFocusViewStateChange?.(focusViewState);
   }
