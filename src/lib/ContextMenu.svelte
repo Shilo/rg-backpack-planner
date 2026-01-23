@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
+  import { triggerHaptic } from "./haptics";
 
   export let x = 0;
   export let y = 0;
@@ -25,14 +26,17 @@
   let wasOpen = false; // Track previous open state
   let lastX = 0;
   let lastY = 0;
+  let backdropEl: HTMLButtonElement | null = null;
 
-  function handleDocumentPointer(event: PointerEvent) {
+  function handleDocumentPointerUp(event: PointerEvent) {
     if (!isOpen) return;
     // Don't close if we're dragging or if the pointer is within the menu
     if (isDragging || pointerId === event.pointerId) return;
     const target = event.target;
     if (target instanceof Node && menuEl?.contains(target)) return;
-    // Don't close on pointerdown if it's the same pointer that started a drag
+    // Don't close if clicking on the backdrop (it handles its own close)
+    if (target instanceof Node && backdropEl?.contains(target)) return;
+    // Don't close on pointerup if it's the same pointer that started a drag
     if (event.pointerId === pointerId) return;
     onClose?.();
   }
@@ -41,6 +45,19 @@
     if (event.key === "Escape") {
       onClose?.();
     }
+  }
+
+  function handleBackdropClick(event: MouseEvent) {
+    if (event.target !== event.currentTarget) return;
+    triggerHaptic();
+    onClose?.();
+  }
+
+  function handleBackdropKeydown(event: KeyboardEvent) {
+    if (event.target !== event.currentTarget) return;
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    handleBackdropClick(event as any);
   }
 
   function clamp(value: number, min: number, max: number) {
@@ -181,7 +198,7 @@
   }
 
   onMount(() => {
-    document.addEventListener("pointerdown", handleDocumentPointer, {
+    document.addEventListener("pointerup", handleDocumentPointerUp, {
       capture: true,
     });
     document.addEventListener("keydown", handleKeydown);
@@ -192,7 +209,7 @@
     };
     window.addEventListener("resize", handleResize);
     return () => {
-      document.removeEventListener("pointerdown", handleDocumentPointer, {
+      document.removeEventListener("pointerup", handleDocumentPointerUp, {
         capture: true,
       });
       document.removeEventListener("keydown", handleKeydown);
@@ -229,6 +246,15 @@
 </script>
 
 {#if isOpen}
+  <button
+    class="context-menu-backdrop"
+    type="button"
+    tabindex="0"
+    aria-label="Close context menu"
+    bind:this={backdropEl}
+    on:click={handleBackdropClick}
+    on:keydown={handleBackdropKeydown}
+  ></button>
   <div
     class="context-menu"
     class:dragging={isDragging}
@@ -282,5 +308,15 @@
     text-transform: uppercase;
     color: rgba(201, 214, 245, 0.75);
     padding-left: 4px;
+  }
+
+  .context-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 9, 18, 0.72);
+    border: none;
+    padding: 0;
+    z-index: 19;
+    cursor: default;
   }
 </style>
