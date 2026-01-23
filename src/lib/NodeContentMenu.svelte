@@ -1,5 +1,14 @@
 <script lang="ts">
-  import { ArrowDown, ArrowUp, CheckCircle2, ChevronsUp, Crown, Lock, Plus, RotateCcw } from "lucide-svelte";
+  import {
+    ArrowDown,
+    ArrowUp,
+    CheckCircle2,
+    ChevronsUp,
+    Crown,
+    Lock,
+    Plus,
+    RotateCcw,
+  } from "lucide-svelte";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
 
@@ -34,15 +43,16 @@
   ariaLabel="Node actions"
   {onClose}
 >
-  <div class="node-info">
-    <div class="node-icon-wrapper">
-      <svelte:component this={NodeIcon} />
+  <div class="node-stats">
+    <div class="stat-row">
+      <span class="stat-label">Levels:</span>
+      <span class="stat-value">{level} / {maxLevel}</span>
     </div>
-    <div class="node-level-info">
-      <span class="level-text">{level}/{maxLevel}</span>
-      <div class="level-progress">
-        <div class="level-progress-bar" style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}></div>
-      </div>
+    <div class="level-progress">
+      <div
+        class="level-progress-bar"
+        style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
+      ></div>
     </div>
   </div>
   <div class="button-columns">
@@ -103,42 +113,28 @@
 </ContextMenu>
 
 <style>
-  .node-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px;
-    margin-bottom: 4px;
-    background: rgba(31, 42, 68, 0.5);
-    border-radius: 8px;
-  }
-
-  .node-icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-  }
-
-  .node-icon-wrapper :global(svg) {
-    width: 24px;
-    height: 24px;
-    opacity: 0.8;
-  }
-
-  .node-level-info {
-    flex: 1;
+  .node-stats {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(44, 60, 97, 0.5);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
   }
 
-  .level-text {
-    font-size: 0.9rem;
-    font-weight: 600;
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+  }
+
+  .stat-label {
+    color: #8fa4ce;
+  }
+
+  .stat-value {
     color: #e8eefc;
+    font-weight: 600;
   }
 
   .level-progress {
@@ -147,6 +143,7 @@
     background: rgba(44, 53, 80, 0.5);
     border-radius: 3px;
     overflow: hidden;
+    margin-top: 2px;
   }
 
   .level-progress-bar {

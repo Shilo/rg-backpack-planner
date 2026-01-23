@@ -42,6 +42,9 @@
       <span class="stat-label">Levels:</span>
       <span class="stat-value">{currentLevel} / {maxLevel}</span>
     </div>
+    <div class="level-progress">
+      <div class="level-progress-bar" style={`width: ${maxLevel > 0 ? (currentLevel / maxLevel) * 100 : 0}%`}></div>
+    </div>
   </div>
 {/if}
 
@@ -83,5 +86,21 @@
   .stat-value {
     color: #e8eefc;
     font-weight: 600;
+  }
+
+  .level-progress {
+    width: 100%;
+    height: 6px;
+    background: rgba(44, 53, 80, 0.5);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  .level-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4c6fff, #5aa6ff);
+    border-radius: 3px;
+    transition: width 0.2s ease;
   }
 </style>
