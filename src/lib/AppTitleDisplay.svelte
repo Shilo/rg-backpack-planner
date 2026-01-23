@@ -21,7 +21,7 @@
   :global(.app-title-display) {
     position: fixed;
     top: 10px;
-    left: 10px;
+    right: 10px;
     z-index: 8;
     border-radius: 999px !important;
     font-weight: 600;

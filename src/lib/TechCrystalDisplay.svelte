@@ -17,6 +17,7 @@
   {tooltipText}
   on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
 >
+  <Hexagon size={20} fill="currentColor" aria-hidden="true" />
   <span
     class="currency-available"
     class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
@@ -27,7 +28,6 @@
     <span class="currency-separator"> / </span>
     <span class="currency-owned">{`${$techCrystalsOwned}`}</span>
   {/if}
-  <Hexagon size={20} fill="currentColor" aria-hidden="true" />
 </Button>
 
 <style>
@@ -36,7 +36,7 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    padding: 6px 10px 6px 12px;
+    padding: 6px 12px 6px 10px;
     font-weight: 600;
     font-size: 1.25rem !important;
     letter-spacing: 0.02em;
