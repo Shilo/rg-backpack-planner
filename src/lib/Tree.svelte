@@ -20,6 +20,7 @@
   import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
+  import RootNode from "./RootNode.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
     LONG_PRESS_MOVE_THRESHOLD,
@@ -135,7 +136,7 @@
   $: {
     let nextLevels = levels;
     let changed = false;
-    for (const node of nodes) {
+    for (const node of regularNodes) {
       if (!(node.id in nextLevels)) {
         if (nextLevels === levels) {
           nextLevels = { ...levels };
@@ -152,13 +153,25 @@
   let nodeById = new Map<string, TreeNode>();
   $: nodeById = new Map(nodes.map((node) => [node.id, node]));
 
-  const links = () =>
-    nodes.flatMap((node) =>
+  $: rootNode = nodes.find((node) => node.id === "root");
+  $: regularNodes = nodes.filter((node) => node.id !== "root");
+
+  const links = () => {
+    const regularLinks = regularNodes.flatMap((node) =>
       (node.parentIds ?? []).map((parentId) => ({
         from: parentId,
         to: node.id,
       })),
     );
+    // Link nodes without parentIds to root
+    const rootLinks = regularNodes
+      .filter((node) => !node.parentIds || node.parentIds.length === 0)
+      .map((node) => ({
+        from: "root",
+        to: node.id,
+      }));
+    return [...regularLinks, ...rootLinks];
+  };
 
   function getLevelFrom(levelsSnapshot: Record<string, number>, id: string) {
     return levelsSnapshot[id] ?? 0;
@@ -169,9 +182,14 @@
   }
 
   function isAvailable(node: TreeNode, levelsSnapshot: Record<string, number>) {
+    // Nodes without parentIds are linked to root, which is always available
     if (!node.parentIds || node.parentIds.length === 0) return true;
     return node.parentIds.every(
-      (parentId) => getLevelFrom(levelsSnapshot, parentId) > 0,
+      (parentId) => {
+        // Root is always considered "available" for linking purposes
+        if (parentId === "root") return true;
+        return getLevelFrom(levelsSnapshot, parentId) > 0;
+      },
     );
   }
 
@@ -187,6 +205,7 @@
   }
 
   function levelUp(id: string) {
+    if (id === "root") return false; // Root cannot be leveled up
     const node = nodeById.get(id);
     if (!node) return false;
     const state = getState(node, levels);
@@ -303,7 +322,7 @@
   function onContextMenu(event: MouseEvent) {
     if (gesturesDisabled) return;
     const nodeId = getNodeIdFromTarget(event.target);
-    if (!nodeId) return;
+    if (!nodeId || nodeId === "root") return; // Root cannot have context menu
     event.preventDefault();
     hideTooltip();
     contextMenu = { id: nodeId, x: event.clientX, y: event.clientY };
@@ -672,23 +691,34 @@
       >
         <svg class="tree-links">
           {#each links() as link}
-            {#if nodeById.has(link.from) && nodeById.has(link.to)}
-              {@const from = nodeById.get(link.from)!}
+            {#if (link.from === "root" || nodeById.has(link.from)) && nodeById.has(link.to)}
+              {@const from = link.from === "root" ? rootNode! : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
               <line
-                x1={from.x + fromRadius}
-                y1={from.y + fromRadius}
-                x2={to.x + toRadius}
-                y2={to.y + toRadius}
-                class:link-active={getLevelFrom(levels, link.from) > 0}
+                x1={from.x}
+                y1={from.y}
+                x2={to.x}
+                y2={to.y}
+                class:link-active={link.from === "root" || getLevelFrom(levels, link.from) > 0}
               />
             {/if}
           {/each}
         </svg>
 
-        {#each nodes as node}
+        {#if rootNode}
+          {@const rootRadius = rootNode.radius ?? 1}
+          {@const rootSize = 64 * rootRadius}
+          <div
+            class="root-wrapper"
+            style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${rootSize}px; height: ${rootSize}px; --node-radius: ${rootRadius};`}
+          >
+            <RootNode />
+          </div>
+        {/if}
+
+        {#each regularNodes as node}
           {@const level = getLevelFrom(levels, node.id)}
           {@const state = getState(node, levels)}
           <div
@@ -775,7 +805,13 @@
     stroke: rgba(255, 179, 71, 0.8);
   }
 
+  .root-wrapper {
+    position: absolute;
+    transform: translate(-50%, -50%);
+  }
+
   .node-wrapper {
     position: absolute;
+    transform: translate(-50%, -50%);
   }
 </style>

@@ -3,9 +3,9 @@
 // Radius values are 0-1 scale where 1.0 is the maximum size (65px equivalent).
 export const baseTree = [
     { id: "root", x: 0, y: 0, maxLevel: 10, label: "Root", radius: 60 / 65 },
-    { id: "attack", x: 0, y: 73, maxLevel: 100, parentIds: ["root"], label: "Attack", radius: 60 / 65 },
-    { id: "defense", x: -73, y: -45, maxLevel: 100, parentIds: ["root"], label: "Defense", radius: 60 / 65 },
-    { id: "hp", x: 68, y: -45, maxLevel: 100, parentIds: ["root"], label: "HP", radius: 60 / 65 },
+    { id: "attack", x: 0, y: 73, maxLevel: 100, label: "Attack", radius: 60 / 65 },
+    { id: "defense", x: -73, y: -45, maxLevel: 100, label: "Defense", radius: 60 / 65 },
+    { id: "hp", x: 68, y: -45, maxLevel: 100, label: "HP", radius: 60 / 65 },
     { id: "attack_3_1", x: 133, y: -78, maxLevel: 100, parentIds: ["hp"], label: "Attack_3_1", radius: 35 / 65 },
     { id: "dodge_3_1", x: 173, y: -165, maxLevel: 100, parentIds: ["attack_3_1"], label: "Dodge_3_1", radius: 50 / 65 },
     { id: "damage_reflection_3_1", x: 225, y: -73, maxLevel: 100, parentIds: ["attack_3_1"], label: "Damage_reflection_3_1", radius: 50 / 65 },
