@@ -207,6 +207,41 @@
     return "locked";
   }
 
+  type NodeRegion = "top-left" | "bottom-left" | "right";
+
+  function getNodeRegion(node: TreeNode): NodeRegion {
+    // Root node doesn't have a region
+    if (node.id === "root") return "right";
+    
+    // Right side: x > 0
+    if (node.x > 0) return "right";
+    
+    // Left side: x < 0 or x === 0
+    // Top-left: y < 0 (above root)
+    // Bottom-left: y >= 0 (below root)
+    if (node.y < 0) {
+      return "top-left";
+    }
+    return "bottom-left";
+  }
+
+  function getLinkColor(from: TreeNode, to: TreeNode): string {
+    const fromRegion = getNodeRegion(from);
+    const toRegion = getNodeRegion(to);
+    
+    // If both nodes are in the same region, use that region's color
+    if (fromRegion === toRegion) {
+      if (fromRegion === "top-left") return "rgba(255, 140, 0, 0.6)"; // Orange
+      if (fromRegion === "bottom-left") return "rgba(255, 215, 0, 0.6)"; // Yellow
+      return "rgba(70, 130, 255, 0.6)"; // Blue
+    }
+    
+    // If connecting different regions, use the target region's color
+    if (toRegion === "top-left") return "rgba(255, 140, 0, 0.4)"; // Orange
+    if (toRegion === "bottom-left") return "rgba(255, 215, 0, 0.4)"; // Yellow
+    return "rgba(70, 130, 255, 0.4)"; // Blue
+  }
+
   function levelUp(id: string) {
     if (id === "root") return false; // Root cannot be leveled up
     const node = nodeById.get(id);
@@ -720,12 +755,15 @@
               {@const to = nodeById.get(link.to)!}
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
+              {@const isActive = link.from === "root" || getLevelFrom(levels, link.from) > 0}
+              {@const linkColor = getLinkColor(from, to)}
               <line
                 x1={from.x}
                 y1={from.y}
                 x2={to.x}
                 y2={to.y}
-                class:link-active={link.from === "root" || getLevelFrom(levels, link.from) > 0}
+                class:link-active={isActive}
+                style={`stroke: ${linkColor};`}
               />
             {/if}
           {/each}
@@ -760,6 +798,7 @@
         {#each regularNodes as node}
           {@const level = getLevelFrom(levels, node.id)}
           {@const state = getState(node, levels)}
+          {@const region = getNodeRegion(node)}
           <div
             class="node-wrapper"
             style={`left: ${node.x}px; top: ${node.y}px;`}
@@ -772,6 +811,7 @@
               {state}
               radius={node.radius ?? 1}
               scale={scale}
+              {region}
             />
           </div>
         {/each}
@@ -836,12 +876,16 @@
   }
 
   .tree-links line {
-    stroke: rgba(88, 110, 160, 0.5);
     stroke-width: 2;
+    transition: opacity 0.2s;
   }
 
   .tree-links line.link-active {
-    stroke: rgba(255, 179, 71, 0.8);
+    opacity: 1;
+  }
+
+  .tree-links line:not(.link-active) {
+    opacity: 0.3;
   }
 
   .root-wrapper {

@@ -13,6 +13,7 @@
   export let state: NodeState = "locked";
   export let radius: number = 1;
   export let scale: number = 1;
+  export let region: "top-left" | "bottom-left" | "right" = "right";
 
   const stateIcons = {
     locked: Lock,
@@ -25,7 +26,7 @@
 </script>
 
 <Button
-  class={`node ${state}`}
+  class={`node ${state} region-${region}`}
   aria-label={label || id}
   data-node-id={id}
   icon={NodeIcon}
@@ -101,6 +102,94 @@
     transform-origin: center bottom;
   }
 
+  /* Top-left region (Orange theme) */
+  :global(.button.node.region-top-left.locked) {
+    background: #2a1f0f;
+    border-color: #5a3f1f;
+    color: #8a6f3f;
+    cursor: not-allowed;
+  }
+
+  :global(.button.node.region-top-left.available) {
+    background: #3d2a0f;
+    border-color: #ff8c00;
+    color: #ffd4a3;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2);
+  }
+
+  :global(.button.node.region-top-left.active) {
+    background: #5a3f1f;
+    border-color: #ffa500;
+    color: #ffd4a3;
+    box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.3);
+  }
+
+  :global(.button.node.region-top-left.maxed) {
+    background: #6a4f2f;
+    border-color: #ffb347;
+    color: #ffe8c7;
+    box-shadow: 0 0 0 2px rgba(255, 179, 71, 0.35);
+  }
+
+  /* Bottom-left region (Yellow theme) */
+  :global(.button.node.region-bottom-left.locked) {
+    background: #2a2a0f;
+    border-color: #5a5a1f;
+    color: #8a8a3f;
+    cursor: not-allowed;
+  }
+
+  :global(.button.node.region-bottom-left.available) {
+    background: #3d3d0f;
+    border-color: #ffd700;
+    color: #fff4a3;
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+  }
+
+  :global(.button.node.region-bottom-left.active) {
+    background: #5a5a1f;
+    border-color: #ffd700;
+    color: #fff4a3;
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+  }
+
+  :global(.button.node.region-bottom-left.maxed) {
+    background: #6a6a2f;
+    border-color: #ffeb3b;
+    color: #fff9c4;
+    box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.35);
+  }
+
+  /* Right region (Blue theme) */
+  :global(.button.node.region-right.locked) {
+    background: #1b2235;
+    border-color: #2c3550;
+    color: #6c7aa1;
+    cursor: not-allowed;
+  }
+
+  :global(.button.node.region-right.available) {
+    background: #1c2f52;
+    border-color: #4682b4;
+    color: #b0d4ff;
+    box-shadow: 0 0 0 2px rgba(70, 130, 180, 0.2);
+  }
+
+  :global(.button.node.region-right.active) {
+    background: #2a3f73;
+    border-color: #5aa6ff;
+    color: #c8e5ff;
+    box-shadow: 0 0 0 2px rgba(90, 166, 255, 0.3);
+  }
+
+  :global(.button.node.region-right.maxed) {
+    background: #3a4f83;
+    border-color: #6bb6ff;
+    color: #e1f0ff;
+    box-shadow: 0 0 0 2px rgba(107, 182, 255, 0.35);
+  }
+
+  /* Fallback for nodes without region (shouldn't happen) */
   :global(.button.node.locked) {
     background: #1b2235;
     border-color: #2c3550;
