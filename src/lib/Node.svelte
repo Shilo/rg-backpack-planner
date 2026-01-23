@@ -47,7 +47,6 @@
   /* CSS Custom Properties - All color variables defined here */
   :global(.button.node) {
     /* Brightness values for locked states */
-    --brightness-locked-hexagon: 0.4;
     --brightness-locked: 0.5;
 
     /* Fallback variables for nodes without region */
@@ -162,7 +161,7 @@
   :global(.button.node.node-hexagon::before) {
     content: "";
     position: absolute;
-    inset: -2px;
+    inset: -4px;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     z-index: -1;
     pointer-events: none;
@@ -172,7 +171,7 @@
   :global(.button.node.node-hexagon::after) {
     content: "";
     position: absolute;
-    inset: 2px;
+    inset: 4px;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     z-index: -1;
     pointer-events: none;
@@ -182,7 +181,7 @@
   /* Top-left region border colors */
   :global(.button.node.region-top-left.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked-hexagon));
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.region-top-left.node-hexagon.available::before) {
@@ -206,7 +205,7 @@
   /* Bottom-left region border colors */
   :global(.button.node.region-bottom-left.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked-hexagon));
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.available::before) {
@@ -230,7 +229,7 @@
   /* Right region border colors */
   :global(.button.node.region-right.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked-hexagon));
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.region-right.node-hexagon.available::before) {
@@ -254,7 +253,7 @@
   /* Fallback for nodes without region */
   :global(.button.node.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked-hexagon));
+    filter: brightness(var(--brightness-locked));
   }
 
   :global(.button.node.node-hexagon.available::before) {
