@@ -4,5 +4,5 @@
  * @returns The formatted string with thousand separators
  */
 export function formatNumber(num: number): string {
-  return num.toLocaleString("en-US");
+  return num.toLocaleString();
 }

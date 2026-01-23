@@ -858,7 +858,7 @@
       >
         <svg class="tree-links">
           {#each links() as link}
-            {#if (link.from === "root" || nodeById.has(link.from)) && nodeById.has(link.to)}
+            {#if (link.from === "root" ? rootNode : nodeById.get(link.from)) && nodeById.get(link.to)}
               {@const from =
                 link.from === "root" ? rootNode! : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}

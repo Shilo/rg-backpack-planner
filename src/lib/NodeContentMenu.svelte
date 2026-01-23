@@ -51,11 +51,13 @@
     <div class="node-stats-content">
       <div class="stat-row">
         <span class="stat-label">DB & Val ATK Bonus</span>
-        <span class="stat-value">30000%</span>
+        <span class="stat-value">30,000%</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Levels:</span>
-        <span class="stat-value">{formatNumber(level)} / {formatNumber(maxLevel)}</span>
+        <span class="stat-value"
+          >{formatNumber(level)} / {formatNumber(maxLevel)}</span
+        >
       </div>
       <div class="level-progress">
         <div
