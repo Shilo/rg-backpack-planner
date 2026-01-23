@@ -511,7 +511,6 @@
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
-    cursor: not-allowed;
     filter: brightness(var(--brightness-locked));
   }
 
@@ -544,7 +543,6 @@
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
-    cursor: not-allowed;
     filter: brightness(var(--brightness-locked));
   }
 
@@ -577,7 +575,6 @@
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
-    cursor: not-allowed;
     filter: brightness(var(--brightness-locked));
   }
 
@@ -610,7 +607,6 @@
     background: var(--fallback-bg-available);
     border-color: var(--fallback-border-color);
     color: var(--fallback-text-color);
-    cursor: not-allowed;
     filter: brightness(var(--brightness-locked));
   }
 
