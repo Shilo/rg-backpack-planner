@@ -98,13 +98,19 @@
     background: #7a3f2f;
   }
 
-  :global(.button.node.region-top-left.node-hexagon.available::before),
+  :global(.button.node.region-top-left.node-hexagon.available::before) {
+    background: #ff6b35;
+    filter: drop-shadow(0 0 4px rgba(255, 107, 53, 0.4)) drop-shadow(0 0 8px rgba(255, 107, 53, 0.2));
+  }
+
   :global(.button.node.region-top-left.node-hexagon.active::before) {
     background: #ff6b35;
+    filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.5)) drop-shadow(0 0 12px rgba(255, 107, 53, 0.3));
   }
 
   :global(.button.node.region-top-left.node-hexagon.maxed::before) {
     background: #ff8c5a;
+    filter: drop-shadow(0 0 6px rgba(255, 140, 90, 0.5)) drop-shadow(0 0 12px rgba(255, 140, 90, 0.3));
   }
 
   /* Bottom-left region border colors */
@@ -112,13 +118,19 @@
     background: #5a5a1a;
   }
 
-  :global(.button.node.region-bottom-left.node-hexagon.available::before),
+  :global(.button.node.region-bottom-left.node-hexagon.available::before) {
+    background: #ffd700;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.2));
+  }
+
   :global(.button.node.region-bottom-left.node-hexagon.active::before) {
     background: #ffd700;
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.3));
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.maxed::before) {
     background: #ffeb3b;
+    filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.5)) drop-shadow(0 0 12px rgba(255, 235, 59, 0.3));
   }
 
   /* Right region border colors */
@@ -126,13 +138,19 @@
     background: #2c3550;
   }
 
-  :global(.button.node.region-right.node-hexagon.available::before),
+  :global(.button.node.region-right.node-hexagon.available::before) {
+    background: #4a90e2;
+    filter: drop-shadow(0 0 4px rgba(74, 144, 226, 0.4)) drop-shadow(0 0 8px rgba(74, 144, 226, 0.2));
+  }
+
   :global(.button.node.region-right.node-hexagon.active::before) {
     background: #4a90e2;
+    filter: drop-shadow(0 0 6px rgba(74, 144, 226, 0.5)) drop-shadow(0 0 12px rgba(74, 144, 226, 0.3));
   }
 
   :global(.button.node.region-right.node-hexagon.maxed::before) {
     background: #6bb6ff;
+    filter: drop-shadow(0 0 6px rgba(107, 182, 255, 0.5)) drop-shadow(0 0 12px rgba(107, 182, 255, 0.3));
   }
 
   /* Fallback for nodes without region */
@@ -140,13 +158,19 @@
     background: #2c3550;
   }
 
-  :global(.button.node.node-hexagon.available::before),
+  :global(.button.node.node-hexagon.available::before) {
+    background: #4c6fff;
+    filter: drop-shadow(0 0 4px rgba(76, 111, 255, 0.4)) drop-shadow(0 0 8px rgba(76, 111, 255, 0.2));
+  }
+
   :global(.button.node.node-hexagon.active::before) {
     background: #4c6fff;
+    filter: drop-shadow(0 0 6px rgba(76, 111, 255, 0.5)) drop-shadow(0 0 12px rgba(76, 111, 255, 0.3));
   }
 
   :global(.button.node.node-hexagon.maxed::before) {
     background: #ffb347;
+    filter: drop-shadow(0 0 6px rgba(255, 179, 71, 0.5)) drop-shadow(0 0 12px rgba(255, 179, 71, 0.3));
   }
 
   /* Hexagon inner colors - dark slate gray with theme variants */
@@ -156,9 +180,33 @@
     background: #2f2e2a !important;
   }
 
+  :global(.button.node.region-top-left.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px rgba(255, 107, 53, 0.3)) drop-shadow(0 0 8px rgba(255, 107, 53, 0.15));
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.4)) drop-shadow(0 0 12px rgba(255, 107, 53, 0.2));
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px rgba(255, 140, 90, 0.4)) drop-shadow(0 0 12px rgba(255, 140, 90, 0.2));
+  }
+
   :global(.button.node.region-bottom-left.node-hexagon) {
     /* Dark slate gray with slight warm/yellow tint */
     background: #2f2f2a !important;
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.15));
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.2));
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.4)) drop-shadow(0 0 12px rgba(255, 235, 59, 0.2));
   }
 
   :global(.button.node.region-right.node-hexagon) {
@@ -166,9 +214,33 @@
     background: #2a3441 !important;
   }
 
+  :global(.button.node.region-right.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px rgba(74, 144, 226, 0.3)) drop-shadow(0 0 8px rgba(74, 144, 226, 0.15));
+  }
+
+  :global(.button.node.region-right.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px rgba(74, 144, 226, 0.4)) drop-shadow(0 0 12px rgba(74, 144, 226, 0.2));
+  }
+
+  :global(.button.node.region-right.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px rgba(107, 182, 255, 0.4)) drop-shadow(0 0 12px rgba(107, 182, 255, 0.2));
+  }
+
   /* Fallback for nodes without region */
   :global(.button.node.node-hexagon) {
     background: #2a3441 !important;
+  }
+
+  :global(.button.node.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px rgba(76, 111, 255, 0.3)) drop-shadow(0 0 8px rgba(76, 111, 255, 0.15));
+  }
+
+  :global(.button.node.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px rgba(76, 111, 255, 0.4)) drop-shadow(0 0 12px rgba(76, 111, 255, 0.2));
+  }
+
+  :global(.button.node.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px rgba(255, 179, 71, 0.4)) drop-shadow(0 0 12px rgba(255, 179, 71, 0.2));
   }
 
   /* Set ::after to match main element */
