@@ -47,7 +47,8 @@
   /* CSS Custom Properties - All color variables defined here */
   :global(.button.node) {
     /* Brightness values for locked states */
-    --brightness-locked: 0.5;
+    --brightness-locked: 0.4;
+    --brightness-locked-hexagon: 0.5;
 
     /* Fallback variables for nodes without region */
     --fallback-bg-available: #1c2f52;
@@ -181,97 +182,145 @@
   /* Top-left region border colors */
   :global(.button.node.region-top-left.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked));
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.region-top-left.node-hexagon.available::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-top-left.node-hexagon.active::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent)
+      );
   }
 
   :global(.button.node.region-top-left.node-hexagon.maxed::before) {
     background: var(--border-color-maxed);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent)
+      );
   }
 
   /* Bottom-left region border colors */
   :global(.button.node.region-bottom-left.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked));
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.available::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.active::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent)
+      );
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.maxed::before) {
     background: var(--border-color-maxed);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent)
+      );
   }
 
   /* Right region border colors */
   :global(.button.node.region-right.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked));
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.region-right.node-hexagon.available::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-right.node-hexagon.active::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent)
+      );
   }
 
   :global(.button.node.region-right.node-hexagon.maxed::before) {
     background: var(--border-color-maxed);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent)
+      );
   }
 
   /* Fallback for nodes without region */
   :global(.button.node.node-hexagon.locked::before) {
     background: var(--border-color);
-    filter: brightness(var(--brightness-locked));
+    filter: brightness(var(--brightness-locked-hexagon));
   }
 
   :global(.button.node.node-hexagon.available::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.node-hexagon.active::before) {
     background: var(--border-color);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent)
+      );
   }
 
   :global(.button.node.node-hexagon.maxed::before) {
     background: var(--border-color-maxed);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent)
+      );
   }
 
   /* Hexagon inner colors - dark slate gray with theme variants */
@@ -284,18 +333,30 @@
   }
 
   :global(.button.node.region-top-left.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
+      );
   }
 
   :global(.button.node.region-top-left.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-top-left.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-bottom-left.node-hexagon) {
@@ -307,18 +368,30 @@
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
+      );
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-right.node-hexagon) {
@@ -330,18 +403,30 @@
   }
 
   :global(.button.node.region-right.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
+      );
   }
 
   :global(.button.node.region-right.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.region-right.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent)
+      );
   }
 
   /* Fallback for nodes without region */
@@ -350,18 +435,30 @@
   }
 
   :global(.button.node.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
-      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+    filter: drop-shadow(
+        0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
+      )
+      drop-shadow(
+        0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
+      );
   }
 
   :global(.button.node.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent)
+      );
   }
 
   :global(.button.node.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+    filter: drop-shadow(
+        0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent)
+      )
+      drop-shadow(
+        0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent)
+      );
   }
 
   :global(.button.node.with-icon) {
@@ -422,21 +519,24 @@
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 20%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color) 20%, transparent);
   }
 
   :global(.button.node.region-top-left.active) {
     background: var(--bg-active);
     border-color: var(--border-color);
     color: var(--text-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 30%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color) 30%, transparent);
   }
 
   :global(.button.node.region-top-left.maxed) {
     background: var(--bg-maxed);
     border-color: var(--border-color-maxed);
     color: var(--text-color-maxed);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
   }
 
   /* Bottom-left region (Yellow theme - bright gold for colorblind-friendly) */
@@ -452,21 +552,24 @@
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 20%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color) 20%, transparent);
   }
 
   :global(.button.node.region-bottom-left.active) {
     background: var(--bg-active);
     border-color: var(--border-color);
     color: var(--text-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 30%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color) 30%, transparent);
   }
 
   :global(.button.node.region-bottom-left.maxed) {
     background: var(--bg-maxed);
     border-color: var(--border-color-maxed);
     color: var(--text-color-maxed);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
   }
 
   /* Right region (Blue theme - saturated blue for colorblind-friendly) */
@@ -482,21 +585,24 @@
     background: var(--bg-available);
     border-color: var(--border-color);
     color: var(--text-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 20%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color) 20%, transparent);
   }
 
   :global(.button.node.region-right.active) {
     background: var(--bg-active);
     border-color: var(--border-color);
     color: var(--text-color-active);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 30%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color) 30%, transparent);
   }
 
   :global(.button.node.region-right.maxed) {
     background: var(--bg-maxed);
     border-color: var(--border-color-maxed);
     color: var(--text-color-maxed);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
   }
 
   /* Fallback for nodes without region (shouldn't happen) */
@@ -512,20 +618,23 @@
     background: var(--fallback-bg-available);
     border-color: var(--fallback-border-color);
     color: var(--fallback-text-color);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fallback-border-color) 20%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--fallback-border-color) 20%, transparent);
   }
 
   :global(.button.node.active) {
     background: var(--fallback-bg-active);
     border-color: var(--fallback-border-color-active);
     color: var(--fallback-text-color-active);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fallback-border-color-active) 30%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--fallback-border-color-active) 30%, transparent);
   }
 
   :global(.button.node.maxed) {
     background: var(--fallback-bg-maxed);
     border-color: var(--fallback-border-color-maxed);
     color: var(--fallback-text-color-maxed);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fallback-border-color-maxed) 35%, transparent);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--fallback-border-color-maxed) 35%, transparent);
   }
 </style>
