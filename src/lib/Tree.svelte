@@ -712,20 +712,16 @@
     const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const usableHeight = Math.max(rect.height - bottomInset, 1);
-    const paddedRight = rect.width - padding;
-    const paddedBottom = Math.max(usableHeight - padding, padding);
 
-    const centerWorldX = (bounds.minX + bounds.maxX) / 2;
-    const centerWorldY = (bounds.minY + bounds.maxY) / 2;
-    const centerScreenX = nextOffsetX + centerWorldX * nextScale;
-    const centerScreenY = nextOffsetY + centerWorldY * nextScale;
-
-    const clampedCenterX = clamp(centerScreenX, padding, paddedRight);
-    const clampedCenterY = clamp(centerScreenY, padding, paddedBottom);
+    // Clamp origin so tree bounds stay within viewport
+    const minOffsetX = padding - bounds.maxX * nextScale;
+    const maxOffsetX = rect.width - padding - bounds.minX * nextScale;
+    const minOffsetY = padding - bounds.maxY * nextScale;
+    const maxOffsetY = usableHeight - padding - bounds.minY * nextScale;
 
     return {
-      x: nextOffsetX + (clampedCenterX - centerScreenX),
-      y: nextOffsetY + (clampedCenterY - centerScreenY),
+      x: clamp(nextOffsetX, minOffsetX, maxOffsetX),
+      y: clamp(nextOffsetY, minOffsetY, maxOffsetY),
     };
   }
 
