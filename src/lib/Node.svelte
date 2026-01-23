@@ -89,175 +89,216 @@
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     z-index: -1;
     pointer-events: none;
-    /* Default dark slate gray */
-    background: #2a3441;
+    background: #2a3441; /* Default, overridden by region-specific rules */
   }
 
   /* Top-left region border colors */
+  :global(.button.node.region-top-left.node-hexagon) {
+    --border-color: #ff6b35;
+    --border-color-maxed: #ff8c5a;
+  }
+
   :global(.button.node.region-top-left.node-hexagon.locked::before) {
-    background: #7a3f2f;
+    background: var(--border-color);
+    filter: brightness(0.4);
   }
 
   :global(.button.node.region-top-left.node-hexagon.available::before) {
-    background: #ff6b35;
-    filter: drop-shadow(0 0 4px rgba(255, 107, 53, 0.4)) drop-shadow(0 0 8px rgba(255, 107, 53, 0.2));
+    background: var(--border-color);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
   }
 
   :global(.button.node.region-top-left.node-hexagon.active::before) {
-    background: #ff6b35;
-    filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.5)) drop-shadow(0 0 12px rgba(255, 107, 53, 0.3));
+    background: var(--border-color);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
   }
 
   :global(.button.node.region-top-left.node-hexagon.maxed::before) {
-    background: #ff8c5a;
-    filter: drop-shadow(0 0 6px rgba(255, 140, 90, 0.5)) drop-shadow(0 0 12px rgba(255, 140, 90, 0.3));
+    background: var(--border-color-maxed);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
   }
 
   /* Bottom-left region border colors */
+  :global(.button.node.region-bottom-left.node-hexagon) {
+    --border-color: #ffd700;
+    --border-color-maxed: #ffeb3b;
+  }
+
   :global(.button.node.region-bottom-left.node-hexagon.locked::before) {
-    background: #5a5a1a;
+    background: var(--border-color);
+    filter: brightness(0.4);
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.available::before) {
-    background: #ffd700;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.2));
+    background: var(--border-color);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.active::before) {
-    background: #ffd700;
-    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.3));
+    background: var(--border-color);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
   }
 
   :global(.button.node.region-bottom-left.node-hexagon.maxed::before) {
-    background: #ffeb3b;
-    filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.5)) drop-shadow(0 0 12px rgba(255, 235, 59, 0.3));
+    background: var(--border-color-maxed);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
   }
 
   /* Right region border colors */
+  :global(.button.node.region-right.node-hexagon) {
+    --border-color: #4a90e2;
+    --border-color-maxed: #6bb6ff;
+  }
+
   :global(.button.node.region-right.node-hexagon.locked::before) {
-    background: #2c3550;
+    background: var(--border-color);
+    filter: brightness(0.4);
   }
 
   :global(.button.node.region-right.node-hexagon.available::before) {
-    background: #4a90e2;
-    filter: drop-shadow(0 0 4px rgba(74, 144, 226, 0.4)) drop-shadow(0 0 8px rgba(74, 144, 226, 0.2));
+    background: var(--border-color);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
   }
 
   :global(.button.node.region-right.node-hexagon.active::before) {
-    background: #4a90e2;
-    filter: drop-shadow(0 0 6px rgba(74, 144, 226, 0.5)) drop-shadow(0 0 12px rgba(74, 144, 226, 0.3));
+    background: var(--border-color);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
   }
 
   :global(.button.node.region-right.node-hexagon.maxed::before) {
-    background: #6bb6ff;
-    filter: drop-shadow(0 0 6px rgba(107, 182, 255, 0.5)) drop-shadow(0 0 12px rgba(107, 182, 255, 0.3));
-  }
-
-  /* Fallback for nodes without region */
-  :global(.button.node.node-hexagon.locked::before) {
-    background: #2c3550;
-  }
-
-  :global(.button.node.node-hexagon.available::before) {
-    background: #4c6fff;
-    filter: drop-shadow(0 0 4px rgba(76, 111, 255, 0.4)) drop-shadow(0 0 8px rgba(76, 111, 255, 0.2));
-  }
-
-  :global(.button.node.node-hexagon.active::before) {
-    background: #4c6fff;
-    filter: drop-shadow(0 0 6px rgba(76, 111, 255, 0.5)) drop-shadow(0 0 12px rgba(76, 111, 255, 0.3));
-  }
-
-  :global(.button.node.node-hexagon.maxed::before) {
-    background: #ffb347;
-    filter: drop-shadow(0 0 6px rgba(255, 179, 71, 0.5)) drop-shadow(0 0 12px rgba(255, 179, 71, 0.3));
-  }
-
-  /* Hexagon inner colors - dark slate gray with theme variants */
-  /* Override main element background for hexagon nodes */
-  :global(.button.node.region-top-left.node-hexagon) {
-    /* Dark slate gray with slight warm/orange tint */
-    background: #2f2e2a !important;
-  }
-
-  :global(.button.node.region-top-left.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px rgba(255, 107, 53, 0.3)) drop-shadow(0 0 8px rgba(255, 107, 53, 0.15));
-  }
-
-  :global(.button.node.region-top-left.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.4)) drop-shadow(0 0 12px rgba(255, 107, 53, 0.2));
-  }
-
-  :global(.button.node.region-top-left.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px rgba(255, 140, 90, 0.4)) drop-shadow(0 0 12px rgba(255, 140, 90, 0.2));
-  }
-
-  :global(.button.node.region-bottom-left.node-hexagon) {
-    /* Dark slate gray with slight warm/yellow tint */
-    background: #2f2f2a !important;
-  }
-
-  :global(.button.node.region-bottom-left.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3)) drop-shadow(0 0 8px rgba(255, 215, 0, 0.15));
-  }
-
-  :global(.button.node.region-bottom-left.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4)) drop-shadow(0 0 12px rgba(255, 215, 0, 0.2));
-  }
-
-  :global(.button.node.region-bottom-left.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px rgba(255, 235, 59, 0.4)) drop-shadow(0 0 12px rgba(255, 235, 59, 0.2));
-  }
-
-  :global(.button.node.region-right.node-hexagon) {
-    /* Dark slate gray with slight blue tint */
-    background: #2a3441 !important;
-  }
-
-  :global(.button.node.region-right.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px rgba(74, 144, 226, 0.3)) drop-shadow(0 0 8px rgba(74, 144, 226, 0.15));
-  }
-
-  :global(.button.node.region-right.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px rgba(74, 144, 226, 0.4)) drop-shadow(0 0 12px rgba(74, 144, 226, 0.2));
-  }
-
-  :global(.button.node.region-right.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px rgba(107, 182, 255, 0.4)) drop-shadow(0 0 12px rgba(107, 182, 255, 0.2));
+    background: var(--border-color-maxed);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
   }
 
   /* Fallback for nodes without region */
   :global(.button.node.node-hexagon) {
-    background: #2a3441 !important;
+    --border-color: #4c6fff;
+    --border-color-maxed: #ffb347;
   }
 
-  :global(.button.node.node-hexagon.available) {
-    filter: drop-shadow(0 0 4px rgba(76, 111, 255, 0.3)) drop-shadow(0 0 8px rgba(76, 111, 255, 0.15));
+  :global(.button.node.node-hexagon.locked::before) {
+    background: var(--border-color);
+    filter: brightness(0.4);
   }
 
-  :global(.button.node.node-hexagon.active) {
-    filter: drop-shadow(0 0 6px rgba(76, 111, 255, 0.4)) drop-shadow(0 0 12px rgba(76, 111, 255, 0.2));
+  :global(.button.node.node-hexagon.available::before) {
+    background: var(--border-color);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent));
   }
 
-  :global(.button.node.node-hexagon.maxed) {
-    filter: drop-shadow(0 0 6px rgba(255, 179, 71, 0.4)) drop-shadow(0 0 12px rgba(255, 179, 71, 0.2));
+  :global(.button.node.node-hexagon.active::before) {
+    background: var(--border-color);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 30%, transparent));
   }
 
-  /* Set ::after to match main element */
+  :global(.button.node.node-hexagon.maxed::before) {
+    background: var(--border-color-maxed);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 50%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 30%, transparent));
+  }
+
+  /* Hexagon inner colors - dark slate gray with theme variants */
+  :global(.button.node.region-top-left.node-hexagon) {
+    --hex-bg: #2f2e2a;
+    background: var(--hex-bg) !important;
+  }
+
   :global(.button.node.region-top-left.node-hexagon::after) {
-    background: #2f2e2a;
+    background: var(--hex-bg);
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+  }
+
+  :global(.button.node.region-top-left.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon) {
+    --hex-bg: #2f2f2a;
+    background: var(--hex-bg) !important;
   }
 
   :global(.button.node.region-bottom-left.node-hexagon::after) {
-    background: #2f2f2a;
+    background: var(--hex-bg);
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+  }
+
+  :global(.button.node.region-bottom-left.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+  }
+
+  :global(.button.node.region-right.node-hexagon) {
+    --hex-bg: #2a3441;
+    background: var(--hex-bg) !important;
   }
 
   :global(.button.node.region-right.node-hexagon::after) {
+    background: var(--hex-bg);
+  }
+
+  :global(.button.node.region-right.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+  }
+
+  :global(.button.node.region-right.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+  }
+
+  :global(.button.node.region-right.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
+  }
+
+  /* Fallback for nodes without region */
+  :global(.button.node.node-hexagon::after) {
     background: #2a3441;
   }
 
-  :global(.button.node.node-hexagon::after) {
-    background: #2a3441;
+  :global(.button.node.node-hexagon.available) {
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent));
+  }
+
+  :global(.button.node.node-hexagon.active) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color) 20%, transparent));
+  }
+
+  :global(.button.node.node-hexagon.maxed) {
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--border-color-maxed) 40%, transparent))
+      drop-shadow(0 0 12px color-mix(in srgb, var(--border-color-maxed) 20%, transparent));
   }
 
   :global(.button.node.with-icon) {
@@ -306,118 +347,165 @@
   }
 
   /* Top-left region (Orange theme - colorblind-friendly red-orange) */
+  :global(.button.node.region-top-left) {
+    --bg-available: #6b3f1f;
+    --bg-active: #8b4f2f;
+    --bg-maxed: #ab5f3f;
+    --border-color: #ff6b35;
+    --border-color-maxed: #ff8c5a;
+    --text-color: #ffd4b8;
+    --text-color-maxed: #ffe8d4;
+  }
+
   :global(.button.node.region-top-left.locked) {
-    background: #3d1f0f;
-    border-color: #7a3f2f;
-    color: #aa7f5f;
+    background: var(--bg-available);
+    border-color: var(--border-color);
+    color: var(--text-color);
     cursor: not-allowed;
+    filter: brightness(0.5);
   }
 
   :global(.button.node.region-top-left.available) {
-    background: #6b3f1f;
-    border-color: #ff6b35;
-    color: #ffd4b8;
-    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+    background: var(--bg-available);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 20%, transparent);
   }
 
   :global(.button.node.region-top-left.active) {
-    background: #8b4f2f;
-    border-color: #ff6b35;
-    color: #ffd4b8;
-    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.3);
+    background: var(--bg-active);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 30%, transparent);
   }
 
   :global(.button.node.region-top-left.maxed) {
-    background: #ab5f3f;
-    border-color: #ff8c5a;
-    color: #ffe8d4;
-    box-shadow: 0 0 0 2px rgba(255, 140, 90, 0.35);
+    background: var(--bg-maxed);
+    border-color: var(--border-color-maxed);
+    color: var(--text-color-maxed);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
   }
 
   /* Bottom-left region (Yellow theme - bright gold for colorblind-friendly) */
+  :global(.button.node.region-bottom-left) {
+    --bg-available: #3d3d0a;
+    --bg-active: #5a5a1a;
+    --bg-maxed: #6a6a2a;
+    --border-color: #ffd700;
+    --border-color-maxed: #ffeb3b;
+    --text-color: #fff9cc;
+    --text-color-maxed: #fffdd0;
+  }
+
   :global(.button.node.region-bottom-left.locked) {
-    background: #2a2a0a;
-    border-color: #5a5a1a;
-    color: #8a8a3a;
+    background: var(--bg-available);
+    border-color: var(--border-color);
+    color: var(--text-color);
     cursor: not-allowed;
+    filter: brightness(0.5);
   }
 
   :global(.button.node.region-bottom-left.available) {
-    background: #3d3d0a;
-    border-color: #ffd700;
-    color: #fff9cc;
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    background: var(--bg-available);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 20%, transparent);
   }
 
   :global(.button.node.region-bottom-left.active) {
-    background: #5a5a1a;
-    border-color: #ffd700;
-    color: #fff9cc;
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+    background: var(--bg-active);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 30%, transparent);
   }
 
   :global(.button.node.region-bottom-left.maxed) {
-    background: #6a6a2a;
-    border-color: #ffeb3b;
-    color: #fffdd0;
-    box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.35);
+    background: var(--bg-maxed);
+    border-color: var(--border-color-maxed);
+    color: var(--text-color-maxed);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
   }
 
   /* Right region (Blue theme - saturated blue for colorblind-friendly) */
+  :global(.button.node.region-right) {
+    --bg-available: #1c2f52;
+    --bg-active: #2a3f73;
+    --bg-maxed: #3a4f83;
+    --border-color: #4a90e2;
+    --border-color-maxed: #6bb6ff;
+    --text-color: #b8d9ff;
+    --text-color-active: #c8e5ff;
+    --text-color-maxed: #e1f0ff;
+  }
+
   :global(.button.node.region-right.locked) {
-    background: #1b2235;
-    border-color: #2c3550;
-    color: #6c7aa1;
+    background: var(--bg-available);
+    border-color: var(--border-color);
+    color: var(--text-color);
     cursor: not-allowed;
+    filter: brightness(0.5);
   }
 
   :global(.button.node.region-right.available) {
-    background: #1c2f52;
-    border-color: #4a90e2;
-    color: #b8d9ff;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    background: var(--bg-available);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 20%, transparent);
   }
 
   :global(.button.node.region-right.active) {
-    background: #2a3f73;
-    border-color: #4a90e2;
-    color: #c8e5ff;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+    background: var(--bg-active);
+    border-color: var(--border-color);
+    color: var(--text-color-active);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color) 30%, transparent);
   }
 
   :global(.button.node.region-right.maxed) {
-    background: #3a4f83;
-    border-color: #6bb6ff;
-    color: #e1f0ff;
-    box-shadow: 0 0 0 2px rgba(107, 182, 255, 0.35);
+    background: var(--bg-maxed);
+    border-color: var(--border-color-maxed);
+    color: var(--text-color-maxed);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
   }
 
   /* Fallback for nodes without region (shouldn't happen) */
+  :global(.button.node) {
+    --fallback-bg-available: #1c2f52;
+    --fallback-bg-active: #2a3f73;
+    --fallback-bg-maxed: #4a2e0a;
+    --fallback-border-color: #4c6fff;
+    --fallback-border-color-active: #5aa6ff;
+    --fallback-border-color-maxed: #ffb347;
+    --fallback-text-color: #cdd7ff;
+    --fallback-text-color-active: #e1f0ff;
+    --fallback-text-color-maxed: #ffe8c7;
+  }
+
   :global(.button.node.locked) {
-    background: #1b2235;
-    border-color: #2c3550;
-    color: #6c7aa1;
+    background: var(--fallback-bg-available);
+    border-color: var(--fallback-border-color);
+    color: var(--fallback-text-color);
     cursor: not-allowed;
+    filter: brightness(0.5);
   }
 
   :global(.button.node.available) {
-    background: #1c2f52;
-    border-color: #4c6fff;
-    color: #cdd7ff;
-    box-shadow: 0 0 0 2px rgba(76, 111, 255, 0.2);
+    background: var(--fallback-bg-available);
+    border-color: var(--fallback-border-color);
+    color: var(--fallback-text-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fallback-border-color) 20%, transparent);
   }
 
   :global(.button.node.active) {
-    background: #2a3f73;
-    border-color: #5aa6ff;
-    color: #e1f0ff;
-    box-shadow: 0 0 0 2px rgba(90, 166, 255, 0.3);
+    background: var(--fallback-bg-active);
+    border-color: var(--fallback-border-color-active);
+    color: var(--fallback-text-color-active);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fallback-border-color-active) 30%, transparent);
   }
 
   :global(.button.node.maxed) {
-    background: #4a2e0a;
-    border-color: #ffb347;
-    color: #ffe8c7;
-    box-shadow: 0 0 0 2px rgba(255, 179, 71, 0.35);
+    background: var(--fallback-bg-maxed);
+    border-color: var(--fallback-border-color-maxed);
+    color: var(--fallback-text-color-maxed);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fallback-border-color-maxed) 35%, transparent);
   }
 </style>
