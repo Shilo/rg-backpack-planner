@@ -71,7 +71,7 @@
           if (!nodeId || !onIncrement) return;
           onIncrement(nodeId);
         }}
-        disabled={!nodeId}
+        disabled={!nodeId || level >= maxLevel}
         icon={ArrowUp}
         positive
       >
@@ -82,7 +82,7 @@
           if (!nodeId || !onDecrement) return;
           onDecrement(nodeId);
         }}
-        disabled={!nodeId}
+        disabled={!nodeId || level <= 0}
         icon={ArrowDown}
         negative
       >
@@ -95,7 +95,7 @@
           if (!nodeId || !onMax) return;
           onMax(nodeId);
         }}
-        disabled={!nodeId}
+        disabled={!nodeId || level >= maxLevel}
         icon={ChevronsUp}
         positive
       >
@@ -108,7 +108,7 @@
         }}
         toastMessage={nodeId && onReset ? `Reset ${nodeId}` : undefined}
         toastNegative
-        disabled={!nodeId}
+        disabled={!nodeId || level <= 0}
         icon={RotateCcw}
         negative
       >
