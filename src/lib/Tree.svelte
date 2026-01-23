@@ -373,11 +373,13 @@
   function maxNode(id: string) {
     const node = nodeById.get(id);
     if (!node) return;
-    if (getState(node, levels) === "locked") return;
     const level = getLevel(id);
     if (level >= node.maxLevel) return;
     updateLevels({ ...levels, [id]: node.maxLevel });
     onNodeLevelChange?.(node.maxLevel - level, id);
+
+    // Recursively level zero-leveled parent nodes
+    levelZeroParents(id);
   }
 
   export function resetAllNodes() {
