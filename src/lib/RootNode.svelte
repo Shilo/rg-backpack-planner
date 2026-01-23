@@ -27,7 +27,7 @@
     width: calc(32px * var(--node-radius, 1));
     height: calc(32px * var(--node-radius, 1));
     opacity: 1;
-    color: rgb(255, 179, 71);
+    color: #8a95b0;
     fill: currentColor;
   }
 </style>
