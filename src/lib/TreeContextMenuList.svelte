@@ -4,6 +4,7 @@
   import type { TreeViewState, TreeNode } from "./Tree.svelte";
   import type { LevelsById } from "./treeLevelsStore";
   import { techCrystalsSpentByTree } from "./techCrystalStore";
+  import { formatNumber } from "./mathUtil";
 
   export let onFocusInView: (() => void) | null = null;
   export let onReset: (() => void) | null = null;
@@ -36,11 +37,11 @@
   <div class="tree-stats">
     <div class="stat-row">
       <span class="stat-label">Tech Crystals:</span>
-      <span class="stat-value">{techCrystalsSpent}</span>
+      <span class="stat-value">{formatNumber(techCrystalsSpent)}</span>
     </div>
     <div class="stat-row">
       <span class="stat-label">Levels:</span>
-      <span class="stat-value">{currentLevel} / {maxLevel}</span>
+      <span class="stat-value">{formatNumber(currentLevel)} / {formatNumber(maxLevel)}</span>
     </div>
     <div class="level-progress">
       <div class="level-progress-bar" style={`width: ${maxLevel > 0 ? (currentLevel / maxLevel) * 100 : 0}%`}></div>

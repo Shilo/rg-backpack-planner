@@ -3,6 +3,7 @@
   import Button from "./Button.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
   import { techCrystalsAvailable, techCrystalsOwned } from "./techCrystalStore";
+  import { formatNumber } from "./mathUtil";
 
   $: hasOwned = $techCrystalsOwned > 0;
 
@@ -21,11 +22,11 @@
     class="currency-available"
     class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
   >
-    {`${$techCrystalsAvailable}`}
+    {formatNumber($techCrystalsAvailable)}
   </span>
   {#if hasOwned}
     <span class="currency-separator"> / </span>
-    <span class="currency-owned">{`${$techCrystalsOwned}`}</span>
+    <span class="currency-owned">{formatNumber($techCrystalsOwned)}</span>
   {/if}
   <Hexagon size={20} fill="currentColor" aria-hidden="true" />
 </Button>

@@ -11,6 +11,7 @@
   } from "lucide-svelte";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
+  import { formatNumber } from "./mathUtil";
 
   export let nodeId = "";
   export let x = 0;
@@ -54,7 +55,7 @@
       </div>
       <div class="stat-row">
         <span class="stat-label">Levels:</span>
-        <span class="stat-value">{level} / {maxLevel}</span>
+        <span class="stat-value">{formatNumber(level)} / {formatNumber(maxLevel)}</span>
       </div>
       <div class="level-progress">
         <div

@@ -5,11 +5,11 @@
 <script lang="ts">
   import { CheckCircle2, Crown, Lock, Plus } from "lucide-svelte";
   import Button from "./Button.svelte";
+  import { formatNumber } from "./mathUtil";
 
   export let id: string;
   export let label: string = "";
   export let level: number = 0;
-  export let maxLevel: number = 1;
   export let state: NodeState = "locked";
   export let radius: number = 1;
   export let scale: number = 1;
@@ -38,7 +38,7 @@
     <span
       class="node-level"
       style={`transform: translate(-50%, 50%) scale(${1 / scale});`}
-      >{level}</span
+      >{formatNumber(level)}</span
     >
   {/if}
 </Button>
