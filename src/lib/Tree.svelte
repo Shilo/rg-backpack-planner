@@ -209,7 +209,10 @@
 
   type NodeRegion = "top-left" | "bottom-left" | "right";
 
-  function getNodeRegion(node: TreeNode): NodeRegion {
+  // Cache for computed regions to avoid recomputation
+  let regionCache = new Map<string, NodeRegion>();
+
+  function getBaseRegionFromPosition(node: TreeNode): NodeRegion {
     // Root node doesn't have a region
     if (node.id === "root") return "right";
     
@@ -225,21 +228,71 @@
     return "bottom-left";
   }
 
-  function getLinkColor(from: TreeNode, to: TreeNode): string {
-    const fromRegion = getNodeRegion(from);
-    const toRegion = getNodeRegion(to);
-    
-    // If both nodes are in the same region, use that region's color
-    if (fromRegion === toRegion) {
-      if (fromRegion === "top-left") return "rgba(255, 140, 0, 0.6)"; // Orange
-      if (fromRegion === "bottom-left") return "rgba(255, 215, 0, 0.6)"; // Yellow
-      return "rgba(70, 130, 255, 0.6)"; // Blue
+  function getNodeRegion(node: TreeNode): NodeRegion {
+    // Check cache first
+    if (regionCache.has(node.id)) {
+      return regionCache.get(node.id)!;
     }
+
+    // Root node
+    if (node.id === "root") {
+      regionCache.set(node.id, "right");
+      return "right";
+    }
+
+    // If node is directly connected to root, determine region from position
+    const isRootConnected = !node.parentIds || 
+                            node.parentIds.length === 0 || 
+                            node.parentIds.includes("root");
     
-    // If connecting different regions, use the target region's color
-    if (toRegion === "top-left") return "rgba(255, 140, 0, 0.4)"; // Orange
-    if (toRegion === "bottom-left") return "rgba(255, 215, 0, 0.4)"; // Yellow
-    return "rgba(70, 130, 255, 0.4)"; // Blue
+    if (isRootConnected) {
+      const region = getBaseRegionFromPosition(node);
+      regionCache.set(node.id, region);
+      return region;
+    }
+
+    // Otherwise, inherit region from parent
+    // Find the first parent that exists and get its region
+    if (node.parentIds && node.parentIds.length > 0) {
+      for (const parentId of node.parentIds) {
+        if (parentId === "root") {
+          // Connected to root, determine from position
+          const region = getBaseRegionFromPosition(node);
+          regionCache.set(node.id, region);
+          return region;
+        }
+        const parent = nodeById.get(parentId);
+        if (parent) {
+          const parentRegion = getNodeRegion(parent);
+          regionCache.set(node.id, parentRegion);
+          return parentRegion;
+        }
+      }
+    }
+
+    // Fallback: determine from position
+    const region = getBaseRegionFromPosition(node);
+    regionCache.set(node.id, region);
+    return region;
+  }
+
+  // Clear cache when nodes change
+  $: {
+    regionCache.clear();
+    // Pre-compute all regions
+    for (const node of nodes) {
+      getNodeRegion(node);
+    }
+  }
+
+  function getLinkColor(from: TreeNode, to: TreeNode, isActive: boolean): string {
+    const toRegion = getNodeRegion(to);
+    const opacity = isActive ? 0.8 : 0.4;
+    
+    // Use the target node's region color for the link
+    if (toRegion === "top-left") return `rgba(255, 140, 0, ${opacity})`; // Orange
+    if (toRegion === "bottom-left") return `rgba(255, 215, 0, ${opacity})`; // Yellow
+    return `rgba(70, 130, 255, ${opacity})`; // Blue
   }
 
   function levelUp(id: string) {
@@ -756,13 +809,12 @@
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive = link.from === "root" || getLevelFrom(levels, link.from) > 0}
-              {@const linkColor = getLinkColor(from, to)}
+              {@const linkColor = getLinkColor(from, to, isActive)}
               <line
                 x1={from.x}
                 y1={from.y}
                 x2={to.x}
                 y2={to.y}
-                class:link-active={isActive}
                 style={`stroke: ${linkColor};`}
               />
             {/if}
@@ -877,15 +929,7 @@
 
   .tree-links line {
     stroke-width: 2;
-    transition: opacity 0.2s;
-  }
-
-  .tree-links line.link-active {
-    opacity: 1;
-  }
-
-  .tree-links line:not(.link-active) {
-    opacity: 0.3;
+    transition: stroke-opacity 0.2s;
   }
 
   .root-wrapper {
