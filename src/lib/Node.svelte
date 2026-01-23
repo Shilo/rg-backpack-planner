@@ -162,7 +162,7 @@
   :global(.button.node.node-hexagon::before) {
     content: "";
     position: absolute;
-    inset: -4px;
+    inset: -3px;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     z-index: -1;
     pointer-events: none;
@@ -172,7 +172,7 @@
   :global(.button.node.node-hexagon::after) {
     content: "";
     position: absolute;
-    inset: 4px;
+    inset: 3px;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     z-index: -1;
     pointer-events: none;
