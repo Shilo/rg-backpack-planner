@@ -194,7 +194,12 @@
   }
 
   function isNodeTarget(target: EventTarget | null) {
-    return target instanceof Element && !!target.closest("[data-node-id]");
+    if (!(target instanceof Element)) return false;
+    const nodeEl = target.closest("[data-node-id]");
+    if (!nodeEl) return false;
+    const nodeId = nodeEl.getAttribute("data-node-id");
+    // Root node should not be treated as a regular node - allow background press
+    return nodeId !== "root";
   }
 
   function startBackgroundPress(event: PointerEvent) {
@@ -402,6 +407,19 @@
           onNodeLevelChange={handleNodeLevelChange}
           onViewStateChange={handleViewStateChange}
           onFocusViewStateChange={handleFocusViewStateChange}
+          onOpenTreeContextMenu={(x, y) => {
+            const activeTab = tabs[activeIndex];
+            if (!activeTab) return;
+            tabContextMenu = {
+              id: activeTab.id,
+              label: activeTab.label,
+              x,
+              y,
+              index: activeIndex,
+              hideView0ptions: false,
+            };
+            treeRef?.cancelGestures?.();
+          }}
         />
       {/key}
     {/if}
@@ -413,6 +431,8 @@
     x={tabContextMenu?.x ?? 0}
     y={tabContextMenu?.y ?? 0}
     isOpen={!!tabContextMenu}
+    tabIndex={tabContextMenu?.index ?? -1}
+    nodes={tabContextMenu?.index !== undefined ? tabs[tabContextMenu.index]?.nodes ?? [] : []}
     levelsById={$treeLevels[tabContextMenu?.index ?? -1] ?? null}
     viewState={tabContextMenu?.index === activeIndex ? activeViewState : null}
     focusViewState={tabContextMenu?.index === activeIndex
