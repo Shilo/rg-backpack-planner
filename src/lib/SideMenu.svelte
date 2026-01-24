@@ -114,21 +114,23 @@
               {formatNumber($techCrystalsAvailable)}
             </span>
             <span class="tech-crystals-separator"> / </span>
-            <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
+            <span class="tech-crystals-owned"
+              >{formatNumber($techCrystalsOwned)}</span
+            >
           </Button>
           <ToggleSwitch
             checked={$singleLevelUp}
             label="Single Level-up"
             ariaLabel="Single level-up mode"
-            tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node maxes it out."
+            tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node maxes it out"
             icon={ArrowUp}
             onToggle={() => singleLevelUp.toggle()}
           />
           <ToggleSwitch
             checked={$closeUpView}
             label="Close-up View"
-            ariaLabel="Close-up view (200% zoom)"
-            tooltipText="Double the initial zoom scale."
+            ariaLabel="Close-up view (150% zoom)"
+            tooltipText="Increase the initial zoom scale by 1.5x"
             icon={ZoomIn}
             onToggle={() => closeUpView.toggle()}
           />

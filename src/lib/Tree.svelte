@@ -684,14 +684,17 @@
     const paddedCenterY = padding + availableH / 2;
     // Calculate scale needed to fit all nodes in viewport (old behavior, always 100% base)
     const fitScale = Math.min(availableW / width, availableH / height);
-    // If close-up view is enabled, double the scale; otherwise use the fit scale as-is
+    // If close-up view is enabled, multiply the scale by 1.5; otherwise use the fit scale as-is
     const nextScale = clamp(
-      $closeUpView ? fitScale * 2 : fitScale,
+      $closeUpView ? fitScale * 1.5 : fitScale,
       minScale,
       maxScale,
     );
-    const nextOffsetX = paddedCenterX - (minX + width / 2) * nextScale;
-    const nextOffsetY = paddedCenterY - (minY + height / 2) * nextScale;
+    // When close-up view is enabled, center on the root node; otherwise center on tree bounds
+    const centerX = $closeUpView && rootNode ? rootNode.x : (minX + width / 2);
+    const centerY = $closeUpView && rootNode ? rootNode.y : (minY + height / 2);
+    const nextOffsetX = paddedCenterX - centerX * nextScale;
+    const nextOffsetY = paddedCenterY - centerY * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
     return { offsetX: clamped.x, offsetY: clamped.y, scale: nextScale };
   }
