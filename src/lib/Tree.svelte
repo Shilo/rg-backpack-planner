@@ -658,6 +658,9 @@
 
   function computeFocusViewState(): TreeViewState | null {
     if (!viewportEl || nodes.length === 0) return null;
+    const rect = viewportEl.getBoundingClientRect();
+    // Ensure viewport has valid dimensions
+    if (rect.width <= 0 || rect.height <= 0) return null;
     // Since nodes are centered, we need to account for radius on all sides
     const nodeBounds = nodes.map((node) => {
       const radius = (node.radius ?? 1) * 32; // Half the node size
@@ -674,12 +677,9 @@
     const maxY = Math.max(...nodeBounds.map((b) => b.maxY));
     const width = maxX - minX;
     const height = maxY - minY;
-    const rect = viewportEl.getBoundingClientRect();
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
-    const paddedCenterX = padding + availableW / 2;
-    const paddedCenterY = padding + availableH / 2;
     // Calculate scale needed to fit all nodes in viewport (old behavior, always 100% base)
     const fitScale = Math.min(availableW / width, availableH / height);
     // If close-up view is enabled, double the scale; otherwise use the fit scale as-is
@@ -688,8 +688,13 @@
       minScale,
       maxScale,
     );
-    const nextOffsetX = paddedCenterX - (minX + width / 2) * nextScale;
-    const nextOffsetY = paddedCenterY - (minY + height / 2) * nextScale;
+    // Center the root node (at 0, 0) in the viewport
+    // Use the center of the usable area (accounting for bottomInset)
+    const viewportCenterX = rect.width / 2;
+    const usableHeight = Math.max(rect.height - bottomInset, 1);
+    const viewportCenterY = usableHeight / 2;
+    const nextOffsetX = viewportCenterX - 0 * nextScale;
+    const nextOffsetY = viewportCenterY - 0 * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
     return { offsetX: clamped.x, offsetY: clamped.y, scale: nextScale };
   }
@@ -807,7 +812,7 @@
       }
     };
     void initializeView();
-    
+
     const handleResize = () => {
       if (viewportEl) {
         const rect = viewportEl.getBoundingClientRect();
@@ -922,7 +927,6 @@
               id={node.id}
               label={node.label ?? ""}
               {level}
-              maxLevel={node.maxLevel}
               {state}
               radius={node.radius ?? 1}
               {scale}

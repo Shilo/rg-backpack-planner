@@ -24,7 +24,9 @@
   use:tooltip={tooltipText}
 >
   {#if icon}
-    <svelte:component this={icon} class={iconClass} aria-hidden="true" />
+    <span class="toggle-icon">
+      <svelte:component this={icon} class={iconClass} aria-hidden="true" />
+    </span>
   {/if}
   {#if label}
     <span class="toggle-row__label">{label}</span>
@@ -77,10 +79,18 @@
   }
 
   .toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 16px;
     height: 16px;
     flex-shrink: 0;
     color: currentColor;
+  }
+
+  .toggle-icon :global(svg) {
+    width: 100%;
+    height: 100%;
   }
 
   .toggle-row__label {
