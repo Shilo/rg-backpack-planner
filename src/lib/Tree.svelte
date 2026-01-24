@@ -82,7 +82,7 @@
     const height = maxY - minY + 64;
 
     const rect = viewportEl.getBoundingClientRect();
-    const padding = 24;
+    const padding = 10;
     const availableW = Math.max(rect.width - padding * 2, 1);
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
 
@@ -677,7 +677,7 @@
     const maxY = Math.max(...nodeBounds.map((b) => b.maxY));
     const width = maxX - minX;
     const height = maxY - minY;
-    const padding = 24;
+    const padding = 10;
     const availableW = Math.max(rect.width - padding * 2, 1);
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
     const paddedCenterX = padding + availableW / 2;
