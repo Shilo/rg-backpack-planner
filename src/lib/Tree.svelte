@@ -680,6 +680,8 @@
     const padding = 24;
     const availableW = Math.max(rect.width - padding * 2, 1);
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
+    const paddedCenterX = padding + availableW / 2;
+    const paddedCenterY = padding + availableH / 2;
     // Calculate scale needed to fit all nodes in viewport (old behavior, always 100% base)
     const fitScale = Math.min(availableW / width, availableH / height);
     // If close-up view is enabled, double the scale; otherwise use the fit scale as-is
@@ -688,13 +690,8 @@
       minScale,
       maxScale,
     );
-    // Center the root node (at 0, 0) in the viewport
-    // Use the center of the usable area (accounting for bottomInset)
-    const viewportCenterX = rect.width / 2;
-    const usableHeight = Math.max(rect.height - bottomInset, 1);
-    const viewportCenterY = usableHeight / 2;
-    const nextOffsetX = viewportCenterX - 0 * nextScale;
-    const nextOffsetY = viewportCenterY - 0 * nextScale;
+    const nextOffsetX = paddedCenterX - (minX + width / 2) * nextScale;
+    const nextOffsetY = paddedCenterY - (minY + height / 2) * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
     return { offsetX: clamped.x, offsetY: clamped.y, scale: nextScale };
   }
