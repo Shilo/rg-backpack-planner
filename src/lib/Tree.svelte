@@ -682,11 +682,12 @@
     const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
     const paddedCenterX = padding + availableW / 2;
     const paddedCenterY = padding + availableH / 2;
-    // Calculate scale needed to fit all nodes in viewport (old behavior, always 100% base)
+    // Calculate scale needed to fit all nodes in viewport
     const fitScale = Math.min(availableW / width, availableH / height);
-    // If close-up view is enabled, double the scale; otherwise use the fit scale as-is
+    // If close-up view is enabled, fill the viewport; otherwise fit the viewport
+    const fillScale = Math.max(availableW / width, availableH / height);
     const nextScale = clamp(
-      $closeUpView ? fitScale * 2 : fitScale,
+      $closeUpView ? fillScale : fitScale,
       minScale,
       maxScale,
     );
