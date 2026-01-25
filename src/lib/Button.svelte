@@ -125,7 +125,7 @@
   .button.with-icon {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
   .button:has(.button-text:empty) {
