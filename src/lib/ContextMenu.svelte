@@ -37,6 +37,13 @@
     if (target instanceof Node && menuEl?.contains(target)) return;
     // Don't close if clicking on the backdrop (it handles its own close)
     if (target instanceof Node && backdropEl?.contains(target)) return;
+    // Don't close if clicking on a nested context menu (ShareBuildButton's menu)
+    if (target instanceof Element) {
+      const nestedMenu = target.closest('.context-menu');
+      if (nestedMenu && nestedMenu !== menuEl) return;
+      const shareMenuPortal = target.closest('.share-menu-portal');
+      if (shareMenuPortal) return;
+    }
     // Don't close on pointerup if it's the same pointer that started a drag
     if (event.pointerId === pointerId) return;
     onClose?.();

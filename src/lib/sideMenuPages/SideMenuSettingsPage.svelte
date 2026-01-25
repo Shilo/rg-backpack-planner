@@ -8,13 +8,13 @@
     HexagonIcon,
     MagnifyingGlassPlusIcon,
     TrashSimpleIcon,
-    XCircleIcon,
   } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import SideMenuSection from "../SideMenuSection.svelte";
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
   import ResetTreeButton from "../buttons/ResetTreeButton.svelte";
   import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
+  import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
   import ToggleSwitch from "../ToggleSwitch.svelte";
   import { formatNumber } from "../mathUtil";
   import { openModal } from "../modalStore";
@@ -29,12 +29,7 @@
   import { closeUpView } from "../closeUpViewStore";
   import { singleLevelUp } from "../singleLevelUpStore";
   import { showToast } from "../toast";
-  import { isPreviewMode, setPreviewMode } from "../previewModeStore";
-  import {
-    loadTreeProgress,
-    initTreeProgressPersistence,
-  } from "../treeProgressStore";
-  import { get } from "svelte/store";
+  import { isPreviewMode } from "../previewModeStore";
   import type { TreeViewState } from "../Tree.svelte";
   import type { TabConfig } from "../Tabs.svelte";
 
@@ -127,32 +122,11 @@
     });
   }
 
-  function handleStopPreview() {
-    // Remove build parameter from URL and reload to switch to personal mode
-    // This ensures a clean state transition with proper initialization
-    if (typeof window !== "undefined") {
-      // Set a flag to show toast after reload
-      sessionStorage.setItem("rg-backpack-planner-stopped-preview", "true");
-      const url = new URL(window.location.href);
-      url.searchParams.delete("build");
-      window.history.replaceState({}, "", url.toString());
-      // Reload to re-initialize in personal mode
-      window.location.reload();
-    }
-  }
 </script>
 
 {#if $isPreviewMode}
-  <SideMenuSection title="Previewing...">
-    <ShareBuildButton title="Share preview build" tooltipSubject="preview" />
-    <Button
-      on:click={handleStopPreview}
-      tooltipText={"Exit preview mode and switch to personal build"}
-      icon={XCircleIcon}
-      negative
-    >
-      Stop Preview
-    </Button>
+  <SideMenuSection title="Preview">
+    <PreviewContextMenuList onButtonPress={onClose} />
   </SideMenuSection>
 {/if}
 

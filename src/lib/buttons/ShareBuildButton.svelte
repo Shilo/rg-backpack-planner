@@ -29,6 +29,13 @@
     // The context menu is portaled outside, so we need to ensure clicks don't propagate
   }
 
+  function handleShareMenuOpen() {
+    // When the share menu opens, we need to prevent the parent context menu
+    // from closing. The share menu is portaled outside, so clicks on it
+    // won't be contained within the parent menuEl.
+    // We'll handle this by checking if the share menu is open in the parent.
+  }
+
   async function handleShareImage() {
     closeShareMenu();
     const success = await saveBuildAsImage();
@@ -118,7 +125,7 @@
     width: 0;
     height: 0;
     pointer-events: none;
-    z-index: 100;
+    z-index: 101;
   }
 
   /* Allow pointer events when menu is open so backdrop can block interactions */

@@ -226,7 +226,7 @@
                         "rg-backpack-planner-stopped-preview",
                     );
                     // Show toast after a brief delay to ensure UI is ready
-                    showToastDelayed("Switched to personal build");
+                    showToastDelayed("Back to personal build");
                 }
 
                 // Load from localStorage
