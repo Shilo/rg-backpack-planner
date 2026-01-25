@@ -69,23 +69,17 @@
 
 <style>
   .side-bar-tab-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    width: 100%;
     height: var(--side-menu-tab-height);
   }
 
   .side-bar-tab-bar__tabs {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     display: flex;
     align-items: stretch;
     gap: 0;
     padding: 0;
-    margin-right: calc(var(--side-menu-tab-height) + 10px);
+    flex: 1;
+    min-width: 0;
     height: var(--side-menu-tab-height);
     pointer-events: none;
   }

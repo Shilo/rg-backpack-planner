@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { X } from "lucide-svelte";
   import SideBarTabBar from "./SideBarTabBar.svelte";
   import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
   import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
   import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
   import { triggerHaptic } from "./haptics";
+  import { tooltip } from "./tooltip";
   import type { TreeViewState } from "./Tree.svelte";
   import {
     getActiveTab,
@@ -86,7 +88,21 @@
       <div class="side-menu__scroll-fade" aria-hidden="true"></div>
     </nav>
   </div>
-  <SideBarTabBar bind:activeTab />
+  <div class="side-menu__tab-bar-wrapper">
+    <SideBarTabBar bind:activeTab />
+    <button
+      class="side-menu__close-button"
+      aria-label="Close menu"
+      use:tooltip={"Close menu"}
+      on:click={() => {
+        triggerHaptic();
+        onClose?.();
+      }}
+      type="button"
+    >
+      <svelte:component this={X} class="side-menu__close-button-icon" aria-hidden="true" />
+    </button>
+  </div>
 </aside>
 
 <style>
@@ -167,7 +183,56 @@
     position: relative;
     flex: 1;
     min-height: 0;
-    height: 100%;
+    overflow: hidden;
+  }
+
+  .side-menu__tab-bar-wrapper {
+    flex: 0 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    position: relative;
+  }
+
+  .side-menu__close-button {
+    flex: 0 0 auto;
+    width: var(--side-menu-tab-height);
+    height: var(--side-menu-tab-height);
+    border: 1px solid #2c3c61;
+    background: transparent;
+    color: #8fa4ce;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background 0.2s ease;
+    border-left: none;
+  }
+
+  .side-menu__close-button:focus-visible {
+    outline: 2px solid rgba(120, 156, 240, 0.9);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .side-menu__close-button:hover {
+      filter: brightness(1.18);
+    }
+  }
+
+  .side-menu__close-button:active {
+    transform: scale(0.97);
+    filter: brightness(1.2);
+  }
+
+  .side-menu__close-button-icon {
+    width: 20px;
+    height: 20px;
   }
 
   .side-menu__scroll-fade {

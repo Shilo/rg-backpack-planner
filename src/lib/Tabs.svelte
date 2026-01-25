@@ -550,17 +550,23 @@
       bottom 0.25s ease,
       border-radius 0.25s ease,
       background 0.25s ease,
-      color 0.25s ease;
+      color 0.25s ease,
+      opacity 0.15s ease,
+      pointer-events 0s ease 0.15s;
   }
 
   :global(.menu-button.as-tab) {
-    width: var(--side-menu-tab-height);
-    height: var(--side-menu-tab-height);
-    bottom: 0;
-    right: 10px;
-    border-radius: 0;
-    background: transparent !important;
-    color: #8fa4ce !important;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      width 0.25s ease,
+      height 0.25s ease,
+      bottom 0.25s ease,
+      border-radius 0.25s ease,
+      background 0.25s ease,
+      color 0.25s ease,
+      opacity 0.15s ease,
+      pointer-events 0s ease;
   }
 
   @media (hover: hover) {
