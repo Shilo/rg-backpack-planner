@@ -216,8 +216,8 @@
                 // Preview mode: Public build from URL
                 setPreviewMode(true);
 
-                // Load build from URL (don't clear URL - it stays in address bar)
-                const buildLoaded = applyBuildFromUrl(tabs);
+                // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
+                const buildLoaded = applyBuildFromUrl(tabs, buildData);
                 if (buildLoaded) {
                     // Recalculate tech crystals spent after loading from URL
                     const currentTrees = get(treeLevels);

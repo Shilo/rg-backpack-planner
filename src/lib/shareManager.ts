@@ -8,6 +8,9 @@ import { baseTree } from "../config/baseTree";
 // Base path from vite.config.ts - must match the base configuration
 const BASE_PATH = "/rg-backpack-planner/";
 
+// Flag to prevent URL updates during initial build application
+let isApplyingBuildFromUrl = false;
+
 export interface BuildData {
   trees: Record<string, number>[];
   owned: number;
@@ -150,8 +153,16 @@ export function encodeBuildData(buildData: BuildData): string {
   // Type assertion needed because TypeScript can't infer the union type correctly
   const arrayFormat = [...treeArrays, owned] as Array<number[] | number>;
   
+  // Log deserialized data before encoding
+  const jsonString = JSON.stringify(arrayFormat);
+  console.log("[encodeBuildData] Deserialized data before save:", {
+    arrayFormat,
+    originalBuildData: buildData,
+    jsonString,
+  });
+  
   // Encode to base64, then convert to base64url for URL safety
-  const base64 = btoa(JSON.stringify(arrayFormat));
+  const base64 = btoa(jsonString);
   return encodeBase64Url(base64);
 }
 
@@ -170,6 +181,10 @@ export function decodeBuildData(encoded: string): BuildData | null {
     // Convert base64url back to base64, then decode
     const base64 = decodeBase64Url(encoded);
     const decoded = atob(base64);
+    
+    // Log the decoded JSON string
+    console.log("[decodeBuildData] Decoded JSON string:", decoded);
+    
     const parsed = JSON.parse(decoded);
     
     // Must be array format: [tree1[], tree2[], tree3[], owned]
@@ -177,7 +192,15 @@ export function decodeBuildData(encoded: string): BuildData | null {
       return null;
     }
     
-    return convertArrayFormatToTrees(parsed);
+    // Log parsed array format
+    console.log("[decodeBuildData] Parsed array format after load:", parsed);
+    
+    const buildData = convertArrayFormatToTrees(parsed);
+    
+    // Log final deserialized data
+    console.log("[decodeBuildData] Deserialized data after load:", buildData);
+    
+    return buildData;
   } catch (error) {
     // Silently fail - this might not be build data
     return null;
@@ -250,19 +273,25 @@ export function loadBuildFromUrl(): BuildData | null {
  * Applies build data from URL to the stores
  * Expands compressed tree data using tree definitions
  * @param trees Optional array of tree node definitions to expand against
+ * @param buildData Optional pre-loaded build data to avoid duplicate loading
  * @returns true if build was successfully applied, false otherwise
  */
 export function applyBuildFromUrl(
   trees?: { nodes: TreeNode[] }[],
+  buildData?: BuildData | null,
 ): boolean {
-  const buildData = loadBuildFromUrl();
-  if (!buildData) return false;
+  // Use provided buildData if available, otherwise load from URL
+  const data = buildData ?? loadBuildFromUrl();
+  if (!data) return false;
+  
+  // Set flag to prevent URL updates during build application
+  isApplyingBuildFromUrl = true;
   
   try {
     // Expand compressed tree data if trees are provided
-    let expandedTrees = buildData.trees;
-    if (trees && buildData.trees.length === trees.length) {
-      expandedTrees = expandTreeProgress(buildData.trees, trees);
+    let expandedTrees = data.trees;
+    if (trees && data.trees.length === trees.length) {
+      expandedTrees = expandTreeProgress(data.trees, trees);
     }
     
     // Apply tree levels
@@ -278,12 +307,17 @@ export function applyBuildFromUrl(
     }
     
     // Apply tech crystals owned
-    setTechCrystalsOwned(buildData.owned);
+    setTechCrystalsOwned(data.owned);
     
     return true;
   } catch (error) {
     console.error("Failed to apply build from URL:", error);
     return false;
+  } finally {
+    // Reset flag after a brief delay to allow store updates to settle
+    setTimeout(() => {
+      isApplyingBuildFromUrl = false;
+    }, 100);
   }
 }
 
@@ -295,6 +329,11 @@ export function applyBuildFromUrl(
  */
 export function updateUrlWithCurrentBuild(): void {
   if (typeof window === "undefined") return;
+  
+  // Skip URL updates during initial build application
+  if (isApplyingBuildFromUrl) {
+    return;
+  }
   
   try {
     const buildData: BuildData = {
@@ -309,15 +348,22 @@ export function updateUrlWithCurrentBuild(): void {
     const currentPath = window.location.pathname;
     const pathSegments = currentPath.split("/").filter(Boolean);
     
-    // Remove the last segment if it's valid build data
+    // Check if the current URL already has the same encoded data
     if (pathSegments.length > 0) {
       const lastSegment = pathSegments[pathSegments.length - 1];
-      // Only remove if it successfully decodes as build data
+      if (lastSegment === encoded) {
+        // URL already matches current build data - no update needed
+        return;
+      }
+    }
+    
+    // Remove the last segment if it looks like build data
+    // We can skip the decode check since we're about to replace it anyway
+    if (pathSegments.length > 0) {
+      const lastSegment = pathSegments[pathSegments.length - 1];
+      // If it matches the pattern for build data, remove it
       if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 8) {
-        const testDecoded = decodeBuildData(lastSegment);
-        if (testDecoded) {
-          pathSegments.pop();
-        }
+        pathSegments.pop();
       }
     }
     
@@ -329,6 +375,11 @@ export function updateUrlWithCurrentBuild(): void {
     // Avoid double slashes
     const separator = basePath === "/" ? "" : "/";
     const newPath = `${basePath}${separator}${encoded}`;
+    
+    // Only update URL if it's different from current pathname
+    if (newPath === currentPath) {
+      return; // No change needed
+    }
     
     // Validate the path is safe before updating
     try {
