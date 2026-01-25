@@ -20,7 +20,7 @@
   import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
-  import RootNode from "./RootNode.svelte";
+  import RootNode, { getRootNode } from "./RootNode.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
     LONG_PRESS_MOVE_THRESHOLD,
@@ -156,8 +156,9 @@
   let nodeById = new Map<string, TreeNode>();
   $: nodeById = new Map(nodes.map((node) => [node.id, node]));
 
-  $: rootNode = nodes.find((node) => node.id === "root");
-  $: regularNodes = nodes.filter((node) => node.id !== "root");
+  // Root node is always at (0, 0) and never customizable
+  const rootNode = getRootNode();
+  $: regularNodes = nodes;
 
   const links = () => {
     const regularLinks = regularNodes.flatMap((node) =>
@@ -881,13 +882,10 @@
           {/each}
         </svg>
 
-        {#if rootNode}
-          {@const rootRadius = rootNode.radius ?? 1}
-          {@const rootSize = 64 * rootRadius}
-          <div
-            class="root-wrapper"
-            data-node-id="root"
-            style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${rootSize}px; height: ${rootSize}px; --node-radius: ${rootRadius};`}
+        <div
+          class="root-wrapper"
+          data-node-id="root"
+          style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${64 * (rootNode.radius ?? 1)}px; height: ${64 * (rootNode.radius ?? 1)}px; --node-radius: ${rootNode.radius ?? 1};`}
             on:keydown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -908,7 +906,6 @@
           >
             <RootNode />
           </div>
-        {/if}
 
         {#each regularNodes as node}
           {@const level = getLevelFrom(levels, node.id)}

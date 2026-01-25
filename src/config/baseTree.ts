@@ -1,8 +1,8 @@
 // Reworked base tree to match the screenshot layout.
 // Positions are offset so root is at (0, 0) and serves as the center of the grid.
 // Radius values are 0-1 scale where 1.0 is the maximum size (65px equivalent).
+// Note: Root node is always rendered at (0, 0) by Tree.svelte and is not included here.
 export const baseTree = [
-    { id: "root", x: 0, y: 0, maxLevel: 10, label: "Root", radius: 60 / 65 },
     { id: "attack", x: 0, y: 73, maxLevel: 100, label: "Attack", radius: 60 / 65 },
     { id: "defense", x: -73, y: -45, maxLevel: 100, label: "Defense", radius: 60 / 65 },
     { id: "hp", x: 68, y: -45, maxLevel: 100, label: "HP", radius: 60 / 65 },

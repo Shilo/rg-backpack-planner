@@ -1,3 +1,22 @@
+<script lang="ts" context="module">
+  import type { TreeNode } from "./Tree.svelte";
+
+  /**
+   * Returns the root node configuration
+   * Root node is always at (0, 0) and never customizable
+   */
+  export function getRootNode(): TreeNode {
+    return {
+      id: "root",
+      x: 0,
+      y: 0,
+      maxLevel: 0,
+      label: "Root",
+      radius: 60 / 65,
+    };
+  }
+</script>
+
 <script lang="ts">
   import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
