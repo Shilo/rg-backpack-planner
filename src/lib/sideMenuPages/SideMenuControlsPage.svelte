@@ -4,7 +4,6 @@
   import {
     Clock,
     Download,
-    Gamepad2,
     Github,
     Hand,
     Hexagon,
@@ -14,7 +13,6 @@
     Move,
     RotateCcw,
     Share2,
-    User,
     ZoomIn,
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
@@ -194,26 +192,6 @@
         );
       }}
     />
-    {#if ownerUrl && ownerName}
-      <Button
-        icon={User}
-        aria-label={`Visit ${ownerName} on GitHub`}
-        tooltipText={`Visit ${ownerName} on GitHub`}
-        on:click={() => {
-          window.open(ownerUrl, "_blank", "noopener,noreferrer");
-        }}
-      />
-    {/if}
-    {#if gameUrl && gameName}
-      <Button
-        icon={Gamepad2}
-        aria-label={`Visit ${gameName} game`}
-        tooltipText={`Visit ${gameName} game`}
-        on:click={() => {
-          window.open(gameUrl, "_blank", "noopener,noreferrer");
-        }}
-      />
-    {/if}
   </div>
   <div class="controls-sections">
     <SideMenuSection title={modalTitleWithVersion}>
@@ -323,7 +301,7 @@
   .controls-page {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0px;
   }
 
   .controls-sections {
