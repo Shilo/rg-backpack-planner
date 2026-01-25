@@ -23,24 +23,11 @@
   export let activeTreeIndex = 0;
   export let activeTreeViewState: TreeViewState | null = null;
   export let activeTreeFocusViewState: TreeViewState | null = null;
-  let backdropEl: HTMLButtonElement | null = null;
-  let menuEl: HTMLElement | null = null;
   let activeTab: SideMenuTab = getActiveTab();
 
   export function openTab(tab: SideMenuTab) {
     activeTab = tab;
     setActiveTab(tab);
-  }
-
-  $: if (!isOpen) {
-    const active = document.activeElement;
-    if (
-      active instanceof HTMLElement &&
-      ((backdropEl && backdropEl.contains(active)) ||
-        (menuEl && menuEl.contains(active)))
-    ) {
-      active.blur();
-    }
   }
 
   function handleBackdropClick() {
@@ -52,7 +39,6 @@
 <button
   class={`menu-backdrop${isOpen ? " visible" : ""}${skipTransition ? " skip-transition" : ""}`}
   aria-label="Close menu"
-  bind:this={backdropEl}
   tabindex={isOpen ? 0 : -1}
   inert={!isOpen}
   on:click={handleBackdropClick}
@@ -62,7 +48,6 @@
   class="side-menu"
   class:open={isOpen}
   class:skip-transition={skipTransition}
-  bind:this={menuEl}
   inert={!isOpen}
 >
   <div class="side-menu__scroll-area">
@@ -100,7 +85,11 @@
       }}
       type="button"
     >
-      <svelte:component this={X} class="side-menu__close-button-icon" aria-hidden="true" />
+      <svelte:component
+        this={X}
+        class="side-menu__close-button-icon"
+        aria-hidden="true"
+      />
     </button>
   </div>
 </aside>

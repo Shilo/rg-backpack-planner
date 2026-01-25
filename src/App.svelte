@@ -192,7 +192,6 @@
             {tabs}
             onMenuClick={toggleMenu}
             onNodeLevelChange={handleNodeLevelChange}
-            {isMenuOpen}
         />
     </main>
     <Toasts />

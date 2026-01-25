@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-  import { Menu, X } from "lucide-svelte";
+  import { Menu } from "lucide-svelte";
   import { onMount, tick } from "svelte";
   import { get } from "svelte/store";
   import Button from "./Button.svelte";
@@ -35,7 +35,6 @@
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
-  export let isMenuOpen = false;
   export let activeLabel = "";
   export let activeIndex = 0;
   export let activeViewState: TreeViewState | null = null;
@@ -393,11 +392,11 @@
     </div>
   </div>
   <Button
-    class="menu-button {isMenuOpen ? 'as-tab' : ''}"
-    aria-label={isMenuOpen ? "Close menu" : "Menu"}
-    tooltipText={isMenuOpen ? "Close menu" : "Open menu"}
+    class="menu-button"
+    aria-label="Menu"
+    tooltipText="Open menu"
     on:click={() => onMenuClick?.()}
-    icon={isMenuOpen ? X : Menu}
+    icon={Menu}
     iconClass="menu-button-icon"
   ></Button>
 
@@ -543,41 +542,7 @@
     position: fixed;
     right: var(--bar-pad);
     bottom: var(--bar-pad);
-    z-index: 12;
-    transition:
-      width 0.25s ease,
-      height 0.25s ease,
-      bottom 0.25s ease,
-      border-radius 0.25s ease,
-      background 0.25s ease,
-      color 0.25s ease,
-      opacity 0.15s ease,
-      pointer-events 0s ease 0.15s;
-  }
-
-  :global(.menu-button.as-tab) {
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      width 0.25s ease,
-      height 0.25s ease,
-      bottom 0.25s ease,
-      border-radius 0.25s ease,
-      background 0.25s ease,
-      color 0.25s ease,
-      opacity 0.15s ease,
-      pointer-events 0s ease;
-  }
-
-  @media (hover: hover) {
-    :global(.menu-button.as-tab:not(:disabled):hover) {
-      filter: brightness(1.18) !important;
-    }
-  }
-
-  :global(.menu-button.as-tab:not(:disabled):active) {
-    transform: scale(0.97) !important;
-    filter: brightness(1.2) !important;
+    z-index: 8;
   }
 
   :global(.menu-button-icon) {
