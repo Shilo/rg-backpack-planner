@@ -209,6 +209,28 @@ function decodeBase64Url(base64url: string): string {
 }
 
 /**
+ * Encodes a number to base-36 string (0-9, a-z)
+ * More compact than decimal for values > 9
+ * @param num Number to encode
+ * @returns Base-36 encoded string (lowercase)
+ */
+function encodeBase36(num: number): string {
+  if (num === 0) {
+    return "0";
+  }
+  return num.toString(36);
+}
+
+/**
+ * Decodes a base-36 string back to a number
+ * @param str Base-36 encoded string (0-9, a-z)
+ * @returns Decoded number
+ */
+function decodeBase36(str: string): number {
+  return parseInt(str, 36);
+}
+
+/**
  * Serializes branch-grouped array format to custom compact string
  * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
  * Trailing empty branches and trailing empty trees are omitted
@@ -226,7 +248,7 @@ function serializeArrayFormat(
     // branches is [yellow[], orange[], blue[]]
     const branchStrings: string[] = branches.map((branch) => {
       // Serialize branch as comma-separated values, empty string for zero
-      return branch.map((val) => (val === 0 ? "" : val.toString())).join(",");
+      return branch.map((val) => (val === 0 ? "" : encodeBase36(val))).join(",");
     });
 
     // Omit trailing empty branches
@@ -263,7 +285,7 @@ function serializeArrayFormat(
       // Use special marker for completely empty build
       return EMPTY_BUILD_MARKER;
     }
-    return owned.toString();
+    return encodeBase36(owned);
   }
 
   // Get non-empty trees
@@ -273,7 +295,7 @@ function serializeArrayFormat(
   if (owned === 0) {
     return nonEmptyTreeStrings.join(";");
   }
-  return [...nonEmptyTreeStrings, owned.toString()].join(";");
+  return [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
 }
 
 /**
@@ -283,85 +305,78 @@ function serializeArrayFormat(
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * Pads missing trees and branches, defaults owned to 0
  */
-function parseArrayFormat(serialized: string): [number[][][], number] | null {
-  try {
-    // Handle special marker for empty build
-    if (serialized === EMPTY_BUILD_MARKER) {
-      // Return 3 trees, each with 3 empty branches
-      return [[[[], [], []], [[], [], []], [[], [], []]], 0];
-    }
+function parseArrayFormat(serialized: string): [number[][][], number] {
+  // Handle special marker for empty build
+  if (serialized === EMPTY_BUILD_MARKER) {
+    // Return 3 trees, each with 3 empty branches
+    return [[[[], [], []], [[], [], []], [[], [], []]], 0];
+  }
 
-    const segments = serialized.split(";");
-    let owned = 0;
-    let treeSegments: string[];
+  const segments = serialized.split(";");
+  let owned = 0;
+  let treeSegments: string[];
 
-    // Strict positional order: trees first, then owned at the end
-    // Check if last segment could be owned (single number, no `:` or `,` separators)
-    if (segments.length > 1) {
-      const lastSegment = segments[segments.length - 1];
-      // owned must be a single number with no branch or node separators
-      if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment !== "") {
-        const lastAsNumber = parseInt(lastSegment, 10);
-        if (!isNaN(lastAsNumber)) {
-          // Last segment is owned, all previous segments are trees
-          owned = lastAsNumber;
-          treeSegments = segments.slice(0, -1);
-        } else {
-          // Not a valid number, treat as tree segment
-          treeSegments = segments;
-        }
-      } else {
-        // Last segment has separators or is empty, all segments are trees
-        treeSegments = segments;
+  // Strict positional order: trees first, then owned at the end
+  // If there are multiple segments and the last one has no separators, it must be owned
+  if (segments.length > 1) {
+    const lastSegment = segments[segments.length - 1];
+    // owned must be a single base36 number with no branch or node separators
+    if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment !== "") {
+      // Last segment is owned, all previous segments are trees
+      owned = decodeBase36(lastSegment);
+      if (isNaN(owned)) {
+        throw new Error(`Invalid owned value: ${lastSegment}`);
       }
+      treeSegments = segments.slice(0, -1);
     } else {
-      // Only one segment - must be a tree segment (owned is always after trees)
+      // Last segment has separators or is empty, all segments are trees
       treeSegments = segments;
     }
+  } else {
+    // Only one segment - must be a tree segment (owned is always after trees)
+    treeSegments = segments;
+  }
 
-    // Pad missing trailing trees to 3 (fill in trailing trees)
-    while (treeSegments.length < 3) {
-      treeSegments.push("");
+  // Pad missing trailing trees to 3 (fill in trailing trees)
+  while (treeSegments.length < 3) {
+    treeSegments.push("");
+  }
+
+  // Parse tree segments into branch arrays
+  const treeBranchArrays: number[][][] = treeSegments.map((segment) => {
+    // If empty string, all 3 branches are empty
+    if (segment === "") {
+      return [[], [], []];
     }
 
-    // Parse tree segments into branch arrays
-    const treeBranchArrays: number[][][] = treeSegments.map((segment) => {
-      // If empty string, all 3 branches are empty
-      if (segment === "") {
-        return [[], [], []];
+    // Split by `:` to get branch segments (strict order: yellow:orange:blue)
+    const branchSegments = segment.split(":");
+
+    // Pad missing trailing branches to 3 (fill in trailing branches)
+    while (branchSegments.length < 3) {
+      branchSegments.push("");
+    }
+
+    // Parse each branch segment
+    const branches: number[][] = branchSegments.slice(0, 3).map((branchSegment) => {
+      if (branchSegment === "") {
+        return []; // Empty branch
       }
-
-      // Split by `:` to get branch segments (strict order: yellow:orange:blue)
-      const branchSegments = segment.split(":");
-
-      // Pad missing trailing branches to 3 (fill in trailing branches)
-      while (branchSegments.length < 3) {
-        branchSegments.push("");
-      }
-
-      // Parse each branch segment
-      const branches: number[][] = branchSegments.slice(0, 3).map((branchSegment) => {
-        if (branchSegment === "") {
-          return []; // Empty branch
+      // Parse comma-separated values
+      return branchSegment.split(",").map((val) => {
+        if (val === "") return 0; // Empty string between commas represents 0
+        const num = decodeBase36(val);
+        if (isNaN(num)) {
+          throw new Error(`Invalid number value: ${val}`);
         }
-        // Parse comma-separated values
-        return branchSegment.split(",").map((val) => {
-          if (val === "") return 0; // Empty string between commas represents 0
-          const num = parseInt(val, 10);
-          if (isNaN(num)) {
-            throw new Error(`Invalid number value: ${val}`);
-          }
-          return num;
-        });
+        return num;
       });
-
-      return branches;
     });
 
-    return [treeBranchArrays, owned];
-  } catch {
-    return null;
-  }
+    return branches;
+  });
+
+  return [treeBranchArrays, owned];
 }
 
 /**
@@ -545,41 +560,55 @@ export function encodeBuildData(buildData: BuildData): string {
  * Returns compressed data (expansion happens in applyBuildFromUrl)
  */
 export function decodeBuildData(encoded: string): BuildData | null {
-  try {
-    // Validate that the string looks like valid base64url
-    if (!BASE64URL_PATTERN.test(encoded)) {
-      return null;
-    }
+  // Validate that the string looks like valid base64url
+  if (!BASE64URL_PATTERN.test(encoded)) {
+    console.warn("[decodeBuildData] Invalid base64url format:", encoded);
+    return null;
+  }
 
+  try {
     // Convert base64url back to base64, then decode
     const base64 = decodeBase64Url(encoded);
-    const decoded = atob(base64);
+    let decoded: string;
+    try {
+      decoded = atob(base64);
+    } catch (error) {
+      console.warn("[decodeBuildData] Failed to decode base64 string:", error instanceof Error ? error.message : String(error));
+      return null;
+    }
 
     console.warn("[decodeBuildData] Decoded string:", decoded);
 
     // Use custom parser instead of JSON.parse
-    const parsed = parseArrayFormat(decoded);
-    if (!parsed) {
+    let treeArrays: number[][][];
+    let owned: number;
+    try {
+      [treeArrays, owned] = parseArrayFormat(decoded);
+    } catch (error) {
+      console.warn("[decodeBuildData] Failed to parse array format:", error instanceof Error ? error.message : String(error));
       return null;
     }
-
-    const [treeArrays, owned] = parsed;
 
     // Convert to BuildData format (reconstruct array format for convertArrayFormatToTrees)
     const arrayFormat = [...treeArrays, owned];
 
     console.warn("[decodeBuildData] Parsed array format after load:", arrayFormat);
 
-    const buildData = convertArrayFormatToTrees(arrayFormat);
+    let buildData: BuildData;
+    try {
+      buildData = convertArrayFormatToTrees(arrayFormat);
+    } catch (error) {
+      console.warn("[decodeBuildData] Failed to convert array format to trees:", error instanceof Error ? error.message : String(error));
+      return null;
+    }
 
     console.warn("[decodeBuildData] Deserialized data after load:", buildData);
-    console.warn("[decodeBuildData] Returning buildData:", buildData !== null ? "SUCCESS" : "NULL");
+    console.warn("[decodeBuildData] Returning buildData: SUCCESS");
 
     return buildData;
   } catch (error) {
-    // Log error for debugging
-    console.error("[decodeBuildData] Error during decoding:", error);
-    // Silently fail - this might not be build data
+    // Catch any unexpected errors
+    console.warn("[decodeBuildData] Unexpected error during decoding:", error instanceof Error ? error.message : String(error));
     return null;
   }
 }
