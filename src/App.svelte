@@ -31,7 +31,7 @@
         recalculateTechCrystalsSpent,
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
-    import { applyBuildFromUrl } from "./lib/shareManager";
+    import { applyBuildFromUrl, loadBuildFromUrl } from "./lib/shareManager";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
@@ -179,9 +179,38 @@
             // Wait for trees to be initialized
             await tick();
 
-            // Check if there's a build in the URL first
-            const urlParams = new URLSearchParams(window.location.search);
-            const hasUrlBuild = urlParams.has("build");
+            // Check if there's a build in the URL (path-based: /{encoded})
+            // Only enter preview mode if we can actually decode valid build data
+            const buildData = loadBuildFromUrl();
+            const hasUrlBuild = buildData !== null;
+
+            // If URL has invalid build data, clean it up
+            if (!hasUrlBuild && typeof window !== "undefined") {
+                const pathname = window.location.pathname;
+                const pathSegments = pathname.split("/").filter(Boolean);
+                if (pathSegments.length > 0) {
+                    const lastSegment = pathSegments[pathSegments.length - 1];
+                    // Check if it looks like build data but failed to decode
+                    if (
+                        /^[A-Za-z0-9_-]+$/.test(lastSegment) &&
+                        lastSegment.length >= 8
+                    ) {
+                        // Invalid build data detected - remove it from URL
+                        pathSegments.pop();
+                        // Ensure we preserve at least the base path from vite.config.ts
+                        // If all segments were removed, restore the base path
+                        const basePath =
+                            pathSegments.length > 0
+                                ? `/${pathSegments.join("/")}/`
+                                : "/rg-backpack-planner/";
+                        window.history.replaceState({}, "", basePath);
+                        // Show toast to inform user
+                        showToastDelayed("Invalid share link", {
+                            tone: "negative",
+                        });
+                    }
+                }
+            }
 
             if (hasUrlBuild) {
                 // Preview mode: Public build from URL
