@@ -17,6 +17,7 @@
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
+  import SideMenuSection from "../SideMenuSection.svelte";
   import InstallPwaButton, {
     ensureInstallListeners,
     subscribeInstallState,
@@ -27,7 +28,7 @@
   const appVersion = packageInfo.version ?? "";
   const modalTitleWithVersion = appVersion
     ? `${appName} v${appVersion}`
-    : appName ?? "";
+    : (appName ?? "");
   const appIconUrl = `${import.meta.env.BASE_URL}icon.svg`;
   const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
     | string
@@ -51,17 +52,83 @@
   };
 
   const controls: ControlItem[] = [
-    { id: "pointer-node", label: "Click a node", description: "Add a node level and spend Tech Crystals", icon: MousePointer2, device: "pointer" },
-    { id: "pointer-node-menu", label: "Right-click a node", description: "Show node options", icon: MousePointer2, device: "pointer" },
-    { id: "pointer-tree-menu", label: "Right-click empty space or tab", description: "Show tree options", icon: MousePointer2, device: "pointer" },
-    { id: "pointer-pan", label: "Click and drag", description: "Pan around tree", icon: Move, device: "pointer" },
-    { id: "pointer-zoom", label: "Scroll wheel or trackpad", description: "Zoom in and out on tree", icon: Mouse, device: "pointer" },
-    { id: "touch-node", label: "Tap a node", description: "Add a node level and spend Tech Crystals", icon: Hand, device: "touch" },
-    { id: "touch-node-menu", label: "long press a node", description: "Show node options", icon: Clock, device: "touch" },
-    { id: "touch-tree-menu", label: "long press empty space or tab", description: "Show tree options", icon: Clock, device: "touch" },
-    { id: "touch-pan", label: "Drag with one finger", description: "Pan around tree", icon: Move, device: "touch" },
-    { id: "touch-zoom", label: "Pinch with two fingers", description: "Zoom in and out on tree", icon: ZoomIn, device: "touch" },
-    { id: "touch-menu-swipe", label: "Swipe right on side menu", description: "Close side menu", icon: Hand, device: "touch" },
+    {
+      id: "pointer-node",
+      label: "Click a node",
+      description: "Add a node level and spend Tech Crystals",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
+      id: "pointer-node-menu",
+      label: "Right-click a node",
+      description: "Show node options",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
+      id: "pointer-tree-menu",
+      label: "Right-click empty space or tab",
+      description: "Show tree options",
+      icon: MousePointer2,
+      device: "pointer",
+    },
+    {
+      id: "pointer-pan",
+      label: "Click and drag",
+      description: "Pan around tree",
+      icon: Move,
+      device: "pointer",
+    },
+    {
+      id: "pointer-zoom",
+      label: "Scroll wheel or trackpad",
+      description: "Zoom in and out on tree",
+      icon: Mouse,
+      device: "pointer",
+    },
+    {
+      id: "touch-node",
+      label: "Tap a node",
+      description: "Add a node level and spend Tech Crystals",
+      icon: Hand,
+      device: "touch",
+    },
+    {
+      id: "touch-node-menu",
+      label: "long press a node",
+      description: "Show node options",
+      icon: Clock,
+      device: "touch",
+    },
+    {
+      id: "touch-tree-menu",
+      label: "long press empty space or tab",
+      description: "Show tree options",
+      icon: Clock,
+      device: "touch",
+    },
+    {
+      id: "touch-pan",
+      label: "Drag with one finger",
+      description: "Pan around tree",
+      icon: Move,
+      device: "touch",
+    },
+    {
+      id: "touch-zoom",
+      label: "Pinch with two fingers",
+      description: "Zoom in and out on tree",
+      icon: ZoomIn,
+      device: "touch",
+    },
+    {
+      id: "touch-menu-swipe",
+      label: "Swipe right on side menu",
+      description: "Close side menu",
+      icon: Hand,
+      device: "touch",
+    },
   ];
 
   let showPointer = true;
@@ -106,21 +173,25 @@
 </script>
 
 <div class="controls-page">
-  <header class="controls-header">
-    <h2 class="controls-title">{modalTitleWithVersion}</h2>
-  </header>
-  <div class="controls-intro">
-    {#if appDescription}
-      <p class="controls-description">{appDescription}</p>
-    {/if}
-    <p class="controls-message">{@html helpMessage}</p>
-  </div>
-  <div class="controls-brand">
-    <img src={appIconUrl} alt={`${appName || "App"} icon`} class="controls-brand__icon" />
-  </div>
   <div class="controls-sections">
-    <section class="help-section">
-      <h3>On-screen HUD</h3>
+    <SideMenuSection title={modalTitleWithVersion}>
+      <div class="help-shortcut">
+        <span class="control-icon" aria-hidden="true">
+          <img
+            src={appIconUrl}
+            alt={`${appName || "App"} icon`}
+            class="controls-brand__icon"
+          />
+        </span>
+        <div class="control-text">
+          {#if appDescription}
+            <p class="control-label">{appDescription}</p>
+          {/if}
+          <p class="control-desc">{@html helpMessage}</p>
+        </div>
+      </div>
+    </SideMenuSection>
+    <SideMenuSection title="On-screen HUD">
       <ul class="control-list">
         <div class="help-shortcut">
           <span class="control-icon" aria-hidden="true">
@@ -139,9 +210,8 @@
           </div>
         </div>
       </ul>
-    </section>
-    <section class="help-section">
-      <h3>Side menu</h3>
+    </SideMenuSection>
+    <SideMenuSection title="Side menu">
       <ul class="control-list">
         <div class="help-shortcut">
           <span class="control-icon" aria-hidden="true"><Menu /></span>
@@ -167,10 +237,9 @@
           </div>
         </div>
       </ul>
-    </section>
+    </SideMenuSection>
     {#if showTouch}
-      <section class="help-section">
-        <h3>Touch controls</h3>
+      <SideMenuSection title="Touch controls">
         <ul class="control-list">
           {#each touchControls as control (control.id)}
             <li class="control-item">
@@ -184,11 +253,10 @@
             </li>
           {/each}
         </ul>
-      </section>
+      </SideMenuSection>
     {/if}
     {#if showPointer}
-      <section class="help-section">
-        <h3>Mouse controls</h3>
+      <SideMenuSection title="Mouse controls">
         <ul class="control-list">
           {#each pointerControls as control (control.id)}
             <li class="control-item">
@@ -202,7 +270,7 @@
             </li>
           {/each}
         </ul>
-      </section>
+      </SideMenuSection>
     {/if}
   </div>
   <div class="controls-actions">
@@ -212,7 +280,11 @@
       aria-label="GitHub"
       tooltipText="View source on GitHub"
       on:click={() => {
-        window.open(appGithubUrl ?? "https://github.com/shilo", "_blank", "noopener,noreferrer");
+        window.open(
+          appGithubUrl ?? "https://github.com/shilo",
+          "_blank",
+          "noopener,noreferrer",
+        );
       }}
     />
   </div>
@@ -225,68 +297,15 @@
     gap: 10px;
   }
 
-  .controls-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .controls-title {
-    margin: 0;
-    font-size: 1.05rem;
-    color: #f1f5ff;
-    line-height: 1;
-  }
-
-  .controls-intro {
-    display: grid;
-    gap: 0;
-    text-align: center;
-  }
-
-  .controls-description {
-    margin: 0;
-    font-size: 0.92rem;
-    color: #c8d6f7;
-    line-height: 1.4;
-  }
-
-  .controls-message {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #c8d6f7;
-    line-height: 1.4;
-  }
-
-  .controls-message :global(a) {
-    color: #a7b7e6;
-  }
-
-  .controls-brand {
-    display: flex;
-    justify-content: center;
-  }
-
   .controls-brand__icon {
-    width: 32px;
-    height: 32px;
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   .controls-sections {
     display: grid;
     gap: 10px;
-  }
-
-  .help-section h3 {
-    margin: 0 0 6px;
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #b9c7ec;
-  }
-
-  .help-section + .help-section {
-    margin-top: 2px;
   }
 
   .control-list {
@@ -333,6 +352,10 @@
     font-size: 0.85rem;
     color: #b9c7ec;
     line-height: 1.35;
+  }
+
+  .control-desc :global(a) {
+    color: #a7b7e6;
   }
 
   .controls-actions {
