@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { ComponentType } from "svelte";
+  import type { Component } from "svelte";
   import { createEventDispatcher } from "svelte";
   import { showToast } from "./toast";
   import { tooltip } from "./tooltip";
   import { triggerHaptic } from "./haptics";
 
-  export let icon: ComponentType | null = null;
+  export let icon: Component | null = null;
   export let iconClass = "button-icon";
   export let iconAriaHidden = true;
   export let iconSize: number | string | undefined = 26;
