@@ -14,6 +14,8 @@
     type SideMenuTab,
   } from "./sideMenuActiveTabStore";
 
+  import type { TabConfig } from "./Tabs.svelte";
+
   export let isOpen = false;
   export let skipTransition = false;
   export let onClose: (() => void) | null = null;
@@ -24,6 +26,7 @@
   export let activeTreeIndex = 0;
   export let activeTreeViewState: TreeViewState | null = null;
   export let activeTreeFocusViewState: TreeViewState | null = null;
+  export let tabs: TabConfig[] = [];
   let activeTab: SideMenuTab = $sideMenuActiveTab;
   let scrollContentElement: HTMLElement | null = null;
 
@@ -78,6 +81,7 @@
             {onResetAll}
             {onResetTree}
             {onFocusInView}
+            {tabs}
           />
         {:else if activeTab === "statistics"}
           <SideMenuStatisticsPage />

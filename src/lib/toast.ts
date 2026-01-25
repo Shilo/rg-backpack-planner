@@ -37,3 +37,18 @@ export function showToast(
 export function dismissToast(id: string) {
   toastStore.update((toasts) => toasts.filter((toast) => toast.id !== id));
 }
+
+/**
+ * Shows a toast message after a 100ms delay.
+ * Useful for showing toasts after UI initialization or page reloads.
+ * @param message The toast message to display
+ * @param options Optional toast options (tone, durationMs)
+ */
+export function showToastDelayed(
+  message: string,
+  options?: Partial<Pick<Toast, "tone" | "durationMs">>,
+): void {
+  setTimeout(() => {
+    showToast(message, options);
+  }, 100);
+}

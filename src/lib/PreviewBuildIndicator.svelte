@@ -3,9 +3,7 @@
 </script>
 
 {#if $isPreviewMode}
-  <div class="preview-indicator">
-    Preview build
-  </div>
+  <div class="preview-indicator">Preview</div>
 {/if}
 
 <style>

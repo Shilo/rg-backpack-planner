@@ -8,6 +8,7 @@
     HexagonIcon,
     MagnifyingGlassPlusIcon,
     TrashSimpleIcon,
+    XCircleIcon,
   } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import SideMenuSection from "../SideMenuSection.svelte";
@@ -18,15 +19,21 @@
   import { formatNumber } from "../mathUtil";
   import { openModal } from "../modalStore";
   import { openTechCrystalsOwnedModal } from "../techCrystalModal";
-  import { treeLevels } from "../treeLevelsStore";
+  import { treeLevels, setTreeLevels } from "../treeLevelsStore";
   import {
     techCrystalsAvailable,
     techCrystalsOwned,
+    setTechCrystalsOwned,
+    recalculateTechCrystalsSpent,
   } from "../techCrystalStore";
   import { closeUpView } from "../closeUpViewStore";
   import { singleLevelUp } from "../singleLevelUpStore";
   import { showToast } from "../toast";
+  import { isPreviewMode, setPreviewMode } from "../previewModeStore";
+  import { loadTreeProgress, initTreeProgressPersistence } from "../treeProgressStore";
+  import { get } from "svelte/store";
   import type { TreeViewState } from "../Tree.svelte";
+  import type { TabConfig } from "../Tabs.svelte";
 
   export let activeTreeName = "";
   export let activeTreeIndex = 0;
@@ -36,6 +43,7 @@
   export let onResetAll: (() => void) | null = null;
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
+  export let tabs: TabConfig[] = [];
 
   $: hasOwned = $techCrystalsOwned > 0;
 
@@ -115,6 +123,20 @@
       },
     });
   }
+
+  function handleStopPreview() {
+    // Remove build parameter from URL and reload to switch to personal mode
+    // This ensures a clean state transition with proper initialization
+    if (typeof window !== "undefined") {
+      // Set a flag to show toast after reload
+      sessionStorage.setItem("rg-backpack-planner-stopped-preview", "true");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("build");
+      window.history.replaceState({}, "", url.toString());
+      // Reload to re-initialize in personal mode
+      window.location.reload();
+    }
+  }
 </script>
 
 <SideMenuSection title="General">
@@ -138,6 +160,16 @@
     <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
   </Button>
   <ShareBuildButton />
+  {#if $isPreviewMode}
+    <Button
+      on:click={handleStopPreview}
+      tooltipText={"Exit preview mode and switch to personal build"}
+      icon={XCircleIcon}
+      negative
+    >
+      Stop Preview
+    </Button>
+  {/if}
 </SideMenuSection>
 
 <SideMenuSection title="Node Interaction">

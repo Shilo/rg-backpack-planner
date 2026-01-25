@@ -41,6 +41,7 @@
     } from "./lib/treeProgressStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
     import { updateUrlWithCurrentBuild } from "./lib/shareManager";
+    import { showToastDelayed } from "./lib/toast";
     import { get } from "svelte/store";
 
     let tabsRef: {
@@ -185,25 +186,28 @@
             if (hasUrlBuild) {
                 // Preview mode: Public build from URL
                 setPreviewMode(true);
-                
+
                 // Load build from URL (don't clear URL - it stays in address bar)
                 const buildLoaded = applyBuildFromUrl(tabs);
                 if (buildLoaded) {
                     // Recalculate tech crystals spent after loading from URL
                     const currentTrees = get(treeLevels);
                     recalculateTechCrystalsSpent(currentTrees);
+
+                    // Show toast about preview mode
+                    showToastDelayed("Viewing preview build");
                 }
-                
+
                 // Don't load from localStorage in preview mode
                 // Don't initialize persistence in preview mode (changes update URL instead)
-                
+
                 // Subscribe to changes in preview mode to update URL
                 unsubscribeTreeLevels = treeLevels.subscribe(() => {
                     if (get(isPreviewMode)) {
                         updateUrlWithCurrentBuild();
                     }
                 });
-                
+
                 unsubscribeTechCrystals = techCrystalsOwned.subscribe(() => {
                     if (get(isPreviewMode)) {
                         updateUrlWithCurrentBuild();
@@ -212,7 +216,19 @@
             } else {
                 // Personal mode: Private build from localStorage
                 setPreviewMode(false);
-                
+
+                // Check if we just stopped preview mode
+                const stoppedPreview = sessionStorage.getItem(
+                    "rg-backpack-planner-stopped-preview",
+                );
+                if (stoppedPreview === "true") {
+                    sessionStorage.removeItem(
+                        "rg-backpack-planner-stopped-preview",
+                    );
+                    // Show toast after a brief delay to ensure UI is ready
+                    showToastDelayed("Switched to personal build");
+                }
+
                 // Load from localStorage
                 const savedProgress = loadTreeProgress(tabs);
                 if (savedProgress) {
@@ -226,7 +242,7 @@
                         recalculateTechCrystalsSpent(savedProgress);
                     }
                 }
-                
+
                 // Initialize auto-save: subscribe to treeLevels changes
                 unsubscribePersistence = initTreeProgressPersistence();
             }
@@ -275,6 +291,7 @@
         {activeTreeViewState}
         {activeTreeFocusViewState}
         {activeTreeName}
+        {tabs}
     />
     <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
     <div class="top-right-actions">
