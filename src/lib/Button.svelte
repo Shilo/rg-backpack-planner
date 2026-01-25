@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Component } from "svelte";
-  import { createEventDispatcher } from "svelte";
   import { showToast } from "./toast";
   import { tooltip } from "./tooltip";
   import { triggerHaptic } from "./haptics";
@@ -20,6 +19,13 @@
   export let toastMessage: string | undefined = undefined;
   export let toastNegative = false;
   export let toastDurationMs: number | undefined = undefined;
+  export let onclick: ((event: MouseEvent) => void) | undefined = undefined;
+  export let oncontextmenu: ((event: MouseEvent) => void) | undefined = undefined;
+  export let onpointerdown: ((event: PointerEvent) => void) | undefined = undefined;
+  export let onpointermove: ((event: PointerEvent) => void) | undefined = undefined;
+  export let onpointerup: ((event: PointerEvent) => void) | undefined = undefined;
+  export let onpointercancel: ((event: PointerEvent) => void) | undefined = undefined;
+  export let onpointerleave: ((event: PointerEvent) => void) | undefined = undefined;
 
   let restClass: string | undefined;
   let buttonProps: Record<string, unknown> = {};
@@ -35,32 +41,8 @@
     .filter(Boolean)
     .join(" ");
 
-  const dispatch = createEventDispatcher<{
-    click: MouseEvent;
-    contextmenu: MouseEvent;
-    pointerdown: PointerEvent;
-    pointermove: PointerEvent;
-    pointerup: PointerEvent;
-    pointercancel: PointerEvent;
-    pointerleave: PointerEvent;
-  }>();
-
-  const forward = (event: Event) => {
-    dispatch(
-      event.type as
-        | "click"
-        | "contextmenu"
-        | "pointerdown"
-        | "pointermove"
-        | "pointerup"
-        | "pointercancel"
-        | "pointerleave",
-      event as never,
-    );
-  };
-
   const handleClick = (event: MouseEvent) => {
-    forward(event);
+    onclick?.(event);
     if (toastMessage) {
       showToast(toastMessage, {
         tone: toastNegative ? "negative" : "positive",
@@ -71,7 +53,7 @@
 
   const handlePointerDown = (event: PointerEvent) => {
     triggerHaptic();
-    forward(event);
+    onpointerdown?.(event);
   };
 </script>
 
@@ -81,13 +63,13 @@
   bind:this={element}
   {disabled}
   use:tooltip={tooltipText}
-  on:click={handleClick}
-  on:contextmenu={forward}
-  on:pointerdown={handlePointerDown}
-  on:pointermove={forward}
-  on:pointerup={forward}
-  on:pointercancel={forward}
-  on:pointerleave={forward}
+  onclick={handleClick}
+  oncontextmenu={oncontextmenu}
+  onpointerdown={handlePointerDown}
+  onpointermove={onpointermove}
+  onpointerup={onpointerup}
+  onpointercancel={onpointercancel}
+  onpointerleave={onpointerleave}
   {...buttonProps}
 >
   {#if icon}
