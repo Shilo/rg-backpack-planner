@@ -159,6 +159,31 @@ export function applyBuildFromUrl(
 }
 
 /**
+ * Updates the current URL with the current build data
+ * Used in preview mode to keep URL in sync with changes
+ * Does not reload the page, just updates the URL
+ */
+export function updateUrlWithCurrentBuild(): void {
+  if (typeof window === "undefined") return;
+  
+  try {
+    const buildData: BuildData = {
+      trees: get(treeLevels),
+      owned: get(techCrystalsOwned),
+    };
+    
+    const encoded = encodeBuildData(buildData);
+    const url = new URL(window.location.href);
+    url.searchParams.set("build", encoded);
+    
+    // Update URL without reloading page
+    window.history.replaceState({}, "", url.toString());
+  } catch (error) {
+    console.error("Failed to update URL with current build:", error);
+  }
+}
+
+/**
  * Saves the current build as an image
  * TODO: Implement screenshot functionality for all 3 trees
  * This would require html2canvas or similar library

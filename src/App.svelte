@@ -5,6 +5,7 @@
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
     import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
     import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
+    import PreviewBuildIndicator from "./lib/PreviewBuildIndicator.svelte";
     import Tooltip from "./lib/Tooltip.svelte";
     import Toasts from "./lib/Toasts.svelte";
     import ModalHost from "./lib/ModalHost.svelte";
@@ -28,6 +29,7 @@
         initTechCrystalTrees,
         applyTechCrystalDeltaForTree,
         recalculateTechCrystalsSpent,
+        techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/shareManager";
     import { guardianTree } from "./config/guardianTree";
@@ -37,6 +39,8 @@
         loadTreeProgress,
         initTreeProgressPersistence,
     } from "./lib/treeProgressStore";
+    import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
+    import { updateUrlWithCurrentBuild } from "./lib/shareManager";
     import { get } from "svelte/store";
 
     let tabsRef: {
@@ -162,59 +166,90 @@
     /** True when menu was auto-opened for new-version notification; we reset tab on close. */
     let openedMenuForNewVersion = shouldShowControls;
 
-    onMount(async () => {
+    onMount(() => {
         ensureInstallListeners();
 
-        // Wait for trees to be initialized
-        await tick();
+        let unsubscribeTreeLevels: (() => void) | null = null;
+        let unsubscribeTechCrystals: (() => void) | null = null;
+        let unsubscribePersistence: (() => void) | null = null;
 
-        // Check if there's a build in the URL first
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasUrlBuild = urlParams.has("build");
-
-        // Load from localStorage only if there's no URL build
-        // URL builds should take precedence over localStorage
-        if (!hasUrlBuild) {
-            const savedProgress = loadTreeProgress(tabs);
-            if (savedProgress) {
-                const currentTrees = get(treeLevels);
-                // Only apply if the saved progress matches the current tree structure
-                if (savedProgress.length === currentTrees.length) {
-                    savedProgress.forEach((tree, index) => {
-                        setTreeLevels(index, tree);
-                    });
-                    // Recalculate tech crystals spent after loading from localStorage
-                    recalculateTechCrystalsSpent(savedProgress);
-                }
-            }
-        }
-
-        // Load build from URL if present (this will override localStorage if present)
-        const buildLoaded = applyBuildFromUrl(tabs);
-        if (buildLoaded) {
-            // Recalculate tech crystals spent after loading from URL
-            const currentTrees = get(treeLevels);
-            recalculateTechCrystalsSpent(currentTrees);
-            // Clean up URL after loading to prevent re-loading on refresh
-            const url = new URL(window.location.href);
-            url.searchParams.delete("build");
-            window.history.replaceState({}, "", url.toString());
-        }
-
-        // Initialize auto-save: subscribe to treeLevels changes
-        initTreeProgressPersistence();
-
-        if (shouldShowControls) {
-            markVersionAsSeen();
+        // Initialize asynchronously
+        void (async () => {
+            // Wait for trees to be initialized
             await tick();
-            // Ensure controls tab is active (backup in case component initialized before localStorage was set)
-            // Don't persist this change since it's for new version notification
-            sideMenuRef?.openTab?.("controls", false);
-            // Reset transition flag after menu is shown so future opens have transitions
-            setTimeout(() => {
-                skipMenuTransition = false;
-            }, 200);
-        }
+
+            // Check if there's a build in the URL first
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasUrlBuild = urlParams.has("build");
+
+            if (hasUrlBuild) {
+                // Preview mode: Public build from URL
+                setPreviewMode(true);
+                
+                // Load build from URL (don't clear URL - it stays in address bar)
+                const buildLoaded = applyBuildFromUrl(tabs);
+                if (buildLoaded) {
+                    // Recalculate tech crystals spent after loading from URL
+                    const currentTrees = get(treeLevels);
+                    recalculateTechCrystalsSpent(currentTrees);
+                }
+                
+                // Don't load from localStorage in preview mode
+                // Don't initialize persistence in preview mode (changes update URL instead)
+                
+                // Subscribe to changes in preview mode to update URL
+                unsubscribeTreeLevels = treeLevels.subscribe(() => {
+                    if (get(isPreviewMode)) {
+                        updateUrlWithCurrentBuild();
+                    }
+                });
+                
+                unsubscribeTechCrystals = techCrystalsOwned.subscribe(() => {
+                    if (get(isPreviewMode)) {
+                        updateUrlWithCurrentBuild();
+                    }
+                });
+            } else {
+                // Personal mode: Private build from localStorage
+                setPreviewMode(false);
+                
+                // Load from localStorage
+                const savedProgress = loadTreeProgress(tabs);
+                if (savedProgress) {
+                    const currentTrees = get(treeLevels);
+                    // Only apply if the saved progress matches the current tree structure
+                    if (savedProgress.length === currentTrees.length) {
+                        savedProgress.forEach((tree, index) => {
+                            setTreeLevels(index, tree);
+                        });
+                        // Recalculate tech crystals spent after loading from localStorage
+                        recalculateTechCrystalsSpent(savedProgress);
+                    }
+                }
+                
+                // Initialize auto-save: subscribe to treeLevels changes
+                unsubscribePersistence = initTreeProgressPersistence();
+            }
+
+            if (shouldShowControls) {
+                markVersionAsSeen();
+                await tick();
+                // Ensure controls tab is active (backup in case component initialized before localStorage was set)
+                // Don't persist this change since it's for new version notification
+                sideMenuRef?.openTab?.("controls", false);
+                // Reset transition flag after menu is shown so future opens have transitions
+                setTimeout(() => {
+                    skipMenuTransition = false;
+                }, 200);
+            }
+        })();
+
+        // Cleanup subscriptions on component destroy
+        return () => {
+            unsubscribeTreeLevels?.();
+            unsubscribeTechCrystals?.();
+            unsubscribePersistence?.();
+        };
     });
 </script>
 
@@ -243,6 +278,7 @@
     />
     <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
     <div class="top-right-actions">
+        <PreviewBuildIndicator />
         <TechCrystalDisplay />
         <ActiveTreeResetButton
             onReset={() => tabsRef?.resetActiveTree?.()}

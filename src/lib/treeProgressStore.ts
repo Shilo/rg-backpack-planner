@@ -1,5 +1,6 @@
 import { get, type Unsubscriber } from "svelte/store";
 import { treeLevels, type LevelsById } from "./treeLevelsStore";
+import { isPreviewMode } from "./previewModeStore";
 import type { TreeNode } from "./Tree.svelte";
 
 const STORAGE_KEY = "rg-backpack-planner-tree-progress";
@@ -115,12 +116,16 @@ export function saveTreeProgress(levels: LevelsById[]): void {
  * Initializes automatic persistence of tree progress
  * Subscribes to treeLevels store and saves on every change
  * Saves even when all levels are 0 (reset state) to ensure consistency
+ * Skips saving when in preview mode (URL builds should not affect localStorage)
  * @returns Unsubscriber function to stop auto-saving
  */
 export function initTreeProgressPersistence(): Unsubscriber {
     return treeLevels.subscribe((levels) => {
         // Only save if we have levels (trees are initialized)
         if (levels.length === 0) return;
+        
+        // Skip saving if in preview mode (URL builds are public, not personal)
+        if (get(isPreviewMode)) return;
         
         // Always save, including reset state (all zeros), to ensure persistence
         // is consistent with the current state
