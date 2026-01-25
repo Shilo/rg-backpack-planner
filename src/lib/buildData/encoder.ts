@@ -55,9 +55,9 @@ const EMPTY_BUILD_MARKER = "_";
 
 /**
  * Regex pattern for valid serialized format characters
- * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (: ; , - *), and empty marker (_)
+ * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (- _ ~), owned marker (o), and empty marker (_)
  */
-export const SERIALIZED_PATTERN = /^[0-9a-zA-Z:;,\-*_]+$/;
+export const SERIALIZED_PATTERN = /^[0-9a-zA-Z\-_~o]+$/;
 
 /**
  * Node map for quick lookup
@@ -247,10 +247,10 @@ function shouldUseRLE(value: string, count: number): boolean {
   if (count === 1) {
     return false;
   }
-  const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
+  const plainLength = value.length * count + (count - 1); // "val_val_val" = 3*3+2 = 11
   const encodedCount = encodeRLECount(count); // Uses base62 for counts >= 10
-  const rleLength = value.length + 1 + encodedCount.length; // "val-3" or "val-a" = 3+1+1 = 5
-  // For empty strings, use RLE when equal length for consistency (e.g., ,, vs -3, both 2 chars)
+  const rleLength = value.length + 1 + encodedCount.length; // "val~3" or "val~a" = 3+1+1 = 5
+  // For empty strings, use RLE when equal length for consistency (e.g., __ vs ~3, both 2 chars)
   // For non-empty strings, only use RLE when it saves space
   return value === "" ? rleLength <= plainLength : rleLength < plainLength;
 }
@@ -264,7 +264,7 @@ function shouldUseRLE(value: string, count: number): boolean {
 function outputRun(result: string[], value: string, count: number): void {
   if (shouldUseRLE(value, count)) {
     const encodedCount = encodeRLECount(count);
-    result.push(`${value}-${encodedCount}`);
+    result.push(`${value}~${encodedCount}`);
   } else {
     // Output plain values (either single value or when RLE doesn't save space)
     for (let j = 0; j < count; j++) {
@@ -275,10 +275,10 @@ function outputRun(result: string[], value: string, count: number): void {
 
 /**
  * Compresses consecutive duplicate values using run-length encoding (RLE)
- * Format: value-count where - is the separator (only when it saves space)
- * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1,2s"
+ * Format: value~count where ~ is the RLE marker (only when it saves space)
+ * Examples: ["2s", "2s", "2s", "2s"] → "2s~4", ["1"] → "1", ["1", "2s"] → "1_2s"
  * @param values Array of base62-encoded value strings
- * @returns RLE-compressed string with commas separating runs
+ * @returns RLE-compressed string with underscores separating tokens
  */
 function compressRLE(values: string[]): string {
   if (values.length === 0) {
@@ -302,7 +302,7 @@ function compressRLE(values: string[]): string {
   // Output final run
   outputRun(result, currentValue, count);
 
-  return result.join(",");
+  return result.join("_");
 }
 
 /**
@@ -325,21 +325,21 @@ function parseRLECount(countStr: string, context: string): number {
 
 /**
  * Expands a single RLE pattern to an array of values
- * @param pattern The RLE pattern (value-count or -count, count may be base62)
+ * @param pattern The RLE pattern (value~count or ~count, count may be base62)
  * @returns Array of expanded values
  * @throws Error if pattern is invalid
  */
 function expandRLEPattern(pattern: string): string[] {
   // Count can be decimal (0-9) or base62 (0-9, a-z, A-Z)
-  const rleMatchWithValue = pattern.match(/^(.+)-([0-9a-zA-Z]+)$/);
-  const rleMatchZeros = pattern.match(/^-([0-9a-zA-Z]+)$/);
+  const rleMatchWithValue = pattern.match(/^(.+)~([0-9a-zA-Z]+)$/);
+  const rleMatchZeros = pattern.match(/^~([0-9a-zA-Z]+)$/);
 
   if (rleMatchZeros) {
-    // Pattern: -count (run of zeros)
+    // Pattern: ~count (run of zeros)
     const count = parseRLECount(rleMatchZeros[1], pattern);
     return Array(count).fill("");
   } else if (rleMatchWithValue) {
-    // Pattern: value-count (run of non-zero values)
+    // Pattern: value~count (run of non-zero values)
     const value = rleMatchWithValue[1];
     const count = parseRLECount(rleMatchWithValue[2], pattern);
     return Array(count).fill(value);
@@ -351,9 +351,9 @@ function expandRLEPattern(pattern: string): string[] {
 
 /**
  * Expands RLE-compressed string back to array of values
- * Accepts both RLE format (value-count or -count) and plain values
- * Examples: "2s-4" → ["2s", "2s", "2s", "2s"], "-3" → ["", "", ""], "1" → ["1"]
- * @param valueString Comma-separated string with RLE patterns or plain values
+ * Accepts both RLE format (value~count or ~count) and plain values
+ * Examples: "2s~4" → ["2s", "2s", "2s", "2s"], "~3" → ["", "", ""], "1" → ["1"]
+ * @param valueString Underscore-separated string with RLE patterns or plain values
  * @returns Array of expanded value strings
  */
 function expandRLE(valueString: string): string[] {
@@ -361,7 +361,7 @@ function expandRLE(valueString: string): string[] {
     return [];
   }
 
-  const parts = valueString.split(",");
+  const parts = valueString.split("_");
   const result: string[] = [];
 
   for (const part of parts) {
@@ -391,8 +391,11 @@ function findLastNonEmptyIndex(strings: string[]): number {
 }
 
 /**
- * Serializes branch-grouped array format to custom compact string
- * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
+ * Serializes branch-grouped array format to count-framed compact string
+ * Format: <treeCount>-<tree>-<tree>-...[-o<owned>]
+ * tree := <branchCount>-<branch>-<branch>-...
+ * branch := <tokenCount>_<token>_<token>_...
+ * token := <value> | <value>~<run> | ~<run>
  * Trailing empty branches and trailing empty trees are omitted
  * Owned is only included if non-zero
  * @param treeBranchArrays Array of [yellow[], orange[], blue[]] for each tree
@@ -409,7 +412,10 @@ function serializeArrayFormat(
     const branchStrings: string[] = branches.map((branch) => {
       // Serialize branch: encode to base62, then compress with RLE
       const base62Values = branch.map((val) => (val === 0 ? "" : encodeBase62(val)));
-      return compressRLE(base62Values);
+      const tokenCount = base62Values.length; // Count original values (before RLE)
+      const tokens = compressRLE(base62Values);
+      // Format: <tokenCount>_<tokens>
+      return tokenCount === 0 ? "" : `${encodeBase62(tokenCount)}_${tokens}`;
     });
 
     // Omit trailing empty branches
@@ -418,62 +424,62 @@ function serializeArrayFormat(
       return "";
     }
 
-    return branchStrings.slice(0, lastNonEmptyIndex + 1).join(":");
+    const nonEmptyBranches = branchStrings.slice(0, lastNonEmptyIndex + 1);
+    const branchCount = nonEmptyBranches.length;
+    // Format: <branchCount>-<branch>-<branch>-...
+    return `${encodeBase62(branchCount)}-${nonEmptyBranches.join("-")}`;
   });
 
   // Omit trailing empty trees
   const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
-  // If all trees are empty, use special marker for empty build (or just owned if non-zero)
+  // If all trees are empty, use special marker for empty build
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase62(owned);
+    if (owned === 0) {
+      return "0-"; // 0 trees, no owned
+    } else {
+      return `0--o${encodeBase62(owned)}`; // 0 trees, but has owned
+    }
   }
 
   // Get non-empty trees
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
+  const treeCount = nonEmptyTreeStrings.length;
 
-  // Check if all trees are identical (tree-level RLE compression)
-  if (nonEmptyTreeStrings.length === 3) {
-    const firstTree = nonEmptyTreeStrings[0];
-    if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
-      // All 3 trees are identical, compress to treeString*count (use base62 for count >= 10)
-      const countStr = encodeRLECount(3);
-      const treePart = `${firstTree}*${countStr}`;
-      return owned === 0 ? treePart : `${treePart};${encodeBase62(owned)}`;
-    }
+  // Build result: <treeCount>-<tree>-<tree>-...
+  let result = `${encodeBase62(treeCount)}-${nonEmptyTreeStrings.join("-")}`;
+
+  // Append owned if non-zero: -o<owned>
+  if (owned > 0) {
+    result += `-o${encodeBase62(owned)}`;
   }
 
-  // Check for partial tree-level RLE compression (2 out of 3 trees identical)
-  if (nonEmptyTreeStrings.length >= 2) {
-    const result: string[] = [];
-    let i = 0;
+  return result;
+}
 
-    while (i < nonEmptyTreeStrings.length) {
-      const currentTree = nonEmptyTreeStrings[i];
-
-      // Check if current tree and next tree are identical
-      if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
-        // Two identical trees found, compress to treeString*2
-        result.push(`${currentTree}*${encodeRLECount(2)}`);
-        i += 2; // Skip both trees
-      } else {
-        result.push(currentTree);
-        i += 1;
+/**
+ * Expands tree-level RLE patterns (treeString~count format)
+ * @param treeSegments Array of tree segment strings
+ * @returns Array of expanded tree segments
+ */
+function expandTreeRLE(treeSegments: string[]): string[] {
+  const expanded: string[] = [];
+  for (const segment of treeSegments) {
+    // Check for tree-level RLE: treeString~count
+    const rleMatch = segment.match(/^(.+)~([0-9a-zA-Z]+)$/);
+    if (rleMatch) {
+      const treeString = rleMatch[1];
+      const countStr = rleMatch[2];
+      const count = parseRLECount(countStr, segment);
+      // Expand the tree repetition
+      for (let i = 0; i < count; i++) {
+        expanded.push(treeString);
       }
-    }
-
-    // If we compressed anything, use the compressed result
-    if (result.length < nonEmptyTreeStrings.length) {
-      return owned === 0
-        ? result.join(";")
-        : [...result, encodeBase62(owned)].join(";");
+    } else {
+      expanded.push(segment);
     }
   }
-
-  // Trees are not identical, output normally
-  return owned === 0
-    ? nonEmptyTreeStrings.join(";")
-    : [...nonEmptyTreeStrings, encodeBase62(owned)].join(";");
+  return expanded;
 }
 
 /**
@@ -497,74 +503,150 @@ function parseBranchSegment(branchSegment: string): number[] {
 }
 
 /**
- * Parses branch-grouped custom compact string back to array format
- * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
+ * Parses count-framed compact string back to array format
+ * Format: <treeCount>-<tree>-<tree>-...[-o<owned>]
  * Returns: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * Pads missing trees and branches, defaults owned to 0
  */
 function parseArrayFormat(serialized: string): [number[][][], number] {
-  // Handle special marker for empty build
-  if (serialized === EMPTY_BUILD_MARKER) {
+  // Handle empty build marker
+  if (serialized === EMPTY_BUILD_MARKER || serialized === "0-") {
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
-  const segments = serialized.split(";");
+  // Parse: treeCount-tree-tree-...[-oowned]
+  const parts = serialized.split("-");
+  if (parts.length === 0) {
+    throw new Error("Invalid format: empty string");
+  }
+
   let owned = 0;
-  let treeSegments: string[];
+  let treeParts: string[];
 
-  // Strict positional order: trees first, then owned at the end
-  // If there are multiple segments and the last one has no separators, it must be owned
-  if (segments.length > 1) {
-    const lastSegment = segments[segments.length - 1];
-    // owned must be a single base62 number with no branch or node separators
-    if (!lastSegment.includes(":") && !lastSegment.includes(",") && !lastSegment.includes("*") && lastSegment !== "") {
-      try {
-        owned = decodeBase62(lastSegment);
-      } catch (error) {
-        throw new Error(`Invalid owned value: ${lastSegment}`);
-      }
-      treeSegments = segments.slice(0, -1);
-    } else {
-      treeSegments = segments;
+  // Check for owned suffix (last part starting with "o")
+  if (parts.length > 1 && parts[parts.length - 1].startsWith("o")) {
+    const ownedStr = parts[parts.length - 1].slice(1);
+    if (ownedStr === "") {
+      throw new Error("Invalid format: owned marker 'o' with no value");
     }
+    try {
+      owned = decodeBase62(ownedStr);
+    } catch (error) {
+      throw new Error(`Invalid owned value: ${ownedStr}`);
+    }
+    treeParts = parts.slice(0, -1);
   } else {
-    treeSegments = segments;
+    treeParts = parts;
   }
 
-  // Expand tree-level RLE (treeString*count format, count may be base62)
-  const expandedTreeSegments: string[] = [];
-  for (const segment of treeSegments) {
-    const treeRLEMatch = segment.match(/^(.+)\*([0-9a-zA-Z]+)$/);
-    if (treeRLEMatch) {
-      const treeString = treeRLEMatch[1];
-      const countStr = treeRLEMatch[2];
-      const count = parseRLECount(countStr, segment);
-      // Expand the tree repetition
-      expandedTreeSegments.push(...Array(count).fill(treeString));
-    } else {
-      expandedTreeSegments.push(segment);
+  // Filter out empty strings from treeParts (can occur with "0--o<owned>" format)
+  treeParts = treeParts.filter(p => p !== "");
+
+  if (treeParts.length === 0) {
+    throw new Error("Invalid format: missing tree count");
+  }
+
+  // Parse tree count
+  let treeCount: number;
+  try {
+    treeCount = decodeBase62(treeParts[0]);
+  } catch (error) {
+    throw new Error(`Invalid tree count: ${treeParts[0]}`);
+  }
+
+  if (treeCount < 0 || treeCount > 3) {
+    throw new Error(`Invalid tree count: ${treeCount} (must be 0-3)`);
+  }
+
+  const treeSegments = treeParts.slice(1);
+
+  // Validate tree count matches segments
+  if (treeCount !== treeSegments.length) {
+    throw new Error(`Tree count mismatch: expected ${treeCount} trees, got ${treeSegments.length} segments`);
+  }
+
+  // Expand tree-level RLE if needed (treeString~count format)
+  const expandedTrees = expandTreeRLE(treeSegments);
+
+  // Pad to 3 trees
+  while (expandedTrees.length < 3) {
+    expandedTrees.push("");
+  }
+
+  // Parse each tree
+  const treeBranchArrays = expandedTrees.map((segment, treeIndex) => {
+    if (segment === "") return [[], [], []];
+
+    const branchParts = segment.split("-");
+    if (branchParts.length === 0) {
+      throw new Error(`Invalid format: tree ${treeIndex} has no branch count`);
     }
-  }
 
-  // Pad missing trailing trees to 3
-  while (expandedTreeSegments.length < 3) {
-    expandedTreeSegments.push("");
-  }
-
-  // Parse tree segments into branch arrays
-  const treeBranchArrays: number[][][] = expandedTreeSegments.map((segment) => {
-    if (segment === "") {
-      return [[], [], []];
+    let branchCount: number;
+    try {
+      branchCount = decodeBase62(branchParts[0]);
+    } catch (error) {
+      throw new Error(`Invalid branch count in tree ${treeIndex}: ${branchParts[0]}`);
     }
 
-    const branchSegments = segment.split(":");
-    // Pad missing trailing branches to 3
+    if (branchCount < 0 || branchCount > 3) {
+      throw new Error(`Invalid branch count in tree ${treeIndex}: ${branchCount} (must be 0-3)`);
+    }
+
+    const branchSegments = branchParts.slice(1);
+
+    // Validate branch count matches segments
+    if (branchCount !== branchSegments.length) {
+      throw new Error(`Branch count mismatch in tree ${treeIndex}: expected ${branchCount} branches, got ${branchSegments.length} segments`);
+    }
+
+    // Pad to 3 branches
     while (branchSegments.length < 3) {
       branchSegments.push("");
     }
 
-    return branchSegments.slice(0, 3).map(parseBranchSegment);
+    // Parse each branch: <tokenCount>_<token>_<token>_...
+    return branchSegments.slice(0, 3).map((branchSegment, branchIndex) => {
+      if (branchSegment === "") {
+        return [];
+      }
+
+      // Split on _ to get tokenCount and tokens
+      const branchParts = branchSegment.split("_");
+      if (branchParts.length === 0) {
+        throw new Error(`Invalid format: tree ${treeIndex}, branch ${branchIndex} has no token count`);
+      }
+
+      let tokenCount: number;
+      try {
+        tokenCount = decodeBase62(branchParts[0]);
+      } catch (error) {
+        throw new Error(`Invalid token count in tree ${treeIndex}, branch ${branchIndex}: ${branchParts[0]}`);
+      }
+
+      if (tokenCount < 0) {
+        throw new Error(`Invalid token count in tree ${treeIndex}, branch ${branchIndex}: ${tokenCount} (must be >= 0)`);
+      }
+
+      const tokens = branchParts.slice(1).join("_");
+
+      // Validate token count matches actual tokens
+      const tokenArray = tokens === "" ? [] : expandRLE(tokens);
+      if (tokenCount !== tokenArray.length) {
+        throw new Error(`Token count mismatch in tree ${treeIndex}, branch ${branchIndex}: expected ${tokenCount} tokens, got ${tokenArray.length}`);
+      }
+
+      // Parse tokens to numbers
+      return tokenArray.map((val) => {
+        if (val === "") return 0;
+        try {
+          return decodeBase62(val);
+        } catch (error) {
+          throw new Error(`Invalid number value in tree ${treeIndex}, branch ${branchIndex}: ${val}`);
+        }
+      });
+    });
   });
 
   return [treeBranchArrays, owned];
