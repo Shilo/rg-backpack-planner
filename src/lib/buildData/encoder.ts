@@ -209,56 +209,35 @@ function decodeBase64Url(base64url: string): string {
 }
 
 /**
- * Base62 character set: A-Z, a-z, 0-9 (62 characters)
- * More compact than base36 for values > 35
- */
-const BASE62_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-/**
- * Encodes a number to base-62 string (0-9, A-Z, a-z)
- * More compact than base36 for values > 35
+ * Encodes a number to base-36 string (0-9, a-z)
+ * More compact than decimal for values > 9
  * @param num Number to encode
- * @returns Base-62 encoded string
+ * @returns Base-36 encoded string (lowercase)
  */
-function encodeBase62(num: number): string {
+function encodeBase36(num: number): string {
   if (num === 0) {
     return "0";
   }
-  let result = "";
-  let n = num;
-  while (n > 0) {
-    result = BASE62_CHARS[n % 62] + result;
-    n = Math.floor(n / 62);
-  }
-  return result;
+  return num.toString(36);
 }
 
 /**
- * Decodes a base-62 string back to a number
- * @param str Base-62 encoded string (0-9, A-Z, a-z)
+ * Decodes a base-36 string back to a number
+ * @param str Base-36 encoded string (0-9, a-z)
  * @returns Decoded number
  */
-function decodeBase62(str: string): number {
-  let result = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i];
-    const index = BASE62_CHARS.indexOf(char);
-    if (index === -1) {
-      throw new Error(`Invalid base62 character: ${char}`);
-    }
-    result = result * 62 + index;
-  }
-  return result;
+function decodeBase36(str: string): number {
+  return parseInt(str, 36);
 }
 
 /**
- * Encodes a count for RLE format (uses base62 for counts >= 10 to save space)
+ * Encodes a count for RLE format (uses base36 for counts >= 10 to save space)
  * @param count The count to encode
- * @returns Encoded count string (decimal for 1-9, base62 for 10+)
+ * @returns Encoded count string (decimal for 1-9, base36 for 10+)
  */
 function encodeRLECount(count: number): string {
-  // Use base62 for counts >= 10 to save space (10 → "A" saves 1 char)
-  return count >= 10 ? encodeBase62(count) : count.toString();
+  // Use base36 for counts >= 10 to save space (10 → "a" saves 1 char)
+  return count >= 10 ? count.toString(36) : count.toString();
 }
 
 /**
@@ -271,9 +250,9 @@ function shouldUseRLE(value: string, count: number): boolean {
   if (count === 1) {
     return false;
   }
-  const plainLength = value.length * count + (count - 1); // "val_val_val" = 3*3+2 = 11
-  const encodedCount = encodeRLECount(count); // Uses base62 for counts >= 10
-  const rleLength = value.length + 1 + encodedCount.length; // "val_3" or "val_A" = 3+1+1 = 5
+  const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
+  const encodedCount = encodeRLECount(count); // Uses base36 for counts >= 10
+  const rleLength = value.length + 1 + encodedCount.length; // "val-3" or "val-a" = 3+1+1 = 5
   // For empty strings, use RLE when equal length for consistency (e.g., ,, vs -3, both 2 chars)
   // For non-empty strings, only use RLE when it saves space
   return value === "" ? rleLength <= plainLength : rleLength < plainLength;
@@ -288,9 +267,6 @@ function shouldUseRLE(value: string, count: number): boolean {
 function outputRun(result: string[], value: string, count: number): void {
   if (shouldUseRLE(value, count)) {
     const encodedCount = encodeRLECount(count);
-    // Use - for RLE separator (value-count or -count for zeros)
-    // This is safe because we always serialize all 3 branches, so - only appears as branch separator between the 3 branches
-    // RLE - appears within a branch, so when we split by - for branches, we need to handle it
     result.push(`${value}-${encodedCount}`);
   } else {
     // Output plain values (either single value or when RLE doesn't save space)
@@ -302,13 +278,10 @@ function outputRun(result: string[], value: string, count: number): void {
 
 /**
  * Compresses consecutive duplicate values using run-length encoding (RLE)
- * Format: value-count where - is the separator for RLE (only when it saves space)
- * Node separator is _, branch separator is - (between branches)
- * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1_2s"
- * Note: - is used for both branch separator and RLE, but since we always serialize all 3 branches,
- * branch separators are always at fixed positions (between the 3 branches)
- * @param values Array of base62-encoded value strings
- * @returns RLE-compressed string with underscores separating runs
+ * Format: value-count where - is the separator (only when it saves space)
+ * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1,2s"
+ * @param values Array of base36-encoded value strings
+ * @returns RLE-compressed string with commas separating runs
  */
 function compressRLE(values: string[]): string {
   if (values.length === 0) {
@@ -332,20 +305,20 @@ function compressRLE(values: string[]): string {
   // Output final run
   outputRun(result, currentValue, count);
 
-  return result.join("_");
+  return result.join(",");
 }
 
 /**
- * Validates and parses an RLE count from a string (decimal for 1-9, base62 for 10+)
+ * Validates and parses an RLE count from a string (decimal for 1-9, base36 for 10+)
  * @param countStr The count string to parse
  * @param part The full part string for error messages
  * @returns The parsed count
  * @throws Error if count is invalid
  */
 function parseRLECount(countStr: string, part: string): number {
-  // Base62 uses A-Z, a-z, 0-9. If it contains letters or is longer than 1 char, try base62; otherwise decimal
-  const isBase62 = /[A-Za-z]/.test(countStr) || countStr.length > 1;
-  const count = isBase62 ? decodeBase62(countStr) : parseInt(countStr, 10);
+  // Base36 uses a-z, so if it contains letters, it's base36; otherwise decimal
+  const hasLetters = /[a-z]/.test(countStr);
+  const count = hasLetters ? parseInt(countStr, 36) : parseInt(countStr, 10);
   
   if (isNaN(count) || count < 1) {
     throw new Error(`Invalid RLE format: invalid count in "${part}"`);
@@ -355,62 +328,26 @@ function parseRLECount(countStr: string, part: string): number {
 
 /**
  * Expands a single RLE pattern to an array of values
- * @param pattern The RLE pattern (value-count or -count, count may be base62)
+ * @param pattern The RLE pattern (value-count or -count, count may be base36)
  * @returns Array of expanded values
  * @throws Error if pattern is invalid
  */
 function expandRLEPattern(pattern: string): string[] {
-  // Count can be decimal (0-9) or base62 (0-9, A-Z, a-z)
-  // Base62 pattern: [0-9A-Za-z]+
-  // RLE uses - as separator: value-count or -count
-  // The value part should never contain - (only base62 characters)
-  const rleMatchZeros = pattern.match(/^-([0-9A-Za-z]+)$/);
-  
-  // Match RLE pattern: find the last - that separates value from count
-  // This handles cases where value might be multi-character base62
-  const lastDashIndex = pattern.lastIndexOf("-");
-  
+  // Count can be decimal (0-9) or base36 (0-9, a-z)
+  const rleMatchWithValue = pattern.match(/^(.+)-([0-9a-z]+)$/);
+  const rleMatchZeros = pattern.match(/^-([0-9a-z]+)$/);
+
   if (rleMatchZeros) {
     // Pattern: -count (run of zeros)
     const count = parseRLECount(rleMatchZeros[1], pattern);
     return Array(count).fill("");
-  } else if (lastDashIndex > 0 && lastDashIndex < pattern.length - 1) {
-    // Pattern might be value-count
-    const value = pattern.slice(0, lastDashIndex);
-    const countStr = pattern.slice(lastDashIndex + 1);
-    
-    // Validate: value should be pure base62 (no -), count should be base62
-    if (/^[0-9A-Za-z]+$/.test(value) && /^[0-9A-Za-z]+$/.test(countStr)) {
-      // Valid RLE pattern: value-count
-      const count = parseRLECount(countStr, pattern);
-      return Array(count).fill(value);
-    } else {
-      // Invalid pattern (value contains - or count is invalid)
-      // If pattern contains -, it's malformed and indicates incorrect branch splitting
-      if (pattern.indexOf("-") !== -1) {
-        throw new Error(`Invalid RLE pattern (contains - in invalid position): ${pattern}`);
-      }
-      // No - in pattern, treat as plain value
-      return [pattern];
-    }
-  } else if (lastDashIndex === pattern.length - 1) {
-    // Pattern ends with - (like "4-")
-    // This is likely a malformed RLE pattern or a branch separator that got included
-    // Try to treat the part before - as a plain value
-    const valuePart = pattern.slice(0, -1);
-    if (valuePart.length > 0 && /^[0-9A-Za-z]+$/.test(valuePart)) {
-      // Valid base62 value before the trailing -, treat as plain value
-      return [valuePart];
-    } else {
-      // Invalid - throw error
-      throw new Error(`Invalid pattern (ends with - but value part is invalid): ${pattern}`);
-    }
+  } else if (rleMatchWithValue) {
+    // Pattern: value-count (run of non-zero values)
+    const value = rleMatchWithValue[1];
+    const count = parseRLECount(rleMatchWithValue[2], pattern);
+    return Array(count).fill(value);
   } else {
     // Plain value (no RLE, single occurrence)
-    // If it contains -, it's malformed
-    if (pattern.indexOf("-") !== -1) {
-      throw new Error(`Invalid pattern (contains - but not valid RLE): ${pattern}`);
-    }
     return [pattern];
   }
 }
@@ -419,7 +356,7 @@ function expandRLEPattern(pattern: string): string[] {
  * Expands RLE-compressed string back to array of values
  * Accepts both RLE format (value-count or -count) and plain values
  * Examples: "2s-4" → ["2s", "2s", "2s", "2s"], "-3" → ["", "", ""], "1" → ["1"]
- * @param valueString Underscore-separated string with RLE patterns or plain values
+ * @param valueString Comma-separated string with RLE patterns or plain values
  * @returns Array of expanded value strings
  */
 function expandRLE(valueString: string): string[] {
@@ -427,7 +364,7 @@ function expandRLE(valueString: string): string[] {
     return [];
   }
 
-  const parts = valueString.split("_");
+  const parts = valueString.split(",");
   const result: string[] = [];
 
   for (const part of parts) {
@@ -473,27 +410,18 @@ function serializeArrayFormat(
   const treeStrings: string[] = treeBranchArrays.map((branches) => {
     // branches is [yellow[], orange[], blue[]]
     const branchStrings: string[] = branches.map((branch) => {
-      // Serialize branch: encode to base62, then compress with RLE
-      const base62Values = branch.map((val) => (val === 0 ? "" : encodeBase62(val)));
-      return compressRLE(base62Values);
+      // Serialize branch: encode to base36, then compress with RLE
+      const base36Values = branch.map((val) => (val === 0 ? "" : encodeBase36(val)));
+      return compressRLE(base36Values);
     });
 
-    // Always include all 3 branches to avoid creating -- patterns
-    // -- is reserved for tree separator, so we can't have consecutive - from empty branches
-    // However, if leading branches are empty, we get -- at the start, which conflicts
-    // Solution: if the tree starts with empty branches, we need to handle it specially
-    // For now, always include all 3 branches - if this creates -- at start, we'll handle it in parsing
-    const joined = branchStrings.join("-");
-    
-    // If all branches are empty, the joined string will be "--" (empty-empty-empty)
-    // Return empty string for completely empty trees
-    if (joined === "--") {
+    // Omit trailing empty branches
+    const lastNonEmptyIndex = findLastNonEmptyIndex(branchStrings);
+    if (lastNonEmptyIndex === -1) {
       return "";
     }
-    
-    // If the result starts with --, it means leading branches are empty
-    // This will be handled in parsing by recognizing it as a tree with empty leading branches
-    return joined;
+
+    return branchStrings.slice(0, lastNonEmptyIndex + 1).join(":");
   });
 
   // Omit trailing empty trees
@@ -501,7 +429,7 @@ function serializeArrayFormat(
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase62(owned);
+    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase36(owned);
   }
 
   // Get non-empty trees
@@ -511,10 +439,10 @@ function serializeArrayFormat(
   if (nonEmptyTreeStrings.length === 3) {
     const firstTree = nonEmptyTreeStrings[0];
     if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
-      // All 3 trees are identical, compress to treeString--count (use base62 for count >= 10)
+      // All 3 trees are identical, compress to treeString*count (use base36 for count >= 10)
       const countStr = encodeRLECount(3);
-      const treePart = `${firstTree}--${countStr}`;
-      return owned === 0 ? treePart : `${treePart}--${encodeBase62(owned)}`;
+      const treePart = `${firstTree}*${countStr}`;
+      return owned === 0 ? treePart : `${treePart};${encodeBase36(owned)}`;
     }
   }
 
@@ -528,12 +456,13 @@ function serializeArrayFormat(
       
       // Check if current tree and next tree are identical
       if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
-        // Two identical trees found, compress to treeString--2
-        // Only compress if it saves space: tree--2 (tree.length + 3) vs tree--tree (tree.length * 2 + 2)
-        // tree--2 saves space when: tree.length + 3 < tree.length * 2 + 2
-        // Simplifies to: 1 < tree.length, or tree.length > 1
+        // Two identical trees found, compress to treeString*2
+        // Only compress if it saves space: tree*2 (tree.length + 2) vs tree;tree (tree.length * 2 + 1)
+        // tree*2 saves space when: tree.length + 2 < tree.length * 2 + 1
+        // Simplifies to: 2 < tree.length + 1, or tree.length > 1
+        // For tree.length === 1: tree*2 (3) vs tree;tree (3) - same, but *2 is more consistent
         const countStr = encodeRLECount(2);
-        result.push(`${currentTree}--${countStr}`);
+        result.push(`${currentTree}*${countStr}`);
         i += 2; // Skip both trees
       } else {
         // No match, output current tree normally
@@ -545,15 +474,15 @@ function serializeArrayFormat(
     // If we compressed anything, use the compressed result
     if (result.length < nonEmptyTreeStrings.length) {
       return owned === 0
-        ? result.join("--")
-        : [...result, encodeBase62(owned)].join("--");
+        ? result.join(";")
+        : [...result, encodeBase36(owned)].join(";");
     }
   }
 
   // Trees are not identical, output normally
   return owned === 0
-    ? nonEmptyTreeStrings.join("--")
-    : [...nonEmptyTreeStrings, encodeBase62(owned)].join("--");
+    ? nonEmptyTreeStrings.join(";")
+    : [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
 }
 
 /**
@@ -565,35 +494,20 @@ function parseBranchSegment(branchSegment: string): number[] {
   if (branchSegment === "") {
     return [];
   }
-  try {
-    const expandedValues = expandRLE(branchSegment);
-    return expandedValues.map((val) => {
-      if (val === "") return 0; // Empty string represents 0
-      // Validate that the value doesn't contain - (which would indicate malformed RLE)
-      if (val.indexOf("-") !== -1) {
-        throw new Error(`Invalid branch value (contains -): ${val}. Branch segment: ${branchSegment}`);
-      }
-      try {
-        const num = decodeBase62(val);
-        if (isNaN(num)) {
-          throw new Error(`Invalid number value: ${val}`);
-        }
-        return num;
-      } catch (e) {
-        // Re-throw with more context
-        throw new Error(`Failed to decode base62 value "${val}" in branch segment "${branchSegment}": ${e instanceof Error ? e.message : String(e)}`);
-      }
-    });
-  } catch (e) {
-    // Re-throw with context about the branch segment
-    throw new Error(`Failed to parse branch segment "${branchSegment}": ${e instanceof Error ? e.message : String(e)}`);
-  }
+  const expandedValues = expandRLE(branchSegment);
+  return expandedValues.map((val) => {
+    if (val === "") return 0; // Empty string represents 0
+    const num = decodeBase36(val);
+    if (isNaN(num)) {
+      throw new Error(`Invalid number value: ${val}`);
+    }
+    return num;
+  });
 }
 
 /**
  * Parses branch-grouped custom compact string back to array format
- * Format: yellow-orange-blue--yellow-orange-blue--yellow-orange-blue[--owned]
- * Separators: _ (nodes), - (branches), -- (trees/tree RLE)
+ * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
  * Returns: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * Pads missing trees and branches, defaults owned to 0
@@ -604,364 +518,65 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
-  // Parse character-by-character to handle multi-character separators correctly
-  // Separators: _ (nodes), - (branches), -- (trees/tree RLE)
-  // We need to avoid creating false empty segments when splitting
-  // Also handle trees that start with -- (empty leading branches)
-  
-  const treeSegments: string[] = [];
-  let currentSegment = "";
-  let i = 0;
+  const segments = serialized.split(";");
   let owned = 0;
+  let treeSegments: string[];
 
-  while (i < serialized.length) {
-    // Check for -- (tree separator or tree RLE count)
-    if (i < serialized.length - 1 && serialized[i] === "-" && serialized[i + 1] === "-") {
-      // Found --
-      
-      // Special case: if this is at the start and currentSegment is empty, this is a tree with empty leading branches
-      if (i === 0 && currentSegment === "" && treeSegments.length === 0) {
-        // This tree starts with empty branches (--pattern means empty-empty-branch)
-        // We'll handle this when we parse the segment - it will start with --
-        // For now, just continue to collect the segment
-        currentSegment = "--";
-        i += 2;
-        continue;
+  // Strict positional order: trees first, then owned at the end
+  // If there are multiple segments and the last one has no separators, it must be owned
+  if (segments.length > 1) {
+    const lastSegment = segments[segments.length - 1];
+    // owned must be a single base36 number with no branch or node separators
+    if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment.indexOf("*") === -1 && lastSegment !== "") {
+      owned = decodeBase36(lastSegment);
+      if (isNaN(owned)) {
+        throw new Error(`Invalid owned value: ${lastSegment}`);
       }
-      
-      // If we're collecting a segment that starts with --, check if this -- is part of the tree data
-      // or a separator. If followed by base62 (or end), it's a separator. Otherwise, it's part of tree data.
-      if (currentSegment.startsWith("--") && i + 2 < serialized.length) {
-        const charAfterDash = serialized[i + 2];
-        if (charAfterDash !== "-" && !/[0-9A-Za-z]/.test(charAfterDash)) {
-          // -- is followed by non-base62, non-dash (like _), it's part of tree data
-          // Add both dashes to current segment and continue
-          currentSegment += "--";
-          i += 2;
-          continue;
-        }
-        // Otherwise, -- is followed by base62 or another --, so it's a separator
-      }
-      
-      if (currentSegment !== "") {
-        treeSegments.push(currentSegment);
-        currentSegment = "";
-      }
-      
-      // Skip the --
-      i += 2;
-      
-      // Check what comes after the -- we just skipped
-      // If it's followed by _ (node separator) or other non-base62, non-dash characters,
-      // then the -- is part of the next tree (empty leading branches), not a tree separator
-      if (i < serialized.length) {
-        const charAfterDash = serialized[i];
-        // If followed by _ or other non-base62, non-dash character, -- is part of tree data
-        if (charAfterDash !== "-" && !/[0-9A-Za-z]/.test(charAfterDash)) {
-          // -- is followed by non-base62, non-dash character (like _)
-          // This means the -- is part of the tree data (empty leading branches)
-          // Start collecting the tree segment with --
-          currentSegment = "--";
-          continue; // Continue to collect the rest of the tree normally
-        }
-        // If followed by another --, we have ---- (4 dashes)
-        // This means: first -- is separator, second -- starts next tree (empty leading branches)
-        if (i < serialized.length - 1 && charAfterDash === "-" && serialized[i + 1] === "-") {
-          // We have ---- (4 dashes total)
-          // The first -- was a separator (already handled - we pushed currentSegment)
-          // The second -- starts the next tree (empty leading branches)
-          // Skip the second -- and start collecting with --
-          currentSegment = "--";
-          i += 2; // Skip the second --
-          continue;
-        }
-      }
-      
-      // Check if this is followed by a base62 number (tree RLE count or owned)
-      let base62Part = "";
-      let j = i;
-      while (j < serialized.length && /[0-9A-Za-z]/.test(serialized[j])) {
-        base62Part += serialized[j];
-        j++;
-      }
-      
-      // If we found a base62 part, check what follows it
-      if (base62Part.length > 0) {
-        // Check if followed by -- (tree RLE count or owned separator)
-        if (j < serialized.length - 1 && serialized[j] === "-" && serialized[j + 1] === "-") {
-          // Followed by --, so this is a tree RLE count (if we have trees) or owned (if at end)
-          if (treeSegments.length > 0) {
-            // We have tree segments, so this is a tree RLE count
-            try {
-              const count = parseRLECount(base62Part, base62Part);
-              const treeToRepeat = treeSegments[treeSegments.length - 1];
-              // Remove the last segment and expand it
-              treeSegments.pop();
-              for (let k = 0; k < count; k++) {
-                treeSegments.push(treeToRepeat);
-              }
-              i = j + 2; // Move past the count and the following --
-              // Check if what follows is owned (base62 at end) or another tree
-              // If it's just base62 at the end, parse it as owned
-              if (i < serialized.length) {
-                let ownedBase62 = "";
-                let ownedJ = i;
-                while (ownedJ < serialized.length && /[0-9A-Za-z]/.test(serialized[ownedJ])) {
-                  ownedBase62 += serialized[ownedJ];
-                  ownedJ++;
-                }
-                if (ownedBase62.length > 0 && ownedJ === serialized.length) {
-                  // It's base62 at the end, so it's owned
-                  try {
-                    owned = decodeBase62(ownedBase62);
-                    i = ownedJ;
-                    break; // Done parsing
-                  } catch {
-                    // Not valid base62, continue as normal
-                  }
-                }
-              }
-              // Continue parsing - might be another tree or we already handled owned
-              continue;
-            } catch {
-              // Not a valid count, treat as tree data
-              currentSegment = "--" + base62Part;
-              i = j;
-              continue;
-            }
-          } else {
-            // No tree segments, this can't be tree RLE
-            // This might be malformed, but let's treat it as tree data
-            currentSegment = "--" + base62Part;
-            i = j;
-            continue;
-          }
-        } else if (j === serialized.length) {
-          // At the end - check if we have tree segments (tree RLE) or not (owned)
-          if (treeSegments.length > 0) {
-            // We have tree segments, so this is a tree RLE count
-            try {
-              const count = parseRLECount(base62Part, base62Part);
-              const treeToRepeat = treeSegments[treeSegments.length - 1];
-              // Remove the last segment and expand it
-              treeSegments.pop();
-              for (let k = 0; k < count; k++) {
-                treeSegments.push(treeToRepeat);
-              }
-              i = j; // Move past the count
-              break; // Done parsing
-            } catch {
-              // Not a valid count, treat as owned
-              try {
-                owned = decodeBase62(base62Part);
-                i = j; // Move past the owned value
-                break; // Done parsing
-              } catch {
-                // Not valid base62, treat as regular segment start
-                currentSegment = base62Part;
-                i = j;
-                continue;
-              }
-            }
-          } else {
-            // No tree segments, so this is owned
-            try {
-              owned = decodeBase62(base62Part);
-              i = j; // Move past the owned value
-              break; // Done parsing
-            } catch {
-              // Not valid base62, treat as regular segment start
-              currentSegment = base62Part;
-              i = j;
-              continue;
-            }
-          }
-        } else {
-          // Followed by - (single) or _ or other character
-          // The -- is part of tree data (empty leading branches)
-          // Start collecting the tree segment with --
-          currentSegment = "--";
-          continue; // Continue to collect the rest of the tree
-        }
-      } else {
-        // Not followed by base62 or not at end/followed by --, so this is just a tree separator
-        // The currentSegment (if any) was already pushed before we saw the --
-        // Now we continue to collect the next tree segment
-        // Don't push empty segment (empty trees are omitted in serialization)
-        // i has already been incremented by 2 (we skipped the --), so we continue to process the next character
-        continue;
-      }
+      treeSegments = segments.slice(0, -1);
     } else {
-      // Regular character
-      currentSegment += serialized[i];
-      i++;
+      treeSegments = segments;
     }
+  } else {
+    treeSegments = segments;
   }
 
-  // Add final segment if any
-  if (currentSegment !== "") {
-    // Check if this segment starts with -- (tree with empty leading branches)
-    // If so, it's definitely a tree, not owned
-    if (currentSegment.startsWith("--")) {
-      treeSegments.push(currentSegment);
-    } else {
-      // Check if this could be owned (pure base62 number at the end)
-      // Only treat as owned if it's a pure base62 number and we have tree segments
-      if (treeSegments.length > 0 && /^[0-9A-Za-z]+$/.test(currentSegment) && currentSegment.indexOf("-") === -1 && currentSegment.indexOf("_") === -1) {
-        try {
-          owned = decodeBase62(currentSegment);
-          // Don't add to treeSegments, it's owned
-        } catch {
-          // Not valid base62, treat as tree segment
-          treeSegments.push(currentSegment);
-        }
-      } else {
-        // Not owned, treat as tree segment
-        treeSegments.push(currentSegment);
+  // Expand tree-level RLE (treeString*count format, count may be base36)
+  const expandedTreeSegments: string[] = [];
+  for (const segment of treeSegments) {
+    // Check if this is a tree-level RLE pattern (treeString*count)
+    // Count can be decimal (1-9) or base36 (a-z for 10+)
+    const treeRLEMatch = segment.match(/^(.+)\*([0-9a-z]+)$/);
+    if (treeRLEMatch) {
+      const treeString = treeRLEMatch[1];
+      const countStr = treeRLEMatch[2];
+      // Parse count (decimal for 1-9, base36 for 10+)
+      const hasLetters = /[a-z]/.test(countStr);
+      const count = hasLetters ? parseInt(countStr, 36) : parseInt(countStr, 10);
+      if (isNaN(count) || count < 1) {
+        throw new Error(`Invalid tree-level RLE format: invalid count in "${segment}"`);
       }
+      // Expand the tree repetition
+      for (let i = 0; i < count; i++) {
+        expandedTreeSegments.push(treeString);
+      }
+    } else {
+      expandedTreeSegments.push(segment);
     }
   }
 
   // Pad missing trailing trees to 3
-  while (treeSegments.length < 3) {
-    treeSegments.push("");
+  while (expandedTreeSegments.length < 3) {
+    expandedTreeSegments.push("");
   }
 
   // Parse tree segments into branch arrays
-  const treeBranchArrays: number[][][] = treeSegments.map((segment) => {
+  const treeBranchArrays: number[][][] = expandedTreeSegments.map((segment) => {
     if (segment === "") {
       return [[], [], []];
     }
 
-    let branchSegments: string[] = [];
-    
-    // Check if segment starts with -- (empty leading branches)
-    if (segment.startsWith("--")) {
-      // This tree has empty yellow and orange branches
-      // The rest (after --) is the blue branch
-      const blueBranch = segment.slice(2); // Skip the --
-      // Validate that the blue branch doesn't contain branch separators (-)
-      // If it does, this might be incorrectly parsed - try splitting it as a normal tree
-      const dashCount = (blueBranch.match(/-/g) || []).length;
-      if (dashCount >= 2) {
-        // Blue branch contains multiple dashes - might be branch separators
-        // Try parsing as a normal tree (without the -- prefix)
-        // This handles cases where -- was incorrectly identified
-        const normalSegment = segment.slice(2); // Remove the --
-        // Try to split as normal tree
-        const dashPositions: number[] = [];
-        for (let k = 0; k < normalSegment.length; k++) {
-          if (normalSegment[k] === "-") {
-            dashPositions.push(k);
-          }
-        }
-        if (dashPositions.length >= 2) {
-          // Try splitting as normal tree
-          let foundValid = false;
-          for (let i = 0; i < dashPositions.length - 1 && !foundValid; i++) {
-            for (let j = i + 1; j < dashPositions.length && !foundValid; j++) {
-              const branch1 = normalSegment.slice(0, dashPositions[i]);
-              const branch2 = normalSegment.slice(dashPositions[i] + 1, dashPositions[j]);
-              const branch3 = normalSegment.slice(dashPositions[j] + 1);
-              try {
-                parseBranchSegment(branch1);
-                parseBranchSegment(branch2);
-                parseBranchSegment(branch3);
-                branchSegments = [branch1, branch2, branch3];
-                foundValid = true;
-              } catch {
-                // Invalid split, try next
-              }
-            }
-          }
-          if (!foundValid) {
-            // Couldn't parse as normal tree, treat as single blue branch
-            branchSegments = ["", "", blueBranch];
-          }
-          // If foundValid is true, branchSegments was already set in the loop above
-        } else {
-          // Not enough dashes for normal tree, treat as single blue branch
-          branchSegments = ["", "", blueBranch];
-        }
-      } else {
-        // Blue branch has 0 or 1 dash (likely RLE), treat as single branch
-        branchSegments = ["", "", blueBranch];
-      }
-    } else {
-      // Normal tree - split by - (branch separator)
-      // Since we always serialize all 3 branches, we should have exactly 2 - separators
-      // But - can also be part of RLE (value-count or -count)
-      // Strategy: parse branches by trying all possible splits and validating
-      // We know we need exactly 3 branches, so we need to find 2 - that are branch separators
-      
-      // Find all - positions
-      const dashPositions: number[] = [];
-      for (let k = 0; k < segment.length; k++) {
-        if (segment[k] === "-") {
-          dashPositions.push(k);
-        }
-      }
-      
-      if (dashPositions.length === 2) {
-        // Exactly 2 dashes - they must be branch separators
-        branchSegments = [
-          segment.slice(0, dashPositions[0]),
-          segment.slice(dashPositions[0] + 1, dashPositions[1]),
-          segment.slice(dashPositions[1] + 1)
-        ];
-      } else if (dashPositions.length > 2) {
-        // More than 2 dashes - some are RLE
-        // Try all combinations of 2 dashes as branch separators
-        // The correct combination is where all 3 resulting branches can be parsed
-        let foundValid = false;
-        branchSegments = [];
-        
-        for (let i = 0; i < dashPositions.length - 1 && !foundValid; i++) {
-          for (let j = i + 1; j < dashPositions.length && !foundValid; j++) {
-            const branch1 = segment.slice(0, dashPositions[i]);
-            const branch2 = segment.slice(dashPositions[i] + 1, dashPositions[j]);
-            const branch3 = segment.slice(dashPositions[j] + 1);
-            
-            // Try to parse each branch - if all succeed, this is the correct split
-            try {
-              parseBranchSegment(branch1);
-              parseBranchSegment(branch2);
-              parseBranchSegment(branch3);
-              // All parsed successfully - this is the correct split
-              branchSegments = [branch1, branch2, branch3];
-              foundValid = true;
-            } catch {
-              // Invalid split, try next combination
-            }
-          }
-        }
-        
-        if (!foundValid) {
-          // Fallback: use last 2 dashes, but validate the result
-          const fallbackBranches = [
-            segment.slice(0, dashPositions[dashPositions.length - 2]),
-            segment.slice(dashPositions[dashPositions.length - 2] + 1, dashPositions[dashPositions.length - 1]),
-            segment.slice(dashPositions[dashPositions.length - 1] + 1)
-          ];
-          // Try to parse the fallback - if it fails, we have a problem
-          try {
-            parseBranchSegment(fallbackBranches[0]);
-            parseBranchSegment(fallbackBranches[1]);
-            parseBranchSegment(fallbackBranches[2]);
-            branchSegments = fallbackBranches;
-          } catch {
-            // Fallback also failed - this shouldn't happen with valid data
-            // But if it does, we'll use it anyway and let the error propagate
-            branchSegments = fallbackBranches;
-          }
-        }
-      } else {
-        // Less than 2 dashes - pad with empty branches
-        branchSegments = [segment, "", ""];
-      }
-    }
-    
-    // Pad to 3 if needed
+    const branchSegments = segment.split(":");
+    // Pad missing trailing branches to 3
     while (branchSegments.length < 3) {
       branchSegments.push("");
     }
@@ -1096,8 +711,7 @@ function convertArrayFormatToTrees(
 
 /**
  * Encodes build data into a base64url string for URL sharing
- * Uses compact branch-based format with base62 encoding and base64url-safe separators
- * All characters in serialized string are base64url-safe, so encoding doesn't expand
+ * Uses compact branch-based format with truncated trailing zeros for smallest possible URL
  */
 export function encodeBuildData(buildData: BuildData): string {
   // Convert to branch-grouped array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
@@ -1105,7 +719,7 @@ export function encodeBuildData(buildData: BuildData): string {
   // Each branch is truncated to last non-zero index + 1
   const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
 
-  // Use custom serializer with base62 encoding and base64url-safe separators
+  // Use custom serializer instead of JSON.stringify
   const serialized = serializeArrayFormat(treeArrays, owned);
 
   console.warn("[encodeBuildData] Deserialized data before save:", {
@@ -1114,8 +728,7 @@ export function encodeBuildData(buildData: BuildData): string {
     serializedString: serialized,
   });
 
-  // Serialized string uses only base64url-safe characters, so encode to base64url
-  // This doesn't expand the string since all chars are already base64url-safe
+  // Encode to base64, then convert to base64url for URL safety
   const base64 = btoa(serialized);
   return encodeBase64Url(base64);
 }
@@ -1141,7 +754,6 @@ function safeExecute<T>(
 
 /**
  * Decodes a base64url string back into build data
- * Expects base64url-encoded string with base62 numbers and base64url-safe separators
  * Returns compressed data (expansion happens in applyBuildFromUrl)
  */
 export function decodeBuildData(encoded: string): BuildData | null {
@@ -1158,7 +770,7 @@ export function decodeBuildData(encoded: string): BuildData | null {
 
   console.warn("[decodeBuildData] Decoded string:", decoded);
 
-  // Parse array format (with base62 numbers and base64url-safe separators)
+  // Parse array format
   const parsed = safeExecute(
     () => parseArrayFormat(decoded),
     "Failed to parse array format"
