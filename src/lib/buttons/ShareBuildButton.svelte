@@ -1,16 +1,9 @@
 <script lang="ts">
-  import {
-    ImageIcon,
-    LinkIcon,
-    ShareNetworkIcon,
-  } from "phosphor-svelte";
+  import { ImageIcon, LinkIcon, ShareNetworkIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
-  import { treeLevels } from "../treeLevelsStore";
-  import { techCrystalsOwned } from "../techCrystalStore";
   import { showToast } from "../toast";
-
-  export let onClose: (() => void) | null = null;
+  import { saveBuildToUrl, saveBuildAsImage } from "../shareManager";
 
   let shareMenuOpen = false;
   let shareMenuX = 0;
@@ -28,37 +21,33 @@
 
   function closeShareMenu() {
     shareMenuOpen = false;
+    // Prevent event from bubbling to side menu backdrop
+    // The context menu is portaled outside, so we need to ensure clicks don't propagate
   }
 
   async function handleShareImage() {
     closeShareMenu();
-    // TODO: Implement screenshot functionality for all 3 trees
-    // This would require html2canvas or similar library
-    showToast("Share image feature coming soon", { tone: "positive" });
+    const success = await saveBuildAsImage();
+    if (success) {
+      showToast("Build image saved", { tone: "positive" });
+    } else {
+      showToast("Share image feature coming soon", { tone: "positive" });
+    }
   }
 
   async function handleShareUrlLink() {
     closeShareMenu();
-    try {
-      // Encode build data: tree levels and tech crystals owned
-      const buildData = {
-        trees: $treeLevels,
-        owned: $techCrystalsOwned,
-      };
-      const encoded = btoa(JSON.stringify(buildData));
-      const shareUrl = `${window.location.origin}${window.location.pathname}?build=${encoded}`;
-
-      await navigator.clipboard.writeText(shareUrl);
+    const success = await saveBuildToUrl();
+    if (success) {
       showToast("Share link copied to clipboard");
-      onClose?.();
-    } catch (error) {
+    } else {
       showToast("Unable to copy link", { tone: "negative" });
     }
   }
 
   function portalAction(node: HTMLDivElement) {
     if (typeof document === "undefined") return;
-    
+
     contextMenuContainer = node;
     // Append to the app container for consistency with other overlays (ModalHost, Tooltip)
     // This ensures proper stacking context and DOM hierarchy
@@ -69,13 +58,13 @@
       // Fallback to body if app container not found
       document.body.appendChild(node);
     }
-    
+
     return {
       destroy() {
         if (node.parentNode) {
           node.parentNode.removeChild(node);
         }
-      }
+      },
     };
   }
 </script>
@@ -83,7 +72,7 @@
 <Button
   bind:element={shareButtonElement}
   on:click={handleShareBuildClick}
-  tooltipText={"Share your build"}
+  tooltipText={"Share your backpack tech tree setup"}
   icon={ShareNetworkIcon}
 >
   Share Build

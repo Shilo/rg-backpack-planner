@@ -137,7 +137,7 @@
     <span class="tech-crystals-separator"> / </span>
     <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
   </Button>
-  <ShareBuildButton {onClose} />
+  <ShareBuildButton />
 </SideMenuSection>
 
 <SideMenuSection title="Node Interaction">

@@ -24,6 +24,7 @@
         initTechCrystalTrees,
         applyTechCrystalDeltaForTree,
     } from "./lib/techCrystalStore";
+    import { applyBuildFromUrl } from "./lib/shareManager";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
@@ -153,6 +154,17 @@
 
     onMount(async () => {
         ensureInstallListeners();
+        
+        // Load build from URL if present (wait for trees to be initialized)
+        await tick();
+        const buildLoaded = applyBuildFromUrl();
+        if (buildLoaded) {
+            // Clean up URL after loading to prevent re-loading on refresh
+            const url = new URL(window.location.href);
+            url.searchParams.delete("build");
+            window.history.replaceState({}, "", url.toString());
+        }
+        
         if (shouldShowControls) {
             markVersionAsSeen();
             await tick();

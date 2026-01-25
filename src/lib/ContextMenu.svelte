@@ -21,7 +21,8 @@
 
   let isDragging = false;
   let dragOffset = { x: 0, y: 0 }; // Offset from original position
-  let dragStart: { x: number; y: number; menuX: number; menuY: number } | null = null;
+  let dragStart: { x: number; y: number; menuX: number; menuY: number } | null =
+    null;
   let pointerId: number | null = null;
   let wasOpen = false; // Track previous open state
   let lastX = 0;
@@ -49,6 +50,7 @@
 
   function handleBackdropClick(event: MouseEvent) {
     if (event.target !== event.currentTarget) return;
+    event.stopPropagation();
     triggerHaptic();
     onClose?.();
   }
@@ -98,7 +100,8 @@
     if (!target || !(target instanceof Element)) return false;
     // Check if target is a button, link, or has click handlers
     const tagName = target.tagName.toLowerCase();
-    if (tagName === 'button' || tagName === 'a' || tagName === 'input') return true;
+    if (tagName === "button" || tagName === "a" || tagName === "input")
+      return true;
     // Check if target has a button role or is inside a button
     if (target.closest('button, a, [role="button"]')) return true;
     return false;
@@ -108,23 +111,23 @@
     if (!menuEl) return;
     // Only handle primary pointer (left mouse button or touch)
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    
+
     // Don't start drag if clicking on an interactive element - let it handle normally
     if (isInteractiveElement(event.target)) {
       // Still stop propagation to prevent document handler from closing menu
       event.stopPropagation();
       return;
     }
-    
+
     // Stop propagation to prevent document handler from closing menu
     event.stopPropagation();
     menuEl.setPointerCapture(event.pointerId);
     pointerId = event.pointerId;
-    
+
     const rect = menuEl.getBoundingClientRect();
     const menuCenterX = rect.left + rect.width / 2;
     const menuCenterY = rect.top + rect.height * 0.1;
-    
+
     dragStart = {
       x: event.clientX,
       y: event.clientY,
@@ -136,7 +139,7 @@
 
   function handlePointerMove(event: PointerEvent) {
     if (!dragStart || pointerId !== event.pointerId) return;
-    
+
     // If moving over an interactive element while not yet dragging, cancel drag
     if (!isDragging && isInteractiveElement(event.target)) {
       if (menuEl) {
@@ -146,32 +149,32 @@
       pointerId = null;
       return;
     }
-    
+
     const dx = event.clientX - dragStart.x;
     const dy = event.clientY - dragStart.y;
     const distance = Math.hypot(dx, dy);
-    
+
     // Start dragging after threshold to avoid accidental drags
     if (!isDragging && distance > DRAG_THRESHOLD) {
       isDragging = true;
       event.preventDefault();
     }
-    
+
     if (isDragging) {
       event.preventDefault();
-      
+
       // Calculate new position based on drag from starting position
       const newMenuX = dragStart.menuX + dx;
       const newMenuY = dragStart.menuY + dy;
-      
+
       // Calculate offset from original position
       const adjustedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
       dragOffset.x = newMenuX - x;
       dragOffset.y = newMenuY - adjustedY;
-      
+
       // Update position with bounds checking
       updatePosition();
-      
+
       // After clamping, update dragOffset to reflect the actual clamped position
       // Use displayX/displayY which are the clamped values
       const adjustedYBase = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
@@ -182,16 +185,16 @@
 
   function handlePointerUp(event: PointerEvent) {
     if (pointerId !== event.pointerId) return;
-    
+
     if (menuEl) {
       menuEl.releasePointerCapture(event.pointerId);
     }
-    
+
     // If we didn't drag (or dragged very little), allow the click to proceed
     if (!isDragging) {
       // Don't prevent default - allow button clicks to work
     }
-    
+
     isDragging = false;
     dragStart = null;
     pointerId = null;
@@ -225,11 +228,11 @@
     wasOpen = true;
     lastX = x;
     lastY = y;
-    
+
     if ((justOpened || positionChanged) && !isDragging) {
       dragOffset = { x: 0, y: 0 };
     }
-    
+
     tick().then(updatePosition);
   }
 
