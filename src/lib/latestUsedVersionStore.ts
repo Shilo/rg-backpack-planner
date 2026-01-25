@@ -34,7 +34,6 @@ export function isNewVersion(): boolean {
 export function markVersionAsSeen(): void {
     setStoredVersion(currentVersion);
 }
-
 export function getCurrentVersion(): string {
     return currentVersion;
 }

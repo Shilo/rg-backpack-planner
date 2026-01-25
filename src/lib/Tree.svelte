@@ -37,7 +37,6 @@
   export let bottomInset = 0;
   export let gesturesDisabled = false;
   export let initialViewState: TreeViewState | null = null;
-  export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
   export let onNodeLevelChange:
     | ((delta: number, nodeId?: string) => void)
     | null = null;
@@ -612,12 +611,9 @@
         }
       } else {
         // Check single level-up setting: if enabled, increment by 1; if disabled, max the node
-        const success = $singleLevelUp
+        $singleLevelUp
           ? levelUp(pointer.nodeId)
           : maxNode(pointer.nodeId);
-        if (success) {
-          onNodeLevelUp?.(pointer.nodeId);
-        }
       }
     }
 

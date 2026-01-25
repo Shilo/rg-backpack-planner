@@ -14,7 +14,6 @@
   export let isOpen = false;
   export let skipTransition = false;
   export let onClose: (() => void) | null = null;
-  export let onShareBuild: (() => void) | null = null;
   export let onHelp: (() => void) | null = null;
   export let onResetAll: (() => void) | null = null;
   export let onResetTree: (() => void) | null = null;

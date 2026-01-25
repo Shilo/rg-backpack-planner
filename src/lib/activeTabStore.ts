@@ -47,12 +47,7 @@ function createActiveTabStore() {
 
 export const activeTabId = createActiveTabStore();
 
-// Helper functions for direct access without subscribing
+// Helper function for direct access without subscribing
 export function getActiveTabId(): string {
     return getStoredActiveTabId();
-}
-
-export function setActiveTabId(tabId: string): void {
-    setStoredActiveTabId(tabId);
-    activeTabId.set(tabId);
 }

@@ -40,7 +40,6 @@
   export let activeIndex = 0;
   export let activeViewState: TreeViewState | null = null;
   export let activeFocusViewState: TreeViewState | null = null;
-  export let onNodeLevelUp: ((nodeId: string) => void) | null = null;
   export let onNodeLevelChange:
     | ((tabIndex: number, techCrystalDelta: number, nodeId?: string) => void)
     | null = null;
@@ -422,7 +421,6 @@
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
           initialViewState={lastViewState}
-          {onNodeLevelUp}
           onNodeLevelChange={handleNodeLevelChange}
           onViewStateChange={handleViewStateChange}
           onFocusViewStateChange={handleFocusViewStateChange}
