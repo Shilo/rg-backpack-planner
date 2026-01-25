@@ -175,7 +175,7 @@
         // Load from localStorage only if there's no URL build
         // URL builds should take precedence over localStorage
         if (!hasUrlBuild) {
-            const savedProgress = loadTreeProgress();
+            const savedProgress = loadTreeProgress(tabs);
             if (savedProgress) {
                 const currentTrees = get(treeLevels);
                 // Only apply if the saved progress matches the current tree structure

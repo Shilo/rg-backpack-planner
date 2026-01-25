@@ -1,13 +1,66 @@
 import { get, type Unsubscriber } from "svelte/store";
 import { treeLevels, type LevelsById } from "./treeLevelsStore";
+import type { TreeNode } from "./Tree.svelte";
 
 const STORAGE_KEY = "rg-backpack-planner-tree-progress";
 
 /**
- * Loads saved tree progress from localStorage
- * @returns The saved progress or null if not found/invalid
+ * Compresses tree progress data by removing zero values to reduce data size.
+ * Missing keys are treated as 0 when loading, so zero values can be safely omitted.
+ * @param levels The tree levels to compress
+ * @returns Compressed levels with zero values omitted
  */
-export function loadTreeProgress(): LevelsById[] | null {
+function compressTreeProgress(levels: LevelsById[]): LevelsById[] {
+    return levels.map((tree) => {
+        const compressedTree: LevelsById = {};
+        for (const [nodeId, level] of Object.entries(tree)) {
+            if (level !== 0) {
+                compressedTree[nodeId] = level;
+            }
+        }
+        return compressedTree;
+    });
+}
+
+/**
+ * Expands compressed tree progress data by adding missing node IDs with 0 values.
+ * This ensures the loaded data matches the expected structure with all nodes present.
+ * @param compressedLevels Compressed levels (may be missing zero values)
+ * @param trees Array of tree node definitions to expand against
+ * @returns Expanded levels with all node IDs present
+ */
+function expandTreeProgress(
+    compressedLevels: LevelsById[],
+    trees: { nodes: TreeNode[] }[],
+): LevelsById[] {
+    if (compressedLevels.length !== trees.length) {
+        return compressedLevels;
+    }
+    
+    return compressedLevels.map((compressedTree, index) => {
+        const tree = trees[index];
+        if (!tree) return compressedTree;
+        
+        // Start with the compressed data, then add missing nodes as 0
+        const expanded: LevelsById = { ...compressedTree };
+        for (const node of tree.nodes) {
+            if (!(node.id in expanded)) {
+                expanded[node.id] = 0;
+            }
+        }
+        return expanded;
+    });
+}
+
+/**
+ * Loads saved tree progress from localStorage
+ * If trees are provided, automatically expands compressed data (adds missing zeros).
+ * @param trees Optional array of tree node definitions to expand against
+ * @returns The saved progress (expanded if trees provided) or null if not found/invalid
+ */
+export function loadTreeProgress(
+    trees?: { nodes: TreeNode[] }[],
+): LevelsById[] | null {
     if (typeof window === "undefined") return null;
     
     try {
@@ -21,6 +74,10 @@ export function loadTreeProgress(): LevelsById[] | null {
             Array.isArray(parsed) &&
             parsed.every((tree) => typeof tree === "object" && tree !== null)
         ) {
+            // If trees are provided, expand compressed data automatically
+            if (trees) {
+                return expandTreeProgress(parsed, trees);
+            }
             return parsed;
         }
         
@@ -33,13 +90,16 @@ export function loadTreeProgress(): LevelsById[] | null {
 
 /**
  * Saves tree progress to localStorage
+ * Optimizes storage by omitting zero values to reduce data size
  * @param levels The tree levels to save
  */
 export function saveTreeProgress(levels: LevelsById[]): void {
     if (typeof window === "undefined") return;
     
     try {
-        const serialized = JSON.stringify(levels);
+        // Compress data by removing zero values - missing keys are treated as 0 on load
+        const compressed = compressTreeProgress(levels);
+        const serialized = JSON.stringify(compressed);
         localStorage.setItem(STORAGE_KEY, serialized);
     } catch (error) {
         // Handle quota exceeded or other storage errors gracefully
