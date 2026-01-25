@@ -335,20 +335,15 @@ export function runTests() {
   console.log("===");
   console.log();
 
-  let totalCustomSerializedLength = 0;
+  let totalSerializedLength = 0;
   let totalJsonLength = 0;
-  let totalBase64urlLength = 0;
   let passedTests = 0;
   let failedTests = 0;
-  let warningCount = 0;
   
   // Track longest encoded lengths and values
-  let longestCustomSerializedLength = 0;
-  let longestBase64urlLength = 0;
-  let longestCustomTestName = "";
-  let longestBase64urlTestName = "";
-  let longestCustomSerializedValue = "";
-  let longestBase64urlValue = "";
+  let longestSerializedLength = 0;
+  let longestSerializedTestName = "";
+  let longestSerializedValue = "";
 
   testCases.forEach((testCase, index) => {
     console.log(`Test ${index + 1}: ${testCase.name}`);
@@ -359,25 +354,17 @@ export function runTests() {
       const jsonString = JSON.stringify(testCase.buildData);
       const jsonLength = jsonString.length;
 
-      // Encode to get base64url
-      const encoded = encodeBuildData(testCase.buildData);
-      const encodedLength = encoded.length;
-
-      // Decode base64url to get the custom serialized string (before base64)
-      // Convert base64url back to base64, then decode
-      let base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
-      while (base64.length % 4) {
-        base64 += "=";
-      }
-      const customSerialized = atob(base64);
-      const customSerializedLength = customSerialized.length;
+      // Encode to get serialized string (directly, no base64 encoding)
+      const serialized = encodeBuildData(testCase.buildData);
+      const serializedLength = serialized.length;
       
       // Note: Serialized string uses base36 encoding and custom separators
       // Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
       // Separators: : (branches), ; (trees), , (values), - (RLE), * (tree RLE)
+      // All characters are URL-safe, so no base64 encoding is needed
 
       // Decode build data
-      const decoded = decodeBuildData(encoded);
+      const decoded = decodeBuildData(serialized);
       const decodedJsonLength = decoded ? JSON.stringify(decoded).length : 0;
 
       // Verify
@@ -413,46 +400,30 @@ export function runTests() {
         );
       }
 
-      // Check compression (base64url encoding should not expand since all chars are base64url-safe)
-      // However, base64 encoding still adds some overhead, so check if it's reasonable
-      const compressionIsPositive = encodedLength <= customSerializedLength * 1.4; // Allow up to 40% overhead for base64
-
       if (!treesMatch) {
         console.log("❌ FAILED: Data mismatch");
         failedTests++;
       } else {
         console.log("✅ PASSED");
         passedTests++;
-        // Warn if compression overhead is too high (but don't fail)
-        if (!compressionIsPositive) {
-          console.log(`⚠️ WARNING: Base64 encoding overhead is high (base64url: ${encodedLength}, custom: ${customSerializedLength}, overhead: ${((encodedLength / customSerializedLength - 1) * 100).toFixed(1)}%)`);
-          warningCount++;
-        }
       }
 
       // Print lengths
       console.log(`JSON string length: ${jsonLength} characters`);
-      console.log(`Custom serialized length: ${customSerializedLength} characters`);
-      console.log(`Base64url encoded length: ${encodedLength} characters`);
-      const overhead = encodedLength > customSerializedLength 
-        ? `+${((encodedLength / customSerializedLength - 1) * 100).toFixed(1)}%`
-        : `${((1 - encodedLength / customSerializedLength) * 100).toFixed(1)}%`;
-      console.log(`Base64 encoding overhead: ${overhead}`);
+      console.log(`Serialized string length: ${serializedLength} characters`);
+      const compressionRatio = serializedLength > 0
+        ? `${((1 - serializedLength / jsonLength) * 100).toFixed(1)}%`
+        : "0%";
+      console.log(`Compression ratio vs JSON: ${compressionRatio}`);
 
-      totalCustomSerializedLength += customSerializedLength;
+      totalSerializedLength += serializedLength;
       totalJsonLength += jsonLength;
-      totalBase64urlLength += encodedLength;
       
       // Track longest encoded lengths and values
-      if (customSerializedLength > longestCustomSerializedLength) {
-        longestCustomSerializedLength = customSerializedLength;
-        longestCustomTestName = testCase.name;
-        longestCustomSerializedValue = customSerialized;
-      }
-      if (encodedLength > longestBase64urlLength) {
-        longestBase64urlLength = encodedLength;
-        longestBase64urlTestName = testCase.name;
-        longestBase64urlValue = encoded;
+      if (serializedLength > longestSerializedLength) {
+        longestSerializedLength = serializedLength;
+        longestSerializedTestName = testCase.name;
+        longestSerializedValue = serialized;
       }
 
       // Print before/after
@@ -460,10 +431,8 @@ export function runTests() {
       console.log(JSON.stringify(testCase.buildData, null, 2));
       console.log("\nDecoded build data (JSON):");
       console.log(JSON.stringify(decoded, null, 2));
-      console.log("\nCustom serialized string (before base64):");
-      console.log(customSerialized);
-      console.log("\nBase64url encoded string:");
-      console.log(encoded);
+      console.log("\nSerialized string:");
+      console.log(serialized);
       console.log();
     } catch (error) {
       console.log(`❌ FAILED: ${error instanceof Error ? error.message : String(error)}`);
@@ -478,27 +447,20 @@ export function runTests() {
   console.log("===");
   console.log(`📊 Total tests: ${testCases.length}`);
   console.log(`✅ Passed: ${passedTests}`);
-  if (warningCount > 0) {
-    console.log(`⚠️ Warnings: ${warningCount} (compression not positive)`);
-  }
   console.log(`❌ Failed: ${failedTests}`);
   console.log(`📏 Average JSON string length: ${(totalJsonLength / testCases.length).toFixed(1)} characters`);
-  console.log(`📏 Average custom serialized length: ${(totalCustomSerializedLength / testCases.length).toFixed(1)} characters`);
-  console.log(`📏 Average base64url encoded length: ${(totalBase64urlLength / testCases.length).toFixed(1)} characters`);
-  const overallOverhead = totalBase64urlLength > totalCustomSerializedLength
-    ? `+${((totalBase64urlLength / totalCustomSerializedLength - 1) * 100).toFixed(1)}%`
-    : `${((1 - totalBase64urlLength / totalCustomSerializedLength) * 100).toFixed(1)}%`;
-  console.log(`🗜️ Overall base64 encoding overhead: ${overallOverhead}`);
+  console.log(`📏 Average serialized string length: ${(totalSerializedLength / testCases.length).toFixed(1)} characters`);
+  const overallCompressionRatio = totalSerializedLength > 0
+    ? `${((1 - totalSerializedLength / totalJsonLength) * 100).toFixed(1)}%`
+    : "0%";
+  console.log(`🗜️ Overall compression ratio vs JSON: ${overallCompressionRatio}`);
   console.log();
-  console.log("📈 Longest Encoded Lengths:");
-  console.log(`   Custom serialized: ${longestCustomSerializedLength} characters - "${longestCustomTestName}"`);
-  console.log(`   Base64url encoded: ${longestBase64urlLength} characters - "${longestBase64urlTestName}"`);
+  console.log("📈 Longest Encoded Length:");
+  console.log(`   Serialized: ${longestSerializedLength} characters - "${longestSerializedTestName}"`);
   console.log();
-  console.log("📝 Longest Encoded Values:");
-  console.log(`   Custom serialized (${longestCustomSerializedLength} chars):`);
-  console.log(`   ${longestCustomSerializedValue}`);
-  console.log(`   Base64url encoded (${longestBase64urlLength} chars):`);
-  console.log(`   ${longestBase64urlValue}`);
+  console.log("📝 Longest Encoded Value:");
+  console.log(`   Serialized (${longestSerializedLength} chars):`);
+  console.log(`   ${longestSerializedValue}`);
   console.log("===");
 }
 

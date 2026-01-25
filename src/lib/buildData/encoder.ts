@@ -1,7 +1,7 @@
 /**
  * Build data encoding and decoding
  * Handles conversion between object format and compact array format,
- * and base64url encoding for URL sharing
+ * and serialization for URL sharing (all characters are URL-safe, no base64 encoding needed)
  */
 
 import { baseTree } from "../../config/baseTree";
@@ -47,10 +47,10 @@ const BRANCH_ROOTS = {
 const EMPTY_BUILD_MARKER = "_";
 
 /**
- * Regex pattern for valid base64url characters
- * Base64url characters: A-Z, a-z, 0-9, -, _
+ * Regex pattern for valid serialized format characters
+ * Serialized format uses: base36 numbers (0-9, a-z), separators (: ; , - *), and empty marker (_)
  */
-export const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
+export const SERIALIZED_PATTERN = /^[0-9a-z:;,\-*_]+$/;
 
 /**
  * Node map for quick lookup
@@ -710,8 +710,9 @@ function convertArrayFormatToTrees(
 }
 
 /**
- * Encodes build data into a base64url string for URL sharing
+ * Encodes build data into a serialized string for URL sharing
  * Uses compact branch-based format with truncated trailing zeros for smallest possible URL
+ * Returns the serialized string directly (all characters are URL-safe, no base64 encoding needed)
  */
 export function encodeBuildData(buildData: BuildData): string {
   // Convert to branch-grouped array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
@@ -728,9 +729,8 @@ export function encodeBuildData(buildData: BuildData): string {
     serializedString: serialized,
   });
 
-  // Encode to base64, then convert to base64url for URL safety
-  const base64 = btoa(serialized);
-  return encodeBase64Url(base64);
+  // Return serialized string directly (all characters are URL-safe: 0-9, a-z, :, ;, ,, -, *, _)
+  return serialized;
 }
 
 /**
@@ -753,26 +753,19 @@ function safeExecute<T>(
 }
 
 /**
- * Decodes a base64url string back into build data
+ * Decodes a serialized string back into build data
  * Returns compressed data (expansion happens in applyBuildFromUrl)
  */
 export function decodeBuildData(encoded: string): BuildData | null {
-  // Validate that the string looks like valid base64url
-  if (!BASE64URL_PATTERN.test(encoded)) {
-    console.warn("[decodeBuildData] Invalid base64url format:", encoded);
+  // Validate that the string looks like valid serialized format
+  if (!SERIALIZED_PATTERN.test(encoded)) {
+    console.warn("[decodeBuildData] Invalid serialized format:", encoded);
     return null;
   }
 
-  // Convert base64url back to base64, then decode
-  const base64 = decodeBase64Url(encoded);
-  const decoded = safeExecute(() => atob(base64), "Failed to decode base64 string");
-  if (!decoded) return null;
-
-  console.warn("[decodeBuildData] Decoded string:", decoded);
-
-  // Parse array format
+  // Parse array format directly (no base64 decoding needed)
   const parsed = safeExecute(
-    () => parseArrayFormat(decoded),
+    () => parseArrayFormat(encoded),
     "Failed to parse array format"
   );
   if (!parsed) return null;
