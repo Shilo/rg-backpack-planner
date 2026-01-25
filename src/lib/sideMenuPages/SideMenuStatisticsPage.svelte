@@ -20,16 +20,6 @@
   let statsRows: Array<[string, string]> = [];
   $: {
     statsRows = [
-      ["Tech Crystals Spent", ""],
-      ["Total", formatNumber($techCrystalsSpentTotal)],
-      ["Guardian", formatNumber($techCrystalsSpentGuardian)],
-      ["Vanguard", formatNumber($techCrystalsSpentVanguard)],
-      ["Cannon", formatNumber($techCrystalsSpentCannon)],
-      ["Backpack Node Levels", ""],
-      ["Total", formatNumber($treeLevelsTotal)],
-      ["Guardian", formatNumber($treeLevelsGuardian)],
-      ["Vanguard", formatNumber($treeLevelsVanguard)],
-      ["Cannon", formatNumber($treeLevelsCannon)],
       ["Backpack Skill Boosts", ""],
       ["TODO", "TODO"],
       ["Attack Boost", "10,000%"],
@@ -37,6 +27,16 @@
       ["Critical Hit", "160%"],
       ["Global ATK", "200%"],
       ["Final Damage Boost", "20%"],
+      ["Backpack Node Levels", ""],
+      ["Total", formatNumber($treeLevelsTotal)],
+      ["Guardian", formatNumber($treeLevelsGuardian)],
+      ["Vanguard", formatNumber($treeLevelsVanguard)],
+      ["Cannon", formatNumber($treeLevelsCannon)],
+      ["Tech Crystals Spent", ""],
+      ["Total", formatNumber($techCrystalsSpentTotal)],
+      ["Guardian", formatNumber($techCrystalsSpentGuardian)],
+      ["Vanguard", formatNumber($techCrystalsSpentVanguard)],
+      ["Cannon", formatNumber($techCrystalsSpentCannon)],
     ];
   }
 </script>

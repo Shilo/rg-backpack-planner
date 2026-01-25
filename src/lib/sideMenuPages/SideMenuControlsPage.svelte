@@ -205,8 +205,8 @@
         <div class="controls-actions">
           <Button
             icon={GithubLogoIcon}
-            aria-label="View source on GitHub"
-            tooltipText="View source on GitHub"
+            aria-label="View source code on GitHub"
+            tooltipText="View source code on GitHub"
             on:click={() => {
               window.open(
                 appGithubUrl ?? "https://github.com/shilo",
@@ -273,10 +273,6 @@
             <p class="control-desc">Refund Tech Crystals for tree</p>
           </div>
         </li>
-      </ul>
-    </SideMenuSection>
-    <SideMenuSection title="Side menu">
-      <ul class="control-list">
         <li class="control-row">
           <span class="control-icon" aria-hidden="true"><ListIcon /></span>
           <div class="control-text">
@@ -284,17 +280,6 @@
             <p class="control-desc">Show or hide additional options</p>
           </div>
         </li>
-        {#if canInstall && !isInstalled}
-          <li class="control-row">
-            <span class="control-icon" aria-hidden="true"
-              ><DownloadSimpleIcon /></span
-            >
-            <div class="control-text">
-              <p class="control-label">Install app</p>
-              <p class="control-desc">Install the PWA for offline access</p>
-            </div>
-          </li>
-        {/if}
         <li class="control-row">
           <span class="control-icon" aria-hidden="true"
             ><ShareNetworkIcon /></span
@@ -304,6 +289,31 @@
             <p class="control-desc">Copy a shareable link of your build</p>
           </div>
         </li>
+      </ul>
+    </SideMenuSection>
+    <SideMenuSection title="Side menu Controls Tab">
+      <ul class="control-list">
+        <li class="control-row">
+          <span class="control-icon" aria-hidden="true"><GithubLogoIcon /></span
+          >
+          <div class="control-text">
+            <p class="control-label">GitHub button</p>
+            <p class="control-desc">View the source code on GitHub</p>
+          </div>
+        </li>
+        {#if canInstall && !isInstalled}
+          <li class="control-row">
+            <span class="control-icon" aria-hidden="true"
+              ><DownloadSimpleIcon /></span
+            >
+            <div class="control-text">
+              <p class="control-label">Install app</p>
+              <p class="control-desc">
+                Install the Progressive Web App (PWA) for offline access
+              </p>
+            </div>
+          </li>
+        {/if}
       </ul>
     </SideMenuSection>
   </div>
