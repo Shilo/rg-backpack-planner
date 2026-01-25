@@ -448,7 +448,9 @@
     y={tabContextMenu?.y ?? 0}
     isOpen={!!tabContextMenu}
     tabIndex={tabContextMenu?.index ?? -1}
-    nodes={tabContextMenu?.index !== undefined ? tabs[tabContextMenu.index]?.nodes ?? [] : []}
+    nodes={tabContextMenu?.index !== undefined
+      ? (tabs[tabContextMenu.index]?.nodes ?? [])
+      : []}
     levelsById={$treeLevels[tabContextMenu?.index ?? -1] ?? null}
     viewState={tabContextMenu?.index === activeIndex ? activeViewState : null}
     focusViewState={tabContextMenu?.index === activeIndex
@@ -530,7 +532,7 @@
   :global(.menu-button) {
     border: 1px solid #2c3c61;
     background: rgba(17, 27, 45, 0.7);
-    color: #c9d6f5;
+    color: #8fa4ce;
     width: var(--tab-height);
     height: var(--tab-height);
     border-radius: 10px;
