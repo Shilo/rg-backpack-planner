@@ -38,8 +38,13 @@
     }
     return "statistics";
   }
-  export let activeTab: "statistics" | "settings" | "controls" =
+  let activeTab: "statistics" | "settings" | "controls" =
     getInitialActiveTab();
+
+  export function openTab(tab: "statistics" | "settings" | "controls") {
+    activeTab = tab;
+  }
+
   $: if (!isOpen) {
     const active = document.activeElement;
     if (

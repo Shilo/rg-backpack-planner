@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
     import SideMenu from "./lib/SideMenu.svelte";
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
@@ -45,7 +45,16 @@
     const shouldShowControls = (() => {
         if (typeof window === "undefined") return false;
         try {
-            return localStorage.getItem(helpStorageKey) !== appVersion;
+            const shouldShow =
+                localStorage.getItem(helpStorageKey) !== appVersion;
+            if (shouldShow) {
+                // Set active tab in localStorage so SideMenu initializes with controls
+                localStorage.setItem(
+                    "rg-backpack-planner-side-menu-active-tab",
+                    "controls",
+                );
+            }
+            return shouldShow;
         } catch {
             return false;
         }
@@ -127,13 +136,14 @@
         applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
     }
 
-    let sideMenuActiveTab: "statistics" | "settings" | "controls" =
-        shouldShowControls ? "controls" : "statistics";
+    let sideMenuRef: {
+        openTab?: (tab: "statistics" | "settings" | "controls") => void;
+    } | null = null;
     let skipMenuTransition = shouldShowControls;
     let isMenuOpen = shouldShowControls;
     let showAppTitle = !shouldShowControls;
 
-    onMount(() => {
+    onMount(async () => {
         ensureInstallListeners();
         if (shouldShowControls) {
             try {
@@ -141,6 +151,9 @@
             } catch {
                 // localStorage not available
             }
+            await tick();
+            // Ensure controls tab is active (backup in case component initialized before localStorage was set)
+            sideMenuRef?.openTab?.("controls");
             // Reset transition flag after menu is shown so future opens have transitions
             setTimeout(() => {
                 skipMenuTransition = false;
@@ -160,6 +173,7 @@
     on:touchcancel={handleTouchEnd}
 >
     <SideMenu
+        bind:this={sideMenuRef}
         isOpen={isMenuOpen}
         skipTransition={skipMenuTransition}
         onClose={closeMenu}
@@ -167,7 +181,6 @@
         onResetTree={() => tabsRef?.resetActiveTree?.()}
         onResetAll={() => tabsRef?.resetAllTrees?.()}
         onHelp={openHelp}
-        bind:activeTab={sideMenuActiveTab}
         {activeTreeIndex}
         {activeTreeViewState}
         {activeTreeFocusViewState}
