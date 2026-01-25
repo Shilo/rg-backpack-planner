@@ -3,7 +3,7 @@
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
-  import { saveBuildToUrl, saveBuildAsImage } from "../shareManager";
+  import { saveBuildToUrl, saveBuildAsImage } from "../buildData/share";
 
   export let title: string | undefined;
   export let disabled: boolean | undefined = false;
@@ -27,13 +27,6 @@
     shareMenuOpen = false;
     // Prevent event from bubbling to side menu backdrop
     // The context menu is portaled outside, so we need to ensure clicks don't propagate
-  }
-
-  function handleShareMenuOpen() {
-    // When the share menu opens, we need to prevent the parent context menu
-    // from closing. The share menu is portaled outside, so clicks on it
-    // won't be contained within the parent menuEl.
-    // We'll handle this by checking if the share menu is open in the parent.
   }
 
   async function handleShareImage() {

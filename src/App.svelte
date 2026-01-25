@@ -31,7 +31,8 @@
         recalculateTechCrystalsSpent,
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
-    import { applyBuildFromUrl, loadBuildFromUrl } from "./lib/shareManager";
+    import { applyBuildFromUrl } from "./lib/buildData/applier";
+    import { loadBuildFromUrl } from "./lib/buildData/url";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
@@ -40,7 +41,7 @@
         initTreeProgressPersistence,
     } from "./lib/treeProgressStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
-    import { updateUrlWithCurrentBuild } from "./lib/shareManager";
+    import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
     import { showToastDelayed } from "./lib/toast";
     import { get } from "svelte/store";
 
