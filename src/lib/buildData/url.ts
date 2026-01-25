@@ -4,7 +4,7 @@
  */
 
 import type { BuildData } from "./encoder";
-import { encodeBuildData, decodeBuildData } from "./encoder";
+import { encodeBuildData, decodeBuildData, BASE64URL_PATTERN } from "./encoder";
 
 /**
  * Base path from vite.config.ts - must match the base configuration
@@ -73,9 +73,8 @@ export function loadBuildFromUrl(): BuildData | null {
     }
 
     // Only try to decode if it looks like base64url
-    // Base64url characters: A-Z, a-z, 0-9, -, _
     // decodeBuildData will handle further validation
-    if (/^[A-Za-z0-9_-]+$/.test(lastSegment)) {
+    if (BASE64URL_PATTERN.test(lastSegment)) {
       const buildData = decodeBuildData(lastSegment);
       if (buildData) {
         console.warn("[loadBuildFromUrl] Successfully loaded build data from URL:", lastSegment);
@@ -129,7 +128,7 @@ export function updateUrlWithCurrentBuild(): void {
       const lastSegment = pathSegments[pathSegments.length - 1];
       const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
       // If it matches the pattern for build data and is not the base path segment, remove it
-      if (lastSegment !== basePathSegment && /^[A-Za-z0-9_-]+$/.test(lastSegment)) {
+      if (lastSegment !== basePathSegment && BASE64URL_PATTERN.test(lastSegment)) {
         pathSegments.pop();
       }
     }

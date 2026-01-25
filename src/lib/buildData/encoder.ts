@@ -47,6 +47,12 @@ const BRANCH_ROOTS = {
 const EMPTY_BUILD_MARKER = "_";
 
 /**
+ * Regex pattern for valid base64url characters
+ * Base64url characters: A-Z, a-z, 0-9, -, _
+ */
+export const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+/**
  * Node map for quick lookup
  */
 let nodeMap: Map<string, TreeNode> | null = null;
@@ -87,7 +93,7 @@ function getNodeBranch(nodeId: string): BranchType {
 
   const nodeMap = initializeNodeMap();
   const node = nodeMap.get(nodeId);
-  
+
   if (!node) {
     // Node not found, default to yellow (shouldn't happen)
     branchCache.set(nodeId, "yellow");
@@ -262,7 +268,7 @@ function serializeArrayFormat(
 
   // Get non-empty trees
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
-  
+
   // Join trees with semicolons, append owned if non-zero
   if (owned === 0) {
     return nonEmptyTreeStrings.join(";");
@@ -541,8 +547,7 @@ export function encodeBuildData(buildData: BuildData): string {
 export function decodeBuildData(encoded: string): BuildData | null {
   try {
     // Validate that the string looks like valid base64url
-    // Base64url characters: A-Z, a-z, 0-9, -, _
-    if (!/^[A-Za-z0-9_-]+$/.test(encoded)) {
+    if (!BASE64URL_PATTERN.test(encoded)) {
       return null;
     }
 

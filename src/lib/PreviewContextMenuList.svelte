@@ -2,6 +2,7 @@
   import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
   import Button from "./Button.svelte";
   import { XCircleIcon } from "phosphor-svelte";
+  import { BASE64URL_PATTERN } from "./buildData/encoder";
 
   export let onButtonPress: (() => void) | null = null;
 
@@ -18,7 +19,7 @@
       if (pathSegments.length > 0) {
         const lastSegment = pathSegments[pathSegments.length - 1];
         // Check if it looks like base64url encoded data
-        if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length > 10) {
+        if (BASE64URL_PATTERN.test(lastSegment) && lastSegment.length > 10) {
           pathSegments.pop();
         }
       }

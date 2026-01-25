@@ -33,6 +33,7 @@
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/buildData/applier";
     import { loadBuildFromUrl } from "./lib/buildData/url";
+    import { BASE64URL_PATTERN } from "./lib/buildData/encoder";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
@@ -198,7 +199,7 @@
                         // This is just the base path, not build data - no cleanup needed
                     } else {
                         // Check if it looks like build data but failed to decode
-                        if (/^[A-Za-z0-9_-]+$/.test(lastSegment)) {
+                        if (BASE64URL_PATTERN.test(lastSegment)) {
                             // Invalid build data detected - remove it from URL
                             pathSegments.pop();
                             // Ensure we preserve at least the base path from vite.config.ts
