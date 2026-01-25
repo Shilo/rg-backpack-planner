@@ -9,9 +9,7 @@
   --tab-height: 38px;
   --side-menu-tab-height: calc(var(--tab-height) + 10px);
   --side-menu-tab-min-width: 72px;
-  --side-menu-width: calc(
-    3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px
-  );
+  --side-menu-width: calc(3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px);
 }
 
 * {
@@ -71,7 +69,7 @@ button {
 
 .tooltip {
   position: fixed;
-  z-index: 60;
+  z-index: 150;
   padding: 6px 10px;
   border-radius: 8px;
   background: rgba(20, 28, 46, 0.96);
