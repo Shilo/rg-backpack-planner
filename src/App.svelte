@@ -198,10 +198,7 @@
                         // This is just the base path, not build data - no cleanup needed
                     } else {
                         // Check if it looks like build data but failed to decode
-                        if (
-                            /^[A-Za-z0-9_-]+$/.test(lastSegment) &&
-                            lastSegment.length >= 4
-                        ) {
+                        if (/^[A-Za-z0-9_-]+$/.test(lastSegment)) {
                             // Invalid build data detected - remove it from URL
                             pathSegments.pop();
                             // Ensure we preserve at least the base path from vite.config.ts

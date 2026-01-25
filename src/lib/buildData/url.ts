@@ -127,8 +127,9 @@ export function updateUrlWithCurrentBuild(): void {
     // We can skip the decode check since we're about to replace it anyway
     if (pathSegments.length > 0) {
       const lastSegment = pathSegments[pathSegments.length - 1];
-      // If it matches the pattern for build data, remove it
-      if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 4) {
+      const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
+      // If it matches the pattern for build data and is not the base path segment, remove it
+      if (lastSegment !== basePathSegment && /^[A-Za-z0-9_-]+$/.test(lastSegment)) {
         pathSegments.pop();
       }
     }
