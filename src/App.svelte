@@ -27,6 +27,7 @@
     import {
         initTechCrystalTrees,
         applyTechCrystalDeltaForTree,
+        recalculateTechCrystalsSpent,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/shareManager";
     import { guardianTree } from "./config/guardianTree";
@@ -182,6 +183,8 @@
                     savedProgress.forEach((tree, index) => {
                         setTreeLevels(index, tree);
                     });
+                    // Recalculate tech crystals spent after loading from localStorage
+                    recalculateTechCrystalsSpent(savedProgress);
                 }
             }
         }
@@ -189,6 +192,9 @@
         // Load build from URL if present (this will override localStorage if present)
         const buildLoaded = applyBuildFromUrl();
         if (buildLoaded) {
+            // Recalculate tech crystals spent after loading from URL
+            const currentTrees = get(treeLevels);
+            recalculateTechCrystalsSpent(currentTrees);
             // Clean up URL after loading to prevent re-loading on refresh
             const url = new URL(window.location.href);
             url.searchParams.delete("build");

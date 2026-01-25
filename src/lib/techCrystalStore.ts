@@ -1,5 +1,6 @@
 import { derived, writable } from "svelte/store";
 import type { TabConfig } from "./Tabs.svelte";
+import type { LevelsById } from "./treeLevelsStore";
 
 export const techCrystalsOwned = writable(0);
 export const techCrystalsSpentByTree = writable<number[]>([0, 0, 0]);
@@ -50,4 +51,20 @@ export function applyTechCrystalDeltaForTree(
       index === tabIndex ? next : value,
     );
   });
+}
+
+/**
+ * Recalculates tech crystals spent for each tree based on current tree levels.
+ * This is used when loading from persistent storage or build URL, where
+ * levels are set directly without going through the normal level change callbacks.
+ * @param levels Array of level records, one per tree
+ */
+export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
+  const spent = levels.map((treeLevels) => {
+    // Sum all node levels, excluding root node
+    return Object.entries(treeLevels)
+      .filter(([nodeId]) => nodeId !== "root")
+      .reduce((sum, [, level]) => sum + (level ?? 0), 0);
+  });
+  techCrystalsSpentByTree.set(spent);
 }
