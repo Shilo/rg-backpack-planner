@@ -49,7 +49,7 @@
       ? `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${gameName}</a>`
       : gameName || "";
   const helpMessage =
-    gameName && ownerName ? `For ${gameLink}<br>By ${ownerLink}` : "";
+    gameName && ownerName ? `By ${ownerLink}<br>For ${gameLink}` : "";
 
   type ControlDevice = "pointer" | "touch" | "both";
   type ControlItem = {
@@ -165,7 +165,6 @@
     }
     showMouse = supportsMouse;
     showTouch = supportsTouch;
-    showTouch = true; //todo
   }
 
   $: pointerControls = controls.filter((c) => c.device !== "touch");

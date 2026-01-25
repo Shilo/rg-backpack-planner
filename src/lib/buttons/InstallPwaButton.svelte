@@ -101,7 +101,6 @@
     deferredInstallPrompt = state.deferredInstallPrompt;
     canInstall = state.canInstall;
     isInstalled = state.isInstalled;
-    canInstall = true; //todo
   }
 
   async function handleInstallClick() {
