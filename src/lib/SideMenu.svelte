@@ -1,18 +1,9 @@
 <script lang="ts">
-  import {
-    ArrowUp,
-    BarChart2,
-    Gamepad2,
-    HelpCircle,
-    Hexagon,
-    Menu,
-    Settings,
-    X,
-    ZoomIn,
-  } from "lucide-svelte";
+  import { ArrowUp, HelpCircle, Hexagon, ZoomIn } from "lucide-svelte";
   import Button from "./Button.svelte";
   import CodeBlockTable from "./CodeBlockTable.svelte";
   import SideMenuSection from "./SideMenuSection.svelte";
+  import SideBarTabBar from "./SideBarTabBar.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import CopyStatsButton from "./buttons/CopyStatsButton.svelte";
   import InstallPwaButton from "./buttons/InstallPwaButton.svelte";
@@ -21,7 +12,6 @@
   import type { TreeViewState } from "./Tree.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
   import { triggerHaptic } from "./haptics";
-  import { tooltip } from "./tooltip";
   import {
     treeLevels,
     treeLevelsTotal,
@@ -185,55 +175,7 @@
       <div class="side-menu__scroll-fade" aria-hidden="true"></div>
     </nav>
   </div>
-  <div class="side-menu__tabs">
-    <button
-      class="side-menu__tab-button"
-      class:active={activeTab === 'statistics'}
-      aria-label="Statistics"
-      use:tooltip={"Statistics"}
-      on:click={() => {
-        activeTab = 'statistics';
-        triggerHaptic();
-      }}
-      type="button"
-    >
-      <svelte:component this={BarChart2} class="side-menu__tab-icon" aria-hidden="true" />
-    </button>
-    <button
-      class="side-menu__tab-button"
-      class:active={activeTab === 'settings'}
-      aria-label="Settings"
-      use:tooltip={"Settings"}
-      on:click={() => {
-        activeTab = 'settings';
-        triggerHaptic();
-      }}
-      type="button"
-    >
-      <svelte:component this={Settings} class="side-menu__tab-icon" aria-hidden="true" />
-    </button>
-    <button
-      class="side-menu__tab-button"
-      class:active={activeTab === 'controls'}
-      aria-label="Controls"
-      use:tooltip={"Controls"}
-      on:click={() => {
-        activeTab = 'controls';
-        triggerHaptic();
-      }}
-      type="button"
-    >
-      <svelte:component this={Gamepad2} class="side-menu__tab-icon" aria-hidden="true" />
-    </button>
-  </div>
-  <Button
-    class="side-menu__close-button"
-    aria-label={isOpen ? "Close menu" : "Menu"}
-    tooltipText={isOpen ? "Close menu" : "Open menu"}
-    on:click={() => onClose?.()}
-    icon={isOpen ? X : Menu}
-    iconClass="menu-button-icon"
-  ></Button>
+  <SideBarTabBar bind:activeTab {isOpen} {onClose} />
 </aside>
 
 <style>
@@ -365,110 +307,5 @@
   :global(.button-icon-filled) {
     fill: currentColor;
     stroke: none;
-  }
-
-  .side-menu__tabs {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    padding: 0;
-    margin-right: calc(var(--side-menu-tab-height) + 10px);
-    height: var(--side-menu-tab-height);
-    pointer-events: none;
-  }
-
-  .side-menu__tab-button {
-    flex: 1;
-    border: 1px solid #2c3c61;
-    background: transparent;
-    color: #8fa4ce;
-    border-radius: 0;
-    height: var(--side-menu-tab-height);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition:
-      border-color 0.2s ease,
-      color 0.2s ease,
-      background 0.2s ease;
-    pointer-events: auto;
-    min-width: 0;
-  }
-
-  .side-menu__tab-icon {
-    width: 24px;
-    height: 24px;
-    flex: 0 0 auto;
-  }
-
-  .side-menu__tab-button:not(:first-child) {
-    border-left: none;
-  }
-
-  .side-menu__tab-button.active {
-    background: rgba(34, 49, 82, 0.78);
-    color: #e7efff;
-    border-color: #4f6fbf;
-  }
-
-  .side-menu__tab-button:focus-visible {
-    outline: 2px solid rgba(120, 156, 240, 0.9);
-    outline-offset: 2px;
-  }
-
-  @media (hover: hover) {
-    .side-menu__tab-button:not(.active):hover {
-      filter: brightness(1.18);
-    }
-  }
-
-  .side-menu__tab-button:active {
-    transform: scale(0.97);
-    filter: brightness(1.2);
-  }
-
-  :global(.side-menu__close-button) {
-    border: 1px solid #2c3c61 !important;
-    background: transparent !important;
-    color: #8fa4ce !important;
-    width: var(--side-menu-tab-height);
-    height: var(--side-menu-tab-height);
-    border-radius: 0 !important;
-    font-size: 1.35rem;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    right: 10px;
-    bottom: 0;
-    z-index: 12;
-    transition:
-      border-color 0.2s ease,
-      color 0.2s ease,
-      background 0.2s ease;
-    min-width: 0 !important;
-  }
-
-  :global(.side-menu__close-button .menu-button-icon) {
-    width: 24px;
-    height: 24px;
-  }
-
-  @media (hover: hover) {
-    :global(.side-menu__close-button:not(:disabled):hover) {
-      filter: brightness(1.18) !important;
-    }
-  }
-
-  :global(.side-menu__close-button:not(:disabled):active) {
-    transform: scale(0.97) !important;
-    filter: brightness(1.2) !important;
   }
 </style>
