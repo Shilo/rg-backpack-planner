@@ -119,25 +119,22 @@
         applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
     }
 
+    let sideMenuActiveTab: "statistics" | "settings" | "controls" =
+        "statistics";
+
     onMount(() => {
         ensureInstallListeners();
         try {
-            if (localStorage.getItem(helpStorageKey) !== appVersion) {
+            if (true || localStorage.getItem(helpStorageKey) !== appVersion) {
                 showAppTitle = false;
-                openHelpModal({
-                    onClose: () => {
-                        showAppTitle = true;
-                    },
-                });
+                sideMenuActiveTab = "controls";
+                isMenuOpen = true;
                 localStorage.setItem(helpStorageKey, appVersion);
             }
         } catch {
             showAppTitle = false;
-            openHelpModal({
-                onClose: () => {
-                    showAppTitle = true;
-                },
-            });
+            sideMenuActiveTab = "controls";
+            isMenuOpen = true;
         }
     });
 </script>
@@ -159,6 +156,7 @@
         onResetTree={() => tabsRef?.resetActiveTree?.()}
         onResetAll={() => tabsRef?.resetAllTrees?.()}
         onHelp={openHelp}
+        bind:activeTab={sideMenuActiveTab}
         {activeTreeIndex}
         {activeTreeViewState}
         {activeTreeFocusViewState}
