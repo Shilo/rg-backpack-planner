@@ -172,7 +172,7 @@
   </Button>
 </SideMenuSection>
 
-<SideMenuSection title="Recovery">
+<SideMenuSection title="Tree">
   <ResetTreeButton
     onReset={() => {
       onResetTree?.();
@@ -188,7 +188,9 @@
     }}
     levelsByTree={$treeLevels}
   />
-  <div class="spacer"></div>
+</SideMenuSection>
+
+<SideMenuSection title="Application">
   <Button
     on:click={handleReloadWindow}
     tooltipText={"Refresh the page"}
@@ -204,6 +206,7 @@
   >
     Reset Settings
   </Button>
+  <div class="spacer"></div>
   <Button
     on:click={handleClearAllData}
     tooltipText={"Delete all data and reload the application"}

@@ -15,9 +15,12 @@
     $: trimmedTreeLabel = treeLabel.trim();
     $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
     $: modalTitle = trimmedTreeLabel
-        ? `RESET ${trimmedTreeLabel} TREE?`
-        : "RESET TREE?";
+        ? `RESET ${trimmedTreeLabel} TREE`
+        : "RESET TREE";
     $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
+    $: buttonText = trimmedTreeLabel
+        ? `Reset ${trimmedTreeLabel} tree`
+        : "Reset tree";
 
     const handleReset = () => {
         if (!onReset) return;
@@ -46,5 +49,5 @@
     negative
     {disabled}
 >
-    Reset tree
+    {buttonText}
 </Button>
