@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 
-const STORAGE_KEY = "singleLevelUp";
+const STORAGE_KEY = "rg-backpack-planner-single-level-up";
 
 function getSingleLevelUp(): boolean {
   if (typeof window === "undefined") return false;

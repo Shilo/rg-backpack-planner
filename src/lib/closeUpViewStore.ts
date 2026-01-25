@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 
-const STORAGE_KEY = "closeUpView";
+const STORAGE_KEY = "rg-backpack-planner-close-up-view";
 
 function getCloseUpView(): boolean {
   if (typeof window === "undefined") return false;
