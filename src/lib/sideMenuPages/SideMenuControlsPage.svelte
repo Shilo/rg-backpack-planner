@@ -131,30 +131,32 @@
     },
   ];
 
-  let showPointer = true;
+  let showMouse = true;
   let showTouch = true;
   let canInstall = false;
   let isInstalled = false;
 
   function detectInputSupport() {
     let supportsTouch = false;
-    let supportsPointer = false;
+    let supportsMouse = false;
     if (typeof navigator !== "undefined") {
       supportsTouch = (navigator.maxTouchPoints ?? 0) > 0;
     }
     if (typeof window !== "undefined" && window.matchMedia) {
-      supportsPointer =
+      supportsMouse =
         window.matchMedia("(any-pointer: fine)").matches ||
         window.matchMedia("(pointer: fine)").matches;
       supportsTouch =
         supportsTouch ||
         window.matchMedia("(any-pointer: coarse)").matches ||
         window.matchMedia("(pointer: coarse)").matches;
+      supportsMouse = true;
+      supportsTouch = true;
     }
-    if (!supportsTouch && !supportsPointer) {
-      supportsPointer = true;
+    if (!supportsTouch && !supportsMouse) {
+      supportsMouse = true;
     }
-    showPointer = supportsPointer;
+    showMouse = supportsMouse;
     showTouch = supportsTouch;
   }
 
@@ -191,6 +193,40 @@
         </div>
       </div>
     </SideMenuSection>
+    {#if showTouch}
+      <SideMenuSection title="Touch">
+        <ul class="control-list">
+          {#each touchControls as control (control.id)}
+            <li class="control-row">
+              <span class="control-icon" aria-hidden="true">
+                <svelte:component this={control.icon} />
+              </span>
+              <div class="control-text">
+                <p class="control-label">{control.label}</p>
+                <p class="control-desc">{control.description}</p>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      </SideMenuSection>
+    {/if}
+    {#if showMouse}
+      <SideMenuSection title="Mouse">
+        <ul class="control-list">
+          {#each pointerControls as control (control.id)}
+            <li class="control-row">
+              <span class="control-icon" aria-hidden="true">
+                <svelte:component this={control.icon} />
+              </span>
+              <div class="control-text">
+                <p class="control-label">{control.label}</p>
+                <p class="control-desc">{control.description}</p>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      </SideMenuSection>
+    {/if}
     <SideMenuSection title="On-screen HUD">
       <ul class="control-list">
         <li class="control-row">
@@ -238,40 +274,6 @@
         </li>
       </ul>
     </SideMenuSection>
-    {#if showTouch}
-      <SideMenuSection title="Touch controls">
-        <ul class="control-list">
-          {#each touchControls as control (control.id)}
-            <li class="control-row">
-              <span class="control-icon" aria-hidden="true">
-                <svelte:component this={control.icon} />
-              </span>
-              <div class="control-text">
-                <p class="control-label">{control.label}</p>
-                <p class="control-desc">{control.description}</p>
-              </div>
-            </li>
-          {/each}
-        </ul>
-      </SideMenuSection>
-    {/if}
-    {#if showPointer}
-      <SideMenuSection title="Mouse controls">
-        <ul class="control-list">
-          {#each pointerControls as control (control.id)}
-            <li class="control-row">
-              <span class="control-icon" aria-hidden="true">
-                <svelte:component this={control.icon} />
-              </span>
-              <div class="control-text">
-                <p class="control-label">{control.label}</p>
-                <p class="control-desc">{control.description}</p>
-              </div>
-            </li>
-          {/each}
-        </ul>
-      </SideMenuSection>
-    {/if}
   </div>
   <div class="controls-actions">
     <InstallPwaButton />
@@ -307,7 +309,7 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 10px;
+    gap: 6px;
   }
 
   .control-row {
