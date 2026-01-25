@@ -175,12 +175,12 @@
 <div class="controls-page">
   <div class="controls-sections">
     <SideMenuSection title={modalTitleWithVersion}>
-      <div class="help-shortcut">
+      <div class="control-row">
         <span class="control-icon" aria-hidden="true">
           <img
             src={appIconUrl}
             alt={`${appName || "App"} icon`}
-            class="controls-brand__icon"
+            class="control-icon__image"
           />
         </span>
         <div class="control-text">
@@ -193,7 +193,7 @@
     </SideMenuSection>
     <SideMenuSection title="On-screen HUD">
       <ul class="control-list">
-        <div class="help-shortcut">
+        <li class="control-row">
           <span class="control-icon" aria-hidden="true">
             <Hexagon fill="currentColor" />
           </span>
@@ -201,48 +201,48 @@
             <p class="control-label">Tech Crystals (Currency)</p>
             <p class="control-desc">View spent and set owned amount</p>
           </div>
-        </div>
-        <div class="help-shortcut">
+        </li>
+        <li class="control-row">
           <span class="control-icon" aria-hidden="true"><RotateCcw /></span>
           <div class="control-text">
             <p class="control-label">Reset active tree</p>
             <p class="control-desc">Refund Tech Crystals for tree</p>
           </div>
-        </div>
+        </li>
       </ul>
     </SideMenuSection>
     <SideMenuSection title="Side menu">
       <ul class="control-list">
-        <div class="help-shortcut">
+        <li class="control-row">
           <span class="control-icon" aria-hidden="true"><Menu /></span>
           <div class="control-text">
             <p class="control-label">Side menu button</p>
             <p class="control-desc">Show or hide additional options</p>
           </div>
-        </div>
+        </li>
         {#if canInstall && !isInstalled}
-          <div class="help-shortcut">
+          <li class="control-row">
             <span class="control-icon" aria-hidden="true"><Download /></span>
             <div class="control-text">
               <p class="control-label">Install app</p>
               <p class="control-desc">Install the PWA for offline access</p>
             </div>
-          </div>
+          </li>
         {/if}
-        <div class="help-shortcut">
+        <li class="control-row">
           <span class="control-icon" aria-hidden="true"><Share2 /></span>
           <div class="control-text">
             <p class="control-label">Share button</p>
             <p class="control-desc">Copy a shareable link of your build</p>
           </div>
-        </div>
+        </li>
       </ul>
     </SideMenuSection>
     {#if showTouch}
       <SideMenuSection title="Touch controls">
         <ul class="control-list">
           {#each touchControls as control (control.id)}
-            <li class="control-item">
+            <li class="control-row">
               <span class="control-icon" aria-hidden="true">
                 <svelte:component this={control.icon} />
               </span>
@@ -259,7 +259,7 @@
       <SideMenuSection title="Mouse controls">
         <ul class="control-list">
           {#each pointerControls as control (control.id)}
-            <li class="control-item">
+            <li class="control-row">
               <span class="control-icon" aria-hidden="true">
                 <svelte:component this={control.icon} />
               </span>
@@ -297,12 +297,6 @@
     gap: 10px;
   }
 
-  .controls-brand__icon {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-
   .controls-sections {
     display: grid;
     gap: 10px;
@@ -316,11 +310,10 @@
     gap: 10px;
   }
 
-  .help-shortcut,
-  .control-item {
+  .control-row {
     display: grid;
     grid-template-columns: 24px 1fr;
-    gap: 10px;
+    gap: 6px;
     align-items: start;
   }
 
@@ -330,7 +323,8 @@
     color: #d7e2ff;
   }
 
-  .control-icon :global(svg) {
+  .control-icon :global(svg),
+  .control-icon__image {
     width: 100%;
     height: 100%;
     display: block;
