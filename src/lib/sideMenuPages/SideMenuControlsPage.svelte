@@ -11,7 +11,6 @@
     HandTapIcon,
     HexagonIcon,
     ListIcon,
-    MagnifyingGlassPlusIcon,
     MouseLeftClickIcon,
     MouseRightClickIcon,
     MouseScrollIcon,
@@ -24,6 +23,7 @@
     subscribeInstallState,
   } from "../buttons/InstallPwaButton.svelte";
   import LongPressIcon from "../icons/LongPressIcon.svelte";
+  import PinchIcon from "../icons/PinchIcon.svelte";
 
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
@@ -128,7 +128,7 @@
       id: "touch-zoom",
       label: "Pinch with two fingers",
       description: "Zoom in and out on tree",
-      icon: MagnifyingGlassPlusIcon,
+      icon: PinchIcon,
       device: "touch",
     },
     {
