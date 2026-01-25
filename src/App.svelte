@@ -15,7 +15,10 @@
         isNewVersion,
         markVersionAsSeen,
     } from "./lib/latestUsedVersionStore";
-    import { setActiveTab, setActiveTabWithoutPersist } from "./lib/sideMenuActiveTabStore";
+    import {
+        getActiveTab,
+        setActiveTabWithoutPersist,
+    } from "./lib/sideMenuActiveTabStore";
 
     import {
         initTechCrystalTrees,
@@ -67,6 +70,14 @@
     }
 
     function closeMenu() {
+        if (openedMenuForNewVersion) {
+            const tabToRestore = getActiveTab();
+            // Restore active tab to persisted value so re-open doesn't show controls
+            // Update both the store and the SideMenu component directly
+            setActiveTabWithoutPersist(tabToRestore);
+            sideMenuRef?.openTab?.(tabToRestore, false);
+            openedMenuForNewVersion = false;
+        }
         isMenuOpen = false;
     }
 
@@ -130,10 +141,15 @@
     }
 
     let sideMenuRef: {
-        openTab?: (tab: "statistics" | "settings" | "controls", persist?: boolean) => void;
+        openTab?: (
+            tab: "statistics" | "settings" | "controls",
+            persist?: boolean,
+        ) => void;
     } | null = null;
     let skipMenuTransition = shouldShowControls;
     let isMenuOpen = shouldShowControls;
+    /** True when menu was auto-opened for new-version notification; we reset tab on close. */
+    let openedMenuForNewVersion = shouldShowControls;
 
     onMount(async () => {
         ensureInstallListeners();
