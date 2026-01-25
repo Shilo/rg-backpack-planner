@@ -76,7 +76,11 @@ export function loadBuildFromUrl(): BuildData | null {
     // Base64url characters: A-Z, a-z, 0-9, -, _
     // decodeBuildData will handle further validation
     if (/^[A-Za-z0-9_-]+$/.test(lastSegment)) {
-      return decodeBuildData(lastSegment);
+      const buildData = decodeBuildData(lastSegment);
+      if (buildData) {
+        console.warn("[loadBuildFromUrl] Successfully loaded build data from URL:", lastSegment);
+      }
+      return buildData;
     }
   }
 

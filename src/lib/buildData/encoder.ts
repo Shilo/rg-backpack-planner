@@ -42,6 +42,11 @@ const BRANCH_ROOTS = {
 } as const;
 
 /**
+ * Special marker for completely empty build (all trees empty, owned=0)
+ */
+const EMPTY_BUILD_MARKER = "_";
+
+/**
  * Node map for quick lookup
  */
 let nodeMap: Map<string, TreeNode> | null = null;
@@ -249,8 +254,8 @@ function serializeArrayFormat(
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
   if (lastNonEmptyTreeIndex === -1) {
     if (owned === 0) {
-      // Use "_" as special marker for completely empty build
-      return "_";
+      // Use special marker for completely empty build
+      return EMPTY_BUILD_MARKER;
     }
     return owned.toString();
   }
@@ -275,8 +280,9 @@ function serializeArrayFormat(
 function parseArrayFormat(serialized: string): [number[][][], number] | null {
   try {
     // Handle special marker for empty build
-    if (serialized === "_") {
-      return [[[], [], []], 0];
+    if (serialized === EMPTY_BUILD_MARKER) {
+      // Return 3 trees, each with 3 empty branches
+      return [[[[], [], []], [[], [], []], [[], [], []]], 0];
     }
 
     const segments = serialized.split(";");
@@ -562,9 +568,12 @@ export function decodeBuildData(encoded: string): BuildData | null {
     const buildData = convertArrayFormatToTrees(arrayFormat);
 
     console.warn("[decodeBuildData] Deserialized data after load:", buildData);
+    console.warn("[decodeBuildData] Returning buildData:", buildData !== null ? "SUCCESS" : "NULL");
 
     return buildData;
   } catch (error) {
+    // Log error for debugging
+    console.error("[decodeBuildData] Error during decoding:", error);
     // Silently fail - this might not be build data
     return null;
   }
