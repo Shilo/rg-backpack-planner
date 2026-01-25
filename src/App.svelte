@@ -173,7 +173,7 @@
         {activeTreeFocusViewState}
         {activeTreeName}
     />
-    <AppTitleDisplay onClick={openControlsFromTitle} />
+    <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
     <div class="top-right-actions">
         <TechCrystalDisplay />
         <ActiveTreeResetButton
