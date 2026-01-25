@@ -42,11 +42,25 @@ export function createShareUrl(buildData?: BuildData): string {
   };
   const encoded = encodeBuildData(data);
   // Use path-based routing: /{encoded}
-  // Remove trailing slash from pathname if present, then append encoded data
-  let basePath = window.location.pathname.replace(/\/$/, "");
-  if (!basePath) {
-    basePath = "/";
+  // Extract base path by removing any existing encoded build data
+  const currentPath = window.location.pathname;
+  const pathSegments = currentPath.split("/").filter(Boolean);
+  
+  // Remove the last segment if it looks like build data
+  if (pathSegments.length > 0) {
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
+    // If it matches the pattern for build data and is not the base path segment, remove it
+    if (lastSegment !== basePathSegment && BASE64URL_PATTERN.test(lastSegment)) {
+      pathSegments.pop();
+    }
   }
+  
+  // Construct the base path
+  const basePath = pathSegments.length > 0
+    ? `/${pathSegments.join("/")}`
+    : BASE_PATH.replace(/\/$/, ""); // Remove trailing slash for joining
+  
   // Avoid double slashes
   const separator = basePath === "/" ? "" : "/";
   return `${window.location.origin}${basePath}${separator}${encoded}`;
