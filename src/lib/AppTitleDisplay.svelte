@@ -5,14 +5,12 @@
   const title = packageInfo.name;
   const version = packageInfo.version ?? "";
   const titleWithVersion = version ? `${title} v${version}` : title;
-  export let onHelp: (() => void) | null = null;
 </script>
 
 <Button
   class="app-title-display"
   type="button"
   aria-label={titleWithVersion}
-  on:click={() => onHelp?.()}
 >
   {titleWithVersion}
 </Button>

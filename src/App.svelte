@@ -9,7 +9,6 @@
     import Toasts from "./lib/Toasts.svelte";
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
-    import { openHelpModal } from "./lib/helpModal";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
@@ -69,10 +68,6 @@
 
     function closeMenu() {
         isMenuOpen = false;
-    }
-
-    function openHelp() {
-        openHelpModal();
     }
 
     function resetSwipeState() {
@@ -169,14 +164,13 @@
         onFocusInView={() => tabsRef?.focusActiveTreeInView?.(true)}
         onResetTree={() => tabsRef?.resetActiveTree?.()}
         onResetAll={() => tabsRef?.resetAllTrees?.()}
-        onHelp={openHelp}
         {activeTreeIndex}
         {activeTreeViewState}
         {activeTreeFocusViewState}
         {activeTreeName}
     />
     {#if showAppTitle}
-        <AppTitleDisplay onHelp={openHelp} />
+        <AppTitleDisplay />
     {/if}
     <div class="top-right-actions">
         <TechCrystalDisplay />

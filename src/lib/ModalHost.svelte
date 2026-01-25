@@ -1,8 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import AlertModal from "./modals/AlertModal.svelte";
   import ConfirmModal from "./modals/ConfirmModal.svelte";
-  import HelpModal from "./modals/HelpModal.svelte";
   import InputModal from "./modals/InputModal.svelte";
   import { closeModal, modalStore } from "./modalStore";
   import { triggerHaptic } from "./haptics";
@@ -81,16 +79,7 @@
       aria-modal="true"
       aria-label={$modalStore.title}
     >
-      {#if $modalStore.type === "alert"}
-        <AlertModal
-          title={$modalStore.title}
-          titleIcon={$modalStore.titleIcon ?? null}
-          titleIconClass={$modalStore.titleIconClass ?? ""}
-          message={$modalStore.message}
-          confirmLabel={$modalStore.confirmLabel ?? "OK"}
-          onConfirm={handleConfirm}
-        />
-      {:else if $modalStore.type === "confirm"}
+      {#if $modalStore.type === "confirm"}
         <ConfirmModal
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
@@ -102,16 +91,6 @@
           onConfirm={handleConfirm}
           onCancel={handleCancel}
         />
-      {:else if $modalStore.type === "help"}
-        <HelpModal
-          title={$modalStore.title}
-          titleIcon={$modalStore.titleIcon ?? null}
-          titleIconClass={$modalStore.titleIconClass ?? ""}
-          message={$modalStore.message}
-          actionsClass={$modalStore.actionsClass ?? ""}
-          confirmLabel={$modalStore.confirmLabel ?? "Close"}
-          onConfirm={handleConfirm}
-        />
       {:else if $modalStore.type === "input"}
         <InputModal
           title={$modalStore.title}
@@ -122,7 +101,6 @@
           value={$modalStore.input?.value ?? 0}
           min={$modalStore.input?.min ?? 0}
           step={$modalStore.input?.step ?? 1}
-          placeholder={$modalStore.input?.placeholder}
           confirmLabel={$modalStore.confirmLabel ?? "Save"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
           onConfirm={handleConfirm}
