@@ -1,58 +1,10 @@
 <script lang="ts">
-  import { ArrowUp, HelpCircle, Hexagon, ZoomIn } from "lucide-svelte";
-  import Button from "./Button.svelte";
-  import CodeBlockTable from "./CodeBlockTable.svelte";
-  import SideMenuSection from "./SideMenuSection.svelte";
   import SideBarTabBar from "./SideBarTabBar.svelte";
-  import TreeContextMenuList from "./TreeContextMenuList.svelte";
-  import CopyStatsButton from "./buttons/CopyStatsButton.svelte";
-  import InstallPwaButton from "./buttons/InstallPwaButton.svelte";
-  import ResetAllTreesButton from "./buttons/ResetAllTreesButton.svelte";
-  import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
-  import type { TreeViewState } from "./Tree.svelte";
-  import { openTechCrystalsOwnedModal } from "./techCrystalModal";
+  import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
+  import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
+  import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
   import { triggerHaptic } from "./haptics";
-  import {
-    treeLevels,
-    treeLevelsTotal,
-    treeLevelsGuardian,
-    treeLevelsVanguard,
-    treeLevelsCannon,
-  } from "./treeLevelsStore";
-  import {
-    techCrystalsAvailable,
-    techCrystalsOwned,
-    techCrystalsSpentTotal,
-    techCrystalsSpentGuardian,
-    techCrystalsSpentVanguard,
-    techCrystalsSpentCannon,
-  } from "./techCrystalStore";
-  import { closeUpView } from "./closeUpViewStore";
-  import { singleLevelUp } from "./singleLevelUpStore";
-  import ToggleSwitch from "./ToggleSwitch.svelte";
-  import { formatNumber } from "./mathUtil";
-
-  $: hasOwned = $techCrystalsOwned > 0;
-  let statsRows: Array<[string, string]> = [];
-  $: statsRows = [
-    ["Tech Crystals Spent", ""],
-    ["Total", formatNumber($techCrystalsSpentTotal)],
-    ["Guardian", formatNumber($techCrystalsSpentGuardian)],
-    ["Vanguard", formatNumber($techCrystalsSpentVanguard)],
-    ["Cannon", formatNumber($techCrystalsSpentCannon)],
-    ["Backpack Node Levels", ""],
-    ["Total", formatNumber($treeLevelsTotal)],
-    ["Guardian", formatNumber($treeLevelsGuardian)],
-    ["Vanguard", formatNumber($treeLevelsVanguard)],
-    ["Cannon", formatNumber($treeLevelsCannon)],
-    ["Backpack Skill Boosts", ""],
-    ["TODO", "TODO"],
-    ["Attack Boost", "10,000%"],
-    ["Defense Boost", "30,000%"],
-    ["Critical Hit", "160%"],
-    ["Global ATK", "200%"],
-    ["Final Damage Boost", "20%"],
-  ];
+  import type { TreeViewState } from "./Tree.svelte";
 
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
@@ -67,7 +19,6 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-  let statsTable: CodeBlockTable | null = null;
   let activeTab: 'statistics' | 'settings' | 'controls' = 'statistics';
   $: if (!isOpen) {
     const active = document.activeElement;
@@ -99,78 +50,22 @@
   <div class="side-menu__scroll-area">
     <nav class="side-menu__content" aria-label="Primary">
       <div class="side-menu__content-inner">
-        <SideMenuSection title="SETTINGS">
-          <Button
-            on:click={() => {
-              openTechCrystalsOwnedModal($techCrystalsOwned);
-            }}
-            tooltipText={"Change Tech Crystal owned (budget)"}
-            icon={Hexagon}
-            iconClass="button-icon button-icon-filled"
-          >
-            Tech Crystals:<br />
-            <span
-              class="tech-crystals-available"
-              class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
-            >
-              {formatNumber($techCrystalsAvailable)}
-            </span>
-            <span class="tech-crystals-separator"> / </span>
-            <span class="tech-crystals-owned"
-              >{formatNumber($techCrystalsOwned)}</span
-            >
-          </Button>
-          <ToggleSwitch
-            checked={$singleLevelUp}
-            label="Single Level-up"
-            ariaLabel="Single level-up mode"
-            tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node maxes it out"
-            icon={ArrowUp}
-            onToggle={() => singleLevelUp.toggle()}
+        {#if activeTab === 'settings'}
+          <SideMenuSettingsPage
+            {activeTreeName}
+            {activeTreeIndex}
+            {activeTreeViewState}
+            {activeTreeFocusViewState}
+            {onClose}
+            {onResetAll}
+            {onResetTree}
+            {onFocusInView}
           />
-          <ToggleSwitch
-            checked={$closeUpView}
-            label="Close-up View"
-            ariaLabel="Close-up view (150% zoom)"
-            tooltipText="Increase the initial zoom scale by 1.5x"
-            icon={ZoomIn}
-            onToggle={() => closeUpView.toggle()}
-          />
-          <ResetAllTreesButton
-            onResetAll={() => {
-              onResetAll?.();
-              onClose?.();
-            }}
-            levelsByTree={$treeLevels}
-          />
-        </SideMenuSection>
-        <SideMenuSection title={`${activeTreeName.toUpperCase()} TREE`}>
-          <TreeContextMenuList
-            tabLabel={activeTreeName}
-            hideStats={true}
-            onFocusInView={() => {
-              onFocusInView?.();
-              onClose?.();
-            }}
-            onReset={() => {
-              onResetTree?.();
-              onClose?.();
-            }}
-            viewState={activeTreeViewState}
-            focusViewState={activeTreeFocusViewState}
-            levelsById={$treeLevels[activeTreeIndex] ?? null}
-          />
-        </SideMenuSection>
-        <SideMenuSection title="STATISTICS">
-          <CopyStatsButton
-            slot="action"
-            class="side-menu__stats-copy"
-            onCopy={() => statsTable?.copy()}
-          />
-          <div class="side-menu__stats-card">
-            <CodeBlockTable bind:this={statsTable} rows={statsRows} />
-          </div>
-        </SideMenuSection>
+        {:else if activeTab === 'statistics'}
+          <SideMenuStatisticsPage />
+        {:else if activeTab === 'controls'}
+          <SideMenuControlsPage />
+        {/if}
       </div>
       <div class="side-menu__scroll-fade" aria-hidden="true"></div>
     </nav>
@@ -179,54 +74,13 @@
 </aside>
 
 <style>
-  .tech-crystals-available {
-    color: #ffffff;
-  }
-
-  .tech-crystals-available.is-negative {
-    color: #f87171;
-  }
-
-  .tech-crystals-separator {
-    color: #c7d6ff;
-  }
-
-  .tech-crystals-owned {
-    color: #e6f0ff;
-  }
-
-  .side-menu__stats-card {
-    display: grid;
-    gap: 0;
-    border: 1px solid rgba(74, 110, 184, 0.35);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  :global(.side-menu__stats-copy) {
-    justify-self: end;
-    padding: 0px !important;
-    min-height: 0px !important;
-    border-radius: 0px !important;
-    background: transparent !important;
-    border: none !important;
-    color: #a7b7e6 !important;
-    width: 18px !important;
-    height: 18px !important;
-
-    :global(.button-icon) {
-      width: 100% !important;
-      height: 100% !important;
-    }
-  }
-
   :global(.menu-backdrop) {
     position: fixed;
     inset: 0;
     background: rgba(3, 6, 15, 0.6);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.15s ease;
     border: none;
     padding: 0;
     z-index: 7;
@@ -247,7 +101,7 @@
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
-    transition: transform 0.25s ease;
+    transition: transform 0.15s ease;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -301,10 +155,5 @@
       rgba(10, 16, 28, 1) 28%
     );
     pointer-events: none;
-  }
-
-  :global(.button-icon-filled) {
-    fill: currentColor;
-    stroke: none;
   }
 </style>
