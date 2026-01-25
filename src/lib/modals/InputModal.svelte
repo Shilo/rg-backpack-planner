@@ -29,6 +29,14 @@
     return Math.max(min, parsed);
   }
 
+  $: currentValue = (() => {
+    const parsed = Number.parseInt(valueText, 10);
+    if (Number.isNaN(parsed)) return Math.max(min, 0);
+    return Math.max(min, parsed);
+  })();
+  $: isResetDisabled = currentValue === 0;
+  $: isDecreaseDisabled = currentValue <= min;
+
   function clampValueText() {
     valueText = `${parseValue()}`;
   }
@@ -131,6 +139,7 @@
       class="stepper stepper-icon reset-button"
       type="button"
       aria-label="Reset value"
+      disabled={isResetDisabled}
       on:click={() => handleStepperClick(handleReset)}
     >
       <ArrowCounterClockwiseIcon class="stepper-icon__svg" aria-hidden="true" />
@@ -139,6 +148,7 @@
       class="stepper stepper-icon"
       type="button"
       aria-label="Decrease value"
+      disabled={isDecreaseDisabled}
       on:click={() => handleStepperClick(() => stepValue(-step))}
     >
       <MinusIcon class="stepper-icon__svg" aria-hidden="true" />
@@ -280,6 +290,18 @@
 
   .stepper:active {
     transform: scale(0.96);
+  }
+
+  .stepper:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: rgba(46, 63, 98, 0.7);
+    background: rgba(12, 18, 31, 0.6);
+    color: rgba(152, 170, 210, 0.75);
+  }
+
+  .stepper:disabled:active {
+    transform: none;
   }
 
   :global(.stepper-icon__svg) {
