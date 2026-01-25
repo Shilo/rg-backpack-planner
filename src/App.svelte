@@ -38,21 +38,18 @@
     const swipeCloseThreshold = 70;
     const appVersion = packageInfo.version ?? "unknown";
     const helpStorageKey = "rg-backpack-planner-help-seen-version";
-    let showAppTitle = true;
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
 
     // Check if we should show controls tab on initial load
-    function shouldShowControlsOnLoad(): boolean {
+    const shouldShowControls = (() => {
         if (typeof window === "undefined") return false;
         try {
             return localStorage.getItem(helpStorageKey) !== appVersion;
         } catch {
             return false;
         }
-    }
-
-    const shouldShowControls = shouldShowControlsOnLoad();
+    })();
 
     const tabs: TabConfig[] = [
         { id: "guardian", label: "Guardian", nodes: guardianTree },
@@ -134,9 +131,7 @@
         shouldShowControls ? "controls" : "statistics";
     let skipMenuTransition = shouldShowControls;
     let isMenuOpen = shouldShowControls;
-    if (shouldShowControls) {
-        showAppTitle = false;
-    }
+    let showAppTitle = !shouldShowControls;
 
     onMount(() => {
         ensureInstallListeners();
@@ -146,7 +141,7 @@
             } catch {
                 // localStorage not available
             }
-            // Reset after a brief moment so future opens have transitions
+            // Reset transition flag after menu is shown so future opens have transitions
             setTimeout(() => {
                 skipMenuTransition = false;
             }, 200);
