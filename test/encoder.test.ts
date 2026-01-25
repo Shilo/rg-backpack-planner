@@ -341,6 +341,14 @@ export function runTests() {
   let passedTests = 0;
   let failedTests = 0;
   let warningCount = 0;
+  
+  // Track longest encoded lengths and values
+  let longestCustomSerializedLength = 0;
+  let longestBase64urlLength = 0;
+  let longestCustomTestName = "";
+  let longestBase64urlTestName = "";
+  let longestCustomSerializedValue = "";
+  let longestBase64urlValue = "";
 
   testCases.forEach((testCase, index) => {
     console.log(`Test ${index + 1}: ${testCase.name}`);
@@ -426,6 +434,18 @@ export function runTests() {
       totalCustomSerializedLength += customSerializedLength;
       totalJsonLength += jsonLength;
       totalBase64urlLength += encodedLength;
+      
+      // Track longest encoded lengths and values
+      if (customSerializedLength > longestCustomSerializedLength) {
+        longestCustomSerializedLength = customSerializedLength;
+        longestCustomTestName = testCase.name;
+        longestCustomSerializedValue = customSerialized;
+      }
+      if (encodedLength > longestBase64urlLength) {
+        longestBase64urlLength = encodedLength;
+        longestBase64urlTestName = testCase.name;
+        longestBase64urlValue = encoded;
+      }
 
       // Print before/after
       console.log("\nOriginal build data (JSON):");
@@ -458,6 +478,16 @@ export function runTests() {
   console.log(`📏 Average custom serialized length: ${(totalCustomSerializedLength / testCases.length).toFixed(1)} characters`);
   console.log(`📏 Average base64url encoded length: ${(totalBase64urlLength / testCases.length).toFixed(1)} characters`);
   console.log(`🗜️ Overall compression ratio (base64url vs custom): ${((1 - totalBase64urlLength / totalCustomSerializedLength) * 100).toFixed(1)}%`);
+  console.log();
+  console.log("📈 Longest Encoded Lengths:");
+  console.log(`   Custom serialized: ${longestCustomSerializedLength} characters - "${longestCustomTestName}"`);
+  console.log(`   Base64url encoded: ${longestBase64urlLength} characters - "${longestBase64urlTestName}"`);
+  console.log();
+  console.log("📝 Longest Encoded Values:");
+  console.log(`   Custom serialized (${longestCustomSerializedLength} chars):`);
+  console.log(`   ${longestCustomSerializedValue}`);
+  console.log(`   Base64url encoded (${longestBase64urlLength} chars):`);
+  console.log(`   ${longestBase64urlValue}`);
   console.log("===");
 }
 

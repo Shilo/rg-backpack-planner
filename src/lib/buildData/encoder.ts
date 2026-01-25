@@ -244,7 +244,7 @@ function encodeRLECount(count: number): string {
  * Calculates whether RLE format saves space compared to plain format
  * @param value The value string
  * @param count The repetition count
- * @returns True if RLE format is shorter
+ * @returns True if RLE format is shorter or equal (for consistency with empty strings)
  */
 function shouldUseRLE(value: string, count: number): boolean {
   if (count === 1) {
@@ -253,7 +253,9 @@ function shouldUseRLE(value: string, count: number): boolean {
   const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
   const encodedCount = encodeRLECount(count); // Uses base36 for counts >= 10
   const rleLength = value.length + 1 + encodedCount.length; // "val-3" or "val-a" = 3+1+1 = 5
-  return rleLength < plainLength;
+  // For empty strings, use RLE when equal length for consistency (e.g., ,, vs -3, both 2 chars)
+  // For non-empty strings, only use RLE when it saves space
+  return value === "" ? rleLength <= plainLength : rleLength < plainLength;
 }
 
 /**
@@ -444,7 +446,40 @@ function serializeArrayFormat(
     }
   }
 
-  // Trees are not all identical, output normally
+  // Check for partial tree-level RLE compression (2 out of 3 trees identical)
+  if (nonEmptyTreeStrings.length >= 2) {
+    const result: string[] = [];
+    let i = 0;
+
+    while (i < nonEmptyTreeStrings.length) {
+      const currentTree = nonEmptyTreeStrings[i];
+      
+      // Check if current tree and next tree are identical
+      if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
+        // Two identical trees found, compress to treeString*2
+        // Only compress if it saves space: tree*2 (tree.length + 2) vs tree;tree (tree.length * 2 + 1)
+        // tree*2 saves space when: tree.length + 2 < tree.length * 2 + 1
+        // Simplifies to: 2 < tree.length + 1, or tree.length > 1
+        // For tree.length === 1: tree*2 (3) vs tree;tree (3) - same, but *2 is more consistent
+        const countStr = encodeRLECount(2);
+        result.push(`${currentTree}*${countStr}`);
+        i += 2; // Skip both trees
+      } else {
+        // No match, output current tree normally
+        result.push(currentTree);
+        i += 1;
+      }
+    }
+
+    // If we compressed anything, use the compressed result
+    if (result.length < nonEmptyTreeStrings.length) {
+      return owned === 0
+        ? result.join(";")
+        : [...result, encodeBase36(owned)].join(";");
+    }
+  }
+
+  // Trees are not identical, output normally
   return owned === 0
     ? nonEmptyTreeStrings.join(";")
     : [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
