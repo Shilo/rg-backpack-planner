@@ -22,7 +22,6 @@
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
 
-    let isMenuOpen = false;
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
         resetActiveTree?: () => void;
@@ -42,6 +41,18 @@
     let showAppTitle = true;
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
+
+    // Check if we should show controls tab on initial load
+    function shouldShowControlsOnLoad(): boolean {
+        if (typeof window === "undefined") return false;
+        try {
+            return localStorage.getItem(helpStorageKey) !== appVersion;
+        } catch {
+            return false;
+        }
+    }
+
+    const shouldShowControls = shouldShowControlsOnLoad();
 
     const tabs: TabConfig[] = [
         { id: "guardian", label: "Guardian", nodes: guardianTree },
@@ -120,21 +131,25 @@
     }
 
     let sideMenuActiveTab: "statistics" | "settings" | "controls" =
-        "statistics";
+        shouldShowControls ? "controls" : "statistics";
+    let skipMenuTransition = shouldShowControls;
+    let isMenuOpen = shouldShowControls;
+    if (shouldShowControls) {
+        showAppTitle = false;
+    }
 
     onMount(() => {
         ensureInstallListeners();
-        try {
-            if (true || localStorage.getItem(helpStorageKey) !== appVersion) {
-                showAppTitle = false;
-                sideMenuActiveTab = "controls";
-                isMenuOpen = true;
+        if (shouldShowControls) {
+            try {
                 localStorage.setItem(helpStorageKey, appVersion);
+            } catch {
+                // localStorage not available
             }
-        } catch {
-            showAppTitle = false;
-            sideMenuActiveTab = "controls";
-            isMenuOpen = true;
+            // Reset after a brief moment so future opens have transitions
+            setTimeout(() => {
+                skipMenuTransition = false;
+            }, 200);
         }
     });
 </script>
@@ -151,6 +166,7 @@
 >
     <SideMenu
         isOpen={isMenuOpen}
+        skipTransition={skipMenuTransition}
         onClose={closeMenu}
         onFocusInView={() => tabsRef?.focusActiveTreeInView?.(true)}
         onResetTree={() => tabsRef?.resetActiveTree?.()}

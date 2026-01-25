@@ -7,6 +7,7 @@
   import type { TreeViewState } from "./Tree.svelte";
 
   export let isOpen = false;
+  export let skipTransition = false;
   export let onClose: (() => void) | null = null;
   export let onShareBuild: (() => void) | null = null;
   export let onHelp: (() => void) | null = null;
@@ -22,8 +23,14 @@
   function getInitialActiveTab(): "statistics" | "settings" | "controls" {
     if (typeof window === "undefined") return "statistics";
     try {
-      const stored = localStorage.getItem("rg-backpack-planner-side-menu-active-tab");
-      if (stored === "statistics" || stored === "settings" || stored === "controls") {
+      const stored = localStorage.getItem(
+        "rg-backpack-planner-side-menu-active-tab",
+      );
+      if (
+        stored === "statistics" ||
+        stored === "settings" ||
+        stored === "controls"
+      ) {
         return stored;
       }
     } catch {
@@ -31,7 +38,8 @@
     }
     return "statistics";
   }
-  export let activeTab: "statistics" | "settings" | "controls" = getInitialActiveTab();
+  export let activeTab: "statistics" | "settings" | "controls" =
+    getInitialActiveTab();
   $: if (!isOpen) {
     const active = document.activeElement;
     if (
@@ -50,7 +58,7 @@
 </script>
 
 <button
-  class={`menu-backdrop${isOpen ? " visible" : ""}`}
+  class={`menu-backdrop${isOpen ? " visible" : ""}${skipTransition ? " skip-transition" : ""}`}
   aria-label="Close menu"
   bind:this={backdropEl}
   tabindex={isOpen ? 0 : -1}
@@ -58,7 +66,7 @@
   on:click={handleBackdropClick}
   type="button"
 ></button>
-<aside class="side-menu" class:open={isOpen} bind:this={menuEl} inert={!isOpen}>
+<aside class="side-menu" class:open={isOpen} class:skip-transition={skipTransition} bind:this={menuEl} inert={!isOpen}>
   <div class="side-menu__scroll-area">
     <nav class="side-menu__content" aria-label="Primary">
       <div class="side-menu__content-inner">
@@ -98,6 +106,10 @@
     z-index: 7;
   }
 
+  :global(.menu-backdrop.skip-transition) {
+    transition: none;
+  }
+
   :global(.menu-backdrop.visible) {
     opacity: 1;
     pointer-events: auto;
@@ -124,6 +136,10 @@
     gap: 0px;
     overflow: hidden;
     z-index: 9;
+  }
+
+  .side-menu.skip-transition {
+    transition: none;
   }
 
   .side-menu.open {
