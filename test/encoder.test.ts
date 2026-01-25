@@ -838,27 +838,22 @@ export function runTests() {
     }
   });
 
-  // Summary
-  console.log("===");
-  console.log("Summary");
-  console.log("===");
-  console.log(`📊 Total tests: ${testCases.length}`);
-  console.log(`✅ Passed: ${passedTests}`);
-  console.log(`❌ Failed: ${failedTests}`);
-  console.log(`📏 Average JSON string length: ${(totalJsonLength / testCases.length).toFixed(1)} characters`);
-  console.log(`📏 Average serialized string length: ${(totalSerializedLength / testCases.length).toFixed(1)} characters`);
+  // Return summary data instead of printing
   const overallCompressionRatio = totalSerializedLength > 0
     ? `${((1 - totalSerializedLength / totalJsonLength) * 100).toFixed(1)}%`
     : "0%";
-  console.log(`🗜️ Overall compression ratio vs JSON: ${overallCompressionRatio}`);
-  console.log();
-  console.log("📈 Longest Encoded Length:");
-  console.log(`   Serialized: ${longestSerializedLength} characters - "${longestSerializedTestName}"`);
-  console.log();
-  console.log("📝 Longest Encoded Value:");
-  console.log(`   Serialized (${longestSerializedLength} chars):`);
-  console.log(`   ${longestSerializedValue}`);
-  console.log("===");
+  
+  return {
+    total: testCases.length,
+    passed: passedTests,
+    failed: failedTests,
+    avgJsonLength: (totalJsonLength / testCases.length).toFixed(1),
+    avgSerializedLength: (totalSerializedLength / testCases.length).toFixed(1),
+    compressionRatio: overallCompressionRatio,
+    longestSerializedLength,
+    longestSerializedTestName,
+    longestSerializedValue,
+  };
 }
 
 /**
@@ -972,17 +967,44 @@ export function runErrorTests() {
     console.log();
   });
 
-  // Summary
-  console.log("===");
-  console.log("Error Tests Summary");
-  console.log("===");
-  console.log(`📊 Total error tests: ${errorTestCases.length}`);
-  console.log(`✅ Passed: ${passedTests}`);
-  console.log(`❌ Failed: ${failedTests}`);
-  console.log("===");
+  // Return summary data instead of printing
+  return {
+    total: errorTestCases.length,
+    passed: passedTests,
+    failed: failedTests,
+  };
 }
 
 // Auto-run when imported
-runTests();
+// Run error tests first, then normal tests, then show both summaries
+const errorSummary = runErrorTests();
 console.log();
-runErrorTests();
+const normalSummary = runTests();
+console.log();
+
+// Print both summaries
+console.log("===");
+console.log("Error Tests Summary");
+console.log("===");
+console.log(`📊 Total error tests: ${errorSummary.total}`);
+console.log(`✅ Passed: ${errorSummary.passed}`);
+console.log(`❌ Failed: ${errorSummary.failed}`);
+console.log("===");
+console.log();
+console.log("===");
+console.log("Build Data Encoding/Decoding Tests Summary");
+console.log("===");
+console.log(`📊 Total tests: ${normalSummary.total}`);
+console.log(`✅ Passed: ${normalSummary.passed}`);
+console.log(`❌ Failed: ${normalSummary.failed}`);
+console.log(`📏 Average JSON string length: ${normalSummary.avgJsonLength} characters`);
+console.log(`📏 Average serialized string length: ${normalSummary.avgSerializedLength} characters`);
+console.log(`🗜️ Overall compression ratio vs JSON: ${normalSummary.compressionRatio}`);
+console.log();
+console.log("📈 Longest Encoded Length:");
+console.log(`   Serialized: ${normalSummary.longestSerializedLength} characters - "${normalSummary.longestSerializedTestName}"`);
+console.log();
+console.log("📝 Longest Encoded Value:");
+console.log(`   Serialized (${normalSummary.longestSerializedLength} chars):`);
+console.log(`   ${normalSummary.longestSerializedValue}`);
+console.log("===");
