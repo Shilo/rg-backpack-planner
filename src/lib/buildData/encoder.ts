@@ -246,10 +246,11 @@ function serializeArrayFormat(
     }
   }
 
-  // If all trees are empty, return empty string (or just owned if non-zero)
+  // If all trees are empty, use special marker for empty build (or just owned if non-zero)
   if (lastNonEmptyTreeIndex === -1) {
     if (owned === 0) {
-      return "";
+      // Use "_" as special marker for completely empty build
+      return "_";
     }
     return owned.toString();
   }
@@ -273,8 +274,8 @@ function serializeArrayFormat(
  */
 function parseArrayFormat(serialized: string): [number[][][], number] | null {
   try {
-    // Handle empty string (all trees empty)
-    if (serialized === "") {
+    // Handle special marker for empty build
+    if (serialized === "_") {
       return [[[], [], []], 0];
     }
 
