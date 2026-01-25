@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ComponentType } from "svelte";
+  import type { Component } from "svelte";
   import { onMount } from "svelte";
   import {
     ArrowCounterClockwiseIcon,
@@ -55,7 +55,7 @@
     id: string;
     label: string;
     description: string;
-    icon: ComponentType;
+    icon: Component;
     device: ControlDevice;
   };
 
