@@ -119,19 +119,20 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
  * Run all tests
  */
 export function runTests() {
-  console.log("=".repeat(80));
+  console.log("===");
   console.log("Build Data Encoding/Decoding Tests");
-  console.log("=".repeat(80));
+  console.log("===");
   console.log();
 
   let totalCustomSerializedLength = 0;
   let totalJsonLength = 0;
+  let totalBase64urlLength = 0;
   let passedTests = 0;
   let failedTests = 0;
 
   testCases.forEach((testCase, index) => {
     console.log(`Test ${index + 1}: ${testCase.name}`);
-    console.log("-".repeat(80));
+    console.log("---");
 
     try {
       // Get JSON string for comparison
@@ -187,8 +188,14 @@ export function runTests() {
         );
       }
 
+      // Check compression is positive (base64url must be smaller than custom serialized)
+      const compressionIsPositive = encodedLength < customSerializedLength;
+      
       if (!treesMatch) {
         console.log("❌ FAILED: Data mismatch");
+        failedTests++;
+      } else if (!compressionIsPositive) {
+        console.log(`❌ FAILED: Compression is not positive (base64url: ${encodedLength}, custom: ${customSerializedLength})`);
         failedTests++;
       } else {
         console.log("✅ PASSED");
@@ -196,14 +203,14 @@ export function runTests() {
       }
 
       // Print lengths
-      console.log(`Custom serialized length: ${customSerializedLength} characters`);
       console.log(`JSON string length: ${jsonLength} characters`);
+      console.log(`Custom serialized length: ${customSerializedLength} characters`);
       console.log(`Base64url encoded length: ${encodedLength} characters`);
-      console.log(`Compression ratio (custom vs JSON): ${((1 - customSerializedLength / jsonLength) * 100).toFixed(1)}%`);
-      console.log(`Compression ratio (base64url vs JSON): ${((1 - encodedLength / jsonLength) * 100).toFixed(1)}%`);
+      console.log(`Compression ratio (base64url vs custom): ${((1 - encodedLength / customSerializedLength) * 100).toFixed(1)}%`);
 
       totalCustomSerializedLength += customSerializedLength;
       totalJsonLength += jsonLength;
+      totalBase64urlLength += encodedLength;
 
       // Print before/after
       console.log("\nOriginal build data (JSON):");
@@ -223,16 +230,17 @@ export function runTests() {
   });
 
   // Summary
-  console.log("=".repeat(80));
+  console.log("===");
   console.log("Summary");
-  console.log("=".repeat(80));
-  console.log(`Total tests: ${testCases.length}`);
-  console.log(`Passed: ${passedTests}`);
-  console.log(`Failed: ${failedTests}`);
-  console.log(`Average custom serialized length: ${(totalCustomSerializedLength / testCases.length).toFixed(1)} characters`);
-  console.log(`Average JSON string length: ${(totalJsonLength / testCases.length).toFixed(1)} characters`);
-  console.log(`Overall compression ratio (custom vs JSON): ${((1 - totalCustomSerializedLength / totalJsonLength) * 100).toFixed(1)}%`);
-  console.log("=".repeat(80));
+  console.log("===");
+  console.log(`📊 Total tests: ${testCases.length}`);
+  console.log(`✅ Passed: ${passedTests}`);
+  console.log(`❌ Failed: ${failedTests}`);
+  console.log(`📏 Average JSON string length: ${(totalJsonLength / testCases.length).toFixed(1)} characters`);
+  console.log(`📏 Average custom serialized length: ${(totalCustomSerializedLength / testCases.length).toFixed(1)} characters`);
+  console.log(`📏 Average base64url encoded length: ${(totalBase64urlLength / testCases.length).toFixed(1)} characters`);
+  console.log(`🗜️  Overall compression ratio (base64url vs custom): ${((1 - totalBase64urlLength / totalCustomSerializedLength) * 100).toFixed(1)}%`);
+  console.log("===");
 }
 
 // Auto-run when imported

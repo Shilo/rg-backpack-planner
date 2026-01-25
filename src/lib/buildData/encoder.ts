@@ -234,7 +234,7 @@ export function encodeBuildData(buildData: BuildData): string {
   // Use custom serializer instead of JSON.stringify
   const serialized = serializeArrayFormat(treeArrays, owned);
   
-  console.log("[encodeBuildData] Deserialized data before save:", {
+  console.warn("[encodeBuildData] Deserialized data before save:", {
     arrayFormat: [...treeArrays, owned],
     originalBuildData: buildData,
     serializedString: serialized,
@@ -261,7 +261,7 @@ export function decodeBuildData(encoded: string): BuildData | null {
     const base64 = decodeBase64Url(encoded);
     const decoded = atob(base64);
     
-    console.log("[decodeBuildData] Decoded string:", decoded);
+    console.warn("[decodeBuildData] Decoded string:", decoded);
     
     // Use custom parser instead of JSON.parse
     const parsed = parseArrayFormat(decoded);
@@ -274,11 +274,11 @@ export function decodeBuildData(encoded: string): BuildData | null {
     // Convert to BuildData format (reconstruct array format for convertArrayFormatToTrees)
     const arrayFormat = [...treeArrays, owned];
     
-    console.log("[decodeBuildData] Parsed array format after load:", arrayFormat);
+    console.warn("[decodeBuildData] Parsed array format after load:", arrayFormat);
     
     const buildData = convertArrayFormatToTrees(arrayFormat);
     
-    console.log("[decodeBuildData] Deserialized data after load:", buildData);
+    console.warn("[decodeBuildData] Deserialized data after load:", buildData);
     
     return buildData;
   } catch (error) {
