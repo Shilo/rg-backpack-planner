@@ -24,6 +24,7 @@
   export let activeTreeViewState: TreeViewState | null = null;
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let activeTab: SideMenuTab = getActiveTab();
+  let scrollContentElement: HTMLElement | null = null;
 
   export function openTab(tab: SideMenuTab) {
     activeTab = tab;
@@ -33,6 +34,11 @@
   function handleBackdropClick() {
     triggerHaptic();
     onClose?.();
+  }
+
+  // Reset scroll position when activeTab changes
+  $: if (activeTab && scrollContentElement) {
+    scrollContentElement.scrollTop = 0;
   }
 </script>
 
@@ -51,7 +57,7 @@
   inert={!isOpen}
 >
   <div class="side-menu__scroll-area">
-    <nav class="side-menu__content" aria-label="Primary">
+    <nav class="side-menu__content" aria-label="Primary" bind:this={scrollContentElement}>
       <div class="side-menu__content-inner">
         {#if activeTab === "settings"}
           <SideMenuSettingsPage
