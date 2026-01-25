@@ -231,6 +231,16 @@ function decodeBase36(str: string): number {
 }
 
 /**
+ * Encodes a count for RLE format (uses base36 for counts >= 10 to save space)
+ * @param count The count to encode
+ * @returns Encoded count string (decimal for 1-9, base36 for 10+)
+ */
+function encodeRLECount(count: number): string {
+  // Use base36 for counts >= 10 to save space (10 → "a" saves 1 char)
+  return count >= 10 ? count.toString(36) : count.toString();
+}
+
+/**
  * Calculates whether RLE format saves space compared to plain format
  * @param value The value string
  * @param count The repetition count
@@ -241,7 +251,8 @@ function shouldUseRLE(value: string, count: number): boolean {
     return false;
   }
   const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
-  const rleLength = value.length + 1 + count.toString().length; // "val-3" = 3+1+1 = 5
+  const encodedCount = encodeRLECount(count); // Uses base36 for counts >= 10
+  const rleLength = value.length + 1 + encodedCount.length; // "val-3" or "val-a" = 3+1+1 = 5
   return rleLength < plainLength;
 }
 
@@ -253,7 +264,8 @@ function shouldUseRLE(value: string, count: number): boolean {
  */
 function outputRun(result: string[], value: string, count: number): void {
   if (shouldUseRLE(value, count)) {
-    result.push(`${value}-${count}`);
+    const encodedCount = encodeRLECount(count);
+    result.push(`${value}-${encodedCount}`);
   } else {
     // Output plain values (either single value or when RLE doesn't save space)
     for (let j = 0; j < count; j++) {
@@ -295,14 +307,17 @@ function compressRLE(values: string[]): string {
 }
 
 /**
- * Validates and parses an RLE count from a string
+ * Validates and parses an RLE count from a string (decimal for 1-9, base36 for 10+)
  * @param countStr The count string to parse
  * @param part The full part string for error messages
  * @returns The parsed count
  * @throws Error if count is invalid
  */
 function parseRLECount(countStr: string, part: string): number {
-  const count = parseInt(countStr, 10);
+  // Base36 uses a-z, so if it contains letters, it's base36; otherwise decimal
+  const hasLetters = /[a-z]/.test(countStr);
+  const count = hasLetters ? parseInt(countStr, 36) : parseInt(countStr, 10);
+  
   if (isNaN(count) || count < 1) {
     throw new Error(`Invalid RLE format: invalid count in "${part}"`);
   }
@@ -311,13 +326,14 @@ function parseRLECount(countStr: string, part: string): number {
 
 /**
  * Expands a single RLE pattern to an array of values
- * @param pattern The RLE pattern (value-count or -count)
+ * @param pattern The RLE pattern (value-count or -count, count may be base36)
  * @returns Array of expanded values
  * @throws Error if pattern is invalid
  */
 function expandRLEPattern(pattern: string): string[] {
-  const rleMatchWithValue = pattern.match(/^(.+)-(\d+)$/);
-  const rleMatchZeros = pattern.match(/^-(\d+)$/);
+  // Count can be decimal (0-9) or base36 (0-9, a-z)
+  const rleMatchWithValue = pattern.match(/^(.+)-([0-9a-z]+)$/);
+  const rleMatchZeros = pattern.match(/^-([0-9a-z]+)$/);
 
   if (rleMatchZeros) {
     // Pattern: -count (run of zeros)
@@ -414,8 +430,21 @@ function serializeArrayFormat(
     return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase36(owned);
   }
 
-  // Get non-empty trees and append owned if non-zero
+  // Get non-empty trees
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
+
+  // Check if all trees are identical (tree-level RLE compression)
+  if (nonEmptyTreeStrings.length === 3) {
+    const firstTree = nonEmptyTreeStrings[0];
+    if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
+      // All 3 trees are identical, compress to treeString*count (use base36 for count >= 10)
+      const countStr = encodeRLECount(3);
+      const treePart = `${firstTree}*${countStr}`;
+      return owned === 0 ? treePart : `${treePart};${encodeBase36(owned)}`;
+    }
+  }
+
+  // Trees are not all identical, output normally
   return owned === 0
     ? nonEmptyTreeStrings.join(";")
     : [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
@@ -463,7 +492,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   if (segments.length > 1) {
     const lastSegment = segments[segments.length - 1];
     // owned must be a single base36 number with no branch or node separators
-    if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment !== "") {
+    if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment.indexOf("*") === -1 && lastSegment !== "") {
       owned = decodeBase36(lastSegment);
       if (isNaN(owned)) {
         throw new Error(`Invalid owned value: ${lastSegment}`);
@@ -476,13 +505,37 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     treeSegments = segments;
   }
 
+  // Expand tree-level RLE (treeString*count format, count may be base36)
+  const expandedTreeSegments: string[] = [];
+  for (const segment of treeSegments) {
+    // Check if this is a tree-level RLE pattern (treeString*count)
+    // Count can be decimal (1-9) or base36 (a-z for 10+)
+    const treeRLEMatch = segment.match(/^(.+)\*([0-9a-z]+)$/);
+    if (treeRLEMatch) {
+      const treeString = treeRLEMatch[1];
+      const countStr = treeRLEMatch[2];
+      // Parse count (decimal for 1-9, base36 for 10+)
+      const hasLetters = /[a-z]/.test(countStr);
+      const count = hasLetters ? parseInt(countStr, 36) : parseInt(countStr, 10);
+      if (isNaN(count) || count < 1) {
+        throw new Error(`Invalid tree-level RLE format: invalid count in "${segment}"`);
+      }
+      // Expand the tree repetition
+      for (let i = 0; i < count; i++) {
+        expandedTreeSegments.push(treeString);
+      }
+    } else {
+      expandedTreeSegments.push(segment);
+    }
+  }
+
   // Pad missing trailing trees to 3
-  while (treeSegments.length < 3) {
-    treeSegments.push("");
+  while (expandedTreeSegments.length < 3) {
+    expandedTreeSegments.push("");
   }
 
   // Parse tree segments into branch arrays
-  const treeBranchArrays: number[][][] = treeSegments.map((segment) => {
+  const treeBranchArrays: number[][][] = expandedTreeSegments.map((segment) => {
     if (segment === "") {
       return [[], [], []];
     }
