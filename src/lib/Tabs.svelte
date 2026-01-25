@@ -30,7 +30,7 @@
   } from "./treeLevelsStore";
   import { techCrystalsSpentByTree } from "./techCrystalStore";
   import { showToast } from "./toast";
-  import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
+  import { hideTooltip, suppressTooltip } from "./tooltip";
   import { activeTabId, getActiveTabId } from "./activeTabStore";
 
   export let tabs: TabConfig[] = [];

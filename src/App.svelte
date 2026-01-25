@@ -291,7 +291,6 @@
         {activeTreeViewState}
         {activeTreeFocusViewState}
         {activeTreeName}
-        {tabs}
     />
     <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
     <div class="top-right-actions">

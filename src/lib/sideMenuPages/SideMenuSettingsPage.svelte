@@ -1,37 +1,34 @@
 <script lang="ts">
-  import type { ComponentType } from "svelte";
   import {
     ArrowClockwiseIcon,
-    ClockCounterClockwiseIcon,
     ArrowUpIcon,
+    ClockCounterClockwiseIcon,
     CubeFocusIcon,
     HexagonIcon,
     MagnifyingGlassPlusIcon,
     TrashSimpleIcon,
   } from "phosphor-svelte";
+  import type { ComponentType } from "svelte";
   import Button from "../Button.svelte";
-  import SideMenuSection from "../SideMenuSection.svelte";
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
   import ResetTreeButton from "../buttons/ResetTreeButton.svelte";
   import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
-  import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
-  import ToggleSwitch from "../ToggleSwitch.svelte";
+  import { closeUpView } from "../closeUpViewStore";
   import { formatNumber } from "../mathUtil";
   import { openModal } from "../modalStore";
+  import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
+  import { isPreviewMode } from "../previewModeStore";
+  import SideMenuSection from "../SideMenuSection.svelte";
+  import { singleLevelUp } from "../singleLevelUpStore";
   import { openTechCrystalsOwnedModal } from "../techCrystalModal";
-  import { treeLevels, setTreeLevels } from "../treeLevelsStore";
   import {
     techCrystalsAvailable,
     techCrystalsOwned,
-    setTechCrystalsOwned,
-    recalculateTechCrystalsSpent,
   } from "../techCrystalStore";
-  import { closeUpView } from "../closeUpViewStore";
-  import { singleLevelUp } from "../singleLevelUpStore";
   import { showToast } from "../toast";
-  import { isPreviewMode } from "../previewModeStore";
+  import ToggleSwitch from "../ToggleSwitch.svelte";
   import type { TreeViewState } from "../Tree.svelte";
-  import type { TabConfig } from "../Tabs.svelte";
+  import { treeLevels } from "../treeLevelsStore";
 
   export let activeTreeName = "";
   export let activeTreeIndex = 0;
@@ -41,7 +38,6 @@
   export let onResetAll: (() => void) | null = null;
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
-  export let tabs: TabConfig[] = [];
 
   $: hasOwned = $techCrystalsOwned > 0;
 
@@ -121,7 +117,6 @@
       },
     });
   }
-
 </script>
 
 {#if $isPreviewMode}
