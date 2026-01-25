@@ -84,7 +84,7 @@
 
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Download } from "lucide-svelte";
+  import { DownloadSimpleIcon } from "phosphor-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
   import { triggerHaptic } from "../haptics";
@@ -101,6 +101,7 @@
     deferredInstallPrompt = state.deferredInstallPrompt;
     canInstall = state.canInstall;
     isInstalled = state.isInstalled;
+    canInstall = true; //todo
   }
 
   async function handleInstallClick() {
@@ -124,7 +125,7 @@
   <Button
     class={className}
     on:click={handleInstallClick}
-    icon={Download}
+    icon={DownloadSimpleIcon}
     aria-label={`Install ${appName} app`}
     tooltipText={`Install ${appName} app`}
   />

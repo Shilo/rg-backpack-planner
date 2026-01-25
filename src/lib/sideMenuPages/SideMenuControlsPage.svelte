@@ -2,19 +2,21 @@
   import type { ComponentType } from "svelte";
   import { onMount } from "svelte";
   import {
-    Clock,
-    Download,
-    Github,
-    Hand,
-    Hexagon,
-    Menu,
-    Mouse,
-    MousePointer2,
-    Move,
-    RotateCcw,
-    Share2,
-    ZoomIn,
-  } from "lucide-svelte";
+    ArrowCounterClockwiseIcon,
+    DownloadSimpleIcon,
+    GithubLogoIcon,
+    HandGrabbingIcon,
+    HandSwipeRightIcon,
+    HandTapIcon,
+    HexagonIcon,
+    ListIcon,
+    MagnifyingGlassPlusIcon,
+    MouseLeftClickIcon,
+    MouseRightClickIcon,
+    MouseScrollIcon,
+    ShareNetworkIcon,
+    TimerIcon,
+  } from "phosphor-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
   import SideMenuSection from "../SideMenuSection.svelte";
@@ -62,77 +64,77 @@
       id: "pointer-node",
       label: "Click a node",
       description: "Add a node level and spend Tech Crystals",
-      icon: MousePointer2,
+      icon: MouseLeftClickIcon,
       device: "pointer",
     },
     {
       id: "pointer-node-menu",
       label: "Right click a node",
       description: "Show node options",
-      icon: MousePointer2,
+      icon: MouseRightClickIcon,
       device: "pointer",
     },
     {
       id: "pointer-tree-menu",
       label: "Right click empty space or tab",
       description: "Show tree options",
-      icon: MousePointer2,
+      icon: MouseRightClickIcon,
       device: "pointer",
     },
     {
       id: "pointer-pan",
       label: "Click and drag",
       description: "Pan around tree",
-      icon: Move,
+      icon: HandGrabbingIcon,
       device: "pointer",
     },
     {
       id: "pointer-zoom",
       label: "Scroll wheel or trackpad",
       description: "Zoom in and out on tree",
-      icon: Mouse,
+      icon: MouseScrollIcon,
       device: "pointer",
     },
     {
       id: "touch-node",
       label: "Tap a node",
       description: "Add a node level and spend Tech Crystals",
-      icon: Hand,
+      icon: HandTapIcon,
       device: "touch",
     },
     {
       id: "touch-node-menu",
       label: "long press a node",
       description: "Show node options",
-      icon: Clock,
+      icon: TimerIcon,
       device: "touch",
     },
     {
       id: "touch-tree-menu",
       label: "long press empty space or tab",
       description: "Show tree options",
-      icon: Clock,
+      icon: TimerIcon,
       device: "touch",
     },
     {
       id: "touch-pan",
       label: "Drag with one finger",
       description: "Pan around tree",
-      icon: Move,
+      icon: HandGrabbingIcon,
       device: "touch",
     },
     {
       id: "touch-zoom",
       label: "Pinch with two fingers",
       description: "Zoom in and out on tree",
-      icon: ZoomIn,
+      icon: MagnifyingGlassPlusIcon,
       device: "touch",
     },
     {
       id: "touch-menu-swipe",
       label: "Swipe right on side menu",
       description: "Close side menu",
-      icon: Hand,
+      icon: HandSwipeRightIcon,
       device: "touch",
     },
   ];
@@ -200,7 +202,7 @@
         </div>
         <div class="controls-actions">
           <Button
-            icon={Github}
+            icon={GithubLogoIcon}
             aria-label="View source on GitHub"
             tooltipText="View source on GitHub"
             on:click={() => {
@@ -253,7 +255,7 @@
       <ul class="control-list">
         <li class="control-row">
           <span class="control-icon" aria-hidden="true">
-            <Hexagon fill="currentColor" />
+            <HexagonIcon weight="fill" />
           </span>
           <div class="control-text">
             <p class="control-label">Tech Crystals (Currency)</p>
@@ -261,7 +263,9 @@
           </div>
         </li>
         <li class="control-row">
-          <span class="control-icon" aria-hidden="true"><RotateCcw /></span>
+          <span class="control-icon" aria-hidden="true"
+            ><ArrowCounterClockwiseIcon /></span
+          >
           <div class="control-text">
             <p class="control-label">Reset active tree</p>
             <p class="control-desc">Refund Tech Crystals for tree</p>
@@ -272,7 +276,7 @@
     <SideMenuSection title="Side menu">
       <ul class="control-list">
         <li class="control-row">
-          <span class="control-icon" aria-hidden="true"><Menu /></span>
+          <span class="control-icon" aria-hidden="true"><ListIcon /></span>
           <div class="control-text">
             <p class="control-label">Side menu button</p>
             <p class="control-desc">Show or hide additional options</p>
@@ -280,7 +284,9 @@
         </li>
         {#if canInstall && !isInstalled}
           <li class="control-row">
-            <span class="control-icon" aria-hidden="true"><Download /></span>
+            <span class="control-icon" aria-hidden="true"
+              ><DownloadSimpleIcon /></span
+            >
             <div class="control-text">
               <p class="control-label">Install app</p>
               <p class="control-desc">Install the PWA for offline access</p>
@@ -288,7 +294,9 @@
           </li>
         {/if}
         <li class="control-row">
-          <span class="control-icon" aria-hidden="true"><Share2 /></span>
+          <span class="control-icon" aria-hidden="true"
+            ><ShareNetworkIcon /></span
+          >
           <div class="control-text">
             <p class="control-label">Share button</p>
             <p class="control-desc">Copy a shareable link of your build</p>

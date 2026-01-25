@@ -8,6 +8,7 @@
   export let icon: ComponentType | null = null;
   export let iconClass = "button-icon";
   export let iconAriaHidden = true;
+  export let iconSize: number | string | undefined = 26;
   export let type: "button" | "submit" | "reset" = "button";
   export let small = false;
   export let negative = false;
@@ -93,6 +94,7 @@
       this={icon}
       class={iconClass}
       aria-hidden={iconAriaHidden}
+      size={iconSize}
     />
   {/if}
   <span class="button-text">
