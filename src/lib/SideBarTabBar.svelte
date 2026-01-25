@@ -2,42 +2,16 @@
   import { BarChart2, Gamepad2, Settings } from "lucide-svelte";
   import { triggerHaptic } from "./haptics";
   import { tooltip } from "./tooltip";
+  import { getActiveTab, setActiveTab, type SideMenuTab } from "./sideMenuActiveTabStore";
 
-  const STORAGE_KEY = "rg-backpack-planner-side-menu-active-tab";
+  export let activeTab: SideMenuTab = getActiveTab();
 
-  function isValidTab(
-    tab: string,
-  ): tab is "statistics" | "settings" | "controls" {
-    return tab === "statistics" || tab === "settings" || tab === "controls";
-  }
-
-  function getStoredActiveTab(): "statistics" | "settings" | "controls" {
-    if (typeof window === "undefined") return "statistics";
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored && isValidTab(stored)) {
-        return stored;
-      }
-    } catch {
-      // localStorage not available, use default
-    }
-    return "statistics";
-  }
-
-  export let activeTab: "statistics" | "settings" | "controls" =
-    getStoredActiveTab();
-
+  // Sync with store when activeTab changes (for localStorage persistence)
   $: {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(STORAGE_KEY, activeTab);
-      } catch {
-        // localStorage not available, ignore
-      }
-    }
+    setActiveTab(activeTab);
   }
 
-  function handleTabClick(tab: "statistics" | "settings" | "controls") {
+  function handleTabClick(tab: SideMenuTab) {
     activeTab = tab;
     triggerHaptic();
   }

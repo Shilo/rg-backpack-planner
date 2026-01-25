@@ -5,6 +5,7 @@
   import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
   import { triggerHaptic } from "./haptics";
   import type { TreeViewState } from "./Tree.svelte";
+  import { getActiveTab, setActiveTab, type SideMenuTab } from "./sideMenuActiveTabStore";
 
   export let isOpen = false;
   export let skipTransition = false;
@@ -20,29 +21,11 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-  function getInitialActiveTab(): "statistics" | "settings" | "controls" {
-    if (typeof window === "undefined") return "statistics";
-    try {
-      const stored = localStorage.getItem(
-        "rg-backpack-planner-side-menu-active-tab",
-      );
-      if (
-        stored === "statistics" ||
-        stored === "settings" ||
-        stored === "controls"
-      ) {
-        return stored;
-      }
-    } catch {
-      // localStorage not available, use default
-    }
-    return "statistics";
-  }
-  let activeTab: "statistics" | "settings" | "controls" =
-    getInitialActiveTab();
+  let activeTab: SideMenuTab = getActiveTab();
 
-  export function openTab(tab: "statistics" | "settings" | "controls") {
+  export function openTab(tab: SideMenuTab) {
     activeTab = tab;
+    setActiveTab(tab);
   }
 
   $: if (!isOpen) {

@@ -16,6 +16,7 @@
         isNewVersion,
         markVersionAsSeen,
     } from "./lib/latestUsedVersionStore";
+    import { setActiveTab } from "./lib/sideMenuActiveTabStore";
 
     import {
         initTechCrystalTrees,
@@ -45,16 +46,9 @@
     // Check if we should show controls tab on initial load
     const shouldShowControls = (() => {
         const isNew = isNewVersion();
-        if (isNew && typeof window !== "undefined") {
-            try {
-                // Set active tab in localStorage so SideMenu initializes with controls
-                localStorage.setItem(
-                    "rg-backpack-planner-side-menu-active-tab",
-                    "controls",
-                );
-            } catch {
-                // localStorage not available
-            }
+        if (isNew) {
+            // Set active tab so SideMenu initializes with controls
+            setActiveTab("controls");
         }
         return isNew;
     })();
