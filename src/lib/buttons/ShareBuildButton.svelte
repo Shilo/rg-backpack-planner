@@ -95,7 +95,6 @@
       on:click={handleShareImage}
       tooltipText={"Screenshot all 3 trees"}
       icon={ImageIcon}
-      small
     >
       Share Image
     </Button>
@@ -103,7 +102,6 @@
       on:click={handleShareUrlLink}
       tooltipText={"Copy shareable link with build data"}
       icon={LinkIcon}
-      small
     >
       Share Link
     </Button>
