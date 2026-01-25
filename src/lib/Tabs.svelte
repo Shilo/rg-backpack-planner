@@ -31,6 +31,7 @@
   import { techCrystalsSpentByTree } from "./techCrystalStore";
   import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip, tooltip } from "./tooltip";
+  import { activeTabId, getActiveTabId } from "./activeTabStore";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
@@ -64,6 +65,7 @@
   } | null = null;
   let hasMounted = false;
   let lastActiveTabId = "";
+  let isInitialRestore = true;
   const tabPressState: LongPressState = { timer: null, fired: false };
   let tabPressStart: { x: number; y: number } | null = null;
   let tabPressPoint: { x: number; y: number } | null = null;
@@ -92,6 +94,16 @@
 
   onMount(() => {
     hasMounted = true;
+    // Restore active tab from localStorage (only set index, don't call setActive to avoid interfering with tree positioning)
+    if (tabs.length > 0) {
+      const storedTabId = getActiveTabId();
+      const storedIndex = tabs.findIndex((tab) => tab.id === storedTabId);
+      if (storedIndex !== -1 && storedIndex !== activeIndex) {
+        activeIndex = clampIndex(storedIndex);
+      }
+    }
+    // Mark that initial restore is complete
+    isInitialRestore = false;
     if (!tabsBarEl) return;
     const observer = new ResizeObserver(() => {
       bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
@@ -109,6 +121,13 @@
   function setActive(index: number) {
     lastViewState = treeRef?.getViewState?.() ?? lastViewState;
     activeIndex = clampIndex(index);
+    // Persist active tab ID to localStorage (only if not initial restore)
+    if (!isInitialRestore) {
+      const tab = tabs[activeIndex];
+      if (tab) {
+        activeTabId.set(tab.id);
+      }
+    }
   }
 
   $: if (treeRef) {
