@@ -25,7 +25,7 @@
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
   const appVersion = packageInfo.version ?? "";
-  const modalTitleWithVersion = appVersion
+  const appTitleWithVersion = appVersion
     ? `${appName} v${appVersion}`
     : (appName ?? "");
   const appIconUrl = `${import.meta.env.BASE_URL}icon.svg`;
@@ -46,7 +46,7 @@
       ? `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${gameName}</a>`
       : gameName || "";
   const helpMessage =
-    gameName && ownerName ? `For ${gameLink} – By ${ownerLink}` : "";
+    gameName && ownerName ? `For ${gameLink}<br>By ${ownerLink}` : "";
 
   type ControlDevice = "pointer" | "touch" | "both";
   type ControlItem = {
@@ -178,38 +178,40 @@
 </script>
 
 <div class="controls-page">
-  <div class="controls-actions">
-    <InstallPwaButton />
-    <Button
-      icon={Github}
-      aria-label="View source on GitHub"
-      tooltipText="View source on GitHub"
-      on:click={() => {
-        window.open(
-          appGithubUrl ?? "https://github.com/shilo",
-          "_blank",
-          "noopener,noreferrer",
-        );
-      }}
-    />
-  </div>
   <div class="controls-sections">
-    <SideMenuSection title={modalTitleWithVersion}>
-      <div class="control-row">
-        <span class="control-icon" aria-hidden="true">
-          <img
-            src={appIconUrl}
-            alt={`${appName || "App"} icon`}
-            class="control-icon__image"
+    <SideMenuSection title={appTitleWithVersion}>
+      <div class="app-info-actions">
+        <div class="control-row">
+          <span class="control-icon" aria-hidden="true">
+            <img
+              src={appIconUrl}
+              alt={`${appName || "App"} icon`}
+              class="control-icon__image"
+            />
+          </span>
+          <div class="control-text">
+            {#if appDescription}
+              <p class="control-label">{appDescription}</p>
+            {/if}
+            {#if helpMessage}
+              <p class="control-desc">{@html helpMessage}</p>
+            {/if}
+          </div>
+        </div>
+        <div class="controls-actions">
+          <Button
+            icon={Github}
+            aria-label="View source on GitHub"
+            tooltipText="View source on GitHub"
+            on:click={() => {
+              window.open(
+                appGithubUrl ?? "https://github.com/shilo",
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
           />
-        </span>
-        <div class="control-text">
-          {#if appDescription}
-            <p class="control-label">{appDescription}</p>
-          {/if}
-          {#if helpMessage}
-            <p class="control-desc">{@html helpMessage}</p>
-          {/if}
+          <InstallPwaButton />
         </div>
       </div>
     </SideMenuSection>
@@ -363,11 +365,23 @@
     color: #a7b7e6;
   }
 
+  .app-info-actions {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .app-info-actions > .control-row {
+    flex: 1;
+    min-width: 0;
+  }
+
   .controls-actions {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 4px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
   }
 </style>
