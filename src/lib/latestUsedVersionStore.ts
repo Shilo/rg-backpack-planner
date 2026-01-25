@@ -25,6 +25,8 @@ function setStoredVersion(version: string): void {
 export const latestUsedVersion = readable<string | null>(getStoredVersion());
 
 export function isNewVersion(): boolean {
+    //todo
+    return true;
     const storedVersion = getStoredVersion();
     return storedVersion !== currentVersion;
 }

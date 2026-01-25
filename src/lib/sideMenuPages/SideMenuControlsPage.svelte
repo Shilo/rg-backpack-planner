@@ -4,6 +4,7 @@
   import {
     Clock,
     Download,
+    Gamepad2,
     Github,
     Hand,
     Hexagon,
@@ -13,13 +14,13 @@
     Move,
     RotateCcw,
     Share2,
+    User,
     ZoomIn,
   } from "lucide-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
   import SideMenuSection from "../SideMenuSection.svelte";
   import InstallPwaButton, {
-    ensureInstallListeners,
     subscribeInstallState,
   } from "../buttons/InstallPwaButton.svelte";
 
@@ -38,9 +39,16 @@
   const ownerUrl = packageInfo.author?.url ?? "";
   const gameName = packageInfo.game?.name ?? "";
   const gameUrl = packageInfo.game?.url ?? "";
-  const ownerLink = `<a href="${ownerUrl}" target="_blank" rel="noopener noreferrer">${ownerName}</a>`;
-  const gameLink = `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${gameName}</a>`;
-  const helpMessage = `For ${gameLink} - By ${ownerLink}`;
+  const ownerLink =
+    ownerUrl && ownerName
+      ? `<a href="${ownerUrl}" target="_blank" rel="noopener noreferrer">${ownerName}</a>`
+      : ownerName || "";
+  const gameLink =
+    gameUrl && gameName
+      ? `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${gameName}</a>`
+      : gameName || "";
+  const helpMessage =
+    gameName && ownerName ? `For ${gameLink} – By ${ownerLink}` : "";
 
   type ControlDevice = "pointer" | "touch" | "both";
   type ControlItem = {
@@ -61,14 +69,14 @@
     },
     {
       id: "pointer-node-menu",
-      label: "Right-click a node",
+      label: "Right click a node",
       description: "Show node options",
       icon: MousePointer2,
       device: "pointer",
     },
     {
       id: "pointer-tree-menu",
-      label: "Right-click empty space or tab",
+      label: "Right click empty space or tab",
       description: "Show tree options",
       icon: MousePointer2,
       device: "pointer",
@@ -150,8 +158,6 @@
         supportsTouch ||
         window.matchMedia("(any-pointer: coarse)").matches ||
         window.matchMedia("(pointer: coarse)").matches;
-      supportsMouse = true;
-      supportsTouch = true;
     }
     if (!supportsTouch && !supportsMouse) {
       supportsMouse = true;
@@ -165,7 +171,6 @@
 
   onMount(() => {
     detectInputSupport();
-    ensureInstallListeners();
     const unsubscribe = subscribeInstallState((state) => {
       canInstall = state.canInstall;
       isInstalled = state.isInstalled;
@@ -175,6 +180,41 @@
 </script>
 
 <div class="controls-page">
+  <div class="controls-actions">
+    <InstallPwaButton />
+    <Button
+      icon={Github}
+      aria-label="View source on GitHub"
+      tooltipText="View source on GitHub"
+      on:click={() => {
+        window.open(
+          appGithubUrl ?? "https://github.com/shilo",
+          "_blank",
+          "noopener,noreferrer",
+        );
+      }}
+    />
+    {#if ownerUrl && ownerName}
+      <Button
+        icon={User}
+        aria-label={`Visit ${ownerName} on GitHub`}
+        tooltipText={`Visit ${ownerName} on GitHub`}
+        on:click={() => {
+          window.open(ownerUrl, "_blank", "noopener,noreferrer");
+        }}
+      />
+    {/if}
+    {#if gameUrl && gameName}
+      <Button
+        icon={Gamepad2}
+        aria-label={`Visit ${gameName} game`}
+        tooltipText={`Visit ${gameName} game`}
+        on:click={() => {
+          window.open(gameUrl, "_blank", "noopener,noreferrer");
+        }}
+      />
+    {/if}
+  </div>
   <div class="controls-sections">
     <SideMenuSection title={modalTitleWithVersion}>
       <div class="control-row">
@@ -189,7 +229,9 @@
           {#if appDescription}
             <p class="control-label">{appDescription}</p>
           {/if}
-          <p class="control-desc">{@html helpMessage}</p>
+          {#if helpMessage}
+            <p class="control-desc">{@html helpMessage}</p>
+          {/if}
         </div>
       </div>
     </SideMenuSection>
@@ -227,7 +269,7 @@
         </ul>
       </SideMenuSection>
     {/if}
-    <SideMenuSection title="On-screen HUD">
+    <SideMenuSection title="On screen HUD">
       <ul class="control-list">
         <li class="control-row">
           <span class="control-icon" aria-hidden="true">
@@ -274,21 +316,6 @@
         </li>
       </ul>
     </SideMenuSection>
-  </div>
-  <div class="controls-actions">
-    <InstallPwaButton />
-    <Button
-      icon={Github}
-      aria-label="GitHub"
-      tooltipText="View source on GitHub"
-      on:click={() => {
-        window.open(
-          appGithubUrl ?? "https://github.com/shilo",
-          "_blank",
-          "noopener,noreferrer",
-        );
-      }}
-    />
   </div>
 </div>
 

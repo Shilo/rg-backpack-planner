@@ -59,7 +59,9 @@
     window.addEventListener("appinstalled", handleAppInstalled);
   }
 
-  export function subscribeInstallState(listener: (state: InstallState) => void) {
+  export function subscribeInstallState(
+    listener: (state: InstallState) => void,
+  ) {
     listeners.add(listener);
     listener(sharedState);
     return () => {
@@ -83,8 +85,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Download } from "lucide-svelte";
+  import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
   import { triggerHaptic } from "../haptics";
+
+  const appName = packageInfo.name ?? "app";
 
   export let className = "";
 
@@ -96,6 +101,8 @@
     deferredInstallPrompt = state.deferredInstallPrompt;
     canInstall = state.canInstall;
     isInstalled = state.isInstalled;
+    //todo
+    canInstall = true;
   }
 
   async function handleInstallClick() {
@@ -120,7 +127,7 @@
     class={className}
     on:click={handleInstallClick}
     icon={Download}
-    aria-label="Install app"
-    tooltipText="Install app"
+    aria-label={`Install ${appName} app`}
+    tooltipText={`Install ${appName} app`}
   />
 {/if}

@@ -8,7 +8,10 @@
   import { formatNumber } from "../mathUtil";
   import { openTechCrystalsOwnedModal } from "../techCrystalModal";
   import { treeLevels } from "../treeLevelsStore";
-  import { techCrystalsAvailable, techCrystalsOwned } from "../techCrystalStore";
+  import {
+    techCrystalsAvailable,
+    techCrystalsOwned,
+  } from "../techCrystalStore";
   import { closeUpView } from "../closeUpViewStore";
   import { singleLevelUp } from "../singleLevelUpStore";
   import type { TreeViewState } from "../Tree.svelte";
@@ -25,7 +28,7 @@
   $: hasOwned = $techCrystalsOwned > 0;
 </script>
 
-<SideMenuSection title="SETTINGS">
+<SideMenuSection title="Global">
   <Button
     on:click={() => {
       openTechCrystalsOwnedModal($techCrystalsOwned);
@@ -42,9 +45,7 @@
       {formatNumber($techCrystalsAvailable)}
     </span>
     <span class="tech-crystals-separator"> / </span>
-    <span class="tech-crystals-owned"
-      >{formatNumber($techCrystalsOwned)}</span
-    >
+    <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
   </Button>
   <ToggleSwitch
     checked={$singleLevelUp}
