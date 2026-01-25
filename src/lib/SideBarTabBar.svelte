@@ -1,33 +1,36 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { BarChart2, Gamepad2, Settings } from "lucide-svelte";
   import { triggerHaptic } from "./haptics";
   import { tooltip } from "./tooltip";
 
   const STORAGE_KEY = "rg-backpack-planner-side-menu-active-tab";
 
-  export let activeTab: 'statistics' | 'settings' | 'controls' = 'statistics';
-
   function isValidTab(tab: string): tab is 'statistics' | 'settings' | 'controls' {
     return tab === 'statistics' || tab === 'settings' || tab === 'controls';
   }
 
-  onMount(() => {
+  function getStoredActiveTab(): 'statistics' | 'settings' | 'controls' {
+    if (typeof window === "undefined") return 'statistics';
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored && isValidTab(stored)) {
-        activeTab = stored;
+        return stored;
       }
     } catch {
       // localStorage not available, use default
     }
-  });
+    return 'statistics';
+  }
+
+  export let activeTab: 'statistics' | 'settings' | 'controls' = getStoredActiveTab();
 
   $: {
-    try {
-      localStorage.setItem(STORAGE_KEY, activeTab);
-    } catch {
-      // localStorage not available, ignore
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEY, activeTab);
+      } catch {
+        // localStorage not available, ignore
+      }
     }
   }
 

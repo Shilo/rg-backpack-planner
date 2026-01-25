@@ -19,7 +19,18 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-  let activeTab: "statistics" | "settings" | "controls" = "statistics";
+  let activeTab: "statistics" | "settings" | "controls" = (() => {
+    if (typeof window === "undefined") return "statistics";
+    try {
+      const stored = localStorage.getItem("rg-backpack-planner-side-menu-active-tab");
+      if (stored === "statistics" || stored === "settings" || stored === "controls") {
+        return stored;
+      }
+    } catch {
+      // localStorage not available, use default
+    }
+    return "statistics";
+  })();
   $: if (!isOpen) {
     const active = document.activeElement;
     if (
