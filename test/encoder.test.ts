@@ -321,7 +321,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
           final_3: 5,
         },
       ],
-      owned: 1234, // High owned value requiring multi-character base36
+      owned: 1234, // High owned value requiring multi-character base62
     },
   },
 ];
@@ -358,7 +358,7 @@ export function runTests() {
       const serialized = encodeBuildData(testCase.buildData);
       const serializedLength = serialized.length;
       
-      // Note: Serialized string uses base36 encoding and custom separators
+      // Note: Serialized string uses base62 encoding (0-9, a-z, A-Z) and custom separators
       // Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
       // Separators: : (branches), ; (trees), , (values), - (RLE), * (tree RLE)
       // All characters are URL-safe, so no base64 encoding is needed

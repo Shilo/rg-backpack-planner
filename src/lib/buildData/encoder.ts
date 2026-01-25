@@ -33,7 +33,7 @@ export interface BuildData {
 type BranchType = "yellow" | "orange" | "blue";
 
 /**
- * Branch root node IDs
+ * Branch root node IDs - maps branch type to root node ID
  */
 const BRANCH_ROOTS = {
   yellow: "attack",
@@ -42,15 +42,22 @@ const BRANCH_ROOTS = {
 } as const;
 
 /**
+ * Reverse lookup map: root node ID -> branch type (for O(1) lookup)
+ */
+const ROOT_TO_BRANCH = new Map<string, BranchType>(
+  Object.entries(BRANCH_ROOTS).map(([branch, root]) => [root, branch as BranchType])
+);
+
+/**
  * Special marker for completely empty build (all trees empty, owned=0)
  */
 const EMPTY_BUILD_MARKER = "_";
 
 /**
  * Regex pattern for valid serialized format characters
- * Serialized format uses: base36 numbers (0-9, a-z), separators (: ; , - *), and empty marker (_)
+ * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (: ; , - *), and empty marker (_)
  */
-export const SERIALIZED_PATTERN = /^[0-9a-z:;,\-*_]+$/;
+export const SERIALIZED_PATTERN = /^[0-9a-zA-Z:;,\-*_]+$/;
 
 /**
  * Node map for quick lookup
@@ -81,12 +88,7 @@ function initializeNodeMap(): Map<string, TreeNode> {
  * @returns The branch type if it's a root, or null
  */
 function getBranchRoot(nodeId: string): BranchType | null {
-  for (const [branch, rootId] of Object.entries(BRANCH_ROOTS)) {
-    if (nodeId === rootId) {
-      return branch as BranchType;
-    }
-  }
-  return null;
+  return ROOT_TO_BRANCH.get(nodeId) ?? null;
 }
 
 /**
@@ -184,60 +186,55 @@ function getBranchMapping() {
 }
 
 /**
- * Encodes a string to base64url format (URL-safe base64)
- * Replaces + with -, / with _, and removes padding =
+ * Base62 character set: 0-9, a-z, A-Z (62 characters total)
+ * More compact than base36 for better compression
  */
-function encodeBase64Url(base64: string): string {
-  return base64
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-}
+const BASE62_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /**
- * Decodes a base64url string back to standard base64
- * Replaces - with +, _ with /, and adds back padding =
- */
-function decodeBase64Url(base64url: string): string {
-  // Add padding back if needed
-  let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
-  // Add padding to make length a multiple of 4
-  while (base64.length % 4) {
-    base64 += "=";
-  }
-  return base64;
-}
-
-/**
- * Encodes a number to base-36 string (0-9, a-z)
- * More compact than decimal for values > 9
+ * Encodes a number to base-62 string (0-9, a-z, A-Z)
+ * More compact than base36 for values > 35
  * @param num Number to encode
- * @returns Base-36 encoded string (lowercase)
+ * @returns Base-62 encoded string
  */
-function encodeBase36(num: number): string {
-  if (num === 0) {
-    return "0";
+function encodeBase62(num: number): string {
+  if (num === 0) return "0";
+  
+  let result = "";
+  let n = num;
+  while (n > 0) {
+    result = BASE62_CHARS[n % 62] + result;
+    n = Math.floor(n / 62);
   }
-  return num.toString(36);
+  return result;
 }
 
 /**
- * Decodes a base-36 string back to a number
- * @param str Base-36 encoded string (0-9, a-z)
+ * Decodes a base-62 string back to a number
+ * @param str Base-62 encoded string (0-9, a-z, A-Z)
  * @returns Decoded number
  */
-function decodeBase36(str: string): number {
-  return parseInt(str, 36);
+function decodeBase62(str: string): number {
+  let result = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    const charIndex = BASE62_CHARS.indexOf(char);
+    if (charIndex === -1) {
+      throw new Error(`Invalid base62 character: ${char}`);
+    }
+    result = result * 62 + charIndex;
+  }
+  return result;
 }
 
 /**
- * Encodes a count for RLE format (uses base36 for counts >= 10 to save space)
+ * Encodes a count for RLE format (uses base62 for counts >= 10 to save space)
  * @param count The count to encode
- * @returns Encoded count string (decimal for 1-9, base36 for 10+)
+ * @returns Encoded count string (decimal for 1-9, base62 for 10+)
  */
 function encodeRLECount(count: number): string {
-  // Use base36 for counts >= 10 to save space (10 → "a" saves 1 char)
-  return count >= 10 ? count.toString(36) : count.toString();
+  // Use base62 for counts >= 10 to save space (10 → "a", 36 → "A", 62 → "10")
+  return count >= 10 ? encodeBase62(count) : count.toString();
 }
 
 /**
@@ -251,7 +248,7 @@ function shouldUseRLE(value: string, count: number): boolean {
     return false;
   }
   const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
-  const encodedCount = encodeRLECount(count); // Uses base36 for counts >= 10
+  const encodedCount = encodeRLECount(count); // Uses base62 for counts >= 10
   const rleLength = value.length + 1 + encodedCount.length; // "val-3" or "val-a" = 3+1+1 = 5
   // For empty strings, use RLE when equal length for consistency (e.g., ,, vs -3, both 2 chars)
   // For non-empty strings, only use RLE when it saves space
@@ -280,7 +277,7 @@ function outputRun(result: string[], value: string, count: number): void {
  * Compresses consecutive duplicate values using run-length encoding (RLE)
  * Format: value-count where - is the separator (only when it saves space)
  * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1,2s"
- * @param values Array of base36-encoded value strings
+ * @param values Array of base62-encoded value strings
  * @returns RLE-compressed string with commas separating runs
  */
 function compressRLE(values: string[]): string {
@@ -309,33 +306,33 @@ function compressRLE(values: string[]): string {
 }
 
 /**
- * Validates and parses an RLE count from a string (decimal for 1-9, base36 for 10+)
+ * Validates and parses an RLE count from a string (decimal for 1-9, base62 for 10+)
  * @param countStr The count string to parse
- * @param part The full part string for error messages
+ * @param context Context string for error messages
  * @returns The parsed count
  * @throws Error if count is invalid
  */
-function parseRLECount(countStr: string, part: string): number {
-  // Base36 uses a-z, so if it contains letters, it's base36; otherwise decimal
-  const hasLetters = /[a-z]/.test(countStr);
-  const count = hasLetters ? parseInt(countStr, 36) : parseInt(countStr, 10);
+function parseRLECount(countStr: string, context: string): number {
+  // Base62 uses a-z and A-Z, so if it contains letters, it's base62; otherwise decimal
+  const hasLetters = /[a-zA-Z]/.test(countStr);
+  const count = hasLetters ? decodeBase62(countStr) : parseInt(countStr, 10);
   
   if (isNaN(count) || count < 1) {
-    throw new Error(`Invalid RLE format: invalid count in "${part}"`);
+    throw new Error(`Invalid RLE format: invalid count in "${context}"`);
   }
   return count;
 }
 
 /**
  * Expands a single RLE pattern to an array of values
- * @param pattern The RLE pattern (value-count or -count, count may be base36)
+ * @param pattern The RLE pattern (value-count or -count, count may be base62)
  * @returns Array of expanded values
  * @throws Error if pattern is invalid
  */
 function expandRLEPattern(pattern: string): string[] {
-  // Count can be decimal (0-9) or base36 (0-9, a-z)
-  const rleMatchWithValue = pattern.match(/^(.+)-([0-9a-z]+)$/);
-  const rleMatchZeros = pattern.match(/^-([0-9a-z]+)$/);
+  // Count can be decimal (0-9) or base62 (0-9, a-z, A-Z)
+  const rleMatchWithValue = pattern.match(/^(.+)-([0-9a-zA-Z]+)$/);
+  const rleMatchZeros = pattern.match(/^-([0-9a-zA-Z]+)$/);
 
   if (rleMatchZeros) {
     // Pattern: -count (run of zeros)
@@ -410,9 +407,9 @@ function serializeArrayFormat(
   const treeStrings: string[] = treeBranchArrays.map((branches) => {
     // branches is [yellow[], orange[], blue[]]
     const branchStrings: string[] = branches.map((branch) => {
-      // Serialize branch: encode to base36, then compress with RLE
-      const base36Values = branch.map((val) => (val === 0 ? "" : encodeBase36(val)));
-      return compressRLE(base36Values);
+      // Serialize branch: encode to base62, then compress with RLE
+      const base62Values = branch.map((val) => (val === 0 ? "" : encodeBase62(val)));
+      return compressRLE(base62Values);
     });
 
     // Omit trailing empty branches
@@ -429,7 +426,7 @@ function serializeArrayFormat(
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase36(owned);
+    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase62(owned);
   }
 
   // Get non-empty trees
@@ -439,10 +436,10 @@ function serializeArrayFormat(
   if (nonEmptyTreeStrings.length === 3) {
     const firstTree = nonEmptyTreeStrings[0];
     if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
-      // All 3 trees are identical, compress to treeString*count (use base36 for count >= 10)
+      // All 3 trees are identical, compress to treeString*count (use base62 for count >= 10)
       const countStr = encodeRLECount(3);
       const treePart = `${firstTree}*${countStr}`;
-      return owned === 0 ? treePart : `${treePart};${encodeBase36(owned)}`;
+      return owned === 0 ? treePart : `${treePart};${encodeBase62(owned)}`;
     }
   }
 
@@ -453,19 +450,13 @@ function serializeArrayFormat(
 
     while (i < nonEmptyTreeStrings.length) {
       const currentTree = nonEmptyTreeStrings[i];
-      
+
       // Check if current tree and next tree are identical
       if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
         // Two identical trees found, compress to treeString*2
-        // Only compress if it saves space: tree*2 (tree.length + 2) vs tree;tree (tree.length * 2 + 1)
-        // tree*2 saves space when: tree.length + 2 < tree.length * 2 + 1
-        // Simplifies to: 2 < tree.length + 1, or tree.length > 1
-        // For tree.length === 1: tree*2 (3) vs tree;tree (3) - same, but *2 is more consistent
-        const countStr = encodeRLECount(2);
-        result.push(`${currentTree}*${countStr}`);
+        result.push(`${currentTree}*${encodeRLECount(2)}`);
         i += 2; // Skip both trees
       } else {
-        // No match, output current tree normally
         result.push(currentTree);
         i += 1;
       }
@@ -475,14 +466,14 @@ function serializeArrayFormat(
     if (result.length < nonEmptyTreeStrings.length) {
       return owned === 0
         ? result.join(";")
-        : [...result, encodeBase36(owned)].join(";");
+        : [...result, encodeBase62(owned)].join(";");
     }
   }
 
   // Trees are not identical, output normally
   return owned === 0
     ? nonEmptyTreeStrings.join(";")
-    : [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
+    : [...nonEmptyTreeStrings, encodeBase62(owned)].join(";");
 }
 
 /**
@@ -496,12 +487,12 @@ function parseBranchSegment(branchSegment: string): number[] {
   }
   const expandedValues = expandRLE(branchSegment);
   return expandedValues.map((val) => {
-    if (val === "") return 0; // Empty string represents 0
-    const num = decodeBase36(val);
-    if (isNaN(num)) {
+    if (val === "") return 0;
+    try {
+      return decodeBase62(val);
+    } catch (error) {
       throw new Error(`Invalid number value: ${val}`);
     }
-    return num;
   });
 }
 
@@ -526,10 +517,11 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   // If there are multiple segments and the last one has no separators, it must be owned
   if (segments.length > 1) {
     const lastSegment = segments[segments.length - 1];
-    // owned must be a single base36 number with no branch or node separators
-    if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment.indexOf("*") === -1 && lastSegment !== "") {
-      owned = decodeBase36(lastSegment);
-      if (isNaN(owned)) {
+    // owned must be a single base62 number with no branch or node separators
+    if (!lastSegment.includes(":") && !lastSegment.includes(",") && !lastSegment.includes("*") && lastSegment !== "") {
+      try {
+        owned = decodeBase62(lastSegment);
+      } catch (error) {
         throw new Error(`Invalid owned value: ${lastSegment}`);
       }
       treeSegments = segments.slice(0, -1);
@@ -540,25 +532,16 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     treeSegments = segments;
   }
 
-  // Expand tree-level RLE (treeString*count format, count may be base36)
+  // Expand tree-level RLE (treeString*count format, count may be base62)
   const expandedTreeSegments: string[] = [];
   for (const segment of treeSegments) {
-    // Check if this is a tree-level RLE pattern (treeString*count)
-    // Count can be decimal (1-9) or base36 (a-z for 10+)
-    const treeRLEMatch = segment.match(/^(.+)\*([0-9a-z]+)$/);
+    const treeRLEMatch = segment.match(/^(.+)\*([0-9a-zA-Z]+)$/);
     if (treeRLEMatch) {
       const treeString = treeRLEMatch[1];
       const countStr = treeRLEMatch[2];
-      // Parse count (decimal for 1-9, base36 for 10+)
-      const hasLetters = /[a-z]/.test(countStr);
-      const count = hasLetters ? parseInt(countStr, 36) : parseInt(countStr, 10);
-      if (isNaN(count) || count < 1) {
-        throw new Error(`Invalid tree-level RLE format: invalid count in "${segment}"`);
-      }
+      const count = parseRLECount(countStr, segment);
       // Expand the tree repetition
-      for (let i = 0; i < count; i++) {
-        expandedTreeSegments.push(treeString);
-      }
+      expandedTreeSegments.push(...Array(count).fill(treeString));
     } else {
       expandedTreeSegments.push(segment);
     }
@@ -711,16 +694,11 @@ function convertArrayFormatToTrees(
 
 /**
  * Encodes build data into a serialized string for URL sharing
- * Uses compact branch-based format with truncated trailing zeros for smallest possible URL
+ * Uses compact branch-based format with truncated trailing zeros
  * Returns the serialized string directly (all characters are URL-safe, no base64 encoding needed)
  */
 export function encodeBuildData(buildData: BuildData): string {
-  // Convert to branch-grouped array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
-  // Each tree_branches is [yellow[], orange[], blue[]]
-  // Each branch is truncated to last non-zero index + 1
   const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
-
-  // Use custom serializer instead of JSON.stringify
   const serialized = serializeArrayFormat(treeArrays, owned);
 
   console.warn("[encodeBuildData] Deserialized data before save:", {
@@ -729,7 +707,6 @@ export function encodeBuildData(buildData: BuildData): string {
     serializedString: serialized,
   });
 
-  // Return serialized string directly (all characters are URL-safe: 0-9, a-z, :, ;, ,, -, *, _)
   return serialized;
 }
 
@@ -754,16 +731,13 @@ function safeExecute<T>(
 
 /**
  * Decodes a serialized string back into build data
- * Returns compressed data (expansion happens in applyBuildFromUrl)
  */
 export function decodeBuildData(encoded: string): BuildData | null {
-  // Validate that the string looks like valid serialized format
   if (!SERIALIZED_PATTERN.test(encoded)) {
     console.warn("[decodeBuildData] Invalid serialized format:", encoded);
     return null;
   }
 
-  // Parse array format directly (no base64 decoding needed)
   const parsed = safeExecute(
     () => parseArrayFormat(encoded),
     "Failed to parse array format"
@@ -775,7 +749,6 @@ export function decodeBuildData(encoded: string): BuildData | null {
 
   console.warn("[decodeBuildData] Parsed array format after load:", arrayFormat);
 
-  // Convert to BuildData format
   const buildData = safeExecute(
     () => convertArrayFormatToTrees(arrayFormat),
     "Failed to convert array format to trees"
