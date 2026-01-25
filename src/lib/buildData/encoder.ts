@@ -231,6 +231,127 @@ function decodeBase36(str: string): number {
 }
 
 /**
+ * Compresses consecutive duplicate values using run-length encoding (RLE)
+ * Format: value-count where - is the separator (only when count > 1)
+ * Single values are output without RLE format for better compression
+ * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1,2s"
+ * @param values Array of base36-encoded value strings
+ * @returns RLE-compressed string with commas separating runs
+ */
+function compressRLE(values: string[]): string {
+  if (values.length === 0) {
+    return "";
+  }
+
+  const result: string[] = [];
+  let currentValue = values[0];
+  let count = 1;
+
+  for (let i = 1; i < values.length; i++) {
+    if (values[i] === currentValue) {
+      count++;
+    } else {
+      // Output current run
+      // Use RLE only if it actually saves space
+      // Plain format: "value,value,value" = value.length * count + (count - 1) commas
+      // RLE format: "value-count" = value.length + 1 + count.toString().length
+      if (count === 1) {
+        result.push(currentValue);
+      } else {
+        const plainLength = currentValue.length * count + (count - 1);
+        const rleLength = currentValue.length + 1 + count.toString().length;
+        if (rleLength < plainLength) {
+          result.push(`${currentValue}-${count}`);
+        } else {
+          // RLE doesn't save space, output plain values
+          for (let j = 0; j < count; j++) {
+            result.push(currentValue);
+          }
+        }
+      }
+      // Start new run
+      currentValue = values[i];
+      count = 1;
+    }
+  }
+
+  // Output final run
+  if (count === 1) {
+    result.push(currentValue);
+  } else {
+    const plainLength = currentValue.length * count + (count - 1);
+    const rleLength = currentValue.length + 1 + count.toString().length;
+    if (rleLength < plainLength) {
+      result.push(`${currentValue}-${count}`);
+    } else {
+      // RLE doesn't save space, output plain values
+      for (let j = 0; j < count; j++) {
+        result.push(currentValue);
+      }
+    }
+  }
+
+  return result.join(",");
+}
+
+/**
+ * Expands RLE-compressed string back to array of values
+ * Accepts both RLE format (value-count or -count) and plain values
+ * Examples: "2s-4" → ["2s", "2s", "2s", "2s"], "-3" → ["", "", ""], "1" → ["1"]
+ * @param valueString Comma-separated string with RLE patterns or plain values
+ * @returns Array of expanded value strings
+ */
+function expandRLE(valueString: string): string[] {
+  if (valueString === "") {
+    return [];
+  }
+
+  const parts = valueString.split(",");
+  const result: string[] = [];
+
+  for (const part of parts) {
+    if (part === "") {
+      // Empty part represents zero
+      result.push("");
+      continue;
+    }
+    
+    // Check if this is an RLE pattern
+    // Pattern 1: value-count (e.g., "2s-4")
+    // Pattern 2: -count (e.g., "-3" for 3 zeros)
+    const rleMatchWithValue = part.match(/^(.+)-(\d+)$/);
+    const rleMatchZeros = part.match(/^-(\d+)$/);
+    
+    if (rleMatchZeros) {
+      // Pattern: -count (run of zeros)
+      const count = parseInt(rleMatchZeros[1], 10);
+      if (isNaN(count) || count < 1) {
+        throw new Error(`Invalid RLE format: invalid count in "${part}"`);
+      }
+      for (let i = 0; i < count; i++) {
+        result.push("");
+      }
+    } else if (rleMatchWithValue) {
+      // Pattern: value-count (run of non-zero values)
+      const value = rleMatchWithValue[1];
+      const count = parseInt(rleMatchWithValue[2], 10);
+      if (isNaN(count) || count < 1) {
+        throw new Error(`Invalid RLE format: invalid count in "${part}"`);
+      }
+      // Expand the run
+      for (let i = 0; i < count; i++) {
+        result.push(value);
+      }
+    } else {
+      // Plain value (no RLE, single occurrence)
+      result.push(part);
+    }
+  }
+
+  return result;
+}
+
+/**
  * Serializes branch-grouped array format to custom compact string
  * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
  * Trailing empty branches and trailing empty trees are omitted
@@ -247,8 +368,10 @@ function serializeArrayFormat(
   const treeStrings: string[] = treeBranchArrays.map((branches) => {
     // branches is [yellow[], orange[], blue[]]
     const branchStrings: string[] = branches.map((branch) => {
-      // Serialize branch as comma-separated values, empty string for zero
-      return branch.map((val) => (val === 0 ? "" : encodeBase36(val))).join(",");
+      // Serialize branch: encode to base36, then compress with RLE
+      const base36Values = branch.map((val) => (val === 0 ? "" : encodeBase36(val)));
+      // Apply RLE compression to reduce repeated values
+      return compressRLE(base36Values);
     });
 
     // Omit trailing empty branches
@@ -362,9 +485,10 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
       if (branchSegment === "") {
         return []; // Empty branch
       }
-      // Parse comma-separated values
-      return branchSegment.split(",").map((val) => {
-        if (val === "") return 0; // Empty string between commas represents 0
+      // Expand RLE patterns and parse values
+      const expandedValues = expandRLE(branchSegment);
+      return expandedValues.map((val) => {
+        if (val === "") return 0; // Empty string represents 0
         const num = decodeBase36(val);
         if (isNaN(num)) {
           throw new Error(`Invalid number value: ${val}`);
