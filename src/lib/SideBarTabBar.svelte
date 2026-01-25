@@ -5,12 +5,14 @@
 
   const STORAGE_KEY = "rg-backpack-planner-side-menu-active-tab";
 
-  function isValidTab(tab: string): tab is 'statistics' | 'settings' | 'controls' {
-    return tab === 'statistics' || tab === 'settings' || tab === 'controls';
+  function isValidTab(
+    tab: string,
+  ): tab is "statistics" | "settings" | "controls" {
+    return tab === "statistics" || tab === "settings" || tab === "controls";
   }
 
-  function getStoredActiveTab(): 'statistics' | 'settings' | 'controls' {
-    if (typeof window === "undefined") return 'statistics';
+  function getStoredActiveTab(): "statistics" | "settings" | "controls" {
+    if (typeof window === "undefined") return "statistics";
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored && isValidTab(stored)) {
@@ -19,10 +21,11 @@
     } catch {
       // localStorage not available, use default
     }
-    return 'statistics';
+    return "statistics";
   }
 
-  export let activeTab: 'statistics' | 'settings' | 'controls' = getStoredActiveTab();
+  export let activeTab: "statistics" | "settings" | "controls" =
+    getStoredActiveTab();
 
   $: {
     if (typeof window !== "undefined") {
@@ -34,7 +37,7 @@
     }
   }
 
-  function handleTabClick(tab: 'statistics' | 'settings' | 'controls') {
+  function handleTabClick(tab: "statistics" | "settings" | "controls") {
     activeTab = tab;
     triggerHaptic();
   }
@@ -44,35 +47,47 @@
   <div class="side-bar-tab-bar__tabs">
     <button
       class="side-bar-tab-bar__tab-button"
-      class:active={activeTab === 'statistics'}
+      class:active={activeTab === "statistics"}
       aria-label="Statistics"
-      use:tooltip={"Statistics"}
-      on:click={() => handleTabClick('statistics')}
+      use:tooltip={"View skills, levels, and tech crystal data"}
+      on:click={() => handleTabClick("statistics")}
       type="button"
     >
-      <svelte:component this={BarChart2} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
+      <svelte:component
+        this={BarChart2}
+        class="side-bar-tab-bar__tab-icon"
+        aria-hidden="true"
+      />
       <span class="side-bar-tab-bar__tab-label">Statistics</span>
     </button>
     <button
       class="side-bar-tab-bar__tab-button"
-      class:active={activeTab === 'settings'}
+      class:active={activeTab === "settings"}
       aria-label="Settings"
-      use:tooltip={"Settings"}
-      on:click={() => handleTabClick('settings')}
+      use:tooltip={"View options"}
+      on:click={() => handleTabClick("settings")}
       type="button"
     >
-      <svelte:component this={Settings} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
+      <svelte:component
+        this={Settings}
+        class="side-bar-tab-bar__tab-icon"
+        aria-hidden="true"
+      />
       <span class="side-bar-tab-bar__tab-label">Settings</span>
     </button>
     <button
       class="side-bar-tab-bar__tab-button"
-      class:active={activeTab === 'controls'}
+      class:active={activeTab === "controls"}
       aria-label="Controls"
-      use:tooltip={"Controls"}
-      on:click={() => handleTabClick('controls')}
+      use:tooltip={"View input mapping"}
+      on:click={() => handleTabClick("controls")}
       type="button"
     >
-      <svelte:component this={Gamepad2} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
+      <svelte:component
+        this={Gamepad2}
+        class="side-bar-tab-bar__tab-icon"
+        aria-hidden="true"
+      />
       <span class="side-bar-tab-bar__tab-label">Controls</span>
     </button>
   </div>
