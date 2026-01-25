@@ -100,7 +100,7 @@
       icon={LinkIcon}
       small
     >
-      Share URL Link
+      Share Link
     </Button>
   </ContextMenu>
 </div>

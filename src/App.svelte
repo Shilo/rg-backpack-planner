@@ -10,7 +10,7 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
+    import { treeLevels, sumLevels, setTreeLevels } from "./lib/treeLevelsStore";
     import {
         isNewVersion,
         markVersionAsSeen,
@@ -28,6 +28,12 @@
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
+    import {
+        loadTreeProgress,
+        initTreeProgressPersistence,
+        setupPageCloseSave,
+    } from "./lib/treeProgressStore";
+    import { get } from "svelte/store";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -155,8 +161,29 @@
     onMount(async () => {
         ensureInstallListeners();
         
-        // Load build from URL if present (wait for trees to be initialized)
+        // Wait for trees to be initialized
         await tick();
+        
+        // Check if there's a build in the URL first
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasUrlBuild = urlParams.has("build");
+        
+        // Load from localStorage only if there's no URL build
+        // URL builds should take precedence over localStorage
+        if (!hasUrlBuild) {
+            const savedProgress = loadTreeProgress();
+            if (savedProgress) {
+                const currentTrees = get(treeLevels);
+                // Only apply if the saved progress matches the current tree structure
+                if (savedProgress.length === currentTrees.length) {
+                    savedProgress.forEach((tree, index) => {
+                        setTreeLevels(index, tree);
+                    });
+                }
+            }
+        }
+        
+        // Load build from URL if present (this will override localStorage if present)
         const buildLoaded = applyBuildFromUrl();
         if (buildLoaded) {
             // Clean up URL after loading to prevent re-loading on refresh
@@ -164,6 +191,12 @@
             url.searchParams.delete("build");
             window.history.replaceState({}, "", url.toString());
         }
+        
+        // Initialize auto-save: subscribe to treeLevels changes
+        initTreeProgressPersistence();
+        
+        // Set up backup save on page close
+        setupPageCloseSave();
         
         if (shouldShowControls) {
             markVersionAsSeen();
