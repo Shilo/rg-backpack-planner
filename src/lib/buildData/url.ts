@@ -4,15 +4,113 @@
  */
 
 import type { BuildData } from "./encoder";
-import { encodeBuildData, decodeBuildData, BASE64URL_PATTERN } from "./encoder";
-
-/**
- * Base path from vite.config.ts - must match the base configuration
- */
-const BASE_PATH = "/rg-backpack-planner/";
+import { encodeBuildData, decodeBuildData } from "./encoder";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
+
+/**
+ * Cached base path from vite.config.ts
+ * Normalized to have leading slash and trailing slash
+ */
+let cachedBasePath: string | null = null;
+
+/**
+ * Get the base path from Vite config, cached on first access
+ * Normalizes to ensure leading slash and trailing slash
+ */
+export function getBasePath(): string {
+  if (cachedBasePath === null) {
+    // Get base from Vite's injected BASE_URL
+    let base = import.meta.env.BASE_URL;
+    
+    // Ensure leading slash
+    if (!base.startsWith("/")) {
+      base = "/" + base;
+    }
+    
+    // Ensure trailing slash for concatenation
+    if (!base.endsWith("/")) {
+      base = base + "/";
+    }
+    
+    cachedBasePath = base;
+  }
+  
+  return cachedBasePath;
+}
+
+/**
+ * Extract the path segment after the base path
+ * Returns empty string if pathname is exactly the base (with or without trailing slash)
+ * Returns the first path segment after base if present
+ */
+function getPathAfterBase(pathname: string): string {
+  const base = getBasePath();
+  const baseNormalized = base.replace(/\/$/, ""); // Remove trailing slash for comparison
+  
+  // Normalize pathname: remove trailing slash for comparison
+  const pathnameNormalized = pathname.replace(/\/$/, "");
+  
+  // If pathname is exactly the base (with or without trailing slash), return empty
+  if (pathnameNormalized === baseNormalized || pathname === base) {
+    return "";
+  }
+  
+  // Check if pathname starts with base
+  if (pathname.startsWith(base)) {
+    // Get everything after base
+    const afterBase = pathname.slice(base.length);
+    // Take only the first segment (encoded data is a single segment)
+    const firstSegment = afterBase.split("/")[0];
+    return firstSegment || "";
+  }
+  
+  // If pathname doesn't start with base, return empty
+  return "";
+}
+
+/**
+ * Get the encoded build data from the current URL
+ * Returns null if there's no path after base
+ * No validation - just returns whatever is after base
+ */
+export function getEncodedFromUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  
+  const encoded = getPathAfterBase(window.location.pathname);
+  return encoded || null;
+}
+
+/**
+ * Build a share path (path only, no origin) with the given encoded data
+ */
+function buildSharePath(encoded: string): string {
+  const base = getBasePath();
+  // Base already has trailing slash, encoded has no slashes
+  return base + encoded;
+}
+
+/**
+ * Build a full shareable URL with the given encoded data
+ */
+function buildShareUrl(encoded: string): string {
+  if (typeof window === "undefined") {
+    // Fallback for SSR - shouldn't happen in practice
+    return "";
+  }
+  return window.location.origin + buildSharePath(encoded);
+}
+
+/**
+ * Clear share data from URL, leaving only the base path
+ */
+export function clearShareFromUrl(): void {
+  if (typeof window === "undefined") return;
+  
+  const basePath = getBasePath();
+  window.history.replaceState({}, "", basePath);
+}
 
 // Flag to prevent URL updates during initial build application
 let isApplyingBuildFromUrl = false;
@@ -41,29 +139,7 @@ export function createShareUrl(buildData?: BuildData): string {
     owned: get(techCrystalsOwned),
   };
   const encoded = encodeBuildData(data);
-  // Use path-based routing: /{encoded}
-  // Extract base path by removing any existing encoded build data
-  const currentPath = window.location.pathname;
-  const pathSegments = currentPath.split("/").filter(Boolean);
-  
-  // Remove the last segment if it looks like build data
-  if (pathSegments.length > 0) {
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
-    // If it matches the pattern for build data and is not the base path segment, remove it
-    if (lastSegment !== basePathSegment && BASE64URL_PATTERN.test(lastSegment)) {
-      pathSegments.pop();
-    }
-  }
-  
-  // Construct the base path
-  const basePath = pathSegments.length > 0
-    ? `/${pathSegments.join("/")}`
-    : BASE_PATH.replace(/\/$/, ""); // Remove trailing slash for joining
-  
-  // Avoid double slashes
-  const separator = basePath === "/" ? "" : "/";
-  return `${window.location.origin}${basePath}${separator}${encoded}`;
+  return buildShareUrl(encoded);
 }
 
 /**
@@ -73,31 +149,16 @@ export function createShareUrl(buildData?: BuildData): string {
 export function loadBuildFromUrl(): BuildData | null {
   if (typeof window === "undefined") return null;
 
-  // Path-based routing: /{encoded}
-  const pathname = window.location.pathname;
-  // Extract the last segment of the path (after the last /)
-  const pathSegments = pathname.split("/").filter(Boolean);
-  if (pathSegments.length > 0) {
-    const lastSegment = pathSegments[pathSegments.length - 1];
-
-    // Exclude known base path segments (e.g., "rg-backpack-planner")
-    const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
-    if (lastSegment === basePathSegment) {
-      return null; // This is just the base path, not build data
-    }
-
-    // Only try to decode if it looks like base64url
-    // decodeBuildData will handle further validation
-    if (BASE64URL_PATTERN.test(lastSegment)) {
-      const buildData = decodeBuildData(lastSegment);
-      if (buildData) {
-        console.warn("[loadBuildFromUrl] Successfully loaded build data from URL:", lastSegment);
-      }
-      return buildData;
-    }
+  const encoded = getEncodedFromUrl();
+  if (!encoded) {
+    return null;
   }
 
-  return null;
+  const buildData = decodeBuildData(encoded);
+  if (buildData) {
+    console.warn("[loadBuildFromUrl] Successfully loaded build data from URL:", encoded);
+  }
+  return buildData;
 }
 
 /**
@@ -121,43 +182,10 @@ export function updateUrlWithCurrentBuild(): void {
     };
 
     const encoded = encodeBuildData(buildData);
-
-    // Use path-based routing: /{encoded}
-    // Get base path (remove any existing encoded data from pathname)
-    const currentPath = window.location.pathname;
-    const pathSegments = currentPath.split("/").filter(Boolean);
-
-    // Check if the current URL already has the same encoded data
-    if (pathSegments.length > 0) {
-      const lastSegment = pathSegments[pathSegments.length - 1];
-      if (lastSegment === encoded) {
-        // URL already matches current build data - no update needed
-        return;
-      }
-    }
-
-    // Remove the last segment if it looks like build data
-    // We can skip the decode check since we're about to replace it anyway
-    if (pathSegments.length > 0) {
-      const lastSegment = pathSegments[pathSegments.length - 1];
-      const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
-      // If it matches the pattern for build data and is not the base path segment, remove it
-      if (lastSegment !== basePathSegment && BASE64URL_PATTERN.test(lastSegment)) {
-        pathSegments.pop();
-      }
-    }
-
-    // Construct the new path
-    // Ensure we preserve at least the base path
-    const basePath = pathSegments.length > 0
-      ? `/${pathSegments.join("/")}`
-      : BASE_PATH.replace(/\/$/, ""); // Remove trailing slash for joining
-    // Avoid double slashes
-    const separator = basePath === "/" ? "" : "/";
-    const newPath = `${basePath}${separator}${encoded}`;
+    const newPath = buildSharePath(encoded);
 
     // Only update URL if it's different from current pathname
-    if (newPath === currentPath) {
+    if (newPath === window.location.pathname) {
       return; // No change needed
     }
 

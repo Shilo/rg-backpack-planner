@@ -2,7 +2,7 @@
   import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
   import Button from "./Button.svelte";
   import { XCircleIcon } from "phosphor-svelte";
-  import { BASE64URL_PATTERN } from "./buildData/encoder";
+  import { clearShareFromUrl } from "./buildData/url";
 
   export let onButtonPress: (() => void) | null = null;
 
@@ -13,23 +13,9 @@
       // Set a flag to show toast after reload
       sessionStorage.setItem("rg-backpack-planner-stopped-preview", "true");
       
-      // Remove build data from pathname: /{encoded}
-      const pathname = window.location.pathname;
-      const pathSegments = pathname.split("/").filter(Boolean);
-      if (pathSegments.length > 0) {
-        const lastSegment = pathSegments[pathSegments.length - 1];
-        // Check if it looks like base64url encoded data
-        if (BASE64URL_PATTERN.test(lastSegment) && lastSegment.length > 10) {
-          pathSegments.pop();
-        }
-      }
-      // Ensure we preserve at least the base path from vite.config.ts
-      const basePath = pathSegments.length > 0 
-        ? `/${pathSegments.join("/")}/` 
-        : "/rg-backpack-planner/";
+      // Clear share data from URL, leaving only base path
+      clearShareFromUrl();
       
-      // Update URL to remove build data
-      window.history.replaceState({}, "", basePath);
       // Reload to re-initialize in personal mode
       window.location.reload();
     }

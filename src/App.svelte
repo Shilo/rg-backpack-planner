@@ -32,8 +32,8 @@
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/buildData/applier";
-    import { loadBuildFromUrl } from "./lib/buildData/url";
-    import { BASE64URL_PATTERN } from "./lib/buildData/encoder";
+    import { loadBuildFromUrl, getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
+    import { decodeBuildData, type BuildData } from "./lib/buildData/encoder";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
@@ -183,42 +183,29 @@
 
             // Check if there's a build in the URL (path-based: /{encoded})
             // Only enter preview mode if we can actually decode valid build data
-            const buildData = loadBuildFromUrl();
-            const hasUrlBuild = buildData !== null;
+            const encoded = getEncodedFromUrl();
+            let buildData: BuildData | null = null;
+            let hasUrlBuild = false;
 
-            // If URL has invalid build data, clean it up
-            if (!hasUrlBuild && typeof window !== "undefined") {
-                const pathname = window.location.pathname;
-                const pathSegments = pathname.split("/").filter(Boolean);
-                if (pathSegments.length > 0) {
-                    const lastSegment = pathSegments[pathSegments.length - 1];
-                    
-                    // Exclude known base path segments (e.g., "rg-backpack-planner")
-                    const basePathSegment = "rg-backpack-planner";
-                    if (lastSegment === basePathSegment) {
-                        // This is just the base path, not build data - no cleanup needed
-                    } else {
-                        // Check if it looks like build data but failed to decode
-                        if (BASE64URL_PATTERN.test(lastSegment)) {
-                            // Invalid build data detected - remove it from URL
-                            pathSegments.pop();
-                            // Ensure we preserve at least the base path from vite.config.ts
-                            // If all segments were removed, restore the base path
-                            const basePath =
-                                pathSegments.length > 0
-                                    ? `/${pathSegments.join("/")}/`
-                                    : "/rg-backpack-planner/";
-                            window.history.replaceState({}, "", basePath);
-                            // Show toast to inform user
-                            showToastDelayed("Invalid share link", {
-                                tone: "negative",
-                            });
-                        }
+            if (encoded !== null) {
+                // Try to decode the encoded data
+                buildData = decodeBuildData(encoded);
+                if (buildData === null) {
+                    // Invalid build data detected - clean it up
+                    if (typeof window !== "undefined") {
+                        const basePath = getBasePath();
+                        window.history.replaceState({}, "", basePath);
+                        // Show toast to inform user
+                        showToastDelayed("Invalid share link", {
+                            tone: "negative",
+                        });
                     }
+                } else {
+                    hasUrlBuild = true;
                 }
             }
 
-            if (hasUrlBuild) {
+            if (hasUrlBuild && buildData) {
                 // Preview mode: Public build from URL
                 setPreviewMode(true);
 
