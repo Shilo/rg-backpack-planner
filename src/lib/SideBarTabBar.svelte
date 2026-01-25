@@ -51,6 +51,7 @@
       type="button"
     >
       <svelte:component this={BarChart2} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
+      <span class="side-bar-tab-bar__tab-label">Statistics</span>
     </button>
     <button
       class="side-bar-tab-bar__tab-button"
@@ -61,6 +62,7 @@
       type="button"
     >
       <svelte:component this={Settings} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
+      <span class="side-bar-tab-bar__tab-label">Settings</span>
     </button>
     <button
       class="side-bar-tab-bar__tab-button"
@@ -71,6 +73,7 @@
       type="button"
     >
       <svelte:component this={Gamepad2} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
+      <span class="side-bar-tab-bar__tab-label">Controls</span>
     </button>
   </div>
 </div>
@@ -100,28 +103,41 @@
 
   .side-bar-tab-bar__tab-button {
     flex: 1;
+    min-width: var(--side-menu-tab-min-width, 72px);
     border: 1px solid #2c3c61;
     background: transparent;
     color: #8fa4ce;
     border-radius: 0;
     height: var(--side-menu-tab-height);
-    padding: 0;
+    padding: 4px 6px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     cursor: pointer;
     transition:
       border-color 0.2s ease,
       color 0.2s ease,
       background 0.2s ease;
     pointer-events: auto;
-    min-width: 0;
   }
 
   :global(.side-bar-tab-bar__tab-icon) {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     flex: 0 0 auto;
+  }
+
+  .side-bar-tab-bar__tab-label {
+    font-size: 0.65rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .side-bar-tab-bar__tab-button:not(:first-child) {

@@ -103,12 +103,16 @@
   }
 
   .side-menu {
+    --side-menu-tab-min-width: 72px;
     position: fixed;
     top: 0;
     right: 0;
     height: 100%;
     max-width: 100%;
     width: fit-content;
+    min-width: calc(
+      3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px
+    );
     background: rgba(10, 16, 28, 0.98);
     border-left: 1px solid rgba(79, 111, 191, 0.35);
     transform: translateX(100%);
