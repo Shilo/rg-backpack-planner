@@ -112,7 +112,6 @@
   }
 
   .side-menu {
-    --side-menu-tab-min-width: 72px;
     position: fixed;
     top: 0;
     right: 0;

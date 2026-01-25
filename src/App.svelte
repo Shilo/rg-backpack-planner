@@ -124,12 +124,16 @@
         applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
     }
 
+    function openControlsFromTitle() {
+        isMenuOpen = true;
+        sideMenuRef?.openTab?.("controls");
+    }
+
     let sideMenuRef: {
         openTab?: (tab: "statistics" | "settings" | "controls") => void;
     } | null = null;
     let skipMenuTransition = shouldShowControls;
     let isMenuOpen = shouldShowControls;
-    let showAppTitle = !shouldShowControls;
 
     onMount(async () => {
         ensureInstallListeners();
@@ -169,9 +173,7 @@
         {activeTreeFocusViewState}
         {activeTreeName}
     />
-    {#if showAppTitle}
-        <AppTitleDisplay />
-    {/if}
+    <AppTitleDisplay onClick={openControlsFromTitle} />
     <div class="top-right-actions">
         <TechCrystalDisplay />
         <ActiveTreeResetButton
@@ -225,6 +227,17 @@
         align-items: flex-end;
         gap: 10px;
         pointer-events: none;
+        transition: right 0.15s ease;
+    }
+
+    @media (min-width: 768px) {
+        .top-right-actions {
+            z-index: 8;
+        }
+
+        .app-shell.menu-open .top-right-actions {
+            right: calc(var(--side-menu-width) + 10px);
+        }
     }
 
     .top-right-actions > :global(*) {

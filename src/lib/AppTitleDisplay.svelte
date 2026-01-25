@@ -2,6 +2,8 @@
   import packageInfo from "../../package.json";
   import Button from "./Button.svelte";
 
+  export let onClick: (() => void) | undefined = undefined;
+
   const title = packageInfo.name;
   const version = packageInfo.version ?? "";
   const titleWithVersion = version ? `${title} v${version}` : title;
@@ -11,6 +13,7 @@
   class="app-title-display"
   type="button"
   aria-label={titleWithVersion}
+  on:click={() => onClick?.()}
 >
   {titleWithVersion}
 </Button>
@@ -20,7 +23,7 @@
     position: fixed;
     top: 10px;
     left: 10px;
-    z-index: 8;
+    z-index: 10;
     border-radius: 999px !important;
     font-weight: 600;
     font-size: 0.85rem !important;

@@ -8,6 +8,10 @@
   --bar-pad: 10px;
   --tab-height: 38px;
   --side-menu-tab-height: calc(var(--tab-height) + 10px);
+  --side-menu-tab-min-width: 72px;
+  --side-menu-width: calc(
+    3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px
+  );
 }
 
 * {
