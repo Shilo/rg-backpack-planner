@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { RotateCcw } from "lucide-svelte";
+    import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { openModal } from "../modalStore";
     import { sumLevels, type LevelsById } from "../treeLevelsStore";
@@ -23,7 +23,7 @@
         openModal({
             type: "confirm",
             title: modalTitle,
-            titleIcon: RotateCcw,
+            titleIcon: ArrowCounterClockwiseIcon,
             message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
             confirmLabel: confirmText,
             cancelLabel: "Cancel",
@@ -41,7 +41,7 @@
 <Button
     on:click={handleReset}
     tooltipText={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree`}
-    icon={RotateCcw}
+    icon={ArrowCounterClockwiseIcon}
     negative
     {disabled}
 >

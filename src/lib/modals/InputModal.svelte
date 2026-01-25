@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ComponentType } from "svelte";
-  import { Minus, Plus, RotateCcw } from "lucide-svelte";
+  import { MinusIcon, PlusIcon, ArrowCounterClockwiseIcon } from "phosphor-svelte";
   import { onMount } from "svelte";
   import Button from "../Button.svelte";
   import { triggerHaptic } from "../haptics";
@@ -116,6 +116,7 @@
           this={titleIcon}
           class={`modal-title-icon ${titleIconClass}`.trim()}
           aria-hidden={titleIconAriaHidden}
+          weight="fill"
         />
       {/if}
       <h2>{title}</h2>
@@ -132,7 +133,7 @@
       aria-label="Reset value"
       on:click={() => handleStepperClick(handleReset)}
     >
-      <RotateCcw class="stepper-icon__svg" aria-hidden="true" />
+      <ArrowCounterClockwiseIcon class="stepper-icon__svg" aria-hidden="true" />
     </button>
     <button
       class="stepper stepper-icon"
@@ -140,7 +141,7 @@
       aria-label="Decrease value"
       on:click={() => handleStepperClick(() => stepValue(-step))}
     >
-      <Minus class="stepper-icon__svg" aria-hidden="true" />
+      <MinusIcon class="stepper-icon__svg" aria-hidden="true" />
     </button>
     <input
       id="modal-input"
@@ -162,7 +163,7 @@
       aria-label="Increase value"
       on:click={() => handleStepperClick(() => stepValue(step))}
     >
-      <Plus class="stepper-icon__svg" aria-hidden="true" />
+      <PlusIcon class="stepper-icon__svg" aria-hidden="true" />
     </button>
     <button
       class="stepper stepper-wide"

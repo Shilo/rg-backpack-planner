@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { CheckCircle2, Crown, Lock, Plus } from "lucide-svelte";
+  import { CheckCircleIcon, CrownIcon, LockIcon, PlusIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import { formatNumber } from "./mathUtil";
 
@@ -17,13 +17,13 @@
   export let isLeaf: boolean = false;
 
   const stateIcons = {
-    locked: Lock,
-    available: Plus,
-    active: CheckCircle2,
-    maxed: Crown,
+    locked: LockIcon,
+    available: PlusIcon,
+    active: CheckCircleIcon,
+    maxed: CrownIcon,
   } as const;
 
-  $: NodeIcon = stateIcons[state] ?? Lock;
+  $: NodeIcon = stateIcons[state] ?? LockIcon;
 </script>
 
 <Button

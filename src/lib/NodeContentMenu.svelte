@@ -1,14 +1,14 @@
 <script lang="ts">
   import {
-    ArrowDown,
-    ArrowUp,
-    CheckCircle2,
-    ChevronsUp,
-    Crown,
-    Lock,
-    Plus,
-    RotateCcw,
-  } from "lucide-svelte";
+    ArrowDownIcon,
+    ArrowUpIcon,
+    CheckCircleIcon,
+    CaretDoubleUpIcon,
+    CrownIcon,
+    LockIcon,
+    PlusIcon,
+    ArrowCounterClockwiseIcon,
+  } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import { formatNumber } from "./mathUtil";
@@ -27,13 +27,13 @@
   export let state: "locked" | "available" | "active" | "maxed" = "locked";
 
   const stateIcons = {
-    locked: Lock,
-    available: Plus,
-    active: CheckCircle2,
-    maxed: Crown,
+    locked: LockIcon,
+    available: PlusIcon,
+    active: CheckCircleIcon,
+    maxed: CrownIcon,
   } as const;
 
-  $: NodeIcon = stateIcons[state] ?? Lock;
+  $: NodeIcon = stateIcons[state] ?? LockIcon;
 </script>
 
 <ContextMenu
@@ -75,7 +75,7 @@
           onIncrement(nodeId);
         }}
         disabled={!nodeId || level >= maxLevel}
-        icon={ArrowUp}
+        icon={ArrowUpIcon}
         positive
       >
         Increase
@@ -86,7 +86,7 @@
           onDecrement(nodeId);
         }}
         disabled={!nodeId || level <= 0}
-        icon={ArrowDown}
+        icon={ArrowDownIcon}
         negative
       >
         Decrease
@@ -99,7 +99,7 @@
           onMax(nodeId);
         }}
         disabled={!nodeId || level >= maxLevel}
-        icon={ChevronsUp}
+        icon={CaretDoubleUpIcon}
         positive
       >
         Max
@@ -112,7 +112,7 @@
         toastMessage={nodeId && onReset ? `Reset ${nodeId}` : undefined}
         toastNegative
         disabled={!nodeId || level <= 0}
-        icon={RotateCcw}
+        icon={ArrowCounterClockwiseIcon}
         negative
       >
         Reset

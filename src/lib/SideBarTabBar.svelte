@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BarChart2, Gamepad2, Settings } from "lucide-svelte";
+  import { ChartBarIcon, GameControllerIcon, GearSixIcon } from "phosphor-svelte";
   import { triggerHaptic } from "./haptics";
   import { tooltip } from "./tooltip";
   import { getActiveTab, setActiveTab, type SideMenuTab } from "./sideMenuActiveTabStore";
@@ -28,7 +28,7 @@
       type="button"
     >
       <svelte:component
-        this={BarChart2}
+        this={ChartBarIcon}
         class="side-bar-tab-bar__tab-icon"
         aria-hidden="true"
       />
@@ -43,7 +43,7 @@
       type="button"
     >
       <svelte:component
-        this={Settings}
+        this={GearSixIcon}
         class="side-bar-tab-bar__tab-icon"
         aria-hidden="true"
       />
@@ -58,7 +58,7 @@
       type="button"
     >
       <svelte:component
-        this={Gamepad2}
+        this={GameControllerIcon}
         class="side-bar-tab-bar__tab-icon"
         aria-hidden="true"
       />

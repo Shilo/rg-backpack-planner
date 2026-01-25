@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Trash2 } from "lucide-svelte";
+    import { TrashIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { openModal } from "../modalStore";
     import { sumLevels, type LevelsById } from "../treeLevelsStore";
@@ -18,7 +18,7 @@
         openModal({
             type: "confirm",
             title: "RESET ALL TREES?",
-            titleIcon: Trash2,
+            titleIcon: TrashIcon,
             message:
                 "Revert all nodes to level 0 and refund all Tech Crystals.",
             confirmLabel: "Reset all",
@@ -34,7 +34,7 @@
 <Button
     on:click={handleResetAll}
     tooltipText={"Revert all nodes to level 0 and refund all Tech Crystals"}
-    icon={Trash2}
+    icon={TrashIcon}
     negative
     {disabled}
 >

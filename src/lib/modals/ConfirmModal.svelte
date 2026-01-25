@@ -22,6 +22,7 @@
           this={titleIcon}
           class={`modal-title-icon ${titleIconClass}`.trim()}
           aria-hidden={titleIconAriaHidden}
+          weight="fill"
         />
       {/if}
       <h2>{title}</h2>

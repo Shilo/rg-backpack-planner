@@ -9,6 +9,7 @@
   export let iconClass = "button-icon";
   export let iconAriaHidden = true;
   export let iconSize: number | string | undefined = 26;
+  export let iconWeight: "thin" | "light" | "regular" | "bold" | "fill" | "duotone" | undefined = undefined;
   export let type: "button" | "submit" | "reset" = "button";
   export let small = false;
   export let negative = false;
@@ -95,6 +96,7 @@
       class={iconClass}
       aria-hidden={iconAriaHidden}
       size={iconSize}
+      weight={iconWeight}
     />
   {/if}
   <span class="button-text">

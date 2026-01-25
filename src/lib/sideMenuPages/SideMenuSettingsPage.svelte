@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowUp, Hexagon, ZoomIn } from "lucide-svelte";
+  import { ArrowUpIcon, HexagonIcon, MagnifyingGlassPlusIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import SideMenuSection from "../SideMenuSection.svelte";
   import TreeContextMenuList from "../TreeContextMenuList.svelte";
@@ -34,8 +34,9 @@
       openTechCrystalsOwnedModal($techCrystalsOwned);
     }}
     tooltipText={"Change Tech Crystal owned (budget)"}
-    icon={Hexagon}
+    icon={HexagonIcon}
     iconClass="button-icon button-icon-filled"
+    iconWeight="fill"
   >
     Tech Crystals:<br />
     <span
@@ -52,7 +53,7 @@
     label="Single Level-up"
     ariaLabel="Single level-up mode"
     tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node maxes it out"
-    icon={ArrowUp}
+    icon={ArrowUpIcon}
     onToggle={() => singleLevelUp.toggle()}
   />
   <ToggleSwitch
@@ -60,7 +61,7 @@
     label="Close-up View"
     ariaLabel="Close-up view (150% zoom)"
     tooltipText="Increase the initial zoom scale by 1.5x"
-    icon={ZoomIn}
+    icon={MagnifyingGlassPlusIcon}
     onToggle={() => closeUpView.toggle()}
   />
   <ResetAllTreesButton

@@ -254,7 +254,7 @@
     <SideMenuSection title="On screen HUD">
       <ul class="control-list">
         <li class="control-row">
-          <span class="control-icon" aria-hidden="true">
+          <span class="control-icon control-icon-filled" aria-hidden="true">
             <HexagonIcon weight="fill" />
           </span>
           <div class="control-text">
@@ -347,6 +347,15 @@
     width: 100%;
     height: 100%;
     display: block;
+  }
+
+  .control-icon__image {
+    opacity: 0.85;
+    filter: brightness(0) saturate(100%) invert(90%) sepia(5%) saturate(1200%) hue-rotate(195deg) brightness(110%) contrast(90%);
+  }
+
+  .control-icon-filled {
+    color: #b9c7ec;
   }
 
   .control-text {

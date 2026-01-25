@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { X } from "lucide-svelte";
+  import { XIcon } from "phosphor-svelte";
   import SideBarTabBar from "./SideBarTabBar.svelte";
   import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
   import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
@@ -85,7 +85,7 @@
       type="button"
     >
       <svelte:component
-        this={X}
+        this={XIcon}
         class="side-menu__close-button-icon"
         aria-hidden="true"
       />

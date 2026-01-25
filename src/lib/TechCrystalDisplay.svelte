@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Hexagon } from "lucide-svelte";
+  import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
   import { techCrystalsAvailable, techCrystalsOwned } from "./techCrystalStore";
@@ -28,7 +28,7 @@
     <span class="currency-separator"> / </span>
     <span class="currency-owned">{formatNumber($techCrystalsOwned)}</span>
   {/if}
-  <Hexagon size={20} fill="currentColor" aria-hidden="true" />
+  <HexagonIcon size={20} weight="fill" aria-hidden="true" />
 </Button>
 
 <style>

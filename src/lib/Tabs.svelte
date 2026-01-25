@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-  import { Menu } from "lucide-svelte";
+  import { ListIcon } from "phosphor-svelte";
   import { onMount, tick } from "svelte";
   import { get } from "svelte/store";
   import Button from "./Button.svelte";
@@ -396,7 +396,7 @@
     aria-label="Menu"
     tooltipText="Open menu"
     on:click={() => onMenuClick?.()}
-    icon={Menu}
+    icon={ListIcon}
     iconClass="menu-button-icon"
   ></Button>
 

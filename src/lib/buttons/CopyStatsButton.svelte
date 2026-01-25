@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ComponentType } from "svelte";
-  import { Copy } from "lucide-svelte";
+  import { CopyIcon } from "phosphor-svelte";
   import { onDestroy } from "svelte";
   import Button from "../Button.svelte";
   import CheckboxIcon from "../icons/CheckboxIcon.svelte";
@@ -20,7 +20,7 @@
   $: ({ class: restClass, ...buttonProps } = $$restProps);
   $: icon = copied
     ? (CheckboxIcon as unknown as ComponentType)
-    : (Copy as unknown as ComponentType);
+    : (CopyIcon as unknown as ComponentType);
 
   const clearTimer = () => {
     if (resetTimeout) {

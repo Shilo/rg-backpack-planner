@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { Hexagon } from "lucide-svelte";
+  import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
 </script>
 
 <Button
   class="root-node"
-  icon={Hexagon}
+  icon={HexagonIcon}
   iconClass="root-node-icon"
+  iconWeight="fill"
   style={`width: 100%; height: 100%; --node-radius: var(--node-radius, 1);`}
 />
 
