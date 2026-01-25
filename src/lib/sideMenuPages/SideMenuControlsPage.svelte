@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import {
     ArrowCounterClockwiseIcon,
+    ArrowsOutCardinalIcon,
     DownloadSimpleIcon,
     GithubLogoIcon,
     HandGrabbingIcon,
@@ -15,7 +16,6 @@
     MouseRightClickIcon,
     MouseScrollIcon,
     ShareNetworkIcon,
-    TimerIcon,
   } from "phosphor-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
@@ -23,6 +23,7 @@
   import InstallPwaButton, {
     subscribeInstallState,
   } from "../buttons/InstallPwaButton.svelte";
+  import LongPressIcon from "../icons/LongPressIcon.svelte";
 
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
@@ -62,7 +63,7 @@
   const controls: ControlItem[] = [
     {
       id: "pointer-node",
-      label: "Click a node",
+      label: "Left click a node",
       description: "Add a node level and spend Tech Crystals",
       icon: MouseLeftClickIcon,
       device: "pointer",
@@ -85,7 +86,7 @@
       id: "pointer-pan",
       label: "Click and drag",
       description: "Pan around tree",
-      icon: HandGrabbingIcon,
+      icon: ArrowsOutCardinalIcon,
       device: "pointer",
     },
     {
@@ -106,14 +107,14 @@
       id: "touch-node-menu",
       label: "long press a node",
       description: "Show node options",
-      icon: TimerIcon,
+      icon: LongPressIcon,
       device: "touch",
     },
     {
       id: "touch-tree-menu",
       label: "long press empty space or tab",
       description: "Show tree options",
-      icon: TimerIcon,
+      icon: LongPressIcon,
       device: "touch",
     },
     {
@@ -164,6 +165,7 @@
     }
     showMouse = supportsMouse;
     showTouch = supportsTouch;
+    showTouch = true; //todo
   }
 
   $: pointerControls = controls.filter((c) => c.device !== "touch");
@@ -351,7 +353,8 @@
 
   .control-icon__image {
     opacity: 0.85;
-    filter: brightness(0) saturate(100%) invert(90%) sepia(5%) saturate(1200%) hue-rotate(195deg) brightness(110%) contrast(90%);
+    filter: brightness(0) saturate(100%) invert(90%) sepia(5%) saturate(1200%)
+      hue-rotate(195deg) brightness(110%) contrast(90%);
   }
 
   .control-icon-filled {
