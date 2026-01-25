@@ -12,7 +12,10 @@
     import { openHelpModal } from "./lib/helpModal";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
-    import packageInfo from "../package.json";
+    import {
+        isNewVersion,
+        markVersionAsSeen,
+    } from "./lib/latestUsedVersionStore";
 
     import {
         initTechCrystalTrees,
@@ -36,28 +39,24 @@
     let swipeLastX: number | null = null;
     let isSwiping = false;
     const swipeCloseThreshold = 70;
-    const appVersion = packageInfo.version ?? "unknown";
-    const helpStorageKey = "rg-backpack-planner-help-seen-version";
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
 
     // Check if we should show controls tab on initial load
     const shouldShowControls = (() => {
-        if (typeof window === "undefined") return false;
-        try {
-            const shouldShow =
-                localStorage.getItem(helpStorageKey) !== appVersion;
-            if (shouldShow) {
+        const isNew = isNewVersion();
+        if (isNew && typeof window !== "undefined") {
+            try {
                 // Set active tab in localStorage so SideMenu initializes with controls
                 localStorage.setItem(
                     "rg-backpack-planner-side-menu-active-tab",
                     "controls",
                 );
+            } catch {
+                // localStorage not available
             }
-            return shouldShow;
-        } catch {
-            return false;
         }
+        return isNew;
     })();
 
     const tabs: TabConfig[] = [
@@ -146,11 +145,7 @@
     onMount(async () => {
         ensureInstallListeners();
         if (shouldShowControls) {
-            try {
-                localStorage.setItem(helpStorageKey, appVersion);
-            } catch {
-                // localStorage not available
-            }
+            markVersionAsSeen();
             await tick();
             // Ensure controls tab is active (backup in case component initialized before localStorage was set)
             sideMenuRef?.openTab?.("controls");
