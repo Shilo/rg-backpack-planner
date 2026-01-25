@@ -190,7 +190,7 @@
         }
 
         // Load build from URL if present (this will override localStorage if present)
-        const buildLoaded = applyBuildFromUrl();
+        const buildLoaded = applyBuildFromUrl(tabs);
         if (buildLoaded) {
             // Recalculate tech crystals spent after loading from URL
             const currentTrees = get(treeLevels);

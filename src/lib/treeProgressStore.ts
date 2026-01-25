@@ -10,7 +10,7 @@ const STORAGE_KEY = "rg-backpack-planner-tree-progress";
  * @param levels The tree levels to compress
  * @returns Compressed levels with zero values omitted
  */
-function compressTreeProgress(levels: LevelsById[]): LevelsById[] {
+export function compressTreeProgress(levels: LevelsById[]): LevelsById[] {
     return levels.map((tree) => {
         const compressedTree: LevelsById = {};
         for (const [nodeId, level] of Object.entries(tree)) {
@@ -29,7 +29,7 @@ function compressTreeProgress(levels: LevelsById[]): LevelsById[] {
  * @param trees Array of tree node definitions to expand against
  * @returns Expanded levels with all node IDs present
  */
-function expandTreeProgress(
+export function expandTreeProgress(
     compressedLevels: LevelsById[],
     trees: { nodes: TreeNode[] }[],
 ): LevelsById[] {

@@ -1,5 +1,7 @@
 import { treeLevels, setTreeLevels } from "./treeLevelsStore";
 import { techCrystalsOwned, setTechCrystalsOwned } from "./techCrystalStore";
+import { compressTreeProgress, expandTreeProgress } from "./treeProgressStore";
+import type { TreeNode } from "./Tree.svelte";
 import { get } from "svelte/store";
 
 export interface BuildData {
@@ -8,18 +10,55 @@ export interface BuildData {
 }
 
 /**
- * Encodes build data into a base64 string for URL sharing
+ * Encodes a string to base64url format (URL-safe base64)
+ * Replaces + with -, / with _, and removes padding =
  */
-export function encodeBuildData(buildData: BuildData): string {
-  return btoa(JSON.stringify(buildData));
+function encodeBase64Url(base64: string): string {
+  return base64
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 }
 
 /**
- * Decodes a base64 string back into build data
+ * Decodes a base64url string back to standard base64
+ * Replaces - with +, _ with /, and adds back padding =
+ */
+function decodeBase64Url(base64url: string): string {
+  // Add padding back if needed
+  let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  // Add padding to make length a multiple of 4
+  while (base64.length % 4) {
+    base64 += "=";
+  }
+  return base64;
+}
+
+/**
+ * Encodes build data into a base64url string for URL sharing
+ * Compresses tree data (removes zeros) and uses URL-safe encoding for smallest possible URL
+ */
+export function encodeBuildData(buildData: BuildData): string {
+  // Compress trees to remove zero values
+  const compressed = {
+    trees: compressTreeProgress(buildData.trees),
+    owned: buildData.owned,
+  };
+  
+  // Encode to base64, then convert to base64url for URL safety
+  const base64 = btoa(JSON.stringify(compressed));
+  return encodeBase64Url(base64);
+}
+
+/**
+ * Decodes a base64url string back into build data
+ * Returns compressed data (expansion happens in applyBuildFromUrl)
  */
 export function decodeBuildData(encoded: string): BuildData | null {
   try {
-    const decoded = atob(encoded);
+    // Convert base64url back to base64, then decode
+    const base64 = decodeBase64Url(encoded);
+    const decoded = atob(base64);
     const buildData = JSON.parse(decoded) as BuildData;
     
     // Validate the structure
@@ -28,6 +67,7 @@ export function decodeBuildData(encoded: string): BuildData | null {
       Array.isArray(buildData.trees) &&
       typeof buildData.owned === "number"
     ) {
+      // Return compressed data - expansion will happen in applyBuildFromUrl
       return buildData;
     }
     return null;
@@ -79,22 +119,32 @@ export function loadBuildFromUrl(): BuildData | null {
 
 /**
  * Applies build data from URL to the stores
- * Returns true if build was successfully applied, false otherwise
+ * Expands compressed tree data using tree definitions
+ * @param trees Optional array of tree node definitions to expand against
+ * @returns true if build was successfully applied, false otherwise
  */
-export function applyBuildFromUrl(): boolean {
+export function applyBuildFromUrl(
+  trees?: { nodes: TreeNode[] }[],
+): boolean {
   const buildData = loadBuildFromUrl();
   if (!buildData) return false;
   
   try {
+    // Expand compressed tree data if trees are provided
+    let expandedTrees = buildData.trees;
+    if (trees && buildData.trees.length === trees.length) {
+      expandedTrees = expandTreeProgress(buildData.trees, trees);
+    }
+    
     // Apply tree levels
     const currentTrees = get(treeLevels);
-    if (buildData.trees.length === currentTrees.length) {
-      buildData.trees.forEach((tree, index) => {
+    if (expandedTrees.length === currentTrees.length) {
+      expandedTrees.forEach((tree, index) => {
         setTreeLevels(index, tree);
       });
     } else {
       console.warn(
-        `Build data has ${buildData.trees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`
+        `Build data has ${expandedTrees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`
       );
     }
     
