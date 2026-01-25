@@ -88,6 +88,7 @@
         this={XIcon}
         class="side-menu__close-button-icon"
         aria-hidden="true"
+        size={26}
       />
     </button>
   </div>
@@ -217,7 +218,7 @@
   }
 
   .side-menu__close-button-icon {
-    width: 20px;
-    height: 20px;
+    width: 26px;
+    height: 26px;
   }
 </style>

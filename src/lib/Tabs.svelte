@@ -398,6 +398,7 @@
     on:click={() => onMenuClick?.()}
     icon={ListIcon}
     iconClass="menu-button-icon"
+    iconSize={26}
   ></Button>
 
   <div
@@ -548,8 +549,8 @@
   }
 
   :global(.menu-button-icon) {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .tabs-content {

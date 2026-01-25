@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CrosshairIcon } from "phosphor-svelte";
+  import { CubeFocusIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import type { TreeViewState } from "../Tree.svelte";
 
@@ -30,7 +30,7 @@
     onFocusInView();
   }}
   tooltipText={"Fit nodes in view by resetting zoom and pan"}
-  icon={CrosshairIcon}
+  icon={CubeFocusIcon}
   {disabled}
 >
   Focus tree in view

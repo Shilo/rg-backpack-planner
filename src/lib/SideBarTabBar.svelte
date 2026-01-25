@@ -1,8 +1,16 @@
 <script lang="ts">
-  import { ChartBarIcon, GameControllerIcon, GearSixIcon } from "phosphor-svelte";
+  import {
+    ChartBarIcon,
+    GameControllerIcon,
+    GearSixIcon,
+  } from "phosphor-svelte";
   import { triggerHaptic } from "./haptics";
   import { tooltip } from "./tooltip";
-  import { getActiveTab, setActiveTab, type SideMenuTab } from "./sideMenuActiveTabStore";
+  import {
+    getActiveTab,
+    setActiveTab,
+    type SideMenuTab,
+  } from "./sideMenuActiveTabStore";
 
   export let activeTab: SideMenuTab = getActiveTab();
 

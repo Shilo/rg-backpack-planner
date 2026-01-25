@@ -25,7 +25,7 @@
 >
   {#if icon}
     <span class="toggle-icon">
-      <svelte:component this={icon} class={iconClass} aria-hidden="true" />
+      <svelte:component this={icon} class={iconClass} aria-hidden="true" size={26} />
     </span>
   {/if}
   {#if label}
@@ -82,8 +82,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
+    width: 26px;
+    height: 26px;
     flex-shrink: 0;
     color: currentColor;
   }
