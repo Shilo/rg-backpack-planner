@@ -139,6 +139,19 @@
   }
 </script>
 
+{#if $isPreviewMode}
+  <SideMenuSection title="Preview">
+    <Button
+      on:click={handleStopPreview}
+      tooltipText={"Exit preview mode and switch to personal build"}
+      icon={XCircleIcon}
+      negative
+    >
+      Stop Preview
+    </Button>
+  </SideMenuSection>
+{/if}
+
 <SideMenuSection title="General">
   <Button
     on:click={() => {
@@ -160,16 +173,6 @@
     <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
   </Button>
   <ShareBuildButton />
-  {#if $isPreviewMode}
-    <Button
-      on:click={handleStopPreview}
-      tooltipText={"Exit preview mode and switch to personal build"}
-      icon={XCircleIcon}
-      negative
-    >
-      Stop Preview
-    </Button>
-  {/if}
 </SideMenuSection>
 
 <SideMenuSection title="Node Interaction">
