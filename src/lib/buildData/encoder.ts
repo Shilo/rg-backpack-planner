@@ -415,7 +415,9 @@ function serializeArrayFormat(
       const tokenCount = base62Values.length; // Count original values (before RLE)
       const tokens = compressRLE(base62Values);
       // Format: <tokenCount>_<tokens>
-      return tokenCount === 0 ? "" : `${encodeBase62(tokenCount)}_${tokens}`;
+      // Always include tokenCount for clarity, even if 0 (empty branch)
+      // This makes the format unambiguous and allows proper validation
+      return `${encodeBase62(tokenCount)}_${tokens}`;
     });
 
     // Always include all 3 branches to preserve positional information (yellow, orange, blue)
@@ -535,9 +537,13 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   let serializedWithoutOwned = serialized;
   
   // Check for owned suffix: -o<owned> at the end
+  // Must have at least one base62 character after 'o'
   const ownedMatch = serialized.match(/-o([0-9a-zA-Z]+)$/);
   if (ownedMatch) {
     const ownedStr = ownedMatch[1];
+    if (ownedStr === "") {
+      throw new Error("Invalid format: owned marker 'o' with no value");
+    }
     try {
       owned = decodeBase62(ownedStr);
     } catch (error) {
@@ -545,6 +551,9 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     }
     // Remove the owned suffix
     serializedWithoutOwned = serialized.slice(0, ownedMatch.index);
+  } else if (serialized.endsWith("-o")) {
+    // Handle case where we have "-o" at the end without a value
+    throw new Error("Invalid format: owned marker 'o' with no value");
   }
   
   // Split on "-" to get parts (DO NOT filter empty strings - they represent empty branches)
@@ -558,29 +567,26 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   // But if we have "0-", we get ["0", ""] which is also valid
   
   // Find first non-empty part (should be treeCount)
-  let firstNonEmptyIndex = -1;
-  for (let i = 0; i < parts.length; i++) {
-    if (parts[i] !== "") {
-      firstNonEmptyIndex = i;
-      break;
-    }
+  // Tree count must be the FIRST part (index 0), not somewhere in the middle
+  // This prevents accepting formats like "-1-3---1_1" where treeCount appears later
+  if (parts[0] === "") {
+    throw new Error("Invalid format: tree count must be the first non-empty segment");
   }
   
-  if (firstNonEmptyIndex === -1) {
-    throw new Error("Invalid format: missing tree count");
-  }
-
-  // Parse tree count (first non-empty part)
+  // Parse tree count (first part, must be non-empty)
   let treeCount: number;
   try {
-    treeCount = decodeBase62(parts[firstNonEmptyIndex]);
+    treeCount = decodeBase62(parts[0]);
   } catch (error) {
-    throw new Error(`Invalid tree count: ${parts[firstNonEmptyIndex]}`);
+    throw new Error(`Invalid tree count: ${parts[0]}`);
   }
 
   if (treeCount < 0 || treeCount > 3) {
     throw new Error(`Invalid tree count: ${treeCount} (must be 0-3)`);
   }
+  
+  // Find first non-empty index after treeCount (for starting tree parsing)
+  let firstNonEmptyIndex = 0; // treeCount is at index 0
 
   // Parse trees: each tree starts with branchCount, followed by branchCount branches
   // We need to reconstruct tree segments by reading branchCount and consuming that many segments
@@ -631,10 +637,19 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     
     partIndex += branchCount + 1; // Move past branchCount and all branches (including empty ones)
   }
-
+  
   // Validate tree count matches segments
   if (treeCount !== treeSegments.length) {
     throw new Error(`Tree count mismatch: expected ${treeCount} trees, got ${treeSegments.length} segments`);
+  }
+  
+  // Validate we consumed all parts (except empty strings which might be trailing)
+  // Skip trailing empty parts (they're harmless), but if there are non-empty parts left, that's an error
+  while (partIndex < parts.length && parts[partIndex] === "") {
+    partIndex++;
+  }
+  if (partIndex < parts.length) {
+    throw new Error(`Invalid format: extra segments after ${treeCount} trees: "${parts.slice(partIndex).join("-")}"`);
   }
 
   // Expand tree-level RLE if needed (treeString~count format)
@@ -679,14 +694,21 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
 
     // Parse each branch: <tokenCount>_<token>_<token>_...
     return branchSegments.slice(0, 3).map((branchSegment, branchIndex) => {
+      // Empty branch segment is invalid - we require explicit tokenCount
+      // Even empty branches must have "0_" to be unambiguous
       if (branchSegment === "") {
-        return [];
+        throw new Error(`Invalid format: tree ${treeIndex}, branch ${branchIndex} is incomplete (missing token count)`);
       }
 
       // Split on _ to get tokenCount and tokens
       const branchParts = branchSegment.split("_");
       if (branchParts.length === 0) {
         throw new Error(`Invalid format: tree ${treeIndex}, branch ${branchIndex} has no token count`);
+      }
+      
+      // Token count must be the first part (non-empty)
+      if (branchParts[0] === "") {
+        throw new Error(`Invalid format: tree ${treeIndex}, branch ${branchIndex} has empty token count`);
       }
 
       let tokenCount: number;
@@ -699,6 +721,12 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
       if (tokenCount < 0) {
         throw new Error(`Invalid token count in tree ${treeIndex}, branch ${branchIndex}: ${tokenCount} (must be >= 0)`);
       }
+      
+      // If tokenCount > 0, we must have tokens (even if empty strings for zeros)
+      // If tokenCount = 0, branch should be empty (handled above by returning [])
+      if (tokenCount > 0 && branchParts.length === 1) {
+        throw new Error(`Invalid format: tree ${treeIndex}, branch ${branchIndex} has token count ${tokenCount} but no tokens`);
+      }
 
       // Reconstruct tokens string: everything after tokenCount, joined with "_"
       // This preserves any underscores that were part of the original token string
@@ -707,16 +735,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
       // Validate token count matches actual tokens
       const tokenArray = tokens === "" ? [] : expandRLE(tokens);
       if (tokenCount !== tokenArray.length) {
-        // Debug info for troubleshooting
-        const debugInfo = {
-          branchSegment,
-          branchParts,
-          tokenCount,
-          tokens,
-          tokenArrayLength: tokenArray.length,
-          tokenArray,
-        };
-        throw new Error(`Token count mismatch in tree ${treeIndex}, branch ${branchIndex}: expected ${tokenCount} tokens, got ${tokenArray.length}. Debug: ${JSON.stringify(debugInfo)}`);
+        throw new Error(`Token count mismatch in tree ${treeIndex}, branch ${branchIndex}: expected ${tokenCount} tokens, got ${tokenArray.length}`);
       }
 
       // Parse tokens to numbers
