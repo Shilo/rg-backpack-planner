@@ -57,7 +57,11 @@
   inert={!isOpen}
 >
   <div class="side-menu__scroll-area">
-    <nav class="side-menu__content" aria-label="Primary" bind:this={scrollContentElement}>
+    <nav
+      class="side-menu__content"
+      aria-label="Primary"
+      bind:this={scrollContentElement}
+    >
       <div class="side-menu__content-inner">
         {#if activeTab === "settings"}
           <SideMenuSettingsPage
@@ -204,7 +208,6 @@
       border-color 0.2s ease,
       color 0.2s ease,
       background 0.2s ease;
-    border-left: none;
   }
 
   .side-menu__close-button:focus-visible {

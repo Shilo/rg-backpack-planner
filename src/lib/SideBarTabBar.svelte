@@ -107,10 +107,13 @@
     justify-content: center;
     gap: 2px;
     cursor: pointer;
+    position: relative;
+    z-index: 1;
     transition:
       border-color 0.2s ease,
       color 0.2s ease,
-      background 0.2s ease;
+      background 0.2s ease,
+      z-index 0.2s ease;
     pointer-events: auto;
   }
 
@@ -132,13 +135,14 @@
   }
 
   .side-bar-tab-bar__tab-button:not(:first-child) {
-    border-left: none;
+    margin-left: -1px;
   }
 
   .side-bar-tab-bar__tab-button.active {
     background: rgba(34, 49, 82, 0.78);
     color: #e7efff;
     border-color: #4f6fbf;
+    z-index: 2;
   }
 
   .side-bar-tab-bar__tab-button:focus-visible {
