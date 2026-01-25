@@ -1,12 +1,9 @@
 <script lang="ts">
-  import { BarChart2, Gamepad2, Menu, Settings, X } from "lucide-svelte";
-  import Button from "./Button.svelte";
+  import { BarChart2, Gamepad2, Settings } from "lucide-svelte";
   import { triggerHaptic } from "./haptics";
   import { tooltip } from "./tooltip";
 
   export let activeTab: 'statistics' | 'settings' | 'controls' = 'statistics';
-  export let isOpen = false;
-  export let onClose: (() => void) | null = null;
 
   function handleTabClick(tab: 'statistics' | 'settings' | 'controls') {
     activeTab = tab;
@@ -47,14 +44,6 @@
       <svelte:component this={Gamepad2} class="side-bar-tab-bar__tab-icon" aria-hidden="true" />
     </button>
   </div>
-  <Button
-    class="side-bar-tab-bar__close-button"
-    aria-label={isOpen ? "Close menu" : "Menu"}
-    tooltipText={isOpen ? "Close menu" : "Open menu"}
-    on:click={() => onClose?.()}
-    icon={isOpen ? X : Menu}
-    iconClass="menu-button-icon"
-  ></Button>
 </div>
 
 <style>
@@ -130,44 +119,5 @@
   .side-bar-tab-bar__tab-button:active {
     transform: scale(0.97);
     filter: brightness(1.2);
-  }
-
-  :global(.side-bar-tab-bar__close-button) {
-    border: 1px solid #2c3c61 !important;
-    background: transparent !important;
-    color: #8fa4ce !important;
-    width: var(--side-menu-tab-height);
-    height: var(--side-menu-tab-height);
-    border-radius: 0 !important;
-    font-size: 1.35rem;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    right: 10px;
-    bottom: 0;
-    z-index: 12;
-    transition:
-      border-color 0.2s ease,
-      color 0.2s ease,
-      background 0.2s ease;
-    min-width: 0 !important;
-  }
-
-  :global(.side-bar-tab-bar__close-button .menu-button-icon) {
-    width: 24px;
-    height: 24px;
-  }
-
-  @media (hover: hover) {
-    :global(.side-bar-tab-bar__close-button:not(:disabled):hover) {
-      filter: brightness(1.18) !important;
-    }
-  }
-
-  :global(.side-bar-tab-bar__close-button:not(:disabled):active) {
-    transform: scale(0.97) !important;
-    filter: brightness(1.2) !important;
   }
 </style>

@@ -375,7 +375,7 @@
     </div>
   </div>
   <Button
-    class="menu-button"
+    class="menu-button {isMenuOpen ? 'as-tab' : ''}"
     aria-label={isMenuOpen ? "Close menu" : "Menu"}
     tooltipText={isMenuOpen ? "Close menu" : "Open menu"}
     on:click={() => onMenuClick?.()}
@@ -527,6 +527,34 @@
     right: var(--bar-pad);
     bottom: var(--bar-pad);
     z-index: 12;
+    transition:
+      width 0.25s ease,
+      height 0.25s ease,
+      bottom 0.25s ease,
+      border-radius 0.25s ease,
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+
+  :global(.menu-button.as-tab) {
+    width: var(--side-menu-tab-height);
+    height: var(--side-menu-tab-height);
+    bottom: 0;
+    right: 10px;
+    border-radius: 0;
+    background: transparent !important;
+    color: #8fa4ce !important;
+  }
+
+  @media (hover: hover) {
+    :global(.menu-button.as-tab:not(:disabled):hover) {
+      filter: brightness(1.18) !important;
+    }
+  }
+
+  :global(.menu-button.as-tab:not(:disabled):active) {
+    transform: scale(0.97) !important;
+    filter: brightness(1.2) !important;
   }
 
   :global(.menu-button-icon) {

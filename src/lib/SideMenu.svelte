@@ -175,7 +175,7 @@
       <div class="side-menu__scroll-fade" aria-hidden="true"></div>
     </nav>
   </div>
-  <SideBarTabBar bind:activeTab {isOpen} {onClose} />
+  <SideBarTabBar bind:activeTab />
 </aside>
 
 <style>
@@ -238,7 +238,6 @@
   }
 
   .side-menu {
-    --side-menu-tab-height: calc(var(--tab-height) + 10px);
     position: fixed;
     top: 0;
     right: 0;
