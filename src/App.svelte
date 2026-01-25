@@ -10,7 +10,11 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { treeLevels, sumLevels, setTreeLevels } from "./lib/treeLevelsStore";
+    import {
+        treeLevels,
+        sumLevels,
+        setTreeLevels,
+    } from "./lib/treeLevelsStore";
     import {
         isNewVersion,
         markVersionAsSeen,
@@ -31,7 +35,6 @@
     import {
         loadTreeProgress,
         initTreeProgressPersistence,
-        setupPageCloseSave,
     } from "./lib/treeProgressStore";
     import { get } from "svelte/store";
 
@@ -160,14 +163,14 @@
 
     onMount(async () => {
         ensureInstallListeners();
-        
+
         // Wait for trees to be initialized
         await tick();
-        
+
         // Check if there's a build in the URL first
         const urlParams = new URLSearchParams(window.location.search);
         const hasUrlBuild = urlParams.has("build");
-        
+
         // Load from localStorage only if there's no URL build
         // URL builds should take precedence over localStorage
         if (!hasUrlBuild) {
@@ -182,7 +185,7 @@
                 }
             }
         }
-        
+
         // Load build from URL if present (this will override localStorage if present)
         const buildLoaded = applyBuildFromUrl();
         if (buildLoaded) {
@@ -191,13 +194,10 @@
             url.searchParams.delete("build");
             window.history.replaceState({}, "", url.toString());
         }
-        
+
         // Initialize auto-save: subscribe to treeLevels changes
         initTreeProgressPersistence();
-        
-        // Set up backup save on page close
-        setupPageCloseSave();
-        
+
         if (shouldShowControls) {
             markVersionAsSeen();
             await tick();

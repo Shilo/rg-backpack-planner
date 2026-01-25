@@ -65,17 +65,3 @@ export function initTreeProgressPersistence(): Unsubscriber {
     });
 }
 
-/**
- * Sets up a beforeunload event listener as a backup save mechanism
- * This ensures progress is saved even if the subscription somehow fails
- */
-export function setupPageCloseSave(): void {
-    if (typeof window === "undefined") return;
-    
-    window.addEventListener("beforeunload", () => {
-        const levels = get(treeLevels);
-        if (levels.length > 0) {
-            saveTreeProgress(levels);
-        }
-    });
-}
