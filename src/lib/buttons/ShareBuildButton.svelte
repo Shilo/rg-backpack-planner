@@ -5,6 +5,10 @@
   import { showToast } from "../toast";
   import { saveBuildToUrl, saveBuildAsImage } from "../shareManager";
 
+  export let title: string | undefined;
+  export let disabled: boolean | undefined = false;
+  export let tooltipSubject: string = "your";
+
   let shareMenuOpen = false;
   let shareMenuX = 0;
   let shareMenuY = 0;
@@ -72,10 +76,11 @@
 <Button
   bind:element={shareButtonElement}
   on:click={handleShareBuildClick}
-  tooltipText={"Share your backpack tech tree setup"}
+  tooltipText={`Share ${tooltipSubject} backpack tech tree setup`}
   icon={ShareNetworkIcon}
+  disabled={disabled}
 >
-  Share Build
+  {title ?? "Share Build"}
 </Button>
 
 <div use:portalAction class="share-menu-portal" class:menu-open={shareMenuOpen}>

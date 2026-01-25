@@ -30,7 +30,10 @@
   import { singleLevelUp } from "../singleLevelUpStore";
   import { showToast } from "../toast";
   import { isPreviewMode, setPreviewMode } from "../previewModeStore";
-  import { loadTreeProgress, initTreeProgressPersistence } from "../treeProgressStore";
+  import {
+    loadTreeProgress,
+    initTreeProgressPersistence,
+  } from "../treeProgressStore";
   import { get } from "svelte/store";
   import type { TreeViewState } from "../Tree.svelte";
   import type { TabConfig } from "../Tabs.svelte";
@@ -140,7 +143,8 @@
 </script>
 
 {#if $isPreviewMode}
-  <SideMenuSection title="Preview">
+  <SideMenuSection title="Previewing...">
+    <ShareBuildButton title="Share preview build" tooltipSubject="preview" />
     <Button
       on:click={handleStopPreview}
       tooltipText={"Exit preview mode and switch to personal build"}
@@ -172,7 +176,7 @@
     <span class="tech-crystals-separator"> / </span>
     <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
   </Button>
-  <ShareBuildButton />
+  <ShareBuildButton title="Share my build" disabled={$isPreviewMode} />
 </SideMenuSection>
 
 <SideMenuSection title="Node Interaction">
