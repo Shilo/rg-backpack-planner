@@ -41,39 +41,81 @@ function decodeBase64Url(base64url: string): string {
 
 /**
  * Serializes array format to custom compact string
- * Format: tree1_values;tree2_values;tree3_values;owned
- * Example: "0,1,1,1;100,0,1;0,1,1;0"
+ * Format: tree1_values;tree2_values;tree3_values[;owned]
+ * Example: ",1,1,1;100,,1;,1,1" (owned=0) or ",1,1,1;100,,1;,1,1;5" (owned=5)
+ * Zero values are serialized as empty strings for compactness
+ * Owned is only included if non-zero (no trailing semicolon if owned=0)
  */
 function serializeArrayFormat(
   treeArrays: number[][],
   owned: number,
 ): string {
-  // Join each tree array with commas
-  const treeStrings = treeArrays.map((tree) => tree.join(","));
-  // Join all trees and owned with semicolons
+  // Join each tree array with commas, using empty string for zero values
+  const treeStrings = treeArrays.map((tree) => 
+    tree.map((val) => val === 0 ? "" : val.toString()).join(",")
+  );
+  // Join trees with semicolons, only append owned if non-zero
+  if (owned === 0) {
+    return treeStrings.join(";");
+  }
   return [...treeStrings, owned.toString()].join(";");
 }
 
 /**
  * Parses custom compact string back to array format
- * Format: tree1_values;tree2_values;tree3_values;owned
+ * Format: tree1_values;tree2_values;tree3_values[;owned]
  * Returns: [tree1[], tree2[], tree3[], owned]
+ * Requires exactly 3 trees. If no owned value is present, defaults to 0
  */
 function parseArrayFormat(serialized: string): [number[][], number] | null {
   try {
     const segments = serialized.split(";");
-    if (segments.length < 2) return null; // Need at least one tree + owned
+    // Must have exactly 3 trees, optionally followed by owned
+    if (segments.length < 3 || segments.length > 4) {
+      throw new Error(`Invalid format: expected 3 or 4 segments (3 trees + optional owned), got ${segments.length}`);
+    }
 
-    // Last segment is owned
-    const owned = parseInt(segments[segments.length - 1], 10);
-    if (isNaN(owned)) return null;
+    let owned = 0;
+    let treeSegments: string[];
 
-    // All segments except last are trees
-    const treeArrays: number[][] = segments.slice(0, -1).map((segment) => {
-      if (segment === "") return []; // Empty tree
+    // Check if last segment is owned (single number, no commas)
+    const lastSegment = segments[segments.length - 1];
+    // If last segment has no commas and is a valid number, it's owned
+    if (lastSegment.indexOf(",") === -1 && lastSegment !== "") {
+      const lastAsNumber = parseInt(lastSegment, 10);
+      if (!isNaN(lastAsNumber) && segments.length === 4) {
+        // Last segment is owned, first 3 are trees
+        owned = lastAsNumber;
+        treeSegments = segments.slice(0, -1);
+      } else if (segments.length === 3) {
+        // Exactly 3 segments, all are trees (owned defaults to 0)
+        treeSegments = segments;
+      } else {
+        throw new Error(`Invalid format: unexpected segment count with owned value`);
+      }
+    } else {
+      // Last segment has commas or is empty, it's a tree
+      if (segments.length !== 3) {
+        throw new Error(`Invalid format: expected exactly 3 trees when owned is omitted, got ${segments.length} segments`);
+      }
+      treeSegments = segments;
+    }
+
+    // Parse exactly 3 tree segments
+    if (treeSegments.length !== 3) {
+      throw new Error(`Invalid format: expected exactly 3 trees, got ${treeSegments.length}`);
+    }
+
+    const treeArrays: number[][] = treeSegments.map((segment) => {
+      if (segment === "") return []; // Empty tree (all zeros)
       return segment.split(",").map((val) => {
+        // Empty string between commas represents 0
+        if (val === "") return 0;
         const num = parseInt(val, 10);
-        return isNaN(num) ? 0 : num;
+        if (isNaN(num)) {
+          throw new Error(`Invalid number value: ${val}`);
+        }
+        return num;
       });
     });
 
@@ -131,40 +173,43 @@ function convertTreesToArrayFormat(
 function convertArrayFormatToTrees(
   arrayFormat: unknown,
 ): BuildData {
-  // Validate input is an array
-  if (!Array.isArray(arrayFormat) || arrayFormat.length === 0) {
-    return { trees: [{}, {}, {}], owned: 0 };
+  // Validate input is an array with at least 4 elements (3 trees + owned)
+  if (!Array.isArray(arrayFormat) || arrayFormat.length < 4) {
+    throw new Error("Invalid array format: must have at least 4 elements (3 trees + owned)");
   }
   
-  // Extract owned value (last element if it's a number)
-  let treeArrays: number[][];
-  let owned: number;
-  
+  // Extract owned value (last element must be a number)
   const lastElement = arrayFormat[arrayFormat.length - 1];
-  if (typeof lastElement === "number" && arrayFormat.length > 1) {
-    // Format: [tree1[], tree2[], tree3[], owned]
-    treeArrays = arrayFormat.slice(0, -1) as number[][];
-    owned = lastElement;
-  } else {
-    // Fallback: assume owned is 0 if not provided
-    treeArrays = arrayFormat as number[][];
-    owned = 0;
+  if (typeof lastElement !== "number") {
+    throw new Error("Invalid array format: last element must be a number (owned)");
+  }
+  
+  // Format: [tree1[], tree2[], tree3[], owned]
+  const treeArrays = arrayFormat.slice(0, -1) as number[][];
+  const owned = lastElement;
+  
+  // Validate we have exactly 3 trees
+  if (treeArrays.length !== 3) {
+    throw new Error(`Invalid array format: expected 3 trees, got ${treeArrays.length}`);
   }
   
   // Get node IDs in order from baseTree
   const nodeIds = baseTree.map((node) => node.id);
   
   // Convert each tree array back to object format
-  const trees: Record<string, number>[] = treeArrays.map((treeArray) => {
+  const trees: Record<string, number>[] = treeArrays.map((treeArray, treeIndex) => {
     if (!Array.isArray(treeArray)) {
-      return {};
+      throw new Error(`Invalid array format: tree ${treeIndex} is not an array`);
     }
     
     const tree: Record<string, number> = {};
     
     // Map array indices to node IDs
     for (let i = 0; i < treeArray.length; i++) {
-      if (i < nodeIds.length && typeof treeArray[i] === "number") {
+      if (i < nodeIds.length) {
+        if (typeof treeArray[i] !== "number") {
+          throw new Error(`Invalid array format: tree ${treeIndex}, index ${i} is not a number`);
+        }
         tree[nodeIds[i]] = treeArray[i];
       }
     }
@@ -173,11 +218,6 @@ function convertArrayFormatToTrees(
     
     return tree;
   });
-  
-  // Ensure we have 3 trees (pad with empty objects if needed)
-  while (trees.length < 3) {
-    trees.push({});
-  }
   
   return { trees, owned };
 }
