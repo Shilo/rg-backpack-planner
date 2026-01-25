@@ -59,9 +59,15 @@ export function saveTreeProgress(levels: LevelsById[]): void {
 export function initTreeProgressPersistence(): Unsubscriber {
     return treeLevels.subscribe((levels) => {
         // Only save if we have levels (trees are initialized)
-        if (levels.length > 0) {
-            saveTreeProgress(levels);
-        }
+        if (levels.length === 0) return;
+        
+        // Check if there's any non-zero progress to avoid saving default state
+        const hasProgress = levels.some((tree) =>
+            Object.values(tree).some((level) => level > 0)
+        );
+        if (!hasProgress) return;
+        
+        saveTreeProgress(levels);
     });
 }
 
