@@ -76,6 +76,20 @@ function initializeNodeMap(): Map<string, TreeNode> {
 }
 
 /**
+ * Checks if a node ID matches any branch root
+ * @param nodeId The node ID to check
+ * @returns The branch type if it's a root, or null
+ */
+function getBranchRoot(nodeId: string): BranchType | null {
+  for (const [branch, rootId] of Object.entries(BRANCH_ROOTS)) {
+    if (nodeId === rootId) {
+      return branch as BranchType;
+    }
+  }
+  return null;
+}
+
+/**
  * Determines which branch a node belongs to by tracing ancestry back to branch roots
  * @param nodeId The node ID to check
  * @returns The branch type (yellow, orange, or blue)
@@ -101,34 +115,20 @@ function getNodeBranch(nodeId: string): BranchType {
   }
 
   // Check if this node is a branch root
-  if (nodeId === BRANCH_ROOTS.yellow) {
-    branchCache.set(nodeId, "yellow");
-    return "yellow";
-  }
-  if (nodeId === BRANCH_ROOTS.orange) {
-    branchCache.set(nodeId, "orange");
-    return "orange";
-  }
-  if (nodeId === BRANCH_ROOTS.blue) {
-    branchCache.set(nodeId, "blue");
-    return "blue";
+  const rootBranch = getBranchRoot(nodeId);
+  if (rootBranch) {
+    branchCache.set(nodeId, rootBranch);
+    return rootBranch;
   }
 
   // Trace ancestry through parentIds
   if (node.parentIds && node.parentIds.length > 0) {
     for (const parentId of node.parentIds) {
       // Check if parent is a branch root
-      if (parentId === BRANCH_ROOTS.yellow) {
-        branchCache.set(nodeId, "yellow");
-        return "yellow";
-      }
-      if (parentId === BRANCH_ROOTS.orange) {
-        branchCache.set(nodeId, "orange");
-        return "orange";
-      }
-      if (parentId === BRANCH_ROOTS.blue) {
-        branchCache.set(nodeId, "blue");
-        return "blue";
+      const parentRootBranch = getBranchRoot(parentId);
+      if (parentRootBranch) {
+        branchCache.set(nodeId, parentRootBranch);
+        return parentRootBranch;
       }
 
       // Recursively check parent
@@ -231,9 +231,40 @@ function decodeBase36(str: string): number {
 }
 
 /**
+ * Calculates whether RLE format saves space compared to plain format
+ * @param value The value string
+ * @param count The repetition count
+ * @returns True if RLE format is shorter
+ */
+function shouldUseRLE(value: string, count: number): boolean {
+  if (count === 1) {
+    return false;
+  }
+  const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
+  const rleLength = value.length + 1 + count.toString().length; // "val-3" = 3+1+1 = 5
+  return rleLength < plainLength;
+}
+
+/**
+ * Outputs a run (single value or RLE-compressed) to the result array
+ * @param result The result array to append to
+ * @param value The value to output
+ * @param count The repetition count
+ */
+function outputRun(result: string[], value: string, count: number): void {
+  if (shouldUseRLE(value, count)) {
+    result.push(`${value}-${count}`);
+  } else {
+    // Output plain values (either single value or when RLE doesn't save space)
+    for (let j = 0; j < count; j++) {
+      result.push(value);
+    }
+  }
+}
+
+/**
  * Compresses consecutive duplicate values using run-length encoding (RLE)
- * Format: value-count where - is the separator (only when count > 1)
- * Single values are output without RLE format for better compression
+ * Format: value-count where - is the separator (only when it saves space)
  * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1,2s"
  * @param values Array of base36-encoded value strings
  * @returns RLE-compressed string with commas separating runs
@@ -251,47 +282,56 @@ function compressRLE(values: string[]): string {
     if (values[i] === currentValue) {
       count++;
     } else {
-      // Output current run
-      // Use RLE only if it actually saves space
-      // Plain format: "value,value,value" = value.length * count + (count - 1) commas
-      // RLE format: "value-count" = value.length + 1 + count.toString().length
-      if (count === 1) {
-        result.push(currentValue);
-      } else {
-        const plainLength = currentValue.length * count + (count - 1);
-        const rleLength = currentValue.length + 1 + count.toString().length;
-        if (rleLength < plainLength) {
-          result.push(`${currentValue}-${count}`);
-        } else {
-          // RLE doesn't save space, output plain values
-          for (let j = 0; j < count; j++) {
-            result.push(currentValue);
-          }
-        }
-      }
-      // Start new run
+      outputRun(result, currentValue, count);
       currentValue = values[i];
       count = 1;
     }
   }
 
   // Output final run
-  if (count === 1) {
-    result.push(currentValue);
-  } else {
-    const plainLength = currentValue.length * count + (count - 1);
-    const rleLength = currentValue.length + 1 + count.toString().length;
-    if (rleLength < plainLength) {
-      result.push(`${currentValue}-${count}`);
-    } else {
-      // RLE doesn't save space, output plain values
-      for (let j = 0; j < count; j++) {
-        result.push(currentValue);
-      }
-    }
-  }
+  outputRun(result, currentValue, count);
 
   return result.join(",");
+}
+
+/**
+ * Validates and parses an RLE count from a string
+ * @param countStr The count string to parse
+ * @param part The full part string for error messages
+ * @returns The parsed count
+ * @throws Error if count is invalid
+ */
+function parseRLECount(countStr: string, part: string): number {
+  const count = parseInt(countStr, 10);
+  if (isNaN(count) || count < 1) {
+    throw new Error(`Invalid RLE format: invalid count in "${part}"`);
+  }
+  return count;
+}
+
+/**
+ * Expands a single RLE pattern to an array of values
+ * @param pattern The RLE pattern (value-count or -count)
+ * @returns Array of expanded values
+ * @throws Error if pattern is invalid
+ */
+function expandRLEPattern(pattern: string): string[] {
+  const rleMatchWithValue = pattern.match(/^(.+)-(\d+)$/);
+  const rleMatchZeros = pattern.match(/^-(\d+)$/);
+
+  if (rleMatchZeros) {
+    // Pattern: -count (run of zeros)
+    const count = parseRLECount(rleMatchZeros[1], pattern);
+    return Array(count).fill("");
+  } else if (rleMatchWithValue) {
+    // Pattern: value-count (run of non-zero values)
+    const value = rleMatchWithValue[1];
+    const count = parseRLECount(rleMatchWithValue[2], pattern);
+    return Array(count).fill(value);
+  } else {
+    // Plain value (no RLE, single occurrence)
+    return [pattern];
+  }
 }
 
 /**
@@ -313,42 +353,26 @@ function expandRLE(valueString: string): string[] {
     if (part === "") {
       // Empty part represents zero
       result.push("");
-      continue;
-    }
-    
-    // Check if this is an RLE pattern
-    // Pattern 1: value-count (e.g., "2s-4")
-    // Pattern 2: -count (e.g., "-3" for 3 zeros)
-    const rleMatchWithValue = part.match(/^(.+)-(\d+)$/);
-    const rleMatchZeros = part.match(/^-(\d+)$/);
-    
-    if (rleMatchZeros) {
-      // Pattern: -count (run of zeros)
-      const count = parseInt(rleMatchZeros[1], 10);
-      if (isNaN(count) || count < 1) {
-        throw new Error(`Invalid RLE format: invalid count in "${part}"`);
-      }
-      for (let i = 0; i < count; i++) {
-        result.push("");
-      }
-    } else if (rleMatchWithValue) {
-      // Pattern: value-count (run of non-zero values)
-      const value = rleMatchWithValue[1];
-      const count = parseInt(rleMatchWithValue[2], 10);
-      if (isNaN(count) || count < 1) {
-        throw new Error(`Invalid RLE format: invalid count in "${part}"`);
-      }
-      // Expand the run
-      for (let i = 0; i < count; i++) {
-        result.push(value);
-      }
     } else {
-      // Plain value (no RLE, single occurrence)
-      result.push(part);
+      result.push(...expandRLEPattern(part));
     }
   }
 
   return result;
+}
+
+/**
+ * Finds the last non-empty index in an array of strings
+ * @param strings Array of strings to search
+ * @returns Index of last non-empty string, or -1 if all empty
+ */
+function findLastNonEmptyIndex(strings: string[]): number {
+  for (let i = strings.length - 1; i >= 0; i--) {
+    if (strings[i] !== "") {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /**
@@ -370,55 +394,51 @@ function serializeArrayFormat(
     const branchStrings: string[] = branches.map((branch) => {
       // Serialize branch: encode to base36, then compress with RLE
       const base36Values = branch.map((val) => (val === 0 ? "" : encodeBase36(val)));
-      // Apply RLE compression to reduce repeated values
       return compressRLE(base36Values);
     });
 
     // Omit trailing empty branches
-    // Find last non-empty branch index
-    let lastNonEmptyIndex = -1;
-    for (let i = branchStrings.length - 1; i >= 0; i--) {
-      if (branchStrings[i] !== "") {
-        lastNonEmptyIndex = i;
-        break;
-      }
-    }
-
-    // If all branches are empty, return empty string
+    const lastNonEmptyIndex = findLastNonEmptyIndex(branchStrings);
     if (lastNonEmptyIndex === -1) {
       return "";
     }
 
-    // Return branches up to last non-empty, joined with :
     return branchStrings.slice(0, lastNonEmptyIndex + 1).join(":");
   });
 
   // Omit trailing empty trees
-  let lastNonEmptyTreeIndex = -1;
-  for (let i = treeStrings.length - 1; i >= 0; i--) {
-    if (treeStrings[i] !== "") {
-      lastNonEmptyTreeIndex = i;
-      break;
-    }
-  }
+  const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
   if (lastNonEmptyTreeIndex === -1) {
-    if (owned === 0) {
-      // Use special marker for completely empty build
-      return EMPTY_BUILD_MARKER;
-    }
-    return encodeBase36(owned);
+    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase36(owned);
   }
 
-  // Get non-empty trees
+  // Get non-empty trees and append owned if non-zero
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
+  return owned === 0
+    ? nonEmptyTreeStrings.join(";")
+    : [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
+}
 
-  // Join trees with semicolons, append owned if non-zero
-  if (owned === 0) {
-    return nonEmptyTreeStrings.join(";");
+/**
+ * Parses a branch segment string into an array of numbers
+ * @param branchSegment The branch segment string (may be empty)
+ * @returns Array of numbers (empty array if branchSegment is empty)
+ */
+function parseBranchSegment(branchSegment: string): number[] {
+  if (branchSegment === "") {
+    return [];
   }
-  return [...nonEmptyTreeStrings, encodeBase36(owned)].join(";");
+  const expandedValues = expandRLE(branchSegment);
+  return expandedValues.map((val) => {
+    if (val === "") return 0; // Empty string represents 0
+    const num = decodeBase36(val);
+    if (isNaN(num)) {
+      throw new Error(`Invalid number value: ${val}`);
+    }
+    return num;
+  });
 }
 
 /**
@@ -431,7 +451,6 @@ function serializeArrayFormat(
 function parseArrayFormat(serialized: string): [number[][][], number] {
   // Handle special marker for empty build
   if (serialized === EMPTY_BUILD_MARKER) {
-    // Return 3 trees, each with 3 empty branches
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
@@ -445,62 +464,55 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     const lastSegment = segments[segments.length - 1];
     // owned must be a single base36 number with no branch or node separators
     if (lastSegment.indexOf(":") === -1 && lastSegment.indexOf(",") === -1 && lastSegment !== "") {
-      // Last segment is owned, all previous segments are trees
       owned = decodeBase36(lastSegment);
       if (isNaN(owned)) {
         throw new Error(`Invalid owned value: ${lastSegment}`);
       }
       treeSegments = segments.slice(0, -1);
     } else {
-      // Last segment has separators or is empty, all segments are trees
       treeSegments = segments;
     }
   } else {
-    // Only one segment - must be a tree segment (owned is always after trees)
     treeSegments = segments;
   }
 
-  // Pad missing trailing trees to 3 (fill in trailing trees)
+  // Pad missing trailing trees to 3
   while (treeSegments.length < 3) {
     treeSegments.push("");
   }
 
   // Parse tree segments into branch arrays
   const treeBranchArrays: number[][][] = treeSegments.map((segment) => {
-    // If empty string, all 3 branches are empty
     if (segment === "") {
       return [[], [], []];
     }
 
-    // Split by `:` to get branch segments (strict order: yellow:orange:blue)
     const branchSegments = segment.split(":");
-
-    // Pad missing trailing branches to 3 (fill in trailing branches)
+    // Pad missing trailing branches to 3
     while (branchSegments.length < 3) {
       branchSegments.push("");
     }
 
-    // Parse each branch segment
-    const branches: number[][] = branchSegments.slice(0, 3).map((branchSegment) => {
-      if (branchSegment === "") {
-        return []; // Empty branch
-      }
-      // Expand RLE patterns and parse values
-      const expandedValues = expandRLE(branchSegment);
-      return expandedValues.map((val) => {
-        if (val === "") return 0; // Empty string represents 0
-        const num = decodeBase36(val);
-        if (isNaN(num)) {
-          throw new Error(`Invalid number value: ${val}`);
-        }
-        return num;
-      });
-    });
-
-    return branches;
+    return branchSegments.slice(0, 3).map(parseBranchSegment);
   });
 
   return [treeBranchArrays, owned];
+}
+
+/**
+ * Truncates trailing zeros from an array
+ * @param arr Array of numbers
+ * @returns Array with trailing zeros removed
+ */
+function truncateTrailingZeros(arr: number[]): number[] {
+  let lastNonZeroIndex = -1;
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i] !== 0) {
+      lastNonZeroIndex = i;
+      break;
+    }
+  }
+  return lastNonZeroIndex === -1 ? [] : arr.slice(0, lastNonZeroIndex + 1);
 }
 
 /**
@@ -515,48 +527,18 @@ function convertTreesToArrayFormat(
   owned: number,
 ): [number[][][], number] {
   const mapping = getBranchMapping();
+  const branchKeys: BranchType[] = ["yellow", "orange", "blue"];
 
   // Convert each tree to branch-grouped format
   const treeBranchArrays: number[][][] = trees.map((tree) => {
     // Create branch arrays: [yellow[], orange[], blue[]]
-    const branches: number[][] = [
-      [], // yellow
-      [], // orange
-      [], // blue
-    ];
-
-    // Map nodes to their branches
-    for (const nodeId of mapping.yellow) {
-      const value = tree[nodeId] ?? 0;
-      branches[0].push(value);
-    }
-    for (const nodeId of mapping.orange) {
-      const value = tree[nodeId] ?? 0;
-      branches[1].push(value);
-    }
-    for (const nodeId of mapping.blue) {
-      const value = tree[nodeId] ?? 0;
-      branches[2].push(value);
-    }
-
-    // Truncate trailing zeros from each branch
-    const truncatedBranches: number[][] = branches.map((branch) => {
-      // Find last non-zero index
-      let lastNonZeroIndex = -1;
-      for (let i = branch.length - 1; i >= 0; i--) {
-        if (branch[i] !== 0) {
-          lastNonZeroIndex = i;
-          break;
-        }
-      }
-      // Return truncated branch (or empty array if all zeros)
-      if (lastNonZeroIndex === -1) {
-        return [];
-      }
-      return branch.slice(0, lastNonZeroIndex + 1);
+    const branches: number[][] = branchKeys.map((branchKey) => {
+      const nodeIds = mapping[branchKey];
+      return nodeIds.map((nodeId) => tree[nodeId] ?? 0);
     });
 
-    return truncatedBranches;
+    // Truncate trailing zeros from each branch
+    return branches.map(truncateTrailingZeros);
   });
 
   return [treeBranchArrays, owned];
@@ -613,42 +595,26 @@ function convertArrayFormatToTrees(
     }
 
     const tree: Record<string, number> = {};
+    const branchKeys: BranchType[] = ["yellow", "orange", "blue"];
+    const branches = [yellowBranch, orangeBranch, blueBranch];
 
-    // Map yellow branch nodes
-    for (let i = 0; i < yellowBranch.length; i++) {
-      if (i < mapping.yellow.length) {
-        const nodeId = mapping.yellow[i];
-        if (typeof yellowBranch[i] !== "number") {
-          throw new Error(`Invalid array format: tree ${treeIndex}, yellow branch, index ${i} is not a number`);
+    // Map each branch's nodes to the tree object
+    branchKeys.forEach((branchKey, branchIndex) => {
+      const branch = branches[branchIndex];
+      const nodeIds = mapping[branchKey];
+      branch.forEach((value, i) => {
+        if (i < nodeIds.length) {
+          if (typeof value !== "number") {
+            throw new Error(
+              `Invalid array format: tree ${treeIndex}, ${branchKey} branch, index ${i} is not a number`
+            );
+          }
+          tree[nodeIds[i]] = value;
         }
-        tree[nodeId] = yellowBranch[i];
-      }
-    }
-
-    // Map orange branch nodes
-    for (let i = 0; i < orangeBranch.length; i++) {
-      if (i < mapping.orange.length) {
-        const nodeId = mapping.orange[i];
-        if (typeof orangeBranch[i] !== "number") {
-          throw new Error(`Invalid array format: tree ${treeIndex}, orange branch, index ${i} is not a number`);
-        }
-        tree[nodeId] = orangeBranch[i];
-      }
-    }
-
-    // Map blue branch nodes
-    for (let i = 0; i < blueBranch.length; i++) {
-      if (i < mapping.blue.length) {
-        const nodeId = mapping.blue[i];
-        if (typeof blueBranch[i] !== "number") {
-          throw new Error(`Invalid array format: tree ${treeIndex}, blue branch, index ${i} is not a number`);
-        }
-        tree[nodeId] = blueBranch[i];
-      }
-    }
+      });
+    });
 
     // Note: nodes beyond branch array lengths are implicitly 0, so we don't need to set them
-
     return tree;
   });
 
@@ -680,6 +646,25 @@ export function encodeBuildData(buildData: BuildData): string {
 }
 
 /**
+ * Safely executes a function and logs errors, returning null on failure
+ * @param fn Function to execute
+ * @param errorMessage Error message prefix for logging
+ * @returns Function result or null if error occurred
+ */
+function safeExecute<T>(
+  fn: () => T,
+  errorMessage: string
+): T | null {
+  try {
+    return fn();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`[decodeBuildData] ${errorMessage}:`, message);
+    return null;
+  }
+}
+
+/**
  * Decodes a base64url string back into build data
  * Returns compressed data (expansion happens in applyBuildFromUrl)
  */
@@ -690,49 +675,34 @@ export function decodeBuildData(encoded: string): BuildData | null {
     return null;
   }
 
-  try {
-    // Convert base64url back to base64, then decode
-    const base64 = decodeBase64Url(encoded);
-    let decoded: string;
-    try {
-      decoded = atob(base64);
-    } catch (error) {
-      console.warn("[decodeBuildData] Failed to decode base64 string:", error instanceof Error ? error.message : String(error));
-      return null;
-    }
+  // Convert base64url back to base64, then decode
+  const base64 = decodeBase64Url(encoded);
+  const decoded = safeExecute(() => atob(base64), "Failed to decode base64 string");
+  if (!decoded) return null;
 
-    console.warn("[decodeBuildData] Decoded string:", decoded);
+  console.warn("[decodeBuildData] Decoded string:", decoded);
 
-    // Use custom parser instead of JSON.parse
-    let treeArrays: number[][][];
-    let owned: number;
-    try {
-      [treeArrays, owned] = parseArrayFormat(decoded);
-    } catch (error) {
-      console.warn("[decodeBuildData] Failed to parse array format:", error instanceof Error ? error.message : String(error));
-      return null;
-    }
+  // Parse array format
+  const parsed = safeExecute(
+    () => parseArrayFormat(decoded),
+    "Failed to parse array format"
+  );
+  if (!parsed) return null;
 
-    // Convert to BuildData format (reconstruct array format for convertArrayFormatToTrees)
-    const arrayFormat = [...treeArrays, owned];
+  const [treeArrays, owned] = parsed;
+  const arrayFormat = [...treeArrays, owned];
 
-    console.warn("[decodeBuildData] Parsed array format after load:", arrayFormat);
+  console.warn("[decodeBuildData] Parsed array format after load:", arrayFormat);
 
-    let buildData: BuildData;
-    try {
-      buildData = convertArrayFormatToTrees(arrayFormat);
-    } catch (error) {
-      console.warn("[decodeBuildData] Failed to convert array format to trees:", error instanceof Error ? error.message : String(error));
-      return null;
-    }
+  // Convert to BuildData format
+  const buildData = safeExecute(
+    () => convertArrayFormatToTrees(arrayFormat),
+    "Failed to convert array format to trees"
+  );
+  if (!buildData) return null;
 
-    console.warn("[decodeBuildData] Deserialized data after load:", buildData);
-    console.warn("[decodeBuildData] Returning buildData: SUCCESS");
+  console.warn("[decodeBuildData] Deserialized data after load:", buildData);
+  console.warn("[decodeBuildData] Returning buildData: SUCCESS");
 
-    return buildData;
-  } catch (error) {
-    // Catch any unexpected errors
-    console.warn("[decodeBuildData] Unexpected error during decoding:", error instanceof Error ? error.message : String(error));
-    return null;
-  }
+  return buildData;
 }
