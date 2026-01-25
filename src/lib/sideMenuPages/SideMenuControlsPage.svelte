@@ -301,12 +301,14 @@
   .controls-page {
     display: flex;
     flex-direction: column;
-    gap: 0px;
+    gap: 6px;
+    min-width: 0;
   }
 
   .controls-sections {
     display: grid;
     gap: 10px;
+    min-width: 0;
   }
 
   .control-list {
@@ -319,7 +321,7 @@
 
   .control-row {
     display: grid;
-    grid-template-columns: 24px 1fr;
+    grid-template-columns: 24px minmax(0, 1fr);
     gap: 6px;
     align-items: start;
   }
@@ -346,6 +348,7 @@
     margin: 0;
     font-size: 0.92rem;
     color: #f1f5ff;
+    overflow-wrap: break-word;
   }
 
   .control-desc {
@@ -353,6 +356,7 @@
     font-size: 0.85rem;
     color: #b9c7ec;
     line-height: 1.35;
+    overflow-wrap: break-word;
   }
 
   .control-desc :global(a) {
@@ -361,6 +365,7 @@
 
   .controls-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 4px;

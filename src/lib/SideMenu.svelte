@@ -5,7 +5,11 @@
   import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
   import { triggerHaptic } from "./haptics";
   import type { TreeViewState } from "./Tree.svelte";
-  import { getActiveTab, setActiveTab, type SideMenuTab } from "./sideMenuActiveTabStore";
+  import {
+    getActiveTab,
+    setActiveTab,
+    type SideMenuTab,
+  } from "./sideMenuActiveTabStore";
 
   export let isOpen = false;
   export let skipTransition = false;
@@ -54,7 +58,13 @@
   on:click={handleBackdropClick}
   type="button"
 ></button>
-<aside class="side-menu" class:open={isOpen} class:skip-transition={skipTransition} bind:this={menuEl} inert={!isOpen}>
+<aside
+  class="side-menu"
+  class:open={isOpen}
+  class:skip-transition={skipTransition}
+  bind:this={menuEl}
+  inert={!isOpen}
+>
   <div class="side-menu__scroll-area">
     <nav class="side-menu__content" aria-label="Primary">
       <div class="side-menu__content-inner">
@@ -110,8 +120,7 @@
     right: 0;
     height: 100%;
     max-width: 100%;
-    width: fit-content;
-    min-width: calc(
+    width: calc(
       3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px
     );
     background: rgba(10, 16, 28, 0.98);
