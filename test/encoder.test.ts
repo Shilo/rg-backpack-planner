@@ -129,6 +129,7 @@ export function runTests() {
   let totalBase64urlLength = 0;
   let passedTests = 0;
   let failedTests = 0;
+  let warningCount = 0;
 
   testCases.forEach((testCase, index) => {
     console.log(`Test ${index + 1}: ${testCase.name}`);
@@ -190,17 +191,18 @@ export function runTests() {
       }
 
       // Check compression (base64url encoding may make it longer, which is expected)
-      // Note: Compression check is informational only, not a failure condition
-      
+      const compressionIsPositive = encodedLength < customSerializedLength;
+
       if (!treesMatch) {
         console.log("❌ FAILED: Data mismatch");
         failedTests++;
       } else {
         console.log("✅ PASSED");
         passedTests++;
-        // Log compression info for passed tests
-        if (encodedLength >= customSerializedLength) {
-          console.log(`ℹ️  Note: Base64url encoding increased size (base64url: ${encodedLength}, custom: ${customSerializedLength}) - this is expected`);
+        // Warn if compression is not positive (but don't fail)
+        if (!compressionIsPositive) {
+          console.log(`⚠️ WARNING: Compression is not positive (base64url: ${encodedLength}, custom: ${customSerializedLength})`);
+          warningCount++;
         }
       }
 
@@ -237,11 +239,14 @@ export function runTests() {
   console.log("===");
   console.log(`📊 Total tests: ${testCases.length}`);
   console.log(`✅ Passed: ${passedTests}`);
+  if (warningCount > 0) {
+    console.log(`⚠️ Warnings: ${warningCount} (compression not positive)`);
+  }
   console.log(`❌ Failed: ${failedTests}`);
   console.log(`📏 Average JSON string length: ${(totalJsonLength / testCases.length).toFixed(1)} characters`);
   console.log(`📏 Average custom serialized length: ${(totalCustomSerializedLength / testCases.length).toFixed(1)} characters`);
   console.log(`📏 Average base64url encoded length: ${(totalBase64urlLength / testCases.length).toFixed(1)} characters`);
-  console.log(`🗜️  Overall compression ratio (base64url vs custom): ${((1 - totalBase64urlLength / totalCustomSerializedLength) * 100).toFixed(1)}%`);
+  console.log(`🗜️ Overall compression ratio (base64url vs custom): ${((1 - totalBase64urlLength / totalCustomSerializedLength) * 100).toFixed(1)}%`);
   console.log("===");
 }
 
