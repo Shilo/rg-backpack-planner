@@ -369,7 +369,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 10px;
+    gap: 6px;
   }
 
   .app-info-actions > .control-row {

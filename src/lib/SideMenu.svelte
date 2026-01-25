@@ -70,7 +70,6 @@
           <SideMenuControlsPage />
         {/if}
       </div>
-      <div class="side-menu__scroll-fade" aria-hidden="true"></div>
     </nav>
   </div>
   <div class="side-menu__tab-bar-wrapper">
@@ -146,7 +145,6 @@
   }
 
   .side-menu__content {
-    --side-menu-fade-height: 68px;
     display: block;
     height: 100%;
     overflow-y: auto;
@@ -157,7 +155,6 @@
   .side-menu__content-inner {
     display: grid;
     gap: 10px;
-    padding-bottom: var(--side-menu-fade-height);
   }
 
   .side-menu__content-inner > :global(:first-child) {
@@ -187,9 +184,9 @@
     flex: 0 0 auto;
     width: var(--side-menu-tab-height);
     height: var(--side-menu-tab-height);
-    border: 1px solid #2c3c61;
-    background: transparent;
-    color: #8fa4ce;
+    border: 1px solid rgba(180, 72, 72, 0.9);
+    background: rgba(84, 26, 32, 0.85);
+    color: #ffd7d7;
     border-radius: 0;
     padding: 0;
     display: flex;
@@ -222,18 +219,5 @@
   .side-menu__close-button-icon {
     width: 20px;
     height: 20px;
-  }
-
-  .side-menu__scroll-fade {
-    position: sticky;
-    bottom: 0;
-    height: var(--side-menu-fade-height);
-    margin-top: calc(-1 * var(--side-menu-fade-height));
-    background: linear-gradient(
-      to bottom,
-      rgba(10, 16, 28, 0) 0%,
-      rgba(10, 16, 28, 1) 28%
-    );
-    pointer-events: none;
   }
 </style>
