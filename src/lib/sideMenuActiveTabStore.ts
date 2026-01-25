@@ -33,16 +33,20 @@ function setStoredActiveTab(tab: SideMenuTab): void {
 
 // Create writable store that syncs with localStorage
 function createSideMenuActiveTabStore() {
-    const { subscribe, set, update } = writable<SideMenuTab>(getStoredActiveTab());
+    const { subscribe, set: setWritable, update: updateWritable } = writable<SideMenuTab>(getStoredActiveTab());
 
     return {
         subscribe,
         set: (value: SideMenuTab) => {
             setStoredActiveTab(value);
-            set(value);
+            setWritable(value);
+        },
+        setWithoutPersist: (value: SideMenuTab) => {
+            // Set the store value without persisting to localStorage
+            setWritable(value);
         },
         update: (fn: (value: SideMenuTab) => SideMenuTab) => {
-            update((current) => {
+            updateWritable((current) => {
                 const next = fn(current);
                 setStoredActiveTab(next);
                 return next;
@@ -61,4 +65,9 @@ export function getActiveTab(): SideMenuTab {
 export function setActiveTab(tab: SideMenuTab): void {
     setStoredActiveTab(tab);
     sideMenuActiveTab.set(tab);
+}
+
+export function setActiveTabWithoutPersist(tab: SideMenuTab): void {
+    // Set the store value without persisting to localStorage
+    sideMenuActiveTab.setWithoutPersist(tab);
 }

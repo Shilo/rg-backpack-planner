@@ -8,8 +8,9 @@
   import { tooltip } from "./tooltip";
   import type { TreeViewState } from "./Tree.svelte";
   import {
-    getActiveTab,
     setActiveTab,
+    setActiveTabWithoutPersist,
+    sideMenuActiveTab,
     type SideMenuTab,
   } from "./sideMenuActiveTabStore";
 
@@ -23,12 +24,16 @@
   export let activeTreeIndex = 0;
   export let activeTreeViewState: TreeViewState | null = null;
   export let activeTreeFocusViewState: TreeViewState | null = null;
-  let activeTab: SideMenuTab = getActiveTab();
+  let activeTab: SideMenuTab = $sideMenuActiveTab;
   let scrollContentElement: HTMLElement | null = null;
 
-  export function openTab(tab: SideMenuTab) {
+  export function openTab(tab: SideMenuTab, persist: boolean = true) {
     activeTab = tab;
-    setActiveTab(tab);
+    if (persist) {
+      setActiveTab(tab);
+    } else {
+      setActiveTabWithoutPersist(tab);
+    }
   }
 
   function handleBackdropClick() {

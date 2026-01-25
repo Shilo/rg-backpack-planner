@@ -15,7 +15,7 @@
         isNewVersion,
         markVersionAsSeen,
     } from "./lib/latestUsedVersionStore";
-    import { setActiveTab } from "./lib/sideMenuActiveTabStore";
+    import { setActiveTab, setActiveTabWithoutPersist } from "./lib/sideMenuActiveTabStore";
 
     import {
         initTechCrystalTrees,
@@ -46,8 +46,8 @@
     const shouldShowControls = (() => {
         const isNew = isNewVersion();
         if (isNew) {
-            // Set active tab so SideMenu initializes with controls
-            setActiveTab("controls");
+            // Set active tab so SideMenu initializes with controls (without persisting)
+            setActiveTabWithoutPersist("controls");
         }
         return isNew;
     })();
@@ -130,7 +130,7 @@
     }
 
     let sideMenuRef: {
-        openTab?: (tab: "statistics" | "settings" | "controls") => void;
+        openTab?: (tab: "statistics" | "settings" | "controls", persist?: boolean) => void;
     } | null = null;
     let skipMenuTransition = shouldShowControls;
     let isMenuOpen = shouldShowControls;
@@ -141,7 +141,8 @@
             markVersionAsSeen();
             await tick();
             // Ensure controls tab is active (backup in case component initialized before localStorage was set)
-            sideMenuRef?.openTab?.("controls");
+            // Don't persist this change since it's for new version notification
+            sideMenuRef?.openTab?.("controls", false);
             // Reset transition flag after menu is shown so future opens have transitions
             setTimeout(() => {
                 skipMenuTransition = false;

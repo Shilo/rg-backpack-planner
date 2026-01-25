@@ -14,12 +14,20 @@
 
   export let activeTab: SideMenuTab = getActiveTab();
 
+  // Track if the change is from user interaction
+  let isUserInteraction = false;
+
   // Sync with store when activeTab changes (for localStorage persistence)
+  // Only persist if the change came from user interaction
   $: {
-    setActiveTab(activeTab);
+    if (isUserInteraction) {
+      setActiveTab(activeTab);
+      isUserInteraction = false;
+    }
   }
 
   function handleTabClick(tab: SideMenuTab) {
+    isUserInteraction = true;
     activeTab = tab;
     triggerHaptic();
   }
