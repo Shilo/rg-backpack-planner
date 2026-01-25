@@ -78,7 +78,7 @@
   on:click={handleShareBuildClick}
   tooltipText={`Share ${tooltipSubject} backpack tech tree setup`}
   icon={ShareNetworkIcon}
-  disabled={disabled}
+  {disabled}
 >
   {title ?? "Share Build"}
 </Button>

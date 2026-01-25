@@ -40,6 +40,50 @@ function decodeBase64Url(base64url: string): string {
 }
 
 /**
+ * Serializes array format to custom compact string
+ * Format: tree1_values;tree2_values;tree3_values;owned
+ * Example: "0,1,1,1;100,0,1;0,1,1;0"
+ */
+function serializeArrayFormat(
+  treeArrays: number[][],
+  owned: number,
+): string {
+  // Join each tree array with commas
+  const treeStrings = treeArrays.map((tree) => tree.join(","));
+  // Join all trees and owned with semicolons
+  return [...treeStrings, owned.toString()].join(";");
+}
+
+/**
+ * Parses custom compact string back to array format
+ * Format: tree1_values;tree2_values;tree3_values;owned
+ * Returns: [tree1[], tree2[], tree3[], owned]
+ */
+function parseArrayFormat(serialized: string): [number[][], number] | null {
+  try {
+    const segments = serialized.split(";");
+    if (segments.length < 2) return null; // Need at least one tree + owned
+
+    // Last segment is owned
+    const owned = parseInt(segments[segments.length - 1], 10);
+    if (isNaN(owned)) return null;
+
+    // All segments except last are trees
+    const treeArrays: number[][] = segments.slice(0, -1).map((segment) => {
+      if (segment === "") return []; // Empty tree
+      return segment.split(",").map((val) => {
+        const num = parseInt(val, 10);
+        return isNaN(num) ? 0 : num;
+      });
+    });
+
+    return [treeArrays, owned];
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Converts tree levels from object format to array format
  * Uses node order from baseTree to map node IDs to array indices
  * Truncates each tree array to the last non-zero index + 1
@@ -147,20 +191,17 @@ export function encodeBuildData(buildData: BuildData): string {
   // Each tree array is truncated to last non-zero index + 1
   const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
   
-  // Create compact array format: [tree1[], tree2[], tree3[], owned]
-  // Type assertion needed because TypeScript can't infer the union type correctly
-  const arrayFormat = [...treeArrays, owned] as Array<number[] | number>;
+  // Use custom serializer instead of JSON.stringify
+  const serialized = serializeArrayFormat(treeArrays, owned);
   
-  // Log deserialized data before encoding
-  const jsonString = JSON.stringify(arrayFormat);
   console.log("[encodeBuildData] Deserialized data before save:", {
-    arrayFormat,
+    arrayFormat: [...treeArrays, owned],
     originalBuildData: buildData,
-    jsonString,
+    serializedString: serialized,
   });
   
   // Encode to base64, then convert to base64url for URL safety
-  const base64 = btoa(jsonString);
+  const base64 = btoa(serialized);
   return encodeBase64Url(base64);
 }
 
@@ -180,22 +221,23 @@ export function decodeBuildData(encoded: string): BuildData | null {
     const base64 = decodeBase64Url(encoded);
     const decoded = atob(base64);
     
-    // Log the decoded JSON string
-    console.log("[decodeBuildData] Decoded JSON string:", decoded);
+    console.log("[decodeBuildData] Decoded string:", decoded);
     
-    const parsed = JSON.parse(decoded);
-    
-    // Must be array format: [tree1[], tree2[], tree3[], owned]
-    if (!Array.isArray(parsed)) {
+    // Use custom parser instead of JSON.parse
+    const parsed = parseArrayFormat(decoded);
+    if (!parsed) {
       return null;
     }
     
-    // Log parsed array format
-    console.log("[decodeBuildData] Parsed array format after load:", parsed);
+    const [treeArrays, owned] = parsed;
     
-    const buildData = convertArrayFormatToTrees(parsed);
+    // Convert to BuildData format (reconstruct array format for convertArrayFormatToTrees)
+    const arrayFormat = [...treeArrays, owned];
     
-    // Log final deserialized data
+    console.log("[decodeBuildData] Parsed array format after load:", arrayFormat);
+    
+    const buildData = convertArrayFormatToTrees(arrayFormat);
+    
     console.log("[decodeBuildData] Deserialized data after load:", buildData);
     
     return buildData;

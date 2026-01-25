@@ -65,10 +65,18 @@ export function loadBuildFromUrl(): BuildData | null {
   const pathSegments = pathname.split("/").filter(Boolean);
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
-    // Only try to decode if it looks like base64url and is long enough
+    
+    // Exclude known base path segments (e.g., "rg-backpack-planner")
+    const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
+    if (lastSegment === basePathSegment) {
+      return null; // This is just the base path, not build data
+    }
+    
+    // Only try to decode if it looks like base64url
     // Base64url characters: A-Z, a-z, 0-9, -, _
-    // Minimum length check helps avoid false positives
-    if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 8) {
+    // Minimum length of 4 to avoid obvious false positives (very short strings)
+    // decodeBuildData will handle further validation
+    if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 4) {
       const decoded = decodeBuildData(lastSegment);
       if (decoded) {
         return decoded;
@@ -120,7 +128,7 @@ export function updateUrlWithCurrentBuild(): void {
     if (pathSegments.length > 0) {
       const lastSegment = pathSegments[pathSegments.length - 1];
       // If it matches the pattern for build data, remove it
-      if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 8) {
+      if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 4) {
         pathSegments.pop();
       }
     }

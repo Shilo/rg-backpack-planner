@@ -191,24 +191,31 @@
                 const pathSegments = pathname.split("/").filter(Boolean);
                 if (pathSegments.length > 0) {
                     const lastSegment = pathSegments[pathSegments.length - 1];
-                    // Check if it looks like build data but failed to decode
-                    if (
-                        /^[A-Za-z0-9_-]+$/.test(lastSegment) &&
-                        lastSegment.length >= 8
-                    ) {
-                        // Invalid build data detected - remove it from URL
-                        pathSegments.pop();
-                        // Ensure we preserve at least the base path from vite.config.ts
-                        // If all segments were removed, restore the base path
-                        const basePath =
-                            pathSegments.length > 0
-                                ? `/${pathSegments.join("/")}/`
-                                : "/rg-backpack-planner/";
-                        window.history.replaceState({}, "", basePath);
-                        // Show toast to inform user
-                        showToastDelayed("Invalid share link", {
-                            tone: "negative",
-                        });
+                    
+                    // Exclude known base path segments (e.g., "rg-backpack-planner")
+                    const basePathSegment = "rg-backpack-planner";
+                    if (lastSegment === basePathSegment) {
+                        // This is just the base path, not build data - no cleanup needed
+                    } else {
+                        // Check if it looks like build data but failed to decode
+                        if (
+                            /^[A-Za-z0-9_-]+$/.test(lastSegment) &&
+                            lastSegment.length >= 4
+                        ) {
+                            // Invalid build data detected - remove it from URL
+                            pathSegments.pop();
+                            // Ensure we preserve at least the base path from vite.config.ts
+                            // If all segments were removed, restore the base path
+                            const basePath =
+                                pathSegments.length > 0
+                                    ? `/${pathSegments.join("/")}/`
+                                    : "/rg-backpack-planner/";
+                            window.history.replaceState({}, "", basePath);
+                            // Show toast to inform user
+                            showToastDelayed("Invalid share link", {
+                                tone: "negative",
+                            });
+                        }
                     }
                 }
             }
