@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { ComponentType } from "svelte";
   import {
+    ArrowClockwiseIcon,
     ClockCounterClockwiseIcon,
     ArrowUpIcon,
     CubeFocusIcon,
     HexagonIcon,
     MagnifyingGlassPlusIcon,
+    TrashSimpleIcon,
   } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import SideMenuSection from "../SideMenuSection.svelte";
@@ -84,6 +86,34 @@
       },
     });
   }
+
+  function handleReloadWindow() {
+    // Simply reload the page without clearing data
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  }
+
+  function handleClearAllData() {
+    openModal({
+      type: "confirm",
+      title: "CLEAR ALL DATA",
+      titleIcon: TrashSimpleIcon as unknown as ComponentType,
+      message:
+        "Delete all data and reload the application. This will reset all trees, settings, and progress.",
+      confirmLabel: "Clear all data",
+      cancelLabel: "Cancel",
+      confirmNegative: true,
+      onConfirm: () => {
+        // Clear all localStorage
+        if (typeof window !== "undefined") {
+          localStorage.clear();
+        }
+        // Reload the page
+        window.location.reload();
+      },
+    });
+  }
 </script>
 
 <SideMenuSection title="General">
@@ -119,7 +149,7 @@
   />
 </SideMenuSection>
 
-<SideMenuSection title="Display">
+<SideMenuSection title="View">
   <ToggleSwitch
     checked={$closeUpView}
     label="Close-up View"
@@ -160,12 +190,27 @@
   />
   <div class="spacer"></div>
   <Button
+    on:click={handleReloadWindow}
+    tooltipText={"Refresh the page"}
+    icon={ArrowClockwiseIcon}
+  >
+    Reload Window
+  </Button>
+  <Button
     on:click={handleResetSettings}
     tooltipText={"Restore all settings to their default values"}
     icon={ClockCounterClockwiseIcon}
     negative
   >
     Reset Settings
+  </Button>
+  <Button
+    on:click={handleClearAllData}
+    tooltipText={"Delete all data and reload the application"}
+    icon={TrashSimpleIcon}
+    negative
+  >
+    Clear All Data
   </Button>
 </SideMenuSection>
 
