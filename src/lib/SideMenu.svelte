@@ -19,7 +19,7 @@
   export let activeTreeFocusViewState: TreeViewState | null = null;
   let backdropEl: HTMLButtonElement | null = null;
   let menuEl: HTMLElement | null = null;
-  let activeTab: 'statistics' | 'settings' | 'controls' = 'statistics';
+  let activeTab: "statistics" | "settings" | "controls" = "statistics";
   $: if (!isOpen) {
     const active = document.activeElement;
     if (
@@ -50,7 +50,7 @@
   <div class="side-menu__scroll-area">
     <nav class="side-menu__content" aria-label="Primary">
       <div class="side-menu__content-inner">
-        {#if activeTab === 'settings'}
+        {#if activeTab === "settings"}
           <SideMenuSettingsPage
             {activeTreeName}
             {activeTreeIndex}
@@ -61,9 +61,9 @@
             {onResetTree}
             {onFocusInView}
           />
-        {:else if activeTab === 'statistics'}
+        {:else if activeTab === "statistics"}
           <SideMenuStatisticsPage />
-        {:else if activeTab === 'controls'}
+        {:else if activeTab === "controls"}
           <SideMenuControlsPage />
         {/if}
       </div>
