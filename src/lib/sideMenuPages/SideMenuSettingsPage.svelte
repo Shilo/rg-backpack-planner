@@ -13,6 +13,7 @@
   import SideMenuSection from "../SideMenuSection.svelte";
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
   import ResetTreeButton from "../buttons/ResetTreeButton.svelte";
+  import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
   import ToggleSwitch from "../ToggleSwitch.svelte";
   import { formatNumber } from "../mathUtil";
   import { openModal } from "../modalStore";
@@ -136,6 +137,7 @@
     <span class="tech-crystals-separator"> / </span>
     <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
   </Button>
+  <ShareBuildButton {onClose} />
 </SideMenuSection>
 
 <SideMenuSection title="Node Interaction">
