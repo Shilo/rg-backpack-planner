@@ -58,32 +58,28 @@ export function createShareUrl(buildData?: BuildData): string {
  */
 export function loadBuildFromUrl(): BuildData | null {
   if (typeof window === "undefined") return null;
-  
+
   // Path-based routing: /{encoded}
   const pathname = window.location.pathname;
   // Extract the last segment of the path (after the last /)
   const pathSegments = pathname.split("/").filter(Boolean);
   if (pathSegments.length > 0) {
     const lastSegment = pathSegments[pathSegments.length - 1];
-    
+
     // Exclude known base path segments (e.g., "rg-backpack-planner")
     const basePathSegment = BASE_PATH.replace(/^\/|\/$/g, ""); // Remove leading/trailing slashes
     if (lastSegment === basePathSegment) {
       return null; // This is just the base path, not build data
     }
-    
+
     // Only try to decode if it looks like base64url
     // Base64url characters: A-Z, a-z, 0-9, -, _
-    // Minimum length of 4 to avoid obvious false positives (very short strings)
     // decodeBuildData will handle further validation
-    if (/^[A-Za-z0-9_-]+$/.test(lastSegment) && lastSegment.length >= 4) {
-      const decoded = decodeBuildData(lastSegment);
-      if (decoded) {
-        return decoded;
-      }
+    if (/^[A-Za-z0-9_-]+$/.test(lastSegment)) {
+      return decodeBuildData(lastSegment);
     }
   }
-  
+
   return null;
 }
 
@@ -95,25 +91,25 @@ export function loadBuildFromUrl(): BuildData | null {
  */
 export function updateUrlWithCurrentBuild(): void {
   if (typeof window === "undefined") return;
-  
+
   // Skip URL updates during initial build application
   if (isApplyingBuildFromUrl) {
     return;
   }
-  
+
   try {
     const buildData: BuildData = {
       trees: get(treeLevels),
       owned: get(techCrystalsOwned),
     };
-    
+
     const encoded = encodeBuildData(buildData);
-    
+
     // Use path-based routing: /{encoded}
     // Get base path (remove any existing encoded data from pathname)
     const currentPath = window.location.pathname;
     const pathSegments = currentPath.split("/").filter(Boolean);
-    
+
     // Check if the current URL already has the same encoded data
     if (pathSegments.length > 0) {
       const lastSegment = pathSegments[pathSegments.length - 1];
@@ -122,7 +118,7 @@ export function updateUrlWithCurrentBuild(): void {
         return;
       }
     }
-    
+
     // Remove the last segment if it looks like build data
     // We can skip the decode check since we're about to replace it anyway
     if (pathSegments.length > 0) {
@@ -132,21 +128,21 @@ export function updateUrlWithCurrentBuild(): void {
         pathSegments.pop();
       }
     }
-    
+
     // Construct the new path
     // Ensure we preserve at least the base path
-    const basePath = pathSegments.length > 0 
-      ? `/${pathSegments.join("/")}` 
+    const basePath = pathSegments.length > 0
+      ? `/${pathSegments.join("/")}`
       : BASE_PATH.replace(/\/$/, ""); // Remove trailing slash for joining
     // Avoid double slashes
     const separator = basePath === "/" ? "" : "/";
     const newPath = `${basePath}${separator}${encoded}`;
-    
+
     // Only update URL if it's different from current pathname
     if (newPath === currentPath) {
       return; // No change needed
     }
-    
+
     // Validate the path is safe before updating
     try {
       new URL(newPath, window.location.origin);
