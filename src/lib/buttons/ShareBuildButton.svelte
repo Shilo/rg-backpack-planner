@@ -4,6 +4,7 @@
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
   import { saveBuildToUrl, saveBuildAsImage } from "../buildData/share";
+  import { portal } from "../portal";
 
   export let title: string | undefined;
   export let disabled: boolean | undefined = false;
@@ -13,7 +14,6 @@
   let shareMenuX = 0;
   let shareMenuY = 0;
   let shareButtonElement: HTMLButtonElement | null = null;
-  let contextMenuContainer: HTMLDivElement | null = null;
 
   function handleShareBuildClick() {
     if (!shareButtonElement) return;
@@ -48,29 +48,6 @@
       showToast("Unable to copy link", { tone: "negative" });
     }
   }
-
-  function portalAction(node: HTMLDivElement) {
-    if (typeof document === "undefined") return;
-
-    contextMenuContainer = node;
-    // Append to the app container for consistency with other overlays (ModalHost, Tooltip)
-    // This ensures proper stacking context and DOM hierarchy
-    const appContainer = document.getElementById("app");
-    if (appContainer) {
-      appContainer.appendChild(node);
-    } else {
-      // Fallback to body if app container not found
-      document.body.appendChild(node);
-    }
-
-    return {
-      destroy() {
-        if (node.parentNode) {
-          node.parentNode.removeChild(node);
-        }
-      },
-    };
-  }
 </script>
 
 <Button
@@ -83,7 +60,7 @@
   {title ?? "Share Build"}
 </Button>
 
-<div use:portalAction class="share-menu-portal" class:menu-open={shareMenuOpen}>
+<div use:portal class="share-menu-portal" class:menu-open={shareMenuOpen}>
   <ContextMenu
     x={shareMenuX}
     y={shareMenuY}

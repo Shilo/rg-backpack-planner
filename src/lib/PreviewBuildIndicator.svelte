@@ -4,6 +4,7 @@
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
+  import { portal } from "./portal";
 
   let buttonElement: HTMLButtonElement | null = null;
   let menuOpen = false;
@@ -34,16 +35,18 @@
     Preview
   </Button>
 
-  <ContextMenu
-    x={menuX}
-    y={menuY}
-    isOpen={menuOpen}
-    title="Preview Build"
-    ariaLabel="Preview build options"
-    onClose={closeMenu}
-  >
-    <PreviewContextMenuList onButtonPress={closeMenu} />
-  </ContextMenu>
+  <div use:portal class="preview-build-indicator-menu-portal" class:menu-open={menuOpen}>
+    <ContextMenu
+      x={menuX}
+      y={menuY}
+      isOpen={menuOpen}
+      title="Preview Build"
+      ariaLabel="Preview build options"
+      onClose={closeMenu}
+    >
+      <PreviewContextMenuList onButtonPress={closeMenu} />
+    </ContextMenu>
+  </div>
 {/if}
 
 <style>
@@ -54,6 +57,20 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     padding: 6px 12px;
+    pointer-events: auto;
+  }
+
+  .preview-build-indicator-menu-portal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 21;
+  }
+
+  .preview-build-indicator-menu-portal.menu-open {
     pointer-events: auto;
   }
 </style>
