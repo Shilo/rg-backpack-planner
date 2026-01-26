@@ -54,10 +54,20 @@ const ROOT_TO_BRANCH = new Map<string, BranchType>(
 const EMPTY_BUILD_MARKER = "_";
 
 /**
- * Regex pattern for valid serialized format characters
- * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (: ; , - *), and empty marker (_)
+ * Separator constants for serialization format
+ * All separators are URL-safe and don't require encoding
  */
-export const SERIALIZED_PATTERN = /^[0-9a-zA-Z:;,\-*_]+$/;
+const SEPARATOR_NODE_VALUE = "."; // Separates node values within a branch
+const SEPARATOR_BRANCH = ","; // Separates branches within a tree
+const SEPARATOR_TREE = ";"; // Separates trees and owned value
+const SEPARATOR_RLE_NODE_COUNT = "'"; // Separates value from count in RLE node patterns
+const SEPARATOR_RLE_TREE_COUNT = ":"; // Separates tree string from count in RLE tree patterns
+
+/**
+ * Regex pattern for valid serialized format characters
+ * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (.,;':), and empty marker (_)
+ */
+export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
 
 /**
  * Node map for quick lookup
@@ -247,10 +257,10 @@ function shouldUseRLE(value: string, count: number): boolean {
   if (count === 1) {
     return false;
   }
-  const plainLength = value.length * count + (count - 1); // "val,val,val" = 3*3+2 = 11
+  const plainLength = value.length * count + (count - 1); // "val.val.val" = 3*3+2 = 11
   const encodedCount = encodeRLECount(count); // Uses base62 for counts >= 10
-  const rleLength = value.length + 1 + encodedCount.length; // "val-3" or "val-a" = 3+1+1 = 5
-  // For empty strings, use RLE when equal length for consistency (e.g., ,, vs -3, both 2 chars)
+  const rleLength = value.length + 1 + encodedCount.length; // "val'3" or "val'a" = 3+1+1 = 5
+  // For empty strings, use RLE when equal length for consistency (e.g., .. vs '3, both 2 chars)
   // For non-empty strings, only use RLE when it saves space
   return value === "" ? rleLength <= plainLength : rleLength < plainLength;
 }
@@ -264,7 +274,7 @@ function shouldUseRLE(value: string, count: number): boolean {
 function outputRun(result: string[], value: string, count: number): void {
   if (shouldUseRLE(value, count)) {
     const encodedCount = encodeRLECount(count);
-    result.push(`${value}-${encodedCount}`);
+    result.push(`${value}${SEPARATOR_RLE_NODE_COUNT}${encodedCount}`);
   } else {
     // Output plain values (either single value or when RLE doesn't save space)
     for (let j = 0; j < count; j++) {
@@ -275,10 +285,10 @@ function outputRun(result: string[], value: string, count: number): void {
 
 /**
  * Compresses consecutive duplicate values using run-length encoding (RLE)
- * Format: value-count where - is the separator (only when it saves space)
- * Examples: ["2s", "2s", "2s", "2s"] → "2s-4", ["1"] → "1", ["1", "2s"] → "1,2s"
+ * Format: value-count where ' is the separator (only when it saves space)
+ * Examples: ["2s", "2s", "2s", "2s"] → "2s'4", ["1"] → "1", ["1", "2s"] → "1.2s"
  * @param values Array of base62-encoded value strings
- * @returns RLE-compressed string with commas separating runs
+ * @returns RLE-compressed string with periods separating runs
  */
 function compressRLE(values: string[]): string {
   if (values.length === 0) {
@@ -302,7 +312,7 @@ function compressRLE(values: string[]): string {
   // Output final run
   outputRun(result, currentValue, count);
 
-  return result.join(",");
+  return result.join(SEPARATOR_NODE_VALUE);
 }
 
 /**
@@ -325,21 +335,23 @@ function parseRLECount(countStr: string, context: string): number {
 
 /**
  * Expands a single RLE pattern to an array of values
- * @param pattern The RLE pattern (value-count or -count, count may be base62)
+ * @param pattern The RLE pattern (value'count or 'count, count may be base62)
  * @returns Array of expanded values
  * @throws Error if pattern is invalid
  */
 function expandRLEPattern(pattern: string): string[] {
   // Count can be decimal (0-9) or base62 (0-9, a-z, A-Z)
-  const rleMatchWithValue = pattern.match(/^(.+)-([0-9a-zA-Z]+)$/);
-  const rleMatchZeros = pattern.match(/^-([0-9a-zA-Z]+)$/);
+  // Single quote is not a special regex character, but we escape it for clarity
+  const escapedRleNodeCountSeparator = SEPARATOR_RLE_NODE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const rleMatchWithValue = pattern.match(new RegExp(`^(.+)${escapedRleNodeCountSeparator}([0-9a-zA-Z]+)$`));
+  const rleMatchZeros = pattern.match(new RegExp(`^${escapedRleNodeCountSeparator}([0-9a-zA-Z]+)$`));
 
   if (rleMatchZeros) {
-    // Pattern: -count (run of zeros)
+    // Pattern: 'count (run of zeros)
     const count = parseRLECount(rleMatchZeros[1], pattern);
     return Array(count).fill("");
   } else if (rleMatchWithValue) {
-    // Pattern: value-count (run of non-zero values)
+    // Pattern: value'count (run of non-zero values)
     const value = rleMatchWithValue[1];
     const count = parseRLECount(rleMatchWithValue[2], pattern);
     return Array(count).fill(value);
@@ -351,9 +363,9 @@ function expandRLEPattern(pattern: string): string[] {
 
 /**
  * Expands RLE-compressed string back to array of values
- * Accepts both RLE format (value-count or -count) and plain values
- * Examples: "2s-4" → ["2s", "2s", "2s", "2s"], "-3" → ["", "", ""], "1" → ["1"]
- * @param valueString Comma-separated string with RLE patterns or plain values
+ * Accepts both RLE format (value'count or 'count) and plain values
+ * Examples: "2s'4" → ["2s", "2s", "2s", "2s"], "'3" → ["", "", ""], "1" → ["1"]
+ * @param valueString Period-separated string with RLE patterns or plain values
  * @returns Array of expanded value strings
  */
 function expandRLE(valueString: string): string[] {
@@ -361,7 +373,7 @@ function expandRLE(valueString: string): string[] {
     return [];
   }
 
-  const parts = valueString.split(",");
+  const parts = valueString.split(SEPARATOR_NODE_VALUE);
   const result: string[] = [];
 
   for (const part of parts) {
@@ -392,7 +404,7 @@ function findLastNonEmptyIndex(strings: string[]): number {
 
 /**
  * Serializes branch-grouped array format to custom compact string
- * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
+ * Format: yellow,orange,blue;yellow,orange,blue;yellow,orange,blue[;owned]
  * Trailing empty branches and trailing empty trees are omitted
  * Owned is only included if non-zero
  * @param treeBranchArrays Array of [yellow[], orange[], blue[]] for each tree
@@ -418,7 +430,7 @@ function serializeArrayFormat(
       return "";
     }
 
-    return branchStrings.slice(0, lastNonEmptyIndex + 1).join(":");
+    return branchStrings.slice(0, lastNonEmptyIndex + 1).join(SEPARATOR_BRANCH);
   });
 
   // Omit trailing empty trees
@@ -428,7 +440,7 @@ function serializeArrayFormat(
   // However, to avoid ambiguity with single tree values, we always include the tree structure
   // even for empty builds. Use ";" prefix to indicate owned-only builds.
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : `;${encodeBase62(owned)}`;
+    return owned === 0 ? EMPTY_BUILD_MARKER : `${SEPARATOR_TREE}${encodeBase62(owned)}`;
   }
 
   // Get non-empty trees
@@ -438,10 +450,10 @@ function serializeArrayFormat(
   if (nonEmptyTreeStrings.length === 3) {
     const firstTree = nonEmptyTreeStrings[0];
     if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
-      // All 3 trees are identical, compress to treeString*count (use base62 for count >= 10)
+      // All 3 trees are identical, compress to treeString:count (use base62 for count >= 10)
       const countStr = encodeRLECount(3);
-      const treePart = `${firstTree}*${countStr}`;
-      return owned === 0 ? treePart : `${treePart};${encodeBase62(owned)}`;
+      const treePart = `${firstTree}${SEPARATOR_RLE_TREE_COUNT}${countStr}`;
+      return owned === 0 ? treePart : `${treePart}${SEPARATOR_TREE}${encodeBase62(owned)}`;
     }
   }
 
@@ -455,8 +467,8 @@ function serializeArrayFormat(
 
       // Check if current tree and next tree are identical
       if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
-        // Two identical trees found, compress to treeString*2
-        result.push(`${currentTree}*${encodeRLECount(2)}`);
+        // Two identical trees found, compress to treeString:2
+        result.push(`${currentTree}${SEPARATOR_RLE_TREE_COUNT}${encodeRLECount(2)}`);
         i += 2; // Skip both trees
       } else {
         result.push(currentTree);
@@ -467,15 +479,15 @@ function serializeArrayFormat(
     // If we compressed anything, use the compressed result
     if (result.length < nonEmptyTreeStrings.length) {
       return owned === 0
-        ? result.join(";")
-        : [...result, encodeBase62(owned)].join(";");
+        ? result.join(SEPARATOR_TREE)
+        : [...result, encodeBase62(owned)].join(SEPARATOR_TREE);
     }
   }
 
   // Trees are not identical, output normally
   return owned === 0
-    ? nonEmptyTreeStrings.join(";")
-    : [...nonEmptyTreeStrings, encodeBase62(owned)].join(";");
+    ? nonEmptyTreeStrings.join(SEPARATOR_TREE)
+    : [...nonEmptyTreeStrings, encodeBase62(owned)].join(SEPARATOR_TREE);
 }
 
 /**
@@ -500,7 +512,7 @@ function parseBranchSegment(branchSegment: string): number[] {
 
 /**
  * Parses branch-grouped custom compact string back to array format
- * Format: yellow:orange:blue;yellow:orange:blue;yellow:orange:blue[;owned]
+ * Format: yellow,orange,blue;yellow,orange,blue;yellow,orange,blue[;owned]
  * Returns: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * Pads missing trees and branches, defaults owned to 0
@@ -511,7 +523,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
-  const segments = serialized.split(";");
+  const segments = serialized.split(SEPARATOR_TREE);
   let owned = 0;
   let treeSegments: string[];
 
@@ -519,8 +531,8 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   // If there are multiple segments and the last one has no separators, it must be owned
   if (segments.length > 1) {
     const lastSegment = segments[segments.length - 1];
-    // owned must be a single base62 number with no branch or node separators
-    if (!lastSegment.includes(":") && !lastSegment.includes(",") && !lastSegment.includes("*") && lastSegment !== "") {
+    // owned must be a single base62 number with no branch, node, or RLE tree count separators
+    if (!lastSegment.includes(SEPARATOR_BRANCH) && !lastSegment.includes(SEPARATOR_NODE_VALUE) && !lastSegment.includes(SEPARATOR_RLE_TREE_COUNT) && lastSegment !== "") {
       try {
         owned = decodeBase62(lastSegment);
       } catch (error) {
@@ -537,24 +549,26 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     // If it's the empty build marker, handle it
     if (singleSegment === EMPTY_BUILD_MARKER) {
       treeSegments = [];
-    } else if (!singleSegment.includes(":") && !singleSegment.includes(",") && !singleSegment.includes("*") && singleSegment !== "") {
-      // Single segment with no separators (no :, ,, or *)
+    } else if (!singleSegment.includes(SEPARATOR_BRANCH) && !singleSegment.includes(SEPARATOR_NODE_VALUE) && !singleSegment.includes(SEPARATOR_RLE_TREE_COUNT) && singleSegment !== "") {
+      // Single segment with no separators (no ,, ., or :)
       // The encoder now produces ";owned" for empty builds with owned > 0, so a single segment
       // with no separators can only be a single tree value in yellow branch.
       // (Empty builds with owned are now encoded as ";owned" which becomes multiple segments)
       treeSegments = segments; // Treat as tree value (yellow branch)
     } else {
-      // Has separators (:, ,, or *), must be a tree segment
+      // Has separators (, ., or :), must be a tree segment
       treeSegments = segments;
     }
   } else {
     treeSegments = segments;
   }
 
-  // Expand tree-level RLE (treeString*count format, count may be base62)
+  // Expand tree-level RLE (treeString:count format, count may be base62)
   const expandedTreeSegments: string[] = [];
   for (const segment of treeSegments) {
-    const treeRLEMatch = segment.match(/^(.+)\*([0-9a-zA-Z]+)$/);
+    // Colon is not a special regex character, but we escape it for clarity
+    const escapedRleTreeCountSeparator = SEPARATOR_RLE_TREE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const treeRLEMatch = segment.match(new RegExp(`^(.+)${escapedRleTreeCountSeparator}([0-9a-zA-Z]+)$`));
     if (treeRLEMatch) {
       const treeString = treeRLEMatch[1];
       const countStr = treeRLEMatch[2];
@@ -577,7 +591,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
       return [[], [], []];
     }
 
-    const branchSegments = segment.split(":");
+    const branchSegments = segment.split(SEPARATOR_BRANCH);
     // Pad missing trailing branches to 3
     while (branchSegments.length < 3) {
       branchSegments.push("");
