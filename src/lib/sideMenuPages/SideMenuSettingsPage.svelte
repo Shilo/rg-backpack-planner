@@ -16,7 +16,7 @@
   import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
   import { closeUpView } from "../closeUpViewStore";
   import { openModal } from "../modalStore";
-  import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
+  import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
   import { isPreviewMode } from "../previewModeStore";
   import SideMenuSection from "../SideMenuSection.svelte";
   import { singleLevelUp } from "../singleLevelUpStore";
@@ -112,11 +112,7 @@
   }
 </script>
 
-{#if $isPreviewMode}
-  <SideMenuSection title="Preview">
-    <PreviewContextMenuList />
-  </SideMenuSection>
-{/if}
+<SideMenuPreviewSection />
 
 <SideMenuSection title="Build">
   <TechCrystalsButton disabled={$isPreviewMode} />
