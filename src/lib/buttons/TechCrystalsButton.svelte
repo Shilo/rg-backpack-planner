@@ -9,6 +9,7 @@
   } from "../techCrystalStore";
 
   export let disabled: boolean | undefined = false;
+  export let tooltipSubject: string = "your";
 
   $: hasOwned = $techCrystalsOwned > 0;
 </script>
@@ -17,7 +18,7 @@
   on:click={() => {
     openTechCrystalsOwnedModal($techCrystalsOwned);
   }}
-  tooltipText={"Change your Tech Crystal owned (budget)"}
+  tooltipText={`Change ${tooltipSubject} Tech Crystal owned (budget)`}
   icon={HexagonIcon}
   iconClass="button-icon button-icon-filled"
   iconWeight="fill"

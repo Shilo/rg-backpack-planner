@@ -4,15 +4,15 @@
   import { EyeSlashIcon } from "phosphor-svelte";
   import { clearShareFromUrl } from "./buildData/url";
   import TechCrystalsButton from "./buttons/TechCrystalsButton.svelte";
-
-  export let onButtonPress: (() => void) | null = null;
+  import CloneBuildButton from "./buttons/CloneBuildButton.svelte";
+  import { queueStoppedPreviewToast } from "./toast";
 
   function handleStopPreview() {
     // Remove build data from URL and reload to switch to personal mode
     // This ensures a clean state transition with proper initialization
     if (typeof window !== "undefined") {
       // Set a flag to show toast after reload
-      sessionStorage.setItem("rg-backpack-planner-stopped-preview", "true");
+      queueStoppedPreviewToast();
 
       // Clear share data from URL, leaving only base path
       clearShareFromUrl();
@@ -23,13 +23,11 @@
   }
 </script>
 
-<TechCrystalsButton />
+<TechCrystalsButton tooltipSubject="preview" />
 <ShareBuildButton title="Share preview build" tooltipSubject="preview" />
+<CloneBuildButton />
 <Button
-  on:click={() => {
-    handleStopPreview();
-    onButtonPress?.();
-  }}
+  on:click={handleStopPreview}
   tooltipText={"Exit preview mode and switch to personal build"}
   icon={EyeSlashIcon}
   negative

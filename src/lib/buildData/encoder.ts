@@ -209,7 +209,7 @@ const BASE62_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV
  */
 function encodeBase62(num: number): string {
   if (num === 0) return "0";
-  
+
   let result = "";
   let n = num;
   while (n > 0) {
@@ -257,17 +257,17 @@ function shouldUseRLE(value: string, count: number): boolean {
   if (count === 1) {
     return false;
   }
-  
+
   // Always use RLE for zeros when count >= 2 (saves space: '2 = 2 chars vs .. = 2 chars, '3 = 2 chars vs ... = 3 chars)
   if (value === "" && count >= 2) {
     return true;
   }
-  
+
   // Always use RLE for count=2 if value length > 1 (saves 1 char: "val'2" = 5 chars vs "val.val" = 6 chars)
   if (count === 2 && value.length > 1) {
     return true;
   }
-  
+
   const plainLength = value.length * count + (count - 1); // "val.val.val" = 3*3+2 = 11
   const encodedCount = encodeRLECount(count); // Uses base62 for counts >= 10
   const rleLength = value.length + 1 + encodedCount.length; // "val'3" or "val'a" = 3+1+1 = 5
@@ -336,7 +336,7 @@ function parseRLECount(countStr: string, context: string): number {
   // Base62 uses a-z and A-Z, so if it contains letters, it's base62; otherwise decimal
   const hasLetters = /[a-zA-Z]/.test(countStr);
   const count = hasLetters ? decodeBase62(countStr) : parseInt(countStr, 10);
-  
+
   if (isNaN(count) || count < 1) {
     throw new Error(`Invalid RLE format: invalid count in "${context}"`);
   }
@@ -555,7 +555,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   } else if (segments.length === 1) {
     // Single segment: could be empty build marker, owned value (empty build with owned), or a tree
     const singleSegment = segments[0];
-    
+
     // If it's the empty build marker, handle it
     if (singleSegment === EMPTY_BUILD_MARKER) {
       treeSegments = [];
@@ -744,12 +744,6 @@ export function encodeBuildData(buildData: BuildData): string {
   const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
   const serialized = serializeArrayFormat(treeArrays, owned);
 
-  console.warn("[encodeBuildData] Deserialized data before save:", {
-    arrayFormat: [...treeArrays, owned],
-    originalBuildData: buildData,
-    serializedString: serialized,
-  });
-
   return serialized;
 }
 
@@ -766,8 +760,6 @@ function safeExecute<T>(
   try {
     return fn();
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn(`[decodeBuildData] ${errorMessage}:`, message);
     return null;
   }
 }
@@ -777,7 +769,6 @@ function safeExecute<T>(
  */
 export function decodeBuildData(encoded: string): BuildData | null {
   if (!SERIALIZED_PATTERN.test(encoded)) {
-    console.warn("[decodeBuildData] Invalid serialized format:", encoded);
     return null;
   }
 
@@ -790,16 +781,11 @@ export function decodeBuildData(encoded: string): BuildData | null {
   const [treeArrays, owned] = parsed;
   const arrayFormat = [...treeArrays, owned];
 
-  console.warn("[decodeBuildData] Parsed array format after load:", arrayFormat);
-
   const buildData = safeExecute(
     () => convertArrayFormatToTrees(arrayFormat),
     "Failed to convert array format to trees"
   );
   if (!buildData) return null;
-
-  console.warn("[decodeBuildData] Deserialized data after load:", buildData);
-  console.warn("[decodeBuildData] Returning buildData: SUCCESS");
 
   return buildData;
 }

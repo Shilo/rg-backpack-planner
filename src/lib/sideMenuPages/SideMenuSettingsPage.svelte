@@ -114,7 +114,7 @@
 
 {#if $isPreviewMode}
   <SideMenuSection title="Preview">
-    <PreviewContextMenuList onButtonPress={onClose} />
+    <PreviewContextMenuList />
   </SideMenuSection>
 {/if}
 

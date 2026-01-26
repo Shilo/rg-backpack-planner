@@ -1,8 +1,11 @@
-import { derived, writable } from "svelte/store";
+import { derived, writable, get } from "svelte/store";
 import type { TabConfig } from "./Tabs.svelte";
 import type { LevelsById } from "./treeLevelsStore";
+import { isPreviewMode } from "./previewModeStore";
 
 export const techCrystalsOwned = writable(0);
+
+const TECH_CRYSTALS_STORAGE_KEY = "rg-backpack-planner-tech-crystals-owned";
 export const techCrystalsSpentByTree = writable<number[]>([0, 0, 0]);
 
 export const techCrystalsSpentTotal = derived(
@@ -34,9 +37,54 @@ export function initTechCrystalTrees(tabs: TabConfig[]) {
   techCrystalsSpentByTree.set(tabs.map(() => 0));
 }
 
+/**
+ * Gets tech crystals owned from localStorage
+ * @returns The saved tech crystals owned value, or null if not found/invalid
+ */
+export function getTechCrystalsOwnedFromStorage(): number | null {
+  if (typeof window === "undefined") return null;
+  
+  try {
+    const stored = localStorage.getItem(TECH_CRYSTALS_STORAGE_KEY);
+    if (stored === null) return null;
+    
+    const parsed = parseInt(stored, 10);
+    if (isNaN(parsed) || parsed < 0) return null;
+    
+    return parsed;
+  } catch (error) {
+    console.error("Failed to load tech crystals owned from localStorage:", error);
+    return null;
+  }
+}
+
+/**
+ * Saves tech crystals owned to localStorage
+ * @param value The tech crystals owned value to save
+ */
+export function saveTechCrystalsOwnedToStorage(value: number): void {
+  if (typeof window === "undefined") return;
+  
+  try {
+    const nextValue = Math.max(0, Math.floor(value));
+    localStorage.setItem(TECH_CRYSTALS_STORAGE_KEY, nextValue.toString());
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "QuotaExceededError") {
+      console.warn("localStorage quota exceeded, unable to save tech crystals owned");
+    } else {
+      console.error("Failed to save tech crystals owned to localStorage:", error);
+    }
+  }
+}
+
 export function setTechCrystalsOwned(value: number) {
   const nextValue = Math.max(0, Math.floor(value));
   techCrystalsOwned.set(nextValue);
+  
+  // Auto-save to localStorage in personal mode
+  if (typeof window !== "undefined" && !get(isPreviewMode)) {
+    saveTechCrystalsOwnedToStorage(nextValue);
+  }
 }
 
 export function applyTechCrystalDeltaForTree(

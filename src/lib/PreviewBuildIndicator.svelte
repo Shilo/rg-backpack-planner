@@ -48,7 +48,7 @@
       ariaLabel="Preview build options"
       onClose={closeMenu}
     >
-      <PreviewContextMenuList onButtonPress={closeMenu} />
+      <PreviewContextMenuList />
     </ContextMenu>
   </div>
 {/if}

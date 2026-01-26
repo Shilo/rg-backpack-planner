@@ -30,13 +30,10 @@
         applyTechCrystalDeltaForTree,
         recalculateTechCrystalsSpent,
         techCrystalsOwned,
+        getTechCrystalsOwnedFromStorage,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/buildData/applier";
-    import {
-        loadBuildFromUrl,
-        getEncodedFromUrl,
-        getBasePath,
-    } from "./lib/buildData/url";
+    import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
     import { decodeBuildData, type BuildData } from "./lib/buildData/encoder";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
@@ -47,7 +44,11 @@
     } from "./lib/treeProgressStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
     import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
-    import { showToastDelayed } from "./lib/toast";
+    import {
+        showToastDelayed,
+        tryShowStoppedPreviewToast,
+        tryShowClonedBuildToast,
+    } from "./lib/toast";
     import { get } from "svelte/store";
 
     let tabsRef: {
@@ -243,17 +244,9 @@
                 // Personal mode: Private build from localStorage
                 setPreviewMode(false);
 
-                // Check if we just stopped preview mode
-                const stoppedPreview = sessionStorage.getItem(
-                    "rg-backpack-planner-stopped-preview",
-                );
-                if (stoppedPreview === "true") {
-                    sessionStorage.removeItem(
-                        "rg-backpack-planner-stopped-preview",
-                    );
-                    // Show toast after a brief delay to ensure UI is ready
-                    showToastDelayed("Back to personal build");
-                }
+                // Check if we just stopped preview mode or cloned build
+                tryShowStoppedPreviewToast();
+                tryShowClonedBuildToast();
 
                 // Load from localStorage
                 const savedProgress = loadTreeProgress(tabs);
@@ -267,6 +260,13 @@
                         // Recalculate tech crystals spent after loading from localStorage
                         recalculateTechCrystalsSpent(savedProgress);
                     }
+                }
+
+                // Load tech crystals owned from localStorage
+                const savedTechCrystals = getTechCrystalsOwnedFromStorage();
+                if (savedTechCrystals !== null) {
+                    // Set without triggering save (we're loading, not changing)
+                    techCrystalsOwned.set(savedTechCrystals);
                 }
 
                 // Initialize auto-save: subscribe to treeLevels changes
