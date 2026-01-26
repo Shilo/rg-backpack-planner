@@ -425,8 +425,10 @@ function serializeArrayFormat(
   const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
+  // However, to avoid ambiguity with single tree values, we always include the tree structure
+  // even for empty builds. Use ";" prefix to indicate owned-only builds.
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : encodeBase62(owned);
+    return owned === 0 ? EMPTY_BUILD_MARKER : `;${encodeBase62(owned)}`;
   }
 
   // Get non-empty trees
@@ -526,6 +528,23 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
       }
       treeSegments = segments.slice(0, -1);
     } else {
+      treeSegments = segments;
+    }
+  } else if (segments.length === 1) {
+    // Single segment: could be empty build marker, owned value (empty build with owned), or a tree
+    const singleSegment = segments[0];
+    
+    // If it's the empty build marker, handle it
+    if (singleSegment === EMPTY_BUILD_MARKER) {
+      treeSegments = [];
+    } else if (!singleSegment.includes(":") && !singleSegment.includes(",") && !singleSegment.includes("*") && singleSegment !== "") {
+      // Single segment with no separators (no :, ,, or *)
+      // The encoder now produces ";owned" for empty builds with owned > 0, so a single segment
+      // with no separators can only be a single tree value in yellow branch.
+      // (Empty builds with owned are now encoded as ";owned" which becomes multiple segments)
+      treeSegments = segments; // Treat as tree value (yellow branch)
+    } else {
+      // Has separators (:, ,, or *), must be a tree segment
       treeSegments = segments;
     }
   } else {
