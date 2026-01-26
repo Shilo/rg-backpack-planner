@@ -2,6 +2,7 @@ import { derived, writable, get } from "svelte/store";
 import type { TabConfig } from "./Tabs.svelte";
 import type { LevelsById } from "./treeLevelsStore";
 import { isPreviewMode } from "./previewModeStore";
+import { loadTreeProgress } from "./treeProgressStore";
 
 export const techCrystalsOwned = writable(0);
 
@@ -41,16 +42,16 @@ export function initTechCrystalTrees(tabs: TabConfig[]) {
  * Gets tech crystals owned from localStorage
  * @returns The saved tech crystals owned value, or null if not found/invalid
  */
-export function getTechCrystalsOwnedFromStorage(): number | null {
+export function getTechCrystalsOwnedFromStorageNullable(): number | null {
   if (typeof window === "undefined") return null;
-  
+
   try {
     const stored = localStorage.getItem(TECH_CRYSTALS_STORAGE_KEY);
     if (stored === null) return null;
-    
+
     const parsed = parseInt(stored, 10);
     if (isNaN(parsed) || parsed < 0) return null;
-    
+
     return parsed;
   } catch (error) {
     console.error("Failed to load tech crystals owned from localStorage:", error);
@@ -64,7 +65,7 @@ export function getTechCrystalsOwnedFromStorage(): number | null {
  */
 export function saveTechCrystalsOwnedToStorage(value: number): void {
   if (typeof window === "undefined") return;
-  
+
   try {
     const nextValue = Math.max(0, Math.floor(value));
     localStorage.setItem(TECH_CRYSTALS_STORAGE_KEY, nextValue.toString());
@@ -80,7 +81,7 @@ export function saveTechCrystalsOwnedToStorage(value: number): void {
 export function setTechCrystalsOwned(value: number) {
   const nextValue = Math.max(0, Math.floor(value));
   techCrystalsOwned.set(nextValue);
-  
+
   // Auto-save to localStorage in personal mode
   if (typeof window !== "undefined" && !get(isPreviewMode)) {
     saveTechCrystalsOwnedToStorage(nextValue);
@@ -115,4 +116,45 @@ export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
       .reduce((sum, [, level]) => sum + (level ?? 0), 0);
   });
   techCrystalsSpentByTree.set(spent);
+}
+
+/**
+ * Calculates tech crystals spent total from tree levels stored in localStorage.
+ * This is a non-reactive helper function that reads directly from localStorage.
+ * @returns The total tech crystals spent, or 0 if data is not available
+ */
+function getTechCrystalsSpentTotalFromStorage(): number {
+  const levels = loadTreeProgress();
+  if (!levels) return 0;
+
+  const spent = levels.map((treeLevels) => {
+    // Sum all node levels, excluding root node
+    // Missing keys are treated as 0 (compressed storage omits zeros)
+    return Object.entries(treeLevels)
+      .filter(([nodeId]) => nodeId !== "root")
+      .reduce((sum, [, level]) => sum + (level ?? 0), 0);
+  });
+
+  return spent.reduce((sum, value) => sum + value, 0);
+}
+
+/**
+ * Gets tech crystals owned from localStorage (non-reactive).
+ * This is a helper function for use when the button is disabled (preview mode).
+ * @returns The saved tech crystals owned value, or 0 if not found/invalid
+ */
+export function getTechCrystalsOwnedFromStorage(): number {
+  return getTechCrystalsOwnedFromStorageNullable() ?? 0;
+}
+
+/**
+ * Gets tech crystals available from localStorage (non-reactive).
+ * Calculates as owned - spentTotal, where both values come from localStorage.
+ * This is a helper function for use when the button is disabled (preview mode).
+ * @returns The available tech crystals, or 0 if data is not available
+ */
+export function getTechCrystalsAvailableFromStorage(): number {
+  const owned = getTechCrystalsOwnedFromStorage();
+  const spentTotal = getTechCrystalsSpentTotalFromStorage();
+  return owned - spentTotal;
 }

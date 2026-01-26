@@ -43,8 +43,8 @@
 
 <Button
   on:click={handleCloneBuild}
-  tooltipText={"Clone preview build to personal build"}
+  tooltipText={"Copy preview build to personal build"}
   icon={CopySimpleIcon}
 >
-  Clone Build
+  Clone Preview Build
 </Button>

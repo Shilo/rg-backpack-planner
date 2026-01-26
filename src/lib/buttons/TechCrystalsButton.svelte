@@ -6,17 +6,33 @@
   import {
     techCrystalsAvailable,
     techCrystalsOwned,
+    getTechCrystalsOwnedFromStorage,
+    getTechCrystalsAvailableFromStorage,
   } from "../techCrystalStore";
 
   export let disabled: boolean | undefined = false;
   export let tooltipSubject: string = "your";
 
-  $: hasOwned = $techCrystalsOwned > 0;
+  // Store localStorage values when disabled to avoid re-reading on every reactive update
+  let storageOwned = 0;
+  let storageAvailable = 0;
+
+  // Update storage values only when disabled changes to true
+  $: if (disabled) {
+    storageOwned = getTechCrystalsOwnedFromStorage();
+    storageAvailable = getTechCrystalsAvailableFromStorage();
+  }
+
+  // When disabled, use storage values from localStorage (non-reactive)
+  // When enabled, use reactive stores
+  $: owned = disabled ? storageOwned : $techCrystalsOwned;
+  $: available = disabled ? storageAvailable : $techCrystalsAvailable;
+  $: hasOwned = owned > 0;
 </script>
 
 <Button
   on:click={() => {
-    openTechCrystalsOwnedModal($techCrystalsOwned);
+    openTechCrystalsOwnedModal(owned);
   }}
   tooltipText={`Change ${tooltipSubject} Tech Crystal owned (budget)`}
   icon={HexagonIcon}
@@ -27,12 +43,12 @@
   Tech Crystals spent:<br />
   <span
     class="tech-crystals-available"
-    class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
+    class:is-negative={available < 0 && hasOwned}
   >
-    {formatNumber($techCrystalsAvailable)}
+    {formatNumber(available)}
   </span>
   <span class="tech-crystals-separator"> / </span>
-  <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
+  <span class="tech-crystals-owned">{formatNumber(owned)}</span>
 </Button>
 
 <style>

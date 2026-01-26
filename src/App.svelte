@@ -30,7 +30,7 @@
         applyTechCrystalDeltaForTree,
         recalculateTechCrystalsSpent,
         techCrystalsOwned,
-        getTechCrystalsOwnedFromStorage,
+        getTechCrystalsOwnedFromStorageNullable,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/buildData/applier";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
@@ -263,7 +263,7 @@
                 }
 
                 // Load tech crystals owned from localStorage
-                const savedTechCrystals = getTechCrystalsOwnedFromStorage();
+                const savedTechCrystals = getTechCrystalsOwnedFromStorageNullable();
                 if (savedTechCrystals !== null) {
                     // Set without triggering save (we're loading, not changing)
                     techCrystalsOwned.set(savedTechCrystals);

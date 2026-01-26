@@ -26,17 +26,17 @@ export function applyBuildFromUrl(
   // Use provided buildData if available, otherwise load from URL
   const data = buildData ?? loadBuildFromUrl();
   if (!data) return false;
-  
+
   // Set flag to prevent URL updates during build application
   setIsApplyingBuildFromUrl(true);
-  
+
   try {
     // Expand compressed tree data if trees are provided
     let expandedTrees = data.trees;
     if (trees && data.trees.length === trees.length) {
       expandedTrees = expandTreeProgress(data.trees, trees);
     }
-    
+
     // Apply tree levels
     const currentTrees = get(treeLevels);
     if (expandedTrees.length === currentTrees.length) {
@@ -48,10 +48,10 @@ export function applyBuildFromUrl(
         `Build data has ${expandedTrees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`
       );
     }
-    
+
     // Apply tech crystals owned
     setTechCrystalsOwned(data.owned);
-    
+
     return true;
   } catch (error) {
     console.error("Failed to apply build from URL:", error);
