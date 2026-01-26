@@ -88,10 +88,12 @@
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
   import { triggerHaptic } from "../haptics";
+  import { getOSName } from "../systemUtil";
 
   const appName = packageInfo.name ?? "app";
 
   export let className = "";
+  export let title = false;
 
   let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
   let canInstall = false;
@@ -127,5 +129,9 @@
     icon={DownloadSimpleIcon}
     aria-label={`Install ${appName} app`}
     tooltipText={`Install ${appName} app`}
-  />
+  >
+    {#if title}
+      Install on {getOSName()}
+    {/if}
+  </Button>
 {/if}

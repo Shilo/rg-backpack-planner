@@ -279,15 +279,6 @@
             <p class="control-desc">Show or hide additional options</p>
           </div>
         </li>
-        <li class="control-row">
-          <span class="control-icon" aria-hidden="true"
-            ><ShareNetworkIcon /></span
-          >
-          <div class="control-text">
-            <p class="control-label">Share button</p>
-            <p class="control-desc">Copy a shareable link of your build</p>
-          </div>
-        </li>
       </ul>
     </SideMenuSection>
     <SideMenuSection title="Side menu Controls Tab">

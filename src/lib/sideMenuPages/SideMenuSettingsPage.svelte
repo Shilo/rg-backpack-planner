@@ -10,6 +10,7 @@
   } from "phosphor-svelte";
   import type { ComponentType } from "svelte";
   import Button from "../Button.svelte";
+  import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
   import ResetTreeButton from "../buttons/ResetTreeButton.svelte";
   import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
@@ -125,12 +126,12 @@
   </SideMenuSection>
 {/if}
 
-<SideMenuSection title="General">
+<SideMenuSection title="Build">
   <Button
     on:click={() => {
       openTechCrystalsOwnedModal($techCrystalsOwned);
     }}
-    tooltipText={"Change Tech Crystal owned (budget)"}
+    tooltipText={"Change your Tech Crystal owned (budget)"}
     icon={HexagonIcon}
     iconClass="button-icon button-icon-filled"
     iconWeight="fill"
@@ -148,7 +149,7 @@
   <ShareBuildButton title="Share my build" disabled={$isPreviewMode} />
 </SideMenuSection>
 
-<SideMenuSection title="Node Interaction">
+<SideMenuSection title="Node">
   <ToggleSwitch
     checked={$singleLevelUp}
     label="Single Level Up"
@@ -201,6 +202,7 @@
 </SideMenuSection>
 
 <SideMenuSection title="Application">
+  <InstallPwaButton title={true} />
   <Button
     on:click={handleReloadWindow}
     tooltipText={"Refresh the page"}

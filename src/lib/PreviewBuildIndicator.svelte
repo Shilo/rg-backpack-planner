@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { GraphIcon } from "phosphor-svelte";
   import { isPreviewMode } from "./previewModeStore";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
@@ -28,6 +29,7 @@
     on:click={handleButtonClick}
     tooltipText={"Preview build options"}
     class="preview-indicator-button"
+    icon={GraphIcon}
   >
     Preview
   </Button>
@@ -36,13 +38,11 @@
     x={menuX}
     y={menuY}
     isOpen={menuOpen}
-    title="Preview"
+    title="Preview Build"
     ariaLabel="Preview build options"
     onClose={closeMenu}
   >
-    <PreviewContextMenuList
-      onButtonPress={closeMenu}
-    />
+    <PreviewContextMenuList onButtonPress={closeMenu} />
   </ContextMenu>
 {/if}
 
@@ -58,5 +58,6 @@
     text-transform: uppercase !important;
     color: #c7d6ff !important;
     white-space: nowrap !important;
+    gap: 4px !important;
   }
 </style>
