@@ -32,7 +32,11 @@
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl } from "./lib/buildData/applier";
-    import { loadBuildFromUrl, getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
+    import {
+        loadBuildFromUrl,
+        getEncodedFromUrl,
+        getBasePath,
+    } from "./lib/buildData/url";
     import { decodeBuildData, type BuildData } from "./lib/buildData/encoder";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
@@ -314,9 +318,11 @@
         {activeTreeFocusViewState}
         {activeTreeName}
     />
-    <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
-    <div class="top-right-actions">
+    <div class="top-left-actions">
         <PreviewBuildIndicator />
+        <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
+    </div>
+    <div class="top-right-actions">
         <TechCrystalDisplay />
         <ActiveTreeResetButton
             onReset={() => tabsRef?.resetActiveTree?.()}
@@ -358,6 +364,19 @@
         min-height: 0;
     }
 
+    .top-left-actions {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 6;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        pointer-events: none;
+        transition: left 0.15s ease;
+    }
+
     .top-right-actions {
         position: fixed;
         top: 10px;
@@ -372,15 +391,18 @@
     }
 
     @media (min-width: 768px) {
+        .top-left-actions,
         .top-right-actions {
             z-index: 8;
         }
 
+        .app-shell.menu-open .top-left-actions,
         .app-shell.menu-open .top-right-actions {
             right: calc(var(--side-menu-width) + 10px);
         }
     }
 
+    .top-left-actions > :global(*),
     .top-right-actions > :global(*) {
         pointer-events: auto;
     }

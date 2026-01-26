@@ -48,16 +48,12 @@
 
 <style>
   :global(.preview-indicator-button) {
-    background: rgba(79, 111, 191, 0.2) !important;
-    border: 1px solid rgba(79, 111, 191, 0.5) !important;
     border-radius: 999px !important;
-    padding: 6px 12px !important;
+    font-weight: 600;
     font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-    color: #c7d6ff !important;
-    white-space: nowrap !important;
-    gap: 4px !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    pointer-events: auto;
   }
 </style>

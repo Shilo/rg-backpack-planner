@@ -44,10 +44,6 @@
 
 <style>
   .app-title-display-wrapper {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 8;
     pointer-events: none;
   }
 
