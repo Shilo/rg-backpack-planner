@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GraphIcon } from "phosphor-svelte";
+  import { EyeIcon } from "phosphor-svelte";
   import { isPreviewMode } from "./previewModeStore";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
@@ -30,12 +30,16 @@
     on:click={handleButtonClick}
     tooltipText={"Preview build options"}
     class="preview-indicator-button"
-    icon={GraphIcon}
+    icon={EyeIcon}
   >
     Preview
   </Button>
 
-  <div use:portal class="preview-build-indicator-menu-portal" class:menu-open={menuOpen}>
+  <div
+    use:portal
+    class="preview-build-indicator-menu-portal"
+    class:menu-open={menuOpen}
+  >
     <ContextMenu
       x={menuX}
       y={menuY}
@@ -58,6 +62,7 @@
     text-transform: uppercase;
     padding: 6px 12px;
     pointer-events: auto;
+    gap: 4px !important;
   }
 
   .preview-build-indicator-menu-portal {

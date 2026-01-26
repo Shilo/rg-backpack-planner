@@ -4,7 +4,6 @@
     ArrowUpIcon,
     ClockCounterClockwiseIcon,
     CubeFocusIcon,
-    HexagonIcon,
     MagnifyingGlassPlusIcon,
     TrashSimpleIcon,
   } from "phosphor-svelte";
@@ -14,18 +13,13 @@
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
   import ResetTreeButton from "../buttons/ResetTreeButton.svelte";
   import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
+  import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
   import { closeUpView } from "../closeUpViewStore";
-  import { formatNumber } from "../mathUtil";
   import { openModal } from "../modalStore";
   import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
   import { isPreviewMode } from "../previewModeStore";
   import SideMenuSection from "../SideMenuSection.svelte";
   import { singleLevelUp } from "../singleLevelUpStore";
-  import { openTechCrystalsOwnedModal } from "../techCrystalModal";
-  import {
-    techCrystalsAvailable,
-    techCrystalsOwned,
-  } from "../techCrystalStore";
   import { showToast } from "../toast";
   import ToggleSwitch from "../ToggleSwitch.svelte";
   import type { TreeViewState } from "../Tree.svelte";
@@ -39,8 +33,6 @@
   export let onResetAll: (() => void) | null = null;
   export let onResetTree: (() => void) | null = null;
   export let onFocusInView: (() => void) | null = null;
-
-  $: hasOwned = $techCrystalsOwned > 0;
 
   const POS_EPSILON = 0.5;
   const SCALE_EPSILON = 0.001;
@@ -127,25 +119,7 @@
 {/if}
 
 <SideMenuSection title="Build">
-  <Button
-    on:click={() => {
-      openTechCrystalsOwnedModal($techCrystalsOwned);
-    }}
-    tooltipText={"Change your Tech Crystal owned (budget)"}
-    icon={HexagonIcon}
-    iconClass="button-icon button-icon-filled"
-    iconWeight="fill"
-  >
-    Tech Crystals:<br />
-    <span
-      class="tech-crystals-available"
-      class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
-    >
-      {formatNumber($techCrystalsAvailable)}
-    </span>
-    <span class="tech-crystals-separator"> / </span>
-    <span class="tech-crystals-owned">{formatNumber($techCrystalsOwned)}</span>
-  </Button>
+  <TechCrystalsButton disabled={$isPreviewMode} />
   <ShareBuildButton title="Share my build" disabled={$isPreviewMode} />
 </SideMenuSection>
 
@@ -230,27 +204,6 @@
 </SideMenuSection>
 
 <style>
-  .tech-crystals-available {
-    color: #ffffff;
-  }
-
-  .tech-crystals-available.is-negative {
-    color: #f87171;
-  }
-
-  .tech-crystals-separator {
-    color: #c7d6ff;
-  }
-
-  .tech-crystals-owned {
-    color: #e6f0ff;
-  }
-
-  :global(.button-icon-filled) {
-    fill: currentColor;
-    stroke: none;
-  }
-
   .spacer {
     height: 6px;
   }
