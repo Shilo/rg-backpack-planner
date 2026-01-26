@@ -257,12 +257,22 @@ function shouldUseRLE(value: string, count: number): boolean {
   if (count === 1) {
     return false;
   }
+  
+  // Always use RLE for zeros when count >= 2 (saves space: '2 = 2 chars vs .. = 2 chars, '3 = 2 chars vs ... = 3 chars)
+  if (value === "" && count >= 2) {
+    return true;
+  }
+  
+  // Always use RLE for count=2 if value length > 1 (saves 1 char: "val'2" = 5 chars vs "val.val" = 6 chars)
+  if (count === 2 && value.length > 1) {
+    return true;
+  }
+  
   const plainLength = value.length * count + (count - 1); // "val.val.val" = 3*3+2 = 11
   const encodedCount = encodeRLECount(count); // Uses base62 for counts >= 10
   const rleLength = value.length + 1 + encodedCount.length; // "val'3" or "val'a" = 3+1+1 = 5
-  // For empty strings, use RLE when equal length for consistency (e.g., .. vs '3, both 2 chars)
   // For non-empty strings, only use RLE when it saves space
-  return value === "" ? rleLength <= plainLength : rleLength < plainLength;
+  return rleLength < plainLength;
 }
 
 /**
