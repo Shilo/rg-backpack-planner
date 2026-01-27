@@ -1,6 +1,6 @@
 {
   "name": "Backpack Planner",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Plan and share Backpack Tech builds.",
   "app": {
     "sourceUrl": "https://github.com/shilo/rg-backpack-planner",
