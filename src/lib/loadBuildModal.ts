@@ -10,7 +10,7 @@ export function openLoadBuildModal(onLoaded?: () => void) {
     // Cast to any to satisfy TS ComponentType constraint
     titleIcon: ArrowSquareInIcon as any,
     message:
-      "Paste a Backpack Planner link (https://...) or just the build code.",
+      "Paste a Backpack Planner link or just the build code.",
     confirmLabel: "Load build",
     cancelLabel: "Cancel",
     onConfirm: () => {
