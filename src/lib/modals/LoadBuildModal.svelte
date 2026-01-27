@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import type { ComponentType } from "svelte";
   import { ClipboardIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import { showToast } from "../toast";
@@ -10,6 +11,9 @@
   import { triggerHaptic } from "../haptics";
 
   export let title = "Load shareable build";
+  export let titleIcon: ComponentType | null = null;
+  export let titleIconClass = "";
+  export let titleIconAriaHidden = true;
   export let message: string | undefined =
     "Paste a Backpack Planner link (https://...) or just the build code.";
   export let confirmLabel = "Load build";
@@ -97,6 +101,14 @@
 <div class="modal-content">
   <header class="modal-header">
     <div class="modal-title">
+      {#if titleIcon}
+        <svelte:component
+          this={titleIcon}
+          class={`modal-title-icon ${titleIconClass}`.trim()}
+          aria-hidden={titleIconAriaHidden}
+          weight="fill"
+        />
+      {/if}
       <h2>{title}</h2>
     </div>
   </header>
@@ -157,6 +169,12 @@
     font-size: 1.05rem;
     color: #f1f5ff;
     line-height: 1;
+  }
+
+  :global(.modal-title-icon) {
+    width: 18px;
+    height: 18px;
+    color: #b9c7ec;
   }
 
   .modal-message {

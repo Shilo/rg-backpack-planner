@@ -112,6 +112,8 @@
       {:else if $modalStore.type === "loadBuild"}
         <LoadBuildModal
           title={$modalStore.title}
+          titleIcon={$modalStore.titleIcon ?? null}
+          titleIconClass={$modalStore.titleIconClass ?? ""}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "Load build"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}

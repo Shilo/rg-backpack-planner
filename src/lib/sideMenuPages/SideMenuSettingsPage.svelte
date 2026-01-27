@@ -6,6 +6,7 @@
     CubeFocusIcon,
     MagnifyingGlassPlusIcon,
     TrashSimpleIcon,
+    ArrowSquareInIcon,
   } from "phosphor-svelte";
   import type { ComponentType } from "svelte";
   import Button from "../Button.svelte";
@@ -121,6 +122,7 @@
   <Button
     on:click={() => openLoadBuildModal(() => onClose?.())}
     tooltipText={"Paste a shared link or build code"}
+    icon={ArrowSquareInIcon}
   >
     Load shareable build
   </Button>
