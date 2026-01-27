@@ -123,7 +123,7 @@ export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
  * This is a non-reactive helper function that reads directly from localStorage.
  * @returns The total tech crystals spent, or 0 if data is not available
  */
-function getTechCrystalsSpentTotalFromStorage(): number {
+export function getTechCrystalsSpentTotalFromStorage(): number {
   const levels = loadTreeProgress();
   if (!levels) return 0;
 

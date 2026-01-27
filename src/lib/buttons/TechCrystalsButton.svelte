@@ -4,10 +4,10 @@
   import { formatNumber } from "../mathUtil";
   import { openTechCrystalsOwnedModal } from "../techCrystalModal";
   import {
-    techCrystalsAvailable,
+    techCrystalsSpentTotal,
     techCrystalsOwned,
     getTechCrystalsOwnedFromStorage,
-    getTechCrystalsAvailableFromStorage,
+    getTechCrystalsSpentTotalFromStorage,
   } from "../techCrystalStore";
 
   export let disabled: boolean | undefined = false;
@@ -15,18 +15,18 @@
 
   // Store localStorage values when disabled to avoid re-reading on every reactive update
   let storageOwned = 0;
-  let storageAvailable = 0;
+  let storageSpent = 0;
 
   // Update storage values only when disabled changes to true
   $: if (disabled) {
     storageOwned = getTechCrystalsOwnedFromStorage();
-    storageAvailable = getTechCrystalsAvailableFromStorage();
+    storageSpent = getTechCrystalsSpentTotalFromStorage();
   }
 
   // When disabled, use storage values from localStorage (non-reactive)
   // When enabled, use reactive stores
   $: owned = disabled ? storageOwned : $techCrystalsOwned;
-  $: available = disabled ? storageAvailable : $techCrystalsAvailable;
+  $: spent = disabled ? storageSpent : $techCrystalsSpentTotal;
   $: hasOwned = owned > 0;
 </script>
 
@@ -42,21 +42,21 @@
 >
   Tech Crystals spent:<br />
   <span
-    class="tech-crystals-available"
-    class:is-negative={available < 0 && hasOwned}
+    class="tech-crystals-spent"
+    class:is-negative={spent > owned && hasOwned}
   >
-    {formatNumber(available)}
+    {formatNumber(spent)}
   </span>
   <span class="tech-crystals-separator"> / </span>
   <span class="tech-crystals-owned">{formatNumber(owned)}</span>
 </Button>
 
 <style>
-  .tech-crystals-available {
+  .tech-crystals-spent {
     color: #ffffff;
   }
 
-  .tech-crystals-available.is-negative {
+  .tech-crystals-spent.is-negative {
     color: #f87171;
   }
 

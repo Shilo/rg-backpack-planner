@@ -2,13 +2,13 @@
   import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
-  import { techCrystalsAvailable, techCrystalsOwned } from "./techCrystalStore";
+  import { techCrystalsSpentTotal, techCrystalsOwned } from "./techCrystalStore";
   import { formatNumber } from "./mathUtil";
 
   $: hasOwned = $techCrystalsOwned > 0;
 
   const tooltipPrefix = "Tech Crystals\n";
-  $: tooltipText = `${tooltipPrefix} available` + (hasOwned ? ` / owned` : "");
+  $: tooltipText = `${tooltipPrefix} spent` + (hasOwned ? ` / owned` : "");
 </script>
 
 <Button
@@ -19,10 +19,10 @@
   on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
 >
   <span
-    class="currency-available"
-    class:is-negative={$techCrystalsAvailable < 0 && hasOwned}
+    class="currency-spent"
+    class:is-negative={$techCrystalsSpentTotal > $techCrystalsOwned && hasOwned}
   >
-    {formatNumber($techCrystalsAvailable)}
+    {formatNumber($techCrystalsSpentTotal)}
   </span>
   {#if hasOwned}
     <span class="currency-separator"> / </span>
@@ -54,12 +54,12 @@
     display: block;
   }
 
-  .currency-available {
+  .currency-spent {
     text-align: right;
     color: #ffffff;
   }
 
-  .currency-available.is-negative {
+  .currency-spent.is-negative {
     color: #f87171;
   }
 
