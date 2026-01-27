@@ -3,7 +3,7 @@
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
-  import { saveBuildToUrl, saveBuildAsImage } from "../buildData/share";
+  import { saveBuildAsImage, shareBuildUrlNative } from "../buildData/share";
   import { portal } from "../portal";
 
   export let title: string | undefined;
@@ -41,12 +41,17 @@
 
   async function handleShareUrlLink() {
     closeShareMenu();
-    const success = await saveBuildToUrl();
-    if (success) {
+
+    const result = await shareBuildUrlNative({
+      title: title ?? "Backpack tech tree setup",
+    });
+
+    if (result === "copied") {
       showToast("Share link copied to clipboard");
-    } else {
-      showToast("Unable to copy link", { tone: "negative" });
+    } else if (result === "failed") {
+      showToast("Unable to share link", { tone: "negative" });
     }
+    // For "shared" and "cancelled", rely on native dialog UX and show no toast.
   }
 </script>
 
