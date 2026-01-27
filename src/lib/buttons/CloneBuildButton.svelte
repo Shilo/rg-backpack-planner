@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ComponentType } from "svelte";
   import { CopySimpleIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import { get } from "svelte/store";
@@ -10,34 +11,46 @@
   import { saveTreeProgress } from "../treeProgressStore";
   import { showToast, queueClonedBuildToast } from "../toast";
   import { clearShareFromUrl } from "../buildData/url";
+  import { openModal } from "../modalStore";
 
   function handleCloneBuild() {
-    try {
-      // Get current build data from stores
-      const currentTreeLevels = get(treeLevels);
-      const currentTechCrystalsOwned = get(techCrystalsOwned);
+    openModal({
+      type: "confirm",
+      title: "CLONE PREVIEW BUILD",
+      titleIcon: CopySimpleIcon as unknown as ComponentType,
+      message: "override your current personal build with the preview build.",
+      confirmLabel: "Clone",
+      cancelLabel: "Cancel",
+      confirmPositive: true,
+      onConfirm: () => {
+        try {
+          // Get current build data from stores
+          const currentTreeLevels = get(treeLevels);
+          const currentTechCrystalsOwned = get(techCrystalsOwned);
 
-      // Save tree levels to persistent storage
-      saveTreeProgress(currentTreeLevels);
+          // Save tree levels to persistent storage
+          saveTreeProgress(currentTreeLevels);
 
-      // Save tech crystals owned to persistent storage
-      saveTechCrystalsOwnedToStorage(currentTechCrystalsOwned);
+          // Save tech crystals owned to persistent storage
+          saveTechCrystalsOwnedToStorage(currentTechCrystalsOwned);
 
-      // Stop preview mode
-      if (typeof window !== "undefined") {
-        // Queue toast to show after reload
-        queueClonedBuildToast();
+          // Stop preview mode
+          if (typeof window !== "undefined") {
+            // Queue toast to show after reload
+            queueClonedBuildToast();
 
-        // Clear share data from URL, leaving only base path
-        clearShareFromUrl();
+            // Clear share data from URL, leaving only base path
+            clearShareFromUrl();
 
-        // Reload to re-initialize in personal mode
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Failed to clone build:", error);
-      showToast("Failed to clone build", { tone: "negative" });
-    }
+            // Reload to re-initialize in personal mode
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error("Failed to clone build:", error);
+          showToast("Failed to clone build", { tone: "negative" });
+        }
+      },
+    });
   }
 </script>
 

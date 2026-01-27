@@ -88,6 +88,7 @@
           confirmLabel={$modalStore.confirmLabel ?? "Confirm"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
           confirmNegative={$modalStore.confirmNegative ?? false}
+          confirmPositive={$modalStore.confirmPositive ?? false}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
         />

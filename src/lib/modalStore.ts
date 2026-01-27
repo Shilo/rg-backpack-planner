@@ -18,6 +18,7 @@ export type ModalPayload = {
   message?: string;
   confirmLabel?: string;
   confirmNegative?: boolean;
+  confirmPositive?: boolean;
   cancelLabel?: string;
   input?: ModalInputConfig;
   onConfirm?: (value?: number) => void;

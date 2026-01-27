@@ -10,6 +10,7 @@
   export let confirmLabel = "Confirm";
   export let cancelLabel = "Cancel";
   export let confirmNegative = false;
+  export let confirmPositive = false;
   export let onConfirm: (() => void) | null = null;
   export let onCancel: (() => void) | null = null;
 </script>
@@ -33,7 +34,7 @@
   {/if}
   <div class="modal-actions">
     <Button on:click={() => onCancel?.()}>{cancelLabel}</Button>
-    <Button on:click={() => onConfirm?.()} negative={confirmNegative}>
+    <Button on:click={() => onConfirm?.()} negative={confirmNegative} positive={confirmPositive}>
       {confirmLabel}
     </Button>
   </div>
