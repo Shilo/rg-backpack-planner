@@ -4,10 +4,10 @@
   import { formatNumber } from "../mathUtil";
   import { openTechCrystalsOwnedModal } from "../techCrystalModal";
   import {
-    techCrystalsSpentTotal,
+    techCrystalsSpent,
     techCrystalsOwned,
     getTechCrystalsOwnedFromStorage,
-    getTechCrystalsSpentTotalFromStorage,
+    getTechCrystalsSpentFromStorage,
   } from "../techCrystalStore";
 
   export let disabled: boolean | undefined = false;
@@ -20,13 +20,13 @@
   // Update storage values only when disabled changes to true
   $: if (disabled) {
     storageOwned = getTechCrystalsOwnedFromStorage();
-    storageSpent = getTechCrystalsSpentTotalFromStorage();
+    storageSpent = getTechCrystalsSpentFromStorage();
   }
 
   // When disabled, use storage values from localStorage (non-reactive)
   // When enabled, use reactive stores
   $: owned = disabled ? storageOwned : $techCrystalsOwned;
-  $: spent = disabled ? storageSpent : $techCrystalsSpentTotal;
+  $: spent = disabled ? storageSpent : $techCrystalsSpent;
   $: hasOwned = owned > 0;
 </script>
 

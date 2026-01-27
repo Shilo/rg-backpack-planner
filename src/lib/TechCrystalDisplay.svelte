@@ -2,7 +2,7 @@
   import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import { openTechCrystalsOwnedModal } from "./techCrystalModal";
-  import { techCrystalsSpentTotal, techCrystalsOwned } from "./techCrystalStore";
+  import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
   import { formatNumber } from "./mathUtil";
 
   $: hasOwned = $techCrystalsOwned > 0;
@@ -20,9 +20,9 @@
 >
   <span
     class="currency-spent"
-    class:is-negative={$techCrystalsSpentTotal > $techCrystalsOwned && hasOwned}
+    class:is-negative={$techCrystalsSpent > $techCrystalsOwned && hasOwned}
   >
-    {formatNumber($techCrystalsSpentTotal)}
+    {formatNumber($techCrystalsSpent)}
   </span>
   {#if hasOwned}
     <span class="currency-separator"> / </span>

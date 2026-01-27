@@ -9,7 +9,7 @@ export const techCrystalsOwned = writable(0);
 const TECH_CRYSTALS_STORAGE_KEY = "rg-backpack-planner-tech-crystals-owned";
 export const techCrystalsSpentByTree = writable<number[]>([0, 0, 0]);
 
-export const techCrystalsSpentTotal = derived(
+export const techCrystalsSpent = derived(
   techCrystalsSpentByTree,
   ($trees) => $trees.reduce((sum, value) => sum + value, 0),
 );
@@ -30,8 +30,8 @@ export const techCrystalsSpentCannon = derived(
 );
 
 export const techCrystalsAvailable = derived(
-  [techCrystalsOwned, techCrystalsSpentTotal],
-  ([$owned, $spentTotal]) => $owned - $spentTotal,
+  [techCrystalsOwned, techCrystalsSpent],
+  ([$owned, $spent]) => $owned - $spent,
 );
 
 export function initTechCrystalTrees(tabs: TabConfig[]) {
@@ -119,11 +119,11 @@ export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
 }
 
 /**
- * Calculates tech crystals spent total from tree levels stored in localStorage.
+ * Calculates tech crystals spent from tree levels stored in localStorage.
  * This is a non-reactive helper function that reads directly from localStorage.
- * @returns The total tech crystals spent, or 0 if data is not available
+ * @returns The tech crystals spent, or 0 if data is not available
  */
-export function getTechCrystalsSpentTotalFromStorage(): number {
+export function getTechCrystalsSpentFromStorage(): number {
   const levels = loadTreeProgress();
   if (!levels) return 0;
 
@@ -149,12 +149,12 @@ export function getTechCrystalsOwnedFromStorage(): number {
 
 /**
  * Gets tech crystals available from localStorage (non-reactive).
- * Calculates as owned - spentTotal, where both values come from localStorage.
+ * Calculates as owned - spent, where both values come from localStorage.
  * This is a helper function for use when the button is disabled (preview mode).
  * @returns The available tech crystals, or 0 if data is not available
  */
 export function getTechCrystalsAvailableFromStorage(): number {
   const owned = getTechCrystalsOwnedFromStorage();
-  const spentTotal = getTechCrystalsSpentTotalFromStorage();
-  return owned - spentTotal;
+  const spent = getTechCrystalsSpentFromStorage();
+  return owned - spent;
 }

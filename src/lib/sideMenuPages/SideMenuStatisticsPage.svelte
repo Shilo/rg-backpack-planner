@@ -10,7 +10,7 @@
     treeLevelsCannon,
   } from "../treeLevelsStore";
   import {
-    techCrystalsSpentTotal,
+    techCrystalsSpent,
     techCrystalsSpentGuardian,
     techCrystalsSpentVanguard,
     techCrystalsSpentCannon,
@@ -33,7 +33,7 @@
       ["Vanguard", formatNumber($treeLevelsVanguard)],
       ["Cannon", formatNumber($treeLevelsCannon)],
       ["Tech Crystals Spent", ""],
-      ["Total", formatNumber($techCrystalsSpentTotal)],
+      ["Total", formatNumber($techCrystalsSpent)],
       ["Guardian", formatNumber($techCrystalsSpentGuardian)],
       ["Vanguard", formatNumber($techCrystalsSpentVanguard)],
       ["Cannon", formatNumber($techCrystalsSpentCannon)],
