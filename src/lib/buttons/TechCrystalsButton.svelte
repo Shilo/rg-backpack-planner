@@ -6,6 +6,7 @@
   import {
     techCrystalsSpent,
     techCrystalsOwned,
+    techCrystalsOwnedStorageUpdateFlag,
     getTechCrystalsOwnedFromStorage,
     getTechCrystalsSpentFromStorage,
   } from "../techCrystalStore";
@@ -17,8 +18,10 @@
   let storageOwned = 0;
   let storageSpent = 0;
 
-  // Update storage values only when disabled changes to true
+  // Update storage values when disabled, and whenever owned storage is written
   $: if (disabled) {
+    // Reference flag so this block reruns whenever storage is written
+    $techCrystalsOwnedStorageUpdateFlag;
     storageOwned = getTechCrystalsOwnedFromStorage();
     storageSpent = getTechCrystalsSpentFromStorage();
   }

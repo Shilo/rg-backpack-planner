@@ -5,6 +5,12 @@ import { isPreviewMode } from "./previewModeStore";
 import { loadTreeProgress } from "./treeProgressStore";
 
 export const techCrystalsOwned = writable(0);
+/**
+ * Toggles whenever we write tech crystals owned to localStorage.
+ * Used by non-reactive UI (e.g. disabled buttons) to know when to refresh
+ * their cached localStorage values.
+ */
+export const techCrystalsOwnedStorageUpdateFlag = writable(false);
 
 const TECH_CRYSTALS_STORAGE_KEY = "rg-backpack-planner-tech-crystals-owned";
 export const techCrystalsSpentByTree = writable<number[]>([0, 0, 0]);
@@ -69,6 +75,7 @@ export function saveTechCrystalsOwnedToStorage(value: number): void {
   try {
     const nextValue = Math.max(0, Math.floor(value));
     localStorage.setItem(TECH_CRYSTALS_STORAGE_KEY, nextValue.toString());
+    techCrystalsOwnedStorageUpdateFlag.update((flag) => !flag);
   } catch (error) {
     if (error instanceof DOMException && error.name === "QuotaExceededError") {
       console.warn("localStorage quota exceeded, unable to save tech crystals owned");
@@ -84,6 +91,25 @@ export function setTechCrystalsOwned(value: number) {
 
   // Auto-save to localStorage in personal mode
   if (typeof window !== "undefined" && !get(isPreviewMode)) {
+    saveTechCrystalsOwnedToStorage(nextValue);
+  }
+}
+
+/**
+ * Resets tech crystals owned as part of settings reset.
+ *
+ * - In personal mode: updates the writable store and localStorage.
+ * - In preview mode: only updates localStorage, leaving the reactive store
+ *   (and thus the current preview build) untouched.
+ */
+export function resetTechCrystalsOwnedForSettings() {
+  const nextValue = 0;
+
+  if (!get(isPreviewMode)) {
+    techCrystalsOwned.set(nextValue);
+  }
+
+  if (typeof window !== "undefined") {
     saveTechCrystalsOwnedToStorage(nextValue);
   }
 }

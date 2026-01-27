@@ -302,6 +302,17 @@
             <p class="control-desc">View the source code on GitHub</p>
           </div>
         </li>
+        <li class="control-row">
+          <span class="control-icon" aria-hidden="true"><EyeIcon /></span>
+          <div class="control-text">
+            <p class="control-label">Fullscreen toggle (Settings tab)</p>
+            <p class="control-desc">
+              Try fullscreen mode where your browser supports it. For the best
+              fullscreen experience, especially on iOS, install the app as a
+              PWA from the Settings tab.
+            </p>
+          </div>
+        </li>
         {#if canInstall && !isInstalled}
           <li class="control-row">
             <span class="control-icon" aria-hidden="true"

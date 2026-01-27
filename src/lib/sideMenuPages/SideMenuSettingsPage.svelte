@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     ArrowClockwiseIcon,
+    ArrowsOutCardinalIcon,
     ArrowUpIcon,
     ClockCounterClockwiseIcon,
     CubeFocusIcon,
@@ -9,6 +10,7 @@
     ArrowSquareInIcon,
   } from "phosphor-svelte";
   import type { ComponentType } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import Button from "../Button.svelte";
   import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
@@ -26,6 +28,53 @@
   import type { TreeViewState } from "../Tree.svelte";
   import { treeLevels } from "../treeLevelsStore";
   import { openLoadBuildModal } from "../loadBuildModal";
+  import { resetTechCrystalsOwnedForSettings } from "../techCrystalStore";
+
+  import {
+    isFullscreenActive,
+    isFullscreenSupported,
+    toggleFullscreen,
+  } from "../fullscreen";
+
+  let fullscreenSupported = false;
+  let isFullscreen = false;
+
+  function updateFullscreenState() {
+    isFullscreen = isFullscreenActive();
+  }
+
+  async function handleToggleFullscreen() {
+    if (!fullscreenSupported) {
+      showToast("Fullscreen is not supported by your browser");
+      return;
+    }
+
+    const success = await toggleFullscreen();
+
+    if (!success) {
+      showToast("Could not change fullscreen state", { tone: "negative" });
+    }
+
+    updateFullscreenState();
+  }
+
+  function handleFullscreenChange() {
+    updateFullscreenState();
+  }
+
+  onMount(() => {
+    if (typeof document === "undefined") return;
+
+    fullscreenSupported = isFullscreenSupported();
+    updateFullscreenState();
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+  });
+
+  onDestroy(() => {
+    if (typeof document === "undefined") return;
+    document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  });
 
   export let activeTreeName = "";
   export let activeTreeIndex = 0;
@@ -78,6 +127,8 @@
         // (this will set the localStorage values to the defaults also)
         singleLevelUp.set(false);
         closeUpView.set(false);
+        // Tech crystals owned is treated as a setting; reset without affecting tree progress
+        resetTechCrystalsOwnedForSettings();
 
         showToast("Settings reset to defaults");
         onClose?.();
@@ -181,6 +232,14 @@
 </SideMenuSection>
 
 <SideMenuSection title="Application">
+  <ToggleSwitch
+    checked={isFullscreen}
+    label="Fullscreen"
+    ariaLabel="Toggle fullscreen mode"
+    tooltipText="Use fullscreen where your browser supports it"
+    icon={ArrowsOutCardinalIcon as unknown as ComponentType}
+    onToggle={handleToggleFullscreen}
+  />
   <InstallPwaButton title={true} />
   <Button
     on:click={handleReloadWindow}
