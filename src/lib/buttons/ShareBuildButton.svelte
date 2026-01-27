@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ImageIcon, LinkIcon, ShareNetworkIcon } from "phosphor-svelte";
+  import { ImageIcon, LinkSimpleIcon, ShareNetworkIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
@@ -95,7 +95,7 @@
     <Button
       on:click={handleCopyLink}
       tooltipText={"Copy shareable link with build data"}
-      icon={LinkIcon}
+      icon={LinkSimpleIcon}
     >
       Copy Link
     </Button>
