@@ -1,7 +1,7 @@
 import type { ComponentType } from "svelte";
 import { writable } from "svelte/store";
 
-export type ModalType = "confirm" | "input";
+export type ModalType = "confirm" | "input" | "loadBuild";
 
 export type ModalInputConfig = {
   label: string;

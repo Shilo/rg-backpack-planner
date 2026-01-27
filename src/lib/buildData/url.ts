@@ -4,7 +4,7 @@
  */
 
 import type { BuildData } from "./encoder";
-import { encodeBuildData, decodeBuildData } from "./encoder";
+import { encodeBuildData, decodeBuildData, SERIALIZED_PATTERN } from "./encoder";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
@@ -23,20 +23,20 @@ export function getBasePath(): string {
   if (cachedBasePath === null) {
     // Get base from Vite's injected BASE_URL
     let base = import.meta.env.BASE_URL;
-    
+
     // Ensure leading slash
     if (!base.startsWith("/")) {
       base = "/" + base;
     }
-    
+
     // Ensure trailing slash for concatenation
     if (!base.endsWith("/")) {
       base = base + "/";
     }
-    
+
     cachedBasePath = base;
   }
-  
+
   return cachedBasePath;
 }
 
@@ -48,15 +48,15 @@ export function getBasePath(): string {
 function getPathAfterBase(pathname: string): string {
   const base = getBasePath();
   const baseNormalized = base.replace(/\/$/, ""); // Remove trailing slash for comparison
-  
+
   // Normalize pathname: remove trailing slash for comparison
   const pathnameNormalized = pathname.replace(/\/$/, "");
-  
+
   // If pathname is exactly the base (with or without trailing slash), return empty
   if (pathnameNormalized === baseNormalized || pathname === base) {
     return "";
   }
-  
+
   // Check if pathname starts with base
   if (pathname.startsWith(base)) {
     // Get everything after base
@@ -65,7 +65,7 @@ function getPathAfterBase(pathname: string): string {
     const firstSegment = afterBase.split("/")[0];
     return firstSegment || "";
   }
-  
+
   // If pathname doesn't start with base, return empty
   return "";
 }
@@ -77,7 +77,7 @@ function getPathAfterBase(pathname: string): string {
  */
 export function getEncodedFromUrl(): string | null {
   if (typeof window === "undefined") return null;
-  
+
   const encoded = getPathAfterBase(window.location.pathname);
   return encoded || null;
 }
@@ -116,7 +116,7 @@ function buildShareUrl(encoded: string): string {
  */
 export function clearShareFromUrl(replace: boolean = true): void {
   if (typeof window === "undefined") return;
-  
+
   const basePath = getBasePath();
   if (replace) {
     window.history.replaceState({}, "", basePath);
@@ -175,6 +175,70 @@ export function loadBuildFromUrl(): BuildData | null {
 }
 
 /**
+ * Parses user input (full URL or raw code) into a validated encoded build string.
+ *
+ * Accepts:
+ * - Full Backpack Planner URL: https://.../rg-backpack-planner/{encoded}[...]
+ * - Raw encoded string matching SERIALIZED_PATTERN
+ *
+ * Returns:
+ * - Encoded string if valid and decodable
+ * - null otherwise
+ */
+export function parseEncodedFromUserInput(input: string): string | null {
+  if (typeof input !== "string") return null;
+
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  let candidate: string | null = null;
+
+  // URL-style input
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      const pathname = url.pathname;
+      const base = getBasePath();
+      const baseNormalized = base.replace(/\/$/, "");
+      const pathNormalized = pathname.replace(/\/$/, "");
+
+      if (pathNormalized === baseNormalized || pathname === base) {
+        // No encoded segment present
+        candidate = null;
+      } else if (pathname.startsWith(base)) {
+        // Prefer strict match against current base path
+        const afterBase = pathname.slice(base.length);
+        const firstSegment = afterBase.split("/").find((segment) => segment.length > 0);
+        candidate = firstSegment ?? null;
+      } else {
+        // Fallback: treat the last non-empty path segment as candidate
+        const segments = pathname.split("/").filter((segment) => segment.length > 0);
+        candidate = segments.length > 0 ? segments[segments.length - 1] : null;
+      }
+    } catch {
+      candidate = null;
+    }
+  } else {
+    // Raw candidate string
+    candidate = trimmed;
+  }
+
+  if (!candidate) return null;
+
+  // Basic character validation (defensive; decodeBuildData also validates)
+  if (!SERIALIZED_PATTERN.test(candidate)) {
+    return null;
+  }
+
+  const buildData = decodeBuildData(candidate);
+  if (!buildData) {
+    return null;
+  }
+
+  return candidate;
+}
+
+/**
  * Updates the current URL with the current build data
  * Used in preview mode to keep URL in sync with changes
  * Does not reload the page, just updates the URL
@@ -213,4 +277,22 @@ export function updateUrlWithCurrentBuild(): void {
   } catch (error) {
     console.error("Failed to update URL with current build:", error);
   }
+}
+
+/**
+ * Navigates to a specific encoded build by updating the URL path and
+ * dispatching a popstate event so App.svelte can re-run URL initialization.
+ *
+ * Does not reload the page.
+ */
+export function navigateToEncodedBuild(encoded: string): void {
+  if (typeof window === "undefined") return;
+
+  const newPath = buildSharePath(encoded);
+
+  // Update URL without reloading page
+  window.history.replaceState({}, "", newPath);
+
+  // Let the existing popstate handler re-run initialization logic
+  window.dispatchEvent(new PopStateEvent("popstate"));
 }

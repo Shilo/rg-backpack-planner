@@ -24,6 +24,7 @@
   import ToggleSwitch from "../ToggleSwitch.svelte";
   import type { TreeViewState } from "../Tree.svelte";
   import { treeLevels } from "../treeLevelsStore";
+  import { openLoadBuildModal } from "../loadBuildModal";
 
   export let activeTreeName = "";
   export let activeTreeIndex = 0;
@@ -117,6 +118,12 @@
 <SideMenuSection title="Build">
   <TechCrystalsButton disabled={$isPreviewMode} />
   <ShareBuildButton title="Share my build" disabled={$isPreviewMode} />
+  <Button
+    on:click={() => openLoadBuildModal(() => onClose?.())}
+    tooltipText={"Paste a shared link or build code"}
+  >
+    Load shareable build
+  </Button>
 </SideMenuSection>
 
 <SideMenuSection title="Node">

@@ -70,7 +70,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    z-index: 40;
+    z-index: 60;
     pointer-events: none;
   }
 

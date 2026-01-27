@@ -2,6 +2,8 @@
   import { onDestroy } from "svelte";
   import ConfirmModal from "./modals/ConfirmModal.svelte";
   import InputModal from "./modals/InputModal.svelte";
+  // @ts-ignore - Svelte component import
+  import LoadBuildModal from "./modals/LoadBuildModal.svelte";
   import { closeModal, modalStore } from "./modalStore";
   import { triggerHaptic } from "./haptics";
 
@@ -105,6 +107,15 @@
           confirmLabel={$modalStore.confirmLabel ?? "Save"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
           onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      {:else if $modalStore.type === "loadBuild"}
+        <LoadBuildModal
+          title={$modalStore.title}
+          message={$modalStore.message}
+          confirmLabel={$modalStore.confirmLabel ?? "Load build"}
+          cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+          onLoaded={() => handleConfirm()}
           onCancel={handleCancel}
         />
       {/if}
