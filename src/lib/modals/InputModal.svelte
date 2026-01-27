@@ -4,11 +4,13 @@
   import { onMount } from "svelte";
   import Button from "../Button.svelte";
   import { triggerHaptic } from "../haptics";
+  import type { IconWeight } from "phosphor-svelte";
 
   export let title = "";
   export let titleIcon: ComponentType | null = null;
   export let titleIconClass = "";
   export let titleIconAriaHidden = true;
+  export let titleIconWeight: IconWeight | undefined = undefined;
   export let message: string | undefined = undefined;
   export let label = "Value";
   export let value = 0;
@@ -124,7 +126,7 @@
           this={titleIcon}
           class={`modal-title-icon ${titleIconClass}`.trim()}
           aria-hidden={titleIconAriaHidden}
-          weight="fill"
+          weight={titleIconWeight}
         />
       {/if}
       <h2>{title}</h2>
@@ -226,10 +228,6 @@
     width: 18px;
     height: 18px;
     color: #b9c7ec;
-  }
-
-  :global(.modal-title-icon-filled) {
-    fill: currentColor;
   }
 
   .modal-message {

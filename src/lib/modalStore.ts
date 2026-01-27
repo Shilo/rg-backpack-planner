@@ -1,4 +1,5 @@
 import type { ComponentType } from "svelte";
+import type { IconWeight } from "phosphor-svelte";
 import { writable } from "svelte/store";
 
 export type ModalType = "confirm" | "input" | "loadBuild";
@@ -15,6 +16,7 @@ export type ModalPayload = {
   title: string;
   titleIcon?: ComponentType | null;
   titleIconClass?: string;
+  titleIconWeight?: IconWeight;
   message?: string;
   confirmLabel?: string;
   confirmNegative?: boolean;

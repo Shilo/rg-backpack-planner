@@ -9,11 +9,13 @@
     navigateToEncodedBuild,
   } from "../buildData/url";
   import { triggerHaptic } from "../haptics";
+  import type { IconWeight } from "phosphor-svelte";
 
   export let title = "Load shareable build";
   export let titleIcon: ComponentType | null = null;
   export let titleIconClass = "";
   export let titleIconAriaHidden = true;
+  export let titleIconWeight: IconWeight | undefined = undefined;
   export let message: string | undefined =
     "Paste a Backpack Planner link (https://...) or just the build code.";
   export let confirmLabel = "Load build";
@@ -106,7 +108,7 @@
           this={titleIcon}
           class={`modal-title-icon ${titleIconClass}`.trim()}
           aria-hidden={titleIconAriaHidden}
-          weight="fill"
+          weight={titleIconWeight}
         />
       {/if}
       <h2>{title}</h2>

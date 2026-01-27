@@ -9,7 +9,6 @@ export function openLoadBuildModal(onLoaded?: () => void) {
     title: "LOAD SHAREABLE BUILD",
     // Cast to any to satisfy TS ComponentType constraint
     titleIcon: ArrowSquareInIcon as any,
-    titleIconClass: "modal-title-icon-filled",
     message:
       "Paste a Backpack Planner link (https://...) or just the build code.",
     confirmLabel: "Load build",

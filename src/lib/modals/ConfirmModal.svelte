@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { ComponentType } from "svelte";
+  import type { IconWeight } from "phosphor-svelte";
   import Button from "../Button.svelte";
 
   export let title = "";
   export let titleIcon: ComponentType | null = null;
   export let titleIconClass = "";
   export let titleIconAriaHidden = true;
+  export let titleIconWeight: IconWeight | undefined = undefined;
   export let message: string | undefined = undefined;
   export let confirmLabel = "Confirm";
   export let cancelLabel = "Cancel";
@@ -23,7 +25,7 @@
           this={titleIcon}
           class={`modal-title-icon ${titleIconClass}`.trim()}
           aria-hidden={titleIconAriaHidden}
-          weight="fill"
+          weight={titleIconWeight}
         />
       {/if}
       <h2>{title}</h2>

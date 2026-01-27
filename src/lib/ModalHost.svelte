@@ -86,6 +86,7 @@
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
           titleIconClass={$modalStore.titleIconClass ?? ""}
+          titleIconWeight={$modalStore.titleIconWeight}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "Confirm"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
@@ -99,6 +100,7 @@
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
           titleIconClass={$modalStore.titleIconClass ?? ""}
+          titleIconWeight={$modalStore.titleIconWeight}
           message={$modalStore.message}
           label={$modalStore.input?.label ?? "Value"}
           value={$modalStore.input?.value ?? 0}
@@ -114,6 +116,7 @@
           title={$modalStore.title}
           titleIcon={$modalStore.titleIcon ?? null}
           titleIconClass={$modalStore.titleIconClass ?? ""}
+          titleIconWeight={$modalStore.titleIconWeight}
           message={$modalStore.message}
           confirmLabel={$modalStore.confirmLabel ?? "Load build"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
