@@ -123,15 +123,16 @@
 </script>
 
 {#if canInstall && !isInstalled}
+  {@const osName = getOSName()}
   <Button
     class={className}
     on:click={handleInstallClick}
     icon={DownloadSimpleIcon}
-    aria-label={`Install ${appName} app`}
-    tooltipText={`Install ${appName} app`}
+    aria-label={`Install ${appName} app on ${osName}`}
+    tooltipText={`Install ${appName} app on ${osName}`}
   >
     {#if title}
-      Install on {getOSName()}
+      Install app on {osName}
     {/if}
   </Button>
 {/if}

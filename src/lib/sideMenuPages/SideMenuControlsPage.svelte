@@ -25,6 +25,7 @@
   } from "../buttons/InstallPwaButton.svelte";
   import LongPressIcon from "../icons/LongPressIcon.svelte";
   import PinchIcon from "../icons/PinchIcon.svelte";
+  import { getOSName } from "../systemUtil";
 
   const appName = packageInfo.name;
   const appDescription = packageInfo.description ?? "";
@@ -309,7 +310,7 @@
             <div class="control-text">
               <p class="control-label">Install app</p>
               <p class="control-desc">
-                Install the Progressive Web App (PWA) for offline access
+                Install the Progressive Web App (PWA) on {getOSName()}
               </p>
             </div>
           </li>
