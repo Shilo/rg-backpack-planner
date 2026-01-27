@@ -15,7 +15,8 @@
       queueStoppedPreviewToast();
 
       // Clear share data from URL, leaving only base path
-      clearShareFromUrl();
+      // Use pushState to preserve share link in history for back button
+      clearShareFromUrl(false);
 
       // Reload to re-initialize in personal mode
       window.location.reload();

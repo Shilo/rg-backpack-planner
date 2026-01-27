@@ -104,12 +104,17 @@ function buildShareUrl(encoded: string): string {
 
 /**
  * Clear share data from URL, leaving only the base path
+ * @param replace - If true, replaces current history entry (default). If false, pushes new entry to preserve history.
  */
-export function clearShareFromUrl(): void {
+export function clearShareFromUrl(replace: boolean = true): void {
   if (typeof window === "undefined") return;
   
   const basePath = getBasePath();
-  window.history.replaceState({}, "", basePath);
+  if (replace) {
+    window.history.replaceState({}, "", basePath);
+  } else {
+    window.history.pushState({}, "", basePath);
+  }
 }
 
 // Flag to prevent URL updates during initial build application
