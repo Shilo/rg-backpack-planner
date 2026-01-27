@@ -174,123 +174,164 @@
     /** True when menu was auto-opened for new-version notification; we reset tab on close. */
     let openedMenuForNewVersion = shouldShowControls;
 
+    // Subscriptions for preview mode and persistence, reused across URL re-initializations
+    let unsubscribeTreeLevels: (() => void) | null = null;
+    let unsubscribeTechCrystals: (() => void) | null = null;
+    let unsubscribePersistence: (() => void) | null = null;
+
+    /**
+     * Initialize app state based on the current URL.
+     * Can safely be called multiple times (e.g. on initial load and on history navigation).
+     */
+    async function initializeFromUrl(): Promise<void> {
+        // Ensure trees are initialized before applying any build data
+        await tick();
+
+        // Clean up any existing subscriptions before re-initializing
+        unsubscribeTreeLevels?.();
+        unsubscribeTreeLevels = null;
+        unsubscribeTechCrystals?.();
+        unsubscribeTechCrystals = null;
+        unsubscribePersistence?.();
+        unsubscribePersistence = null;
+
+        // Check if there's a build in the URL (path-based: /{encoded})
+        // Only enter preview mode if we can actually decode valid build data
+        const encoded = getEncodedFromUrl();
+        let buildData: BuildData | null = null;
+        let hasUrlBuild = false;
+
+        if (encoded !== null) {
+            // Try to decode the encoded data
+            buildData = decodeBuildData(encoded);
+            if (buildData === null) {
+                // Invalid build data detected - clean it up
+                if (typeof window !== "undefined") {
+                    const basePath = getBasePath();
+                    window.history.replaceState({}, "", basePath);
+                    // Show toast to inform user
+                    showToastDelayed("Invalid share link", {
+                        tone: "negative",
+                    });
+                }
+            } else {
+                hasUrlBuild = true;
+            }
+        }
+
+        if (hasUrlBuild && buildData) {
+            // Preview mode: Public build from URL
+            setPreviewMode(true);
+
+            // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
+            const buildLoaded = applyBuildFromUrl(tabs, buildData);
+            if (buildLoaded) {
+                // Recalculate tech crystals spent after loading from URL
+                const currentTrees = get(treeLevels);
+                recalculateTechCrystalsSpent(currentTrees);
+
+                // Show toast about preview mode
+                showToastDelayed("Viewing preview build");
+            }
+
+            // Don't load from localStorage in preview mode
+            // Don't initialize persistence in preview mode (changes update URL instead)
+
+            // Subscribe to changes in preview mode to update URL
+            unsubscribeTreeLevels = treeLevels.subscribe(() => {
+                if (get(isPreviewMode)) {
+                    updateUrlWithCurrentBuild();
+                }
+            });
+
+            unsubscribeTechCrystals = techCrystalsOwned.subscribe(() => {
+                if (get(isPreviewMode)) {
+                    updateUrlWithCurrentBuild();
+                }
+            });
+        } else {
+            // Personal mode: Private build from localStorage
+            setPreviewMode(false);
+
+            // Check if we just stopped preview mode or cloned build
+            tryShowStoppedPreviewToast();
+            tryShowClonedBuildToast();
+
+            // Load from localStorage
+            const savedProgress = loadTreeProgress(tabs);
+            if (savedProgress) {
+                const currentTrees = get(treeLevels);
+                // Only apply if the saved progress matches the current tree structure
+                if (savedProgress.length === currentTrees.length) {
+                    savedProgress.forEach((tree, index) => {
+                        setTreeLevels(index, tree);
+                    });
+                    // Recalculate tech crystals spent after loading from localStorage
+                    recalculateTechCrystalsSpent(savedProgress);
+                }
+            }
+
+            // Load tech crystals owned from localStorage
+            const savedTechCrystals = getTechCrystalsOwnedFromStorageNullable();
+            if (savedTechCrystals !== null) {
+                // Set without triggering save (we're loading, not changing)
+                techCrystalsOwned.set(savedTechCrystals);
+            }
+
+            // Initialize auto-save: subscribe to treeLevels changes
+            unsubscribePersistence = initTreeProgressPersistence();
+        }
+    }
+
     onMount(() => {
         ensureInstallListeners();
 
-        let unsubscribeTreeLevels: (() => void) | null = null;
-        let unsubscribeTechCrystals: (() => void) | null = null;
-        let unsubscribePersistence: (() => void) | null = null;
+        let isInitializingFromUrl = false;
 
-        // Initialize asynchronously
-        void (async () => {
-            // Wait for trees to be initialized
-            await tick();
+        async function runInitialization() {
+            if (isInitializingFromUrl) return;
+            isInitializingFromUrl = true;
+            try {
+                await initializeFromUrl();
 
-            // Check if there's a build in the URL (path-based: /{encoded})
-            // Only enter preview mode if we can actually decode valid build data
-            const encoded = getEncodedFromUrl();
-            let buildData: BuildData | null = null;
-            let hasUrlBuild = false;
-
-            if (encoded !== null) {
-                // Try to decode the encoded data
-                buildData = decodeBuildData(encoded);
-                if (buildData === null) {
-                    // Invalid build data detected - clean it up
-                    if (typeof window !== "undefined") {
-                        const basePath = getBasePath();
-                        window.history.replaceState({}, "", basePath);
-                        // Show toast to inform user
-                        showToastDelayed("Invalid share link", {
-                            tone: "negative",
-                        });
-                    }
-                } else {
-                    hasUrlBuild = true;
+                // New-version controls behavior is tied to initial load, not history navigation
+                if (shouldShowControls) {
+                    markVersionAsSeen();
+                    await tick();
+                    // Ensure controls tab is active (backup in case component initialized before localStorage was set)
+                    // Don't persist this change since it's for new version notification
+                    sideMenuRef?.openTab?.("controls", false);
+                    // Reset transition flag after menu is shown so future opens have transitions
+                    setTimeout(() => {
+                        skipMenuTransition = false;
+                    }, 200);
                 }
+            } finally {
+                isInitializingFromUrl = false;
             }
+        }
 
-            if (hasUrlBuild && buildData) {
-                // Preview mode: Public build from URL
-                setPreviewMode(true);
+        // Initial URL-based initialization
+        void runInitialization();
 
-                // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
-                const buildLoaded = applyBuildFromUrl(tabs, buildData);
-                if (buildLoaded) {
-                    // Recalculate tech crystals spent after loading from URL
-                    const currentTrees = get(treeLevels);
-                    recalculateTechCrystalsSpent(currentTrees);
+        function handlePopstate() {
+            // Re-initialize app state based on the new URL when navigating history
+            void runInitialization();
+        }
 
-                    // Show toast about preview mode
-                    showToastDelayed("Viewing preview build");
-                }
+        if (typeof window !== "undefined") {
+            window.addEventListener("popstate", handlePopstate);
+        }
 
-                // Don't load from localStorage in preview mode
-                // Don't initialize persistence in preview mode (changes update URL instead)
-
-                // Subscribe to changes in preview mode to update URL
-                unsubscribeTreeLevels = treeLevels.subscribe(() => {
-                    if (get(isPreviewMode)) {
-                        updateUrlWithCurrentBuild();
-                    }
-                });
-
-                unsubscribeTechCrystals = techCrystalsOwned.subscribe(() => {
-                    if (get(isPreviewMode)) {
-                        updateUrlWithCurrentBuild();
-                    }
-                });
-            } else {
-                // Personal mode: Private build from localStorage
-                setPreviewMode(false);
-
-                // Check if we just stopped preview mode or cloned build
-                tryShowStoppedPreviewToast();
-                tryShowClonedBuildToast();
-
-                // Load from localStorage
-                const savedProgress = loadTreeProgress(tabs);
-                if (savedProgress) {
-                    const currentTrees = get(treeLevels);
-                    // Only apply if the saved progress matches the current tree structure
-                    if (savedProgress.length === currentTrees.length) {
-                        savedProgress.forEach((tree, index) => {
-                            setTreeLevels(index, tree);
-                        });
-                        // Recalculate tech crystals spent after loading from localStorage
-                        recalculateTechCrystalsSpent(savedProgress);
-                    }
-                }
-
-                // Load tech crystals owned from localStorage
-                const savedTechCrystals = getTechCrystalsOwnedFromStorageNullable();
-                if (savedTechCrystals !== null) {
-                    // Set without triggering save (we're loading, not changing)
-                    techCrystalsOwned.set(savedTechCrystals);
-                }
-
-                // Initialize auto-save: subscribe to treeLevels changes
-                unsubscribePersistence = initTreeProgressPersistence();
-            }
-
-            if (shouldShowControls) {
-                markVersionAsSeen();
-                await tick();
-                // Ensure controls tab is active (backup in case component initialized before localStorage was set)
-                // Don't persist this change since it's for new version notification
-                sideMenuRef?.openTab?.("controls", false);
-                // Reset transition flag after menu is shown so future opens have transitions
-                setTimeout(() => {
-                    skipMenuTransition = false;
-                }, 200);
-            }
-        })();
-
-        // Cleanup subscriptions on component destroy
+        // Cleanup subscriptions and listeners on component destroy
         return () => {
             unsubscribeTreeLevels?.();
             unsubscribeTechCrystals?.();
             unsubscribePersistence?.();
+
+            if (typeof window !== "undefined") {
+                window.removeEventListener("popstate", handlePopstate);
+            }
         };
     });
 </script>

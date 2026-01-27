@@ -104,6 +104,14 @@ function buildShareUrl(encoded: string): string {
 
 /**
  * Clear share data from URL, leaving only the base path
+ *
+ * Intended usages:
+ * - replace = true (default): cleanup-style operations where we don't want an extra history entry
+ *   (e.g. invalid share link handling).
+ * - replace = false: \"mode switch\" operations that conceptually move between preview and personal
+ *   builds (e.g. Clone Preview, Stop Preview) where we want the share URL to remain in history so
+ *   the Back button returns to it.
+ *
  * @param replace - If true, replaces current history entry (default). If false, pushes new entry to preserve history.
  */
 export function clearShareFromUrl(replace: boolean = true): void {
