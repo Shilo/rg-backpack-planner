@@ -3,7 +3,11 @@
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
-  import { saveBuildAsImage, shareBuildUrlNative } from "../buildData/share";
+  import {
+    saveBuildAsImage,
+    saveBuildToUrl,
+    shareBuildUrlNative,
+  } from "../buildData/share";
   import { portal } from "../portal";
 
   export let title: string | undefined;
@@ -29,29 +33,37 @@
     // The context menu is portaled outside, so we need to ensure clicks don't propagate
   }
 
-  async function handleShareImage() {
+  async function handleCopyScreenshot() {
     closeShareMenu();
     const success = await saveBuildAsImage();
     if (success) {
-      showToast("Build image saved", { tone: "positive" });
+      showToast("Share image saved", { tone: "positive" });
     } else {
       showToast("Share image feature coming soon", { tone: "positive" });
     }
   }
 
-  async function handleShareUrlLink() {
+  async function handleShareToApp() {
     closeShareMenu();
 
     const result = await shareBuildUrlNative({
       title: title ?? "Backpack tech tree setup",
     });
 
-    if (result === "copied") {
-      showToast("Share link copied to clipboard");
-    } else if (result === "failed") {
+    if (result === "failed") {
       showToast("Unable to share link", { tone: "negative" });
     }
     // For "shared" and "cancelled", rely on native dialog UX and show no toast.
+  }
+
+  async function handleCopyLink() {
+    closeShareMenu();
+    const success = await saveBuildToUrl();
+    if (success) {
+      showToast("Share link copied to clipboard");
+    } else {
+      showToast("Unable to copy link", { tone: "negative" });
+    }
   }
 </script>
 
@@ -74,18 +86,25 @@
     onClose={closeShareMenu}
   >
     <Button
-      on:click={handleShareImage}
-      tooltipText={"Screenshot all 3 trees"}
-      icon={ImageIcon}
+      on:click={handleShareToApp}
+      tooltipText={"Share via installed apps"}
+      icon={ShareNetworkIcon}
     >
-      Share Image
+      Share to...
     </Button>
     <Button
-      on:click={handleShareUrlLink}
+      on:click={handleCopyLink}
       tooltipText={"Copy shareable link with build data"}
       icon={LinkIcon}
     >
-      Share Link
+      Copy Link
+    </Button>
+    <Button
+      on:click={handleCopyScreenshot}
+      tooltipText={"Copy a snapshot of all trees"}
+      icon={ImageIcon}
+    >
+      Copy screenshot
     </Button>
   </ContextMenu>
 </div>
