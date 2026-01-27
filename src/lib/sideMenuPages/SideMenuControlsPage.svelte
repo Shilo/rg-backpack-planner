@@ -5,6 +5,7 @@
     ArrowCounterClockwiseIcon,
     ArrowsOutCardinalIcon,
     DownloadSimpleIcon,
+    EyeIcon,
     GithubLogoIcon,
     HandGrabbingIcon,
     HandSwipeRightIcon,
@@ -252,7 +253,7 @@
         </ul>
       </SideMenuSection>
     {/if}
-    <SideMenuSection title="On screen HUD">
+    <SideMenuSection title="HUD (Heads-Up Display)">
       <ul class="control-list">
         <li class="control-row">
           <span class="control-icon control-icon-filled" aria-hidden="true">
@@ -277,6 +278,15 @@
           <div class="control-text">
             <p class="control-label">Side menu button</p>
             <p class="control-desc">Show or hide additional options</p>
+          </div>
+        </li>
+        <li class="control-row">
+          <span class="control-icon" aria-hidden="true"><EyeIcon /></span>
+          <div class="control-text">
+            <p class="control-label">Preview build indicator</p>
+            <p class="control-desc">
+              View and edit a shared build. Access preview build options.
+            </p>
           </div>
         </li>
       </ul>
