@@ -8,7 +8,8 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             id: "attack_boost",
             maxLevel: 100,
             radius: 1,
-            position: { x: 0, y: 73 }, // attack
+            x: 0,
+            y: 73,
         },
         // Tier 2
         {
@@ -16,14 +17,16 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: "attack_boost",
             maxLevel: 100,
             radius: 0.5,
-            position: { x: 0, y: 153 }, // hp_1_1
+            x: 0,
+            y: 153,
         },
         {
             id: "defense_boost",
             parent: "attack_boost",
             maxLevel: 100,
             radius: 0.5,
-            position: { x: -135, y: 75 }, // def_1_2
+            x: -135,
+            y: 75,
         },
         // Tier 3
         {
@@ -31,28 +34,32 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: "hp_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: 55, y: 228 }, // skill_critical_res_1_1
+            x: 55,
+            y: 228,
         },
         {
             id: "ignore_dodge",
             parent: "hp_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: -53, y: 228 }, // ignore_dodge_1_1
+            x: -53,
+            y: 228,
         },
         {
             id: yellowBranchNodeIds[1],
             parent: "defense_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: -175, y: 158 }, // ignore_stun_1_2
+            x: -175,
+            y: 158,
         },
         {
             id: "dodge",
             parent: "defense_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: -228, y: 68 }, // dodge_1_2
+            x: -228,
+            y: 68,
         },
         // Tier 4
         {
@@ -60,14 +67,16 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: [yellowBranchNodeIds[0], "ignore_dodge"],
             maxLevel: 50,
             radius: 0.5,
-            position: { x: 0, y: 310 }, // global_def_1_1
+            x: 0,
+            y: 310,
         },
         {
             id: "global_hp",
             parent: [yellowBranchNodeIds[1], "dodge"],
             maxLevel: 50,
             radius: 0.5,
-            position: { x: -270, y: 150 }, // global_hp_1_2
+            x: -270,
+            y: 150,
         },
         // Tier 5
         {
@@ -75,7 +84,8 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: ["global_def", "global_hp"],
             maxLevel: 1,
             radius: 1,
-            position: { x: -190, y: 300 }, // final_1
+            x: -190,
+            y: 300,
         },
     ],
     // Orange Branch
@@ -85,7 +95,8 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             id: "defense_boost",
             maxLevel: 100,
             radius: 1,
-            position: { x: -73, y: -45 }, // defense
+            x: -73,
+            y: -45,
         },
         // Tier 2
         {
@@ -93,14 +104,16 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: "defense_boost",
             maxLevel: 100,
             radius: 0.5,
-            position: { x: -135, y: -80 }, // hp_2_1
+            x: -135,
+            y: -80,
         },
         {
             id: "attack_boost",
             parent: "defense_boost",
             maxLevel: 100,
             radius: 0.5,
-            position: { x: 0, y: -158 }, // attack_2_2
+            x: 0,
+            y: -158,
         },
         // Tier 3
         {
@@ -108,28 +121,32 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: "hp_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: -228, y: -78 }, // dodge_2_1
+            x: -228,
+            y: -78,
         },
         {
             id: orangeBranchNodeIds[0],
             parent: "hp_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: -175, y: -165 }, // skill_crit_res_2_1
+            x: -175,
+            y: -165,
         },
         {
             id: "ignore_dodge",
             parent: "attack_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: -53, y: -235 }, // ignore_dodge_2_2
+            x: -53,
+            y: -235,
         },
         {
             id: orangeBranchNodeIds[1],
             parent: "attack_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: 55, y: -235 }, // damage_reflection_2_2
+            x: 55,
+            y: -235,
         },
         // Tier 4
         {
@@ -137,14 +154,16 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: ["dodge", orangeBranchNodeIds[0]],
             maxLevel: 50,
             radius: 0.5,
-            position: { x: -270, y: -155 }, // global_hp_2_1
+            x: -270,
+            y: -155,
         },
         {
             id: "global_atk",
             parent: ["ignore_dodge", orangeBranchNodeIds[1]],
             maxLevel: 50,
             radius: 0.5,
-            position: { x: 0, y: -315 }, // global_attack_2_2
+            x: 0,
+            y: -315,
         },
         // Tier 5
         {
@@ -152,7 +171,8 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: ["global_hp", "global_atk"],
             maxLevel: 1,
             radius: 1,
-            position: { x: -190, y: -318 }, // final_2
+            x: -190,
+            y: -318,
         },
     ],
     // Blue Branch
@@ -162,7 +182,8 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             id: "hp_boost",
             maxLevel: 100,
             radius: 1,
-            position: { x: 68, y: -45 }, // hp
+            x: 68,
+            y: -45,
         },
         // Tier 2
         {
@@ -170,14 +191,16 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: "hp_boost",
             maxLevel: 100,
             radius: 0.5,
-            position: { x: 133, y: -78 }, // attack_3_1
+            x: 133,
+            y: -78,
         },
         {
             id: "defense_boost",
             parent: "hp_boost",
             maxLevel: 100,
             radius: 0.5,
-            position: { x: 133, y: 75 }, // def_3_2
+            x: 133,
+            y: 75,
         },
         // Tier 3
         {
@@ -185,28 +208,32 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: "attack_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: 173, y: -165 }, // dodge_3_1
+            x: 173,
+            y: -165,
         },
         {
             id: blueBranchNodeIds[0],
             parent: "attack_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: 225, y: -73 }, // damage_reflection_3_1
+            x: 225,
+            y: -73,
         },
         {
             id: "ignore_dodge",
             parent: "defense_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: 225, y: 68 }, // ignore_dodge_3_2
+            x: 225,
+            y: 68,
         },
         {
             id: blueBranchNodeIds[1],
             parent: "defense_boost",
             maxLevel: 100,
             radius: 0.75,
-            position: { x: 173, y: 158 }, // ignore_stun_3_2
+            x: 173,
+            y: 158,
         },
         // Tier 4
         {
@@ -214,14 +241,16 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: ["dodge", blueBranchNodeIds[0]],
             maxLevel: 50,
             radius: 0.5,
-            position: { x: 268, y: -158 }, // global_attack_3_1
+            x: 268,
+            y: -158,
         },
         {
             id: "global_def",
             parent: ["ignore_dodge", blueBranchNodeIds[1]],
             maxLevel: 50,
             radius: 0.5,
-            position: { x: 268, y: 150 }, // global_def_3_2
+            x: 268,
+            y: 150,
         },
         // Tier 5
         {
@@ -229,7 +258,8 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
             parent: ["global_atk", "global_def"],
             maxLevel: 1,
             radius: 1,
-            position: { x: 368, y: -3 }, // final_3
+            x: 368,
+            y: -3,
         },
     ]
 ];

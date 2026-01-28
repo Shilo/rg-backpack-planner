@@ -9,7 +9,8 @@ export type Node = {
     parent?: NodeId | NodeId[];
     maxLevel: NodeMaxLevel;
     radius: NodeRadius;
-    position: NodePosition;
+    x: number;
+    y: number;
 };
 
 export type NodeId =
@@ -38,11 +39,6 @@ export type NodeId =
 export type NodeMaxLevel = 100 | 50 | 1;
 
 export type NodeRadius = 1 | 0.75 | 0.5;
-
-export type NodePosition = {
-    x: number;
-    y: number;
-};
 
 
 // TODO: Remove this type
