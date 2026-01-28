@@ -1,5 +1,5 @@
 import { derived, writable } from "svelte/store";
-import type { TreeNode } from "./Tree.svelte";
+import type { Tree } from "../types/baseTree.types";
 
 export type LevelsById = Record<string, number>;
 
@@ -24,27 +24,36 @@ export const treeLevelsCannon = derived(treeLevels, ($trees) =>
     sumLevels($trees[2]),
 );
 
-function initLevels(nodes: TreeNode[]): LevelsById {
-    return Object.fromEntries(nodes.map((node) => [node.id, 0]));
+function initLevels(tree: Tree): LevelsById {
+    const entries: [string, number][] = [];
+    for (const branch of tree) {
+        for (const node of branch) {
+            entries.push([node.id, 0]);
+        }
+    }
+    return Object.fromEntries(entries);
 }
 
-export function ensureTreeLevels(trees: { nodes: TreeNode[] }[]) {
+export function ensureTreeLevels(trees: { tree: Tree }[]) {
     treeLevels.update((current) => {
         if (trees.length === 0) return [];
 
         let changed = current.length !== trees.length;
         const seeded = trees.map(
-            (tree, index) => current[index] ?? initLevels(tree.nodes),
+            (treeConfig, index) => current[index] ?? initLevels(treeConfig.tree),
         );
         const next = seeded.map((levels, index) => {
             let updated = levels;
-            for (const node of trees[index].nodes) {
-                if (!(node.id in updated)) {
-                    if (updated === levels) {
-                        updated = { ...levels };
+            const tree = trees[index].tree;
+            for (const branch of tree) {
+                for (const node of branch) {
+                    if (!(node.id in updated)) {
+                        if (updated === levels) {
+                            updated = { ...levels };
+                        }
+                        updated[node.id] = 0;
+                        changed = true;
                     }
-                    updated[node.id] = 0;
-                    changed = true;
                 }
             }
             return updated;
@@ -64,9 +73,9 @@ export function setTreeLevels(index: number, levels: LevelsById) {
     });
 }
 
-export function resetTreeLevels(index: number, trees: { nodes: TreeNode[] }[]) {
+export function resetTreeLevels(index: number, trees: { tree: Tree }[]) {
     if (index < 0 || index >= trees.length) return;
-    const nextLevels = initLevels(trees[index].nodes);
+    const nextLevels = initLevels(trees[index].tree);
     treeLevels.update((current) => {
         if (index < 0 || index >= current.length) return current;
         const next = current.slice();
@@ -75,6 +84,6 @@ export function resetTreeLevels(index: number, trees: { nodes: TreeNode[] }[]) {
     });
 }
 
-export function resetAllTreeLevels(trees: { nodes: TreeNode[] }[]) {
-    treeLevels.set(trees.map((tree) => initLevels(tree.nodes)));
+export function resetAllTreeLevels(trees: { tree: Tree }[]) {
+    treeLevels.set(trees.map((treeConfig) => initLevels(treeConfig.tree)));
 }

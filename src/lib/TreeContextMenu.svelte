@@ -1,7 +1,8 @@
 <script lang="ts">
   import ContextMenu from "./ContextMenu.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
-  import type { TreeViewState, TreeNode } from "./Tree.svelte";
+  import type { TreeViewState } from "./Tree.svelte";
+  import type { Node as TreeNode } from "../types/baseTree.types";
   import type { LevelsById } from "./treeLevelsStore";
 
   export let tabId = "";

@@ -1,13 +1,5 @@
 <script lang="ts" context="module">
-  export type TreeNode = {
-    id: string;
-    x: number;
-    y: number;
-    maxLevel: number;
-    label?: string;
-    parentIds?: string[];
-    radius?: number; // 0 to 1, where 1 is the maximum size
-  };
+  import type { Tree, Node as TreeNode, NodeId } from "../types/baseTree.types";
 
   export type TreeViewState = {
     offsetX: number;
@@ -33,7 +25,7 @@
   import { closeUpView } from "./closeUpViewStore";
   import { singleLevelUp } from "./singleLevelUpStore";
 
-  export let nodes: TreeNode[] = [];
+  export let tree: Tree;
   export let bottomInset = 0;
   export let gesturesDisabled = false;
   export let initialViewState: TreeViewState | null = null;
@@ -61,6 +53,36 @@
   let scale = 1;
   let focusViewState: TreeViewState | null = null;
 
+  // Derived helpers for working with the nested Tree/Branch structure
+  type Link = {
+    from: string;
+    to: string;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  };
+
+  function getAllNodes(tree: Tree): TreeNode[] {
+    const result: TreeNode[] = [];
+    for (const branch of tree) {
+      for (const node of branch) {
+        result.push(node);
+      }
+    }
+    return result;
+  }
+
+  // Flattened node list only for layout/bounds calculations
+  let nodes: TreeNode[] = [];
+  $: nodes = tree ? getAllNodes(tree) : [];
+
+  // Helper to normalize parent field into an array of parent IDs
+  function getParentIds(node: TreeNode): NodeId[] {
+    if (!node.parent) return [];
+    return Array.isArray(node.parent) ? node.parent : [node.parent];
+  }
+
   // Calculate dynamic min/max scale based on node bounds
   $: scaleBounds = (() => {
     // Reference viewportSize to make this reactive to viewport size changes
@@ -71,8 +93,8 @@
       return { minScale: 0.1, maxScale: 2.2 };
     }
 
-    const xs = nodes.map((node) => node.x);
-    const ys = nodes.map((node) => node.y);
+    const xs = nodes.map((node) => node.position.x);
+    const ys = nodes.map((node) => node.position.y);
     const minX = Math.min(...xs);
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
@@ -160,33 +182,55 @@
   const rootNode = getRootNode();
   $: regularNodes = nodes;
 
-  const links = () => {
-    const regularLinks = regularNodes.flatMap((node) =>
-      (node.parentIds ?? []).map((parentId) => ({
-        from: parentId,
-        to: node.id,
-      })),
-    );
-    // Link nodes without parentIds to root
-    const rootLinks = regularNodes
-      .filter((node) => !node.parentIds || node.parentIds.length === 0)
-      .map((node) => ({
-        from: "root",
-        to: node.id,
-      }));
-    return [...regularLinks, ...rootLinks];
+  const links = (): Link[] => {
+    const result: Link[] = [];
+
+    tree.forEach((branch) => {
+      branch.forEach((node) => {
+        const parents = getParentIds(node);
+
+        if (parents.length === 0) {
+          // Link nodes without parents to root, using rootNode coords
+          result.push({
+            from: "root",
+            to: node.id,
+            x1: rootNode.x,
+            y1: rootNode.y,
+            x2: node.position.x,
+            y2: node.position.y,
+          });
+        } else {
+          parents.forEach((parentId) => {
+            // Resolve parent within the same branch only
+            const parent = branch.find((p) => p.id === parentId);
+            if (!parent) return;
+
+            result.push({
+              from: parentId,
+              to: node.id,
+              x1: parent.position.x,
+              y1: parent.position.y,
+              x2: node.position.x,
+              y2: node.position.y,
+            });
+          });
+        }
+      });
+    });
+
+    return result;
   };
 
   function hasChildren(nodeId: string): boolean {
     // Check if any node has this node as a parent
-    return regularNodes.some(
-      (node) => node.parentIds?.includes(nodeId) ?? false,
+    return regularNodes.some((node) =>
+      getParentIds(node).includes(nodeId as NodeId),
     );
   }
 
   function isLeafNode(node: TreeNode): boolean {
     // Leaf node: has at least 1 parent (explicit parentIds) but no children
-    const hasParent = (node.parentIds?.length ?? 0) > 0;
+    const hasParent = getParentIds(node).length > 0;
     return hasParent && !hasChildren(node.id);
   }
 
@@ -200,12 +244,11 @@
 
   function isAvailable(node: TreeNode, levelsSnapshot: Record<string, number>) {
     // Nodes without parentIds are linked to root, which is always available
-    if (!node.parentIds || node.parentIds.length === 0) return true;
-    return node.parentIds.every((parentId) => {
-      // Root is always considered "available" for linking purposes
-      if (parentId === "root") return true;
-      return getLevelFrom(levelsSnapshot, parentId) > 0;
-    });
+    const parents = getParentIds(node);
+    if (parents.length === 0) return true;
+    return parents.every(
+      (parentId) => getLevelFrom(levelsSnapshot, parentId) > 0,
+    );
   }
 
   function getState(
@@ -225,16 +268,13 @@
   let regionCache = new Map<string, NodeRegion>();
 
   function getBaseRegionFromPosition(node: TreeNode): NodeRegion {
-    // Root node doesn't have a region
-    if (node.id === "root") return "right";
-
     // Right side: x > 0
-    if (node.x > 0) return "right";
+    if (node.position.x > 0) return "right";
 
     // Left side: x < 0 or x === 0
     // Top-left: y < 0 (above root)
     // Bottom-left: y >= 0 (below root)
-    if (node.y < 0) {
+    if (node.position.y < 0) {
       return "top-left";
     }
     return "bottom-left";
@@ -246,17 +286,9 @@
       return regionCache.get(node.id)!;
     }
 
-    // Root node
-    if (node.id === "root") {
-      regionCache.set(node.id, "right");
-      return "right";
-    }
-
     // If node is directly connected to root, determine region from position
-    const isRootConnected =
-      !node.parentIds ||
-      node.parentIds.length === 0 ||
-      node.parentIds.includes("root");
+    const parents = getParentIds(node);
+    const isRootConnected = parents.length === 0;
 
     if (isRootConnected) {
       const region = getBaseRegionFromPosition(node);
@@ -266,14 +298,8 @@
 
     // Otherwise, inherit region from parent
     // Find the first parent that exists and get its region
-    if (node.parentIds && node.parentIds.length > 0) {
-      for (const parentId of node.parentIds) {
-        if (parentId === "root") {
-          // Connected to root, determine from position
-          const region = getBaseRegionFromPosition(node);
-          regionCache.set(node.id, region);
-          return region;
-        }
+    if (parents.length > 0) {
+      for (const parentId of parents) {
         const parent = nodeById.get(parentId);
         if (parent) {
           const parentRegion = getNodeRegion(parent);
@@ -298,11 +324,7 @@
     }
   }
 
-  function getLinkColor(
-    from: TreeNode,
-    to: TreeNode,
-    isActive: boolean,
-  ): string {
+  function getLinkColor(to: TreeNode, isActive: boolean): string {
     const toRegion = getNodeRegion(to);
     const opacity = isActive ? 0.8 : 0.4;
 
@@ -331,13 +353,11 @@
 
   function levelZeroParents(nodeId: string) {
     const node = nodeById.get(nodeId);
-    if (!node || !node.parentIds) return;
+    const parents = node ? getParentIds(node) : [];
+    if (!node || parents.length === 0) return;
 
     // Check all parent nodes
-    for (const parentId of node.parentIds) {
-      // Skip root as it cannot be leveled
-      if (parentId === "root") continue;
-
+    for (const parentId of parents) {
       const parentNode = nodeById.get(parentId);
       if (!parentNode) continue;
 
@@ -612,9 +632,7 @@
         }
       } else {
         // Check single level-up setting: if enabled, increment by 1; if disabled, max the node
-        $singleLevelUp
-          ? levelUp(pointer.nodeId)
-          : maxNode(pointer.nodeId);
+        $singleLevelUp ? levelUp(pointer.nodeId) : maxNode(pointer.nodeId);
       }
     }
 
@@ -662,10 +680,10 @@
     const nodeBounds = nodes.map((node) => {
       const radius = (node.radius ?? 1) * 32; // Half the node size
       return {
-        minX: node.x - radius,
-        maxX: node.x + radius,
-        minY: node.y - radius,
-        maxY: node.y + radius,
+        minX: node.position.x - radius,
+        maxX: node.position.x + radius,
+        minY: node.position.y - radius,
+        maxY: node.position.y + radius,
       };
     });
     const minX = Math.min(...nodeBounds.map((b) => b.minX));
@@ -688,8 +706,8 @@
       maxScale,
     );
     // When close-up view is enabled, center on the root node; otherwise center on tree bounds
-    const centerX = $closeUpView && rootNode ? rootNode.x : (minX + width / 2);
-    const centerY = $closeUpView && rootNode ? rootNode.y : (minY + height / 2);
+    const centerX = $closeUpView && rootNode ? rootNode.x : minX + width / 2;
+    const centerY = $closeUpView && rootNode ? rootNode.y : minY + height / 2;
     const nextOffsetX = paddedCenterX - centerX * nextScale;
     const nextOffsetY = paddedCenterY - centerY * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -702,10 +720,10 @@
     const nodeBounds = nodes.map((node) => {
       const radius = (node.radius ?? 1) * 32; // Half the node size
       return {
-        minX: node.x - radius,
-        maxX: node.x + radius,
-        minY: node.y - radius,
-        maxY: node.y + radius,
+        minX: node.position.x - radius,
+        maxX: node.position.x + radius,
+        minY: node.position.y - radius,
+        maxY: node.position.y + radius,
       };
     });
     const minX = Math.min(...nodeBounds.map((b) => b.minX));
@@ -862,20 +880,16 @@
       >
         <svg class="tree-links">
           {#each links() as link}
-            {#if (link.from === "root" ? rootNode : nodeById.get(link.from)) && nodeById.get(link.to)}
-              {@const from =
-                link.from === "root" ? rootNode! : nodeById.get(link.from)!}
+            {#if nodeById.get(link.to)}
               {@const to = nodeById.get(link.to)!}
-              {@const fromRadius = (from.radius ?? 1) * 32}
-              {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive =
-                link.from === "root" || getLevelFrom(levels, link.from) > 0}
-              {@const linkColor = getLinkColor(from, to, isActive)}
+                getLevelFrom(levels, link.from) > 0 || link.from === "root"}
+              {@const linkColor = getLinkColor(to, isActive)}
               <line
-                x1={from.x}
-                y1={from.y}
-                x2={to.x}
-                y2={to.y}
+                x1={link.x1}
+                y1={link.y1}
+                x2={link.x2}
+                y2={link.y2}
                 style={`stroke: ${linkColor};`}
               />
             {/if}
@@ -886,26 +900,26 @@
           class="root-wrapper"
           data-node-id="root"
           style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${64 * (rootNode.radius ?? 1)}px; height: ${64 * (rootNode.radius ?? 1)}px; --node-radius: ${rootNode.radius ?? 1};`}
-            on:keydown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                if (onOpenTreeContextMenu) {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  onOpenTreeContextMenu(
-                    rect.left + rect.width / 2,
-                    rect.top + rect.height / 2,
-                  );
-                } else {
-                  focusTreeInView(true);
-                }
+          on:keydown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              if (onOpenTreeContextMenu) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                onOpenTreeContextMenu(
+                  rect.left + rect.width / 2,
+                  rect.top + rect.height / 2,
+                );
+              } else {
+                focusTreeInView(true);
               }
-            }}
-            role="button"
-            tabindex="0"
-            aria-label="Tree actions"
-          >
-            <RootNode />
-          </div>
+            }
+          }}
+          role="button"
+          tabindex="0"
+          aria-label="Tree actions"
+        >
+          <RootNode />
+        </div>
 
         {#each regularNodes as node}
           {@const level = getLevelFrom(levels, node.id)}
@@ -914,11 +928,11 @@
           {@const isLeaf = isLeafNode(node)}
           <div
             class="node-wrapper"
-            style={`left: ${node.x}px; top: ${node.y}px;`}
+            style={`left: ${node.position.x}px; top: ${node.position.y}px;`}
           >
             <Node
               id={node.id}
-              label={node.label ?? ""}
+              label={node.id}
               {level}
               {state}
               radius={node.radius ?? 1}
