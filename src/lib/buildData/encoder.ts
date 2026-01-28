@@ -7,8 +7,9 @@
 import { baseTree } from "../../config/baseTree";
 
 /**
- * Build data structure representing tree levels and tech crystals owned
- * Levels are keyed by node index (string "0".."29")
+ * Build data structure representing tree levels and tech crystals owned.
+ * Levels are keyed by node index (string "0".."29"). No node conversion; encoder uses
+ * baseTree only for length and fixed branch layout (0-9 yellow, 10-19 orange, 20-29 blue).
  */
 export interface BuildData {
   trees: Record<string, number>[];
@@ -51,8 +52,7 @@ const SEPARATOR_RLE_TREE_COUNT = ":"; // Separates tree string from count in RLE
 export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
 
 /**
- * Creates branch mapping: maps each branch to an ordered array of node index strings
- * baseTree has 30 nodes: yellow 0-9, orange 10-19, blue 20-29
+ * Branch mapping: ordered index strings per branch. Uses baseTree.length only.
  */
 function createBranchMapping(): {
   yellow: string[];

@@ -1,8 +1,6 @@
 <script lang="ts" context="module">
   import type { TreeViewState } from "./Tree.svelte";
   import type { TabConfig } from "../types/baseTree.types";
-
-  export type { TabConfig };
 </script>
 
 <script lang="ts">

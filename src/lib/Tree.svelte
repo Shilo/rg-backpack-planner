@@ -131,7 +131,7 @@
   $: {
     let nextLevels = levels;
     let changed = false;
-    for (let i = 0; i < regularNodes.length; i++) {
+    for (let i = 0; i < nodes.length; i++) {
       const key = String(i);
       if (!(key in nextLevels)) {
         if (nextLevels === levels) {
@@ -150,26 +150,24 @@
   $: nodeById = new Map(nodes.map((node, i) => [String(i), node]));
 
   const rootNode = getRootNode();
-  $: regularNodes = nodes;
 
-  function parentIndices(node: NodeType, index: number): number[] {
+  function parentIndices(node: NodeType): number[] {
     const p = node.parent;
     if (p === undefined) return [];
     return Array.isArray(p) ? p : [p];
   }
 
   const links = () => {
-    const regularLinks = regularNodes.flatMap((node, i) => {
-      const parents = parentIndices(node, i);
-      return parents.map((pi) => ({
-        from: String(pi) as string,
-        to: String(i),
-      }));
-    });
+    const regularLinks: { from: string; to: string }[] = [];
     const rootLinks: { from: "root"; to: string }[] = [];
-    regularNodes.forEach((node, i) => {
-      if (parentIndices(node, i).length === 0) {
+    nodes.forEach((node, i) => {
+      const parents = parentIndices(node);
+      if (parents.length === 0) {
         rootLinks.push({ from: "root", to: String(i) });
+      } else {
+        parents.forEach((pi) =>
+          regularLinks.push({ from: String(pi), to: String(i) }),
+        );
       }
     });
     return [...regularLinks, ...rootLinks];
@@ -177,16 +175,12 @@
 
   function hasChildren(indexStr: string): boolean {
     const idx = Number(indexStr);
-    return regularNodes.some((node, i) => {
-      const parents = parentIndices(node, i);
-      return parents.includes(idx);
-    });
+    return nodes.some((node) => parentIndices(node).includes(idx));
   }
 
   function isLeafNode(node: NodeType, index: number): boolean {
-    const parents = parentIndices(node, index);
-    const hasParent = parents.length > 0;
-    return hasParent && !hasChildren(String(index));
+    const parents = parentIndices(node);
+    return parents.length > 0 && !hasChildren(String(index));
   }
 
   function getLevelFrom(levelsSnapshot: Record<string, number>, id: string) {
@@ -202,7 +196,7 @@
     index: number,
     levelsSnapshot: Record<string, number>,
   ): boolean {
-    const parents = parentIndices(node, index);
+    const parents = parentIndices(node);
     if (parents.length === 0) return true;
     return parents.every((pi) => getLevelFrom(levelsSnapshot, String(pi)) > 0);
   }
@@ -234,7 +228,7 @@
       return regionCache.get(index)!;
     }
 
-    const parents = parentIndices(node, index);
+    const parents = parentIndices(node);
     if (parents.length === 0) {
       const region = getBaseRegionFromPosition(node);
       regionCache.set(index, region);
@@ -261,7 +255,6 @@
   }
 
   function getLinkColor(
-    from: NodeType | { x: number; y: number; radius?: number },
     to: NodeType,
     toIndex: number,
     isActive: boolean,
@@ -292,7 +285,7 @@
   function levelZeroParents(nodeId: string) {
     const node = nodeById.get(nodeId);
     if (!node) return;
-    const parents = parentIndices(node, Number(nodeId));
+    const parents = parentIndices(node);
     for (const pi of parents) {
       const parentId = String(pi);
       const parentNode = nodeById.get(parentId);
@@ -820,7 +813,7 @@
               {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive =
                 link.from === "root" || getLevelFrom(levels, link.from) > 0}
-              {@const linkColor = getLinkColor(from, to, toIndex, isActive)}
+              {@const linkColor = getLinkColor(to, toIndex, isActive)}
               <line
                 x1={from.x}
                 y1={from.y}
@@ -857,7 +850,7 @@
           <RootNode />
         </div>
 
-        {#each regularNodes as node, i}
+        {#each nodes as node, i}
           {@const level = getLevelFrom(levels, String(i))}
           {@const state = getState(node, i, levels)}
           {@const region = getNodeRegion(node, i)}

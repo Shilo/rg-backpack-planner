@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import Tabs, { type TabConfig } from "./lib/Tabs.svelte";
+    import Tabs from "./lib/Tabs.svelte";
+    import type { TabConfig } from "./types/baseTree.types";
     import SideMenu from "./lib/SideMenu.svelte";
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
     import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
