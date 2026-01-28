@@ -1,7 +1,8 @@
 <script lang="ts">
   import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
   import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
-  import type { TreeViewState, TreeNode } from "./Tree.svelte";
+  import type { TreeViewState } from "./Tree.svelte";
+  import type { Node } from "../types/baseTree.types";
   import type { LevelsById } from "./treeLevelsStore";
   import { techCrystalsSpentByTree } from "./techCrystalStore";
   import { formatNumber } from "./mathUtil";
@@ -16,17 +17,12 @@
   export let hideStats = false;
   export let tabLabel = "";
   export let tabIndex = -1;
-  export let nodes: TreeNode[] = [];
+  export let nodes: Node[] = [];
 
-  // Calculate current/max levels
   $: currentLevel = levelsById
-    ? Object.entries(levelsById)
-        .filter(([id]) => id !== "root")
-        .reduce((sum, [, level]) => sum + (level ?? 0), 0)
+    ? Object.values(levelsById).reduce((sum, level) => sum + (level ?? 0), 0)
     : 0;
-  $: maxLevel = nodes
-    .filter((node) => node.id !== "root")
-    .reduce((sum, node) => sum + node.maxLevel, 0);
+  $: maxLevel = nodes.reduce((sum, node) => sum + node.maxLevel, 0);
 
   // Get tech crystals spent for this tree
   $: techCrystalsSpent =
@@ -41,10 +37,15 @@
     </div>
     <div class="stat-row">
       <span class="stat-label">Levels:</span>
-      <span class="stat-value">{formatNumber(currentLevel)} / {formatNumber(maxLevel)}</span>
+      <span class="stat-value"
+        >{formatNumber(currentLevel)} / {formatNumber(maxLevel)}</span
+      >
     </div>
     <div class="level-progress">
-      <div class="level-progress-bar" style={`width: ${maxLevel > 0 ? (currentLevel / maxLevel) * 100 : 0}%`}></div>
+      <div
+        class="level-progress-bar"
+        style={`width: ${maxLevel > 0 ? (currentLevel / maxLevel) * 100 : 0}%`}
+      ></div>
     </div>
   </div>
 {/if}

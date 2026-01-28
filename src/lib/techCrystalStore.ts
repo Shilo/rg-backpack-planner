@@ -1,5 +1,5 @@
 import { derived, writable, get } from "svelte/store";
-import type { TabConfig } from "./Tabs.svelte";
+import type { TabConfig } from "../types/baseTree.types";
 import type { LevelsById } from "./treeLevelsStore";
 import { isPreviewMode } from "./previewModeStore";
 import { loadTreeProgress } from "./treeProgressStore";

@@ -7,20 +7,8 @@
 import { baseTree } from "../../config/baseTree";
 
 /**
- * TreeNode type (matching Tree.svelte)
- */
-type TreeNode = {
-  id: string;
-  x: number;
-  y: number;
-  maxLevel: number;
-  label?: string;
-  parentIds?: string[];
-  radius?: number;
-};
-
-/**
  * Build data structure representing tree levels and tech crystals owned
+ * Levels are keyed by node index (string "0".."29")
  */
 export interface BuildData {
   trees: Record<string, number>[];
@@ -33,20 +21,13 @@ export interface BuildData {
 type BranchType = "yellow" | "orange" | "blue";
 
 /**
- * Branch root node IDs - maps branch type to root node ID
+ * Branch structure: indices 0-9 yellow, 10-19 orange, 20-29 blue
  */
-const BRANCH_ROOTS = {
-  yellow: "attack",
-  orange: "defense",
-  blue: "hp",
-} as const;
-
-/**
- * Reverse lookup map: root node ID -> branch type (for O(1) lookup)
- */
-const ROOT_TO_BRANCH = new Map<string, BranchType>(
-  Object.entries(BRANCH_ROOTS).map(([branch, root]) => [root, branch as BranchType])
-);
+function getNodeBranch(index: number): BranchType {
+  if (index < 10) return "yellow";
+  if (index < 20) return "orange";
+  return "blue";
+}
 
 /**
  * Special marker for completely empty build (all trees empty, owned=0)
@@ -70,95 +51,8 @@ const SEPARATOR_RLE_TREE_COUNT = ":"; // Separates tree string from count in RLE
 export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
 
 /**
- * Node map for quick lookup
- */
-let nodeMap: Map<string, TreeNode> | null = null;
-
-/**
- * Branch membership cache
- */
-let branchCache: Map<string, BranchType> | null = null;
-
-/**
- * Initialize node map from baseTree
- */
-function initializeNodeMap(): Map<string, TreeNode> {
-  if (!nodeMap) {
-    nodeMap = new Map();
-    for (const node of baseTree) {
-      nodeMap.set(node.id, node);
-    }
-  }
-  return nodeMap;
-}
-
-/**
- * Checks if a node ID matches any branch root
- * @param nodeId The node ID to check
- * @returns The branch type if it's a root, or null
- */
-function getBranchRoot(nodeId: string): BranchType | null {
-  return ROOT_TO_BRANCH.get(nodeId) ?? null;
-}
-
-/**
- * Determines which branch a node belongs to by tracing ancestry back to branch roots
- * @param nodeId The node ID to check
- * @returns The branch type (yellow, orange, or blue)
- */
-function getNodeBranch(nodeId: string): BranchType {
-  // Initialize cache if needed
-  if (!branchCache) {
-    branchCache = new Map();
-  }
-
-  // Check cache first
-  if (branchCache.has(nodeId)) {
-    return branchCache.get(nodeId)!;
-  }
-
-  const nodeMap = initializeNodeMap();
-  const node = nodeMap.get(nodeId);
-
-  if (!node) {
-    // Node not found, default to yellow (shouldn't happen)
-    branchCache.set(nodeId, "yellow");
-    return "yellow";
-  }
-
-  // Check if this node is a branch root
-  const rootBranch = getBranchRoot(nodeId);
-  if (rootBranch) {
-    branchCache.set(nodeId, rootBranch);
-    return rootBranch;
-  }
-
-  // Trace ancestry through parentIds
-  if (node.parentIds && node.parentIds.length > 0) {
-    for (const parentId of node.parentIds) {
-      // Check if parent is a branch root
-      const parentRootBranch = getBranchRoot(parentId);
-      if (parentRootBranch) {
-        branchCache.set(nodeId, parentRootBranch);
-        return parentRootBranch;
-      }
-
-      // Recursively check parent
-      const parentBranch = getNodeBranch(parentId);
-      branchCache.set(nodeId, parentBranch);
-      return parentBranch;
-    }
-  }
-
-  // No parentIds or root connection - this shouldn't happen for valid trees
-  // Default to yellow
-  branchCache.set(nodeId, "yellow");
-  return "yellow";
-}
-
-/**
- * Creates branch mapping: maps each branch to an ordered array of node IDs
- * @returns Object with yellow, orange, blue arrays of node IDs in order
+ * Creates branch mapping: maps each branch to an ordered array of node index strings
+ * baseTree has 30 nodes: yellow 0-9, orange 10-19, blue 20-29
  */
 function createBranchMapping(): {
   yellow: string[];
@@ -171,10 +65,9 @@ function createBranchMapping(): {
     blue: [] as string[],
   };
 
-  // Process nodes in baseTree order to maintain consistent ordering
-  for (const node of baseTree) {
-    const branch = getNodeBranch(node.id);
-    mapping[branch].push(node.id);
+  for (let i = 0; i < baseTree.length; i++) {
+    const branch = getNodeBranch(i);
+    mapping[branch].push(String(i));
   }
 
   return mapping;

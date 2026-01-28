@@ -8,7 +8,8 @@ import type { BuildData } from "../src/lib/buildData/encoder";
 import { encodeBuildData, decodeBuildData } from "../src/lib/buildData/encoder";
 
 /**
- * Test cases with various build configurations
+ * Test cases use index-based BuildData.
+ * Indices 0-9 yellow, 10-19 orange, 20-29 blue.
  */
 const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
@@ -19,9 +20,16 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     },
   },
   {
-    name: "Single node level 1",
+    name: "Single node level 1 (index 0)",
     buildData: {
-      trees: [{ hp: 1 }, {}, {}],
+      trees: [{ "0": 1 }, {}, {}],
+      owned: 0,
+    },
+  },
+  {
+    name: "Single node (blue root index 20)",
+    buildData: {
+      trees: [{ "20": 1 }, {}, {}],
       owned: 0,
     },
   },
@@ -29,9 +37,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Multiple nodes, all level 1",
     buildData: {
       trees: [
-        { hp: 1, attack_3_1: 1, dodge_3_1: 1 },
-        { hp: 1, attack_3_1: 1, dodge_3_1: 1 },
-        { hp: 1, attack_3_1: 1, dodge_3_1: 1 },
+        { "0": 1, "1": 1, "2": 1 },
+        { "10": 1, "11": 1, "12": 1 },
+        { "20": 1, "21": 1, "22": 1 },
       ],
       owned: 0,
     },
@@ -40,9 +48,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Mixed levels with zeros",
     buildData: {
       trees: [
-        { hp: 1, attack_3_1: 0, dodge_3_1: 1, damage_reflection_3_1: 0, global_attack_3_1: 1 },
-        { hp: 100, attack_3_1: 0, dodge_3_1: 1 },
-        { hp: 0, attack_3_1: 1, dodge_3_1: 1, damage_reflection_3_1: 100 },
+        { "0": 1, "1": 0, "2": 1, "3": 0, "7": 1 },
+        { "10": 100, "11": 0, "12": 1 },
+        { "20": 0, "21": 1, "22": 1, "27": 100 },
       ],
       owned: 0,
     },
@@ -51,9 +59,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "High values",
     buildData: {
       trees: [
-        { hp: 100, attack_3_1: 50, dodge_3_1: 25, final_3: 5 },
-        { hp: 100, attack_3_1: 50, dodge_3_1: 25, final_3: 5 },
-        { hp: 100, attack_3_1: 50, dodge_3_1: 25, final_3: 5 },
+        { "0": 100, "1": 50, "2": 25, "9": 5 },
+        { "10": 100, "11": 50, "12": 25, "19": 5 },
+        { "20": 100, "21": 50, "22": 25, "29": 5 },
       ],
       owned: 0,
     },
@@ -62,9 +70,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "With owned crystals",
     buildData: {
       trees: [
-        { hp: 1, attack_3_1: 1 },
-        { hp: 1, attack_3_1: 1 },
-        { hp: 1, attack_3_1: 1 },
+        { "0": 1, "1": 1 },
+        { "10": 1, "11": 1 },
+        { "20": 1, "21": 1 },
       ],
       owned: 50,
     },
@@ -73,149 +81,20 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Complex build with many nodes",
     buildData: {
       trees: [
-        {
-          hp: 1,
-          attack_3_1: 1,
-          dodge_3_1: 1,
-          damage_reflection_3_1: 1,
-          global_attack_3_1: 1,
-          def_3_2: 1,
-          ignore_dodge_3_2: 1,
-          ignore_stun_3_2: 1,
-          global_def_3_2: 1,
-          final_3: 5,
-        },
-        {
-          hp: 1,
-          attack_3_1: 1,
-          dodge_3_1: 1,
-          damage_reflection_3_1: 1,
-          global_attack_3_1: 1,
-          def_3_2: 1,
-          ignore_dodge_3_2: 1,
-          ignore_stun_3_2: 1,
-          global_def_3_2: 1,
-          final_3: 5,
-        },
-        {
-          hp: 1,
-          attack_3_1: 1,
-          dodge_3_1: 1,
-          damage_reflection_3_1: 100,
-          global_attack_3_1: 100,
-          def_3_2: 50,
-          ignore_dodge_3_2: 1,
-          ignore_stun_3_2: 1,
-          global_def_3_2: 1,
-          final_3: 5,
-        },
+        { "0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1, "9": 5 },
+        { "10": 1, "11": 1, "12": 1, "13": 1, "14": 1, "15": 1, "16": 1, "17": 1, "18": 1, "19": 5 },
+        { "20": 1, "21": 1, "22": 1, "23": 100, "24": 100, "25": 50, "26": 1, "27": 1, "28": 1, "29": 5 },
       ],
       owned: 0,
     },
   },
   {
     name: "All nodes at max level in every tree",
-    buildData: {
-      trees: [
-        {
-          attack: 100,
-          defense: 100,
-          hp: 100,
-          attack_3_1: 100,
-          dodge_3_1: 100,
-          damage_reflection_3_1: 100,
-          global_attack_3_1: 50,
-          hp_1_1: 100,
-          ignore_dodge_1_1: 100,
-          skill_critical_res_1_1: 100,
-          global_def_1_1: 50,
-          hp_2_1: 100,
-          dodge_2_1: 100,
-          skill_crit_res_2_1: 100,
-          global_hp_2_1: 50,
-          def_3_2: 100,
-          ignore_dodge_3_2: 100,
-          ignore_stun_3_2: 100,
-          global_def_3_2: 50,
-          def_1_2: 100,
-          dodge_1_2: 100,
-          ignore_stun_1_2: 100,
-          global_hp_1_2: 50,
-          attack_2_2: 100,
-          ignore_dodge_2_2: 100,
-          damage_reflection_2_2: 100,
-          global_attack_2_2: 50,
-          final_1: 5,
-          final_2: 5,
-          final_3: 5,
-        },
-        {
-          attack: 100,
-          defense: 100,
-          hp: 100,
-          attack_3_1: 100,
-          dodge_3_1: 100,
-          damage_reflection_3_1: 100,
-          global_attack_3_1: 50,
-          hp_1_1: 100,
-          ignore_dodge_1_1: 100,
-          skill_critical_res_1_1: 100,
-          global_def_1_1: 50,
-          hp_2_1: 100,
-          dodge_2_1: 100,
-          skill_crit_res_2_1: 100,
-          global_hp_2_1: 50,
-          def_3_2: 100,
-          ignore_dodge_3_2: 100,
-          ignore_stun_3_2: 100,
-          global_def_3_2: 50,
-          def_1_2: 100,
-          dodge_1_2: 100,
-          ignore_stun_1_2: 100,
-          global_hp_1_2: 50,
-          attack_2_2: 100,
-          ignore_dodge_2_2: 100,
-          damage_reflection_2_2: 100,
-          global_attack_2_2: 50,
-          final_1: 5,
-          final_2: 5,
-          final_3: 5,
-        },
-        {
-          attack: 100,
-          defense: 100,
-          hp: 100,
-          attack_3_1: 100,
-          dodge_3_1: 100,
-          damage_reflection_3_1: 100,
-          global_attack_3_1: 50,
-          hp_1_1: 100,
-          ignore_dodge_1_1: 100,
-          skill_critical_res_1_1: 100,
-          global_def_1_1: 50,
-          hp_2_1: 100,
-          dodge_2_1: 100,
-          skill_crit_res_2_1: 100,
-          global_hp_2_1: 50,
-          def_3_2: 100,
-          ignore_dodge_3_2: 100,
-          ignore_stun_3_2: 100,
-          global_def_3_2: 50,
-          def_1_2: 100,
-          dodge_1_2: 100,
-          ignore_stun_1_2: 100,
-          global_hp_1_2: 50,
-          attack_2_2: 100,
-          ignore_dodge_2_2: 100,
-          damage_reflection_2_2: 100,
-          global_attack_2_2: 50,
-          final_1: 5,
-          final_2: 5,
-          final_3: 5,
-        },
-      ],
-      owned: 0,
-    },
+    buildData: (() => {
+      const full: Record<string, number> = {};
+      for (let i = 0; i < 30; i++) full[String(i)] = (i === 9 || i === 19 || i === 29) ? 1 : (i === 7 || i === 8 || i === 17 || i === 18 || i === 27 || i === 28) ? 50 : 100;
+      return { trees: [{ ...full }, { ...full }, { ...full }], owned: 0 };
+    })(),
   },
   {
     name: "Worst case: All trees different, no patterns, high values, scattered zeros",
@@ -335,7 +214,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "Single branch with single value",
     buildData: {
-      trees: [{ attack: 1 }, {}, {}],
+      trees: [{ "0": 1 }, {}, {}],
       owned: 0,
     },
   },
@@ -343,7 +222,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "All zeros in a branch (trailing truncation)",
     buildData: {
       trees: [
-        { attack: 1, hp_1_1: 0, ignore_dodge_1_1: 0, skill_critical_res_1_1: 0 },
+        { "0": 1, "1": 0, "2": 0, "3": 0 },
         {},
         {},
       ],
@@ -361,11 +240,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Maximum values (100, 50, 5)",
     buildData: {
       trees: [
-        {
-          attack: 100,
-          global_attack_3_1: 50,
-          final_3: 5,
-        },
+        { "0": 100, "7": 50, "9": 5 },
         {},
         {},
       ],
@@ -375,8 +250,8 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "Large owned value (multi-character base62)",
     buildData: {
-      trees: [{ attack: 1 }, {}, {}],
-      owned: 3844, // "100" in base62
+      trees: [{ "0": 1 }, {}, {}],
+      owned: 3844,
     },
   },
   {
@@ -389,7 +264,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "Single value in branch (no RLE)",
     buildData: {
-      trees: [{ hp: 1 }, {}, {}],
+      trees: [{ "20": 1 }, {}, {}],
       owned: 0,
     },
   },
@@ -759,9 +634,9 @@ export function runTests() {
         console.log();
         return;
       }
-      
+
       const serializedLength = serialized.length;
-      
+
       // Note: Serialized string uses count-framed format with base62 encoding (0-9, a-z, A-Z)
       // Format: <treeCount>-<tree>-<tree>-...[-o<owned>]
       // tree := <branchCount>-<branch>-<branch>-...
@@ -780,7 +655,7 @@ export function runTests() {
         console.log();
         return;
       }
-      
+
       const decodedJsonLength = decoded ? JSON.stringify(decoded).length : 0;
 
       // Verify
@@ -878,7 +753,7 @@ export function runTests() {
   console.log(`   Serialized (${longestSerializedLength} chars):`);
   console.log(`   ${longestSerializedValue}`);
   console.log("===");
-  
+
   return {
     total: testCases.length,
     passed: passedTests,
@@ -982,21 +857,21 @@ function isEncoderCompatible(): boolean {
       trees: [{ attack: 1 }, {}, {}],
       owned: 0,
     };
-    
+
     const encoded = encodeBuildData(testBuild);
-    
+
     // If encoded string uses new format separators (- and _) but not old ones (: and ;), it's new format
     // If it uses old format separators (: and ;), it's old format
-    const hasNewFormat = (encoded.includes("-") || encoded.includes("_")) && 
-                         !encoded.includes(":") && 
-                         !encoded.includes(";");
+    const hasNewFormat = (encoded.includes("-") || encoded.includes("_")) &&
+      !encoded.includes(":") &&
+      !encoded.includes(";");
     const hasOldFormat = encoded.includes(":") || encoded.includes(";");
-    
+
     // If we detect old format, encoder is incompatible with new format tests
     if (hasOldFormat && !hasNewFormat) {
       return false;
     }
-    
+
     // If we detect new format, encoder is compatible
     return true;
   } catch (error) {
@@ -1033,11 +908,11 @@ export function runErrorTests() {
 
     // Check if test uses new format (has _ and - but not : and ;)
     // Old encoder uses : and ; as separators, new format uses - and _
-    const usesNewFormat = testCase.invalidString.includes("_") && 
-                          testCase.invalidString.includes("-") &&
-                          !testCase.invalidString.includes(":") && 
-                          !testCase.invalidString.includes(";");
-    
+    const usesNewFormat = testCase.invalidString.includes("_") &&
+      testCase.invalidString.includes("-") &&
+      !testCase.invalidString.includes(":") &&
+      !testCase.invalidString.includes(";");
+
     // CRITICAL: ALWAYS skip test 15 ("Invalid format: extra segments") if it uses new format
     // This test causes infinite loops with old encoder
     if (testCase.name === "Invalid format: extra segments" && usesNewFormat) {
@@ -1046,21 +921,21 @@ export function runErrorTests() {
       console.log();
       return;
     }
-    
+
     // Skip tests that are known to cause infinite loops with old encoder
     // These tests use the new format structure that old encoder can't parse
     const problematicTests = [
       "Invalid format: extra segments", // "1-1-1_1-extra" - old encoder tries to parse "1-1-1_1" as number
       "Invalid format: incomplete branch", // "1-1-" - old encoder may loop
     ];
-    
+
     if (!isCompatible && problematicTests.includes(testCase.name)) {
       console.log("⏭️  SKIPPED: Test skipped to prevent infinite loop with incompatible encoder");
       skippedTests++;
       console.log();
       return;
     }
-    
+
     // Additional safety: skip any test using new format if encoder is incompatible
     if (!isCompatible && usesNewFormat) {
       console.log("⏭️  SKIPPED: Test uses new format incompatible with encoder version");
@@ -1073,7 +948,7 @@ export function runErrorTests() {
       // Note: If testing with an old encoder version, format mismatches may cause issues
       // The old encoder may not handle the new count-framed format correctly
       let decoded: BuildData | null = null;
-      
+
       try {
         decoded = decodeBuildData(testCase.invalidString);
       } catch (error) {
@@ -1082,7 +957,7 @@ export function runErrorTests() {
         // Error thrown is acceptable - means invalid format was rejected
         decoded = null;
       }
-      
+
       if (decoded === null) {
         console.log("✅ PASSED: Correctly rejected invalid format");
         passedTests++;
@@ -1104,7 +979,7 @@ export function runErrorTests() {
         failedTests++;
       }
     }
-    
+
     console.log();
   });
 
@@ -1119,7 +994,7 @@ export function runErrorTests() {
     console.log(`⏭️  Skipped: ${skippedTests} (incompatible encoder version)`);
   }
   console.log("===");
-  
+
   return {
     total: errorTestCases.length,
     passed: passedTests,
@@ -1137,7 +1012,7 @@ try {
   console.log();
   const normalSummary = runTests();
   console.log();
-  
+
   // Combined Final Summary
   console.log("===");
   console.log("Final Combined Summary");
@@ -1146,7 +1021,7 @@ try {
   const totalPassed = errorSummary.passed + normalSummary.passed;
   const totalFailed = errorSummary.failed + normalSummary.failed;
   const totalSkipped = errorSummary.skipped + normalSummary.skipped;
-  
+
   console.log(`📊 Total tests (all): ${totalTests}`);
   console.log(`   - Error handling tests: ${errorSummary.total} (${errorSummary.passed} passed, ${errorSummary.failed} failed, ${errorSummary.skipped} skipped)`);
   console.log(`   - Encoding/decoding tests: ${normalSummary.total} (${normalSummary.passed} passed, ${normalSummary.failed} failed)`);

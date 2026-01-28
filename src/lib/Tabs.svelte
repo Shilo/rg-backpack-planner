@@ -1,11 +1,8 @@
 <script lang="ts" context="module">
-  import type { TreeNode, TreeViewState } from "./Tree.svelte";
+  import type { TreeViewState } from "./Tree.svelte";
+  import type { TabConfig } from "../types/baseTree.types";
 
-  export type TabConfig = {
-    id: string;
-    label: string;
-    nodes: TreeNode[];
-  };
+  export type { TabConfig };
 </script>
 
 <script lang="ts">

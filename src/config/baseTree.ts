@@ -1,39 +1,300 @@
-// Reworked base tree to match the screenshot layout.
-// Positions are offset so root is at (0, 0) and serves as the center of the grid.
-// Radius values are 0-1 scale where 1.0 is the maximum size (65px equivalent).
-// Note: Root node is always rendered at (0, 0) by Tree.svelte and is not included here.
+import type { Tree, BranchSkillIds } from "../types/baseTree.types";
 
-import type { BaseTreeNode } from "../types/baseTree.types";
+export const createTree = (
+    yellowBranchSkillIds: BranchSkillIds,
+    orangeBranchSkillIds: BranchSkillIds,
+    blueBranchSkillIds: BranchSkillIds,
+): Tree => [
+        // Yellow Branch
+        // Tier 1
+        // Index 0
+        {
+            skillId: "attack_boost",
+            maxLevel: 100,
+            radius: 1,
+            x: 0,
+            y: 73,
+        },
+        // Tier 2
+        // Index 1
+        {
+            skillId: "hp_boost",
+            parent: 0,
+            maxLevel: 100,
+            radius: 0.5,
+            x: 0,
+            y: 153,
+        },
+        // Index 2
+        {
+            skillId: "defense_boost",
+            parent: 0,
+            maxLevel: 100,
+            radius: 0.5,
+            x: -135,
+            y: 75,
+        },
+        // Tier 3
+        // Index 3
+        {
+            skillId: yellowBranchSkillIds[0],
+            parent: 1,
+            maxLevel: 100,
+            radius: 0.75,
+            x: 55,
+            y: 228,
+        },
+        // Index 4
+        {
+            skillId: "ignore_dodge",
+            parent: 1,
+            maxLevel: 100,
+            radius: 0.75,
+            x: -53,
+            y: 228,
+        },
+        // Index 5
+        {
+            skillId: yellowBranchSkillIds[1],
+            parent: 2,
+            maxLevel: 100,
+            radius: 0.75,
+            x: -175,
+            y: 158,
+        },
+        // Index 6
+        {
+            skillId: "dodge",
+            parent: 2,
+            maxLevel: 100,
+            radius: 0.75,
+            x: -228,
+            y: 68,
+        },
+        // Tier 4
+        // Index 7
+        {
+            skillId: "global_def",
+            parent: [3, 4],
+            maxLevel: 50,
+            radius: 0.5,
+            x: 0,
+            y: 310,
+        },
+        // Index 8
+        {
+            skillId: "global_hp",
+            parent: [5, 6],
+            maxLevel: 50,
+            radius: 0.5,
+            x: -270,
+            y: 150,
+        },
+        // Tier 5
+        // Index 9
+        {
+            skillId: "final_damage_boost",
+            parent: [7, 8],
+            maxLevel: 1,
+            radius: 1,
+            x: -190,
+            y: 300,
+        },
+        // Orange Branch
+        // Tier 1
+        // Index 10
+        {
+            skillId: "defense_boost",
+            maxLevel: 100,
+            radius: 1,
+            x: -73,
+            y: -45,
+        },
+        // Tier 2
+        // Index 11
+        {
+            skillId: "hp_boost",
+            parent: 10,
+            maxLevel: 100,
+            radius: 0.5,
+            x: -135,
+            y: -80,
+        },
+        // Index 12
+        {
+            skillId: "attack_boost",
+            parent: 10,
+            maxLevel: 100,
+            radius: 0.5,
+            x: 0,
+            y: -158,
+        },
+        // Tier 3
+        // Index 13
+        {
+            skillId: "dodge",
+            parent: 11,
+            maxLevel: 100,
+            radius: 0.75,
+            x: -228,
+            y: -78,
+        },
+        // Index 14
+        {
+            skillId: orangeBranchSkillIds[0],
+            parent: 11,
+            maxLevel: 100,
+            radius: 0.75,
+            x: -175,
+            y: -165,
+        },
+        // Index 15
+        {
+            skillId: "ignore_dodge",
+            parent: 12,
+            maxLevel: 100,
+            radius: 0.75,
+            x: -53,
+            y: -235,
+        },
+        // Index 16
+        {
+            skillId: orangeBranchSkillIds[1],
+            parent: 12,
+            maxLevel: 100,
+            radius: 0.75,
+            x: 55,
+            y: -235,
+        },
+        // Tier 4
+        // Index 17
+        {
+            skillId: "global_hp",
+            parent: [13, 14],
+            maxLevel: 50,
+            radius: 0.5,
+            x: -270,
+            y: -155,
+        },
+        // Index 18
+        {
+            skillId: "global_atk",
+            parent: [15, 16],
+            maxLevel: 50,
+            radius: 0.5,
+            x: 0,
+            y: -315,
+        },
+        // Tier 5
+        // Index 19
+        {
+            skillId: "final_damage_boost",
+            parent: [17, 18],
+            maxLevel: 1,
+            radius: 1,
+            x: -190,
+            y: -318,
+        },
+        // Blue Branch
+        // Tier 1
+        // Index 20
+        {
+            skillId: "hp_boost",
+            maxLevel: 100,
+            radius: 1,
+            x: 68,
+            y: -45,
+        },
+        // Tier 2
+        // Index 21
+        {
+            skillId: "attack_boost",
+            parent: 20,
+            maxLevel: 100,
+            radius: 0.5,
+            x: 133,
+            y: -78,
+        },
+        // Index 22
+        {
+            skillId: "defense_boost",
+            parent: 20,
+            maxLevel: 100,
+            radius: 0.5,
+            x: 133,
+            y: 75,
+        },
+        // Tier 3
+        // Index 23
+        {
+            skillId: "dodge",
+            parent: 21,
+            maxLevel: 100,
+            radius: 0.75,
+            x: 173,
+            y: -165,
+        },
+        // Index 24
+        {
+            skillId: blueBranchSkillIds[0],
+            parent: 21,
+            maxLevel: 100,
+            radius: 0.75,
+            x: 225,
+            y: -73,
+        },
+        // Index 25
+        {
+            skillId: "ignore_dodge",
+            parent: 22,
+            maxLevel: 100,
+            radius: 0.75,
+            x: 225,
+            y: 68,
+        },
+        // Index 26
+        {
+            skillId: blueBranchSkillIds[1],
+            parent: 22,
+            maxLevel: 100,
+            radius: 0.75,
+            x: 173,
+            y: 158,
+        },
+        // Tier 4
+        // Index 27
+        {
+            skillId: "global_atk",
+            parent: [23, 24],
+            maxLevel: 50,
+            radius: 0.5,
+            x: 268,
+            y: -158,
+        },
+        // Index 28
+        {
+            skillId: "global_def",
+            parent: [25, 26],
+            maxLevel: 50,
+            radius: 0.5,
+            x: 268,
+            y: 150,
+        },
+        // Tier 5
+        // Index 29
+        {
+            skillId: "final_damage_boost",
+            parent: [27, 28],
+            maxLevel: 1,
+            radius: 1,
+            x: 368,
+            y: -3,
+        },
+    ];
 
-export const baseTree: BaseTreeNode[] = [
-    { id: "attack", x: 0, y: 73, maxLevel: 100, label: "Attack", radius: 60 / 65 },
-    { id: "defense", x: -73, y: -45, maxLevel: 100, label: "Defense", radius: 60 / 65 },
-    { id: "hp", x: 68, y: -45, maxLevel: 100, label: "HP", radius: 60 / 65 },
-    { id: "attack_3_1", x: 133, y: -78, maxLevel: 100, parentIds: ["hp"], label: "Attack_3_1", radius: 35 / 65 },
-    { id: "dodge_3_1", x: 173, y: -165, maxLevel: 100, parentIds: ["attack_3_1"], label: "Dodge_3_1", radius: 50 / 65 },
-    { id: "damage_reflection_3_1", x: 225, y: -73, maxLevel: 100, parentIds: ["attack_3_1"], label: "Damage_reflection_3_1", radius: 50 / 65 },
-    { id: "global_attack_3_1", x: 268, y: -158, maxLevel: 50, parentIds: ["damage_reflection_3_1", "dodge_3_1"], label: "Global_Attack_3_1", radius: 35 / 65 },
-    { id: "hp_1_1", x: 0, y: 153, maxLevel: 100, parentIds: ["attack"], label: "HP_1_1", radius: 35 / 65 },
-    { id: "ignore_dodge_1_1", x: -53, y: 228, maxLevel: 100, parentIds: ["hp_1_1"], label: "Ignore_Dodge_1_1", radius: 50 / 65 },
-    { id: "skill_critical_res_1_1", x: 55, y: 228, maxLevel: 100, parentIds: ["hp_1_1"], label: "Skill_crit_res_1_1", radius: 50 / 65 },
-    { id: "global_def_1_1", x: 0, y: 310, maxLevel: 50, parentIds: ["skill_critical_res_1_1", "ignore_dodge_1_1"], label: "Global_Def_1_1", radius: 35 / 65 },
-    { id: "hp_2_1", x: -135, y: -80, maxLevel: 100, parentIds: ["defense"], label: "HP_2_1", radius: 35 / 65 },
-    { id: "dodge_2_1", x: -228, y: -78, maxLevel: 100, parentIds: ["hp_2_1"], label: "Dodge_2_1", radius: 50 / 65 },
-    { id: "skill_crit_res_2_1", x: -175, y: -165, maxLevel: 100, parentIds: ["hp_2_1"], label: "Skill_crit_res_2_1", radius: 50 / 65 },
-    { id: "global_hp_2_1", x: -270, y: -155, maxLevel: 50, parentIds: ["skill_crit_res_2_1", "dodge_2_1"], label: "Global_HP_2_1", radius: 35 / 65 },
-    { id: "def_3_2", x: 133, y: 75, maxLevel: 100, parentIds: ["hp"], label: "Def_3_2", radius: 35 / 65 },
-    { id: "ignore_dodge_3_2", x: 225, y: 68, maxLevel: 100, parentIds: ["def_3_2"], label: "Ignore_Dodge_3_2", radius: 50 / 65 },
-    { id: "ignore_stun_3_2", x: 173, y: 158, maxLevel: 100, parentIds: ["def_3_2"], label: "Ignore_Stun_3_2", radius: 50 / 65 },
-    { id: "global_def_3_2", x: 268, y: 150, maxLevel: 50, parentIds: ["ignore_dodge_3_2", "ignore_stun_3_2"], label: "Global_Def_3_2", radius: 35 / 65 },
-    { id: "def_1_2", x: -135, y: 75, maxLevel: 100, parentIds: ["attack"], label: "Def_1_2", radius: 35 / 65 },
-    { id: "dodge_1_2", x: -228, y: 68, maxLevel: 100, parentIds: ["def_1_2"], label: "Dodge_1_2", radius: 50 / 65 },
-    { id: "ignore_stun_1_2", x: -175, y: 158, maxLevel: 100, parentIds: ["def_1_2"], label: "Ignore_Stun_1_2", radius: 50 / 65 },
-    { id: "global_hp_1_2", x: -270, y: 150, maxLevel: 50, parentIds: ["dodge_1_2", "ignore_stun_1_2"], label: "Global_HP_1_2", radius: 35 / 65 },
-    { id: "attack_2_2", x: 0, y: -158, maxLevel: 100, parentIds: ["defense"], label: "Attack_2_2", radius: 35 / 65 },
-    { id: "ignore_dodge_2_2", x: -53, y: -235, maxLevel: 100, parentIds: ["attack_2_2"], label: "Ignore_Dodge_2_2", radius: 50 / 65 },
-    { id: "damage_reflection_2_2", x: 55, y: -235, maxLevel: 100, parentIds: ["attack_2_2"], label: "Damage_Reflection_2_2", radius: 50 / 65 },
-    { id: "global_attack_2_2", x: 0, y: -315, maxLevel: 50, parentIds: ["ignore_dodge_2_2", "damage_reflection_2_2"], label: "Global_Attack_2_2", radius: 35 / 65 },
-    { id: "final_1", x: -190, y: 300, maxLevel: 5, parentIds: ["global_hp_1_2", "global_def_1_1"], label: "Final_1", radius: 1.0 },
-    { id: "final_2", x: -190, y: -318, maxLevel: 5, parentIds: ["global_hp_2_1", "global_attack_2_2"], label: "Final_2", radius: 1.0 },
-    { id: "final_3", x: 368, y: -3, maxLevel: 5, parentIds: ["global_attack_3_1", "global_def_3_2"], label: "Final_3", radius: 1.0 },
-];
+/** Base tree structure used by encoder (same layout as all trees; branch IDs arbitrary). */
+export const baseTree: Tree = createTree(
+    ["skill_crit", "pierce_resistance"],
+    ["stun", "skill_crit"],
+    ["stun", "pierce_resistance"],
+);

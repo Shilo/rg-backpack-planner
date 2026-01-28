@@ -4,7 +4,7 @@
  */
 
 import type { BuildData } from "./encoder";
-import type { TreeNode } from "../Tree.svelte";
+import type { Node } from "../../types/baseTree.types";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";
@@ -20,7 +20,7 @@ import { get } from "svelte/store";
  * @returns true if build was successfully applied, false otherwise
  */
 export function applyBuildFromUrl(
-  trees?: { nodes: TreeNode[] }[],
+  trees?: { nodes: Node[] }[],
   buildData?: BuildData | null,
 ): boolean {
   // Use provided buildData if available, otherwise load from URL

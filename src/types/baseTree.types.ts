@@ -1,9 +1,15 @@
 export type Tree = Node[];
 
+export type TabConfig = {
+    id: string;
+    label: string;
+    nodes: Node[];
+};
+
 export type BranchSkillIds = [SkillId, SkillId];
 
 export type Node = {
-    id: SkillId;
+    skillId: SkillId;
     parent?: number | number[];
     maxLevel: NodeMaxLevel;
     radius: NodeRadius;
@@ -37,15 +43,3 @@ export type SkillId =
 export type NodeMaxLevel = 100 | 50 | 1;
 
 export type NodeRadius = 1 | 0.75 | 0.5;
-
-
-// TODO: Remove this type
-export type BaseTreeNode = {
-    id: string;
-    x: number;
-    y: number;
-    maxLevel: number;
-    label: string;
-    radius: number;
-    parentIds?: string[];
-};

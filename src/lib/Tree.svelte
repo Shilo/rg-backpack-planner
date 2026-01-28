@@ -1,13 +1,5 @@
 <script lang="ts" context="module">
-  export type TreeNode = {
-    id: string;
-    x: number;
-    y: number;
-    maxLevel: number;
-    label?: string;
-    parentIds?: string[];
-    radius?: number; // 0 to 1, where 1 is the maximum size
-  };
+  import type { Node as NodeType } from "../types/baseTree.types";
 
   export type TreeViewState = {
     offsetX: number;
@@ -33,7 +25,7 @@
   import { closeUpView } from "./closeUpViewStore";
   import { singleLevelUp } from "./singleLevelUpStore";
 
-  export let nodes: TreeNode[] = [];
+  export let nodes: NodeType[] = [];
   export let bottomInset = 0;
   export let gesturesDisabled = false;
   export let initialViewState: TreeViewState | null = null;
@@ -139,12 +131,13 @@
   $: {
     let nextLevels = levels;
     let changed = false;
-    for (const node of regularNodes) {
-      if (!(node.id in nextLevels)) {
+    for (let i = 0; i < regularNodes.length; i++) {
+      const key = String(i);
+      if (!(key in nextLevels)) {
         if (nextLevels === levels) {
           nextLevels = { ...levels };
         }
-        nextLevels[node.id] = 0;
+        nextLevels[key] = 0;
         changed = true;
       }
     }
@@ -153,41 +146,47 @@
     }
   }
 
-  let nodeById = new Map<string, TreeNode>();
-  $: nodeById = new Map(nodes.map((node) => [node.id, node]));
+  let nodeById = new Map<string, NodeType>();
+  $: nodeById = new Map(nodes.map((node, i) => [String(i), node]));
 
-  // Root node is always at (0, 0) and never customizable
   const rootNode = getRootNode();
   $: regularNodes = nodes;
 
+  function parentIndices(node: NodeType, index: number): number[] {
+    const p = node.parent;
+    if (p === undefined) return [];
+    return Array.isArray(p) ? p : [p];
+  }
+
   const links = () => {
-    const regularLinks = regularNodes.flatMap((node) =>
-      (node.parentIds ?? []).map((parentId) => ({
-        from: parentId,
-        to: node.id,
-      })),
-    );
-    // Link nodes without parentIds to root
-    const rootLinks = regularNodes
-      .filter((node) => !node.parentIds || node.parentIds.length === 0)
-      .map((node) => ({
-        from: "root",
-        to: node.id,
+    const regularLinks = regularNodes.flatMap((node, i) => {
+      const parents = parentIndices(node, i);
+      return parents.map((pi) => ({
+        from: String(pi) as string,
+        to: String(i),
       }));
+    });
+    const rootLinks: { from: "root"; to: string }[] = [];
+    regularNodes.forEach((node, i) => {
+      if (parentIndices(node, i).length === 0) {
+        rootLinks.push({ from: "root", to: String(i) });
+      }
+    });
     return [...regularLinks, ...rootLinks];
   };
 
-  function hasChildren(nodeId: string): boolean {
-    // Check if any node has this node as a parent
-    return regularNodes.some(
-      (node) => node.parentIds?.includes(nodeId) ?? false,
-    );
+  function hasChildren(indexStr: string): boolean {
+    const idx = Number(indexStr);
+    return regularNodes.some((node, i) => {
+      const parents = parentIndices(node, i);
+      return parents.includes(idx);
+    });
   }
 
-  function isLeafNode(node: TreeNode): boolean {
-    // Leaf node: has at least 1 parent (explicit parentIds) but no children
-    const hasParent = (node.parentIds?.length ?? 0) > 0;
-    return hasParent && !hasChildren(node.id);
+  function isLeafNode(node: NodeType, index: number): boolean {
+    const parents = parentIndices(node, index);
+    const hasParent = parents.length > 0;
+    return hasParent && !hasChildren(String(index));
   }
 
   function getLevelFrom(levelsSnapshot: Record<string, number>, id: string) {
@@ -198,112 +197,76 @@
     return getLevelFrom(levels, id);
   }
 
-  function isAvailable(node: TreeNode, levelsSnapshot: Record<string, number>) {
-    // Nodes without parentIds are linked to root, which is always available
-    if (!node.parentIds || node.parentIds.length === 0) return true;
-    return node.parentIds.every((parentId) => {
-      // Root is always considered "available" for linking purposes
-      if (parentId === "root") return true;
-      return getLevelFrom(levelsSnapshot, parentId) > 0;
-    });
+  function isAvailable(
+    node: NodeType,
+    index: number,
+    levelsSnapshot: Record<string, number>,
+  ): boolean {
+    const parents = parentIndices(node, index);
+    if (parents.length === 0) return true;
+    return parents.every((pi) => getLevelFrom(levelsSnapshot, String(pi)) > 0);
   }
 
   function getState(
-    node: TreeNode,
+    node: NodeType,
+    index: number,
     levelsSnapshot: Record<string, number>,
   ): NodeState {
-    const level = getLevelFrom(levelsSnapshot, node.id);
+    const level = getLevelFrom(levelsSnapshot, String(index));
     if (level >= node.maxLevel) return "maxed";
     if (level > 0) return "active";
-    if (isAvailable(node, levelsSnapshot)) return "available";
+    if (isAvailable(node, index, levelsSnapshot)) return "available";
     return "locked";
   }
 
   type NodeRegion = "top-left" | "bottom-left" | "right";
 
-  // Cache for computed regions to avoid recomputation
-  let regionCache = new Map<string, NodeRegion>();
+  let regionCache = new Map<number, NodeRegion>();
 
-  function getBaseRegionFromPosition(node: TreeNode): NodeRegion {
-    // Root node doesn't have a region
-    if (node.id === "root") return "right";
-
-    // Right side: x > 0
+  function getBaseRegionFromPosition(node: NodeType): NodeRegion {
     if (node.x > 0) return "right";
-
-    // Left side: x < 0 or x === 0
-    // Top-left: y < 0 (above root)
-    // Bottom-left: y >= 0 (below root)
-    if (node.y < 0) {
-      return "top-left";
-    }
+    if (node.y < 0) return "top-left";
     return "bottom-left";
   }
 
-  function getNodeRegion(node: TreeNode): NodeRegion {
-    // Check cache first
-    if (regionCache.has(node.id)) {
-      return regionCache.get(node.id)!;
+  function getNodeRegion(node: NodeType, index: number): NodeRegion {
+    if (regionCache.has(index)) {
+      return regionCache.get(index)!;
     }
 
-    // Root node
-    if (node.id === "root") {
-      regionCache.set(node.id, "right");
-      return "right";
-    }
-
-    // If node is directly connected to root, determine region from position
-    const isRootConnected =
-      !node.parentIds ||
-      node.parentIds.length === 0 ||
-      node.parentIds.includes("root");
-
-    if (isRootConnected) {
+    const parents = parentIndices(node, index);
+    if (parents.length === 0) {
       const region = getBaseRegionFromPosition(node);
-      regionCache.set(node.id, region);
+      regionCache.set(index, region);
       return region;
     }
 
-    // Otherwise, inherit region from parent
-    // Find the first parent that exists and get its region
-    if (node.parentIds && node.parentIds.length > 0) {
-      for (const parentId of node.parentIds) {
-        if (parentId === "root") {
-          // Connected to root, determine from position
-          const region = getBaseRegionFromPosition(node);
-          regionCache.set(node.id, region);
-          return region;
-        }
-        const parent = nodeById.get(parentId);
-        if (parent) {
-          const parentRegion = getNodeRegion(parent);
-          regionCache.set(node.id, parentRegion);
-          return parentRegion;
-        }
+    for (const pi of parents) {
+      const parent = nodeById.get(String(pi));
+      if (parent) {
+        const parentRegion = getNodeRegion(parent, pi);
+        regionCache.set(index, parentRegion);
+        return parentRegion;
       }
     }
 
-    // Fallback: determine from position
     const region = getBaseRegionFromPosition(node);
-    regionCache.set(node.id, region);
+    regionCache.set(index, region);
     return region;
   }
 
-  // Clear cache when nodes change
   $: {
     regionCache.clear();
-    // Pre-compute all regions
-    for (const node of nodes) {
-      getNodeRegion(node);
-    }
+    nodes.forEach((node, i) => getNodeRegion(node, i));
   }
 
   function getLinkColor(
-    from: TreeNode,
-    to: TreeNode,
+    from: NodeType | { x: number; y: number; radius?: number },
+    to: NodeType,
+    toIndex: number,
     isActive: boolean,
   ): string {
-    const toRegion = getNodeRegion(to);
+    const toRegion = getNodeRegion(to, toIndex);
     const opacity = isActive ? 0.8 : 0.4;
 
     // Use the target node's region color for the link
@@ -314,7 +277,6 @@
   }
 
   function levelUp(id: string) {
-    if (id === "root") return false; // Root cannot be leveled up
     const node = nodeById.get(id);
     if (!node) return false;
     const level = getLevel(id);
@@ -323,32 +285,24 @@
     updateLevels({ ...levels, [id]: nextLevel });
     onNodeLevelChange?.(1, id);
 
-    // Recursively level zero-leveled parent nodes
     levelZeroParents(id);
-
     return true;
   }
 
   function levelZeroParents(nodeId: string) {
     const node = nodeById.get(nodeId);
-    if (!node || !node.parentIds) return;
-
-    // Check all parent nodes
-    for (const parentId of node.parentIds) {
-      // Skip root as it cannot be leveled
-      if (parentId === "root") continue;
-
+    if (!node) return;
+    const parents = parentIndices(node, Number(nodeId));
+    for (const pi of parents) {
+      const parentId = String(pi);
       const parentNode = nodeById.get(parentId);
       if (!parentNode) continue;
-
       const parentLevel = getLevel(parentId);
-      // If the parent is at level 0, level it recursively
       if (parentLevel === 0) {
         const nextLevel = Math.min(1, parentNode.maxLevel);
         if (nextLevel > 0) {
           updateLevels({ ...levels, [parentId]: nextLevel });
           onNodeLevelChange?.(1, parentId);
-          // Recursively level this parent's parents
           levelZeroParents(parentId);
         }
       }
@@ -358,8 +312,7 @@
   function levelDown(id: string) {
     const level = getLevel(id);
     if (level === 0) return;
-    const nextLevel = level - 1;
-    updateLevels({ ...levels, [id]: nextLevel });
+    updateLevels({ ...levels, [id]: level - 1 });
     onNodeLevelChange?.(-1, id);
   }
 
@@ -377,8 +330,6 @@
     if (level >= node.maxLevel) return;
     updateLevels({ ...levels, [id]: node.maxLevel });
     onNodeLevelChange?.(node.maxLevel - level, id);
-
-    // Recursively level zero-leveled parent nodes
     levelZeroParents(id);
   }
 
@@ -387,7 +338,7 @@
       (sum, value) => sum + value,
       0,
     );
-    updateLevels(Object.fromEntries(nodes.map((node) => [node.id, 0])));
+    updateLevels(Object.fromEntries(nodes.map((_, i) => [String(i), 0])));
     if (totalSpent > 0) {
       onNodeLevelChange?.(-totalSpent, "all");
     }
@@ -612,9 +563,7 @@
         }
       } else {
         // Check single level-up setting: if enabled, increment by 1; if disabled, max the node
-        $singleLevelUp
-          ? levelUp(pointer.nodeId)
-          : maxNode(pointer.nodeId);
+        $singleLevelUp ? levelUp(pointer.nodeId) : maxNode(pointer.nodeId);
       }
     }
 
@@ -688,8 +637,8 @@
       maxScale,
     );
     // When close-up view is enabled, center on the root node; otherwise center on tree bounds
-    const centerX = $closeUpView && rootNode ? rootNode.x : (minX + width / 2);
-    const centerY = $closeUpView && rootNode ? rootNode.y : (minY + height / 2);
+    const centerX = $closeUpView && rootNode ? rootNode.x : minX + width / 2;
+    const centerY = $closeUpView && rootNode ? rootNode.y : minY + height / 2;
     const nextOffsetX = paddedCenterX - centerX * nextScale;
     const nextOffsetY = paddedCenterY - centerY * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -866,11 +815,12 @@
               {@const from =
                 link.from === "root" ? rootNode! : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
+              {@const toIndex = Number(link.to)}
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive =
                 link.from === "root" || getLevelFrom(levels, link.from) > 0}
-              {@const linkColor = getLinkColor(from, to, isActive)}
+              {@const linkColor = getLinkColor(from, to, toIndex, isActive)}
               <line
                 x1={from.x}
                 y1={from.y}
@@ -886,39 +836,39 @@
           class="root-wrapper"
           data-node-id="root"
           style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${64 * (rootNode.radius ?? 1)}px; height: ${64 * (rootNode.radius ?? 1)}px; --node-radius: ${rootNode.radius ?? 1};`}
-            on:keydown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                if (onOpenTreeContextMenu) {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  onOpenTreeContextMenu(
-                    rect.left + rect.width / 2,
-                    rect.top + rect.height / 2,
-                  );
-                } else {
-                  focusTreeInView(true);
-                }
+          on:keydown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              if (onOpenTreeContextMenu) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                onOpenTreeContextMenu(
+                  rect.left + rect.width / 2,
+                  rect.top + rect.height / 2,
+                );
+              } else {
+                focusTreeInView(true);
               }
-            }}
-            role="button"
-            tabindex="0"
-            aria-label="Tree actions"
-          >
-            <RootNode />
-          </div>
+            }
+          }}
+          role="button"
+          tabindex="0"
+          aria-label="Tree actions"
+        >
+          <RootNode />
+        </div>
 
-        {#each regularNodes as node}
-          {@const level = getLevelFrom(levels, node.id)}
-          {@const state = getState(node, levels)}
-          {@const region = getNodeRegion(node)}
-          {@const isLeaf = isLeafNode(node)}
+        {#each regularNodes as node, i}
+          {@const level = getLevelFrom(levels, String(i))}
+          {@const state = getState(node, i, levels)}
+          {@const region = getNodeRegion(node, i)}
+          {@const isLeaf = isLeafNode(node, i)}
           <div
             class="node-wrapper"
             style={`left: ${node.x}px; top: ${node.y}px;`}
           >
             <Node
-              id={node.id}
-              label={node.label ?? ""}
+              id={String(i)}
+              label={node.skillId}
               {level}
               {state}
               radius={node.radius ?? 1}
@@ -932,6 +882,9 @@
 
       <NodeContentMenu
         nodeId={contextMenu?.id ?? ""}
+        nodeLabel={contextMenu?.id && nodeById.has(contextMenu.id)
+          ? nodeById.get(contextMenu.id)!.skillId
+          : ""}
         x={contextMenu?.x ?? 0}
         y={contextMenu?.y ?? 0}
         isOpen={!!contextMenu}
@@ -944,8 +897,12 @@
         maxLevel={contextMenu?.id && nodeById.has(contextMenu.id)
           ? nodeById.get(contextMenu.id)!.maxLevel
           : 0}
-        state={contextMenu?.id
-          ? getState(nodeById.get(contextMenu.id)!, levels)
+        state={contextMenu?.id && nodeById.has(contextMenu.id)
+          ? getState(
+              nodeById.get(contextMenu.id)!,
+              Number(contextMenu.id),
+              levels,
+            )
           : "locked"}
       />
     </div>
