@@ -808,12 +808,10 @@
             {#if (link.from === undefined || nodeById.has(link.from)) && nodeById.get(link.to)}
               {@const from =
                 link.from === undefined
-                  ? { x: ROOT_X, y: ROOT_Y, radius: ROOT_RADIUS }
+                  ? { x: ROOT_X, y: ROOT_Y }
                   : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
               {@const toIndex = Number(link.to)}
-              {@const fromRadius = (from.radius ?? 1) * 32}
-              {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive =
                 link.from === undefined || getLevelFrom(levels, link.from) > 0}
               {@const linkColor = getLinkColor(to, toIndex, isActive)}
