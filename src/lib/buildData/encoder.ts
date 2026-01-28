@@ -8,11 +8,12 @@ import { baseTree } from "../../config/baseTree";
 
 /**
  * Build data structure representing tree levels and tech crystals owned.
- * Levels are numeric arrays indexed by node position in baseTree (0..baseTree.length-1).
+ * Levels are stored as a single flat array indexed by:
+ *   flatIndex = treeIndex * baseTree.length + nodeIndex
  * Encoder uses baseTree only for length and fixed branch layout (0-9 yellow, 10-19 orange, 20-29 blue).
  */
 export interface BuildData {
-  trees: number[][];
+  levels: number[];
   owned: number;
 }
 
@@ -512,9 +513,8 @@ function truncateTrailingZeros(arr: number[]): number[] {
 }
 
 /**
- * Converts tree levels from array format to branch-grouped array format
- * Groups nodes by branch (yellow, orange, blue) instead of circular order
- * @param trees Array of tree levels as number[]
+ * Converts per-tree level arrays to branch-grouped array format.
+ * @param trees Array of tree levels as number[][] (per-tree, baseTree index order)
  * @returns Array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  */
@@ -534,7 +534,7 @@ function convertTreesToArrayFormat(
 }
 
 /**
- * Converts tree levels from branch-grouped array format back to array format
+ * Converts tree levels from branch-grouped array format back to per-tree arrays
  * Maps branch arrays back to node indices using branch mapping
  * @param arrayFormat Array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
@@ -542,7 +542,7 @@ function convertTreesToArrayFormat(
  */
 function convertArrayFormatToTrees(
   arrayFormat: unknown,
-): BuildData {
+): { trees: number[][]; owned: number } {
   // Validate input is an array with at least 4 elements (3 trees + owned)
   if (!Array.isArray(arrayFormat) || arrayFormat.length < 4) {
     throw new Error("Invalid array format: must have at least 4 elements (3 trees + owned)");
@@ -565,7 +565,7 @@ function convertArrayFormatToTrees(
 
   const mapping = getBranchMapping();
 
-  // Convert each tree's branch arrays back to array format
+  // Convert each tree's branch arrays back to per-tree arrays
   const trees: number[][] = treeBranchArrays.map((treeBranches, treeIndex) => {
     if (!Array.isArray(treeBranches)) {
       throw new Error(`Invalid array format: tree ${treeIndex} is not an array`);
@@ -613,7 +613,23 @@ function convertArrayFormatToTrees(
  * Returns the serialized string directly (all characters are URL-safe, no base64 encoding needed)
  */
 export function encodeBuildData(buildData: BuildData): string {
-  const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
+  // Unflatten flat levels into per-tree arrays
+  const trees: number[][] = [];
+  const nodesPerTree = baseTree.length;
+  const treeCount = 3; // Guardian, Vanguard, Cannon
+  for (let t = 0; t < treeCount; t++) {
+    const start = t * nodesPerTree;
+    const tree: number[] = new Array(nodesPerTree).fill(0);
+    for (let i = 0; i < nodesPerTree; i++) {
+      const idx = start + i;
+      if (idx < buildData.levels.length) {
+        tree[i] = buildData.levels[idx] ?? 0;
+      }
+    }
+    trees.push(tree);
+  }
+
+  const [treeArrays, owned] = convertTreesToArrayFormat(trees, buildData.owned);
   const serialized = serializeArrayFormat(treeArrays, owned);
 
   return serialized;
@@ -653,5 +669,13 @@ export function decodeBuildData(encoded: string): BuildData | null {
   );
   if (!buildData) return null;
 
-  return buildData;
+  // Flatten per-tree arrays back into a single flat levels array
+  const flat: number[] = [];
+  for (const tree of buildData.trees) {
+    for (const value of tree) {
+      flat.push(value ?? 0);
+    }
+  }
+
+  return { levels: flat, owned: buildData.owned };
 }

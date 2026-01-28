@@ -9,6 +9,16 @@ import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
 
+function flattenTreeLevels(levels: number[][]): number[] {
+  const flat: number[] = [];
+  for (const tree of levels) {
+    for (const value of tree) {
+      flat.push(value ?? 0);
+    }
+  }
+  return flat;
+}
+
 /**
  * Cached base path from vite.config.ts
  * Normalized to have leading slash and trailing slash
@@ -148,7 +158,7 @@ export function setIsApplyingBuildFromUrl(value: boolean): void {
  */
 export function createShareUrl(buildData?: BuildData): string {
   const data = buildData ?? {
-    trees: get(treeLevels),
+    levels: flattenTreeLevels(get(treeLevels)),
     owned: get(techCrystalsOwned),
   };
   const encoded = encodeBuildData(data);
@@ -254,7 +264,7 @@ export function updateUrlWithCurrentBuild(): void {
 
   try {
     const buildData: BuildData = {
-      trees: get(treeLevels),
+      levels: flattenTreeLevels(get(treeLevels)),
       owned: get(techCrystalsOwned),
     };
 

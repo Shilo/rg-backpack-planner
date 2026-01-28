@@ -4,13 +4,33 @@
  */
 
 import type { BuildData } from "./encoder";
-import type { Node } from "../../types/tree";
+import type { Node, LevelsByIndex } from "../../types/tree";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
-import { expandTreeProgress } from "../treeProgressStore";
 import { loadBuildFromUrl } from "./url";
 import { setIsApplyingBuildFromUrl } from "./url";
 import { get } from "svelte/store";
+
+function unflattenLevelsToTrees(
+  flat: number[],
+  trees: { nodes: Node[] }[],
+): LevelsByIndex[] {
+  const result: LevelsByIndex[] = [];
+  let offset = 0;
+
+  for (const tree of trees) {
+    const nodeCount = tree.nodes.length;
+    const levels: LevelsByIndex = new Array(nodeCount);
+    for (let i = 0; i < nodeCount; i++) {
+      const idx = offset + i;
+      levels[i] = idx < flat.length ? flat[idx] ?? 0 : 0;
+    }
+    offset += nodeCount;
+    result.push(levels);
+  }
+
+  return result;
+}
 
 /**
  * Applies build data from URL to the stores
@@ -31,22 +51,21 @@ export function applyBuildFromUrl(
   setIsApplyingBuildFromUrl(true);
 
   try {
-    // Expand compressed tree data if trees are provided
-    let expandedTrees = data.trees;
-    if (trees && data.trees.length === trees.length) {
-      expandedTrees = expandTreeProgress(data.trees, trees);
-    }
+    // Expand flat levels to per-tree arrays if trees are provided
+    if (trees) {
+      const expandedTrees = unflattenLevelsToTrees(data.levels, trees);
 
-    // Apply tree levels
-    const currentTrees = get(treeLevels);
-    if (expandedTrees.length === currentTrees.length) {
-      expandedTrees.forEach((tree, index) => {
-        setTreeLevels(index, tree);
-      });
-    } else {
-      console.warn(
-        `Build data has ${expandedTrees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`
-      );
+      // Apply tree levels
+      const currentTrees = get(treeLevels);
+      if (expandedTrees.length === currentTrees.length) {
+        expandedTrees.forEach((tree, index) => {
+          setTreeLevels(index, tree);
+        });
+      } else {
+        console.warn(
+          `Build data has ${expandedTrees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`
+        );
+      }
     }
 
     // Apply tech crystals owned

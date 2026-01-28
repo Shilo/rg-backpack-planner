@@ -149,11 +149,7 @@ export function getTechCrystalsSpentFromStorage(): number {
   const levels = loadTreeProgressRaw();
   if (!levels) return 0;
 
-  const spent = levels.map((treeLevels) =>
-    treeLevels.reduce((sum, level) => sum + (level ?? 0), 0),
-  );
-
-  return spent.reduce((sum, value) => sum + value, 0);
+  return levels.reduce((sum, level) => sum + (level ?? 0), 0);
 }
 
 /**
