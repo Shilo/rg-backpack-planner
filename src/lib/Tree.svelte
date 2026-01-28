@@ -12,7 +12,7 @@
   import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
-  import RootNode, { ROOT_ID, ROOT_X, ROOT_Y } from "./RootNode.svelte";
+  import RootNode from "./RootNode.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
     LONG_PRESS_MOVE_THRESHOLD,
@@ -402,7 +402,7 @@
   function onContextMenu(event: MouseEvent) {
     if (gesturesDisabled) return;
     const nodeId = getNodeIdFromTarget(event.target);
-    if (!nodeId || nodeId === ROOT_ID) return;
+    if (!nodeId || nodeId === "root") return;
     event.preventDefault();
     hideTooltip();
     contextMenu = { id: nodeId, x: event.clientX, y: event.clientY };
@@ -455,7 +455,7 @@
         offsetX,
         offsetY,
       };
-      if (nodeId && nodeId !== ROOT_ID) {
+      if (nodeId && nodeId !== "root") {
         startNodeLongPress(event.pointerId);
       }
     } else if (pointers.size === 2) {
@@ -544,7 +544,7 @@
       pointers.size === 0 &&
       pointer.nodeId
     ) {
-      if (pointer.nodeId === ROOT_ID) {
+      if (pointer.nodeId === "root") {
         if (onOpenTreeContextMenu) {
           onOpenTreeContextMenu(event.clientX, event.clientY);
         } else {
@@ -625,8 +625,8 @@
       minScale,
       maxScale,
     );
-    const centerX = $closeUpView ? ROOT_X : minX + width / 2;
-    const centerY = $closeUpView ? ROOT_Y : minY + height / 2;
+    const centerX = $closeUpView ? 0 : minX + width / 2;
+    const centerY = $closeUpView ? 0 : minY + height / 2;
     const nextOffsetX = paddedCenterX - centerX * nextScale;
     const nextOffsetY = paddedCenterY - centerY * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -802,7 +802,7 @@
             {#if (link.from === undefined || nodeById.has(link.from)) && nodeById.get(link.to)}
               {@const from =
                 link.from === undefined
-                  ? { x: ROOT_X, y: ROOT_Y }
+                  ? { x: 0, y: 0 }
                   : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
               {@const toIndex = Number(link.to)}

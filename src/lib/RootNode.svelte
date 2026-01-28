@@ -1,16 +1,8 @@
-<script lang="ts" context="module">
-  /** Root is a visual button at (0,0). Not levelable. data-node-id for events only. */
-  export const ROOT_ID = "root";
-  export const ROOT_X = 0;
-  export const ROOT_Y = 0;
-  const R = 60 / 65;
-  export const ROOT_RADIUS = R;
-  export const ROOT_SIZE = 64 * R;
-</script>
-
 <script lang="ts">
   import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
+
+  const ROOT_SIZE = 64;
 
   export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
     null;
@@ -31,8 +23,8 @@
 
 <div
   class="root-wrapper"
-  data-node-id={ROOT_ID}
-  style="left: {ROOT_X}px; top: {ROOT_Y}px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px; --node-radius: {ROOT_RADIUS}"
+  data-node-id="root"
+  style="left: 0px; top: 0px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px"
   on:keydown={handleKeydown}
   role="button"
   tabindex="0"

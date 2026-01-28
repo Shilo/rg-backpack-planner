@@ -27,7 +27,6 @@
   import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip } from "./tooltip";
   import { activeTabId, getActiveTabId } from "./activeTabStore";
-  import { ROOT_ID } from "./RootNode.svelte";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
@@ -211,7 +210,7 @@
     const nodeEl = target.closest("[data-node-id]");
     if (!nodeEl) return false;
     const nodeId = nodeEl.getAttribute("data-node-id");
-    return nodeId !== null && nodeId !== ROOT_ID;
+    return nodeId !== null && nodeId !== "root";
   }
 
   function startBackgroundPress(event: PointerEvent) {
