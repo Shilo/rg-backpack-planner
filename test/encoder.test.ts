@@ -415,6 +415,61 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
 ];
 
 /**
+ * Decoder compatibility tests
+ * These validate decoding of serialized strings that may not be produced
+ * by the current encoder, but should still round-trip into valid BuildData.
+ */
+const decodeCompatibilityCases: Array<{
+  name: string;
+  serialized: string;
+  expected: BuildData | null;
+}> = [
+    {
+      name: "Tree-level RLE without owned: 3 identical simple trees",
+      serialized: "1:3",
+      expected: {
+        trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+        owned: 0,
+      },
+    },
+    {
+      name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
+      serialized: "1:3;a",
+      expected: {
+        trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+        owned: 10,
+      },
+    },
+    {
+      name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
+      // "1,,1:3" is emitted by encoder for three identical trees with values at indices 0 and 20.
+      serialized: "1,,1:3;a",
+      expected: {
+        trees: fromObjectTrees([
+          { "0": 1, "20": 1 },
+          { "0": 1, "20": 1 },
+          { "0": 1, "20": 1 },
+        ]),
+        owned: 10,
+      },
+    },
+    {
+      name: "Explicit three trees plus owned: 3 identical simple trees, owned 10",
+      serialized: "1;1;1;a",
+      expected: {
+        trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+        owned: 10,
+      },
+    },
+    {
+      name: "Invalid: too many trees when using tree-level RLE plus owned",
+      // 1:4 expands to four trees; with owned this should be rejected (decode → null).
+      serialized: "1:4;a",
+      expected: null,
+    },
+  ];
+
+/**
  * Run all tests
  */
 export function runTests() {
@@ -590,6 +645,97 @@ export function runTests() {
 }
 
 /**
+ * Run decoder compatibility tests (decode serialized strings → expected BuildData).
+ */
+export function runDecoderCompatibilityTests() {
+  console.log("===");
+  console.log("Decoder Compatibility Tests");
+  console.log("===");
+  console.log();
+
+  let passedTests = 0;
+  let failedTests = 0;
+
+  decodeCompatibilityCases.forEach((testCase, index) => {
+    console.log(`Decode Test ${index + 1}: ${testCase.name}`);
+    console.log("---");
+
+    try {
+      let decoded: BuildData | null = null;
+      try {
+        decoded = decodeBuildData(testCase.serialized);
+      } catch (error) {
+        console.log(
+          `❌ FAILED: Decoding threw error: ${error instanceof Error ? error.message : String(error)
+          }`,
+        );
+        failedTests++;
+        console.log();
+        return;
+      }
+
+      if (decoded === null) {
+        if (testCase.expected === null) {
+          console.log("✅ PASSED: Correctly rejected invalid format");
+          passedTests++;
+        } else {
+          console.log("❌ FAILED: Decode returned null");
+          failedTests++;
+        }
+        console.log();
+        return;
+      }
+
+      if (testCase.expected === null) {
+        console.log(
+          "❌ FAILED: Expected invalid format, but decoded to:",
+          JSON.stringify(decoded),
+        );
+        failedTests++;
+        console.log();
+        return;
+      }
+
+      const expectedJson = JSON.stringify(testCase.expected);
+      const decodedJson = JSON.stringify(decoded);
+
+      if (decodedJson === expectedJson) {
+        console.log("✅ PASSED");
+        passedTests++;
+      } else {
+        console.log("❌ FAILED: Data mismatch");
+        console.log(`Expected: ${expectedJson}`);
+        console.log(`Got:      ${decodedJson}`);
+        failedTests++;
+      }
+    } catch (error) {
+      console.log(
+        `❌ FAILED: ${error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      failedTests++;
+    }
+
+    console.log();
+  });
+
+  console.log("===");
+  console.log("Decoder Compatibility Summary");
+  console.log("===");
+  console.log(`📊 Total decode tests: ${decodeCompatibilityCases.length}`);
+  console.log(`✅ Passed: ${passedTests}`);
+  console.log(`❌ Failed: ${failedTests}`);
+  console.log("===");
+
+  return {
+    total: decodeCompatibilityCases.length,
+    passed: passedTests,
+    failed: failedTests,
+    skipped: 0,
+  };
+}
+
+/**
  * Error handling tests - these should fail gracefully
  */
 const errorTestCases: Array<{ name: string; invalidString: string; expectedError?: string }> = [
@@ -725,19 +871,22 @@ try {
   console.log();
   const normalSummary = runTests();
   console.log();
+  const decodeSummary = runDecoderCompatibilityTests();
+  console.log();
 
   // Combined Final Summary
   console.log("===");
   console.log("Final Combined Summary");
   console.log("===");
-  const totalTests = errorSummary.total + normalSummary.total;
-  const totalPassed = errorSummary.passed + normalSummary.passed;
-  const totalFailed = errorSummary.failed + normalSummary.failed;
-  const totalSkipped = errorSummary.skipped + normalSummary.skipped;
+  const totalTests = errorSummary.total + normalSummary.total + decodeSummary.total;
+  const totalPassed = errorSummary.passed + normalSummary.passed + decodeSummary.passed;
+  const totalFailed = errorSummary.failed + normalSummary.failed + decodeSummary.failed;
+  const totalSkipped = errorSummary.skipped + normalSummary.skipped + decodeSummary.skipped;
 
   console.log(`📊 Total tests (all): ${totalTests}`);
   console.log(`   - Error handling tests: ${errorSummary.total} (${errorSummary.passed} passed, ${errorSummary.failed} failed, ${errorSummary.skipped} skipped)`);
   console.log(`   - Encoding/decoding tests: ${normalSummary.total} (${normalSummary.passed} passed, ${normalSummary.failed} failed)`);
+  console.log(`   - Decoder compatibility tests: ${decodeSummary.total} (${decodeSummary.passed} passed, ${decodeSummary.failed} failed, ${decodeSummary.skipped} skipped)`);
   console.log(`✅ Total passed: ${totalPassed}`);
   console.log(`❌ Total failed: ${totalFailed}`);
   if (totalSkipped > 0) {
