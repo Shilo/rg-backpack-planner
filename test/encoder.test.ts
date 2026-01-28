@@ -7,16 +7,6 @@
 import type { BuildData } from "../src/lib/buildData/encoder";
 import { encodeBuildData, decodeBuildData } from "../src/lib/buildData/encoder";
 
-function flattenTrees(trees: number[][]): number[] {
-  const flat: number[] = [];
-  for (const tree of trees) {
-    for (const value of tree) {
-      flat.push(value ?? 0);
-    }
-  }
-  return flat;
-}
-
 function fromObjectTrees(trees: Array<Record<string, number>>): number[][] {
   const maxIndex = 30;
   return trees.map((obj) => {
@@ -44,43 +34,39 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "Empty build (all zeros)",
     buildData: {
-      levels: flattenTrees([[], [], []]),
+      trees: [[], [], []],
       owned: 0,
     },
   },
   {
     name: "Single node level 1 (index 0)",
     buildData: {
-      levels: flattenTrees([[1], [], []]),
+      trees: [[1], [], []],
       owned: 0,
     },
   },
   {
     name: "Single node (blue root index 20)",
     buildData: {
-      levels: flattenTrees([
-        Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)),
-        [],
-        [],
-      ]),
+      trees: [Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)), [], []],
       owned: 0,
     },
   },
   {
     name: "Multiple nodes, all level 1",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         [1, 1, 1],
         Array.from({ length: 13 }, (_, i) => (i >= 10 && i <= 12 ? 1 : 0)),
         Array.from({ length: 23 }, (_, i) => (i >= 20 && i <= 22 ? 1 : 0)),
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "Mixed levels with zeros",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         [1, 0, 1, 0, 0, 0, 0, 1],
         Array.from({ length: 13 }, (_, i) =>
           i === 10 ? 100 : i === 12 ? 1 : 0,
@@ -88,14 +74,14 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
         Array.from({ length: 28 }, (_, i) =>
           i === 21 || i === 22 ? 1 : i === 27 ? 100 : 0,
         ),
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "High values",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         [100, 50, 25, 0, 0, 0, 0, 0, 0, 5],
         Array.from({ length: 20 }, (_, i) =>
           i === 10 ? 100 : i === 11 ? 50 : i === 12 ? 25 : i === 19 ? 5 : 0,
@@ -103,25 +89,25 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
         Array.from({ length: 30 }, (_, i) =>
           i === 20 ? 100 : i === 21 ? 50 : i === 22 ? 25 : i === 29 ? 5 : 0,
         ),
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "With owned crystals",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         [1, 1],
         Array.from({ length: 12 }, (_, i) => (i === 10 || i === 11 ? 1 : 0)),
         Array.from({ length: 22 }, (_, i) => (i === 20 || i === 21 ? 1 : 0)),
-      ]),
+      ],
       owned: 50,
     },
   },
   {
     name: "Complex build with many nodes",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 5],
         Array.from({ length: 20 }, (_, i) =>
           i >= 10 && i <= 18 ? 1 : i === 19 ? 5 : 0,
@@ -137,7 +123,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
                   ? 5
                   : 0,
         ),
-      ]),
+      ],
       owned: 0,
     },
   },
@@ -158,7 +144,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
               ? 50
               : 100;
       }
-      return { levels: flattenTrees([[...full], [...full], [...full]]), owned: 0 };
+      return { trees: [[...full], [...full], [...full]], owned: 0 };
     })(),
   },
   {
@@ -182,108 +168,104 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
           t3[i] = v;
         },
       );
-      return { levels: flattenTrees([t1, t2, t3]), owned: 1234 };
+      return { trees: [t1, t2, t3], owned: 1234 };
     })(),
   },
   // Edge case tests
   {
     name: "Empty build with owned > 0",
     buildData: {
-      levels: flattenTrees([[], [], []]),
+      trees: [[], [], []],
       owned: 100,
     },
   },
   {
     name: "Single branch with single value",
     buildData: {
-      levels: flattenTrees([[1], [], []]),
+      trees: [[1], [], []],
       owned: 0,
     },
   },
   {
     name: "All zeros in a branch (trailing truncation)",
     buildData: {
-      levels: flattenTrees([[1, 0, 0, 0], [], []]),
+      trees: [[1, 0, 0, 0], [], []],
       owned: 0,
     },
   },
   {
     name: "All zeros in a tree",
     buildData: {
-      levels: flattenTrees([[], [], []]),
+      trees: [[], [], []],
       owned: 0,
     },
   },
   {
     name: "Maximum values (100, 50, 5)",
     buildData: {
-      levels: flattenTrees([[100, 0, 0, 0, 0, 0, 0, 50, 0, 5], [], []]),
+      trees: [[100, 0, 0, 0, 0, 0, 0, 50, 0, 5], [], []],
       owned: 0,
     },
   },
   {
     name: "Large owned value (multi-character base62)",
     buildData: {
-      levels: flattenTrees([[1], [], []]),
+      trees: [[1], [], []],
       owned: 3844,
     },
   },
   {
     name: "Very large owned value",
     buildData: {
-      levels: flattenTrees([[], [], []]),
+      trees: [[], [], []],
       owned: 238328, // "1000" in base62
     },
   },
   {
     name: "Single value in branch (no RLE)",
     buildData: {
-      levels: flattenTrees([
-        Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)),
-        [],
-        [],
-      ]),
+      trees: [Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)), [], []],
       owned: 0,
     },
   },
   {
     name: "All zeros in branch (RLE pattern)",
     buildData: {
-      levels: flattenTrees([[0, 0, 0, 0, 0], [], []]),
+      trees: [[0, 0, 0, 0, 0], [], []],
       owned: 0,
     },
   },
   {
     name: "Mixed zeros and values (RLE patterns)",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         Array.from({ length: 24 }, (_, i) =>
           i === 10 || i === 3 || i === 23 ? 1 : 0,
         ),
         [],
         [],
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "Consecutive identical values (RLE compression)",
     buildData: {
-      levels: flattenTrees([[1, 1, 1, 1], [], []]),
+      trees: [[1, 1, 1, 1], [], []],
       owned: 0,
     },
   },
   {
     name: "Long run of zeros (RLE)",
     buildData: {
-      levels: flattenTrees([Array.from({ length: 30 }, () => 0), [], []]),
+      trees: [Array.from({ length: 30 }, () => 0), [], []],
       owned: 0,
     },
   },
   {
     name: "Long run of identical non-zero values (RLE)",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         Array.from({ length: 24 }, (_, i) =>
           i === 0 || i === 10 || i === 20 || i === 3 || i === 13 || i === 23
             ? 50
@@ -291,169 +273,142 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
         ),
         [],
         [],
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "Base62 edge case: value 0",
-    buildData: { levels: flattenTrees([[0], [], []]), owned: 0 },
+    buildData: { trees: [[0], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 61 (last single char)",
-    buildData: { levels: flattenTrees([[61], [], []]), owned: 0 },
+    buildData: { trees: [[61], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 62 (first two char)",
-    buildData: { levels: flattenTrees([[62], [], []]), owned: 0 },
+    buildData: { trees: [[62], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 3843 (last two char)",
-    buildData: { levels: flattenTrees([[3843], [], []]), owned: 0 },
+    buildData: { trees: [[3843], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 3844 (first three char)",
-    buildData: { levels: flattenTrees([[3844], [], []]), owned: 0 },
+    buildData: { trees: [[3844], [], []], owned: 0 },
   },
   {
     name: "Two identical trees",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
         Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
         [],
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "All three trees identical",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
         Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
         Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "First tree empty, others have data",
     buildData: {
-      levels: flattenTrees([
+      trees: [
         [],
         [1],
         Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)),
-      ]),
+      ],
       owned: 0,
     },
   },
   {
     name: "Middle tree empty",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1 }, {}, { "20": 1 }])),
-      owned: 0,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, { "20": 1 }]), owned: 0 },
   },
   {
     name: "Last tree empty",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1 }, { "20": 1 }, {}])),
-      owned: 0,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, { "20": 1 }, {}]), owned: 0 },
   },
   {
     name: "First branch empty in tree",
     buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "10": 1, "20": 1 }, {}, {}])),
+      trees: fromObjectTrees([{ "10": 1, "20": 1 }, {}, {}]),
       owned: 0,
     },
   },
   {
     name: "Middle branch empty in tree",
     buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1, "20": 1 }, {}, {}])),
+      trees: fromObjectTrees([{ "0": 1, "20": 1 }, {}, {}]),
       owned: 0,
     },
   },
   {
     name: "Last branch empty in tree",
     buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1, "10": 1 }, {}, {}])),
+      trees: fromObjectTrees([{ "0": 1, "10": 1 }, {}, {}]),
       owned: 0,
     },
   },
   {
     name: "Single node at max level (100)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 100 }, {}, {}])),
-      owned: 0,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 100 }, {}, {}]), owned: 0 },
   },
   {
     name: "Single node at global max (50)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "7": 50 }, {}, {}])),
-      owned: 0,
-    },
+    buildData: { trees: fromObjectTrees([{ "7": 50 }, {}, {}]), owned: 0 },
   },
   {
     name: "Single node at final max (5)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "9": 5 }, {}, {}])),
-      owned: 0,
-    },
+    buildData: { trees: fromObjectTrees([{ "9": 5 }, {}, {}]), owned: 0 },
   },
   {
     name: "Owned value 0 (should be omitted)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1 }, {}, {}])),
-      owned: 0,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 0 },
   },
   {
     name: "Owned value 1 (single char base62)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1 }, {}, {}])),
-      owned: 1,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 1 },
   },
   {
     name: "Owned value 61 (last single char base62)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1 }, {}, {}])),
-      owned: 61,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 61 },
   },
   {
     name: "Owned value 62 (first two char base62)",
-    buildData: {
-      levels: flattenTrees(fromObjectTrees([{ "0": 1 }, {}, {}])),
-      owned: 62,
-    },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 62 },
   },
   {
     name: "Complex RLE: alternating pattern",
     buildData: {
-      levels: flattenTrees(fromObjectTrees([
+      trees: fromObjectTrees([
         { "0": 1, "10": 0, "20": 1, "3": 0, "13": 1, "23": 0 },
         {},
         {},
-      ])),
+      ]),
       owned: 0,
     },
   },
   {
     name: "Complex RLE: runs of 2, 3, 4 values",
     buildData: {
-      levels: flattenTrees(fromObjectTrees([
+      trees: fromObjectTrees([
         {
           "0": 1, "10": 1, "20": 2, "3": 2, "13": 2, "23": 3,
           "7": 3, "17": 3, "27": 3, "1": 4, "11": 4, "21": 4,
         },
         {},
         {},
-      ])),
+      ]),
       owned: 0,
     },
   },
@@ -530,19 +485,18 @@ export function runTests() {
         return;
       }
 
-      // Compare levels
-      let dataMatch = true;
-      if (decoded.levels.length !== testCase.buildData.levels.length) {
-        dataMatch = false;
-        console.log(
-          `❌ Levels length: expected ${testCase.buildData.levels.length}, got ${decoded.levels.length}`
-        );
-      } else {
-        for (let i = 0; i < decoded.levels.length; i++) {
-          if (decoded.levels[i] !== testCase.buildData.levels[i]) {
-            dataMatch = false;
+      // Compare trees
+      let treesMatch = true;
+      for (let i = 0; i < testCase.buildData.trees.length; i++) {
+        const originalTree = testCase.buildData.trees[i];
+        const decodedTree = decoded.trees[i];
+
+        for (const [nodeId, level] of Object.entries(originalTree)) {
+          const decodedLevel = decodedTree[nodeId] ?? 0;
+          if (decodedLevel !== level) {
+            treesMatch = false;
             console.log(
-              `❌ Level index ${i}: expected ${testCase.buildData.levels[i]}, got ${decoded.levels[i]}`
+              `❌ Tree ${i}, node ${nodeId}: expected ${level}, got ${decodedLevel}`
             );
           }
         }
@@ -550,13 +504,13 @@ export function runTests() {
 
       // Compare owned
       if (decoded.owned !== testCase.buildData.owned) {
-        dataMatch = false;
+        treesMatch = false;
         console.log(
           `❌ Owned: expected ${testCase.buildData.owned}, got ${decoded.owned}`
         );
       }
 
-      if (!dataMatch) {
+      if (!treesMatch) {
         console.log("❌ FAILED: Data mismatch");
         failedTests++;
       } else {

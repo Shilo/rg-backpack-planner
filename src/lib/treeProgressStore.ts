@@ -5,48 +5,23 @@ import type { Node, LevelsByIndex } from "../types/tree";
 
 const STORAGE_KEY = "rg-backpack-planner-tree-progress";
 
-type FlatLevels = number[];
-
-function flattenTreeLevels(levels: LevelsByIndex[]): FlatLevels {
-  const flat: FlatLevels = [];
-  for (const tree of levels) {
-    for (const value of tree) {
-      flat.push(value ?? 0);
+/**
+ * Compresses tree progress data by trimming trailing zeros from each levels array.
+ * Missing indices at the end are treated as 0 when loading.
+ * @param levels The tree levels to compress
+ * @returns Compressed levels with trailing zeros removed
+ */
+export function compressTreeProgress(levels: LevelsByIndex[]): LevelsByIndex[] {
+  return levels.map((tree) => {
+    let lastNonZero = -1;
+    for (let i = tree.length - 1; i >= 0; i--) {
+      if (tree[i] !== 0) {
+        lastNonZero = i;
+        break;
+      }
     }
-  }
-  return flat;
-}
-
-function trimTrailingZeros(levels: FlatLevels): FlatLevels {
-  let lastNonZero = -1;
-  for (let i = levels.length - 1; i >= 0; i--) {
-    if (levels[i] !== 0) {
-      lastNonZero = i;
-      break;
-    }
-  }
-  return lastNonZero === -1 ? [] : levels.slice(0, lastNonZero + 1);
-}
-
-function unflattenTreeLevels(
-  flat: FlatLevels,
-  trees: { nodes: Node[] }[],
-): LevelsByIndex[] {
-  const result: LevelsByIndex[] = [];
-  let offset = 0;
-
-  for (const tree of trees) {
-    const nodeCount = tree.nodes.length;
-    const levels: LevelsByIndex = new Array(nodeCount);
-    for (let i = 0; i < nodeCount; i++) {
-      const idx = offset + i;
-      levels[i] = idx < flat.length ? flat[idx] ?? 0 : 0;
-    }
-    offset += nodeCount;
-    result.push(levels);
-  }
-
-  return result;
+    return lastNonZero === -1 ? [] : tree.slice(0, lastNonZero + 1);
+  });
 }
 
 /**
@@ -90,12 +65,17 @@ export function loadTreeProgress(
     if (!stored) return null;
 
     const parsed = JSON.parse(stored) as unknown;
-    if (!Array.isArray(parsed) || !parsed.every((v) => typeof v === "number")) {
+    if (
+      !Array.isArray(parsed) ||
+      !parsed.every(
+        (t) => Array.isArray(t) && t.every((v) => typeof v === "number"),
+      )
+    ) {
       // Old data format or invalid; ignore
       return null;
     }
 
-    const expanded = unflattenTreeLevels(parsed as FlatLevels, trees);
+    const expanded = expandTreeProgress(parsed as LevelsByIndex[], trees);
     return expanded.length > 0 ? expanded : null;
   } catch (error) {
     console.error("Failed to load tree progress from localStorage:", error);
@@ -107,7 +87,7 @@ export function loadTreeProgress(
  * Loads raw tree progress from localStorage (parse only, no expand).
  * Use for summing spent etc. when trees are not available.
  */
-export function loadTreeProgressRaw(): FlatLevels | null {
+export function loadTreeProgressRaw(): LevelsByIndex[] | null {
   if (typeof window === "undefined") return null;
 
   try {
@@ -115,10 +95,15 @@ export function loadTreeProgressRaw(): FlatLevels | null {
     if (!stored) return null;
 
     const parsed = JSON.parse(stored) as unknown;
-    if (!Array.isArray(parsed) || !parsed.every((v) => typeof v === "number")) {
+    if (
+      !Array.isArray(parsed) ||
+      !parsed.every(
+        (t) => Array.isArray(t) && t.every((v) => typeof v === "number"),
+      )
+    ) {
       return null;
     }
-    return parsed as FlatLevels;
+    return parsed as LevelsByIndex[];
   } catch (error) {
     console.error("Failed to load tree progress from localStorage:", error);
     return null;
@@ -134,9 +119,8 @@ export function saveTreeProgress(levels: LevelsByIndex[]): void {
   if (typeof window === "undefined") return;
 
   try {
-    const flat = flattenTreeLevels(levels);
-    const trimmed = trimTrailingZeros(flat);
-    const serialized = JSON.stringify(trimmed);
+    const compressed = compressTreeProgress(levels);
+    const serialized = JSON.stringify(compressed);
     localStorage.setItem(STORAGE_KEY, serialized);
   } catch (error) {
     // Handle quota exceeded or other storage errors gracefully
