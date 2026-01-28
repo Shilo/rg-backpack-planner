@@ -329,10 +329,16 @@ function serializeArrayFormat(
   const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
-  // However, to avoid ambiguity with single tree values, we always include the tree structure
-  // even for empty builds. Use ";" prefix to indicate owned-only builds.
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : `${SEPARATOR_TREE}${encodeBase62(owned)}`;
+    if (owned === 0) {
+      return EMPTY_BUILD_MARKER;
+    }
+
+    // For empty builds with owned > 0, emit three empty tree separators followed by owned.
+    // Results in ";;;owned" which guarantees 3 tree segments before the owned value so that
+    // decoding (which requires 3 trees before treating the last segment as owned) is safe,
+    // even if the encoded string is trimmed.
+    return `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
   }
 
   // Get non-empty trees
