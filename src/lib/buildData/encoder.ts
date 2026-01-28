@@ -325,7 +325,9 @@ function serializeArrayFormat(
     return branchStrings.slice(0, lastNonEmptyIndex + 1).join(SEPARATOR_BRANCH);
   });
 
-  // Omit trailing empty trees
+  // Omit trailing empty trees when there is no owned value.
+  // When owned > 0, we always emit exactly three tree segments (padded with empty strings)
+  // so that the owned value is guaranteed to be in the 4th segment.
   const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
@@ -341,7 +343,18 @@ function serializeArrayFormat(
     return `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
   }
 
-  // Get non-empty trees
+  // If we have an owned value, always output three tree segments (some may be empty) and
+  // do not apply tree-level RLE compression. This keeps the format:
+  // tree0;tree1;tree2;owned
+  if (owned !== 0) {
+    const fixedTreeStrings = treeStrings.slice(0, 3);
+    while (fixedTreeStrings.length < 3) {
+      fixedTreeStrings.push("");
+    }
+    return [...fixedTreeStrings, encodeBase62(owned)].join(SEPARATOR_TREE);
+  }
+
+  // Get non-empty trees (owned === 0 case only)
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
 
   // Check if all trees are identical (tree-level RLE compression)
