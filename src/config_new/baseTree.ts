@@ -1,6 +1,6 @@
-import type { Tree, BranchNodeIds } from "../types/baseTree.types";
+import type { Tree, BranchSkillIds } from "../types/baseTree.types";
 
-export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeIds: BranchNodeIds, blueBranchNodeIds: BranchNodeIds): Tree => [
+export const createTree = (yellowBranchSkillIds: BranchSkillIds, orangeBranchSkillIds: BranchSkillIds, blueBranchSkillIds: BranchSkillIds): Tree => [
     // Yellow Branch
     // Tier 1
     // Index 0
@@ -33,7 +33,7 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
     // Tier 3
     // Index 3
     {
-        id: yellowBranchNodeIds[0],
+        id: yellowBranchSkillIds[0],
         parent: 1,
         maxLevel: 100,
         radius: 0.75,
@@ -51,7 +51,7 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
     },
     // Index 5
     {
-        id: yellowBranchNodeIds[1],
+        id: yellowBranchSkillIds[1],
         parent: 2,
         maxLevel: 100,
         radius: 0.75,
@@ -137,7 +137,7 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
     },
     // Index 14
     {
-        id: orangeBranchNodeIds[0],
+        id: orangeBranchSkillIds[0],
         parent: 11,
         maxLevel: 100,
         radius: 0.75,
@@ -155,7 +155,7 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
     },
     // Index 16
     {
-        id: orangeBranchNodeIds[1],
+        id: orangeBranchSkillIds[1],
         parent: 12,
         maxLevel: 100,
         radius: 0.75,
@@ -232,7 +232,7 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
     },
     // Index 24
     {
-        id: blueBranchNodeIds[0],
+        id: blueBranchSkillIds[0],
         parent: 21,
         maxLevel: 100,
         radius: 0.75,
@@ -250,7 +250,7 @@ export const createTree = (yellowBranchNodeIds: BranchNodeIds, orangeBranchNodeI
     },
     // Index 26
     {
-        id: blueBranchNodeIds[1],
+        id: blueBranchSkillIds[1],
         parent: 22,
         maxLevel: 100,
         radius: 0.75,

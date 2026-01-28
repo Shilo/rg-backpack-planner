@@ -1,9 +1,9 @@
 export type Tree = Node[];
 
-export type BranchNodeIds = [NodeId, NodeId];
+export type BranchSkillIds = [SkillId, SkillId];
 
 export type Node = {
-    id: NodeId;
+    id: SkillId;
     parent?: number | number[];
     maxLevel: NodeMaxLevel;
     radius: NodeRadius;
@@ -11,7 +11,7 @@ export type Node = {
     y: number;
 };
 
-export type NodeId =
+export type SkillId =
     "attack_boost"
     | "hp_boost"
     | "defense_boost"
