@@ -1,6 +1,4 @@
-export type Tree = [Branch, Branch, Branch];
-
-export type Branch = [Node, Node, Node, Node, Node, Node, Node, Node, Node, Node];
+export type Tree = Node[];
 
 export type BranchNodeIds = [NodeId, NodeId];
 
