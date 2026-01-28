@@ -830,21 +830,18 @@
           {@const state = getState(node, i, levels)}
           {@const region = getNodeRegion(node, i)}
           {@const isLeaf = isLeafNode(node, i)}
-          <div
-            class="node-wrapper"
-            style={`left: ${node.x}px; top: ${node.y}px;`}
-          >
-            <Node
-              id={String(i)}
-              label={node.skillId}
-              {level}
-              {state}
-              radius={node.radius ?? 1}
-              {scale}
-              {region}
-              {isLeaf}
-            />
-          </div>
+          <Node
+            id={String(i)}
+            x={node.x}
+            y={node.y}
+            label={node.skillId}
+            {level}
+            {state}
+            radius={node.radius ?? 1}
+            {scale}
+            {region}
+            {isLeaf}
+          />
         {/each}
       </div>
 
@@ -917,10 +914,5 @@
   .tree-links line {
     stroke-width: 2;
     transition: stroke-opacity 0.2s;
-  }
-
-  .node-wrapper {
-    position: absolute;
-    transform: translate(-50%, -50%);
   }
 </style>
