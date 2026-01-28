@@ -12,7 +12,7 @@
   import Button from "./Button.svelte";
   import { formatNumber } from "./mathUtil";
 
-  export let id: string;
+  export let id: number;
   export let x: number = 0;
   export let y: number = 0;
   export let label: string = "";
@@ -36,8 +36,8 @@
 <div class="node-wrapper" style="left: {x}px; top: {y}px;">
   <Button
     class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
-    aria-label={label || id}
-    data-node-id={id}
+    aria-label={label || String(id)}
+    data-node-id={String(id)}
     icon={NodeIcon}
     iconClass="node-icon"
     style={`width: ${64 * radius}px; height: ${64 * radius}px; --node-radius: ${radius};`}

@@ -3,7 +3,7 @@
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import type { TreeViewState } from "./Tree.svelte";
   import type { Node } from "../types/baseTree.types";
-  import type { LevelsById } from "./treeLevelsStore";
+  import type { LevelsByIndex } from "./treeRuntime.types";
 
   export let tabId = "";
   export let tabLabel = "";
@@ -12,7 +12,7 @@
   export let isOpen = false;
   export let tabIndex = -1;
   export let nodes: Node[] = [];
-  export let levelsById: LevelsById | null = null;
+  export let levelsById: LevelsByIndex | null = null;
   export let viewState: TreeViewState | null = null;
   export let focusViewState: TreeViewState | null = null;
   export let onClose: (() => void) | null = null;

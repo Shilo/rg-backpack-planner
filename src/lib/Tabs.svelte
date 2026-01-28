@@ -353,13 +353,13 @@
     setActive(index);
   }
 
-  function handleNodeLevelChange(techCrystalDelta: number, nodeId?: string) {
+  function handleNodeLevelChange(techCrystalDelta: number, nodeIndex?: number) {
     if (!tabs[activeIndex]) return;
-    onNodeLevelChange?.(activeIndex, techCrystalDelta, nodeId);
+    onNodeLevelChange?.(activeIndex, techCrystalDelta, nodeIndex);
   }
 
-  function handleLevelsChange(nextLevels: Record<string, number>) {
-    setTreeLevels(activeIndex, { ...nextLevels });
+  function handleLevelsChange(nextLevels: number[]) {
+    setTreeLevels(activeIndex, [...nextLevels]);
   }
 </script>
 
@@ -410,7 +410,7 @@
         <Tree
           bind:this={treeRef}
           nodes={tabs[activeIndex].nodes}
-          levelsById={$treeLevels[activeIndex] ?? {}}
+          levelsById={$treeLevels[activeIndex] ?? null}
           onLevelsChange={handleLevelsChange}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}

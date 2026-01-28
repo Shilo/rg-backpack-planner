@@ -3,10 +3,11 @@
     import { ArrowsCounterClockwiseIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { openModal } from "../modalStore";
-    import { sumLevels, type LevelsById } from "../treeLevelsStore";
+    import { sumLevels } from "../treeLevelsStore";
+    import type { LevelsByIndex } from "../treeRuntime.types";
 
     export let onResetAll: (() => void) | null = null;
-    export let levelsByTree: LevelsById[] | null = null;
+    export let levelsByTree: LevelsByIndex[] | null = null;
 
     $: totalLevels = (levelsByTree ?? []).reduce(
         (total, levels) => total + sumLevels(levels),

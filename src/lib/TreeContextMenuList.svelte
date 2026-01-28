@@ -3,7 +3,7 @@
   import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
   import type { Node } from "../types/baseTree.types";
-  import type { LevelsById } from "./treeLevelsStore";
+  import type { LevelsByIndex } from "./treeRuntime.types";
   import { techCrystalsSpentByTree } from "./techCrystalStore";
   import { formatNumber } from "./mathUtil";
 
@@ -12,7 +12,7 @@
   export let onButtonPress: (() => void) | null = null;
   export let viewState: TreeViewState | null = null;
   export let focusViewState: TreeViewState | null = null;
-  export let levelsById: LevelsById | null = null;
+  export let levelsById: LevelsByIndex | null = null;
   export let hideView0ptions = false;
   export let hideStats = false;
   export let tabLabel = "";

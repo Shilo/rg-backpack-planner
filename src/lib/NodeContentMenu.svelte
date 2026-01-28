@@ -12,16 +12,17 @@
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import { formatNumber } from "./mathUtil";
+  import type { NodeIndex } from "./treeRuntime.types";
 
-  export let nodeId = "";
+  export let nodeIndex: NodeIndex | null = null;
   export let x = 0;
   export let y = 0;
   export let isOpen = false;
   export let onClose: (() => void) | null = null;
-  export let onMax: ((id: string) => void) | null = null;
-  export let onReset: ((id: string) => void) | null = null;
-  export let onDecrement: ((id: string) => void) | null = null;
-  export let onIncrement: ((id: string) => void) | null = null;
+  export let onMax: ((index: NodeIndex) => void) | null = null;
+  export let onReset: ((index: NodeIndex) => void) | null = null;
+  export let onDecrement: ((index: NodeIndex) => void) | null = null;
+  export let onIncrement: ((index: NodeIndex) => void) | null = null;
   export let level: number = 0;
   export let maxLevel: number = 0;
   export let state: "locked" | "available" | "active" | "maxed" = "locked";
@@ -36,14 +37,7 @@
   $: NodeIcon = stateIcons[state] ?? LockIcon;
 </script>
 
-<ContextMenu
-  {x}
-  {y}
-  {isOpen}
-  title={nodeId || "Node"}
-  ariaLabel="Node actions"
-  {onClose}
->
+<ContextMenu {x} {y} {isOpen} title={"Node"} ariaLabel="Node actions" {onClose}>
   <div class="node-stats">
     <div class="node-icon-wrapper">
       <svelte:component this={NodeIcon} />
@@ -71,10 +65,10 @@
     <div class="button-column">
       <Button
         on:click={() => {
-          if (!nodeId || !onIncrement) return;
-          onIncrement(nodeId);
+          if (nodeIndex === null || !onIncrement) return;
+          onIncrement(nodeIndex);
         }}
-        disabled={!nodeId || level >= maxLevel}
+        disabled={nodeIndex === null || level >= maxLevel}
         icon={ArrowUpIcon}
         positive
       >
@@ -82,10 +76,10 @@
       </Button>
       <Button
         on:click={() => {
-          if (!nodeId || !onDecrement) return;
-          onDecrement(nodeId);
+          if (nodeIndex === null || !onDecrement) return;
+          onDecrement(nodeIndex);
         }}
-        disabled={!nodeId || level <= 0}
+        disabled={nodeIndex === null || level <= 0}
         icon={ArrowDownIcon}
         negative
       >
@@ -95,10 +89,10 @@
     <div class="button-column">
       <Button
         on:click={() => {
-          if (!nodeId || !onMax) return;
-          onMax(nodeId);
+          if (nodeIndex === null || !onMax) return;
+          onMax(nodeIndex);
         }}
-        disabled={!nodeId || level >= maxLevel}
+        disabled={nodeIndex === null || level >= maxLevel}
         icon={CaretDoubleUpIcon}
         positive
       >
@@ -106,12 +100,12 @@
       </Button>
       <Button
         on:click={() => {
-          if (!nodeId || !onReset) return;
-          onReset(nodeId);
+          if (nodeIndex === null || !onReset) return;
+          onReset(nodeIndex);
         }}
-        toastMessage={nodeId && onReset ? `Reset ${nodeId}` : undefined}
+        toastMessage={nodeIndex !== null && onReset ? `Reset node` : undefined}
         toastNegative
-        disabled={!nodeId || level <= 0}
+        disabled={nodeIndex === null || level <= 0}
         icon={ArrowCounterClockwiseIcon}
         negative
       >

@@ -1,6 +1,6 @@
 import { derived, writable, get } from "svelte/store";
 import type { TabConfig } from "../types/baseTree.types";
-import type { LevelsById } from "./treeLevelsStore";
+import type { LevelsByIndex } from "./treeRuntime.types";
 import { isPreviewMode } from "./previewModeStore";
 import { loadTreeProgressRaw } from "./treeProgressStore";
 
@@ -132,15 +132,12 @@ export function applyTechCrystalDeltaForTree(
  * Recalculates tech crystals spent for each tree based on current tree levels.
  * This is used when loading from persistent storage or build URL, where
  * levels are set directly without going through the normal level change callbacks.
- * @param levels Array of level records, one per tree
+ * @param levels Array of level arrays, one per tree
  */
-export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
-  const spent = levels.map((treeLevels) => {
-    return Object.entries(treeLevels).reduce(
-      (sum, [, level]) => sum + (level ?? 0),
-      0,
-    );
-  });
+export function recalculateTechCrystalsSpent(levels: LevelsByIndex[]): void {
+  const spent = levels.map((treeLevels) =>
+    treeLevels.reduce((sum, level) => sum + (level ?? 0), 0),
+  );
   techCrystalsSpentByTree.set(spent);
 }
 
@@ -153,12 +150,9 @@ export function getTechCrystalsSpentFromStorage(): number {
   const levels = loadTreeProgressRaw();
   if (!levels) return 0;
 
-  const spent = levels.map((treeLevels) => {
-    return Object.entries(treeLevels).reduce(
-      (sum, [, level]) => sum + (level ?? 0),
-      0,
-    );
-  });
+  const spent = levels.map((treeLevels) =>
+    treeLevels.reduce((sum, level) => sum + (level ?? 0), 0),
+  );
 
   return spent.reduce((sum, value) => sum + value, 0);
 }
