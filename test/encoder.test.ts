@@ -98,110 +98,15 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   },
   {
     name: "Worst case: All trees different, no patterns, high values, scattered zeros",
-    buildData: {
-      trees: [
-        {
-          // Tree 1: Many different high values, no consecutive duplicates
-          attack: 73,
-          defense: 89,
-          hp: 97,
-          attack_3_1: 0,
-          dodge_3_1: 83,
-          damage_reflection_3_1: 0,
-          global_attack_3_1: 47,
-          hp_1_1: 0,
-          ignore_dodge_1_1: 79,
-          skill_critical_res_1_1: 0,
-          global_def_1_1: 41,
-          hp_2_1: 71,
-          dodge_2_1: 0,
-          skill_crit_res_2_1: 67,
-          global_hp_2_1: 0,
-          def_3_2: 61,
-          ignore_dodge_3_2: 0,
-          ignore_stun_3_2: 59,
-          global_def_3_2: 0,
-          def_1_2: 0,
-          dodge_1_2: 53,
-          ignore_stun_1_2: 0,
-          global_hp_1_2: 43,
-          attack_2_2: 0,
-          ignore_dodge_2_2: 37,
-          damage_reflection_2_2: 0,
-          global_attack_2_2: 31,
-          final_1: 3,
-          final_2: 0,
-          final_3: 2,
-        },
-        {
-          // Tree 2: Completely different pattern, no consecutive duplicates
-          attack: 0,
-          defense: 91,
-          hp: 0,
-          attack_3_1: 88,
-          dodge_3_1: 0,
-          damage_reflection_3_1: 86,
-          global_attack_3_1: 0,
-          hp_1_1: 82,
-          ignore_dodge_1_1: 0,
-          skill_critical_res_1_1: 78,
-          global_def_1_1: 0,
-          hp_2_1: 0,
-          dodge_2_1: 76,
-          skill_crit_res_2_1: 0,
-          global_hp_2_1: 74,
-          def_3_2: 0,
-          ignore_dodge_3_2: 72,
-          ignore_stun_3_2: 0,
-          global_def_3_2: 68,
-          def_1_2: 64,
-          dodge_1_2: 0,
-          ignore_stun_1_2: 62,
-          global_hp_1_2: 0,
-          attack_2_2: 58,
-          ignore_dodge_2_2: 0,
-          damage_reflection_2_2: 56,
-          global_attack_2_2: 0,
-          final_1: 0,
-          final_2: 4,
-          final_3: 0,
-        },
-        {
-          // Tree 3: Different again, alternating pattern with no consecutive duplicates
-          attack: 95,
-          defense: 0,
-          hp: 93,
-          attack_3_1: 0,
-          dodge_3_1: 87,
-          damage_reflection_3_1: 85,
-          global_attack_3_1: 0,
-          hp_1_1: 81,
-          ignore_dodge_1_1: 0,
-          skill_critical_res_1_1: 77,
-          global_def_1_1: 0,
-          hp_2_1: 75,
-          dodge_2_1: 0,
-          skill_crit_res_2_1: 69,
-          global_hp_2_1: 0,
-          def_3_2: 65,
-          ignore_dodge_3_2: 0,
-          ignore_stun_3_2: 63,
-          global_def_3_2: 0,
-          def_1_2: 57,
-          dodge_1_2: 0,
-          ignore_stun_1_2: 55,
-          global_hp_1_2: 0,
-          attack_2_2: 51,
-          ignore_dodge_2_2: 0,
-          damage_reflection_2_2: 49,
-          global_attack_2_2: 0,
-          final_1: 0,
-          final_2: 0,
-          final_3: 5,
-        },
-      ],
-      owned: 1234, // High owned value requiring multi-character base62 (count-framed format)
-    },
+    buildData: (() => {
+      const t1: Record<string, number> = {};
+      const t2: Record<string, number> = {};
+      const t3: Record<string, number> = {};
+      [73, 0, 83, 0, 47, 0, 79, 41, 71, 3, 0, 67, 0, 61, 0, 59, 0, 0, 53, 0, 0, 43, 0, 37, 0, 31, 2, 0, 0, 0].forEach((v, i) => { t1[String(i)] = v; });
+      [0, 91, 0, 88, 0, 86, 0, 82, 0, 0, 78, 0, 76, 0, 74, 0, 72, 68, 64, 4, 0, 62, 0, 58, 0, 56, 0, 0, 0, 0].forEach((v, i) => { t2[String(i)] = v; });
+      [95, 0, 93, 0, 87, 85, 0, 81, 0, 0, 0, 77, 0, 75, 69, 0, 65, 0, 63, 0, 57, 0, 55, 0, 51, 49, 0, 0, 0, 5].forEach((v, i) => { t3[String(i)] = v; });
+      return { trees: [t1, t2, t3], owned: 1234 };
+    })(),
   },
   // Edge case tests
   {
@@ -271,51 +176,21 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "All zeros in branch (RLE pattern)",
     buildData: {
-      trees: [
-        {
-          attack: 0,
-          hp_1_1: 0,
-          ignore_dodge_1_1: 0,
-          skill_critical_res_1_1: 0,
-          global_def_1_1: 0,
-        },
-        {},
-        {},
-      ],
+      trees: [{ "0": 0, "1": 0, "2": 0, "3": 0, "4": 0 }, {}, {}],
       owned: 0,
     },
   },
   {
     name: "Mixed zeros and values (RLE patterns)",
     buildData: {
-      trees: [
-        {
-          attack: 0,
-          defense: 1,
-          hp: 0,
-          attack_3_1: 1,
-          dodge_3_1: 0,
-          damage_reflection_3_1: 1,
-        },
-        {},
-        {},
-      ],
+      trees: [{ "0": 0, "10": 1, "20": 0, "3": 1, "13": 0, "23": 1 }, {}, {}],
       owned: 0,
     },
   },
   {
     name: "Consecutive identical values (RLE compression)",
     buildData: {
-      trees: [
-        {
-          attack: 1,
-          hp_1_1: 1,
-          ignore_dodge_1_1: 1,
-          skill_critical_res_1_1: 1,
-        },
-        {},
-        {},
-      ],
+      trees: [{ "0": 1, "1": 1, "2": 1, "3": 1 }, {}, {}],
       owned: 0,
     },
   },
@@ -323,38 +198,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Long run of zeros (RLE)",
     buildData: {
       trees: [
-        {
-          attack: 0,
-          defense: 0,
-          hp: 0,
-          attack_3_1: 0,
-          dodge_3_1: 0,
-          damage_reflection_3_1: 0,
-          global_attack_3_1: 0,
-          hp_1_1: 0,
-          ignore_dodge_1_1: 0,
-          skill_critical_res_1_1: 0,
-          global_def_1_1: 0,
-          hp_2_1: 0,
-          dodge_2_1: 0,
-          skill_crit_res_2_1: 0,
-          global_hp_2_1: 0,
-          def_3_2: 0,
-          ignore_dodge_3_2: 0,
-          ignore_stun_3_2: 0,
-          global_def_3_2: 0,
-          def_1_2: 0,
-          dodge_1_2: 0,
-          ignore_stun_1_2: 0,
-          global_hp_1_2: 0,
-          attack_2_2: 0,
-          ignore_dodge_2_2: 0,
-          damage_reflection_2_2: 0,
-          global_attack_2_2: 0,
-          final_1: 0,
-          final_2: 0,
-          final_3: 0,
-        },
+        Object.fromEntries(Array.from({ length: 30 }, (_, i) => [String(i), 0])),
         {},
         {},
       ],
@@ -365,14 +209,7 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Long run of identical non-zero values (RLE)",
     buildData: {
       trees: [
-        {
-          attack: 50,
-          defense: 50,
-          hp: 50,
-          attack_3_1: 50,
-          dodge_3_1: 50,
-          damage_reflection_3_1: 50,
-        },
+        { "0": 50, "10": 50, "20": 50, "3": 50, "13": 50, "23": 50 },
         {},
         {},
       ],
@@ -381,47 +218,28 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   },
   {
     name: "Base62 edge case: value 0",
-    buildData: {
-      trees: [{ attack: 0 }, {}, {}],
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 0 }, {}, {}], owned: 0 },
   },
   {
     name: "Base62 edge case: value 61 (last single char)",
-    buildData: {
-      trees: [{ attack: 61 }, {}, {}], // "z" in base62
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 61 }, {}, {}], owned: 0 },
   },
   {
     name: "Base62 edge case: value 62 (first two char)",
-    buildData: {
-      trees: [{ attack: 62 }, {}, {}], // "10" in base62
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 62 }, {}, {}], owned: 0 },
   },
   {
     name: "Base62 edge case: value 3843 (last two char)",
-    buildData: {
-      trees: [{ attack: 3843 }, {}, {}], // "ZZ" in base62
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 3843 }, {}, {}], owned: 0 },
   },
   {
     name: "Base62 edge case: value 3844 (first three char)",
-    buildData: {
-      trees: [{ attack: 3844 }, {}, {}], // "100" in base62
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 3844 }, {}, {}], owned: 0 },
   },
   {
     name: "Two identical trees",
     buildData: {
-      trees: [
-        { attack: 1, hp: 1 },
-        { attack: 1, hp: 1 },
-        {},
-      ],
+      trees: [{ "0": 1, "20": 1 }, { "0": 1, "20": 1 }, {}],
       owned: 0,
     },
   },
@@ -429,9 +247,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "All three trees identical",
     buildData: {
       trees: [
-        { attack: 1, hp: 1 },
-        { attack: 1, hp: 1 },
-        { attack: 1, hp: 1 },
+        { "0": 1, "20": 1 },
+        { "0": 1, "20": 1 },
+        { "0": 1, "20": 1 },
       ],
       owned: 0,
     },
@@ -439,130 +257,72 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "First tree empty, others have data",
     buildData: {
-      trees: [{}, { attack: 1 }, { hp: 1 }],
+      trees: [{}, { "0": 1 }, { "20": 1 }],
       owned: 0,
     },
   },
   {
     name: "Middle tree empty",
-    buildData: {
-      trees: [{ attack: 1 }, {}, { hp: 1 }],
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 1 }, {}, { "20": 1 }], owned: 0 },
   },
   {
     name: "Last tree empty",
-    buildData: {
-      trees: [{ attack: 1 }, { hp: 1 }, {}],
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 1 }, { "20": 1 }, {}], owned: 0 },
   },
   {
     name: "First branch empty in tree",
     buildData: {
-      trees: [
-        {
-          // Only orange and blue branches have data
-          hp: 1,
-          attack_3_1: 1,
-        },
-        {},
-        {},
-      ],
+      trees: [{ "10": 1, "20": 1 }, {}, {}],
       owned: 0,
     },
   },
   {
     name: "Middle branch empty in tree",
     buildData: {
-      trees: [
-        {
-          // Only yellow and blue branches have data
-          attack: 1,
-          hp: 1,
-        },
-        {},
-        {},
-      ],
+      trees: [{ "0": 1, "20": 1 }, {}, {}],
       owned: 0,
     },
   },
   {
     name: "Last branch empty in tree",
     buildData: {
-      trees: [
-        {
-          // Only yellow and orange branches have data
-          attack: 1,
-          defense: 1,
-        },
-        {},
-        {},
-      ],
+      trees: [{ "0": 1, "10": 1 }, {}, {}],
       owned: 0,
     },
   },
   {
     name: "Single node at max level (100)",
-    buildData: {
-      trees: [{ attack: 100 }, {}, {}],
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 100 }, {}, {}], owned: 0 },
   },
   {
     name: "Single node at global max (50)",
-    buildData: {
-      trees: [{ global_attack_3_1: 50 }, {}, {}],
-      owned: 0,
-    },
+    buildData: { trees: [{ "7": 50 }, {}, {}], owned: 0 },
   },
   {
     name: "Single node at final max (5)",
-    buildData: {
-      trees: [{ final_3: 5 }, {}, {}],
-      owned: 0,
-    },
+    buildData: { trees: [{ "9": 5 }, {}, {}], owned: 0 },
   },
   {
     name: "Owned value 0 (should be omitted)",
-    buildData: {
-      trees: [{ attack: 1 }, {}, {}],
-      owned: 0,
-    },
+    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 0 },
   },
   {
     name: "Owned value 1 (single char base62)",
-    buildData: {
-      trees: [{ attack: 1 }, {}, {}],
-      owned: 1,
-    },
+    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 1 },
   },
   {
     name: "Owned value 61 (last single char base62)",
-    buildData: {
-      trees: [{ attack: 1 }, {}, {}],
-      owned: 61,
-    },
+    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 61 },
   },
   {
     name: "Owned value 62 (first two char base62)",
-    buildData: {
-      trees: [{ attack: 1 }, {}, {}],
-      owned: 62,
-    },
+    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 62 },
   },
   {
     name: "Complex RLE: alternating pattern",
     buildData: {
       trees: [
-        {
-          attack: 1,
-          defense: 0,
-          hp: 1,
-          attack_3_1: 0,
-          dodge_3_1: 1,
-          damage_reflection_3_1: 0,
-        },
+        { "0": 1, "10": 0, "20": 1, "3": 0, "13": 1, "23": 0 },
         {},
         {},
       ],
@@ -574,18 +334,8 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     buildData: {
       trees: [
         {
-          attack: 1,
-          defense: 1,
-          hp: 2,
-          attack_3_1: 2,
-          dodge_3_1: 2,
-          damage_reflection_3_1: 3,
-          global_attack_3_1: 3,
-          hp_1_1: 3,
-          ignore_dodge_1_1: 4,
-          skill_critical_res_1_1: 4,
-          global_def_1_1: 4,
-          hp_2_1: 4,
+          "0": 1, "10": 1, "20": 2, "3": 2, "13": 2, "23": 3,
+          "7": 3, "17": 3, "27": 3, "1": 4, "11": 4, "21": 4,
         },
         {},
         {},
@@ -844,38 +594,14 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
   },
 ];
 
-/**
- * Check if encoder is compatible with new format
- * Detects if encoder uses old format (with : and ;) or new format (with - and _)
- * by testing encoding a simple build and checking the output format
- */
+/** Current encoder uses . , ; ' : separators. Error tests expect decode(invalid) → null. */
 function isEncoderCompatible(): boolean {
   try {
-    // Test by encoding a simple build and checking the output format
-    // Old encoder uses : and ; separators, new format uses - and _
-    const testBuild: BuildData = {
-      trees: [{ attack: 1 }, {}, {}],
-      owned: 0,
-    };
-
+    const testBuild: BuildData = { trees: [{ "0": 1 }, {}, {}], owned: 0 };
     const encoded = encodeBuildData(testBuild);
-
-    // If encoded string uses new format separators (- and _) but not old ones (: and ;), it's new format
-    // If it uses old format separators (: and ;), it's old format
-    const hasNewFormat = (encoded.includes("-") || encoded.includes("_")) &&
-      !encoded.includes(":") &&
-      !encoded.includes(";");
-    const hasOldFormat = encoded.includes(":") || encoded.includes(";");
-
-    // If we detect old format, encoder is incompatible with new format tests
-    if (hasOldFormat && !hasNewFormat) {
-      return false;
-    }
-
-    // If we detect new format, encoder is compatible
-    return true;
-  } catch (error) {
-    // If encoding fails, assume incompatible to be safe
+    const decoded = decodeBuildData(encoded);
+    return decoded !== null && decoded.owned === 0 && (decoded.trees[0]?.["0"] ?? 0) === 1;
+  } catch {
     return false;
   }
 }

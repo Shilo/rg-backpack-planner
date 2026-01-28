@@ -875,9 +875,6 @@
 
       <NodeContentMenu
         nodeId={contextMenu?.id ?? ""}
-        nodeLabel={contextMenu?.id && nodeById.has(contextMenu.id)
-          ? nodeById.get(contextMenu.id)!.skillId
-          : ""}
         x={contextMenu?.x ?? 0}
         y={contextMenu?.y ?? 0}
         isOpen={!!contextMenu}

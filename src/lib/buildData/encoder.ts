@@ -16,14 +16,10 @@ export interface BuildData {
   owned: number;
 }
 
-/**
- * Branch types: yellow (attack), orange (defense), blue (hp)
- */
 type BranchType = "yellow" | "orange" | "blue";
 
-/**
- * Branch structure: indices 0-9 yellow, 10-19 orange, 20-29 blue
- */
+const BRANCH_KEYS: BranchType[] = ["yellow", "orange", "blue"];
+
 function getNodeBranch(index: number): BranchType {
   if (index < 10) return "yellow";
   if (index < 20) return "orange";
@@ -54,22 +50,15 @@ export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
 /**
  * Branch mapping: ordered index strings per branch. Uses baseTree.length only.
  */
-function createBranchMapping(): {
-  yellow: string[];
-  orange: string[];
-  blue: string[];
-} {
-  const mapping = {
-    yellow: [] as string[],
-    orange: [] as string[],
-    blue: [] as string[],
+function createBranchMapping(): Record<BranchType, string[]> {
+  const mapping: Record<BranchType, string[]> = {
+    yellow: [],
+    orange: [],
+    blue: [],
   };
-
   for (let i = 0; i < baseTree.length; i++) {
-    const branch = getNodeBranch(i);
-    mapping[branch].push(String(i));
+    mapping[getNodeBranch(i)].push(String(i));
   }
-
   return mapping;
 }
 
@@ -534,20 +523,11 @@ function convertTreesToArrayFormat(
   owned: number,
 ): [number[][][], number] {
   const mapping = getBranchMapping();
-  const branchKeys: BranchType[] = ["yellow", "orange", "blue"];
-
-  // Convert each tree to branch-grouped format
-  const treeBranchArrays: number[][][] = trees.map((tree) => {
-    // Create branch arrays: [yellow[], orange[], blue[]]
-    const branches: number[][] = branchKeys.map((branchKey) => {
-      const nodeIds = mapping[branchKey];
-      return nodeIds.map((nodeId) => tree[nodeId] ?? 0);
-    });
-
-    // Truncate trailing zeros from each branch
-    return branches.map(truncateTrailingZeros);
-  });
-
+  const treeBranchArrays: number[][][] = trees.map((tree) =>
+    BRANCH_KEYS.map((key) =>
+      truncateTrailingZeros(mapping[key].map((id) => tree[id] ?? 0))
+    )
+  );
   return [treeBranchArrays, owned];
 }
 
@@ -602,12 +582,9 @@ function convertArrayFormatToTrees(
     }
 
     const tree: Record<string, number> = {};
-    const branchKeys: BranchType[] = ["yellow", "orange", "blue"];
     const branches = [yellowBranch, orangeBranch, blueBranch];
-
-    // Map each branch's nodes to the tree object
-    branchKeys.forEach((branchKey, branchIndex) => {
-      const branch = branches[branchIndex];
+    BRANCH_KEYS.forEach((branchKey, bi) => {
+      const branch = branches[bi];
       const nodeIds = mapping[branchKey];
       branch.forEach((value, i) => {
         if (i < nodeIds.length) {
@@ -640,19 +617,13 @@ export function encodeBuildData(buildData: BuildData): string {
   return serialized;
 }
 
-/**
- * Safely executes a function and logs errors, returning null on failure
- * @param fn Function to execute
- * @param errorMessage Error message prefix for logging
- * @returns Function result or null if error occurred
- */
-function safeExecute<T>(
-  fn: () => T,
-  errorMessage: string
-): T | null {
+function safeExecute<T>(fn: () => T, logPrefix: string): T | null {
   try {
     return fn();
-  } catch (error) {
+  } catch (e) {
+    if (typeof console !== "undefined" && console.error) {
+      console.error(`${logPrefix}:`, e);
+    }
     return null;
   }
 }

@@ -1,16 +1,7 @@
 <script lang="ts" context="module">
-  export type RootNodeConfig = {
-    id: "root";
-    x: number;
-    y: number;
-    maxLevel: number;
-    radius: number;
-  };
+  import type { RootNodeConfig } from "../types/baseTree.types";
 
-  /**
-   * Returns the root node configuration
-   * Root node is always at (0, 0) and never customizable
-   */
+  /** Root node at (0, 0); not customizable. */
   export function getRootNode(): RootNodeConfig {
     return {
       id: "root",

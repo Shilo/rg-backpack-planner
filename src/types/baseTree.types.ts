@@ -43,3 +43,12 @@ export type SkillId =
 export type NodeMaxLevel = 100 | 50 | 1;
 
 export type NodeRadius = 1 | 0.75 | 0.5;
+
+/** Synthetic root node (always at 0,0). Not a tree Node. */
+export type RootNodeConfig = {
+    id: "root";
+    x: number;
+    y: number;
+    maxLevel: number;
+    radius: number;
+};

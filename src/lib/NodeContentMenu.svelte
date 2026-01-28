@@ -14,7 +14,6 @@
   import { formatNumber } from "./mathUtil";
 
   export let nodeId = "";
-  export let nodeLabel = "";
   export let x = 0;
   export let y = 0;
   export let isOpen = false;
@@ -41,7 +40,7 @@
   {x}
   {y}
   {isOpen}
-  title={nodeLabel || nodeId || "Node actions"}
+  title={nodeId || "Node"}
   ariaLabel="Node actions"
   {onClose}
 >
