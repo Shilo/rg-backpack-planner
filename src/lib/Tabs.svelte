@@ -27,6 +27,7 @@
   import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip } from "./tooltip";
   import { activeTabId, getActiveTabId } from "./activeTabStore";
+  import { ROOT_ID } from "./rootConstants";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;
@@ -210,8 +211,7 @@
     const nodeEl = target.closest("[data-node-id]");
     if (!nodeEl) return false;
     const nodeId = nodeEl.getAttribute("data-node-id");
-    // Root node should not be treated as a regular node - allow background press
-    return nodeId !== "root";
+    return nodeId !== null && nodeId !== ROOT_ID;
   }
 
   function startBackgroundPress(event: PointerEvent) {

@@ -12,7 +12,14 @@
   import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
-  import RootNode, { getRootNode } from "./RootNode.svelte";
+  import {
+    ROOT_ID,
+    ROOT_X,
+    ROOT_Y,
+    ROOT_RADIUS,
+    ROOT_SIZE,
+  } from "./rootConstants";
+  import RootNode from "./RootNode.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
     LONG_PRESS_MOVE_THRESHOLD,
@@ -149,8 +156,6 @@
   let nodeById = new Map<string, NodeType>();
   $: nodeById = new Map(nodes.map((node, i) => [String(i), node]));
 
-  const rootNode = getRootNode();
-
   function parentIndices(node: NodeType): number[] {
     const p = node.parent;
     if (p === undefined) return [];
@@ -159,11 +164,11 @@
 
   const links = () => {
     const regularLinks: { from: string; to: string }[] = [];
-    const rootLinks: { from: "root"; to: string }[] = [];
+    const rootLinks: { from: string; to: string }[] = [];
     nodes.forEach((node, i) => {
       const parents = parentIndices(node);
       if (parents.length === 0) {
-        rootLinks.push({ from: "root", to: String(i) });
+        rootLinks.push({ from: ROOT_ID, to: String(i) });
       } else {
         parents.forEach((pi) =>
           regularLinks.push({ from: String(pi), to: String(i) }),
@@ -405,7 +410,7 @@
   function onContextMenu(event: MouseEvent) {
     if (gesturesDisabled) return;
     const nodeId = getNodeIdFromTarget(event.target);
-    if (!nodeId || nodeId === "root") return; // Root cannot have context menu
+    if (!nodeId || nodeId === ROOT_ID) return;
     event.preventDefault();
     hideTooltip();
     contextMenu = { id: nodeId, x: event.clientX, y: event.clientY };
@@ -458,7 +463,7 @@
         offsetX,
         offsetY,
       };
-      if (nodeId && nodeId !== "root") {
+      if (nodeId && nodeId !== ROOT_ID) {
         startNodeLongPress(event.pointerId);
       }
     } else if (pointers.size === 2) {
@@ -547,8 +552,7 @@
       pointers.size === 0 &&
       pointer.nodeId
     ) {
-      if (pointer.nodeId === "root") {
-        // Root node opens tree context menu
+      if (pointer.nodeId === ROOT_ID) {
         if (onOpenTreeContextMenu) {
           onOpenTreeContextMenu(event.clientX, event.clientY);
         } else {
@@ -630,8 +634,8 @@
       maxScale,
     );
     // When close-up view is enabled, center on the root node; otherwise center on tree bounds
-    const centerX = $closeUpView && rootNode ? rootNode.x : minX + width / 2;
-    const centerY = $closeUpView && rootNode ? rootNode.y : minY + height / 2;
+    const centerX = $closeUpView ? ROOT_X : minX + width / 2;
+    const centerY = $closeUpView ? ROOT_Y : minY + height / 2;
     const nextOffsetX = paddedCenterX - centerX * nextScale;
     const nextOffsetY = paddedCenterY - centerY * nextScale;
     const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -804,15 +808,17 @@
       >
         <svg class="tree-links">
           {#each links() as link}
-            {#if (link.from === "root" ? rootNode : nodeById.get(link.from)) && nodeById.get(link.to)}
+            {#if (link.from === ROOT_ID ? true : nodeById.has(link.from)) && nodeById.get(link.to)}
               {@const from =
-                link.from === "root" ? rootNode! : nodeById.get(link.from)!}
+                link.from === ROOT_ID
+                  ? { x: ROOT_X, y: ROOT_Y, radius: ROOT_RADIUS }
+                  : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
               {@const toIndex = Number(link.to)}
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive =
-                link.from === "root" || getLevelFrom(levels, link.from) > 0}
+                link.from === ROOT_ID || getLevelFrom(levels, link.from) > 0}
               {@const linkColor = getLinkColor(to, toIndex, isActive)}
               <line
                 x1={from.x}
@@ -827,8 +833,8 @@
 
         <div
           class="root-wrapper"
-          data-node-id="root"
-          style={`left: ${rootNode.x}px; top: ${rootNode.y}px; width: ${64 * (rootNode.radius ?? 1)}px; height: ${64 * (rootNode.radius ?? 1)}px; --node-radius: ${rootNode.radius ?? 1};`}
+          data-node-id={ROOT_ID}
+          style={`left: ${ROOT_X}px; top: ${ROOT_Y}px; width: ${ROOT_SIZE}px; height: ${ROOT_SIZE}px; --node-radius: ${ROOT_RADIUS};`}
           on:keydown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();

@@ -594,20 +594,8 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
   },
 ];
 
-/** Current encoder uses . , ; ' : separators. Error tests expect decode(invalid) → null. */
-function isEncoderCompatible(): boolean {
-  try {
-    const testBuild: BuildData = { trees: [{ "0": 1 }, {}, {}], owned: 0 };
-    const encoded = encodeBuildData(testBuild);
-    const decoded = decodeBuildData(encoded);
-    return decoded !== null && decoded.owned === 0 && (decoded.trees[0]?.["0"] ?? 0) === 1;
-  } catch {
-    return false;
-  }
-}
-
 /**
- * Run error handling tests
+ * Run error handling tests (decode invalid strings → null).
  */
 export function runErrorTests() {
   console.log("===");
@@ -615,72 +603,18 @@ export function runErrorTests() {
   console.log("===");
   console.log();
 
-  // Check encoder compatibility first
-  const isCompatible = isEncoderCompatible();
-  if (!isCompatible) {
-    console.log("⚠️  WARNING: Encoder appears to be using old format.");
-    console.log("   Some tests may be skipped to prevent infinite loops.");
-    console.log("   Please use the latest encoder version for full test coverage.");
-    console.log();
-  }
-
   let passedTests = 0;
   let failedTests = 0;
-  let skippedTests = 0;
 
   errorTestCases.forEach((testCase, index) => {
     console.log(`Error Test ${index + 1}: ${testCase.name}`);
     console.log("---");
 
-    // Check if test uses new format (has _ and - but not : and ;)
-    // Old encoder uses : and ; as separators, new format uses - and _
-    const usesNewFormat = testCase.invalidString.includes("_") &&
-      testCase.invalidString.includes("-") &&
-      !testCase.invalidString.includes(":") &&
-      !testCase.invalidString.includes(";");
-
-    // CRITICAL: ALWAYS skip test 15 ("Invalid format: extra segments") if it uses new format
-    // This test causes infinite loops with old encoder
-    if (testCase.name === "Invalid format: extra segments" && usesNewFormat) {
-      console.log("⏭️  SKIPPED: Test 15 skipped - uses new format that causes infinite loop with old encoder");
-      skippedTests++;
-      console.log();
-      return;
-    }
-
-    // Skip tests that are known to cause infinite loops with old encoder
-    // These tests use the new format structure that old encoder can't parse
-    const problematicTests = [
-      "Invalid format: extra segments", // "1-1-1_1-extra" - old encoder tries to parse "1-1-1_1" as number
-      "Invalid format: incomplete branch", // "1-1-" - old encoder may loop
-    ];
-
-    if (!isCompatible && problematicTests.includes(testCase.name)) {
-      console.log("⏭️  SKIPPED: Test skipped to prevent infinite loop with incompatible encoder");
-      skippedTests++;
-      console.log();
-      return;
-    }
-
-    // Additional safety: skip any test using new format if encoder is incompatible
-    if (!isCompatible && usesNewFormat) {
-      console.log("⏭️  SKIPPED: Test uses new format incompatible with encoder version");
-      skippedTests++;
-      console.log();
-      return;
-    }
-
     try {
-      // Note: If testing with an old encoder version, format mismatches may cause issues
-      // The old encoder may not handle the new count-framed format correctly
       let decoded: BuildData | null = null;
-
       try {
         decoded = decodeBuildData(testCase.invalidString);
-      } catch (error) {
-        // decodeBuildData should not throw, it should return null
-        // But if it does throw, that's also acceptable (means it rejected the input)
-        // Error thrown is acceptable - means invalid format was rejected
+      } catch {
         decoded = null;
       }
 
@@ -693,46 +627,30 @@ export function runErrorTests() {
         failedTests++;
       }
     } catch (error) {
-      // Unexpected error - this might indicate a format mismatch with old encoder
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      if (!isCompatible && errorMsg.includes("Invalid number value")) {
-        // Old encoder trying to parse new format - skip this test
-        console.log("⏭️  SKIPPED: Encoder incompatible with test format");
-        skippedTests++;
-      } else {
-        console.log(`❌ FAILED: Unexpected error (possible format mismatch with encoder version)`);
-        console.log(`   Error: ${errorMsg}`);
-        failedTests++;
-      }
+      console.log(`❌ FAILED: ${error instanceof Error ? error.message : String(error)}`);
+      failedTests++;
     }
 
     console.log();
   });
 
-  // Summary
   console.log("===");
   console.log("Error Tests Summary");
   console.log("===");
   console.log(`📊 Total error tests: ${errorTestCases.length}`);
   console.log(`✅ Passed: ${passedTests}`);
   console.log(`❌ Failed: ${failedTests}`);
-  if (skippedTests > 0) {
-    console.log(`⏭️  Skipped: ${skippedTests} (incompatible encoder version)`);
-  }
   console.log("===");
 
   return {
     total: errorTestCases.length,
     passed: passedTests,
     failed: failedTests,
-    skipped: skippedTests,
+    skipped: 0,
   };
 }
 
 // Auto-run when imported
-// NOTE: These tests are designed for the new count-framed format encoder.
-// If testing with an older encoder version, format mismatches may cause
-// infinite loops or out-of-memory errors. Ensure encoder version matches test expectations.
 try {
   const errorSummary = runErrorTests();
   console.log();
@@ -756,14 +674,12 @@ try {
   if (totalSkipped > 0) {
     console.log(`⏭️  Total skipped: ${totalSkipped}`);
   }
-  console.log(`📊 Success rate: ${((totalPassed / (totalTests - totalSkipped)) * 100).toFixed(1)}%`);
+  console.log(`📊 Success rate: ${((totalPassed / totalTests) * 100).toFixed(1)}%`);
   if (normalSummary.compressionStats) {
     console.log(`🗜️ Compression ratio: ${normalSummary.compressionStats.compressionRatio}`);
   }
   console.log("===");
 } catch (error) {
-  console.error("❌ Test suite crashed:");
-  console.error(error instanceof Error ? error.message : String(error));
-  console.error("This may indicate a format mismatch with the encoder version.");
+  console.error("❌ Test suite crashed:", error instanceof Error ? error.message : String(error));
   throw error;
 }

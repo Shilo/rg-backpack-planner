@@ -24,43 +24,38 @@ export function compressTreeProgress(levels: LevelsById[]): LevelsById[] {
 }
 
 /**
- * Expands compressed tree progress data by adding missing node indices with 0 values.
- * This ensures the loaded data matches the expected structure with all nodes present.
- * @param compressedLevels Compressed levels (may be missing zero values)
+ * Expands compressed tree progress using tree structure.
+ * Only valid node indices (0..nodes.length-1) are kept; missing indices get 0.
+ * @param compressedLevels Compressed levels (zeros omitted)
  * @param trees Array of tree node definitions to expand against
- * @returns Expanded levels with all node indices present
+ * @returns Expanded levels keyed only by node index, or [] if length mismatch
  */
 export function expandTreeProgress(
     compressedLevels: LevelsById[],
     trees: { nodes: Node[] }[],
 ): LevelsById[] {
-    if (compressedLevels.length !== trees.length) {
-        return compressedLevels;
-    }
+    if (compressedLevels.length !== trees.length) return [];
 
     return compressedLevels.map((compressedTree, index) => {
         const tree = trees[index];
-        if (!tree) return compressedTree;
+        if (!tree) return {} as LevelsById;
 
-        const expanded: LevelsById = { ...compressedTree };
+        const expanded: LevelsById = {};
         for (let i = 0; i < tree.nodes.length; i++) {
             const key = String(i);
-            if (!(key in expanded)) {
-                expanded[key] = 0;
-            }
+            expanded[key] = compressedTree[key] ?? 0;
         }
         return expanded;
     });
 }
 
 /**
- * Loads saved tree progress from localStorage
- * If trees are provided, automatically expands compressed data (adds missing zeros).
- * @param trees Optional array of tree node definitions to expand against
- * @returns The saved progress (expanded if trees provided) or null if not found/invalid
+ * Loads saved tree progress from localStorage and expands using tree structure.
+ * @param trees Array of tree node definitions to expand against
+ * @returns Expanded progress or null if not found/invalid
  */
 export function loadTreeProgress(
-    trees?: { nodes: Node[] }[],
+    trees: { nodes: Node[] }[],
 ): LevelsById[] | null {
     if (typeof window === "undefined") return null;
 
@@ -69,20 +64,40 @@ export function loadTreeProgress(
         if (!stored) return null;
 
         const parsed = JSON.parse(stored) as LevelsById[];
-
-        // Validate structure: must be an array of objects
         if (
-            Array.isArray(parsed) &&
-            parsed.every((tree) => typeof tree === "object" && tree !== null)
+            !Array.isArray(parsed) ||
+            !parsed.every((t) => typeof t === "object" && t !== null)
         ) {
-            // If trees are provided, expand compressed data automatically
-            if (trees) {
-                return expandTreeProgress(parsed, trees);
-            }
-            return parsed;
+            return null;
         }
 
+        const expanded = expandTreeProgress(parsed, trees);
+        return expanded.length > 0 ? expanded : null;
+    } catch (error) {
+        console.error("Failed to load tree progress from localStorage:", error);
         return null;
+    }
+}
+
+/**
+ * Loads raw tree progress from localStorage (parse only, no expand).
+ * Use for summing spent etc. when trees are not available.
+ */
+export function loadTreeProgressRaw(): LevelsById[] | null {
+    if (typeof window === "undefined") return null;
+
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return null;
+
+        const parsed = JSON.parse(stored) as LevelsById[];
+        if (
+            !Array.isArray(parsed) ||
+            !parsed.every((t) => typeof t === "object" && t !== null)
+        ) {
+            return null;
+        }
+        return parsed;
     } catch (error) {
         console.error("Failed to load tree progress from localStorage:", error);
         return null;
