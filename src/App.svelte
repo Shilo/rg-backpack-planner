@@ -35,9 +35,9 @@
     import { applyBuildFromUrl } from "./lib/buildData/applier";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
     import { decodeBuildData, type BuildData } from "./lib/buildData/encoder";
-    import { guardianTree } from "./config_new/guardianTree";
-    import { vanguardTree } from "./config_new/vanguardTree";
-    import { cannonTree } from "./config_new/cannonTree";
+    import { guardianTree } from "./config/guardianTree";
+    import { vanguardTree } from "./config/vanguardTree";
+    import { cannonTree } from "./config/cannonTree";
     import {
         loadTreeProgress,
         initTreeProgressPersistence,
@@ -79,9 +79,9 @@
     })();
 
     const tabs: TabConfig[] = [
-        { id: "guardian", label: "Guardian", tree: guardianTree },
-        { id: "vanguard", label: "Vanguard", tree: vanguardTree },
-        { id: "cannon", label: "Cannon", tree: cannonTree },
+        { id: "guardian", label: "Guardian", nodes: guardianTree },
+        { id: "vanguard", label: "Vanguard", nodes: vanguardTree },
+        { id: "cannon", label: "Cannon", nodes: cannonTree },
     ];
 
     initTechCrystalTrees(tabs);

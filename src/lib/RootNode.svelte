@@ -1,18 +1,11 @@
 <script lang="ts" context="module">
-  export type RootNodeConfig = {
-    id: string;
-    x: number;
-    y: number;
-    maxLevel: number;
-    label: string;
-    radius: number;
-  };
+  import type { TreeNode } from "./Tree.svelte";
 
   /**
    * Returns the root node configuration
    * Root node is always at (0, 0) and never customizable
    */
-  export function getRootNode(): RootNodeConfig {
+  export function getRootNode(): TreeNode {
     return {
       id: "root",
       x: 0,
@@ -48,6 +41,7 @@
     border: none;
     background: transparent;
   }
+
 
   :global(.root-node-icon) {
     width: calc(32px * var(--node-radius, 1));

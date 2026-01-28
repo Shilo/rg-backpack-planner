@@ -1,11 +1,10 @@
 <script lang="ts" context="module">
-  import type { TreeViewState } from "./Tree.svelte";
-  import type { Tree as SkillTree } from "../types/baseTree.types";
+  import type { TreeNode, TreeViewState } from "./Tree.svelte";
 
   export type TabConfig = {
     id: string;
     label: string;
-    tree: SkillTree;
+    nodes: TreeNode[];
   };
 </script>
 
@@ -416,7 +415,7 @@
       {#key tabs[activeIndex].id}
         <Tree
           bind:this={treeRef}
-          tree={tabs[activeIndex].tree}
+          nodes={tabs[activeIndex].nodes}
           levelsById={$treeLevels[activeIndex] ?? {}}
           onLevelsChange={handleLevelsChange}
           {bottomInset}
@@ -451,18 +450,7 @@
     isOpen={!!tabContextMenu}
     tabIndex={tabContextMenu?.index ?? -1}
     nodes={tabContextMenu?.index !== undefined
-      ? tabs[tabContextMenu.index]
-        ? (() => {
-            const tree = tabs[tabContextMenu.index].tree;
-            const nodes: import("../types/baseTree.types").Node[] = [];
-            for (const branch of tree) {
-              for (const node of branch) {
-                nodes.push(node);
-              }
-            }
-            return nodes;
-          })()
-        : []
+      ? (tabs[tabContextMenu.index]?.nodes ?? [])
       : []}
     levelsById={$treeLevels[tabContextMenu?.index ?? -1] ?? null}
     viewState={tabContextMenu?.index === activeIndex ? activeViewState : null}
