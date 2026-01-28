@@ -538,9 +538,9 @@ export function runTests() {
 
       // Print before/after
       console.log("\nOriginal build data (JSON):");
-      console.log(JSON.stringify(testCase.buildData, null, 2));
+      console.log(JSON.stringify(testCase.buildData));
       console.log("\nDecoded build data (JSON):");
-      console.log(JSON.stringify(decoded, null, 2));
+      console.log(JSON.stringify(decoded));
       console.log("\nSerialized string:");
       console.log(serialized);
       console.log();
