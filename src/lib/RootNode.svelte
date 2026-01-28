@@ -1,3 +1,13 @@
+<script lang="ts" context="module">
+  /** Root is a visual button at (0,0). Not levelable. data-node-id for events only. */
+  export const ROOT_ID = "root";
+  export const ROOT_X = 0;
+  export const ROOT_Y = 0;
+  const R = 60 / 65;
+  export const ROOT_RADIUS = R;
+  export const ROOT_SIZE = 64 * R;
+</script>
+
 <script lang="ts">
   import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";

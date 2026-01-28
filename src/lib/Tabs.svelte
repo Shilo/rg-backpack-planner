@@ -27,7 +27,7 @@
   import { showToast } from "./toast";
   import { hideTooltip, suppressTooltip } from "./tooltip";
   import { activeTabId, getActiveTabId } from "./activeTabStore";
-  import { ROOT_ID } from "./rootConstants";
+  import { ROOT_ID } from "./RootNode.svelte";
 
   export let tabs: TabConfig[] = [];
   export let onMenuClick: (() => void) | null = null;

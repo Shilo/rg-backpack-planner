@@ -12,14 +12,13 @@
   import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
-  import {
+  import RootNode, {
     ROOT_ID,
     ROOT_X,
     ROOT_Y,
     ROOT_RADIUS,
     ROOT_SIZE,
-  } from "./rootConstants";
-  import RootNode from "./RootNode.svelte";
+  } from "./RootNode.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
     LONG_PRESS_MOVE_THRESHOLD,
@@ -162,20 +161,19 @@
     return Array.isArray(p) ? p : [p];
   }
 
-  const links = () => {
-    const regularLinks: { from: string; to: string }[] = [];
-    const rootLinks: { from: string; to: string }[] = [];
+  /** Links: parent→child. Parentless nodes link to (0,0); from omitted. */
+  const links = (): { from?: string; to: string }[] => {
+    const out: { from?: string; to: string }[] = [];
     nodes.forEach((node, i) => {
       const parents = parentIndices(node);
+      const to = String(i);
       if (parents.length === 0) {
-        rootLinks.push({ from: ROOT_ID, to: String(i) });
+        out.push({ to });
       } else {
-        parents.forEach((pi) =>
-          regularLinks.push({ from: String(pi), to: String(i) }),
-        );
+        parents.forEach((pi) => out.push({ from: String(pi), to }));
       }
     });
-    return [...regularLinks, ...rootLinks];
+    return out;
   };
 
   function hasChildren(indexStr: string): boolean {
@@ -633,7 +631,6 @@
       minScale,
       maxScale,
     );
-    // When close-up view is enabled, center on the root node; otherwise center on tree bounds
     const centerX = $closeUpView ? ROOT_X : minX + width / 2;
     const centerY = $closeUpView ? ROOT_Y : minY + height / 2;
     const nextOffsetX = paddedCenterX - centerX * nextScale;
@@ -808,9 +805,9 @@
       >
         <svg class="tree-links">
           {#each links() as link}
-            {#if (link.from === ROOT_ID ? true : nodeById.has(link.from)) && nodeById.get(link.to)}
+            {#if (link.from === undefined || nodeById.has(link.from)) && nodeById.get(link.to)}
               {@const from =
-                link.from === ROOT_ID
+                link.from === undefined
                   ? { x: ROOT_X, y: ROOT_Y, radius: ROOT_RADIUS }
                   : nodeById.get(link.from)!}
               {@const to = nodeById.get(link.to)!}
@@ -818,7 +815,7 @@
               {@const fromRadius = (from.radius ?? 1) * 32}
               {@const toRadius = (to.radius ?? 1) * 32}
               {@const isActive =
-                link.from === ROOT_ID || getLevelFrom(levels, link.from) > 0}
+                link.from === undefined || getLevelFrom(levels, link.from) > 0}
               {@const linkColor = getLinkColor(to, toIndex, isActive)}
               <line
                 x1={from.x}
