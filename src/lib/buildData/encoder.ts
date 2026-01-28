@@ -409,6 +409,21 @@ function parseBranchSegment(branchSegment: string): number[] {
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * Pads missing trees and branches, defaults owned to 0
  */
+
+/**
+ * Checks if a segment is a valid candidate for the owned value:
+ * - non-empty
+ * - contains no branch, node, or tree-RLE separators
+ */
+function isOwnedSegmentCandidate(segment: string): boolean {
+  return (
+    segment !== "" &&
+    !segment.includes(SEPARATOR_BRANCH) &&
+    !segment.includes(SEPARATOR_NODE_VALUE) &&
+    !segment.includes(SEPARATOR_RLE_TREE_COUNT)
+  );
+}
+
 function parseArrayFormat(serialized: string): [number[][][], number] {
   // Handle special marker for empty build
   if (serialized === EMPTY_BUILD_MARKER) {
@@ -420,11 +435,15 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   let treeSegments: string[];
 
   // Strict positional order: trees first, then owned at the end
-  // If there are multiple segments and the last one has no separators, it must be owned
   if (segments.length > 1) {
     const lastSegment = segments[segments.length - 1];
+
+    // Only treat the last segment as owned when we have enough tree segments in front:
+    // Require 3 tree segments before owned; anything earlier is treated as tree data.
+    const hasEnoughTreeSegmentsForOwned = segments.length - 1 >= 3;
+
     // owned must be a single base62 number with no branch, node, or RLE tree count separators
-    if (!lastSegment.includes(SEPARATOR_BRANCH) && !lastSegment.includes(SEPARATOR_NODE_VALUE) && !lastSegment.includes(SEPARATOR_RLE_TREE_COUNT) && lastSegment !== "") {
+    if (hasEnoughTreeSegmentsForOwned && isOwnedSegmentCandidate(lastSegment)) {
       try {
         owned = decodeBase62(lastSegment);
       } catch (error) {
@@ -441,7 +460,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     // If it's the empty build marker, handle it
     if (singleSegment === EMPTY_BUILD_MARKER) {
       treeSegments = [];
-    } else if (!singleSegment.includes(SEPARATOR_BRANCH) && !singleSegment.includes(SEPARATOR_NODE_VALUE) && !singleSegment.includes(SEPARATOR_RLE_TREE_COUNT) && singleSegment !== "") {
+    } else if (isOwnedSegmentCandidate(singleSegment)) {
       // Single segment with no separators (no ,, ., or :)
       // The encoder now produces ";owned" for empty builds with owned > 0, so a single segment
       // with no separators can only be a single tree value in yellow branch.
