@@ -12,13 +12,7 @@
   import { onMount, tick } from "svelte";
   import { fade } from "svelte/transition";
   import Node, { type NodeState } from "./Node.svelte";
-  import RootNode, {
-    ROOT_ID,
-    ROOT_X,
-    ROOT_Y,
-    ROOT_RADIUS,
-    ROOT_SIZE,
-  } from "./RootNode.svelte";
+  import RootNode, { ROOT_ID, ROOT_X, ROOT_Y } from "./RootNode.svelte";
   import NodeContentMenu from "./NodeContentMenu.svelte";
   import {
     LONG_PRESS_MOVE_THRESHOLD,
@@ -826,30 +820,10 @@
           {/each}
         </svg>
 
-        <div
-          class="root-wrapper"
-          data-node-id={ROOT_ID}
-          style={`left: ${ROOT_X}px; top: ${ROOT_Y}px; width: ${ROOT_SIZE}px; height: ${ROOT_SIZE}px; --node-radius: ${ROOT_RADIUS};`}
-          on:keydown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              if (onOpenTreeContextMenu) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                onOpenTreeContextMenu(
-                  rect.left + rect.width / 2,
-                  rect.top + rect.height / 2,
-                );
-              } else {
-                focusTreeInView(true);
-              }
-            }
-          }}
-          role="button"
-          tabindex="0"
-          aria-label="Tree actions"
-        >
-          <RootNode />
-        </div>
+        <RootNode
+          {onOpenTreeContextMenu}
+          onFocusView={() => focusTreeInView(true)}
+        />
 
         {#each nodes as node, i}
           {@const level = getLevelFrom(levels, String(i))}
@@ -943,12 +917,6 @@
   .tree-links line {
     stroke-width: 2;
     transition: stroke-opacity 0.2s;
-  }
-
-  .root-wrapper {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
   }
 
   .node-wrapper {
