@@ -1,11 +1,5 @@
 export type Tree = Node[];
 
-export type TabConfig = {
-    id: string;
-    label: string;
-    nodes: Node[];
-};
-
 export type BranchSkillIds = [SkillId, SkillId];
 
 export type Node = {
@@ -43,3 +37,22 @@ export type SkillId =
 export type NodeMaxLevel = 100 | 50 | 1;
 
 export type NodeRadius = 1 | 0.75 | 0.5;
+
+// Runtime types (index-based)
+export type NodeIndex = number;
+
+export type LevelsByIndex = number[];
+
+export type TreeLevels = LevelsByIndex[];
+
+export type Link = {
+    from?: NodeIndex;
+    to: NodeIndex;
+};
+
+// UI Types
+export type TabConfig = {
+    id: string;
+    label: string;
+    nodes: Node[];
+};

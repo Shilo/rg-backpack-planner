@@ -4,7 +4,7 @@
  */
 
 import type { BuildData } from "./encoder";
-import type { Node } from "../../types/baseTree.types";
+import type { Node } from "../../types/tree";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";

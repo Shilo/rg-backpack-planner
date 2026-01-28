@@ -2,8 +2,7 @@
   import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
   import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
   import type { TreeViewState } from "./Tree.svelte";
-  import type { Node } from "../types/baseTree.types";
-  import type { LevelsByIndex } from "./treeRuntime.types";
+  import type { Node, LevelsByIndex } from "../types/tree";
   import { techCrystalsSpentByTree } from "./techCrystalStore";
   import { formatNumber } from "./mathUtil";
 

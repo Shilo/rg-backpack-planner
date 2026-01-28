@@ -4,7 +4,7 @@
     import Button from "../Button.svelte";
     import { openModal } from "../modalStore";
     import { sumLevels } from "../treeLevelsStore";
-    import type { LevelsByIndex } from "../treeRuntime.types";
+    import type { LevelsByIndex } from "../../types/tree";
 
     export let onResetAll: (() => void) | null = null;
     export let levelsByTree: LevelsByIndex[] | null = null;

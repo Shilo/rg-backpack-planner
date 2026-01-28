@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
     import Tabs from "./lib/Tabs.svelte";
-    import type { TabConfig } from "./types/baseTree.types";
+    import type { TabConfig } from "./types/tree";
     import SideMenu from "./lib/SideMenu.svelte";
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
     import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
@@ -151,11 +151,7 @@
         resetSwipeState();
     }
 
-    function handleNodeLevelChange(
-        tabIndex: number,
-        techCrystalDelta: number,
-        _nodeId?: string,
-    ) {
+    function handleNodeLevelChange(tabIndex: number, techCrystalDelta: number) {
         applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
     }
 

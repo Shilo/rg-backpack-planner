@@ -1,8 +1,7 @@
 import { get, type Unsubscriber } from "svelte/store";
 import { treeLevels } from "./treeLevelsStore";
 import { isPreviewMode } from "./previewModeStore";
-import type { Node } from "../types/baseTree.types";
-import type { LevelsByIndex } from "./treeRuntime.types";
+import type { Node, LevelsByIndex } from "../types/tree";
 
 const STORAGE_KEY = "rg-backpack-planner-tree-progress";
 

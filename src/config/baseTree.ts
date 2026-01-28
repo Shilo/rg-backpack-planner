@@ -1,4 +1,4 @@
-import type { Tree, BranchSkillIds } from "../types/baseTree.types";
+import type { Tree, BranchSkillIds } from "../types/tree";
 
 export const createTree = (
     yellowBranchSkillIds: BranchSkillIds,

@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { Node as NodeType } from "../types/baseTree.types";
+  import type { Node as NodeType } from "../types/tree";
 
   export type TreeViewState = {
     offsetX: number;
@@ -24,7 +24,7 @@
   import { hideTooltip, suppressTooltip } from "./tooltip";
   import { closeUpView } from "./closeUpViewStore";
   import { singleLevelUp } from "./singleLevelUpStore";
-  import type { LevelsByIndex, Link, NodeIndex } from "./treeRuntime.types";
+  import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
 
   export let nodes: NodeType[] = [];
   export let bottomInset = 0;

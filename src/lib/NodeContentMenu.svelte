@@ -12,7 +12,7 @@
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import { formatNumber } from "./mathUtil";
-  import type { NodeIndex } from "./treeRuntime.types";
+  import type { NodeIndex } from "../types/tree";
 
   export let nodeIndex: NodeIndex | null = null;
   export let x = 0;

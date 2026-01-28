@@ -1,6 +1,5 @@
 import { derived, writable } from "svelte/store";
-import type { Node } from "../types/baseTree.types";
-import type { LevelsByIndex } from "./treeRuntime.types";
+import type { Node, LevelsByIndex } from "../types/tree";
 
 export const treeLevels = writable<LevelsByIndex[]>([]);
 

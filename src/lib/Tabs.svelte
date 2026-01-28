@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   import type { TreeViewState } from "./Tree.svelte";
-  import type { TabConfig } from "../types/baseTree.types";
+  import type { TabConfig } from "../types/tree";
 </script>
 
 <script lang="ts">
@@ -35,7 +35,7 @@
   export let activeViewState: TreeViewState | null = null;
   export let activeFocusViewState: TreeViewState | null = null;
   export let onNodeLevelChange:
-    | ((tabIndex: number, techCrystalDelta: number, nodeIndex?: number) => void)
+    | ((tabIndex: number, techCrystalDelta: number) => void)
     | null = null;
 
   let bottomInset = 0;
@@ -353,9 +353,9 @@
     setActive(index);
   }
 
-  function handleNodeLevelChange(techCrystalDelta: number, nodeIndex?: number) {
+  function handleNodeLevelChange(techCrystalDelta: number) {
     if (!tabs[activeIndex]) return;
-    onNodeLevelChange?.(activeIndex, techCrystalDelta, nodeIndex);
+    onNodeLevelChange?.(activeIndex, techCrystalDelta);
   }
 
   function handleLevelsChange(nextLevels: number[]) {

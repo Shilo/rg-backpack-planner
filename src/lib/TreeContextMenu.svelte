@@ -2,8 +2,7 @@
   import ContextMenu from "./ContextMenu.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
   import type { TreeViewState } from "./Tree.svelte";
-  import type { Node } from "../types/baseTree.types";
-  import type { LevelsByIndex } from "./treeRuntime.types";
+  import type { Node, LevelsByIndex } from "../types/tree";
 
   export let tabId = "";
   export let tabLabel = "";
