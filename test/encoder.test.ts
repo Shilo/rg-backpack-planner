@@ -7,6 +7,25 @@
 import type { BuildData } from "../src/lib/buildData/encoder";
 import { encodeBuildData, decodeBuildData } from "../src/lib/buildData/encoder";
 
+function fromObjectTrees(trees: Array<Record<string, number>>): number[][] {
+  const maxIndex = 30;
+  return trees.map((obj) => {
+    const arr: number[] = new Array(maxIndex).fill(0);
+    for (const [key, value] of Object.entries(obj)) {
+      const index = Number(key);
+      if (
+        Number.isInteger(index) &&
+        index >= 0 &&
+        index < maxIndex &&
+        typeof value === "number"
+      ) {
+        arr[index] = value;
+      }
+    }
+    return arr;
+  });
+}
+
 /**
  * Test cases use index-based BuildData.
  * Indices 0-9 yellow, 10-19 orange, 20-29 blue.
@@ -15,21 +34,21 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "Empty build (all zeros)",
     buildData: {
-      trees: [{}, {}, {}],
+      trees: [[], [], []],
       owned: 0,
     },
   },
   {
     name: "Single node level 1 (index 0)",
     buildData: {
-      trees: [{ "0": 1 }, {}, {}],
+      trees: [[1], [], []],
       owned: 0,
     },
   },
   {
     name: "Single node (blue root index 20)",
     buildData: {
-      trees: [{ "20": 1 }, {}, {}],
+      trees: [Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)), [], []],
       owned: 0,
     },
   },
@@ -37,9 +56,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Multiple nodes, all level 1",
     buildData: {
       trees: [
-        { "0": 1, "1": 1, "2": 1 },
-        { "10": 1, "11": 1, "12": 1 },
-        { "20": 1, "21": 1, "22": 1 },
+        [1, 1, 1],
+        Array.from({ length: 13 }, (_, i) => (i >= 10 && i <= 12 ? 1 : 0)),
+        Array.from({ length: 23 }, (_, i) => (i >= 20 && i <= 22 ? 1 : 0)),
       ],
       owned: 0,
     },
@@ -48,9 +67,13 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Mixed levels with zeros",
     buildData: {
       trees: [
-        { "0": 1, "1": 0, "2": 1, "3": 0, "7": 1 },
-        { "10": 100, "11": 0, "12": 1 },
-        { "20": 0, "21": 1, "22": 1, "27": 100 },
+        [1, 0, 1, 0, 0, 0, 0, 1],
+        Array.from({ length: 13 }, (_, i) =>
+          i === 10 ? 100 : i === 12 ? 1 : 0,
+        ),
+        Array.from({ length: 28 }, (_, i) =>
+          i === 21 || i === 22 ? 1 : i === 27 ? 100 : 0,
+        ),
       ],
       owned: 0,
     },
@@ -59,9 +82,13 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "High values",
     buildData: {
       trees: [
-        { "0": 100, "1": 50, "2": 25, "9": 5 },
-        { "10": 100, "11": 50, "12": 25, "19": 5 },
-        { "20": 100, "21": 50, "22": 25, "29": 5 },
+        [100, 50, 25, 0, 0, 0, 0, 0, 0, 5],
+        Array.from({ length: 20 }, (_, i) =>
+          i === 10 ? 100 : i === 11 ? 50 : i === 12 ? 25 : i === 19 ? 5 : 0,
+        ),
+        Array.from({ length: 30 }, (_, i) =>
+          i === 20 ? 100 : i === 21 ? 50 : i === 22 ? 25 : i === 29 ? 5 : 0,
+        ),
       ],
       owned: 0,
     },
@@ -70,9 +97,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "With owned crystals",
     buildData: {
       trees: [
-        { "0": 1, "1": 1 },
-        { "10": 1, "11": 1 },
-        { "20": 1, "21": 1 },
+        [1, 1],
+        Array.from({ length: 12 }, (_, i) => (i === 10 || i === 11 ? 1 : 0)),
+        Array.from({ length: 22 }, (_, i) => (i === 20 || i === 21 ? 1 : 0)),
       ],
       owned: 50,
     },
@@ -81,9 +108,21 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Complex build with many nodes",
     buildData: {
       trees: [
-        { "0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1, "9": 5 },
-        { "10": 1, "11": 1, "12": 1, "13": 1, "14": 1, "15": 1, "16": 1, "17": 1, "18": 1, "19": 5 },
-        { "20": 1, "21": 1, "22": 1, "23": 100, "24": 100, "25": 50, "26": 1, "27": 1, "28": 1, "29": 5 },
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 5],
+        Array.from({ length: 20 }, (_, i) =>
+          i >= 10 && i <= 18 ? 1 : i === 19 ? 5 : 0,
+        ),
+        Array.from({ length: 30 }, (_, i) =>
+          i === 20 || i === 21 || i === 22 || i === 26 || i === 27 || i === 28
+            ? 1
+            : i === 23 || i === 24
+              ? 100
+              : i === 25
+                ? 50
+                : i === 29
+                  ? 5
+                  : 0,
+        ),
       ],
       owned: 0,
     },
@@ -91,20 +130,44 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "All nodes at max level in every tree",
     buildData: (() => {
-      const full: Record<string, number> = {};
-      for (let i = 0; i < 30; i++) full[String(i)] = (i === 9 || i === 19 || i === 29) ? 1 : (i === 7 || i === 8 || i === 17 || i === 18 || i === 27 || i === 28) ? 50 : 100;
-      return { trees: [{ ...full }, { ...full }, { ...full }], owned: 0 };
+      const full: number[] = [];
+      for (let i = 0; i < 30; i++) {
+        full[i] =
+          i === 9 || i === 19 || i === 29
+            ? 1
+            : i === 7 ||
+              i === 8 ||
+              i === 17 ||
+              i === 18 ||
+              i === 27 ||
+              i === 28
+              ? 50
+              : 100;
+      }
+      return { trees: [[...full], [...full], [...full]], owned: 0 };
     })(),
   },
   {
     name: "Worst case: All trees different, no patterns, high values, scattered zeros",
     buildData: (() => {
-      const t1: Record<string, number> = {};
-      const t2: Record<string, number> = {};
-      const t3: Record<string, number> = {};
-      [73, 0, 83, 0, 47, 0, 79, 41, 71, 3, 0, 67, 0, 61, 0, 59, 0, 0, 53, 0, 0, 43, 0, 37, 0, 31, 2, 0, 0, 0].forEach((v, i) => { t1[String(i)] = v; });
-      [0, 91, 0, 88, 0, 86, 0, 82, 0, 0, 78, 0, 76, 0, 74, 0, 72, 68, 64, 4, 0, 62, 0, 58, 0, 56, 0, 0, 0, 0].forEach((v, i) => { t2[String(i)] = v; });
-      [95, 0, 93, 0, 87, 85, 0, 81, 0, 0, 0, 77, 0, 75, 69, 0, 65, 0, 63, 0, 57, 0, 55, 0, 51, 49, 0, 0, 0, 5].forEach((v, i) => { t3[String(i)] = v; });
+      const t1: number[] = [];
+      const t2: number[] = [];
+      const t3: number[] = [];
+      [73, 0, 83, 0, 47, 0, 79, 41, 71, 3, 0, 67, 0, 61, 0, 59, 0, 0, 53, 0, 0, 43, 0, 37, 0, 31, 2, 0, 0, 0].forEach(
+        (v, i) => {
+          t1[i] = v;
+        },
+      );
+      [0, 91, 0, 88, 0, 86, 0, 82, 0, 0, 78, 0, 76, 0, 74, 0, 72, 68, 64, 4, 0, 62, 0, 58, 0, 56, 0, 0, 0, 0].forEach(
+        (v, i) => {
+          t2[i] = v;
+        },
+      );
+      [95, 0, 93, 0, 87, 85, 0, 81, 0, 0, 0, 77, 0, 75, 69, 0, 65, 0, 63, 0, 57, 0, 55, 0, 51, 49, 0, 0, 0, 5].forEach(
+        (v, i) => {
+          t3[i] = v;
+        },
+      );
       return { trees: [t1, t2, t3], owned: 1234 };
     })(),
   },
@@ -112,96 +175,90 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "Empty build with owned > 0",
     buildData: {
-      trees: [{}, {}, {}],
+      trees: [[], [], []],
       owned: 100,
     },
   },
   {
     name: "Single branch with single value",
     buildData: {
-      trees: [{ "0": 1 }, {}, {}],
+      trees: [[1], [], []],
       owned: 0,
     },
   },
   {
     name: "All zeros in a branch (trailing truncation)",
     buildData: {
-      trees: [
-        { "0": 1, "1": 0, "2": 0, "3": 0 },
-        {},
-        {},
-      ],
+      trees: [[1, 0, 0, 0], [], []],
       owned: 0,
     },
   },
   {
     name: "All zeros in a tree",
     buildData: {
-      trees: [{}, {}, {}],
+      trees: [[], [], []],
       owned: 0,
     },
   },
   {
     name: "Maximum values (100, 50, 5)",
     buildData: {
-      trees: [
-        { "0": 100, "7": 50, "9": 5 },
-        {},
-        {},
-      ],
+      trees: [[100, 0, 0, 0, 0, 0, 0, 50, 0, 5], [], []],
       owned: 0,
     },
   },
   {
     name: "Large owned value (multi-character base62)",
     buildData: {
-      trees: [{ "0": 1 }, {}, {}],
+      trees: [[1], [], []],
       owned: 3844,
     },
   },
   {
     name: "Very large owned value",
     buildData: {
-      trees: [{}, {}, {}],
+      trees: [[], [], []],
       owned: 238328, // "1000" in base62
     },
   },
   {
     name: "Single value in branch (no RLE)",
     buildData: {
-      trees: [{ "20": 1 }, {}, {}],
+      trees: [Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)), [], []],
       owned: 0,
     },
   },
   {
     name: "All zeros in branch (RLE pattern)",
     buildData: {
-      trees: [{ "0": 0, "1": 0, "2": 0, "3": 0, "4": 0 }, {}, {}],
+      trees: [[0, 0, 0, 0, 0], [], []],
       owned: 0,
     },
   },
   {
     name: "Mixed zeros and values (RLE patterns)",
     buildData: {
-      trees: [{ "0": 0, "10": 1, "20": 0, "3": 1, "13": 0, "23": 1 }, {}, {}],
+      trees: [
+        Array.from({ length: 24 }, (_, i) =>
+          i === 10 || i === 3 || i === 23 ? 1 : 0,
+        ),
+        [],
+        [],
+      ],
       owned: 0,
     },
   },
   {
     name: "Consecutive identical values (RLE compression)",
     buildData: {
-      trees: [{ "0": 1, "1": 1, "2": 1, "3": 1 }, {}, {}],
+      trees: [[1, 1, 1, 1], [], []],
       owned: 0,
     },
   },
   {
     name: "Long run of zeros (RLE)",
     buildData: {
-      trees: [
-        Object.fromEntries(Array.from({ length: 30 }, (_, i) => [String(i), 0])),
-        {},
-        {},
-      ],
+      trees: [Array.from({ length: 30 }, () => 0), [], []],
       owned: 0,
     },
   },
@@ -209,37 +266,45 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "Long run of identical non-zero values (RLE)",
     buildData: {
       trees: [
-        { "0": 50, "10": 50, "20": 50, "3": 50, "13": 50, "23": 50 },
-        {},
-        {},
+        Array.from({ length: 24 }, (_, i) =>
+          i === 0 || i === 10 || i === 20 || i === 3 || i === 13 || i === 23
+            ? 50
+            : 0,
+        ),
+        [],
+        [],
       ],
       owned: 0,
     },
   },
   {
     name: "Base62 edge case: value 0",
-    buildData: { trees: [{ "0": 0 }, {}, {}], owned: 0 },
+    buildData: { trees: [[0], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 61 (last single char)",
-    buildData: { trees: [{ "0": 61 }, {}, {}], owned: 0 },
+    buildData: { trees: [[61], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 62 (first two char)",
-    buildData: { trees: [{ "0": 62 }, {}, {}], owned: 0 },
+    buildData: { trees: [[62], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 3843 (last two char)",
-    buildData: { trees: [{ "0": 3843 }, {}, {}], owned: 0 },
+    buildData: { trees: [[3843], [], []], owned: 0 },
   },
   {
     name: "Base62 edge case: value 3844 (first three char)",
-    buildData: { trees: [{ "0": 3844 }, {}, {}], owned: 0 },
+    buildData: { trees: [[3844], [], []], owned: 0 },
   },
   {
     name: "Two identical trees",
     buildData: {
-      trees: [{ "0": 1, "20": 1 }, { "0": 1, "20": 1 }, {}],
+      trees: [
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
+        [],
+      ],
       owned: 0,
     },
   },
@@ -247,9 +312,9 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     name: "All three trees identical",
     buildData: {
       trees: [
-        { "0": 1, "20": 1 },
-        { "0": 1, "20": 1 },
-        { "0": 1, "20": 1 },
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
       ],
       owned: 0,
     },
@@ -257,89 +322,93 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
   {
     name: "First tree empty, others have data",
     buildData: {
-      trees: [{}, { "0": 1 }, { "20": 1 }],
+      trees: [
+        [],
+        [1],
+        Array.from({ length: 21 }, (_, i) => (i === 20 ? 1 : 0)),
+      ],
       owned: 0,
     },
   },
   {
     name: "Middle tree empty",
-    buildData: { trees: [{ "0": 1 }, {}, { "20": 1 }], owned: 0 },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, { "20": 1 }]), owned: 0 },
   },
   {
     name: "Last tree empty",
-    buildData: { trees: [{ "0": 1 }, { "20": 1 }, {}], owned: 0 },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, { "20": 1 }, {}]), owned: 0 },
   },
   {
     name: "First branch empty in tree",
     buildData: {
-      trees: [{ "10": 1, "20": 1 }, {}, {}],
+      trees: fromObjectTrees([{ "10": 1, "20": 1 }, {}, {}]),
       owned: 0,
     },
   },
   {
     name: "Middle branch empty in tree",
     buildData: {
-      trees: [{ "0": 1, "20": 1 }, {}, {}],
+      trees: fromObjectTrees([{ "0": 1, "20": 1 }, {}, {}]),
       owned: 0,
     },
   },
   {
     name: "Last branch empty in tree",
     buildData: {
-      trees: [{ "0": 1, "10": 1 }, {}, {}],
+      trees: fromObjectTrees([{ "0": 1, "10": 1 }, {}, {}]),
       owned: 0,
     },
   },
   {
     name: "Single node at max level (100)",
-    buildData: { trees: [{ "0": 100 }, {}, {}], owned: 0 },
+    buildData: { trees: fromObjectTrees([{ "0": 100 }, {}, {}]), owned: 0 },
   },
   {
     name: "Single node at global max (50)",
-    buildData: { trees: [{ "7": 50 }, {}, {}], owned: 0 },
+    buildData: { trees: fromObjectTrees([{ "7": 50 }, {}, {}]), owned: 0 },
   },
   {
     name: "Single node at final max (5)",
-    buildData: { trees: [{ "9": 5 }, {}, {}], owned: 0 },
+    buildData: { trees: fromObjectTrees([{ "9": 5 }, {}, {}]), owned: 0 },
   },
   {
     name: "Owned value 0 (should be omitted)",
-    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 0 },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 0 },
   },
   {
     name: "Owned value 1 (single char base62)",
-    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 1 },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 1 },
   },
   {
     name: "Owned value 61 (last single char base62)",
-    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 61 },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 61 },
   },
   {
     name: "Owned value 62 (first two char base62)",
-    buildData: { trees: [{ "0": 1 }, {}, {}], owned: 62 },
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 62 },
   },
   {
     name: "Complex RLE: alternating pattern",
     buildData: {
-      trees: [
+      trees: fromObjectTrees([
         { "0": 1, "10": 0, "20": 1, "3": 0, "13": 1, "23": 0 },
         {},
         {},
-      ],
+      ]),
       owned: 0,
     },
   },
   {
     name: "Complex RLE: runs of 2, 3, 4 values",
     buildData: {
-      trees: [
+      trees: fromObjectTrees([
         {
           "0": 1, "10": 1, "20": 2, "3": 2, "13": 2, "23": 3,
           "7": 3, "17": 3, "27": 3, "1": 4, "11": 4, "21": 4,
         },
         {},
         {},
-      ],
+      ]),
       owned: 0,
     },
   },

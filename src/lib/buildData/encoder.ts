@@ -8,11 +8,11 @@ import { baseTree } from "../../config/baseTree";
 
 /**
  * Build data structure representing tree levels and tech crystals owned.
- * Levels are keyed by node index (string "0".."29"). No node conversion; encoder uses
- * baseTree only for length and fixed branch layout (0-9 yellow, 10-19 orange, 20-29 blue).
+ * Levels are numeric arrays indexed by node position in baseTree (0..baseTree.length-1).
+ * Encoder uses baseTree only for length and fixed branch layout (0-9 yellow, 10-19 orange, 20-29 blue).
  */
 export interface BuildData {
-  trees: Record<string, number>[];
+  trees: number[][];
   owned: number;
 }
 
@@ -48,16 +48,16 @@ const SEPARATOR_RLE_TREE_COUNT = ":"; // Separates tree string from count in RLE
 export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
 
 /**
- * Branch mapping: ordered index strings per branch. Uses baseTree.length only.
+ * Branch mapping: ordered node indices per branch. Uses baseTree.length only.
  */
-function createBranchMapping(): Record<BranchType, string[]> {
-  const mapping: Record<BranchType, string[]> = {
+function createBranchMapping(): Record<BranchType, number[]> {
+  const mapping: Record<BranchType, number[]> = {
     yellow: [],
     orange: [],
     blue: [],
   };
   for (let i = 0; i < baseTree.length; i++) {
-    mapping[getNodeBranch(i)].push(String(i));
+    mapping[getNodeBranch(i)].push(i);
   }
   return mapping;
 }
@@ -512,28 +512,30 @@ function truncateTrailingZeros(arr: number[]): number[] {
 }
 
 /**
- * Converts tree levels from object format to branch-grouped array format
+ * Converts tree levels from array format to branch-grouped array format
  * Groups nodes by branch (yellow, orange, blue) instead of circular order
- * @param trees Array of tree levels as Record<string, number>
+ * @param trees Array of tree levels as number[]
  * @returns Array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  */
 function convertTreesToArrayFormat(
-  trees: Record<string, number>[],
+  trees: number[][],
   owned: number,
 ): [number[][][], number] {
   const mapping = getBranchMapping();
   const treeBranchArrays: number[][][] = trees.map((tree) =>
-    BRANCH_KEYS.map((key) =>
-      truncateTrailingZeros(mapping[key].map((id) => tree[id] ?? 0))
-    )
+    BRANCH_KEYS.map((key) => {
+      const branchIndices = mapping[key];
+      const values = branchIndices.map((index) => tree[index] ?? 0);
+      return truncateTrailingZeros(values);
+    }),
   );
   return [treeBranchArrays, owned];
 }
 
 /**
- * Converts tree levels from branch-grouped array format back to object format
- * Maps branch arrays back to node positions using branch mapping
+ * Converts tree levels from branch-grouped array format back to array format
+ * Maps branch arrays back to node indices using branch mapping
  * @param arrayFormat Array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * @returns BuildData with object format
@@ -563,8 +565,8 @@ function convertArrayFormatToTrees(
 
   const mapping = getBranchMapping();
 
-  // Convert each tree's branch arrays back to object format
-  const trees: Record<string, number>[] = treeBranchArrays.map((treeBranches, treeIndex) => {
+  // Convert each tree's branch arrays back to array format
+  const trees: number[][] = treeBranchArrays.map((treeBranches, treeIndex) => {
     if (!Array.isArray(treeBranches)) {
       throw new Error(`Invalid array format: tree ${treeIndex} is not an array`);
     }
@@ -581,7 +583,7 @@ function convertArrayFormatToTrees(
       throw new Error(`Invalid array format: tree ${treeIndex} branches must be arrays`);
     }
 
-    const tree: Record<string, number> = {};
+    const tree: number[] = new Array(baseTree.length).fill(0);
     const branches = [yellowBranch, orangeBranch, blueBranch];
     BRANCH_KEYS.forEach((branchKey, bi) => {
       const branch = branches[bi];
@@ -598,7 +600,7 @@ function convertArrayFormatToTrees(
       });
     });
 
-    // Note: nodes beyond branch array lengths are implicitly 0, so we don't need to set them
+    // Nodes beyond branch array lengths are implicitly 0
     return tree;
   });
 

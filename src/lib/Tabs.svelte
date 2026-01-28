@@ -35,7 +35,7 @@
   export let activeViewState: TreeViewState | null = null;
   export let activeFocusViewState: TreeViewState | null = null;
   export let onNodeLevelChange:
-    | ((tabIndex: number, techCrystalDelta: number, nodeId?: string) => void)
+    | ((tabIndex: number, techCrystalDelta: number, nodeIndex?: number) => void)
     | null = null;
 
   let bottomInset = 0;
@@ -305,7 +305,7 @@
   function refundTreeSpent(index: number) {
     const spent = get(techCrystalsSpentByTree)[index] ?? 0;
     if (spent !== 0) {
-      onNodeLevelChange?.(index, -spent, "all");
+      onNodeLevelChange?.(index, -spent);
     }
   }
 
