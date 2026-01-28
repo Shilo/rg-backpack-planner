@@ -4,7 +4,7 @@ export type BranchNodeIds = [NodeId, NodeId];
 
 export type Node = {
     id: NodeId;
-    parent?: NodeId | NodeId[];
+    parent?: number | number[];
     maxLevel: NodeMaxLevel;
     radius: NodeRadius;
     x: number;
