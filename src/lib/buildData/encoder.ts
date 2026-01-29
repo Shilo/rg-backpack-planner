@@ -33,19 +33,19 @@ const EMPTY_BUILD_MARKER = "_";
 
 /**
  * Separator constants for serialization format
- * All separators are URL-safe and don't require encoding
+ * All separators are URL-safe for query strings and don't require encoding
  */
 const SEPARATOR_NODE_VALUE = "."; // Separates node values within a branch
-const SEPARATOR_BRANCH = ","; // Separates branches within a tree
-const SEPARATOR_TREE = ";"; // Separates trees and owned value
-const SEPARATOR_RLE_NODE_COUNT = "'"; // Separates value from count in RLE node patterns
-const SEPARATOR_RLE_TREE_COUNT = ":"; // Separates tree string from count in RLE tree patterns
+const SEPARATOR_BRANCH = "-"; // Separates branches within a tree
+const SEPARATOR_TREE = "~"; // Separates trees and owned value
+const SEPARATOR_RLE_NODE_COUNT = "*"; // Separates value from count in RLE node patterns
+const SEPARATOR_RLE_TREE_COUNT = "!"; // Separates tree string from count in RLE tree patterns
 
 /**
  * Regex pattern for valid serialized format characters
- * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (.,;':), and empty marker (_)
+ * Serialized format uses: base62 numbers (0-9, a-z, A-Z), separators (.-~*!), and empty marker (_)
  */
-export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
+export const SERIALIZED_PATTERN = /^[-0-9a-zA-Z._~*!]+$/;
 
 /**
  * Branch mapping: ordered node indices per branch. Uses baseTree.length only.
