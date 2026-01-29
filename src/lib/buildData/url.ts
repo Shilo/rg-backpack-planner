@@ -1,6 +1,6 @@
 /**
  * URL management for build data sharing
- * Handles path-based routing and URL updates
+ * Handles query-based routing and URL updates
  */
 
 import type { BuildData } from "./encoder";
@@ -41,54 +41,39 @@ export function getBasePath(): string {
 }
 
 /**
- * Extract the path segment after the base path
- * Returns empty string if pathname is exactly the base (with or without trailing slash)
- * Returns the first path segment after base if present
- */
-function getPathAfterBase(pathname: string): string {
-  const base = getBasePath();
-  const baseNormalized = base.replace(/\/$/, ""); // Remove trailing slash for comparison
-
-  // Normalize pathname: remove trailing slash for comparison
-  const pathnameNormalized = pathname.replace(/\/$/, "");
-
-  // If pathname is exactly the base (with or without trailing slash), return empty
-  if (pathnameNormalized === baseNormalized || pathname === base) {
-    return "";
-  }
-
-  // Check if pathname starts with base
-  if (pathname.startsWith(base)) {
-    // Get everything after base
-    const afterBase = pathname.slice(base.length);
-    // Take only the first segment (encoded data is a single segment)
-    const firstSegment = afterBase.split("/")[0];
-    return firstSegment || "";
-  }
-
-  // If pathname doesn't start with base, return empty
-  return "";
-}
-
-/**
- * Get the encoded build data from the current URL
- * Returns null if there's no path after base
- * No validation - just returns whatever is after base
+ * Get the encoded build data from the current URL.
+ *
+ * Supported format:
+ *   /{base}?b={encoded}
  */
 export function getEncodedFromUrl(): string | null {
   if (typeof window === "undefined") return null;
 
-  const encoded = getPathAfterBase(window.location.pathname);
-  return encoded || null;
+  // 1) Preferred: query parameter (?b=...)
+  const search = window.location.search;
+  if (search) {
+    const params = new URLSearchParams(search);
+    const encoded = params.get("b");
+    const trimmed = encoded?.trim();
+    if (trimmed) {
+      return trimmed;
+    }
+  }
+
+  return null;
 }
 
 /**
- * Build a share path (path only, no origin) with the given encoded data
+ * Build a share path (path + query, no origin) with the given encoded data.
+ *
+ * Uses query-based format for better compatibility with crawlers:
+ *   /{base}?b={encoded}
  */
 function buildSharePath(encoded: string): string {
   const base = getBasePath();
-  // Base already has trailing slash, encoded has no slashes
-  return base + encoded;
+  // Base already has trailing slash. Attach query parameter (?b=...).
+  // Use encodeURIComponent so the encoded data is safe in the query string.
+  return `${base}?b=${encodeURIComponent(encoded)}`;
 }
 
 /**
@@ -144,7 +129,7 @@ export function setIsApplyingBuildFromUrl(value: boolean): void {
 
 /**
  * Creates a shareable URL with the current build data
- * Uses path-based routing: /{encoded} instead of query parameters
+ * Uses query-based routing with ?b={encoded}
  */
 export function createShareUrl(buildData?: BuildData): string {
   const data = buildData ?? {
@@ -157,7 +142,7 @@ export function createShareUrl(buildData?: BuildData): string {
 
 /**
  * Extracts build data from the current URL
- * Uses path-based routing: /{encoded}
+ * Uses query-based routing with ?b={encoded}
  */
 export function loadBuildFromUrl(): BuildData | null {
   if (typeof window === "undefined") return null;
@@ -178,7 +163,7 @@ export function loadBuildFromUrl(): BuildData | null {
  * Parses user input (full URL or raw code) into a validated encoded build string.
  *
  * Accepts:
- * - Full Backpack Planner URL: https://.../rg-backpack-planner/{encoded}[...]
+ * - Full Backpack Planner URL: https://.../rg-backpack-planner/?b={encoded}[...]
  * - Raw encoded string matching SERIALIZED_PATTERN
  *
  * Returns:
@@ -197,24 +182,12 @@ export function parseEncodedFromUserInput(input: string): string | null {
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const url = new URL(trimmed);
-      const pathname = url.pathname;
-      const base = getBasePath();
-      const baseNormalized = base.replace(/\/$/, "");
-      const pathNormalized = pathname.replace(/\/$/, "");
+      const searchParams = url.searchParams;
 
-      if (pathNormalized === baseNormalized || pathname === base) {
-        // No encoded segment present
-        candidate = null;
-      } else if (pathname.startsWith(base)) {
-        // Prefer strict match against current base path
-        const afterBase = pathname.slice(base.length);
-        const firstSegment = afterBase.split("/").find((segment) => segment.length > 0);
-        candidate = firstSegment ?? null;
-      } else {
-        // Fallback: treat the last non-empty path segment as candidate
-        const segments = pathname.split("/").filter((segment) => segment.length > 0);
-        candidate = segments.length > 0 ? segments[segments.length - 1] : null;
-      }
+      // Preferred and only supported URL format: query parameter (?b=...)
+      const fromQuery = searchParams.get("b");
+      const paramTrimmed = fromQuery?.trim();
+      candidate = paramTrimmed && paramTrimmed.length > 0 ? paramTrimmed : null;
     } catch {
       candidate = null;
     }
@@ -242,7 +215,7 @@ export function parseEncodedFromUserInput(input: string): string | null {
  * Updates the current URL with the current build data
  * Used in preview mode to keep URL in sync with changes
  * Does not reload the page, just updates the URL
- * Uses path-based routing: /{encoded}
+ * Uses query-based routing with ?b={encoded}
  */
 export function updateUrlWithCurrentBuild(): void {
   if (typeof window === "undefined") return;
@@ -261,8 +234,9 @@ export function updateUrlWithCurrentBuild(): void {
     const encoded = encodeBuildData(buildData);
     const newPath = buildSharePath(encoded);
 
-    // Only update URL if it's different from current pathname
-    if (newPath === window.location.pathname) {
+    // Only update URL if it's different from current path + search
+    const currentPathAndSearch = window.location.pathname + window.location.search;
+    if (newPath === currentPathAndSearch) {
       return; // No change needed
     }
 
