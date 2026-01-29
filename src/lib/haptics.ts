@@ -23,8 +23,8 @@ export function triggerHaptic(durationMs = 5) {
   const hasVibrateNow = typeof navigator !== "undefined" && "vibrate" in navigator;
 
   if (hasVibrateNow) {
-    const result = navigator.vibrate(1000);
-    showToast(`Haptic: vibrate(1000ms) | ok=${result} secure=${secure}`, { durationMs: 2500 });
+    navigator.vibrate(1000);
+    showToast(`Haptic: vibrate(1000ms) | secure=${secure}`, { durationMs: 2500 });
   } else {
     showToast("Haptic: no vibrate API", { tone: "negative", durationMs: 2000 });
   }
