@@ -123,10 +123,8 @@
       cancelLabel: "Cancel",
       confirmNegative: true,
       onConfirm: () => {
-        // Reset stores to defaults
-        // (this will set the localStorage values to the defaults also)
-        singleLevelUp.set(false);
-        closeUpView.set(false);
+        singleLevelUp.resetToDefault();
+        closeUpView.resetToDefault();
         // Tech crystals owned is treated as a setting; reset without affecting tree progress
         resetTechCrystalsOwnedForSettings();
 
