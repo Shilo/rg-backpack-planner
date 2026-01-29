@@ -463,7 +463,7 @@
 <style>
   .tabs-root {
     --menu-width: 38px;
-    --menu-gap: 6px;
+    --menu-gap: 4px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -492,7 +492,7 @@
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: var(--menu-gap);
     min-width: 0;
   }
 
