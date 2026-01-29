@@ -1,13 +1,15 @@
 <script lang="ts">
   import {
-    ArrowDownIcon,
-    ArrowUpIcon,
-    CheckCircleIcon,
+    ArrowCounterClockwiseIcon,
+    CaretDownIcon,
+    CaretDoubleDownIcon,
     CaretDoubleUpIcon,
+    CaretLineUpIcon,
+    CaretUpIcon,
+    CheckCircleIcon,
     CrownIcon,
     LockIcon,
     PlusIcon,
-    ArrowCounterClockwiseIcon,
   } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
@@ -61,57 +63,75 @@
       </div>
     </div>
   </div>
-  <div class="button-columns">
-    <div class="button-column">
-      <Button
-        on:click={() => {
-          if (nodeIndex === null || !onIncrement) return;
-          onIncrement(nodeIndex);
-        }}
-        disabled={nodeIndex === null || level >= maxLevel}
-        icon={ArrowUpIcon}
-        positive
-      >
-        Increase
-      </Button>
-      <Button
-        on:click={() => {
-          if (nodeIndex === null || !onDecrement) return;
-          onDecrement(nodeIndex);
-        }}
-        disabled={nodeIndex === null || level <= 0}
-        icon={ArrowDownIcon}
-        negative
-      >
-        Decrease
-      </Button>
-    </div>
-    <div class="button-column">
-      <Button
-        on:click={() => {
-          if (nodeIndex === null || !onMax) return;
-          onMax(nodeIndex);
-        }}
-        disabled={nodeIndex === null || level >= maxLevel}
-        icon={CaretDoubleUpIcon}
-        positive
-      >
-        Max
-      </Button>
-      <Button
-        on:click={() => {
-          if (nodeIndex === null || !onReset) return;
-          onReset(nodeIndex);
-        }}
-        toastMessage={nodeIndex !== null && onReset ? `Reset node` : undefined}
-        toastNegative
-        disabled={nodeIndex === null || level <= 0}
-        icon={ArrowCounterClockwiseIcon}
-        negative
-      >
-        Reset
-      </Button>
-    </div>
+  <div class="button-grid">
+    <Button
+      on:click={() => {
+        if (nodeIndex === null || !onIncrement) return;
+        onIncrement(nodeIndex);
+      }}
+      disabled={nodeIndex === null || level >= maxLevel}
+      icon={CaretUpIcon}
+      positive
+    >
+      +1
+    </Button>
+    <Button
+      on:click={() => {
+        if (nodeIndex === null || !onIncrement) return;
+        for (let i = 0; i < 10; i++) onIncrement(nodeIndex);
+      }}
+      disabled={nodeIndex === null || level >= maxLevel}
+      icon={CaretDoubleUpIcon}
+      positive
+    >
+      +10
+    </Button>
+    <Button
+      on:click={() => {
+        if (nodeIndex === null || !onMax) return;
+        onMax(nodeIndex);
+      }}
+      disabled={nodeIndex === null || level >= maxLevel}
+      icon={CaretLineUpIcon}
+      positive
+    >
+      Max
+    </Button>
+    <Button
+      on:click={() => {
+        if (nodeIndex === null || !onDecrement) return;
+        onDecrement(nodeIndex);
+      }}
+      disabled={nodeIndex === null || level <= 0}
+      icon={CaretDownIcon}
+      negative
+    >
+      -1
+    </Button>
+    <Button
+      on:click={() => {
+        if (nodeIndex === null || !onDecrement) return;
+        for (let i = 0; i < 10; i++) onDecrement(nodeIndex);
+      }}
+      disabled={nodeIndex === null || level <= 0}
+      icon={CaretDoubleDownIcon}
+      negative
+    >
+      −10
+    </Button>
+    <Button
+      on:click={() => {
+        if (nodeIndex === null || !onReset) return;
+        onReset(nodeIndex);
+      }}
+      toastMessage={nodeIndex !== null && onReset ? `Reset node` : undefined}
+      toastNegative
+      disabled={nodeIndex === null || level <= 0}
+      icon={ArrowCounterClockwiseIcon}
+      negative
+    >
+      Reset
+    </Button>
   </div>
 </ContextMenu>
 
@@ -179,14 +199,9 @@
     transition: width 0.2s ease;
   }
 
-  .button-columns {
+  .button-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-
-  .button-column {
-    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 6px;
   }
 </style>
