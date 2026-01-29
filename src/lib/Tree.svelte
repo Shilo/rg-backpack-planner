@@ -85,8 +85,6 @@
     // Maximum scale: allow zooming in reasonably
     const maxScale = 2.2;
 
-    //todo
-    return { minScale: 1, maxScale: 1 };
     return { minScale, maxScale };
   })();
   $: minScale = scaleBounds.minScale;

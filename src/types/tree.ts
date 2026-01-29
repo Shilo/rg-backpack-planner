@@ -5,8 +5,8 @@ export type BranchSkillIds = [SkillId, SkillId];
 export type Node = {
     skillId: SkillId;
     parent?: number | number[];
-    maxLevel: NodeMaxLevel;
-    radius: NodeRadius;
+    maxLevel: 100 | 50 | 1;
+    radius: 1.2 | 1 | 0.8;
     x: number;
     y: number;
 };
@@ -33,10 +33,6 @@ export type SkillId =
     | "skill_crit_resistance"
     | "ignore_stun"
     | "damage_reflection_chance";
-
-export type NodeMaxLevel = 100 | 50 | 1;
-
-export type NodeRadius = 1 | 0.75 | 0.5;
 
 // Runtime types (index-based)
 export type NodeIndex = number;

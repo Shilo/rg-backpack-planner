@@ -484,8 +484,8 @@
   }
 
   :global(.node-icon) {
-    width: calc(52px * var(--icon-scale, 1));
-    height: calc(52px * var(--icon-scale, 1));
+    width: calc(32px * var(--icon-scale, 1));
+    height: calc(32px * var(--icon-scale, 1));
     opacity: 0.7;
     grid-area: stack;
     position: absolute;
