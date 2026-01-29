@@ -8,8 +8,10 @@
   import { triggerHaptic } from "./haptics";
 
   let lastActiveElement: HTMLElement | null = null;
+  let isMouseDownOnBackdrop = false;
 
   const unsubscribe = modalStore.subscribe((value) => {
+    isMouseDownOnBackdrop = false;
     if (value) {
       lastActiveElement =
         document.activeElement instanceof HTMLElement
@@ -45,9 +47,17 @@
   }
 
   function handleBackdropClick(event: MouseEvent) {
-    if (event.target !== event.currentTarget) return;
+    if (event.target !== event.currentTarget || !isMouseDownOnBackdrop) {
+      isMouseDownOnBackdrop = false;
+      return;
+    }
+    isMouseDownOnBackdrop = false;
     triggerHaptic();
     handleCancel();
+  }
+
+  function handleBackdropPointerDown(event: PointerEvent) {
+    isMouseDownOnBackdrop = event.target === event.currentTarget;
   }
 
   function handleBackdropKeydown(event: KeyboardEvent) {
@@ -72,6 +82,7 @@
     role="button"
     tabindex="0"
     aria-label="Close modal"
+    on:pointerdown={handleBackdropPointerDown}
     on:click={handleBackdropClick}
     on:keydown={handleBackdropKeydown}
   >
