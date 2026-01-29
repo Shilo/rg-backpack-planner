@@ -87,14 +87,11 @@
     });
   }
 
-  async function handleReloadWindow() {
-    if (typeof window === "undefined") return;
-    // Unregister service workers so reload fetches fresh assets (fixes stale PWA cache)
-    if ("serviceWorker" in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map((reg) => reg.unregister()));
+  function handleReloadWindow() {
+    // Simply reload the page without clearing data
+    if (typeof window !== "undefined") {
+      window.location.reload();
     }
-    window.location.reload();
   }
 
   function handleClearAllData() {
@@ -190,7 +187,7 @@
   <InstallPwaButton title={true} />
   <Button
     on:click={handleReloadWindow}
-    tooltipText={"Refresh and load the latest version (bypasses cache)"}
+    tooltipText={"Refresh the page"}
     icon={ArrowClockwiseIcon}
   >
     Reload Window
