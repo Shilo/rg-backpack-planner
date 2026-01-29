@@ -40,7 +40,7 @@
     data-node-id={String(id)}
     icon={NodeIcon}
     iconClass="node-icon"
-    style={`width: ${64 * radius}px; height: ${64 * radius}px; --node-radius: ${radius};`}
+    style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
   >
     {#if level > 0}
       <span
@@ -484,8 +484,8 @@
   }
 
   :global(.node-icon) {
-    width: calc(24px * var(--node-radius, 1));
-    height: calc(24px * var(--node-radius, 1));
+    width: calc(52px * var(--icon-scale, 1));
+    height: calc(52px * var(--icon-scale, 1));
     opacity: 0.7;
     grid-area: stack;
     position: absolute;
