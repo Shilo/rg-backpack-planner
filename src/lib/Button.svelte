@@ -9,7 +9,14 @@
   export let iconClass = "button-icon";
   export let iconAriaHidden = true;
   export let iconSize: number | string | undefined = 26;
-  export let iconWeight: "thin" | "light" | "regular" | "bold" | "fill" | "duotone" | undefined = undefined;
+  export let iconWeight:
+    | "thin"
+    | "light"
+    | "regular"
+    | "bold"
+    | "fill"
+    | "duotone"
+    | undefined = undefined;
   export let type: "button" | "submit" | "reset" = "button";
   export let small = false;
   export let negative = false;
@@ -60,6 +67,7 @@
   };
 
   const handleClick = (event: MouseEvent) => {
+    triggerHaptic(); // Must run in same stack as click for Chrome user-activation
     forward(event);
     if (toastMessage) {
       showToast(toastMessage, {
@@ -70,7 +78,6 @@
   };
 
   const handlePointerDown = (event: PointerEvent) => {
-    triggerHaptic();
     forward(event);
   };
 </script>
