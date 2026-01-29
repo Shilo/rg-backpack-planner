@@ -19,8 +19,15 @@ function markInteracted() {
 }
 
 export function triggerHaptic(durationMs = 5) {
-  navigator.vibrate(1000);
-  showToast("Haptic triggered", { durationMs: 1500 });
+  const secure = typeof window !== "undefined" && window.isSecureContext;
+  const hasVibrateNow = typeof navigator !== "undefined" && "vibrate" in navigator;
+
+  if (hasVibrateNow) {
+    navigator.vibrate(1000);
+    showToast(`Haptic: vibrate(1000ms) | secure=${secure}`, { durationMs: 2500 });
+  } else {
+    showToast("Haptic: no vibrate API", { tone: "negative", durationMs: 2000 });
+  }
 }
 
 const hasWindow = typeof window !== "undefined";
