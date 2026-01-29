@@ -4,6 +4,7 @@
   import {
     ArrowCounterClockwiseIcon,
     ArrowsOutCardinalIcon,
+    CornersOutIcon,
     DownloadSimpleIcon,
     EyeIcon,
     GithubLogoIcon,
@@ -282,8 +283,7 @@
           </div>
         </li>
         <li class="control-row">
-          <span class="control-icon" aria-hidden="true"
-            ><ArrowsOutCardinalIcon /></span
+          <span class="control-icon" aria-hidden="true"><CornersOutIcon /></span
           >
           <div class="control-text">
             <p class="control-label">Fullscreen</p>

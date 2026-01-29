@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowsInCardinalIcon, ArrowsOutCardinalIcon } from "phosphor-svelte";
+  import { CornersInIcon, CornersOutIcon } from "phosphor-svelte";
   import type { Component, ComponentType } from "svelte";
   import { onDestroy, onMount } from "svelte";
   import Button from "../Button.svelte";
@@ -58,8 +58,8 @@
   <Button
     {...$$restProps}
     icon={(isFullscreen
-      ? ArrowsInCardinalIcon
-      : ArrowsOutCardinalIcon) as unknown as Component}
+      ? CornersInIcon
+      : CornersOutIcon) as unknown as Component}
     tooltipText={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
     on:click={handleToggleFullscreen}
   />
@@ -69,7 +69,7 @@
     label="Fullscreen"
     ariaLabel="Toggle fullscreen mode"
     tooltipText="Use fullscreen where your browser supports it"
-    icon={ArrowsOutCardinalIcon as unknown as ComponentType}
+    icon={CornersOutIcon as unknown as ComponentType}
     onToggle={handleToggleFullscreen}
   />
 {/if}
