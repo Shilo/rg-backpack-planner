@@ -282,6 +282,15 @@
           </div>
         </li>
         <li class="control-row">
+          <span class="control-icon" aria-hidden="true"
+            ><ArrowsOutCardinalIcon /></span
+          >
+          <div class="control-text">
+            <p class="control-label">Fullscreen</p>
+            <p class="control-desc">Toggle fullscreen mode (where supported)</p>
+          </div>
+        </li>
+        <li class="control-row">
           <span class="control-icon" aria-hidden="true"><EyeIcon /></span>
           <div class="control-text">
             <p class="control-label">Preview build indicator</p>
@@ -300,17 +309,6 @@
           <div class="control-text">
             <p class="control-label">GitHub button</p>
             <p class="control-desc">View the source code on GitHub</p>
-          </div>
-        </li>
-        <li class="control-row">
-          <span class="control-icon" aria-hidden="true"><EyeIcon /></span>
-          <div class="control-text">
-            <p class="control-label">Fullscreen toggle (Settings tab)</p>
-            <p class="control-desc">
-              Try fullscreen mode where your browser supports it. For the best
-              fullscreen experience, especially on iOS, install the app as a
-              PWA from the Settings tab.
-            </p>
           </div>
         </li>
         {#if canInstall && !isInstalled}

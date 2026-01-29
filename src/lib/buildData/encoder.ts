@@ -7,46 +7,24 @@
 import { baseTree } from "../../config/baseTree";
 
 /**
- * TreeNode type (matching Tree.svelte)
- */
-type TreeNode = {
-  id: string;
-  x: number;
-  y: number;
-  maxLevel: number;
-  label?: string;
-  parentIds?: string[];
-  radius?: number;
-};
-
-/**
- * Build data structure representing tree levels and tech crystals owned
+ * Build data structure representing tree levels and tech crystals owned.
+ * Levels are numeric arrays indexed by node position in baseTree (0..baseTree.length-1).
+ * Encoder uses baseTree only for length and fixed branch layout (0-9 yellow, 10-19 orange, 20-29 blue).
  */
 export interface BuildData {
-  trees: Record<string, number>[];
+  trees: number[][];
   owned: number;
 }
 
-/**
- * Branch types: yellow (attack), orange (defense), blue (hp)
- */
 type BranchType = "yellow" | "orange" | "blue";
 
-/**
- * Branch root node IDs - maps branch type to root node ID
- */
-const BRANCH_ROOTS = {
-  yellow: "attack",
-  orange: "defense",
-  blue: "hp",
-} as const;
+const BRANCH_KEYS: BranchType[] = ["yellow", "orange", "blue"];
 
-/**
- * Reverse lookup map: root node ID -> branch type (for O(1) lookup)
- */
-const ROOT_TO_BRANCH = new Map<string, BranchType>(
-  Object.entries(BRANCH_ROOTS).map(([branch, root]) => [root, branch as BranchType])
-);
+function getNodeBranch(index: number): BranchType {
+  if (index < 10) return "yellow";
+  if (index < 20) return "orange";
+  return "blue";
+}
 
 /**
  * Special marker for completely empty build (all trees empty, owned=0)
@@ -70,113 +48,17 @@ const SEPARATOR_RLE_TREE_COUNT = ":"; // Separates tree string from count in RLE
 export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;':_]+$/;
 
 /**
- * Node map for quick lookup
+ * Branch mapping: ordered node indices per branch. Uses baseTree.length only.
  */
-let nodeMap: Map<string, TreeNode> | null = null;
-
-/**
- * Branch membership cache
- */
-let branchCache: Map<string, BranchType> | null = null;
-
-/**
- * Initialize node map from baseTree
- */
-function initializeNodeMap(): Map<string, TreeNode> {
-  if (!nodeMap) {
-    nodeMap = new Map();
-    for (const node of baseTree) {
-      nodeMap.set(node.id, node);
-    }
-  }
-  return nodeMap;
-}
-
-/**
- * Checks if a node ID matches any branch root
- * @param nodeId The node ID to check
- * @returns The branch type if it's a root, or null
- */
-function getBranchRoot(nodeId: string): BranchType | null {
-  return ROOT_TO_BRANCH.get(nodeId) ?? null;
-}
-
-/**
- * Determines which branch a node belongs to by tracing ancestry back to branch roots
- * @param nodeId The node ID to check
- * @returns The branch type (yellow, orange, or blue)
- */
-function getNodeBranch(nodeId: string): BranchType {
-  // Initialize cache if needed
-  if (!branchCache) {
-    branchCache = new Map();
-  }
-
-  // Check cache first
-  if (branchCache.has(nodeId)) {
-    return branchCache.get(nodeId)!;
-  }
-
-  const nodeMap = initializeNodeMap();
-  const node = nodeMap.get(nodeId);
-
-  if (!node) {
-    // Node not found, default to yellow (shouldn't happen)
-    branchCache.set(nodeId, "yellow");
-    return "yellow";
-  }
-
-  // Check if this node is a branch root
-  const rootBranch = getBranchRoot(nodeId);
-  if (rootBranch) {
-    branchCache.set(nodeId, rootBranch);
-    return rootBranch;
-  }
-
-  // Trace ancestry through parentIds
-  if (node.parentIds && node.parentIds.length > 0) {
-    for (const parentId of node.parentIds) {
-      // Check if parent is a branch root
-      const parentRootBranch = getBranchRoot(parentId);
-      if (parentRootBranch) {
-        branchCache.set(nodeId, parentRootBranch);
-        return parentRootBranch;
-      }
-
-      // Recursively check parent
-      const parentBranch = getNodeBranch(parentId);
-      branchCache.set(nodeId, parentBranch);
-      return parentBranch;
-    }
-  }
-
-  // No parentIds or root connection - this shouldn't happen for valid trees
-  // Default to yellow
-  branchCache.set(nodeId, "yellow");
-  return "yellow";
-}
-
-/**
- * Creates branch mapping: maps each branch to an ordered array of node IDs
- * @returns Object with yellow, orange, blue arrays of node IDs in order
- */
-function createBranchMapping(): {
-  yellow: string[];
-  orange: string[];
-  blue: string[];
-} {
-  const mapping = {
-    yellow: [] as string[],
-    orange: [] as string[],
-    blue: [] as string[],
+function createBranchMapping(): Record<BranchType, number[]> {
+  const mapping: Record<BranchType, number[]> = {
+    yellow: [],
+    orange: [],
+    blue: [],
   };
-
-  // Process nodes in baseTree order to maintain consistent ordering
-  for (const node of baseTree) {
-    const branch = getNodeBranch(node.id);
-    mapping[branch].push(node.id);
+  for (let i = 0; i < baseTree.length; i++) {
+    mapping[getNodeBranch(i)].push(i);
   }
-
   return mapping;
 }
 
@@ -447,10 +329,14 @@ function serializeArrayFormat(
   const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
   // If all trees are empty, use special marker for empty build (or just owned if non-zero)
-  // However, to avoid ambiguity with single tree values, we always include the tree structure
-  // even for empty builds. Use ";" prefix to indicate owned-only builds.
   if (lastNonEmptyTreeIndex === -1) {
-    return owned === 0 ? EMPTY_BUILD_MARKER : `${SEPARATOR_TREE}${encodeBase62(owned)}`;
+    if (owned === 0) {
+      return EMPTY_BUILD_MARKER;
+    }
+
+    // For empty builds with owned > 0, emit three empty tree separators followed by owned,
+    // e.g. ";;;owned". This guarantees three tree segments before the owned value.
+    return `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
   }
 
   // Get non-empty trees
@@ -527,6 +413,21 @@ function parseBranchSegment(branchSegment: string): number[] {
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * Pads missing trees and branches, defaults owned to 0
  */
+
+/**
+ * Checks if a segment is a valid candidate for the owned value:
+ * - non-empty
+ * - contains no branch, node, or tree-RLE separators
+ */
+function isOwnedSegmentCandidate(segment: string): boolean {
+  return (
+    segment !== "" &&
+    !segment.includes(SEPARATOR_BRANCH) &&
+    !segment.includes(SEPARATOR_NODE_VALUE) &&
+    !segment.includes(SEPARATOR_RLE_TREE_COUNT)
+  );
+}
+
 function parseArrayFormat(serialized: string): [number[][][], number] {
   // Handle special marker for empty build
   if (serialized === EMPTY_BUILD_MARKER) {
@@ -535,58 +436,64 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
 
   const segments = serialized.split(SEPARATOR_TREE);
   let owned = 0;
-  let treeSegments: string[];
+  let candidateOwned: string | null = null;
+  let treeSegmentsRaw: string[];
 
-  // Strict positional order: trees first, then owned at the end
-  // If there are multiple segments and the last one has no separators, it must be owned
-  if (segments.length > 1) {
-    const lastSegment = segments[segments.length - 1];
-    // owned must be a single base62 number with no branch, node, or RLE tree count separators
-    if (!lastSegment.includes(SEPARATOR_BRANCH) && !lastSegment.includes(SEPARATOR_NODE_VALUE) && !lastSegment.includes(SEPARATOR_RLE_TREE_COUNT) && lastSegment !== "") {
-      try {
-        owned = decodeBase62(lastSegment);
-      } catch (error) {
-        throw new Error(`Invalid owned value: ${lastSegment}`);
-      }
-      treeSegments = segments.slice(0, -1);
-    } else {
-      treeSegments = segments;
-    }
-  } else if (segments.length === 1) {
-    // Single segment: could be empty build marker, owned value (empty build with owned), or a tree
-    const singleSegment = segments[0];
-
-    // If it's the empty build marker, handle it
-    if (singleSegment === EMPTY_BUILD_MARKER) {
-      treeSegments = [];
-    } else if (!singleSegment.includes(SEPARATOR_BRANCH) && !singleSegment.includes(SEPARATOR_NODE_VALUE) && !singleSegment.includes(SEPARATOR_RLE_TREE_COUNT) && singleSegment !== "") {
-      // Single segment with no separators (no ,, ., or :)
-      // The encoder now produces ";owned" for empty builds with owned > 0, so a single segment
-      // with no separators can only be a single tree value in yellow branch.
-      // (Empty builds with owned are now encoded as ";owned" which becomes multiple segments)
-      treeSegments = segments; // Treat as tree value (yellow branch)
-    } else {
-      // Has separators (, ., or :), must be a tree segment
-      treeSegments = segments;
-    }
+  // Strict positional order: trees first, then owned at the end.
+  // However, we allow tree-level RLE (e.g. "1:3") even when owned exists ("1:3;a").
+  // Strategy:
+  // 1) Tentatively treat the last segment as owned if it looks like a pure owned value.
+  // 2) Expand tree-level RLE on the preceding segments only.
+  // 3) If expansion yields <= 3 trees, accept the candidate as owned.
+  // 4) If it yields > 3 trees, fall back: treat all segments as tree data (no owned).
+  if (segments.length > 1 && isOwnedSegmentCandidate(segments[segments.length - 1])) {
+    candidateOwned = segments[segments.length - 1];
+    treeSegmentsRaw = segments.slice(0, -1);
   } else {
-    treeSegments = segments;
+    treeSegmentsRaw = segments;
   }
 
-  // Expand tree-level RLE (treeString:count format, count may be base62)
-  const expandedTreeSegments: string[] = [];
-  for (const segment of treeSegments) {
-    // Colon is not a special regex character, but we escape it for clarity
-    const escapedRleTreeCountSeparator = SEPARATOR_RLE_TREE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const treeRLEMatch = segment.match(new RegExp(`^(.+)${escapedRleTreeCountSeparator}([0-9a-zA-Z]+)$`));
-    if (treeRLEMatch) {
-      const treeString = treeRLEMatch[1];
-      const countStr = treeRLEMatch[2];
-      const count = parseRLECount(countStr, segment);
-      // Expand the tree repetition
-      expandedTreeSegments.push(...Array(count).fill(treeString));
+  // Special-case: single empty-build marker
+  if (treeSegmentsRaw.length === 1 && treeSegmentsRaw[0] === EMPTY_BUILD_MARKER) {
+    return [[[[], [], []], [[], [], []], [[], [], []]], 0];
+  }
+
+  // Helper to expand tree-level RLE (treeString:count, count may be base62)
+  const expandTreeSegments = (inputSegments: string[]): string[] => {
+    const expanded: string[] = [];
+    for (const segment of inputSegments) {
+      // Colon is not a special regex character, but we escape it for clarity
+      const escapedRleTreeCountSeparator = SEPARATOR_RLE_TREE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const treeRLEMatch = segment.match(new RegExp(`^(.+)${escapedRleTreeCountSeparator}([0-9a-zA-Z]+)$`));
+      if (treeRLEMatch) {
+        const treeString = treeRLEMatch[1];
+        const countStr = treeRLEMatch[2];
+        const count = parseRLECount(countStr, segment);
+        // Expand the tree repetition
+        expanded.push(...Array(count).fill(treeString));
+      } else {
+        expanded.push(segment);
+      }
+    }
+    return expanded;
+  };
+
+  // First, expand RLE for the tentative tree segments (without the candidate owned)
+  let expandedTreeSegments: string[] = expandTreeSegments(treeSegmentsRaw);
+
+  // Decide whether the candidate really is owned
+  if (candidateOwned !== null) {
+    if (expandedTreeSegments.length <= 3) {
+      try {
+        owned = decodeBase62(candidateOwned);
+      } catch (error) {
+        throw new Error(`Invalid owned value: ${candidateOwned}`);
+      }
     } else {
-      expandedTreeSegments.push(segment);
+      // Too many trees when treating the last segment as owned → revert:
+      // treat everything as tree data, no owned.
+      owned = 0;
+      expandedTreeSegments = expandTreeSegments(segments);
     }
   }
 
@@ -630,37 +537,30 @@ function truncateTrailingZeros(arr: number[]): number[] {
 }
 
 /**
- * Converts tree levels from object format to branch-grouped array format
+ * Converts tree levels from array format to branch-grouped array format
  * Groups nodes by branch (yellow, orange, blue) instead of circular order
- * @param trees Array of tree levels as Record<string, number>
+ * @param trees Array of tree levels as number[]
  * @returns Array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  */
 function convertTreesToArrayFormat(
-  trees: Record<string, number>[],
+  trees: number[][],
   owned: number,
 ): [number[][][], number] {
   const mapping = getBranchMapping();
-  const branchKeys: BranchType[] = ["yellow", "orange", "blue"];
-
-  // Convert each tree to branch-grouped format
-  const treeBranchArrays: number[][][] = trees.map((tree) => {
-    // Create branch arrays: [yellow[], orange[], blue[]]
-    const branches: number[][] = branchKeys.map((branchKey) => {
-      const nodeIds = mapping[branchKey];
-      return nodeIds.map((nodeId) => tree[nodeId] ?? 0);
-    });
-
-    // Truncate trailing zeros from each branch
-    return branches.map(truncateTrailingZeros);
-  });
-
+  const treeBranchArrays: number[][][] = trees.map((tree) =>
+    BRANCH_KEYS.map((key) => {
+      const branchIndices = mapping[key];
+      const values = branchIndices.map((index) => tree[index] ?? 0);
+      return truncateTrailingZeros(values);
+    }),
+  );
   return [treeBranchArrays, owned];
 }
 
 /**
- * Converts tree levels from branch-grouped array format back to object format
- * Maps branch arrays back to node positions using branch mapping
+ * Converts tree levels from branch-grouped array format back to array format
+ * Maps branch arrays back to node indices using branch mapping
  * @param arrayFormat Array format: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
  *   where each tree_branches is [yellow[], orange[], blue[]]
  * @returns BuildData with object format
@@ -690,8 +590,8 @@ function convertArrayFormatToTrees(
 
   const mapping = getBranchMapping();
 
-  // Convert each tree's branch arrays back to object format
-  const trees: Record<string, number>[] = treeBranchArrays.map((treeBranches, treeIndex) => {
+  // Convert each tree's branch arrays back to array format
+  const trees: number[][] = treeBranchArrays.map((treeBranches, treeIndex) => {
     if (!Array.isArray(treeBranches)) {
       throw new Error(`Invalid array format: tree ${treeIndex} is not an array`);
     }
@@ -708,13 +608,10 @@ function convertArrayFormatToTrees(
       throw new Error(`Invalid array format: tree ${treeIndex} branches must be arrays`);
     }
 
-    const tree: Record<string, number> = {};
-    const branchKeys: BranchType[] = ["yellow", "orange", "blue"];
+    const tree: number[] = new Array(baseTree.length).fill(0);
     const branches = [yellowBranch, orangeBranch, blueBranch];
-
-    // Map each branch's nodes to the tree object
-    branchKeys.forEach((branchKey, branchIndex) => {
-      const branch = branches[branchIndex];
+    BRANCH_KEYS.forEach((branchKey, bi) => {
+      const branch = branches[bi];
       const nodeIds = mapping[branchKey];
       branch.forEach((value, i) => {
         if (i < nodeIds.length) {
@@ -728,7 +625,7 @@ function convertArrayFormatToTrees(
       });
     });
 
-    // Note: nodes beyond branch array lengths are implicitly 0, so we don't need to set them
+    // Nodes beyond branch array lengths are implicitly 0
     return tree;
   });
 
@@ -747,19 +644,13 @@ export function encodeBuildData(buildData: BuildData): string {
   return serialized;
 }
 
-/**
- * Safely executes a function and logs errors, returning null on failure
- * @param fn Function to execute
- * @param errorMessage Error message prefix for logging
- * @returns Function result or null if error occurred
- */
-function safeExecute<T>(
-  fn: () => T,
-  errorMessage: string
-): T | null {
+function safeExecute<T>(fn: () => T, logPrefix: string): T | null {
   try {
     return fn();
-  } catch (error) {
+  } catch (e) {
+    if (typeof console !== "undefined" && console.error) {
+      console.error(`${logPrefix}:`, e);
+    }
     return null;
   }
 }

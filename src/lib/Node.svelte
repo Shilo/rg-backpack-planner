@@ -3,11 +3,18 @@
 </script>
 
 <script lang="ts">
-  import { CheckCircleIcon, CrownIcon, LockIcon, PlusIcon } from "phosphor-svelte";
+  import {
+    CheckCircleIcon,
+    CrownIcon,
+    LockIcon,
+    PlusIcon,
+  } from "phosphor-svelte";
   import Button from "./Button.svelte";
   import { formatNumber } from "./mathUtil";
 
-  export let id: string;
+  export let id: number;
+  export let x: number = 0;
+  export let y: number = 0;
   export let label: string = "";
   export let level: number = 0;
   export let state: NodeState = "locked";
@@ -26,24 +33,31 @@
   $: NodeIcon = stateIcons[state] ?? LockIcon;
 </script>
 
-<Button
-  class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
-  aria-label={label || id}
-  data-node-id={id}
-  icon={NodeIcon}
-  iconClass="node-icon"
-  style={`width: ${64 * radius}px; height: ${64 * radius}px; --node-radius: ${radius};`}
->
-  {#if level > 0}
-    <span
-      class="node-level"
-      style={`transform: translate(-50%, 50%) scale(${1 / scale});`}
-      >{formatNumber(level)}</span
-    >
-  {/if}
-</Button>
+<div class="node-wrapper" style="left: {x}px; top: {y}px;">
+  <Button
+    class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
+    aria-label={label || String(id)}
+    data-node-id={String(id)}
+    icon={NodeIcon}
+    iconClass="node-icon"
+    style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
+  >
+    {#if level > 0}
+      <span
+        class="node-level"
+        style={`transform: translate(-50%, 50%) scale(${1 / scale});`}
+        >{formatNumber(level)}</span
+      >
+    {/if}
+  </Button>
+</div>
 
 <style>
+  .node-wrapper {
+    position: absolute;
+    transform: translate(-50%, -50%);
+  }
+
   /* CSS Custom Properties - All color variables defined here */
   :global(.button.node) {
     /* Brightness values for locked states */
@@ -470,8 +484,8 @@
   }
 
   :global(.node-icon) {
-    width: calc(24px * var(--node-radius, 1));
-    height: calc(24px * var(--node-radius, 1));
+    width: calc(32px * var(--icon-scale, 1));
+    height: calc(32px * var(--icon-scale, 1));
     opacity: 0.7;
     grid-area: stack;
     position: absolute;

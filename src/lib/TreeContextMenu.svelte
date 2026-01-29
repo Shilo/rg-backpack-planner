@@ -1,8 +1,8 @@
 <script lang="ts">
   import ContextMenu from "./ContextMenu.svelte";
   import TreeContextMenuList from "./TreeContextMenuList.svelte";
-  import type { TreeViewState, TreeNode } from "./Tree.svelte";
-  import type { LevelsById } from "./treeLevelsStore";
+  import type { TreeViewState } from "./Tree.svelte";
+  import type { Node, LevelsByIndex } from "../types/tree";
 
   export let tabId = "";
   export let tabLabel = "";
@@ -10,8 +10,8 @@
   export let y = 0;
   export let isOpen = false;
   export let tabIndex = -1;
-  export let nodes: TreeNode[] = [];
-  export let levelsById: LevelsById | null = null;
+  export let nodes: Node[] = [];
+  export let levelsById: LevelsByIndex | null = null;
   export let viewState: TreeViewState | null = null;
   export let focusViewState: TreeViewState | null = null;
   export let onClose: (() => void) | null = null;

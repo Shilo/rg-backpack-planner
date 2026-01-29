@@ -1,17 +1,13 @@
 <script lang="ts" context="module">
-  import type { TreeNode, TreeViewState } from "./Tree.svelte";
-
-  export type TabConfig = {
-    id: string;
-    label: string;
-    nodes: TreeNode[];
-  };
+  import type { TreeViewState } from "./Tree.svelte";
+  import type { TabConfig } from "../types/tree";
 </script>
 
 <script lang="ts">
   import { ListIcon } from "phosphor-svelte";
   import { onMount, tick } from "svelte";
   import { get } from "svelte/store";
+  import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
   import Button from "./Button.svelte";
   import Tree from "./Tree.svelte";
   import TreeContextMenu from "./TreeContextMenu.svelte";
@@ -40,7 +36,7 @@
   export let activeViewState: TreeViewState | null = null;
   export let activeFocusViewState: TreeViewState | null = null;
   export let onNodeLevelChange:
-    | ((tabIndex: number, techCrystalDelta: number, nodeId?: string) => void)
+    | ((tabIndex: number, techCrystalDelta: number) => void)
     | null = null;
 
   let bottomInset = 0;
@@ -215,8 +211,7 @@
     const nodeEl = target.closest("[data-node-id]");
     if (!nodeEl) return false;
     const nodeId = nodeEl.getAttribute("data-node-id");
-    // Root node should not be treated as a regular node - allow background press
-    return nodeId !== "root";
+    return nodeId !== null && nodeId !== "root";
   }
 
   function startBackgroundPress(event: PointerEvent) {
@@ -311,7 +306,7 @@
   function refundTreeSpent(index: number) {
     const spent = get(techCrystalsSpentByTree)[index] ?? 0;
     if (spent !== 0) {
-      onNodeLevelChange?.(index, -spent, "all");
+      onNodeLevelChange?.(index, -spent);
     }
   }
 
@@ -359,18 +354,19 @@
     setActive(index);
   }
 
-  function handleNodeLevelChange(techCrystalDelta: number, nodeId?: string) {
+  function handleNodeLevelChange(techCrystalDelta: number) {
     if (!tabs[activeIndex]) return;
-    onNodeLevelChange?.(activeIndex, techCrystalDelta, nodeId);
+    onNodeLevelChange?.(activeIndex, techCrystalDelta);
   }
 
-  function handleLevelsChange(nextLevels: Record<string, number>) {
-    setTreeLevels(activeIndex, { ...nextLevels });
+  function handleLevelsChange(nextLevels: number[]) {
+    setTreeLevels(activeIndex, [...nextLevels]);
   }
 </script>
 
 <div class="tabs-root">
   <div class="tabs-bar" bind:this={tabsBarEl}>
+    <FullscreenToggle iconButton={true} class="fullscreen-button" />
     <div class="tab-buttons">
       {#each tabs as tab, index}
         <Button
@@ -416,7 +412,7 @@
         <Tree
           bind:this={treeRef}
           nodes={tabs[activeIndex].nodes}
-          levelsById={$treeLevels[activeIndex] ?? {}}
+          levelsById={$treeLevels[activeIndex] ?? null}
           onLevelsChange={handleLevelsChange}
           {bottomInset}
           gesturesDisabled={!!tabContextMenu}
@@ -467,7 +463,7 @@
 <style>
   .tabs-root {
     --menu-width: 38px;
-    --menu-gap: 6px;
+    --menu-gap: 4px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -496,7 +492,7 @@
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: var(--menu-gap);
     min-width: 0;
   }
 
@@ -528,6 +524,25 @@
     background: rgba(34, 49, 82, 0.78);
     color: #e7efff;
     border-color: #4f6fbf;
+  }
+
+  :global(.fullscreen-button) {
+    border: 1px solid #2c3c61;
+    background: rgba(17, 27, 45, 0.7);
+    color: #8fa4ce;
+    width: var(--tab-height);
+    height: var(--tab-height);
+    border-radius: 10px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  :global(.fullscreen-button .button-icon) {
+    width: 26px;
+    height: 26px;
   }
 
   :global(.menu-button) {

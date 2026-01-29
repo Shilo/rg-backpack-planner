@@ -1,8 +1,7 @@
 import { derived, writable, get } from "svelte/store";
-import type { TabConfig } from "./Tabs.svelte";
-import type { LevelsById } from "./treeLevelsStore";
+import type { TabConfig, LevelsByIndex } from "../types/tree";
 import { isPreviewMode } from "./previewModeStore";
-import { loadTreeProgress } from "./treeProgressStore";
+import { loadTreeProgressRaw } from "./treeProgressStore";
 
 export const techCrystalsOwned = writable(0);
 /**
@@ -132,15 +131,12 @@ export function applyTechCrystalDeltaForTree(
  * Recalculates tech crystals spent for each tree based on current tree levels.
  * This is used when loading from persistent storage or build URL, where
  * levels are set directly without going through the normal level change callbacks.
- * @param levels Array of level records, one per tree
+ * @param levels Array of level arrays, one per tree
  */
-export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
-  const spent = levels.map((treeLevels) => {
-    // Sum all node levels, excluding root node
-    return Object.entries(treeLevels)
-      .filter(([nodeId]) => nodeId !== "root")
-      .reduce((sum, [, level]) => sum + (level ?? 0), 0);
-  });
+export function recalculateTechCrystalsSpent(levels: LevelsByIndex[]): void {
+  const spent = levels.map((treeLevels) =>
+    treeLevels.reduce((sum, level) => sum + (level ?? 0), 0),
+  );
   techCrystalsSpentByTree.set(spent);
 }
 
@@ -150,16 +146,12 @@ export function recalculateTechCrystalsSpent(levels: LevelsById[]): void {
  * @returns The tech crystals spent, or 0 if data is not available
  */
 export function getTechCrystalsSpentFromStorage(): number {
-  const levels = loadTreeProgress();
+  const levels = loadTreeProgressRaw();
   if (!levels) return 0;
 
-  const spent = levels.map((treeLevels) => {
-    // Sum all node levels, excluding root node
-    // Missing keys are treated as 0 (compressed storage omits zeros)
-    return Object.entries(treeLevels)
-      .filter(([nodeId]) => nodeId !== "root")
-      .reduce((sum, [, level]) => sum + (level ?? 0), 0);
-  });
+  const spent = levels.map((treeLevels) =>
+    treeLevels.reduce((sum, level) => sum + (level ?? 0), 0),
+  );
 
   return spent.reduce((sum, value) => sum + value, 0);
 }
