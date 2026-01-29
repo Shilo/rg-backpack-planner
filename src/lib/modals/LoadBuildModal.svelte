@@ -17,7 +17,7 @@
   export let titleIconAriaHidden = true;
   export let titleIconWeight: IconWeight | undefined = undefined;
   export let message: string | undefined =
-    "Paste a Backpack Planner link (https://...) or just the build code.";
+    "Paste a Backpack Planner link or just the build code.";
   export let confirmLabel = "Load build";
   export let cancelLabel = "Cancel";
   export let onLoaded: (() => void) | null = null;
@@ -128,7 +128,7 @@
       class="modal-input"
       bind:this={inputEl}
       type="text"
-      placeholder="https://.../1;,2;,,3"
+      placeholder="https://.../?b=1;,2;,,3"
       inputmode="url"
       autocomplete="off"
       autocapitalize="off"

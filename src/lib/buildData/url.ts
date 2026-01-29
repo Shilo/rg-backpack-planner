@@ -176,39 +176,29 @@ export function parseEncodedFromUserInput(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
 
-  let candidate: string | null = null;
+  let candidate: string = trimmed;
 
-  // URL-style input
-  if (/^https?:\/\//i.test(trimmed)) {
-    try {
-      const url = new URL(trimmed);
-      const searchParams = url.searchParams;
-
-      // Preferred and only supported URL format: query parameter (?b=...)
-      const fromQuery = searchParams.get("b");
-      const paramTrimmed = fromQuery?.trim();
-      candidate = paramTrimmed && paramTrimmed.length > 0 ? paramTrimmed : null;
-    } catch {
-      candidate = null;
-    }
-  } else {
-    // Raw candidate string
-    candidate = trimmed;
+  // Simply split by the first '=' if it exists
+  if (trimmed.includes("=")) {
+    const afterEqual = trimmed.split("=")[1];
+    // Also strip any following query parameters like &utm_source=...
+    candidate = (afterEqual || "").split("&")[0];
   }
 
-  if (!candidate) return null;
+  const finalCandidate = candidate.trim();
+  if (!finalCandidate) return null;
 
   // Basic character validation (defensive; decodeBuildData also validates)
-  if (!SERIALIZED_PATTERN.test(candidate)) {
+  if (!SERIALIZED_PATTERN.test(finalCandidate)) {
     return null;
   }
 
-  const buildData = decodeBuildData(candidate);
+  const buildData = decodeBuildData(finalCandidate);
   if (!buildData) {
     return null;
   }
 
-  return candidate;
+  return finalCandidate;
 }
 
 /**
