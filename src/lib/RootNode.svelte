@@ -2,7 +2,7 @@
   import { HexagonIcon } from "phosphor-svelte";
   import Button from "./Button.svelte";
 
-  const ROOT_SIZE = 64;
+  const ROOT_SIZE = 32;
 
   export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
     null;
@@ -35,7 +35,8 @@
     icon={HexagonIcon}
     iconClass="root-node-icon"
     iconWeight="fill"
-    style="width: 100%; height: 100%; --node-radius: var(--node-radius, 1);"
+    style="width: 100%; height: 100%;"
+    small
   />
 </div>
 
@@ -58,9 +59,8 @@
   }
 
   :global(.root-node-icon) {
-    width: calc(32px * var(--node-radius, 1));
-    height: calc(32px * var(--node-radius, 1));
-    opacity: 1;
+    width: 100%;
+    height: 100%;
     color: #8a95b0;
     fill: currentColor;
   }
