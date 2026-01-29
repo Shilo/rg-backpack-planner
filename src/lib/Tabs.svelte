@@ -7,6 +7,7 @@
   import { ListIcon } from "phosphor-svelte";
   import { onMount, tick } from "svelte";
   import { get } from "svelte/store";
+  import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
   import Button from "./Button.svelte";
   import Tree from "./Tree.svelte";
   import TreeContextMenu from "./TreeContextMenu.svelte";
@@ -365,6 +366,7 @@
 
 <div class="tabs-root">
   <div class="tabs-bar" bind:this={tabsBarEl}>
+    <FullscreenToggle iconButton={true} class="fullscreen-button" />
     <div class="tab-buttons">
       {#each tabs as tab, index}
         <Button
@@ -522,6 +524,25 @@
     background: rgba(34, 49, 82, 0.78);
     color: #e7efff;
     border-color: #4f6fbf;
+  }
+
+  :global(.fullscreen-button) {
+    border: 1px solid #2c3c61;
+    background: rgba(17, 27, 45, 0.7);
+    color: #8fa4ce;
+    width: var(--tab-height);
+    height: var(--tab-height);
+    border-radius: 10px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  :global(.fullscreen-button .button-icon) {
+    width: 26px;
+    height: 26px;
   }
 
   :global(.menu-button) {

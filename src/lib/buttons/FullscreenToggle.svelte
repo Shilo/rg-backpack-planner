@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { ArrowsOutCardinalIcon } from "phosphor-svelte";
-  import type { ComponentType } from "svelte";
+  import { ArrowsInCardinalIcon, ArrowsOutCardinalIcon } from "phosphor-svelte";
+  import type { Component, ComponentType } from "svelte";
   import { onDestroy, onMount } from "svelte";
+  import Button from "../Button.svelte";
   import {
     isFullscreenActive,
     isFullscreenSupported,
@@ -9,6 +10,8 @@
   } from "../fullscreen";
   import { showToast } from "../toast";
   import ToggleSwitch from "../ToggleSwitch.svelte";
+
+  export let iconButton = false;
 
   let fullscreenSupported = false;
   let isFullscreen = false;
@@ -51,11 +54,22 @@
   });
 </script>
 
-<ToggleSwitch
-  checked={isFullscreen}
-  label="Fullscreen"
-  ariaLabel="Toggle fullscreen mode"
-  tooltipText="Use fullscreen where your browser supports it"
-  icon={ArrowsOutCardinalIcon as unknown as ComponentType}
-  onToggle={handleToggleFullscreen}
-/>
+{#if iconButton}
+  <Button
+    {...$$restProps}
+    icon={(isFullscreen
+      ? ArrowsInCardinalIcon
+      : ArrowsOutCardinalIcon) as unknown as Component}
+    tooltipText={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+    on:click={handleToggleFullscreen}
+  />
+{:else}
+  <ToggleSwitch
+    checked={isFullscreen}
+    label="Fullscreen"
+    ariaLabel="Toggle fullscreen mode"
+    tooltipText="Use fullscreen where your browser supports it"
+    icon={ArrowsOutCardinalIcon as unknown as ComponentType}
+    onToggle={handleToggleFullscreen}
+  />
+{/if}
