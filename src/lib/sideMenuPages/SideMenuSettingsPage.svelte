@@ -87,11 +87,14 @@
     });
   }
 
-  function handleReloadWindow() {
-    // Simply reload the page without clearing data
-    if (typeof window !== "undefined") {
-      window.location.reload();
+  async function handleReloadWindow() {
+    if (typeof window === "undefined") return;
+    // Unregister service workers so reload fetches fresh assets (fixes stale PWA cache)
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((reg) => reg.unregister()));
     }
+    window.location.reload();
   }
 
   function handleClearAllData() {
@@ -187,7 +190,7 @@
   <InstallPwaButton title={true} />
   <Button
     on:click={handleReloadWindow}
-    tooltipText={"Refresh the page"}
+    tooltipText={"Refresh page and load latest version"}
     icon={ArrowClockwiseIcon}
   >
     Reload Window
