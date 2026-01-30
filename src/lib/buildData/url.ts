@@ -205,12 +205,21 @@ export function updateUrlWithCurrentBuild(): void {
 
 /**
  * Navigates to a specific encoded build by updating the URL hash.
- * hashchange fires automatically, triggering re-initialization in App.svelte.
+ * Uses pushState so Back/Forward stays same-document (no reload).
+ * Manually dispatches hashchange since pushState does not fire it.
  *
  * Does not reload the page.
  */
 export function navigateToEncodedBuild(encoded: string): void {
   if (typeof window === "undefined") return;
 
-  window.history.replaceState({}, "", buildSharePath(encoded));
+  const oldURL = window.location.href;
+  const newPath = buildSharePath(encoded);
+  window.history.pushState({}, "", newPath);
+  window.dispatchEvent(
+    new HashChangeEvent("hashchange", {
+      oldURL,
+      newURL: window.location.origin + newPath,
+    }),
+  );
 }
