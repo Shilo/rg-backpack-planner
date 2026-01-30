@@ -416,56 +416,55 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
 
 /**
  * Decoder compatibility tests
- * These validate decoding of serialized strings using the current encoder format
- * (separators: ~ tree, - branch, . node, * RLE node count, ! RLE tree count).
+ * Format: . (node), , (branch), ; (tree), ' (RLE node count), : (RLE tree count)
  */
 const decodeCompatibilityCases: Array<{
   name: string;
   serialized: string;
   expected: BuildData | null;
 }> = [
-    {
-      name: "Tree-level RLE without owned: 3 identical simple trees",
-      serialized: "1!3",
-      expected: {
-        trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-        owned: 0,
-      },
+  {
+    name: "Tree-level RLE without owned: 3 identical simple trees",
+    serialized: "1:3",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+      owned: 0,
     },
-    {
-      name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
-      serialized: "1!3~a",
-      expected: {
-        trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-        owned: 10,
-      },
+  },
+  {
+    name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
+    serialized: "1:3;a",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+      owned: 10,
     },
-    {
-      name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
-      serialized: "1--1!3~a",
-      expected: {
-        trees: fromObjectTrees([
-          { "0": 1, "20": 1 },
-          { "0": 1, "20": 1 },
-          { "0": 1, "20": 1 },
-        ]),
-        owned: 10,
-      },
+  },
+  {
+    name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
+    serialized: "1,,1:3;a",
+    expected: {
+      trees: fromObjectTrees([
+        { "0": 1, "20": 1 },
+        { "0": 1, "20": 1 },
+        { "0": 1, "20": 1 },
+      ]),
+      owned: 10,
     },
-    {
-      name: "Explicit three trees plus owned: 3 identical simple trees, owned 10",
-      serialized: "1~1~1~a",
-      expected: {
-        trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-        owned: 10,
-      },
+  },
+  {
+    name: "Explicit three trees plus owned: 3 identical simple trees, owned 10",
+    serialized: "1;1;1;a",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+      owned: 10,
     },
-    {
-      name: "Invalid: too many trees when using tree-level RLE plus owned",
-      serialized: "1!4~a",
-      expected: null,
-    },
-  ];
+  },
+  {
+    name: "Invalid: too many trees when using tree-level RLE plus owned",
+    serialized: "1:4;a",
+    expected: null,
+  },
+];
 
 /**
  * Run all tests
@@ -509,7 +508,7 @@ export function runTests() {
 
       const serializedLength = serialized.length;
 
-      // Serialized format: ~ (trees), - (branches), . (nodes), * (RLE node count), ! (RLE tree count)
+      // Serialized format: . (node), , (branch), ; (tree), ' (RLE node), : (RLE tree)
 
       // Decode build data with timeout protection
       let decoded: BuildData | null = null;
@@ -726,7 +725,7 @@ export function runDecoderCompatibilityTests() {
 }
 
 /**
- * Error handling tests - invalid strings for current format (separators: ~ - . * !)
+ * Error handling tests - invalid strings for format (.,;':)
  */
 const errorTestCases: Array<{ name: string; invalidString: string; expectedError?: string }> = [
   {
@@ -735,35 +734,35 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
   },
   {
     name: "Invalid format: invalid character",
-    invalidString: "1~1@1",
+    invalidString: "1;1@1",
   },
   {
-    name: "Invalid format: malformed RLE (value* with no count)",
-    invalidString: "1*",
+    name: "Invalid format: malformed RLE (value' with no count)",
+    invalidString: "1'",
   },
   {
     name: "Invalid format: invalid RLE count (zero)",
-    invalidString: "1*0",
+    invalidString: "1'0",
   },
   {
     name: "Invalid format: too many trees with owned",
-    invalidString: "1!4~a",
+    invalidString: "1:4;a",
   },
   {
     name: "Invalid format: five trees (invalid)",
-    invalidString: "1~1~1~1~1",
+    invalidString: "1;1;1;1;1",
   },
   {
     name: "Invalid format: invalid base62 in owned",
-    invalidString: "1~1~1~@@",
+    invalidString: "1;1;1;@@",
   },
   {
     name: "Invalid format: malformed tree RLE",
-    invalidString: "1!",
+    invalidString: "1:",
   },
   {
     name: "Invalid format: invalid RLE count in tree",
-    invalidString: "1!0",
+    invalidString: "1:0",
   },
 ];
 
