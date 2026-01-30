@@ -181,8 +181,19 @@
      * Can safely be called multiple times (e.g. on initial load and on history navigation).
      */
     async function initializeFromUrl(): Promise<void> {
+        const hashAtStart =
+            typeof window !== "undefined" ? window.location.hash : "";
+
         // Ensure trees are initialized before applying any build data
         await tick();
+
+        // If hash changed during async work, abort - another hashchange will have triggered a fresh run
+        if (
+            typeof window !== "undefined" &&
+            window.location.hash !== hashAtStart
+        ) {
+            return;
+        }
 
         // Clean up any existing subscriptions before re-initializing
         unsubscribeTreeLevels?.();
@@ -217,8 +228,16 @@
         }
 
         if (hasUrlBuild && buildData) {
+            // Stale check: hash may have changed (e.g. user navigated) - don't overwrite
+            if (
+                typeof window !== "undefined" &&
+                window.location.hash !== hashAtStart
+            ) {
+                return;
+            }
             // Preview mode: Public build from URL
             setPreviewMode(true);
+            await tick(); // Flush store update so PreviewBuildIndicator shows before further work
 
             // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
             const buildLoaded = applyBuildFromUrl(tabs, buildData);
@@ -247,8 +266,16 @@
                 }
             });
         } else {
+            // Stale check: hash may have changed (e.g. user navigated) - don't overwrite
+            if (
+                typeof window !== "undefined" &&
+                window.location.hash !== hashAtStart
+            ) {
+                return;
+            }
             // Personal mode: Private build from localStorage
             setPreviewMode(false);
+            await tick(); // Flush store update so PreviewBuildIndicator hides promptly
 
             // Check if we just stopped preview mode or cloned build
             tryShowStoppedPreviewToast();
@@ -283,28 +310,20 @@
     onMount(() => {
         ensureInstallListeners();
 
-        let isInitializingFromUrl = false;
-
         async function runInitialization() {
-            if (isInitializingFromUrl) return;
-            isInitializingFromUrl = true;
-            try {
-                await initializeFromUrl();
+            await initializeFromUrl();
 
-                // New-version controls behavior is tied to initial load, not history navigation
-                if (shouldShowControls) {
-                    markVersionAsSeen();
-                    await tick();
-                    // Ensure controls tab is active (backup in case component initialized before localStorage was set)
-                    // Don't persist this change since it's for new version notification
-                    sideMenuRef?.openTab?.("controls", false);
-                    // Reset transition flag after menu is shown so future opens have transitions
-                    setTimeout(() => {
-                        skipMenuTransition = false;
-                    }, 200);
-                }
-            } finally {
-                isInitializingFromUrl = false;
+            // New-version controls behavior is tied to initial load, not history navigation
+            if (shouldShowControls) {
+                markVersionAsSeen();
+                await tick();
+                // Ensure controls tab is active (backup in case component initialized before localStorage was set)
+                // Don't persist this change since it's for new version notification
+                sideMenuRef?.openTab?.("controls", false);
+                // Reset transition flag after menu is shown so future opens have transitions
+                setTimeout(() => {
+                    skipMenuTransition = false;
+                }, 200);
             }
         }
 
@@ -312,7 +331,6 @@
         void runInitialization();
 
         function handleHashchange() {
-            // Re-initialize when hash changes (history nav, in-page link, or programmatic replaceState)
             void runInitialization();
         }
 
@@ -357,7 +375,9 @@
         {activeTreeName}
     />
     <div class="top-left-actions">
-        <PreviewBuildIndicator />
+        {#key $isPreviewMode}
+            <PreviewBuildIndicator />
+        {/key}
         <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
     </div>
     <div class="top-right-actions">
