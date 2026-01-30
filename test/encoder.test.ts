@@ -416,8 +416,8 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
 
 /**
  * Decoder compatibility tests
- * These validate decoding of serialized strings that may not be produced
- * by the current encoder, but should still round-trip into valid BuildData.
+ * These validate decoding of serialized strings using the current encoder format
+ * (separators: ~ tree, - branch, . node, * RLE node count, ! RLE tree count).
  */
 const decodeCompatibilityCases: Array<{
   name: string;
@@ -426,7 +426,7 @@ const decodeCompatibilityCases: Array<{
 }> = [
     {
       name: "Tree-level RLE without owned: 3 identical simple trees",
-      serialized: "1:3",
+      serialized: "1!3",
       expected: {
         trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
         owned: 0,
@@ -434,7 +434,7 @@ const decodeCompatibilityCases: Array<{
     },
     {
       name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
-      serialized: "1:3;a",
+      serialized: "1!3~a",
       expected: {
         trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
         owned: 10,
@@ -442,8 +442,7 @@ const decodeCompatibilityCases: Array<{
     },
     {
       name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
-      // "1,,1:3" is emitted by encoder for three identical trees with values at indices 0 and 20.
-      serialized: "1,,1:3;a",
+      serialized: "1--1!3~a",
       expected: {
         trees: fromObjectTrees([
           { "0": 1, "20": 1 },
@@ -455,7 +454,7 @@ const decodeCompatibilityCases: Array<{
     },
     {
       name: "Explicit three trees plus owned: 3 identical simple trees, owned 10",
-      serialized: "1;1;1;a",
+      serialized: "1~1~1~a",
       expected: {
         trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
         owned: 10,
@@ -463,8 +462,7 @@ const decodeCompatibilityCases: Array<{
     },
     {
       name: "Invalid: too many trees when using tree-level RLE plus owned",
-      // 1:4 expands to four trees; with owned this should be rejected (decode → null).
-      serialized: "1:4;a",
+      serialized: "1!4~a",
       expected: null,
     },
   ];
@@ -511,13 +509,7 @@ export function runTests() {
 
       const serializedLength = serialized.length;
 
-      // Note: Serialized string uses count-framed format with base62 encoding (0-9, a-z, A-Z)
-      // Format: <treeCount>-<tree>-<tree>-...[-o<owned>]
-      // tree := <branchCount>-<branch>-<branch>-...
-      // branch := <tokenCount>_<token>_<token>_...
-      // token := <value> | <value>~<run> | ~<run>
-      // Separators: - (structural), _ (tokens), ~ (RLE), o (owned marker)
-      // All characters are URL-safe, so no base64 encoding is needed
+      // Serialized format: ~ (trees), - (branches), . (nodes), * (RLE node count), ! (RLE tree count)
 
       // Decode build data with timeout protection
       let decoded: BuildData | null = null;
@@ -529,8 +521,6 @@ export function runTests() {
         console.log();
         return;
       }
-
-      const decodedJsonLength = decoded ? JSON.stringify(decoded).length : 0;
 
       // Verify
       if (!decoded) {
@@ -736,7 +726,7 @@ export function runDecoderCompatibilityTests() {
 }
 
 /**
- * Error handling tests - these should fail gracefully
+ * Error handling tests - invalid strings for current format (separators: ~ - . * !)
  */
 const errorTestCases: Array<{ name: string; invalidString: string; expectedError?: string }> = [
   {
@@ -744,68 +734,36 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
     invalidString: "",
   },
   {
-    name: "Invalid format: invalid base62 character",
-    invalidString: "3-3---1_@",
+    name: "Invalid format: invalid character",
+    invalidString: "1~1@1",
   },
   {
-    name: "Invalid format: missing tree count",
-    invalidString: "-3---1_1",
+    name: "Invalid format: malformed RLE (value* with no count)",
+    invalidString: "1*",
   },
   {
-    name: "Invalid format: invalid tree count (>3)",
-    invalidString: "4-3---1_1",
+    name: "Invalid format: invalid RLE count (zero)",
+    invalidString: "1*0",
   },
   {
-    name: "Invalid format: invalid tree count (negative)",
-    invalidString: "-1-3---1_1",
+    name: "Invalid format: too many trees with owned",
+    invalidString: "1!4~a",
   },
   {
-    name: "Invalid format: tree count mismatch",
-    invalidString: "2-3---1_1-3---1_1-3---1_1",
+    name: "Invalid format: five trees (invalid)",
+    invalidString: "1~1~1~1~1",
   },
   {
-    name: "Invalid format: missing branch count",
-    invalidString: "1-",
+    name: "Invalid format: invalid base62 in owned",
+    invalidString: "1~1~1~@@",
   },
   {
-    name: "Invalid format: invalid branch count (>3)",
-    invalidString: "1-4-1_1",
+    name: "Invalid format: malformed tree RLE",
+    invalidString: "1!",
   },
   {
-    name: "Invalid format: branch count mismatch",
-    invalidString: "1-2-1_1",
-  },
-  {
-    name: "Invalid format: missing token count",
-    invalidString: "1-1-_1",
-  },
-  {
-    name: "Invalid format: token count mismatch",
-    invalidString: "1-1-3_1",
-  },
-  {
-    name: "Invalid format: invalid RLE pattern",
-    invalidString: "1-1-1_1~~",
-  },
-  {
-    name: "Invalid format: invalid owned marker",
-    invalidString: "1-1-1_1-o",
-  },
-  {
-    name: "Invalid format: owned marker without value",
-    invalidString: "1-1-1_1-o",
-  },
-  {
-    name: "Invalid format: extra segments",
-    invalidString: "1-1-1_1-extra",
-  },
-  {
-    name: "Invalid format: incomplete tree",
-    invalidString: "1-3-1_1",
-  },
-  {
-    name: "Invalid format: incomplete branch",
-    invalidString: "1-1-",
+    name: "Invalid format: invalid RLE count in tree",
+    invalidString: "1!0",
   },
 ];
 

@@ -128,7 +128,7 @@
       class="modal-input"
       bind:this={inputEl}
       type="text"
-      placeholder="https://.../?b=1~-2~--3"
+      placeholder="https://.../#1~1~1"
       inputmode="url"
       autocomplete="off"
       autocapitalize="off"

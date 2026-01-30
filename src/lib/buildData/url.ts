@@ -1,6 +1,6 @@
 /**
  * URL management for build data sharing
- * Handles query-based routing and URL updates
+ * Handles hash-fragment routing and URL updates
  */
 
 import type { BuildData } from "./encoder";
@@ -44,36 +44,27 @@ export function getBasePath(): string {
  * Get the encoded build data from the current URL.
  *
  * Supported format:
- *   /{base}?b={encoded}
+ *   /{base}#{encoded}
  */
 export function getEncodedFromUrl(): string | null {
   if (typeof window === "undefined") return null;
 
-  // 1) Preferred: query parameter (?b=...)
-  const search = window.location.search;
-  if (search) {
-    const params = new URLSearchParams(search);
-    const encoded = params.get("b");
-    const trimmed = encoded?.trim();
-    if (trimmed) {
-      return trimmed;
-    }
-  }
+  const hash = window.location.hash;
+  if (!hash || hash === "#") return null;
 
-  return null;
+  const encoded = hash.slice(1).trim();
+  return encoded || null;
 }
 
 /**
- * Build a share path (path + query, no origin) with the given encoded data.
+ * Build a share path (path + hash, no origin) with the given encoded data.
  *
- * Uses query-based format for better compatibility with crawlers:
- *   /{base}?b={encoded}
+ * Uses hash-fragment format: /{base}#{encoded}
+ * No encoding needed; hash is client-only and not sent to server.
  */
 function buildSharePath(encoded: string): string {
   const base = getBasePath();
-  // Base already has trailing slash. Attach query parameter (?b=...).
-  // Use encodeURIComponent so the encoded data is safe in the query string.
-  return `${base}?b=${encodeURIComponent(encoded)}`;
+  return `${base}#${encoded}`;
 }
 
 /**
@@ -129,7 +120,7 @@ export function setIsApplyingBuildFromUrl(value: boolean): void {
 
 /**
  * Creates a shareable URL with the current build data
- * Uses query-based routing with ?b={encoded}
+ * Uses hash-fragment format: /{base}#{encoded}
  */
 export function createShareUrl(buildData?: BuildData): string {
   const data = buildData ?? {
@@ -142,7 +133,7 @@ export function createShareUrl(buildData?: BuildData): string {
 
 /**
  * Extracts build data from the current URL
- * Uses query-based routing with ?b={encoded}
+ * Uses hash-fragment format: /{base}#{encoded}
  */
 export function loadBuildFromUrl(): BuildData | null {
   if (typeof window === "undefined") return null;
@@ -152,18 +143,14 @@ export function loadBuildFromUrl(): BuildData | null {
     return null;
   }
 
-  const buildData = decodeBuildData(encoded);
-  if (buildData) {
-    console.warn("[loadBuildFromUrl] Successfully loaded build data from URL:", encoded);
-  }
-  return buildData;
+  return decodeBuildData(encoded);
 }
 
 /**
  * Parses user input (full URL or raw code) into a validated encoded build string.
  *
  * Accepts:
- * - Full Backpack Planner URL: https://.../rg-backpack-planner/?b={encoded}[...]
+ * - Full Backpack Planner URL: https://.../rg-backpack-planner/#{encoded}
  * - Raw encoded string matching SERIALIZED_PATTERN
  *
  * Returns:
@@ -173,39 +160,19 @@ export function loadBuildFromUrl(): BuildData | null {
 export function parseEncodedFromUserInput(input: string): string | null {
   if (typeof input !== "string") return null;
 
-  const trimmed = input.trim();
-  if (!trimmed) return null;
+  const candidate = (
+    input.includes("#") ? (input.split("#").pop() ?? "") : input
+  ).trim();
+  if (!candidate || !SERIALIZED_PATTERN.test(candidate)) return null;
 
-  let candidate: string = trimmed;
-
-  // Simply split by the first '=' if it exists
-  if (trimmed.includes("=")) {
-    const afterEqual = trimmed.split("=")[1];
-    // Also strip any following query parameters like &utm_source=...
-    candidate = (afterEqual || "").split("&")[0];
-  }
-
-  const finalCandidate = candidate.trim();
-  if (!finalCandidate) return null;
-
-  // Basic character validation (defensive; decodeBuildData also validates)
-  if (!SERIALIZED_PATTERN.test(finalCandidate)) {
-    return null;
-  }
-
-  const buildData = decodeBuildData(finalCandidate);
-  if (!buildData) {
-    return null;
-  }
-
-  return finalCandidate;
+  return decodeBuildData(candidate) ? candidate : null;
 }
 
 /**
  * Updates the current URL with the current build data
  * Used in preview mode to keep URL in sync with changes
  * Does not reload the page, just updates the URL
- * Uses query-based routing with ?b={encoded}
+ * Uses hash-fragment format: /{base}#{encoded}
  */
 export function updateUrlWithCurrentBuild(): void {
   if (typeof window === "undefined") return;
@@ -224,9 +191,9 @@ export function updateUrlWithCurrentBuild(): void {
     const encoded = encodeBuildData(buildData);
     const newPath = buildSharePath(encoded);
 
-    // Only update URL if it's different from current path + search
-    const currentPathAndSearch = window.location.pathname + window.location.search;
-    if (newPath === currentPathAndSearch) {
+    // Only update URL if it's different from current path + hash
+    const currentPathAndHash = window.location.pathname + window.location.hash;
+    if (newPath === currentPathAndHash) {
       return; // No change needed
     }
 
@@ -244,8 +211,8 @@ export function updateUrlWithCurrentBuild(): void {
 }
 
 /**
- * Navigates to a specific encoded build by updating the URL path and
- * dispatching a popstate event so App.svelte can re-run URL initialization.
+ * Navigates to a specific encoded build by updating the URL hash.
+ * hashchange fires automatically, triggering re-initialization in App.svelte.
  *
  * Does not reload the page.
  */
@@ -255,8 +222,6 @@ export function navigateToEncodedBuild(encoded: string): void {
   const newPath = buildSharePath(encoded);
 
   // Update URL without reloading page
+  // hashchange fires automatically when the hash changes, triggering re-initialization
   window.history.replaceState({}, "", newPath);
-
-  // Let the existing popstate handler re-run initialization logic
-  window.dispatchEvent(new PopStateEvent("popstate"));
 }

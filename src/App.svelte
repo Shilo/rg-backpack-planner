@@ -192,7 +192,7 @@
         unsubscribePersistence?.();
         unsubscribePersistence = null;
 
-        // Check if there's a build in the URL (path-based: /{encoded})
+        // Check if there's a build in the URL (hash-based: /{base}#{encoded})
         // Only enter preview mode if we can actually decode valid build data
         const encoded = getEncodedFromUrl();
         let buildData: BuildData | null = null;
@@ -311,13 +311,13 @@
         // Initial URL-based initialization
         void runInitialization();
 
-        function handlePopstate() {
-            // Re-initialize app state based on the new URL when navigating history
+        function handleHashchange() {
+            // Re-initialize when hash changes (history nav, in-page link, or programmatic replaceState)
             void runInitialization();
         }
 
         if (typeof window !== "undefined") {
-            window.addEventListener("popstate", handlePopstate);
+            window.addEventListener("hashchange", handleHashchange);
         }
 
         // Cleanup subscriptions and listeners on component destroy
@@ -327,7 +327,7 @@
             unsubscribePersistence?.();
 
             if (typeof window !== "undefined") {
-                window.removeEventListener("popstate", handlePopstate);
+                window.removeEventListener("hashchange", handleHashchange);
             }
         };
     });

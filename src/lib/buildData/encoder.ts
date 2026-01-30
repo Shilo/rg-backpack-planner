@@ -33,7 +33,7 @@ const EMPTY_BUILD_MARKER = "_";
 
 /**
  * Separator constants for serialization format
- * All separators are URL-safe for query strings and don't require encoding
+ * All separators are URL-safe for hash fragments; no encoding needed
  */
 const SEPARATOR_NODE_VALUE = "."; // Separates node values within a branch
 const SEPARATOR_BRANCH = "-"; // Separates branches within a tree
