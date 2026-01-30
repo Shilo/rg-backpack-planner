@@ -423,6 +423,48 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
       owned: 0,
     },
   },
+  // Additional edge cases
+  {
+    name: "Only middle branch in tree",
+    buildData: { trees: fromObjectTrees([{}, { "10": 1 }, {}]), owned: 0 },
+  },
+  {
+    name: "Leading zeros in branch",
+    buildData: { trees: fromObjectTrees([{ "2": 1 }, {}, {}]), owned: 0 },
+  },
+  {
+    name: "RLE run of exactly 2",
+    buildData: { trees: [[2, 2], [], []], owned: 0 },
+  },
+  {
+    name: "RLE count 10 (base62)",
+    buildData: {
+      trees: [Array.from({ length: 10 }, () => 1), [], []],
+      owned: 0,
+    },
+  },
+  {
+    name: "Single value at last node (index 29)",
+    buildData: { trees: fromObjectTrees([{ "29": 1 }, {}, {}]), owned: 0 },
+  },
+  {
+    name: "Owned 3843 (base62 ZZ)",
+    buildData: { trees: fromObjectTrees([{ "0": 1 }, {}, {}]), owned: 3843 },
+  },
+  {
+    name: "Alternating at branch boundary (indices 8,9,10)",
+    buildData: {
+      trees: fromObjectTrees([{ "8": 1, "9": 0, "10": 1 }, {}, {}]),
+      owned: 0,
+    },
+  },
+  {
+    name: "All three max values in single branch (100, 50, 5)",
+    buildData: {
+      trees: fromObjectTrees([{ "0": 100, "7": 50, "9": 5 }, {}, {}]),
+      owned: 0,
+    },
+  },
 ];
 
 /**
