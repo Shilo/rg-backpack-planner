@@ -237,7 +237,6 @@
             }
             // Preview mode: Public build from URL
             setPreviewMode(true);
-            await tick(); // Flush store update so PreviewBuildIndicator shows before further work
 
             // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
             const buildLoaded = applyBuildFromUrl(tabs, buildData);
@@ -275,7 +274,6 @@
             }
             // Personal mode: Private build from localStorage
             setPreviewMode(false);
-            await tick(); // Flush store update so PreviewBuildIndicator hides promptly
 
             // Check if we just stopped preview mode or cloned build
             tryShowStoppedPreviewToast();
