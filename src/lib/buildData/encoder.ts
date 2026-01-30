@@ -296,9 +296,8 @@ function findLastNonEmptyIndex(strings: string[]): number {
 
 /**
  * Serializes branch-grouped array format to custom compact string
- * Format: yellow,orange,blue;yellow,orange,blue;yellow,orange,blue[;owned]
- * Trailing empty branches and trailing empty trees are omitted
- * Owned is only included if non-zero
+ * Format: tree1;tree2;tree3[;owned]
+ * Owned requires exactly 4 components (3 semicolons): tree1;tree2;tree3;owned
  * @param treeBranchArrays Array of [yellow[], orange[], blue[]] for each tree
  * @param owned Number of tech crystals owned
  * @returns Serialized string
@@ -309,81 +308,62 @@ function serializeArrayFormat(
 ): string {
   // Serialize each tree's branches
   const treeStrings: string[] = treeBranchArrays.map((branches) => {
-    // branches is [yellow[], orange[], blue[]]
     const branchStrings: string[] = branches.map((branch) => {
-      // Serialize branch: encode to base62, then compress with RLE
       const base62Values = branch.map((val) => (val === 0 ? "" : encodeBase62(val)));
       return compressRLE(base62Values);
     });
-
-    // Omit trailing empty branches
     const lastNonEmptyIndex = findLastNonEmptyIndex(branchStrings);
-    if (lastNonEmptyIndex === -1) {
-      return "";
-    }
-
+    if (lastNonEmptyIndex === -1) return "";
     return branchStrings.slice(0, lastNonEmptyIndex + 1).join(SEPARATOR_BRANCH);
   });
 
-  // Omit trailing empty trees
   const lastNonEmptyTreeIndex = findLastNonEmptyIndex(treeStrings);
 
-  // If all trees are empty, use special marker for empty build (or just owned if non-zero)
+  // All trees empty
   if (lastNonEmptyTreeIndex === -1) {
-    if (owned === 0) {
-      return EMPTY_BUILD_MARKER;
-    }
-
-    // For empty builds with owned > 0, emit three empty tree separators followed by owned,
-    // e.g. ";;;owned". This guarantees three tree segments before the owned value.
+    if (owned === 0) return EMPTY_BUILD_MARKER;
     return `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
   }
 
-  // Get non-empty trees
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
 
-  // Check if all trees are identical (tree-level RLE compression)
+  // Tree-level RLE: 3 identical trees
   if (nonEmptyTreeStrings.length === 3) {
     const firstTree = nonEmptyTreeStrings[0];
     if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
-      // All 3 trees are identical, compress to treeString:count (use base62 for count >= 10)
-      const countStr = encodeRLECount(3);
-      const treePart = `${firstTree}${SEPARATOR_RLE_TREE_COUNT}${countStr}`;
-      return owned === 0 ? treePart : `${treePart}${SEPARATOR_TREE}${encodeBase62(owned)}`;
+      const treePart = `${firstTree}${SEPARATOR_RLE_TREE_COUNT}${encodeRLECount(3)}`;
+      if (owned === 0) return treePart;
+      return `${treePart}${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
     }
   }
 
-  // Check for partial tree-level RLE compression (2 out of 3 trees identical)
+  // Tree-level RLE: 2 identical trees
   if (nonEmptyTreeStrings.length >= 2) {
     const result: string[] = [];
     let i = 0;
-
     while (i < nonEmptyTreeStrings.length) {
       const currentTree = nonEmptyTreeStrings[i];
-
-      // Check if current tree and next tree are identical
       if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
-        // Two identical trees found, compress to treeString:2
         result.push(`${currentTree}${SEPARATOR_RLE_TREE_COUNT}${encodeRLECount(2)}`);
-        i += 2; // Skip both trees
+        i += 2;
       } else {
         result.push(currentTree);
         i += 1;
       }
     }
-
-    // If we compressed anything, use the compressed result
     if (result.length < nonEmptyTreeStrings.length) {
-      return owned === 0
-        ? result.join(SEPARATOR_TREE)
-        : [...result, encodeBase62(owned)].join(SEPARATOR_TREE);
+      if (owned === 0) return result.join(SEPARATOR_TREE);
+      // Pad to 3 tree parts before owned
+      while (result.length < 3) result.push("");
+      return [...result, encodeBase62(owned)].join(SEPARATOR_TREE);
     }
   }
 
-  // Trees are not identical, output normally
-  return owned === 0
-    ? nonEmptyTreeStrings.join(SEPARATOR_TREE)
-    : [...nonEmptyTreeStrings, encodeBase62(owned)].join(SEPARATOR_TREE);
+  // No RLE
+  if (owned === 0) return nonEmptyTreeStrings.join(SEPARATOR_TREE);
+  const parts = [...nonEmptyTreeStrings];
+  while (parts.length < 3) parts.push("");
+  return [...parts, encodeBase62(owned)].join(SEPARATOR_TREE);
 }
 
 /**
@@ -408,68 +388,44 @@ function parseBranchSegment(branchSegment: string): number[] {
 
 /**
  * Parses branch-grouped custom compact string back to array format
- * Format: yellow,orange,blue;yellow,orange,blue;yellow,orange,blue[;owned]
- * Returns: [tree1_branches[], tree2_branches[], tree3_branches[], owned]
- *   where each tree_branches is [yellow[], orange[], blue[]]
- * Pads missing trees and branches, defaults owned to 0
+ * Owned is ONLY the 4th component: exactly 4 segments (3 semicolons) required for owned.
+ * Format: tree1;tree2;tree3 or tree1;tree2;tree3;owned
  */
-
-/**
- * Checks if a segment is a valid candidate for the owned value:
- * - non-empty
- * - contains no branch, node, or tree-RLE separators
- */
-function isOwnedSegmentCandidate(segment: string): boolean {
-  return (
-    segment !== "" &&
-    !segment.includes(SEPARATOR_BRANCH) &&
-    !segment.includes(SEPARATOR_NODE_VALUE) &&
-    !segment.includes(SEPARATOR_RLE_TREE_COUNT)
-  );
-}
 
 function parseArrayFormat(serialized: string): [number[][][], number] {
-  // Handle special marker for empty build
   if (serialized === EMPTY_BUILD_MARKER) {
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
   const segments = serialized.split(SEPARATOR_TREE);
-  let owned = 0;
-  let candidateOwned: string | null = null;
   let treeSegmentsRaw: string[];
+  let owned = 0;
 
-  // Strict positional order: trees first, then owned at the end.
-  // Tree-level RLE (e.g. "1:3") is allowed when owned exists ("1:3;a").
-  // Strategy:
-  // 1) Tentatively treat the last segment as owned if it looks like a pure owned value.
-  // 2) Expand tree-level RLE on the preceding segments only.
-  // 3) If expansion yields <= 3 trees, accept the candidate as owned.
-  // 4) If it yields > 3 trees, fall back: treat all segments as tree data (no owned).
-  if (segments.length > 1 && isOwnedSegmentCandidate(segments[segments.length - 1])) {
-    candidateOwned = segments[segments.length - 1];
-    treeSegmentsRaw = segments.slice(0, -1);
+  // Owned only when exactly 4 components (3 semicolons): tree1;tree2;tree3;owned
+  if (segments.length === 4) {
+    treeSegmentsRaw = segments.slice(0, 3);
+    try {
+      owned = decodeBase62(segments[3]);
+    } catch (error) {
+      throw new Error(`Invalid owned value: ${segments[3]}`);
+    }
   } else {
     treeSegmentsRaw = segments;
   }
 
-  // Special-case: single empty-build marker
   if (treeSegmentsRaw.length === 1 && treeSegmentsRaw[0] === EMPTY_BUILD_MARKER) {
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
-  // Helper to expand tree-level RLE (treeString:count, count may be base62)
   const expandTreeSegments = (inputSegments: string[]): string[] => {
     const expanded: string[] = [];
+    const escapedRle = SEPARATOR_RLE_TREE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const rleRegex = new RegExp(`^(.+)${escapedRle}([0-9a-zA-Z]+)$`);
     for (const segment of inputSegments) {
-      const escapedRleTreeCountSeparator = SEPARATOR_RLE_TREE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const treeRLEMatch = segment.match(new RegExp(`^(.+)${escapedRleTreeCountSeparator}([0-9a-zA-Z]+)$`));
-      if (treeRLEMatch) {
-        const treeString = treeRLEMatch[1];
-        const countStr = treeRLEMatch[2];
-        const count = parseRLECount(countStr, segment);
-        // Expand the tree repetition
-        expanded.push(...Array(count).fill(treeString));
+      const match = segment.match(rleRegex);
+      if (match) {
+        const count = parseRLECount(match[2], segment);
+        expanded.push(...Array(count).fill(match[1]));
       } else {
         expanded.push(segment);
       }
@@ -477,31 +433,15 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     return expanded;
   };
 
-  // First, expand RLE for the tentative tree segments (without the candidate owned)
-  let expandedTreeSegments: string[] = expandTreeSegments(treeSegmentsRaw);
+  let expandedTreeSegments = expandTreeSegments(treeSegmentsRaw);
 
-  // Decide whether the candidate really is owned
-  if (candidateOwned !== null) {
-    if (expandedTreeSegments.length <= 3) {
-      try {
-        owned = decodeBase62(candidateOwned);
-      } catch (error) {
-        throw new Error(`Invalid owned value: ${candidateOwned}`);
-      }
-    } else {
-      // Too many trees when treating the last segment as owned → revert:
-      // treat everything as tree data, no owned.
-      owned = 0;
-      expandedTreeSegments = expandTreeSegments(segments);
-    }
+  if (expandedTreeSegments.length > 3) {
+    expandedTreeSegments = expandedTreeSegments.slice(0, 3);
   }
-
-  // Pad missing trailing trees to 3
   while (expandedTreeSegments.length < 3) {
     expandedTreeSegments.push("");
   }
 
-  // Parse tree segments into branch arrays
   const treeBranchArrays: number[][][] = expandedTreeSegments.map((segment) => {
     if (segment === "") {
       return [[], [], []];

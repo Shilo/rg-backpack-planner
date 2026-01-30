@@ -433,7 +433,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
-    serialized: "1:3;a",
+    serialized: "1:3;;;a",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
       owned: 10,
@@ -441,7 +441,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
-    serialized: "1,,1:3;a",
+    serialized: "1,,1:3;;;a",
     expected: {
       trees: fromObjectTrees([
         { "0": 1, "20": 1 },
@@ -460,8 +460,8 @@ const decodeCompatibilityCases: Array<{
     },
   },
   {
-    name: "Invalid: too many trees when using tree-level RLE plus owned",
-    serialized: "1:4;a",
+    name: "Invalid: bad owned value (not base62)",
+    serialized: "1;1;1;@",
     expected: null,
   },
 ];
@@ -745,8 +745,8 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
     invalidString: "1'0",
   },
   {
-    name: "Invalid format: too many trees with owned",
-    invalidString: "1:4;a",
+    name: "Invalid format: bad owned value",
+    invalidString: "1;1;1;@",
   },
   {
     name: "Invalid format: five trees (invalid)",
