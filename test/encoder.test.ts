@@ -309,6 +309,17 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
     },
   },
   {
+    name: "Two trees with owned",
+    buildData: {
+      trees: [
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
+        Array.from({ length: 21 }, (_, i) => (i === 0 || i === 20 ? 1 : 0)),
+        [],
+      ],
+      owned: 25,
+    },
+  },
+  {
     name: "All three trees identical",
     buildData: {
       trees: [

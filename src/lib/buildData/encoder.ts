@@ -436,7 +436,16 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   let expandedTreeSegments = expandTreeSegments(treeSegmentsRaw);
 
   if (expandedTreeSegments.length > 3) {
-    expandedTreeSegments = expandedTreeSegments.slice(0, 3);
+    // When owned is present (4 segments), encoder pads with empty tree slots;
+    // e.g. "1:3;;;a" has tree part ["1:3","",""] - "1:3" expands to 3, "" add 2 more.
+    // Truncate to 3 trees to match encoder output format.
+    if (segments.length === 4) {
+      expandedTreeSegments = expandedTreeSegments.slice(0, 3);
+    } else {
+      throw new Error(
+        `Invalid format: expected at most 3 trees, got ${expandedTreeSegments.length}`,
+      );
+    }
   }
   while (expandedTreeSegments.length < 3) {
     expandedTreeSegments.push("");
