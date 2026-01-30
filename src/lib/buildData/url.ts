@@ -105,13 +105,6 @@ export function clearShareFromUrl(replace: boolean = true): void {
 let isApplyingBuildFromUrl = false;
 
 /**
- * Get the flag state (for use by applier.ts)
- */
-export function getIsApplyingBuildFromUrl(): boolean {
-  return isApplyingBuildFromUrl;
-}
-
-/**
  * Set the flag state (for use by applier.ts)
  */
 export function setIsApplyingBuildFromUrl(value: boolean): void {
@@ -219,9 +212,5 @@ export function updateUrlWithCurrentBuild(): void {
 export function navigateToEncodedBuild(encoded: string): void {
   if (typeof window === "undefined") return;
 
-  const newPath = buildSharePath(encoded);
-
-  // Update URL without reloading page
-  // hashchange fires automatically when the hash changes, triggering re-initialization
-  window.history.replaceState({}, "", newPath);
+  window.history.replaceState({}, "", buildSharePath(encoded));
 }

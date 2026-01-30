@@ -177,8 +177,8 @@ function outputRun(result: string[], value: string, count: number): void {
 
 /**
  * Compresses consecutive duplicate values using run-length encoding (RLE)
- * Format: value-count where ' is the separator (only when it saves space)
- * Examples: ["2s", "2s", "2s", "2s"] → "2s'4", ["1"] → "1", ["1", "2s"] → "1.2s"
+ * Format: value*count or *count (only when it saves space)
+ * Examples: ["2s", "2s", "2s", "2s"] → "2s*4", ["1"] → "1", ["1", "2s"] → "1.2s"
  * @param values Array of base62-encoded value strings
  * @returns RLE-compressed string with periods separating runs
  */
@@ -227,7 +227,7 @@ function parseRLECount(countStr: string, context: string): number {
 
 /**
  * Expands a single RLE pattern to an array of values
- * @param pattern The RLE pattern (value'count or 'count, count may be base62)
+ * @param pattern The RLE pattern (value*count or *count, count may be base62)
  * @returns Array of expanded values
  * @throws Error if pattern is invalid
  */
@@ -255,8 +255,8 @@ function expandRLEPattern(pattern: string): string[] {
 
 /**
  * Expands RLE-compressed string back to array of values
- * Accepts both RLE format (value'count or 'count) and plain values
- * Examples: "2s'4" → ["2s", "2s", "2s", "2s"], "'3" → ["", "", ""], "1" → ["1"]
+ * Accepts both RLE format (value*count or *count) and plain values
+ * Examples: "2s*4" → ["2s", "2s", "2s", "2s"], "*3" → ["", "", ""], "1" → ["1"]
  * @param valueString Period-separated string with RLE patterns or plain values
  * @returns Array of expanded value strings
  */
@@ -346,7 +346,7 @@ function serializeArrayFormat(
   if (nonEmptyTreeStrings.length === 3) {
     const firstTree = nonEmptyTreeStrings[0];
     if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
-      // All 3 trees are identical, compress to treeString:count (use base62 for count >= 10)
+      // All 3 trees are identical, compress to treeString!count (use base62 for count >= 10)
       const countStr = encodeRLECount(3);
       const treePart = `${firstTree}${SEPARATOR_RLE_TREE_COUNT}${countStr}`;
       return owned === 0 ? treePart : `${treePart}${SEPARATOR_TREE}${encodeBase62(owned)}`;
@@ -363,7 +363,7 @@ function serializeArrayFormat(
 
       // Check if current tree and next tree are identical
       if (i + 1 < nonEmptyTreeStrings.length && currentTree === nonEmptyTreeStrings[i + 1] && currentTree !== "") {
-        // Two identical trees found, compress to treeString:2
+        // Two identical trees found, compress to treeString!2
         result.push(`${currentTree}${SEPARATOR_RLE_TREE_COUNT}${encodeRLECount(2)}`);
         i += 2; // Skip both trees
       } else {
@@ -440,7 +440,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   let treeSegmentsRaw: string[];
 
   // Strict positional order: trees first, then owned at the end.
-  // However, we allow tree-level RLE (e.g. "1:3") even when owned exists ("1:3;a").
+  // Tree-level RLE (e.g. "1!3") is allowed when owned exists ("1!3~a").
   // Strategy:
   // 1) Tentatively treat the last segment as owned if it looks like a pure owned value.
   // 2) Expand tree-level RLE on the preceding segments only.
@@ -458,11 +458,10 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     return [[[[], [], []], [[], [], []], [[], [], []]], 0];
   }
 
-  // Helper to expand tree-level RLE (treeString:count, count may be base62)
+  // Helper to expand tree-level RLE (treeString!count, count may be base62)
   const expandTreeSegments = (inputSegments: string[]): string[] => {
     const expanded: string[] = [];
     for (const segment of inputSegments) {
-      // Colon is not a special regex character, but we escape it for clarity
       const escapedRleTreeCountSeparator = SEPARATOR_RLE_TREE_COUNT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const treeRLEMatch = segment.match(new RegExp(`^(.+)${escapedRleTreeCountSeparator}([0-9a-zA-Z]+)$`));
       if (treeRLEMatch) {
@@ -639,9 +638,7 @@ function convertArrayFormatToTrees(
  */
 export function encodeBuildData(buildData: BuildData): string {
   const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
-  const serialized = serializeArrayFormat(treeArrays, owned);
-
-  return serialized;
+  return serializeArrayFormat(treeArrays, owned);
 }
 
 function safeExecute<T>(fn: () => T, logPrefix: string): T | null {

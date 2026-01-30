@@ -72,7 +72,7 @@ export async function shareBuildUrlNative(options?: {
     } catch (error: unknown) {
       // If user cancels the dialog, treat as a non-error cancellation
       const err = error as { name?: string };
-      if (err && err.name === "AbortError") {
+      if (err?.name === "AbortError") {
         return "cancelled";
       }
 
