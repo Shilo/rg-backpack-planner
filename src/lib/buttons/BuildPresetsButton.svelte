@@ -8,10 +8,10 @@
         TrashIcon,
     } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import ShareBuildButton from "./ShareBuildButton.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
     import { isPreviewMode } from "../previewModeStore";
-    import { showToast } from "../toast";
     import { buildPresetsStore } from "../buildPresetsStore";
     import {
         setActivePresetId,
@@ -53,6 +53,23 @@
         $buildPresetsStore.presets.find(
             (preset) => preset.id === $buildPresetsStore.activePresetId,
         )?.name ?? "Default";
+
+    $: editPreset = editMenuPresetId
+        ? ($buildPresetsStore.presets.find(
+              (preset) => preset.id === editMenuPresetId,
+          ) ?? null)
+        : null;
+    $: editPresetBuildData = editPreset
+        ? decodeBuildData(editPreset.encoded)
+        : null;
+    $: editPresetShareUrl =
+        editPresetBuildData && editPreset
+            ? createShareUrl({ ...editPresetBuildData, name: editPreset.name })
+            : null;
+    $: editPresetShareTitle = editPreset?.name
+        ? `${editPreset.name} build`
+        : "Backpack tech tree build";
+    $: editPresetTooltipSubject = editPreset?.name ?? "your";
 
     function openPresetsMenu() {
         if (!presetsButtonElement) return;
@@ -140,56 +157,6 @@
         });
     }
 
-    async function handleSharePreset(presetId: string) {
-        const data = get(buildPresetsStore);
-        const preset = data.presets.find((p) => p.id === presetId);
-        if (!preset) return;
-        const buildData = decodeBuildData(preset.encoded);
-        if (!buildData) {
-            showToast("Unable to share preset", { tone: "negative" });
-            return;
-        }
-
-        closeEditMenu();
-
-        const shareUrl = createShareUrl({ ...buildData, name: preset.name });
-        const shareTitle = preset.name
-            ? `${preset.name} build`
-            : "Backpack tech tree build";
-
-        if (
-            typeof navigator !== "undefined" &&
-            typeof navigator.share === "function"
-        ) {
-            try {
-                await navigator.share({ url: shareUrl, title: shareTitle });
-                return;
-            } catch (error: unknown) {
-                const err = error as { name?: string };
-                if (err?.name === "AbortError") {
-                    return;
-                }
-            }
-        }
-
-        if (
-            typeof navigator !== "undefined" &&
-            navigator.clipboard &&
-            typeof navigator.clipboard.writeText === "function"
-        ) {
-            try {
-                await navigator.clipboard.writeText(shareUrl);
-                showToast("Share link copied to clipboard");
-                return;
-            } catch {
-                showToast("Unable to copy share link", { tone: "negative" });
-                return;
-            }
-        }
-
-        showToast("Unable to share link", { tone: "negative" });
-    }
-
     function handleAddBuild() {
         const trees = get(treeLevels);
         const owned = get(techCrystalsOwned);
@@ -267,13 +234,15 @@
             >
                 Rename
             </Button>
-            <Button
-                on:click={() => handleSharePreset(editMenuPresetId!)}
-                tooltipText="Share preset"
-                icon={ShareNetworkIcon}
-            >
-                Share
-            </Button>
+            <ShareBuildButton
+                title="Share"
+                tooltipSubject={editPresetTooltipSubject}
+                menuTitle="Share Preset"
+                shareUrl={editPresetShareUrl}
+                shareTitle={editPresetShareTitle}
+                showScreenshot={false}
+                disabled={!editPresetShareUrl}
+            />
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
                 tooltipText="Delete preset"
