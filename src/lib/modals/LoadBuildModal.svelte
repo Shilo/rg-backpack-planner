@@ -1,7 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { ComponentType } from "svelte";
-  import { ClipboardIcon, CaretDownIcon } from "phosphor-svelte";
+  import type { Component, ComponentType } from "svelte";
+  import {
+    ClipboardIcon,
+    CaretDownIcon,
+    RobotIcon,
+    ShareNetworkIcon,
+    SwordIcon,
+  } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
@@ -36,6 +42,12 @@
   let dropdownMenuX = 0;
   let dropdownMenuY = 0;
 
+  // Recommended build key (from package.json) → icon component
+  const recommendedBuildIcons: Record<string, Component> = {
+    pve: RobotIcon,
+    pvp: SwordIcon,
+  };
+
   // Dynamically get all recommended builds from package.json
   const recommendedBuilds = (() => {
     const builds = appPackage?.recommendedBuilds;
@@ -44,9 +56,8 @@
     return Object.entries(builds)
       .filter(([, value]) => typeof value === "string" && value.trim() !== "")
       .map(([key, value]) => ({
-        key,
-        code: value as string,
         name: key,
+        code: value as string,
       }));
   })();
 
@@ -229,6 +240,7 @@
     >
       {#each recommendedBuilds as build}
         <Button
+          icon={recommendedBuildIcons[build.name] ?? ShareNetworkIcon}
           on:click={() => handleRecommendedClick(build.code)}
           disabled={isLoading}
         >
