@@ -18,6 +18,7 @@
     LONG_PRESS_MOVE_THRESHOLD,
     clearLongPress,
     startLongPress,
+    suppressNextPointerUp,
     type LongPressState,
   } from "./longPress";
   import { showToast } from "./toast";
@@ -405,6 +406,7 @@
       if (pointer.nodeIndex === null || pointer.isRoot) return false;
       suppressTooltip(pointerId);
       hideTooltip();
+      suppressNextPointerUp(pointerId);
       contextMenu = { index: pointer.nodeIndex, x: pointer.x, y: pointer.y };
       cancelActiveGestures();
       return true;

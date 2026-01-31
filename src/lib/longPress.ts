@@ -1,6 +1,34 @@
 export const LONG_PRESS_MS = 450;
 export const LONG_PRESS_MOVE_THRESHOLD = 8;
 
+/** Suppress the next pointerup/click for this pointer (invalidates touch after long-press) */
+const suppressedPointerIds = new Set<number>();
+let suppressClickUntil = 0;
+
+export function suppressNextPointerUp(pointerId: number) {
+  suppressedPointerIds.add(pointerId);
+}
+
+function handlePointerUp(event: PointerEvent) {
+  if (!suppressedPointerIds.has(event.pointerId)) return;
+  suppressedPointerIds.delete(event.pointerId);
+  suppressClickUntil = Date.now() + 200;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
+function handleClick(event: MouseEvent) {
+  if (Date.now() > suppressClickUntil) return;
+  suppressClickUntil = 0;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("pointerup", handlePointerUp, { capture: true });
+  document.addEventListener("click", handleClick, { capture: true });
+}
+
 export type LongPressState = {
   timer: number | null;
   fired: boolean;

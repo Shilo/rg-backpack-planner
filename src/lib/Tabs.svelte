@@ -15,6 +15,7 @@
     clearLongPress,
     isLongPressMovement,
     startLongPress,
+    suppressNextPointerUp,
     type LongPressState,
   } from "./longPress";
   import {
@@ -168,6 +169,7 @@
       if (!point) return false;
       suppressTooltip(tabPressPointerId);
       hideTooltip();
+      if (tabPressPointerId !== null) suppressNextPointerUp(tabPressPointerId);
       tabContextMenu = {
         id: tab.id,
         label: tab.label,
@@ -226,6 +228,8 @@
       if (!point) return false;
       suppressTooltip(backgroundPressPointerId);
       hideTooltip();
+      if (backgroundPressPointerId !== null)
+        suppressNextPointerUp(backgroundPressPointerId);
       tabContextMenu = {
         id: activeTab.id,
         label: activeTab.label,
