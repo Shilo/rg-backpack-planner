@@ -20,6 +20,7 @@
   const isCoarsePointer = () => window.matchMedia("(pointer: coarse)").matches;
 
   let isDragging = false;
+  let backdropHadPointerDown = false;
   let dragOffset = { x: 0, y: 0 }; // Offset from original position
   let dragStart: { x: number; y: number; menuX: number; menuY: number } | null =
     null;
@@ -60,8 +61,14 @@
     }
   }
 
+  function handleBackdropPointerDown() {
+    backdropHadPointerDown = true;
+  }
+
   function handleBackdropClick(event: MouseEvent) {
     if (event.target !== event.currentTarget) return;
+    // Only close if there was a pointerdown on backdrop first (avoids close from touch release after long-press)
+    if (!backdropHadPointerDown) return;
     event.stopPropagation();
     triggerHaptic();
     onClose?.();
@@ -71,7 +78,8 @@
     if (event.target !== event.currentTarget) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
-    handleBackdropClick(event as any);
+    triggerHaptic();
+    onClose?.();
   }
 
   function clamp(value: number, min: number, max: number) {
@@ -248,7 +256,7 @@
     tick().then(updatePosition);
   }
 
-  // Reset drag offset when menu closes
+  // Reset when menu closes
   $: if (!isOpen && wasOpen) {
     dragOffset = { x: 0, y: 0 };
     wasOpen = false;
@@ -257,6 +265,7 @@
     isDragging = false;
     dragStart = null;
     pointerId = null;
+    backdropHadPointerDown = false;
   }
 </script>
 
@@ -267,6 +276,7 @@
     tabindex="0"
     aria-label="Close context menu"
     bind:this={backdropEl}
+    on:pointerdown={handleBackdropPointerDown}
     on:click={handleBackdropClick}
     on:keydown={handleBackdropKeydown}
   ></button>
