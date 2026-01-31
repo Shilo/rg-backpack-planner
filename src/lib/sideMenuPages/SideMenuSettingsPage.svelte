@@ -6,7 +6,7 @@
     CubeFocusIcon,
     MagnifyingGlassPlusIcon,
     TrashSimpleIcon,
-    ArrowSquareInIcon,
+    EyeIcon,
   } from "phosphor-svelte";
   import type { ComponentType } from "svelte";
   import Button from "../Button.svelte";
@@ -127,10 +127,10 @@
     <ShareBuildButton title="Share" disabled={$isPreviewMode} />
     <Button
       on:click={() => openLoadBuildModal(() => onClose?.())}
-      tooltipText={"Paste a shared link or build code"}
-      icon={ArrowSquareInIcon}
+      tooltipText={"Type a shareable link or build code"}
+      icon={EyeIcon}
     >
-      Load
+      Preview
     </Button>
   </div>
 </SideMenuSection>
@@ -228,5 +228,23 @@
 
   .button-row :global(:first-child) {
     flex: 1;
+    min-width: 0;
+  }
+
+  .button-row :global(:first-child .button-icon) {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+  }
+
+  .button-row :global(:first-child .button-icon svg) {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .button-row :global(:first-child .button-text) {
+    flex: 1;
+    min-width: 0;
   }
 </style>

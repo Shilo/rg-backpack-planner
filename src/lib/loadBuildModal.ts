@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - phosphor-svelte icons are valid Svelte components
-import { ArrowSquareInIcon } from "phosphor-svelte";
+import { EyeIcon } from "phosphor-svelte";
 import { openModal } from "./modalStore";
 
 export function openLoadBuildModal(onLoaded?: () => void) {
@@ -8,7 +8,7 @@ export function openLoadBuildModal(onLoaded?: () => void) {
     type: "loadBuild",
     title: "PREVIEW SHAREABLE BUILD",
     // Cast to any to satisfy TS ComponentType constraint
-    titleIcon: ArrowSquareInIcon as any,
+    titleIcon: EyeIcon as any,
     message:
       "Type a Backpack Planner link or just the build code.",
     confirmLabel: "Preview build",
