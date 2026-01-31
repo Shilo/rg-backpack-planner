@@ -424,8 +424,14 @@
 
   function onContextMenu(event: MouseEvent) {
     if (gesturesDisabled) return;
+    // Ignore touch-synthesized contextmenu - we use long-press for that
+    if (event.button !== 2) {
+      event.preventDefault();
+      return;
+    }
     const info = getNodeInfoFromTarget(event.target);
     if (!info || info.isRoot || info.index === null) return;
+
     event.preventDefault();
     hideTooltip();
     contextMenu = { index: info.index, x: event.clientX, y: event.clientY };
