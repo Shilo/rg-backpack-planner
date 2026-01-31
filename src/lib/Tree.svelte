@@ -379,7 +379,11 @@
   function cancelActiveGestures() {
     if (viewportEl) {
       for (const pointerId of pointers.keys()) {
-        viewportEl.releasePointerCapture(pointerId);
+        try {
+          viewportEl.releasePointerCapture(pointerId);
+        } catch {
+          // Pointer may already be released (e.g. user lifted finger before long-press fired)
+        }
       }
     }
     pointers.clear();
