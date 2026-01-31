@@ -778,15 +778,20 @@ export function runTests() {
       }
 
       // Compare name (if present)
-      if (testCase.buildData.name !== undefined) {
-        if (decoded.name !== testCase.buildData.name) {
+      // Empty string or whitespace-only names are treated as "no name" during encoding
+      const originalName = testCase.buildData.name;
+      const isEmptyOrWhitespace = originalName !== undefined && originalName.trim() === "";
+      const expectedName = isEmptyOrWhitespace ? undefined : originalName;
+      
+      if (expectedName !== undefined) {
+        if (decoded.name !== expectedName) {
           treesMatch = false;
           console.log(
-            `❌ Name: expected "${testCase.buildData.name}", got "${decoded.name ?? 'undefined'}"`
+            `❌ Name: expected "${expectedName}", got "${decoded.name ?? 'undefined'}"`
           );
         }
       } else if (decoded.name !== undefined) {
-        // Original had no name, decoded shouldn't either
+        // Original had no name (or empty/whitespace), decoded shouldn't either
         treesMatch = false;
         console.log(
           `❌ Name: expected undefined, got "${decoded.name}"`
