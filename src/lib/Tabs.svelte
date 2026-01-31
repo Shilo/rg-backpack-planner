@@ -278,6 +278,12 @@
   }
 
   function openTabMenu(event: MouseEvent, tab: TabConfig, index: number) {
+    // Ignore touch-synthesized contextmenu - we use long-press for that
+    if (event.button !== 2) {
+      event.preventDefault();
+      return;
+    }
+
     event.preventDefault();
     hideTooltip();
     tabContextMenu = {

@@ -33,6 +33,7 @@
   title={tabLabel || "Tab actions"}
   ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
   {onClose}
+  ignoreCloseTargetSelector={hideView0ptions ? ".tabs-bar" : null}
 >
   <TreeContextMenuList
     onFocusInView={() => onFocusInView?.(menuTabId)}

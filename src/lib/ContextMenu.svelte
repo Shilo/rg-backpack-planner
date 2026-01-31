@@ -8,6 +8,8 @@
   export let title = "Menu";
   export let ariaLabel = "Context menu";
   export let onClose: (() => void) | null = null;
+  /** When set, don't close on pointerup if target matches (e.g. tab bar for tab context menu) */
+  export let ignoreCloseTargetSelector: string | null = null;
 
   let menuEl: HTMLDivElement | null = null;
   let displayX = 0;
@@ -52,6 +54,14 @@
     }
     // Don't close on pointerup if it's the same pointer that started a drag
     if (event.pointerId === pointerId) return;
+    // Don't close when target matches (e.g. tab bar - release from long-press on tab)
+    if (
+      ignoreCloseTargetSelector &&
+      target instanceof Element &&
+      target.closest(ignoreCloseTargetSelector)
+    )
+      return;
+
     onClose?.();
   }
 
