@@ -14,6 +14,7 @@
   import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
   import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
   import ResetTreeButton from "../buttons/ResetTreeButton.svelte";
+  import BuildPresetsButton from "../buttons/BuildPresetsButton.svelte";
   import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
   import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
   import { closeUpView } from "../closeUpViewStore";
@@ -27,7 +28,6 @@
   import type { TreeViewState } from "../Tree.svelte";
   import { treeLevels } from "../treeLevelsStore";
   import { openLoadBuildModal } from "../loadBuildModal";
-  import { resetTechCrystalsOwnedForSettings } from "../techCrystalStore";
 
   export let activeTreeName = "";
   export let activeTreeIndex = 0;
@@ -78,8 +78,6 @@
       onConfirm: () => {
         singleLevelUp.resetToDefault();
         closeUpView.resetToDefault();
-        // Tech crystals owned is treated as a setting; reset without affecting tree progress
-        resetTechCrystalsOwnedForSettings();
 
         showToast("Settings reset to defaults");
         onClose?.();
@@ -122,6 +120,7 @@
 <SideMenuPreviewSection />
 
 <SideMenuSection title="Build">
+  <BuildPresetsButton disabled={$isPreviewMode} />
   <TechCrystalsButton disabled={$isPreviewMode} />
   <div class="button-row">
     <ShareBuildButton title="Share" disabled={$isPreviewMode} />

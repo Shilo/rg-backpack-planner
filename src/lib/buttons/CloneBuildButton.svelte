@@ -4,11 +4,9 @@
   import Button from "../Button.svelte";
   import { get } from "svelte/store";
   import { treeLevels } from "../treeLevelsStore";
-  import {
-    techCrystalsOwned,
-    saveTechCrystalsOwnedToStorage,
-  } from "../techCrystalStore";
-  import { saveTreeProgress } from "../treeProgressStore";
+  import { techCrystalsOwned } from "../techCrystalStore";
+  import { updateActivePresetEncoded } from "../buildPresetsStore";
+  import { encodeBuildData } from "../buildData/encoder";
   import { showToast, queueClonedBuildToast } from "../toast";
   import { clearShareFromUrl } from "../buildData/url";
   import { openModal } from "../modalStore";
@@ -24,26 +22,17 @@
       confirmPositive: true,
       onConfirm: () => {
         try {
-          // Get current build data from stores
           const currentTreeLevels = get(treeLevels);
           const currentTechCrystalsOwned = get(techCrystalsOwned);
+          const encoded = encodeBuildData({
+            trees: currentTreeLevels,
+            owned: currentTechCrystalsOwned,
+          });
+          updateActivePresetEncoded(encoded);
 
-          // Save tree levels to persistent storage
-          saveTreeProgress(currentTreeLevels);
-
-          // Save tech crystals owned to persistent storage
-          saveTechCrystalsOwnedToStorage(currentTechCrystalsOwned);
-
-          // Stop preview mode
           if (typeof window !== "undefined") {
-            // Queue toast to show after reload
             queueClonedBuildToast();
-
-            // Clear share data from URL, leaving only base path
-            // Use pushState to preserve share link in history for back button
             clearShareFromUrl(false);
-
-            // Reload to re-initialize in personal mode
             window.location.reload();
           }
         } catch (error) {

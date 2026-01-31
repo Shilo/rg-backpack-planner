@@ -6,30 +6,14 @@
   import {
     techCrystalsSpent,
     techCrystalsOwned,
-    techCrystalsOwnedStorageUpdateFlag,
-    getTechCrystalsOwnedFromStorage,
-    getTechCrystalsSpentFromStorage,
   } from "../techCrystalStore";
 
   export let disabled: boolean | undefined = false;
   export let tooltipSubject: string = "your";
 
-  // Store localStorage values when disabled to avoid re-reading on every reactive update
-  let storageOwned = 0;
-  let storageSpent = 0;
-
-  // Update storage values when disabled, and whenever owned storage is written
-  $: if (disabled) {
-    // Reference flag so this block reruns whenever storage is written
-    $techCrystalsOwnedStorageUpdateFlag;
-    storageOwned = getTechCrystalsOwnedFromStorage();
-    storageSpent = getTechCrystalsSpentFromStorage();
-  }
-
-  // When disabled, use storage values from localStorage (non-reactive)
-  // When enabled, use reactive stores
-  $: owned = disabled ? storageOwned : $techCrystalsOwned;
-  $: spent = disabled ? storageSpent : $techCrystalsSpent;
+  // In preview mode (disabled), stores already hold the preview build's owned/spent
+  $: owned = $techCrystalsOwned;
+  $: spent = $techCrystalsSpent;
   $: hasOwned = owned > 0;
 </script>
 

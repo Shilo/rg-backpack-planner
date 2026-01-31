@@ -7,11 +7,47 @@ import type { BuildData } from "./encoder";
 import type { Node } from "../../types/tree";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
+import { recalculateTechCrystalsSpent } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";
 import { loadBuildFromUrl } from "./url";
 import { setIsApplyingBuildFromUrl } from "./url";
 import { setPreviewBuildName, clearPreviewBuildName } from "../previewBuildNameStore";
 import { get } from "svelte/store";
+
+/**
+ * Applies build data to tree levels and tech crystals owned (no URL or preview name).
+ * Used when switching presets or initializing personal mode from presets.
+ */
+export function applyBuildData(
+  trees: { nodes: Node[] }[],
+  buildData: BuildData,
+): boolean {
+  try {
+    let expandedTrees = buildData.trees;
+    if (trees.length === buildData.trees.length) {
+      expandedTrees = expandTreeProgress(buildData.trees, trees);
+    }
+
+    const currentTrees = get(treeLevels);
+    if (expandedTrees.length === currentTrees.length) {
+      expandedTrees.forEach((tree, index) => {
+        setTreeLevels(index, tree);
+      });
+    } else {
+      console.warn(
+        `Build data has ${expandedTrees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`,
+      );
+      return false;
+    }
+
+    setTechCrystalsOwned(buildData.owned);
+    recalculateTechCrystalsSpent(expandedTrees);
+    return true;
+  } catch (error) {
+    console.error("Failed to apply build data:", error);
+    return false;
+  }
+}
 
 /**
  * Applies build data from URL to the stores
