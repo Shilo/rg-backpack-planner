@@ -11,6 +11,7 @@
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
     import { isPreviewMode } from "../previewModeStore";
+    import { showToast } from "../toast";
     import { buildPresetsStore } from "../buildPresetsStore";
     import {
         setActivePresetId,
@@ -22,6 +23,7 @@
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
     import { applyBuildData } from "../buildData/applier";
+    import { createShareUrl } from "../buildData/url";
     import { treeLevels } from "../treeLevelsStore";
     import { techCrystalsOwned } from "../techCrystalStore";
     import { openModal } from "../modalStore";
@@ -138,6 +140,53 @@
         });
     }
 
+    async function handleSharePreset(presetId: string) {
+        const data = get(buildPresetsStore);
+        const preset = data.presets.find((p) => p.id === presetId);
+        if (!preset) return;
+        const buildData = decodeBuildData(preset.encoded);
+        if (!buildData) {
+            showToast("Unable to share preset", { tone: "negative" });
+            return;
+        }
+
+        closeEditMenu();
+
+        const shareUrl = createShareUrl({ ...buildData, name: preset.name });
+        const shareTitle = preset.name
+            ? `${preset.name} build`
+            : "Backpack tech tree build";
+
+        if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+            try {
+                await navigator.share({ url: shareUrl, title: shareTitle });
+                return;
+            } catch (error: unknown) {
+                const err = error as { name?: string };
+                if (err?.name === "AbortError") {
+                    return;
+                }
+            }
+        }
+
+        if (
+            typeof navigator !== "undefined" &&
+            navigator.clipboard &&
+            typeof navigator.clipboard.writeText === "function"
+        ) {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                showToast("Share link copied to clipboard");
+                return;
+            } catch {
+                showToast("Unable to copy share link", { tone: "negative" });
+                return;
+            }
+        }
+
+        showToast("Unable to share link", { tone: "negative" });
+    }
+
     function handleAddBuild() {
         const trees = get(treeLevels);
         const owned = get(techCrystalsOwned);
@@ -214,6 +263,13 @@
                 icon={PencilSimpleIcon}
             >
                 Rename
+            </Button>
+            <Button
+                on:click={() => handleSharePreset(editMenuPresetId!)}
+                tooltipText="Share preset"
+                icon={ShareNetworkIcon}
+            >
+                Share
             </Button>
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
