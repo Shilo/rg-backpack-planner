@@ -1,6 +1,7 @@
 <script lang="ts">
     import { get } from "svelte/store";
     import {
+        DotsThreeVerticalIcon,
         PencilSimpleIcon,
         PlusIcon,
         ShareNetworkIcon,
@@ -76,10 +77,19 @@
         closePresetsMenu();
     }
 
-    function openEditMenu(event: MouseEvent, presetId: string) {
-        event.stopPropagation();
-        event.preventDefault();
-        editIconElement = event.currentTarget as HTMLButtonElement;
+    function openEditMenu(
+        event: CustomEvent<MouseEvent> | MouseEvent,
+        presetId: string,
+    ) {
+        const mouseEvent = event instanceof CustomEvent ? event.detail : event;
+        mouseEvent.stopPropagation();
+        mouseEvent.preventDefault();
+        const target =
+            (mouseEvent.currentTarget as HTMLElement | null) ??
+            (mouseEvent.target as HTMLElement | null)?.closest("button") ??
+            null;
+        if (!target) return;
+        editIconElement = target as HTMLButtonElement;
         const rect = editIconElement.getBoundingClientRect();
         editMenuX = rect.left + rect.width / 2;
         editMenuY = rect.bottom + 8;
@@ -155,26 +165,24 @@
         x={presetsMenuX}
         y={presetsMenuY}
         isOpen={presetsMenuOpen}
-        title="Presets"
+        title="Build Presets"
         onClose={closePresetsMenu}
     >
         {#each $buildPresetsStore.presets as preset (preset.id)}
-            <div class="preset-row">
-                <button
-                    type="button"
+            <div class="preset-row button-group">
+                <Button
                     class="preset-name-btn"
                     on:click={() => switchToPreset(preset.id)}
                 >
                     {preset.name}
-                </button>
-                <button
-                    type="button"
-                    class="preset-edit-btn"
+                </Button>
+                <Button
+                    class="preset-edit-btn dropdown-button"
                     aria-label="Edit preset"
+                    icon={DotsThreeVerticalIcon}
+                    iconSize={18}
                     on:click={(e) => openEditMenu(e, preset.id)}
-                >
-                    <PencilSimpleIcon size={18} />
-                </button>
+                />
             </div>
         {/each}
         <Button
@@ -238,42 +246,24 @@
     .preset-row {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 0;
         min-width: 0;
     }
 
-    .preset-name-btn {
+    :global(.preset-name-btn) {
         flex: 1;
         min-width: 0;
-        padding: 8px 10px;
         text-align: left;
-        font: inherit;
-        color: inherit;
-        background: transparent;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
+        justify-content: flex-start;
     }
 
-    .preset-name-btn:hover {
-        background: rgba(82, 112, 189, 0.25);
+    :global(.preset-name-btn .button-text) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    .preset-edit-btn {
+    :global(.preset-edit-btn) {
         flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px;
-        background: transparent;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        color: rgba(201, 214, 245, 0.75);
-    }
-
-    .preset-edit-btn:hover {
-        background: rgba(82, 112, 189, 0.25);
-        color: inherit;
     }
 </style>
