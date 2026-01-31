@@ -1,12 +1,15 @@
 <script lang="ts">
   import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
   import { isPreviewMode } from "../previewModeStore";
+  import { previewBuildName, getPreviewTitle } from "../previewBuildNameStore";
   import SideMenuSection from "../SideMenuSection.svelte";
+
+  $: sectionTitle = `${getPreviewTitle($previewBuildName)} Build`;
 </script>
 
 {#if $isPreviewMode}
   <div class="preview-section">
-    <SideMenuSection title="Preview">
+    <SideMenuSection title={sectionTitle}>
       <PreviewContextMenuList />
     </SideMenuSection>
   </div>

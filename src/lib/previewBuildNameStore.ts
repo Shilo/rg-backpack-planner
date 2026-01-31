@@ -19,3 +19,11 @@ export function setPreviewBuildName(name: string | null): void {
 export function clearPreviewBuildName(): void {
   previewBuildName.set(null);
 }
+
+/**
+ * Returns the build name if it exists, otherwise returns "Preview"
+ * Used for replacing "Preview" text with the build name in UI components
+ */
+export function getPreviewTitle(buildName: string | null): string {
+  return buildName ?? "Preview";
+}

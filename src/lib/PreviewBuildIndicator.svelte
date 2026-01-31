@@ -1,7 +1,7 @@
 <script lang="ts">
   import { EyeIcon } from "phosphor-svelte";
   import { isPreviewMode } from "./previewModeStore";
-  import { previewBuildName } from "./previewBuildNameStore";
+  import { previewBuildName, getPreviewTitle } from "./previewBuildNameStore";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
@@ -23,6 +23,8 @@
   function closeMenu() {
     menuOpen = false;
   }
+
+  $: menuTitle = `${getPreviewTitle($previewBuildName)} Build`;
 </script>
 
 {#if $isPreviewMode}
@@ -48,7 +50,7 @@
       x={menuX}
       y={menuY}
       isOpen={menuOpen}
-      title="Preview Build"
+      title={menuTitle}
       ariaLabel="Preview build options"
       onClose={closeMenu}
     >
