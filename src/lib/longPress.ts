@@ -15,19 +15,6 @@ function handlePointerUp(event: PointerEvent) {
   suppressClickUntil = Date.now() + 200;
   event.preventDefault();
   event.stopImmediatePropagation();
-  
-  // Manually clear :active state by resetting transform
-  const target = event.target;
-  if (target instanceof HTMLElement) {
-    // Blur to remove focus/active state
-    target.blur();
-    // Force clear transform by overriding it temporarily
-    target.style.transform = "scale(1)";
-    // Remove inline style after repaint - CSS :active won't reapply since element is no longer active
-    requestAnimationFrame(() => {
-      target.style.removeProperty("transform");
-    });
-  }
 }
 
 function handleClick(event: MouseEvent) {
