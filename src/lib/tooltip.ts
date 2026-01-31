@@ -40,13 +40,6 @@ function updateTooltipText(owner: HTMLElement, text: string) {
   );
 }
 
-function updateTooltip(owner: HTMLElement, point: Point) {
-  if (currentOwner !== owner) return;
-  tooltipStore.update((state) =>
-    state.isOpen ? { ...state, x: point.x, y: point.y } : state,
-  );
-}
-
 export function hideTooltip(owner?: HTMLElement) {
   if (owner && currentOwner !== owner) return;
   currentOwner = null;
@@ -141,7 +134,6 @@ export function tooltip(node: HTMLElement, value?: string) {
       return;
     }
     lastPoint = { x: event.clientX, y: event.clientY };
-    updateTooltip(node, lastPoint);
   };
 
   const handlePointerLeave = () => {
