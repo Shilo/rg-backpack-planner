@@ -23,8 +23,6 @@
   function closeMenu() {
     menuOpen = false;
   }
-
-  $: buttonText = $previewBuildName ? `Preview: ${$previewBuildName}` : "Preview";
 </script>
 
 {#if $isPreviewMode}
@@ -35,7 +33,10 @@
     class="preview-indicator-button"
     icon={EyeIcon}
   >
-    {buttonText}
+    Preview
+    {#if $previewBuildName}
+      <span class="build-name">{$previewBuildName}</span>
+    {/if}
   </Button>
 
   <div
@@ -66,6 +67,11 @@
     padding: 6px 12px;
     pointer-events: auto;
     gap: 4px !important;
+  }
+
+  .build-name {
+    color: rgba(185, 199, 236, 0.9);
+    margin-left: 4px;
   }
 
   .preview-build-indicator-menu-portal {

@@ -15,8 +15,8 @@
     "url": "https://rungoddess.topgamesinc.com"
   },
   "recommendedBuilds": {
-    "pve": "PvE|_",
-    "pvp": "PvP|_"
+    "pve": "Recommended PvE|_",
+    "pvp": "Recommended PvP|_"
   },
   "private": true,
   "type": "module",
