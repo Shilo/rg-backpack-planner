@@ -157,7 +157,10 @@
             ? `${preset.name} build`
             : "Backpack tech tree build";
 
-        if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        if (
+            typeof navigator !== "undefined" &&
+            typeof navigator.share === "function"
+        ) {
             try {
                 await navigator.share({ url: shareUrl, title: shareTitle });
                 return;
