@@ -123,14 +123,16 @@
 
 <SideMenuSection title="Build">
   <TechCrystalsButton disabled={$isPreviewMode} />
-  <ShareBuildButton title="Share my build" disabled={$isPreviewMode} />
-  <Button
-    on:click={() => openLoadBuildModal(() => onClose?.())}
-    tooltipText={"Paste a shared link or build code"}
-    icon={ArrowSquareInIcon}
-  >
-    Load shareable build
-  </Button>
+  <div class="button-row">
+    <ShareBuildButton title="Share build" disabled={$isPreviewMode} />
+    <Button
+      on:click={() => openLoadBuildModal(() => onClose?.())}
+      tooltipText={"Paste a shared link or build code"}
+      icon={ArrowSquareInIcon}
+    >
+      Load
+    </Button>
+  </div>
 </SideMenuSection>
 
 <SideMenuSection title="Node">
@@ -217,5 +219,14 @@
 <style>
   .spacer {
     height: 6px;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 2px;
+  }
+
+  .button-row :global(:first-child) {
+    flex: 1;
   }
 </style>
