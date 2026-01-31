@@ -610,10 +610,10 @@ const decodeCompatibilityCases: Array<{
     serialized: "1;1;1;@",
     expected: null,
   },
-  // Build name compatibility tests
+  // Build name compatibility tests (name at start)
   {
     name: "Build with name: simple name",
-    serialized: "1|My%20Build",
+    serialized: "My%20Build|1",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
       owned: 0,
@@ -621,8 +621,8 @@ const decodeCompatibilityCases: Array<{
     },
   },
   {
-    name: "Build with name and owned: name after owned",
-    serialized: "1;;;a|PVE%20Build",
+    name: "Build with name and owned: name at start",
+    serialized: "PVE%20Build|1;;;a",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
       owned: 10,
@@ -631,7 +631,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Build with name containing special characters",
-    serialized: "1|Build%20%231%20(PVE)",
+    serialized: "Build%20%231%20(PVE)|1",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
       owned: 0,
@@ -640,7 +640,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Build with name containing ampersand",
-    serialized: "1|Build%20%26%20Test",
+    serialized: "Build%20%26%20Test|1",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
       owned: 0,
@@ -649,7 +649,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Build with name: complex build",
-    serialized: "1,1;1,1;1,1;a|Complex%20Build",
+    serialized: "Complex%20Build|1,1;1,1;1,1;a",
     expected: {
       trees: fromObjectTrees([
         { "0": 1, "10": 1 },
@@ -662,7 +662,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Build with name: empty build with name",
-    serialized: "_|Empty%20Build",
+    serialized: "Empty%20Build|_",
     expected: {
       trees: [[], [], []],
       owned: 0,
@@ -671,7 +671,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Build with name: tree-level RLE with name",
-    serialized: "1:3|Three%20Trees",
+    serialized: "Three%20Trees|1:3",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
       owned: 0,
@@ -680,7 +680,7 @@ const decodeCompatibilityCases: Array<{
   },
   {
     name: "Build with name: tree-level RLE with owned and name",
-    serialized: "1:3;;;a|Named%20Build",
+    serialized: "Named%20Build|1:3;;;a",
     expected: {
       trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
       owned: 10,
@@ -1045,12 +1045,12 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
     invalidString: "1:0",
   },
   {
-    name: "Invalid format: build name separator without name",
-    invalidString: "1|",
+    name: "Invalid format: build name separator without build data",
+    invalidString: "Name|",
   },
   {
     name: "Invalid format: multiple build name separators",
-    invalidString: "1|Name|Extra",
+    invalidString: "Name|Build|Extra",
   },
 ];
 

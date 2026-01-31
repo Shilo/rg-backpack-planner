@@ -173,10 +173,11 @@ export function parseEncodedFromUserInput(input: string): string | null {
   if (!candidate) return null;
 
   // Split on build name separator to validate build data part separately
+  // Name is at the start, so build data comes after the separator
   const nameSeparatorIndex = candidate.indexOf("|");
-  const buildDataPart = nameSeparatorIndex !== -1 ? candidate.slice(0, nameSeparatorIndex) : candidate;
+  const buildDataPart = nameSeparatorIndex !== -1 ? candidate.slice(nameSeparatorIndex + 1) : candidate;
   
-  // Validate build data part (before name separator) matches pattern
+  // Validate build data part (after name separator, or entire string if no name) matches pattern
   if (!SERIALIZED_PATTERN.test(buildDataPart)) return null;
 
   return decodeBuildData(candidate) ? candidate : null;

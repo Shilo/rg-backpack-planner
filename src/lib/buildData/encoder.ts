@@ -300,9 +300,9 @@ function findLastNonEmptyIndex(strings: string[]): number {
 
 /**
  * Serializes branch-grouped array format to custom compact string
- * Format: tree1;tree2;tree3[;owned][|name]
+ * Format: [name|]tree1;tree2;tree3[;owned]
  * Owned requires exactly 4 components (3 semicolons): tree1;tree2;tree3;owned
- * Name appears after owned with | separator: tree1;tree2;tree3;owned|name
+ * Name appears at the start with | separator: name|tree1;tree2;tree3;owned
  * @param treeBranchArrays Array of [yellow[], orange[], blue[]] for each tree
  * @param owned Number of tech crystals owned
  * @param name Optional build name
@@ -313,6 +313,10 @@ function serializeArrayFormat(
   owned: number,
   name?: string,
 ): string {
+  // Build name prefix if present
+  const namePrefix = name && name.trim() 
+    ? `${encodeURIComponent(name.trim())}${SEPARATOR_BUILD_NAME}` 
+    : "";
   // Serialize each tree's branches
   const treeStrings: string[] = treeBranchArrays.map((branches) => {
     const branchStrings: string[] = branches.map((branch) => {
@@ -334,12 +338,7 @@ function serializeArrayFormat(
     } else {
       result = `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
     }
-    // Append build name if present
-    if (name && name.trim()) {
-      const encodedName = encodeURIComponent(name.trim());
-      return `${result}${SEPARATOR_BUILD_NAME}${encodedName}`;
-    }
-    return result;
+    return `${namePrefix}${result}`;
   }
 
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
@@ -355,12 +354,7 @@ function serializeArrayFormat(
       } else {
         result = `${treePart}${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
       }
-      // Append build name if present
-      if (name && name.trim()) {
-        const encodedName = encodeURIComponent(name.trim());
-        return `${result}${SEPARATOR_BUILD_NAME}${encodedName}`;
-      }
-      return result;
+      return `${namePrefix}${result}`;
     }
   }
 
@@ -387,12 +381,7 @@ function serializeArrayFormat(
         while (result.length < 3) result.push("");
         serialized = [...result, encodeBase62(owned)].join(SEPARATOR_TREE);
       }
-      // Append build name if present
-      if (name && name.trim()) {
-        const encodedName = encodeURIComponent(name.trim());
-        return `${serialized}${SEPARATOR_BUILD_NAME}${encodedName}`;
-      }
-      return serialized;
+      return `${namePrefix}${serialized}`;
     }
   }
 
@@ -406,15 +395,7 @@ function serializeArrayFormat(
     result = [...parts, encodeBase62(owned)].join(SEPARATOR_TREE);
   }
   
-  // Append build name if present
-  if (name && name.trim()) {
-    // URL-encode the name to handle special characters, then replace URL encoding with base62-safe characters
-    // We'll use a simple approach: encode spaces and special chars, but keep it URL-safe
-    const encodedName = encodeURIComponent(name.trim());
-    return `${result}${SEPARATOR_BUILD_NAME}${encodedName}`;
-  }
-  
-  return result;
+  return `${namePrefix}${result}`;
 }
 
 /**
@@ -440,21 +421,19 @@ function parseBranchSegment(branchSegment: string): number[] {
 /**
  * Parses branch-grouped custom compact string back to array format
  * Owned is ONLY the 4th component: exactly 4 segments (3 semicolons) required for owned.
- * Format: tree1;tree2;tree3 or tree1;tree2;tree3;owned or tree1;tree2;tree3;owned|name
+ * Format: [name|]tree1;tree2;tree3 or [name|]tree1;tree2;tree3;owned
+ * Name appears at the start with | separator: name|tree1;tree2;tree3;owned
  * @returns Tuple of [treeBranchArrays, owned, name]
  */
 function parseArrayFormat(serialized: string): [number[][][], number, string | undefined] {
-  if (serialized === EMPTY_BUILD_MARKER) {
-    return [[[[], [], []], [[], [], []], [[], [], []]], 0, undefined];
-  }
-
-  // Split on build name separator first to extract name if present
+  // Extract build name from the start if present
   let buildName: string | undefined = undefined;
   let buildDataPart = serialized;
   const nameSeparatorIndex = serialized.indexOf(SEPARATOR_BUILD_NAME);
   if (nameSeparatorIndex !== -1) {
-    buildDataPart = serialized.slice(0, nameSeparatorIndex);
-    const namePart = serialized.slice(nameSeparatorIndex + 1);
+    // Name is at the start, build data comes after the separator
+    const namePart = serialized.slice(0, nameSeparatorIndex);
+    buildDataPart = serialized.slice(nameSeparatorIndex + 1);
     if (namePart) {
       try {
         buildName = decodeURIComponent(namePart);
@@ -463,6 +442,11 @@ function parseArrayFormat(serialized: string): [number[][][], number, string | u
         buildName = namePart;
       }
     }
+  }
+
+  // Handle empty build marker (can appear with or without name)
+  if (buildDataPart === EMPTY_BUILD_MARKER) {
+    return [[[[], [], []], [[], [], []], [[], [], []]], 0, buildName];
   }
 
   const segments = buildDataPart.split(SEPARATOR_TREE);
@@ -479,10 +463,6 @@ function parseArrayFormat(serialized: string): [number[][][], number, string | u
     }
   } else {
     treeSegmentsRaw = segments;
-  }
-
-  if (treeSegmentsRaw.length === 1 && treeSegmentsRaw[0] === EMPTY_BUILD_MARKER) {
-    return [[[[], [], []], [[], [], []], [[], [], []]], 0, buildName];
   }
 
   const expandTreeSegments = (inputSegments: string[]): string[] => {
@@ -674,10 +654,11 @@ function safeExecute<T>(fn: () => T, logPrefix: string): T | null {
  */
 export function decodeBuildData(encoded: string): BuildData | null {
   // Split on build name separator to validate build data part separately
+  // Name is at the start, so build data comes after the separator
   const nameSeparatorIndex = encoded.indexOf(SEPARATOR_BUILD_NAME);
-  const buildDataPart = nameSeparatorIndex !== -1 ? encoded.slice(0, nameSeparatorIndex) : encoded;
+  const buildDataPart = nameSeparatorIndex !== -1 ? encoded.slice(nameSeparatorIndex + 1) : encoded;
   
-  // Validate build data part (before name separator) matches pattern
+  // Validate build data part (after name separator, or entire string if no name) matches pattern
   if (!SERIALIZED_PATTERN.test(buildDataPart)) {
     return null;
   }
