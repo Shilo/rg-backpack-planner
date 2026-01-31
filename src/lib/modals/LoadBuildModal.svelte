@@ -89,7 +89,7 @@
 
     const raw = (buildCode ?? inputText).trim();
     if (!raw) {
-      showToast("Paste a link or build code", { tone: "negative" });
+      showToast("Type link or build code", { tone: "negative" });
       inputEl?.focus();
       return;
     }
