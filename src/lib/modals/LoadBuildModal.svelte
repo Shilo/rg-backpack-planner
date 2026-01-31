@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { ComponentType } from "svelte";
-  import { ClipboardIcon } from "phosphor-svelte";
+  import { ClipboardIcon, CaretDownIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
+  import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
   import {
     parseEncodedFromUserInput,
@@ -10,9 +11,9 @@
   } from "../buildData/url";
   import { triggerHaptic } from "../haptics";
   import type { IconWeight } from "phosphor-svelte";
+  import { portal } from "../portal";
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - package.json import is valid
-  // @ts-expect-error - package.json import is valid
   import appPackage from "../../../package.json";
 
   export let title = "PREVIEW shareable build";
@@ -30,9 +31,26 @@
   let inputText = "";
   let isLoading = false;
   let inputEl: HTMLInputElement | null = null;
+  let previewButtonElement: HTMLButtonElement | null = null;
+  let dropdownMenuOpen = false;
+  let dropdownMenuX = 0;
+  let dropdownMenuY = 0;
 
-  const recommendedPvE = (appPackage?.recommendedBuilds?.pve ?? "") as string;
-  const recommendedPvP = (appPackage?.recommendedBuilds?.pvp ?? "") as string;
+  // Dynamically get all recommended builds from package.json
+  const recommendedBuilds = (() => {
+    const builds = appPackage?.recommendedBuilds;
+    if (!builds || typeof builds !== "object") return [];
+
+    return Object.entries(builds)
+      .filter(([, value]) => typeof value === "string" && value.trim() !== "")
+      .map(([key, value]) => ({
+        key,
+        code: value as string,
+        name: key,
+      }));
+  })();
+
+  const hasRecommendedBuilds = recommendedBuilds.length > 0;
 
   function handleCancel() {
     onCancel?.();
@@ -94,7 +112,21 @@
 
   function handleRecommendedClick(buildCode: string) {
     triggerHaptic();
+    closeDropdownMenu();
     void handleLoad(buildCode);
+  }
+
+  function handleDropdownClick() {
+    if (!previewButtonElement || !hasRecommendedBuilds) return;
+    triggerHaptic();
+    const rect = previewButtonElement.getBoundingClientRect();
+    dropdownMenuX = rect.left + rect.width / 2;
+    dropdownMenuY = rect.bottom + 8;
+    dropdownMenuOpen = true;
+  }
+
+  function closeDropdownMenu() {
+    dropdownMenuOpen = false;
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -105,10 +137,14 @@
   }
 
   onMount(() => {
-    queueMicrotask(() => {
-      inputEl?.focus();
-      inputEl?.select();
-    });
+    // Don't auto-focus on mobile/touch devices to avoid keyboard popup
+    const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    if (!isCoarsePointer) {
+      queueMicrotask(() => {
+        inputEl?.focus();
+        inputEl?.select();
+      });
+    }
   });
 </script>
 
@@ -150,40 +186,58 @@
     />
   </div>
 
-  {#if recommendedPvE || recommendedPvP}
-    <div class="modal-recommended-buttons">
-      {#if recommendedPvE}
-        <Button
-          on:click={() => {
-            handleRecommendedClick(recommendedPvE);
-          }}
-          disabled={isLoading}
-        >
-          Recommended PvE
-        </Button>
-      {/if}
-      {#if recommendedPvP}
-        <Button
-          on:click={() => {
-            handleRecommendedClick(recommendedPvP);
-          }}
-          disabled={isLoading}
-        >
-          Recommended PvP
-        </Button>
-      {/if}
-    </div>
-  {/if}
-
   <div class="modal-actions">
     <div class="modal-actions__row modal-actions__row--right">
       <Button on:click={handleCancel}>{cancelLabel}</Button>
-      <Button on:click={() => handleLoad()} disabled={isLoading} positive>
-        {confirmLabel}
-      </Button>
+      <div class="preview-button-group">
+        <Button
+          bind:element={previewButtonElement}
+          on:click={() => handleLoad()}
+          disabled={isLoading}
+          positive
+        >
+          {confirmLabel}
+        </Button>
+        {#if hasRecommendedBuilds}
+          <Button
+            on:click={handleDropdownClick}
+            disabled={isLoading}
+            positive
+            class="dropdown-button"
+            icon={CaretDownIcon}
+            tooltipText="Show recommended builds"
+            aria-label="Show recommended builds"
+          />
+        {/if}
+      </div>
     </div>
   </div>
 </div>
+
+{#if hasRecommendedBuilds}
+  <div
+    use:portal
+    class="dropdown-menu-portal"
+    class:menu-open={dropdownMenuOpen}
+  >
+    <ContextMenu
+      x={dropdownMenuX}
+      y={dropdownMenuY}
+      isOpen={dropdownMenuOpen}
+      title="Recommended Builds"
+      onClose={closeDropdownMenu}
+    >
+      {#each recommendedBuilds as build}
+        <Button
+          on:click={() => handleRecommendedClick(build.code)}
+          disabled={isLoading}
+        >
+          Preview {build.name} build
+        </Button>
+      {/each}
+    </ContextMenu>
+  </div>
+{/if}
 
 <style>
   .modal-content {
@@ -260,20 +314,63 @@
     white-space: nowrap;
   }
 
-  .modal-recommended-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .modal-recommended-buttons :global(button) {
-    height: 44px;
-  }
-
   .modal-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+  }
+
+  .modal-actions__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-actions__row--right {
+    justify-content: flex-end;
+  }
+
+  .preview-button-group {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .preview-button-group :global(button:first-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .preview-button-group :global(button.dropdown-button),
+  .preview-button-group :global(.button.dropdown-button) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: 1px solid rgba(70, 162, 120, 0.9) !important;
+    padding: 0px 8px !important;
+    min-width: 0;
+  }
+
+  .dropdown-menu-portal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 101;
+  }
+
+  .dropdown-menu-portal.menu-open {
+    pointer-events: auto;
+  }
+
+  /* Ensure ContextMenu appears above modal (modal z-index is 45) */
+  .dropdown-menu-portal :global(.context-menu) {
+    z-index: 50;
+  }
+
+  .dropdown-menu-portal :global(.context-menu-backdrop) {
+    z-index: 49;
   }
 </style>
