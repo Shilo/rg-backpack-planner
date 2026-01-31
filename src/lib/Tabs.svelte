@@ -240,9 +240,15 @@
   }
 
   function openBackgroundMenu(event: MouseEvent) {
+    // Ignore touch-synthesized contextmenu - we use long-press for that
+    if (event.button !== 2) {
+      event.preventDefault();
+      return;
+    }
     if (isContextMenuTarget(event.target) || isNodeTarget(event.target)) return;
     const activeTab = tabs[activeIndex];
     if (!activeTab) return;
+
     event.preventDefault();
     hideTooltip();
     tabContextMenu = {
