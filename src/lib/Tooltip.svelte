@@ -7,10 +7,28 @@
   let boundedY = 0;
 
   const TOOLTIP_MARGIN = 8;
-  const TOOLTIP_OFFSET = 12;
+  /** Minimum distance from touch point to tooltip edge so the finger doesn't cover text */
+  const FINGER_AVOID_OFFSET = 32;
+  const HOVER_OFFSET = 12;
 
   function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
+  }
+
+  function isAnchorInsideTooltip(
+    anchorX: number,
+    anchorY: number,
+    left: number,
+    top: number,
+    width: number,
+    height: number,
+  ) {
+    return (
+      anchorX >= left &&
+      anchorX <= left + width &&
+      anchorY >= top &&
+      anchorY <= top + height
+    );
   }
 
   function updateBounds() {
@@ -25,26 +43,64 @@
     const viewportLeft = viewport?.offsetLeft ?? 0;
     const viewportTop = viewport?.offsetTop ?? 0;
     const rect = tooltipEl.getBoundingClientRect();
-    const maxLeft = Math.max(
-      TOOLTIP_MARGIN + viewportLeft,
-      viewportLeft + viewportWidth - rect.width - TOOLTIP_MARGIN,
-    );
-    const maxTop = Math.max(
-      TOOLTIP_MARGIN + viewportTop,
-      viewportTop + viewportHeight - rect.height - TOOLTIP_MARGIN,
-    );
-    const left = clamp(
-      $tooltipStore.x - rect.width / 2,
-      TOOLTIP_MARGIN + viewportLeft,
-      maxLeft,
-    );
-    const top = clamp(
-      $tooltipStore.y - rect.height - TOOLTIP_OFFSET,
-      TOOLTIP_MARGIN + viewportTop,
-      maxTop,
-    );
-    boundedX = left;
-    boundedY = top;
+    const anchorX = $tooltipStore.x;
+    const anchorY = $tooltipStore.y;
+
+    const minLeft = TOOLTIP_MARGIN + viewportLeft;
+    const maxLeft = viewportLeft + viewportWidth - rect.width - TOOLTIP_MARGIN;
+    const minTop = TOOLTIP_MARGIN + viewportTop;
+    const maxTop = viewportTop + viewportHeight - rect.height - TOOLTIP_MARGIN;
+
+    const isTouch = !window.matchMedia("(hover: hover) and (pointer: fine)")
+      .matches;
+    const offset = isTouch ? FINGER_AVOID_OFFSET : HOVER_OFFSET;
+
+    /** Placement candidates: above, below, right, left. Each yields { left, top }. */
+    const candidates: Array<{ left: number; top: number }> = [
+      { left: anchorX - rect.width / 2, top: anchorY - rect.height - offset },
+      { left: anchorX - rect.width / 2, top: anchorY + offset },
+      { left: anchorX + offset, top: anchorY - rect.height / 2 },
+      { left: anchorX - rect.width - offset, top: anchorY - rect.height / 2 },
+    ];
+
+    for (const candidate of candidates) {
+      const left = clamp(candidate.left, minLeft, maxLeft);
+      const top = clamp(candidate.top, minTop, maxTop);
+
+      if (
+        !isAnchorInsideTooltip(
+          anchorX,
+          anchorY,
+          left,
+          top,
+          rect.width,
+          rect.height,
+        )
+      ) {
+        boundedX = left;
+        boundedY = top;
+        return;
+      }
+    }
+
+    /** Fallback: pick placement that maximizes distance from anchor to tooltip center */
+    let bestLeft = candidates[0].left;
+    let bestTop = candidates[0].top;
+    let bestDist = -1;
+    for (const candidate of candidates) {
+      const left = clamp(candidate.left, minLeft, maxLeft);
+      const top = clamp(candidate.top, minTop, maxTop);
+      const centerX = left + rect.width / 2;
+      const centerY = top + rect.height / 2;
+      const dist = Math.hypot(anchorX - centerX, anchorY - centerY);
+      if (dist > bestDist) {
+        bestDist = dist;
+        bestLeft = left;
+        bestTop = top;
+      }
+    }
+    boundedX = bestLeft;
+    boundedY = bestTop;
   }
 
   onMount(() => {
