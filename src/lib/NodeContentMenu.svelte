@@ -25,6 +25,7 @@
   export let onReset: ((index: NodeIndex) => void) | null = null;
   export let onDecrement: ((index: NodeIndex) => void) | null = null;
   export let onIncrement: ((index: NodeIndex) => void) | null = null;
+  export let onIncrementBy10: ((index: NodeIndex) => void) | null = null;
   export let level: number = 0;
   export let maxLevel: number = 0;
   export let state: "locked" | "available" | "active" | "maxed" = "locked";
@@ -77,8 +78,8 @@
     </Button>
     <Button
       on:click={() => {
-        if (nodeIndex === null || !onIncrement) return;
-        for (let i = 0; i < 10; i++) onIncrement(nodeIndex);
+        if (nodeIndex === null || !onIncrementBy10) return;
+        onIncrementBy10(nodeIndex);
       }}
       disabled={nodeIndex === null || level >= maxLevel}
       icon={CaretDoubleUpIcon}

@@ -138,7 +138,7 @@
     checked={$singleLevelUp}
     label="Single Level Up"
     ariaLabel="Single level up mode"
-    tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node maxes it out"
+    tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10"
     icon={ArrowUpIcon as unknown as ComponentType}
     onToggle={() => singleLevelUp.toggle()}
   />

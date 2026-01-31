@@ -315,6 +315,19 @@
     onNodeLevelChange?.(-level, index);
   }
 
+  function levelUpBy10(index: NodeIndex) {
+    const node = getNodeAt(index);
+    if (!node) return;
+    const level = getLevel(index);
+    const nextLevel = Math.min(level + 10, node.maxLevel);
+    if (nextLevel === level) return;
+    const nextLevels = levels.slice();
+    nextLevels[index] = nextLevel;
+    updateLevels(nextLevels);
+    onNodeLevelChange?.(nextLevel - level, index);
+    levelZeroParents(index);
+  }
+
   function maxNode(index: NodeIndex) {
     const node = getNodeAt(index);
     if (!node) return;
@@ -566,10 +579,10 @@
           focusTreeInView(true);
         }
       } else if (pointer.nodeIndex !== null) {
-        // Check single level-up setting: if enabled, increment by 1; if disabled, max the node
+        // Check single level-up setting: if enabled, increment by 1; if disabled, increment by 10
         $singleLevelUp
           ? levelUp(pointer.nodeIndex)
-          : maxNode(pointer.nodeIndex);
+          : levelUpBy10(pointer.nodeIndex);
       }
     }
 
@@ -873,6 +886,7 @@
         onReset={resetNode}
         onDecrement={levelDown}
         onIncrement={levelUp}
+        onIncrementBy10={levelUpBy10}
         level={contextMenu && contextMenu.index !== null
           ? getLevelFrom(levels, contextMenu.index)
           : 0}
