@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ImageIcon, LinkSimpleIcon, ShareNetworkIcon } from "phosphor-svelte";
+  import { ImageIcon, LinkSimpleIcon, ShareIcon } from "phosphor-svelte";
   import Button from "../Button.svelte";
   import ContextMenu from "../ContextMenu.svelte";
   import { showToast } from "../toast";
@@ -47,7 +47,7 @@
     closeShareMenu();
 
     const result = await shareBuildUrlNative({
-      title: title ?? "Backpack tech tree setup",
+      title: title ?? "Backpack tech tree build",
     });
 
     if (result === "failed") {
@@ -70,8 +70,8 @@
 <Button
   bind:element={shareButtonElement}
   on:click={handleShareBuildClick}
-  tooltipText={`Share ${tooltipSubject} backpack tech tree setup`}
-  icon={ShareNetworkIcon}
+  tooltipText={`Share ${tooltipSubject} backpack tech tree build`}
+  icon={ShareIcon}
   {disabled}
 >
   {title ?? "Share Build"}
@@ -88,7 +88,7 @@
     <Button
       on:click={handleShareToApp}
       tooltipText={"Share via installed apps"}
-      icon={ShareNetworkIcon}
+      icon={ShareIcon}
     >
       Share to...
     </Button>

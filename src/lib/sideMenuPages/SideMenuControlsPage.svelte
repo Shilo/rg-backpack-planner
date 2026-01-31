@@ -16,7 +16,6 @@
     MouseLeftClickIcon,
     MouseRightClickIcon,
     MouseScrollIcon,
-    ShareNetworkIcon,
   } from "phosphor-svelte";
   import packageInfo from "../../../package.json";
   import Button from "../Button.svelte";
