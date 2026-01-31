@@ -10,7 +10,7 @@ export function openLoadBuildModal(onLoaded?: () => void) {
     // Cast to any to satisfy TS ComponentType constraint
     titleIcon: EyeIcon as any,
     message:
-      "Type a Backpack Planner link or just the build code. Preview is temporary and won't affect your current build.",
+      "Type a link or build code. Preview is temporary and won't affect your current build.",
     confirmLabel: "Preview build",
     cancelLabel: "Cancel",
     onConfirm: () => {
