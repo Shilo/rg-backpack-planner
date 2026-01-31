@@ -160,6 +160,20 @@
         sideMenuRef?.openTab?.("controls");
     }
 
+    /**
+     * Selects the first tab that has nodes leveled > 0.
+     * If no tab has levels, leaves the active tab unchanged.
+     */
+    function selectFirstTabWithLevels() {
+        const currentTrees = get(treeLevels);
+        const firstTabWithLevels = currentTrees.findIndex(
+            (levels) => sumLevels(levels) > 0,
+        );
+        if (firstTabWithLevels !== -1) {
+            activeTreeIndex = firstTabWithLevels;
+        }
+    }
+
     let sideMenuRef: {
         openTab?: (
             tab: "statistics" | "settings" | "controls",
@@ -244,6 +258,9 @@
                 // Recalculate tech crystals spent after loading from URL
                 const currentTrees = get(treeLevels);
                 recalculateTechCrystalsSpent(currentTrees);
+
+                // Select the first tab that has nodes leveled > 0
+                selectFirstTabWithLevels();
 
                 // Show toast about preview mode
                 showToastDelayed("Viewing preview build");
