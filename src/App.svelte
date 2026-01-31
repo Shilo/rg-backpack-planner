@@ -44,7 +44,7 @@
         initTreeProgressPersistence,
     } from "./lib/treeProgressStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
-    import { clearPreviewBuildName } from "./lib/previewBuildNameStore";
+    import { clearPreviewBuildName, previewBuildName, getPreviewTitle } from "./lib/previewBuildNameStore";
     import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
     import {
         showToastDelayed,
@@ -264,7 +264,8 @@
                 selectFirstTabWithLevels();
 
                 // Show toast about preview mode
-                showToastDelayed("Viewing preview build");
+                const title = getPreviewTitle(get(previewBuildName));
+                showToastDelayed(`Viewing ${title.toLowerCase()} build`);
             }
 
             // Don't load from localStorage in preview mode
