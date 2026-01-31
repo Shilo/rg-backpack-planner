@@ -10,6 +10,10 @@
   } from "../buildData/url";
   import { triggerHaptic } from "../haptics";
   import type { IconWeight } from "phosphor-svelte";
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - package.json import is valid
+  // @ts-expect-error - package.json import is valid
+  import appPackage from "../../../package.json";
 
   export let title = "PREVIEW shareable build";
   export let titleIcon: ComponentType | null = null;
@@ -26,6 +30,9 @@
   let inputText = "";
   let isLoading = false;
   let inputEl: HTMLInputElement | null = null;
+
+  const recommendedPvE = (appPackage?.recommendedBuilds?.pve ?? "") as string;
+  const recommendedPvP = (appPackage?.recommendedBuilds?.pvp ?? "") as string;
 
   function handleCancel() {
     onCancel?.();
@@ -59,10 +66,10 @@
     }
   }
 
-  async function handleLoad() {
+  async function handleLoad(buildCode?: string) {
     if (isLoading) return;
 
-    const raw = inputText.trim();
+    const raw = (buildCode ?? inputText).trim();
     if (!raw) {
       showToast("Paste a link or build code", { tone: "negative" });
       inputEl?.focus();
@@ -83,6 +90,11 @@
     } finally {
       isLoading = false;
     }
+  }
+
+  function handleRecommendedClick(buildCode: string) {
+    triggerHaptic();
+    void handleLoad(buildCode);
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -138,10 +150,35 @@
     />
   </div>
 
+  {#if recommendedPvE || recommendedPvP}
+    <div class="modal-recommended-buttons">
+      {#if recommendedPvE}
+        <Button
+          on:click={() => {
+            handleRecommendedClick(recommendedPvE);
+          }}
+          disabled={isLoading}
+        >
+          Recommended PvE
+        </Button>
+      {/if}
+      {#if recommendedPvP}
+        <Button
+          on:click={() => {
+            handleRecommendedClick(recommendedPvP);
+          }}
+          disabled={isLoading}
+        >
+          Recommended PvP
+        </Button>
+      {/if}
+    </div>
+  {/if}
+
   <div class="modal-actions">
     <div class="modal-actions__row modal-actions__row--right">
       <Button on:click={handleCancel}>{cancelLabel}</Button>
-      <Button on:click={handleLoad} disabled={isLoading} positive>
+      <Button on:click={() => handleLoad()} disabled={isLoading} positive>
         {confirmLabel}
       </Button>
     </div>
@@ -221,6 +258,16 @@
     height: 44px;
     min-width: 0;
     white-space: nowrap;
+  }
+
+  .modal-recommended-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .modal-recommended-buttons :global(button) {
+    height: 44px;
   }
 
   .modal-actions {
