@@ -34,7 +34,11 @@
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
-    import { decodeBuildData, encodeBuildData, type BuildData } from "./lib/buildData/encoder";
+    import {
+        decodeBuildData,
+        encodeBuildData,
+        type BuildData,
+    } from "./lib/buildData/encoder";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
@@ -43,13 +47,18 @@
         updateActivePresetEncoded,
     } from "./lib/buildPresetsStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
-    import { clearPreviewBuildName, previewBuildName, getPreviewTitle } from "./lib/previewBuildNameStore";
+    import {
+        clearPreviewBuildName,
+        previewBuildName,
+        getPreviewTitle,
+    } from "./lib/previewBuildNameStore";
     import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
     import {
         showToastDelayed,
         tryShowStoppedPreviewToast,
         tryShowClonedBuildToast,
     } from "./lib/toast";
+    import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
 
     let tabsRef: {
@@ -68,6 +77,16 @@
     const swipeCloseThreshold = 70;
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
+
+    function closeTransientUiForPreview() {
+        closeModal();
+        closeMenu();
+        if (typeof document !== "undefined") {
+            document.dispatchEvent(
+                new KeyboardEvent("keydown", { key: "Escape" }),
+            );
+        }
+    }
 
     // Check if we should show controls tab on initial load
     const shouldShowControls = (() => {
@@ -261,6 +280,7 @@
 
                 // Show toast about preview mode
                 const title = getPreviewTitle(get(previewBuildName));
+                closeTransientUiForPreview();
                 showToastDelayed(`Viewing ${title.toLowerCase()} build`);
             }
 
@@ -312,10 +332,14 @@
                 if (get(isPreviewMode)) return;
                 const levels = get(treeLevels);
                 const owned = get(techCrystalsOwned);
-                updateActivePresetEncoded(encodeBuildData({ trees: levels, owned }));
+                updateActivePresetEncoded(
+                    encodeBuildData({ trees: levels, owned }),
+                );
             };
             unsubscribeTreeLevels = treeLevels.subscribe(persistToActivePreset);
-            unsubscribeTechCrystals = techCrystalsOwned.subscribe(persistToActivePreset);
+            unsubscribeTechCrystals = techCrystalsOwned.subscribe(
+                persistToActivePreset,
+            );
         }
     }
 
