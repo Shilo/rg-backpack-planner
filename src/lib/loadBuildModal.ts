@@ -6,12 +6,12 @@ import { openModal } from "./modalStore";
 export function openLoadBuildModal(onLoaded?: () => void) {
   openModal({
     type: "loadBuild",
-    title: "LOAD SHAREABLE BUILD",
+    title: "PREVIEW SHAREABLE BUILD",
     // Cast to any to satisfy TS ComponentType constraint
     titleIcon: ArrowSquareInIcon as any,
     message:
-      "Paste a Backpack Planner link or just the build code.",
-    confirmLabel: "Load build",
+      "Type a Backpack Planner link or just the build code.",
+    confirmLabel: "Preview build",
     cancelLabel: "Cancel",
     onConfirm: () => {
       onLoaded?.();

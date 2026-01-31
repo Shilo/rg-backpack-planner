@@ -11,14 +11,14 @@
   import { triggerHaptic } from "../haptics";
   import type { IconWeight } from "phosphor-svelte";
 
-  export let title = "Load shareable build";
+  export let title = "PREVIEW shareable build";
   export let titleIcon: ComponentType | null = null;
   export let titleIconClass = "";
   export let titleIconAriaHidden = true;
   export let titleIconWeight: IconWeight | undefined = undefined;
   export let message: string | undefined =
-    "Paste a Backpack Planner link or just the build code.";
-  export let confirmLabel = "Load build";
+    "Type a Backpack Planner link or just the build code.";
+  export let confirmLabel = "Preview build";
   export let cancelLabel = "Cancel";
   export let onLoaded: (() => void) | null = null;
   export let onCancel: (() => void) | null = null;
@@ -119,7 +119,7 @@
   {/if}
 
   <label class="modal-label" for="load-build-input">
-    Share link or build code
+    Shareable link or build code
   </label>
   <div class="modal-input-row">
     <Button on:click={handlePasteClick} icon={ClipboardIcon}>Paste</Button>

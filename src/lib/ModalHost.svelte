@@ -129,7 +129,7 @@
           titleIconClass={$modalStore.titleIconClass ?? ""}
           titleIconWeight={$modalStore.titleIconWeight}
           message={$modalStore.message}
-          confirmLabel={$modalStore.confirmLabel ?? "Load build"}
+          confirmLabel={$modalStore.confirmLabel ?? "Preview build"}
           cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
           onLoaded={() => handleConfirm()}
           onCancel={handleCancel}

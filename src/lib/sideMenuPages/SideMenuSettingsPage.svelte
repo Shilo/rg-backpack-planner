@@ -124,7 +124,7 @@
 <SideMenuSection title="Build">
   <TechCrystalsButton disabled={$isPreviewMode} />
   <div class="button-row">
-    <ShareBuildButton title="Share build" disabled={$isPreviewMode} />
+    <ShareBuildButton title="Share" disabled={$isPreviewMode} />
     <Button
       on:click={() => openLoadBuildModal(() => onClose?.())}
       tooltipText={"Paste a shared link or build code"}
