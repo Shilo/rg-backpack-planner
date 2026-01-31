@@ -465,11 +465,104 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
       owned: 0,
     },
   },
+  // Build name tests
+  {
+    name: "Simple build with name",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "My Build",
+    },
+  },
+  {
+    name: "Build with name and owned crystals",
+    buildData: {
+      trees: [[1, 1], [], []],
+      owned: 50,
+      name: "PVE Build",
+    },
+  },
+  {
+    name: "Build with name containing spaces",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "My PVE Build",
+    },
+  },
+  {
+    name: "Build with name containing special characters",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "Build #1 (PVE)",
+    },
+  },
+  {
+    name: "Build with name containing URL-encoded characters",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "Build & Test",
+    },
+  },
+  {
+    name: "Build with name containing unicode characters",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "Build 🎒 Test",
+    },
+  },
+  {
+    name: "Build with empty string name (should be treated as no name)",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "",
+    },
+  },
+  {
+    name: "Build with whitespace-only name (should be treated as no name)",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "   ",
+    },
+  },
+  {
+    name: "Complex build with name",
+    buildData: {
+      trees: [
+        [1, 1, 1, 1, 1],
+        Array.from({ length: 12 }, (_, i) => (i === 10 || i === 11 ? 1 : 0)),
+        Array.from({ length: 22 }, (_, i) => (i === 20 || i === 21 ? 1 : 0)),
+      ],
+      owned: 100,
+      name: "Complex PVE Build",
+    },
+  },
+  {
+    name: "Build with very long name",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "This is a very long build name that tests how the encoder handles longer strings",
+    },
+  },
+  {
+    name: "Build with name containing pipe character (separator)",
+    buildData: {
+      trees: [[1], [], []],
+      owned: 0,
+      name: "Build | Test",
+    },
+  },
 ];
 
 /**
  * Decoder compatibility tests
- * Format: . (node), , (branch), ; (tree), ' (RLE node count), : (RLE tree count)
+ * Format: . (node), , (branch), ; (tree), ' (RLE node count), : (RLE tree count), | (build name)
  */
 const decodeCompatibilityCases: Array<{
   name: string;
@@ -516,6 +609,83 @@ const decodeCompatibilityCases: Array<{
     name: "Invalid: bad owned value (not base62)",
     serialized: "1;1;1;@",
     expected: null,
+  },
+  // Build name compatibility tests
+  {
+    name: "Build with name: simple name",
+    serialized: "1|My%20Build",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+      owned: 0,
+      name: "My Build",
+    },
+  },
+  {
+    name: "Build with name and owned: name after owned",
+    serialized: "1;;;a|PVE%20Build",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+      owned: 10,
+      name: "PVE Build",
+    },
+  },
+  {
+    name: "Build with name containing special characters",
+    serialized: "1|Build%20%231%20(PVE)",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+      owned: 0,
+      name: "Build #1 (PVE)",
+    },
+  },
+  {
+    name: "Build with name containing ampersand",
+    serialized: "1|Build%20%26%20Test",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+      owned: 0,
+      name: "Build & Test",
+    },
+  },
+  {
+    name: "Build with name: complex build",
+    serialized: "1,1;1,1;1,1;a|Complex%20Build",
+    expected: {
+      trees: fromObjectTrees([
+        { "0": 1, "10": 1 },
+        { "0": 1, "10": 1 },
+        { "0": 1, "10": 1 },
+      ]),
+      owned: 10,
+      name: "Complex Build",
+    },
+  },
+  {
+    name: "Build with name: empty build with name",
+    serialized: "_|Empty%20Build",
+    expected: {
+      trees: [[], [], []],
+      owned: 0,
+      name: "Empty Build",
+    },
+  },
+  {
+    name: "Build with name: tree-level RLE with name",
+    serialized: "1:3|Three%20Trees",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+      owned: 0,
+      name: "Three Trees",
+    },
+  },
+  {
+    name: "Build with name: tree-level RLE with owned and name",
+    serialized: "1:3;;;a|Named%20Build",
+    expected: {
+      trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+      owned: 10,
+      name: "Named Build",
+    },
   },
 ];
 
@@ -604,6 +774,22 @@ export function runTests() {
         treesMatch = false;
         console.log(
           `❌ Owned: expected ${testCase.buildData.owned}, got ${decoded.owned}`
+        );
+      }
+
+      // Compare name (if present)
+      if (testCase.buildData.name !== undefined) {
+        if (decoded.name !== testCase.buildData.name) {
+          treesMatch = false;
+          console.log(
+            `❌ Name: expected "${testCase.buildData.name}", got "${decoded.name ?? 'undefined'}"`
+          );
+        }
+      } else if (decoded.name !== undefined) {
+        // Original had no name, decoded shouldn't either
+        treesMatch = false;
+        console.log(
+          `❌ Name: expected undefined, got "${decoded.name}"`
         );
       }
 
@@ -738,14 +924,55 @@ export function runDecoderCompatibilityTests() {
         return;
       }
 
-      const expectedJson = JSON.stringify(testCase.expected);
-      const decodedJson = JSON.stringify(decoded);
+      // Compare trees
+      let treesMatch = true;
+      if (testCase.expected) {
+        for (let i = 0; i < testCase.expected.trees.length; i++) {
+          const expectedTree = testCase.expected.trees[i];
+          const decodedTree = decoded.trees[i];
 
-      if (decodedJson === expectedJson) {
+          for (const [nodeId, level] of Object.entries(expectedTree)) {
+            const decodedLevel = decodedTree[nodeId] ?? 0;
+            if (decodedLevel !== level) {
+              treesMatch = false;
+              console.log(
+                `❌ Tree ${i}, node ${nodeId}: expected ${level}, got ${decodedLevel}`
+              );
+            }
+          }
+        }
+
+        // Compare owned
+        if (decoded.owned !== testCase.expected.owned) {
+          treesMatch = false;
+          console.log(
+            `❌ Owned: expected ${testCase.expected.owned}, got ${decoded.owned}`
+          );
+        }
+
+        // Compare name
+        if (testCase.expected.name !== undefined) {
+          if (decoded.name !== testCase.expected.name) {
+            treesMatch = false;
+            console.log(
+              `❌ Name: expected "${testCase.expected.name}", got "${decoded.name ?? 'undefined'}"`
+            );
+          }
+        } else if (decoded.name !== undefined) {
+          treesMatch = false;
+          console.log(
+            `❌ Name: expected undefined, got "${decoded.name}"`
+          );
+        }
+      }
+
+      if (treesMatch) {
         console.log("✅ PASSED");
         passedTests++;
       } else {
         console.log("❌ FAILED: Data mismatch");
+        const expectedJson = JSON.stringify(testCase.expected);
+        const decodedJson = JSON.stringify(decoded);
         console.log(`Expected: ${expectedJson}`);
         console.log(`Got:      ${decodedJson}`);
         failedTests++;
@@ -816,6 +1043,14 @@ const errorTestCases: Array<{ name: string; invalidString: string; expectedError
   {
     name: "Invalid format: invalid RLE count in tree",
     invalidString: "1:0",
+  },
+  {
+    name: "Invalid format: build name separator without name",
+    invalidString: "1|",
+  },
+  {
+    name: "Invalid format: multiple build name separators",
+    invalidString: "1|Name|Extra",
   },
 ];
 

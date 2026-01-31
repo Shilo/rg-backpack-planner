@@ -7,6 +7,7 @@ import type { BuildData } from "./encoder";
 import { encodeBuildData, decodeBuildData, SERIALIZED_PATTERN } from "./encoder";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
+import { setPreviewBuildName, clearPreviewBuildName } from "../previewBuildNameStore";
 import { get } from "svelte/store";
 
 /**
@@ -133,10 +134,23 @@ export function loadBuildFromUrl(): BuildData | null {
 
   const encoded = getEncodedFromUrl();
   if (!encoded) {
+    clearPreviewBuildName();
     return null;
   }
 
-  return decodeBuildData(encoded);
+  const buildData = decodeBuildData(encoded);
+  if (buildData) {
+    // Store the build name if present
+    if (buildData.name) {
+      setPreviewBuildName(buildData.name);
+    } else {
+      clearPreviewBuildName();
+    }
+  } else {
+    clearPreviewBuildName();
+  }
+  
+  return buildData;
 }
 
 /**
@@ -144,7 +158,7 @@ export function loadBuildFromUrl(): BuildData | null {
  *
  * Accepts:
  * - Full Backpack Planner URL: https://.../rg-backpack-planner/#{encoded}
- * - Raw encoded string matching SERIALIZED_PATTERN
+ * - Raw encoded string (may include build name with | separator)
  *
  * Returns:
  * - Encoded string if valid and decodable
@@ -156,7 +170,14 @@ export function parseEncodedFromUserInput(input: string): string | null {
   const candidate = (
     input.includes("#") ? (input.split("#").pop() ?? "") : input
   ).trim();
-  if (!candidate || !SERIALIZED_PATTERN.test(candidate)) return null;
+  if (!candidate) return null;
+
+  // Split on build name separator to validate build data part separately
+  const nameSeparatorIndex = candidate.indexOf("|");
+  const buildDataPart = nameSeparatorIndex !== -1 ? candidate.slice(0, nameSeparatorIndex) : candidate;
+  
+  // Validate build data part (before name separator) matches pattern
+  if (!SERIALIZED_PATTERN.test(buildDataPart)) return null;
 
   return decodeBuildData(candidate) ? candidate : null;
 }

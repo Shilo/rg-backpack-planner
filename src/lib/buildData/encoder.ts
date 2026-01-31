@@ -14,6 +14,7 @@ import { baseTree } from "../../config/baseTree";
 export interface BuildData {
   trees: number[][];
   owned: number;
+  name?: string;
 }
 
 type BranchType = "yellow" | "orange" | "blue";
@@ -33,17 +34,20 @@ const EMPTY_BUILD_MARKER = "_";
 
 /**
  * Separator constants for serialization format
- * Compact, readable, URL-safe for hash fragments: . , ; ' :
+ * Compact, readable, URL-safe for hash fragments: . , ; ' : |
  */
 const SEPARATOR_NODE_VALUE = "."; // Node values within a branch
 const SEPARATOR_BRANCH = ","; // Branches within a tree
 const SEPARATOR_TREE = ";"; // Trees and owned value
 const SEPARATOR_RLE_NODE_COUNT = "'"; // Value from count in RLE node patterns
 const SEPARATOR_RLE_TREE_COUNT = ":"; // Tree string from count in RLE tree patterns
+const SEPARATOR_BUILD_NAME = "|"; // Build name separator (appears after owned value)
 
 /**
  * Regex pattern for valid serialized format characters
- * base62 (0-9a-zA-Z), separators (.,;':), empty marker (_)
+ * base62 (0-9a-zA-Z), separators (.,;':|), empty marker (_)
+ * Note: Build name may contain URL-encoded characters (%XX), but this pattern
+ * is checked on the build data part only (before the name separator)
  */
 export const SERIALIZED_PATTERN = /^[0-9a-zA-Z.,;:'_]+$/;
 
@@ -296,15 +300,18 @@ function findLastNonEmptyIndex(strings: string[]): number {
 
 /**
  * Serializes branch-grouped array format to custom compact string
- * Format: tree1;tree2;tree3[;owned]
+ * Format: tree1;tree2;tree3[;owned][|name]
  * Owned requires exactly 4 components (3 semicolons): tree1;tree2;tree3;owned
+ * Name appears after owned with | separator: tree1;tree2;tree3;owned|name
  * @param treeBranchArrays Array of [yellow[], orange[], blue[]] for each tree
  * @param owned Number of tech crystals owned
+ * @param name Optional build name
  * @returns Serialized string
  */
 function serializeArrayFormat(
   treeBranchArrays: number[][][],
   owned: number,
+  name?: string,
 ): string {
   // Serialize each tree's branches
   const treeStrings: string[] = treeBranchArrays.map((branches) => {
@@ -321,8 +328,18 @@ function serializeArrayFormat(
 
   // All trees empty
   if (lastNonEmptyTreeIndex === -1) {
-    if (owned === 0) return EMPTY_BUILD_MARKER;
-    return `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
+    let result: string;
+    if (owned === 0) {
+      result = EMPTY_BUILD_MARKER;
+    } else {
+      result = `${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
+    }
+    // Append build name if present
+    if (name && name.trim()) {
+      const encodedName = encodeURIComponent(name.trim());
+      return `${result}${SEPARATOR_BUILD_NAME}${encodedName}`;
+    }
+    return result;
   }
 
   const nonEmptyTreeStrings = treeStrings.slice(0, lastNonEmptyTreeIndex + 1);
@@ -332,8 +349,18 @@ function serializeArrayFormat(
     const firstTree = nonEmptyTreeStrings[0];
     if (firstTree !== "" && nonEmptyTreeStrings.every((tree) => tree === firstTree)) {
       const treePart = `${firstTree}${SEPARATOR_RLE_TREE_COUNT}${encodeRLECount(3)}`;
-      if (owned === 0) return treePart;
-      return `${treePart}${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
+      let result: string;
+      if (owned === 0) {
+        result = treePart;
+      } else {
+        result = `${treePart}${SEPARATOR_TREE}${SEPARATOR_TREE}${SEPARATOR_TREE}${encodeBase62(owned)}`;
+      }
+      // Append build name if present
+      if (name && name.trim()) {
+        const encodedName = encodeURIComponent(name.trim());
+        return `${result}${SEPARATOR_BUILD_NAME}${encodedName}`;
+      }
+      return result;
     }
   }
 
@@ -352,18 +379,42 @@ function serializeArrayFormat(
       }
     }
     if (result.length < nonEmptyTreeStrings.length) {
-      if (owned === 0) return result.join(SEPARATOR_TREE);
-      // Pad to 3 tree parts before owned
-      while (result.length < 3) result.push("");
-      return [...result, encodeBase62(owned)].join(SEPARATOR_TREE);
+      let serialized: string;
+      if (owned === 0) {
+        serialized = result.join(SEPARATOR_TREE);
+      } else {
+        // Pad to 3 tree parts before owned
+        while (result.length < 3) result.push("");
+        serialized = [...result, encodeBase62(owned)].join(SEPARATOR_TREE);
+      }
+      // Append build name if present
+      if (name && name.trim()) {
+        const encodedName = encodeURIComponent(name.trim());
+        return `${serialized}${SEPARATOR_BUILD_NAME}${encodedName}`;
+      }
+      return serialized;
     }
   }
 
   // No RLE
-  if (owned === 0) return nonEmptyTreeStrings.join(SEPARATOR_TREE);
-  const parts = [...nonEmptyTreeStrings];
-  while (parts.length < 3) parts.push("");
-  return [...parts, encodeBase62(owned)].join(SEPARATOR_TREE);
+  let result: string;
+  if (owned === 0) {
+    result = nonEmptyTreeStrings.join(SEPARATOR_TREE);
+  } else {
+    const parts = [...nonEmptyTreeStrings];
+    while (parts.length < 3) parts.push("");
+    result = [...parts, encodeBase62(owned)].join(SEPARATOR_TREE);
+  }
+  
+  // Append build name if present
+  if (name && name.trim()) {
+    // URL-encode the name to handle special characters, then replace URL encoding with base62-safe characters
+    // We'll use a simple approach: encode spaces and special chars, but keep it URL-safe
+    const encodedName = encodeURIComponent(name.trim());
+    return `${result}${SEPARATOR_BUILD_NAME}${encodedName}`;
+  }
+  
+  return result;
 }
 
 /**
@@ -389,15 +440,32 @@ function parseBranchSegment(branchSegment: string): number[] {
 /**
  * Parses branch-grouped custom compact string back to array format
  * Owned is ONLY the 4th component: exactly 4 segments (3 semicolons) required for owned.
- * Format: tree1;tree2;tree3 or tree1;tree2;tree3;owned
+ * Format: tree1;tree2;tree3 or tree1;tree2;tree3;owned or tree1;tree2;tree3;owned|name
+ * @returns Tuple of [treeBranchArrays, owned, name]
  */
-
-function parseArrayFormat(serialized: string): [number[][][], number] {
+function parseArrayFormat(serialized: string): [number[][][], number, string | undefined] {
   if (serialized === EMPTY_BUILD_MARKER) {
-    return [[[[], [], []], [[], [], []], [[], [], []]], 0];
+    return [[[[], [], []], [[], [], []], [[], [], []]], 0, undefined];
   }
 
-  const segments = serialized.split(SEPARATOR_TREE);
+  // Split on build name separator first to extract name if present
+  let buildName: string | undefined = undefined;
+  let buildDataPart = serialized;
+  const nameSeparatorIndex = serialized.indexOf(SEPARATOR_BUILD_NAME);
+  if (nameSeparatorIndex !== -1) {
+    buildDataPart = serialized.slice(0, nameSeparatorIndex);
+    const namePart = serialized.slice(nameSeparatorIndex + 1);
+    if (namePart) {
+      try {
+        buildName = decodeURIComponent(namePart);
+      } catch (error) {
+        // If decoding fails, use the raw string
+        buildName = namePart;
+      }
+    }
+  }
+
+  const segments = buildDataPart.split(SEPARATOR_TREE);
   let treeSegmentsRaw: string[];
   let owned = 0;
 
@@ -414,7 +482,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
   }
 
   if (treeSegmentsRaw.length === 1 && treeSegmentsRaw[0] === EMPTY_BUILD_MARKER) {
-    return [[[[], [], []], [[], [], []], [[], [], []]], 0];
+    return [[[[], [], []], [[], [], []], [[], [], []]], 0, buildName];
   }
 
   const expandTreeSegments = (inputSegments: string[]): string[] => {
@@ -465,7 +533,7 @@ function parseArrayFormat(serialized: string): [number[][][], number] {
     return branchSegments.slice(0, 3).map(parseBranchSegment);
   });
 
-  return [treeBranchArrays, owned];
+  return [treeBranchArrays, owned, buildName];
 }
 
 /**
@@ -587,7 +655,7 @@ function convertArrayFormatToTrees(
  */
 export function encodeBuildData(buildData: BuildData): string {
   const [treeArrays, owned] = convertTreesToArrayFormat(buildData.trees, buildData.owned);
-  return serializeArrayFormat(treeArrays, owned);
+  return serializeArrayFormat(treeArrays, owned, buildData.name);
 }
 
 function safeExecute<T>(fn: () => T, logPrefix: string): T | null {
@@ -605,7 +673,12 @@ function safeExecute<T>(fn: () => T, logPrefix: string): T | null {
  * Decodes a serialized string back into build data
  */
 export function decodeBuildData(encoded: string): BuildData | null {
-  if (!SERIALIZED_PATTERN.test(encoded)) {
+  // Split on build name separator to validate build data part separately
+  const nameSeparatorIndex = encoded.indexOf(SEPARATOR_BUILD_NAME);
+  const buildDataPart = nameSeparatorIndex !== -1 ? encoded.slice(0, nameSeparatorIndex) : encoded;
+  
+  // Validate build data part (before name separator) matches pattern
+  if (!SERIALIZED_PATTERN.test(buildDataPart)) {
     return null;
   }
 
@@ -615,7 +688,7 @@ export function decodeBuildData(encoded: string): BuildData | null {
   );
   if (!parsed) return null;
 
-  const [treeArrays, owned] = parsed;
+  const [treeArrays, owned, name] = parsed;
   const arrayFormat = [...treeArrays, owned];
 
   const buildData = safeExecute(
@@ -623,6 +696,11 @@ export function decodeBuildData(encoded: string): BuildData | null {
     "Failed to convert array format to trees"
   );
   if (!buildData) return null;
+
+  // Add name if present
+  if (name) {
+    buildData.name = name;
+  }
 
   return buildData;
 }

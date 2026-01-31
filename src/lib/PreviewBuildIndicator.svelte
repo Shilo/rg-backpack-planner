@@ -1,6 +1,7 @@
 <script lang="ts">
   import { EyeIcon } from "phosphor-svelte";
   import { isPreviewMode } from "./previewModeStore";
+  import { previewBuildName } from "./previewBuildNameStore";
   import Button from "./Button.svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
@@ -22,6 +23,8 @@
   function closeMenu() {
     menuOpen = false;
   }
+
+  $: buttonText = $previewBuildName ? `Preview: ${$previewBuildName}` : "Preview";
 </script>
 
 {#if $isPreviewMode}
@@ -32,7 +35,7 @@
     class="preview-indicator-button"
     icon={EyeIcon}
   >
-    Preview
+    {buttonText}
   </Button>
 
   <div

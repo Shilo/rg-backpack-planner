@@ -10,6 +10,7 @@ import { setTechCrystalsOwned } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";
 import { loadBuildFromUrl } from "./url";
 import { setIsApplyingBuildFromUrl } from "./url";
+import { setPreviewBuildName, clearPreviewBuildName } from "../previewBuildNameStore";
 import { get } from "svelte/store";
 
 /**
@@ -51,6 +52,13 @@ export function applyBuildFromUrl(
 
     // Apply tech crystals owned
     setTechCrystalsOwned(data.owned);
+
+    // Store build name if present
+    if (data.name) {
+      setPreviewBuildName(data.name);
+    } else {
+      clearPreviewBuildName();
+    }
 
     return true;
   } catch (error) {

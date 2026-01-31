@@ -44,6 +44,7 @@
         initTreeProgressPersistence,
     } from "./lib/treeProgressStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
+    import { clearPreviewBuildName } from "./lib/previewBuildNameStore";
     import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
     import {
         showToastDelayed,
@@ -291,6 +292,7 @@
             }
             // Personal mode: Private build from localStorage
             setPreviewMode(false);
+            clearPreviewBuildName();
 
             // Check if we just stopped preview mode or cloned build
             tryShowStoppedPreviewToast();
