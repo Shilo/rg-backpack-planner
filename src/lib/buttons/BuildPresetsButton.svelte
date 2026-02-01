@@ -2,6 +2,8 @@
     import { get } from "svelte/store";
     import { tick } from "svelte";
     import {
+        CaretDownIcon,
+        CaretUpIcon,
         CheckIcon,
         DotsThreeVerticalIcon,
         PencilSimpleIcon,
@@ -21,6 +23,8 @@
         addPreset,
         getUniquePresetName,
         activePresetName,
+        movePresetUp,
+        movePresetDown,
     } from "../buildPresetsStore";
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
@@ -66,6 +70,20 @@
     $: editMenuTitle = editPreset?.name
         ? `Edit: ${truncateText(editPreset.name)}`
         : "Edit";
+
+    $: {
+        const index = editMenuPresetId
+            ? $buildPresetsStore.presets.findIndex(
+                  (p) => p.id === editMenuPresetId,
+              )
+            : -1;
+        canMoveUp = index > 0;
+        canMoveDown =
+            index >= 0 && index < $buildPresetsStore.presets.length - 1;
+    }
+
+    let canMoveUp = false;
+    let canMoveDown = false;
 
     async function openPresetsMenu() {
         if (!presetsButtonElement) return;
@@ -254,6 +272,18 @@
             },
         });
     }
+
+    function handleMoveUp(event: CustomEvent<MouseEvent> | MouseEvent) {
+        const mouseEvent = event instanceof CustomEvent ? event.detail : event;
+        mouseEvent.stopPropagation();
+        if (editMenuPresetId) movePresetUp(editMenuPresetId);
+    }
+
+    function handleMoveDown(event: CustomEvent<MouseEvent> | MouseEvent) {
+        const mouseEvent = event instanceof CustomEvent ? event.detail : event;
+        mouseEvent.stopPropagation();
+        if (editMenuPresetId) movePresetDown(editMenuPresetId);
+    }
 </script>
 
 <Button
@@ -333,6 +363,21 @@
             title={editMenuTitle}
             onClose={closeEditMenu}
         >
+            <div class="button-group move-buttons-row">
+                <Button
+                    on:click={handleMoveUp}
+                    tooltipText="Move preset up"
+                    icon={CaretUpIcon}
+                    disabled={!canMoveUp}
+                />
+                <Button
+                    on:click={handleMoveDown}
+                    class="dropdown-button"
+                    tooltipText="Move preset down"
+                    icon={CaretDownIcon}
+                    disabled={!canMoveDown}
+                />
+            </div>
             <Button
                 on:click={() => handleRename(editMenuPresetId!)}
                 tooltipText="Edit preset name"
@@ -420,5 +465,13 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
+    }
+
+    :global(.move-buttons-row) {
+        display: flex;
+
+        :global(button) {
+            flex: 1;
+        }
     }
 </style>

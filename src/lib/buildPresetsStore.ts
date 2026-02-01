@@ -211,6 +211,32 @@ export function getUniquePresetName(
     return candidate;
 }
 
+export function movePresetUp(id: string): void {
+    buildPresetsStore.update((data) => {
+        const index = data.presets.findIndex((p) => p.id === id);
+        if (index <= 0) return data;
+        const newPresets = [...data.presets];
+        [newPresets[index], newPresets[index - 1]] = [
+            newPresets[index - 1],
+            newPresets[index],
+        ];
+        return { ...data, presets: newPresets };
+    });
+}
+
+export function movePresetDown(id: string): void {
+    buildPresetsStore.update((data) => {
+        const index = data.presets.findIndex((p) => p.id === id);
+        if (index < 0 || index >= data.presets.length - 1) return data;
+        const newPresets = [...data.presets];
+        [newPresets[index], newPresets[index + 1]] = [
+            newPresets[index + 1],
+            newPresets[index],
+        ];
+        return { ...data, presets: newPresets };
+    });
+}
+
 /**
  * Derived store for the name of the currently active preset
  */
