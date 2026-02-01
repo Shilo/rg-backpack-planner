@@ -2,13 +2,20 @@ import type { ComponentType } from "svelte";
 import type { IconWeight } from "phosphor-svelte";
 import { writable } from "svelte/store";
 
-export type ModalType = "confirm" | "input" | "loadBuild";
+export type ModalType = "confirm" | "input" | "textInput" | "loadBuild";
 
 export type ModalInputConfig = {
     label: string;
     value: number;
     min?: number;
     step?: number;
+};
+
+export type TextInputConfig = {
+    label: string;
+    value: string;
+    maxLength?: number;
+    placeholder?: string;
 };
 
 export type ModalPayload = {
@@ -23,7 +30,8 @@ export type ModalPayload = {
     confirmPositive?: boolean;
     cancelLabel?: string;
     input?: ModalInputConfig;
-    onConfirm?: (value?: number) => void;
+    textInput?: TextInputConfig;
+    onConfirm?: (value?: string | number) => void;
     onCancel?: () => void;
 };
 

@@ -147,12 +147,25 @@
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
         closeEditMenu();
-        const name = window.prompt("Preset name", preset.name);
-        if (name != null && name.trim() !== "") {
-            updatePreset(presetId, { name: name.trim() });
-            // Trigger menu position recalculation after name change
-            setTimeout(() => presetsContextMenu?.updatePosition(), 0);
-        }
+        openModal({
+            type: "textInput",
+            title: "Rename Build Preset",
+            titleIcon: PencilSimpleIcon,
+            message: "Enter a new name for this build preset",
+            textInput: {
+                label: "Preset name",
+                value: preset.name,
+                maxLength: 25,
+            },
+            confirmLabel: "Rename",
+            cancelLabel: "Cancel",
+            onConfirm: (value) => {
+                if (typeof value === "string") {
+                    updatePreset(presetId, { name: value });
+                    setTimeout(() => presetsContextMenu?.updatePosition(), 0);
+                }
+            },
+        });
     }
 
     function handleDelete(presetId: string) {
@@ -192,18 +205,39 @@
             trees: emptyTrees,
             owned: emptyOwned,
         });
-        let name: string | null;
+
         if (skipPrompt) {
-            name = "Default";
+            const preset = addPreset("Default", buildCode);
+            setActivePresetId(preset.id);
+            applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
+            closePresetsMenu();
         } else {
             const defaultName = getUniquePresetName("New", "New");
-            name = window.prompt("Preset name", defaultName);
-            if (name == null) return;
+            openModal({
+                type: "textInput",
+                title: "New Build Preset",
+                titleIcon: PlusIcon,
+                message: "Enter a name for this build preset",
+                textInput: {
+                    label: "Preset name",
+                    value: defaultName,
+                    maxLength: 25,
+                },
+                confirmLabel: "Create",
+                cancelLabel: "Cancel",
+                onConfirm: (value) => {
+                    if (typeof value === "string") {
+                        const preset = addPreset(value, buildCode);
+                        setActivePresetId(preset.id);
+                        applyBuildData(tabs, {
+                            trees: emptyTrees,
+                            owned: emptyOwned,
+                        });
+                        closePresetsMenu();
+                    }
+                },
+            });
         }
-        const preset = addPreset(name.trim() || "New", buildCode);
-        setActivePresetId(preset.id);
-        applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
-        closePresetsMenu();
     }
 
     function handleDeleteAllAndAddNew() {

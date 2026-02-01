@@ -2,6 +2,7 @@
     import { onDestroy } from "svelte";
     import ConfirmModal from "./modals/ConfirmModal.svelte";
     import InputModal from "./modals/InputModal.svelte";
+    import TextInputModal from "./modals/TextInputModal.svelte";
     // @ts-ignore - Svelte component import
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
@@ -37,7 +38,7 @@
         });
     }
 
-    function handleConfirm(value?: number) {
+    function handleConfirm(value?: string | number) {
         const payload = $modalStore;
         if (!payload) return;
         closeModal();
@@ -138,6 +139,22 @@
                     value={$modalStore.input?.value ?? 0}
                     min={$modalStore.input?.min ?? 0}
                     step={$modalStore.input?.step ?? 1}
+                    confirmLabel={$modalStore.confirmLabel ?? "Save"}
+                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                />
+            {:else if $modalStore.type === "textInput"}
+                <TextInputModal
+                    title={$modalStore.title}
+                    titleIcon={$modalStore.titleIcon ?? null}
+                    titleIconClass={$modalStore.titleIconClass ?? ""}
+                    titleIconWeight={$modalStore.titleIconWeight}
+                    message={$modalStore.message}
+                    label={$modalStore.textInput?.label ?? "Value"}
+                    value={$modalStore.textInput?.value ?? ""}
+                    maxLength={$modalStore.textInput?.maxLength ?? 25}
+                    placeholder={$modalStore.textInput?.placeholder ?? ""}
                     confirmLabel={$modalStore.confirmLabel ?? "Save"}
                     cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
                     onConfirm={handleConfirm}
