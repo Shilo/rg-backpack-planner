@@ -11,6 +11,7 @@
     import { portal } from "../portal";
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
+    import { truncateText } from "../stringUtil";
 
     export let title: string | undefined;
     export let disabled: boolean | undefined = false;
@@ -90,7 +91,7 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={`Share "${tooltipSubject}" build`}
+    tooltipText={`Share "${truncateText(tooltipSubject)}" build`}
     icon={ShareIcon}
     {disabled}
 >
