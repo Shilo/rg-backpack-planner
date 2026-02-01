@@ -85,6 +85,9 @@
         font-size: 0.92rem;
         color: #c8d6f7;
         line-height: 1.4;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        hyphens: auto;
     }
 
     .modal-actions {
