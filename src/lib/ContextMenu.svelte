@@ -331,6 +331,7 @@
         gap: 6px;
         z-index: var(--z-index-context-menu);
         width: max-content;
+        max-width: calc(100vw - 16px);
         cursor: move;
         touch-action: none;
         user-select: none;
@@ -355,6 +356,9 @@
         text-transform: uppercase;
         color: rgba(201, 214, 245, 0.75);
         padding-left: 4px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        hyphens: auto;
     }
 
     .context-menu-backdrop {

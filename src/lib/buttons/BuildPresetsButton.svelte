@@ -444,6 +444,9 @@
         min-width: 0;
         text-align: left;
         justify-content: flex-start;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     :global(.preset-name-btn.active) {
