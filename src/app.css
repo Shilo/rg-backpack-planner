@@ -55,6 +55,13 @@ body {
     height: 100%;
 }
 
+html.snapdom-capture *,
+html.snapdom-capture *::before,
+html.snapdom-capture *::after {
+    transition: none !important;
+    animation: none !important;
+}
+
 button {
     font: inherit;
     user-select: none;

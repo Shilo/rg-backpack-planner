@@ -375,27 +375,34 @@
         }
 
         const currentIndex = activeIndex;
-        if (tabIndex !== activeIndex) {
-            setActive(tabIndex);
-            await tick();
-            await new Promise<void>((resolve) => {
-                requestAnimationFrame(() => resolve());
-            });
-            await new Promise<void>((resolve) => setTimeout(resolve, 350));
+        const rootEl =
+            typeof document !== "undefined" ? document.documentElement : null;
+        rootEl?.classList.add("snapdom-capture");
+
+        try {
+            if (tabIndex !== activeIndex) {
+                setActive(tabIndex);
+                await tick();
+                await new Promise<void>((resolve) => {
+                    requestAnimationFrame(() => resolve());
+                });
+            }
+
+            const element = treeRef?.getTreeCanvasElement?.() ?? null;
+            const blob = await captureTreeAsPng(element);
+
+            if (tabIndex !== currentIndex) {
+                setActive(currentIndex);
+                await tick();
+                await new Promise<void>((resolve) => {
+                    requestAnimationFrame(() => resolve());
+                });
+            }
+
+            return blob;
+        } finally {
+            rootEl?.classList.remove("snapdom-capture");
         }
-
-        const element = treeRef?.getTreeCanvasElement?.() ?? null;
-        const blob = await captureTreeAsPng(element);
-
-        if (tabIndex !== currentIndex) {
-            setActive(currentIndex);
-            await tick();
-            await new Promise<void>((resolve) => {
-                requestAnimationFrame(() => resolve());
-            });
-        }
-
-        return blob;
     }
 
     function onTabClick(index: number) {
