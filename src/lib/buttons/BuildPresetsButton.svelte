@@ -67,9 +67,6 @@
         ? `${editPreset.name} build`
         : "Backpack tech tree build";
     $: editPresetTooltipSubject = editPreset?.name ?? "your";
-    $: editMenuTitle = editPreset?.name
-        ? `Edit: ${truncateText(editPreset.name)}`
-        : "Edit";
 
     $: {
         const index = editMenuPresetId
@@ -77,11 +74,16 @@
                   (p) => p.id === editMenuPresetId,
               )
             : -1;
+        const total = $buildPresetsStore.presets.length;
+        editMenuTitle =
+            editPreset?.name && index >= 0
+                ? `Edit: ${truncateText(editPreset.name)} (${index + 1}/${total})`
+                : "Edit";
         canMoveUp = index > 0;
-        canMoveDown =
-            index >= 0 && index < $buildPresetsStore.presets.length - 1;
+        canMoveDown = index >= 0 && index < total - 1;
     }
 
+    let editMenuTitle = "Edit";
     let canMoveUp = false;
     let canMoveDown = false;
 
