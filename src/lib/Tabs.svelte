@@ -433,10 +433,9 @@
         on:pointercancel={clearBackgroundPress}
         on:pointerleave={clearBackgroundPress}
         use:captureAction={{
-            setActiveIndex: setActive,
-            getActiveIndex: () => activeIndex,
-            getTreeCanvasElement: () =>
-                treeRef?.getTreeCanvasElement?.() ?? null,
+            setActive,
+            getActive: () => activeIndex,
+            getTreeCanvas: () => treeRef?.getTreeCanvasElement?.(),
         }}
     >
         {#if tabs[activeIndex]}

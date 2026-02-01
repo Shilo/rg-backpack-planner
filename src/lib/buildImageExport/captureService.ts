@@ -2,9 +2,9 @@ import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 
 type TabsCaptureBridge = {
-    setActiveIndex: (index: number) => void;
-    getActiveIndex: () => number;
-    getTreeCanvasElement: () => HTMLDivElement | null;
+    setActive: (index: number) => void;
+    getActive: () => number;
+    getTreeCanvas: () => HTMLDivElement | undefined;
 };
 
 let tabsBridge: TabsCaptureBridge | null = null;
@@ -21,7 +21,7 @@ async function waitForNextFrame(): Promise<void> {
 }
 
 async function captureElementAsPng(
-    element: HTMLElement | null,
+    element: HTMLElement | undefined,
 ): Promise<Blob | null> {
     if (!element) {
         console.error("Tree element is null");
@@ -145,19 +145,19 @@ export async function captureTreeImageByIndex(
     }
 
     return withCaptureState(async () => {
-        const currentIndex = bridge.getActiveIndex();
+        const currentIndex = bridge.getActive();
 
         if (tabIndex !== currentIndex) {
-            bridge.setActiveIndex(tabIndex);
+            bridge.setActive(tabIndex);
             await tick();
             await waitForNextFrame();
         }
 
-        const element = bridge.getTreeCanvasElement();
+        const element = bridge.getTreeCanvas();
         const blob = await captureElementAsPng(element);
 
         if (tabIndex !== currentIndex) {
-            bridge.setActiveIndex(currentIndex);
+            bridge.setActive(currentIndex);
             await tick();
             await waitForNextFrame();
         }
