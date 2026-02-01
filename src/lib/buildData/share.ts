@@ -66,7 +66,12 @@ export async function saveBuildToUrl(
  * Captures all three trees (Guardian, Vanguard, Cannon) and combines them horizontally
  * Exports as a transparent PNG and copies to clipboard
  */
+let isShareImageProcessing = false;
+
 export async function shareBuildAsImage(): Promise<void> {
+    if (isShareImageProcessing) return;
+    isShareImageProcessing = true;
+
     const showScreenshotToast = (success: boolean) => {
         showToast(
             success
@@ -94,6 +99,8 @@ export async function shareBuildAsImage(): Promise<void> {
     } catch (error) {
         console.error("Failed to share build as image:", error);
         showScreenshotToast(false);
+    } finally {
+        isShareImageProcessing = false;
     }
 }
 
