@@ -76,11 +76,13 @@
             : -1;
         const total = $buildPresetsStore.presets.length;
         editMenuTitle =
-            editPreset?.name && index >= 0
+            editPreset?.name && index >= 0 && total > 1
                 ? `Edit: ${truncateText(editPreset.name)} (${index + 1}/${total})`
-                : "Edit";
-        canMoveUp = index > 0;
-        canMoveDown = index >= 0 && index < total - 1;
+                : editPreset?.name
+                  ? `Edit: ${truncateText(editPreset.name)}`
+                  : "Edit";
+        canMoveUp = total > 1 && index > 0;
+        canMoveDown = total > 1 && index >= 0 && index < total - 1;
     }
 
     let editMenuTitle = "Edit";
@@ -365,7 +367,10 @@
             title={editMenuTitle}
             onClose={closeEditMenu}
         >
-            <div class="button-group move-buttons-row">
+            <div
+                class="button-group move-buttons-row"
+                class:hidden={$buildPresetsStore.presets.length < 2}
+            >
                 <Button
                     on:click={handleMoveUp}
                     tooltipText="Move preset up"
@@ -475,5 +480,9 @@
         :global(button) {
             flex: 1;
         }
+    }
+
+    :global(.move-buttons-row.hidden) {
+        display: none;
     }
 </style>
