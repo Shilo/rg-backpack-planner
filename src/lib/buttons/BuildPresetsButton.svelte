@@ -166,13 +166,17 @@
     }
 
     function handleAddBuild() {
-        const trees = get(treeLevels);
-        const owned = get(techCrystalsOwned);
-        const encoded = encodeBuildData({ trees, owned });
+        const emptyTrees = tabs.map(() => []);
+        const emptyOwned = 0;
+        const encoded = encodeBuildData({
+            trees: emptyTrees,
+            owned: emptyOwned,
+        });
         const name = window.prompt("Preset name", "New");
         if (name == null) return;
         const preset = addPreset(name.trim() || "New", encoded);
         setActivePresetId(preset.id);
+        applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
         closePresetsMenu();
     }
 </script>
@@ -218,10 +222,10 @@
         {/each}
         <Button
             on:click={handleAddBuild}
-            tooltipText="Save current build as a new preset"
+            tooltipText="Create an empty build preset"
             icon={PlusIcon}
         >
-            Add build
+            Add new build
         </Button>
     </ContextMenu>
 </div>
