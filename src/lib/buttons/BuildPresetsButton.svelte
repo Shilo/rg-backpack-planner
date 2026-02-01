@@ -269,7 +269,9 @@
                 <div class="preset-row button-group" data-preset-id={preset.id}>
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}
-                        tooltipText={`Switch to preset: ${truncateName(preset.name)}`}
+                        tooltipText={isActive
+                            ? `Active preset: ${truncateName(preset.name)}`
+                            : `Switch to preset: ${truncateName(preset.name)}`}
                         aria-label={`Switch to preset: ${truncateName(preset.name)}`}
                         icon={isActive ? CheckIcon : null}
                         on:click={() => switchToPreset(preset.id)}
