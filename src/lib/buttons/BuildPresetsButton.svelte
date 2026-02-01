@@ -17,14 +17,11 @@
         updatePreset,
         deletePreset,
         addPreset,
-        updateActivePresetEncoded,
     } from "../buildPresetsStore";
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
     import { applyBuildData } from "../buildData/applier";
     import { createShareUrl } from "../buildData/url";
-    import { treeLevels } from "../treeLevelsStore";
-    import { techCrystalsOwned } from "../techCrystalStore";
     import { openModal } from "../modalStore";
     import { guardianTree } from "../../config/guardianTree";
     import { vanguardTree } from "../../config/vanguardTree";
@@ -68,7 +65,7 @@
           ) ?? null)
         : null;
     $: editPresetBuildData = editPreset
-        ? decodeBuildData(editPreset.encoded)
+        ? decodeBuildData(editPreset.buildCode)
         : null;
     $: editPresetShareUrl =
         editPresetBuildData && editPreset
@@ -100,7 +97,7 @@
         const data = get(buildPresetsStore);
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
-        const buildData = decodeBuildData(preset.encoded);
+        const buildData = decodeBuildData(preset.buildCode);
         if (!buildData) return;
         setActivePresetId(presetId);
         applyBuildData(tabs, buildData);
@@ -165,7 +162,7 @@
                 } else if (wasActive) {
                     const first = remaining[0];
                     setActivePresetId(first.id);
-                    const buildData = decodeBuildData(first.encoded);
+                    const buildData = decodeBuildData(first.buildCode);
                     if (buildData) applyBuildData(tabs, buildData);
                     closeEditMenu();
                 }
@@ -174,9 +171,10 @@
     }
 
     function handleAddBuild(skipPrompt: boolean = false) {
+        console.log("Adding new build preset", { skipPrompt });
         const emptyTrees = tabs.map(() => []);
         const emptyOwned = 0;
-        const encoded = encodeBuildData({
+        const buildCode = encodeBuildData({
             trees: emptyTrees,
             owned: emptyOwned,
         });
@@ -187,7 +185,7 @@
             name = window.prompt("Preset name", "New");
             if (name == null) return;
         }
-        const preset = addPreset(name.trim() || "New", encoded);
+        const preset = addPreset(name.trim() || "New", buildCode);
         setActivePresetId(preset.id);
         applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
         closePresetsMenu();
@@ -235,7 +233,7 @@
             {/each}
         </div>
         <Button
-            on:click={handleAddBuild}
+            on:click={() => handleAddBuild()}
             tooltipText="Create an empty build preset"
             icon={PlusIcon}
         >

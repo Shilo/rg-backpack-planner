@@ -11,7 +11,7 @@ const STORAGE_KEY = "rg-backpack-planner-build-presets";
 export interface BuildPreset {
     id: string;
     name: string;
-    encoded: string;
+    buildCode: string;
 }
 
 export interface BuildPresetsData {
@@ -20,13 +20,15 @@ export interface BuildPresetsData {
 }
 
 function defaultPresetsData(): BuildPresetsData {
-    const emptyEncoded = encodeBuildData({
+    const emptyBuildCode = encodeBuildData({
         trees: [[], [], []],
         owned: 0,
     });
     return {
         activePresetId: "default",
-        presets: [{ id: "default", name: "Default", encoded: emptyEncoded }],
+        presets: [
+            { id: "default", name: "Default", buildCode: emptyBuildCode },
+        ],
     };
 }
 
@@ -52,10 +54,10 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
         if (
             typeof q.id !== "string" ||
             typeof q.name !== "string" ||
-            typeof q.encoded !== "string"
+            typeof q.buildCode !== "string"
         )
             return null;
-        list.push({ id: q.id, name: q.name, encoded: q.encoded });
+        list.push({ id: q.id, name: q.name, buildCode: q.buildCode });
     }
     if (!list.some((p) => p.id === activePresetId)) return null;
     return { activePresetId, presets: list };
@@ -122,9 +124,9 @@ export function getActivePreset(): BuildPreset | null {
     return data.presets.find((p) => p.id === data.activePresetId) ?? null;
 }
 
-export function addPreset(name: string, encoded: string): BuildPreset {
+export function addPreset(name: string, buildCode: string): BuildPreset {
     const id = generatePresetId();
-    const preset: BuildPreset = { id, name: name.trim() || "Build", encoded };
+    const preset: BuildPreset = { id, name: name.trim() || "Build", buildCode };
     buildPresetsStore.update((data) => ({
         ...data,
         presets: [...data.presets, preset],
@@ -134,7 +136,7 @@ export function addPreset(name: string, encoded: string): BuildPreset {
 
 export function updatePreset(
     id: string,
-    updates: { name?: string; encoded?: string },
+    updates: { name?: string; buildCode?: string },
 ): void {
     buildPresetsStore.update((data) => ({
         ...data,
@@ -145,8 +147,8 @@ export function updatePreset(
                 ...(updates.name !== undefined && {
                     name: updates.name.trim() || p.name,
                 }),
-                ...(updates.encoded !== undefined && {
-                    encoded: updates.encoded,
+                ...(updates.buildCode !== undefined && {
+                    buildCode: updates.buildCode,
                 }),
             };
         }),
@@ -164,14 +166,14 @@ export function deletePreset(id: string): void {
     });
 }
 
-export function updateActivePresetEncoded(encoded: string): void {
+export function updateActivePresetBuildCode(buildCode: string): void {
     buildPresetsStore.update((data) => {
         const active = data.presets.find((p) => p.id === data.activePresetId);
         if (!active) return data;
         return {
             ...data,
             presets: data.presets.map((p) =>
-                p.id === data.activePresetId ? { ...p, encoded } : p,
+                p.id === data.activePresetId ? { ...p, buildCode } : p,
             ),
         };
     });

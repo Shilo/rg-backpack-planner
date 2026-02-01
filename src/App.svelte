@@ -44,7 +44,7 @@
     import { cannonTree } from "./config/cannonTree";
     import {
         loadPresetsFromStorage,
-        updateActivePresetEncoded,
+        updateActivePresetBuildCode,
     } from "./lib/buildPresetsStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
     import {
@@ -321,7 +321,7 @@
                 (p) => p.id === presetsData.activePresetId,
             );
             if (activePreset) {
-                const buildData = decodeBuildData(activePreset.encoded);
+                const buildData = decodeBuildData(activePreset.buildCode);
                 if (buildData) {
                     applyBuildData(tabs, buildData);
                 }
@@ -332,7 +332,7 @@
                 if (get(isPreviewMode)) return;
                 const levels = get(treeLevels);
                 const owned = get(techCrystalsOwned);
-                updateActivePresetEncoded(
+                updateActivePresetBuildCode(
                     encodeBuildData({ trees: levels, owned }),
                 );
             };
