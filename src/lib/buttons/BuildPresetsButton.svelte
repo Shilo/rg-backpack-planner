@@ -1,5 +1,6 @@
 <script lang="ts">
     import { get } from "svelte/store";
+    import { tick } from "svelte";
     import {
         CheckIcon,
         DotsThreeVerticalIcon,
@@ -80,13 +81,32 @@
         ? `Edit: ${truncateName(editPreset.name)}`
         : "Edit";
 
-    function openPresetsMenu() {
+    async function openPresetsMenu() {
         if (!presetsButtonElement) return;
         const rect = presetsButtonElement.getBoundingClientRect();
         presetsMenuX = rect.left + rect.width / 2;
         presetsMenuY = rect.bottom + 8;
         presetsMenuOpen = true;
         editMenuPresetId = null;
+
+        // Wait for DOM to update, then scroll to active preset
+        await tick();
+        scrollToActivePreset();
+    }
+
+    function scrollToActivePreset() {
+        const activePresetId = get(buildPresetsStore).activePresetId;
+        if (!activePresetId) return;
+
+        const activeButton = document.querySelector(
+            `[data-preset-id="${activePresetId}"]`,
+        );
+        if (activeButton) {
+            activeButton.scrollIntoView({
+                behavior: "instant",
+                block: "nearest",
+            });
+        }
     }
 
     function closePresetsMenu() {
@@ -244,14 +264,13 @@
     >
         <div class="presets-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
-                <div class="preset-row button-group">
+                {@const isActive = preset.id === $buildPresetsStore.activePresetId}
+                <div class="preset-row button-group" data-preset-id={preset.id}>
                     <Button
-                        class="preset-name-btn"
+                        class={`preset-name-btn ${isActive ? 'active' : ''}`}
                         tooltipText={`Switch to preset: ${truncateName(preset.name)}`}
                         aria-label={`Switch to preset: ${truncateName(preset.name)}`}
-                        icon={preset.id === $buildPresetsStore.activePresetId
-                            ? CheckIcon
-                            : null}
+                        icon={isActive ? CheckIcon : null}
                         on:click={() => switchToPreset(preset.id)}
                     >
                         {truncateName(preset.name)}
@@ -354,6 +373,11 @@
         min-width: 0;
         text-align: left;
         justify-content: flex-start;
+    }
+
+    :global(.preset-name-btn.active) {
+        background: rgba(70, 95, 165, 0.4) !important;
+        border-color: rgba(120, 156, 240, 0.6) !important;
     }
 
     :global(.preset-name-btn .button-text) {
