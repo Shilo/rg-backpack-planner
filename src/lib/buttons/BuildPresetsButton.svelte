@@ -264,10 +264,11 @@
     >
         <div class="presets-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
-                {@const isActive = preset.id === $buildPresetsStore.activePresetId}
+                {@const isActive =
+                    preset.id === $buildPresetsStore.activePresetId}
                 <div class="preset-row button-group" data-preset-id={preset.id}>
                     <Button
-                        class={`preset-name-btn ${isActive ? 'active' : ''}`}
+                        class={`preset-name-btn ${isActive ? "active" : ""}`}
                         tooltipText={`Switch to preset: ${truncateName(preset.name)}`}
                         aria-label={`Switch to preset: ${truncateName(preset.name)}`}
                         icon={isActive ? CheckIcon : null}
