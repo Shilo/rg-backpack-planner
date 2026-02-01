@@ -59,7 +59,7 @@
 
     $: activePresetName =
         $buildPresetsStore.presets.find(
-            (preset) => preset.id === $buildPresetsStore.activePresetId,
+            (preset) => preset.id === $buildPresetsStore.active,
         )?.name ?? "Default";
 
     $: editPreset = editMenuPresetId
@@ -96,11 +96,11 @@
     }
 
     function scrollToActivePreset() {
-        const activePresetId = get(buildPresetsStore).activePresetId;
-        if (!activePresetId) return;
+        const activeId = get(buildPresetsStore).active;
+        if (!activeId) return;
 
         const activeButton = document.querySelector(
-            `[data-preset-id="${activePresetId}"]`,
+            `[data-preset-id="${activeId}"]`,
         );
         if (activeButton) {
             activeButton.scrollIntoView({
@@ -176,7 +176,7 @@
             confirmNegative: true,
             titleIcon: TrashSimpleIcon,
             onConfirm: () => {
-                const wasActive = data.activePresetId === presetId;
+                const wasActive = data.active === presetId;
                 const remaining = data.presets.filter((p) => p.id !== presetId);
                 deletePreset(presetId);
                 if (remaining.length === 0) {
@@ -258,7 +258,7 @@
         <div class="presets-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
                 {@const isActive =
-                    preset.id === $buildPresetsStore.activePresetId}
+                    preset.id === $buildPresetsStore.active}
                 <div class="preset-row button-group" data-preset-id={preset.id}>
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}

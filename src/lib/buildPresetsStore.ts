@@ -15,7 +15,7 @@ export interface BuildPreset {
 }
 
 export interface BuildPresetsData {
-    activePresetId: string;
+    active: string;
     presets: BuildPreset[];
 }
 
@@ -26,7 +26,7 @@ function defaultPresetsData(): BuildPresetsData {
         owned: 0,
     });
     return {
-        activePresetId: defaultId,
+        active: defaultId,
         presets: [
             { id: defaultId, name: "Default", buildCode: emptyBuildCode },
         ],
@@ -43,9 +43,9 @@ function generatePresetId(): string {
 function validatePresetsData(raw: unknown): BuildPresetsData | null {
     if (!raw || typeof raw !== "object") return null;
     const o = raw as Record<string, unknown>;
-    const activePresetId = o.activePresetId;
+    const active = o.active;
     const presets = o.presets;
-    if (typeof activePresetId !== "string" || !Array.isArray(presets))
+    if (typeof active !== "string" || !Array.isArray(presets))
         return null;
     if (presets.length === 0) return null;
     const list: BuildPreset[] = [];
@@ -60,8 +60,8 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
             return null;
         list.push({ id: q.id, name: q.name, buildCode: q.buildCode });
     }
-    if (!list.some((p) => p.id === activePresetId)) return null;
-    return { activePresetId, presets: list };
+    if (!list.some((p) => p.id === active)) return null;
+    return { active, presets: list };
 }
 
 export function loadPresetsFromStorage(): BuildPresetsData {
@@ -110,19 +110,19 @@ export function getPresets(): BuildPreset[] {
 }
 
 export function getActivePresetId(): string {
-    return get(buildPresetsStore).activePresetId;
+    return get(buildPresetsStore).active;
 }
 
 export function setActivePresetId(id: string): void {
     buildPresetsStore.update((data) => {
         if (!data.presets.some((p) => p.id === id)) return data;
-        return { ...data, activePresetId: id };
+        return { ...data, active: id };
     });
 }
 
 export function getActivePreset(): BuildPreset | null {
     const data = get(buildPresetsStore);
-    return data.presets.find((p) => p.id === data.activePresetId) ?? null;
+    return data.presets.find((p) => p.id === data.active) ?? null;
 }
 
 export function addPreset(name: string, buildCode: string): BuildPreset {
@@ -159,22 +159,22 @@ export function updatePreset(
 export function deletePreset(id: string): void {
     buildPresetsStore.update((data) => {
         const presets = data.presets.filter((p) => p.id !== id);
-        let activePresetId = data.activePresetId;
-        if (activePresetId === id) {
-            activePresetId = presets.length > 0 ? presets[0].id : "";
+        let active = data.active;
+        if (active === id) {
+            active = presets.length > 0 ? presets[0].id : "";
         }
-        return { activePresetId, presets };
+        return { active, presets };
     });
 }
 
 export function updateActivePresetBuildCode(buildCode: string): void {
     buildPresetsStore.update((data) => {
-        const active = data.presets.find((p) => p.id === data.activePresetId);
-        if (!active) return data;
+        const activePreset = data.presets.find((p) => p.id === data.active);
+        if (!activePreset) return data;
         return {
             ...data,
             presets: data.presets.map((p) =>
-                p.id === data.activePresetId ? { ...p, buildCode } : p,
+                p.id === data.active ? { ...p, buildCode } : p,
             ),
         };
     });

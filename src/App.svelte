@@ -318,7 +318,7 @@
             // Load from presets: apply active preset to treeLevels and techCrystalsOwned
             const presetsData = loadPresetsFromStorage();
             const activePreset = presetsData.presets.find(
-                (p) => p.id === presetsData.activePresetId,
+                (p) => p.id === presetsData.active,
             );
             if (activePreset) {
                 const buildData = decodeBuildData(activePreset.buildCode);
