@@ -11,7 +11,6 @@
     import ShareBuildButton from "./ShareBuildButton.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { isPreviewMode } from "../previewModeStore";
     import { buildPresetsStore } from "../buildPresetsStore";
     import {
         setActivePresetId,
@@ -203,7 +202,6 @@
                     class="preset-edit-btn dropdown-button"
                     aria-label="Edit preset"
                     icon={DotsThreeVerticalIcon}
-                    iconSize={18}
                     on:click={(e) => openEditMenu(e, preset.id)}
                 />
             </div>
