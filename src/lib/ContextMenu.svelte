@@ -108,7 +108,7 @@
         return Math.min(Math.max(value, min), max);
     }
 
-    function updatePosition() {
+    export function updatePosition() {
         if (!menuEl) {
             const adjustedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             displayX = x + dragOffset.x;

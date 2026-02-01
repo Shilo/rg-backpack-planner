@@ -43,6 +43,7 @@
     let presetsMenuX = 0;
     let presetsMenuY = 0;
     let presetsButtonElement: HTMLButtonElement | null = null;
+    let presetsContextMenu: InstanceType<typeof ContextMenu> | null = null;
 
     let editMenuPresetId: string | null = null;
     let editMenuX = 0;
@@ -127,6 +128,8 @@
         const name = window.prompt("Preset name", preset.name);
         if (name != null && name.trim() !== "") {
             updatePreset(presetId, { name: name.trim() });
+            // Trigger menu position recalculation after name change
+            setTimeout(() => presetsContextMenu?.updatePosition(), 0);
         }
     }
 
@@ -181,6 +184,7 @@
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
     <ContextMenu
+        bind:this={presetsContextMenu}
         x={presetsMenuX}
         y={presetsMenuY}
         isOpen={presetsMenuOpen}
