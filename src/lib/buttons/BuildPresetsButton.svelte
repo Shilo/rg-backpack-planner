@@ -280,7 +280,7 @@
                 tooltipText="Create an empty build preset"
                 icon={PlusIcon}
             >
-                Add new build
+                Add new
             </Button>
             <Button
                 class="dropdown-button"
