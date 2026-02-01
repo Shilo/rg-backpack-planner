@@ -330,7 +330,9 @@
             <ShareBuildButton
                 title="Share"
                 tooltipSubject={editPresetTooltipSubject}
-                menuTitle="Share Preset"
+                menuTitle={editPreset?.name
+                    ? `Share: ${truncateName(editPreset.name)}`
+                    : "Share Preset"}
                 shareUrl={editPresetShareUrl}
                 shareTitle={editPresetShareTitle}
                 showScreenshot={false}

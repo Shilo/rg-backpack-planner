@@ -143,7 +143,7 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={`Share ${tooltipSubject} backpack tech tree build`}
+    tooltipText={`Share "${tooltipSubject}" build`}
     icon={ShareIcon}
     {disabled}
 >
