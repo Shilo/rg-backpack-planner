@@ -1,6 +1,7 @@
 <script lang="ts">
     import { get } from "svelte/store";
     import {
+        CheckIcon,
         DotsThreeVerticalIcon,
         PencilSimpleIcon,
         PlusIcon,
@@ -171,7 +172,6 @@
     }
 
     function handleAddBuild(skipPrompt: boolean = false) {
-        console.log("Adding new build preset", { skipPrompt });
         const emptyTrees = tabs.map(() => []);
         const emptyOwned = 0;
         const buildCode = encodeBuildData({
@@ -241,6 +241,9 @@
                         class="preset-name-btn"
                         tooltipText={`Switch to preset: ${truncateName(preset.name)}`}
                         aria-label={`Switch to preset: ${truncateName(preset.name)}`}
+                        icon={preset.id === $buildPresetsStore.activePresetId
+                            ? CheckIcon
+                            : null}
                         on:click={() => switchToPreset(preset.id)}
                     >
                         {truncateName(preset.name)}
