@@ -179,3 +179,23 @@ export function updateActivePresetBuildCode(buildCode: string): void {
         };
     });
 }
+
+export function getUniquePresetName(
+    desiredName: string,
+    fallbackName: string,
+): string {
+    const baseName = desiredName.trim() || fallbackName.trim() || "Preset";
+    const existingNames = get(buildPresetsStore).presets.map((preset) =>
+        preset.name.toLowerCase(),
+    );
+    if (!existingNames.includes(baseName.toLowerCase())) {
+        return baseName;
+    }
+    let counter = 2;
+    let candidate = `${baseName} ${counter}`;
+    while (existingNames.includes(candidate.toLowerCase())) {
+        counter++;
+        candidate = `${baseName} ${counter}`;
+    }
+    return candidate;
+}

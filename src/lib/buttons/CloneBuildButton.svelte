@@ -5,19 +5,25 @@
     import { get } from "svelte/store";
     import { treeLevels } from "../treeLevelsStore";
     import { techCrystalsOwned } from "../techCrystalStore";
-    import { updateActivePresetBuildCode } from "../buildPresetsStore";
+    import {
+        addPreset,
+        getUniquePresetName,
+        setActivePresetId,
+    } from "../buildPresetsStore";
     import { encodeBuildData } from "../buildData/encoder";
     import { showToast, queueClonedBuildToast } from "../toast";
     import { clearShareFromUrl } from "../buildData/url";
     import { openModal } from "../modalStore";
+    import { previewBuildName } from "../previewBuildNameStore";
 
     function handleCloneBuild() {
+        const previewName = get(previewBuildName) ?? "";
+        const uniqueName = getUniquePresetName(previewName, "Clone");
         openModal({
             type: "confirm",
             title: "CLONE PREVIEW BUILD",
             titleIcon: CopySimpleIcon as unknown as ComponentType,
-            message:
-                "override your current personal build with the preview build.",
+            message: `create a new preset named "${uniqueName}" from the preview build.`,
             confirmLabel: "Clone",
             cancelLabel: "Cancel",
             confirmPositive: true,
@@ -29,7 +35,8 @@
                         trees: currentTreeLevels,
                         owned: currentTechCrystalsOwned,
                     });
-                    updateActivePresetBuildCode(buildCode);
+                    const preset = addPreset(uniqueName, buildCode);
+                    setActivePresetId(preset.id);
 
                     if (typeof window !== "undefined") {
                         queueClonedBuildToast();

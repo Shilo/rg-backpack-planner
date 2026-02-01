@@ -19,6 +19,7 @@
         updatePreset,
         deletePreset,
         addPreset,
+        getUniquePresetName,
     } from "../buildPresetsStore";
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
@@ -202,15 +203,7 @@
         if (skipPrompt) {
             name = "Default";
         } else {
-            let counter = 1;
-            const existingNames = get(buildPresetsStore).presets.map(
-                (p) => p.name,
-            );
-            let defaultName = `New ${counter}`;
-            while (existingNames.includes(defaultName)) {
-                counter++;
-                defaultName = `New ${counter}`;
-            }
+            const defaultName = getUniquePresetName("New", "New");
             name = window.prompt("Preset name", defaultName);
             if (name == null) return;
         }
