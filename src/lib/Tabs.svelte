@@ -10,6 +10,7 @@
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
+    import { captureTreeAsPng } from "./buildImageExport/captureTree";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -49,6 +50,7 @@
         cancelGestures?: () => void;
         getViewState?: () => TreeViewState;
         getFocusViewState?: () => TreeViewState | null;
+        getTreeCanvasElement?: () => HTMLDivElement | null;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -363,6 +365,37 @@
         treeRef?.triggerFade?.();
 
         closeTabMenu();
+    }
+
+    export async function captureTreeImageByIndex(
+        tabIndex: number,
+    ): Promise<Blob | null> {
+        if (tabIndex < 0 || tabIndex >= tabs.length) {
+            return null;
+        }
+
+        const currentIndex = activeIndex;
+        if (tabIndex !== activeIndex) {
+            setActive(tabIndex);
+            await tick();
+            await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+            });
+            await new Promise<void>((resolve) => setTimeout(resolve, 350));
+        }
+
+        const element = treeRef?.getTreeCanvasElement?.() ?? null;
+        const blob = await captureTreeAsPng(element);
+
+        if (tabIndex !== currentIndex) {
+            setActive(currentIndex);
+            await tick();
+            await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+            });
+        }
+
+        return blob;
     }
 
     function onTabClick(index: number) {

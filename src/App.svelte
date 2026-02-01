@@ -60,11 +60,13 @@
     } from "./lib/toast";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
+    import { tabsRefStore } from "./lib/buildImageExport/tabsRefStore";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
         resetActiveTree?: () => void;
         resetAllTrees?: () => void;
+        captureTreeImageByIndex?: (tabIndex: number) => Promise<Blob | null>;
     } | null = null;
     let activeTreeName = "";
     let activeTreeIndex = 0;
@@ -207,6 +209,13 @@
     // Subscriptions for preview mode and persistence, reused across URL re-initializations
     let unsubscribeTreeLevels: (() => void) | null = null;
     let unsubscribeTechCrystals: (() => void) | null = null;
+
+    // Update tabsRefStore whenever tabsRef changes
+    $: if (tabsRef && tabsRef.captureTreeImageByIndex) {
+        tabsRefStore.set({
+            captureTreeImageByIndex: tabsRef.captureTreeImageByIndex,
+        });
+    }
 
     /**
      * Initialize app state based on the current URL.

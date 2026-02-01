@@ -8,6 +8,8 @@ import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
+import { tabsRefStore } from "../buildImageExport/tabsRefStore";
+import { combineTreeImagesHorizontally } from "../buildImageExport/combineImages";
 
 /**
  * Copies text to clipboard
@@ -61,17 +63,67 @@ export async function saveBuildToUrl(
 
 /**
  * Saves the current build as an image
- * TODO: Implement screenshot functionality for all 3 trees
- * This would require html2canvas or similar library
+ * Captures all three trees (Guardian, Vanguard, Cannon) and combines them horizontally
+ * Exports as a transparent PNG and copies to clipboard
  */
 export async function saveBuildAsImage(): Promise<boolean> {
-    // TODO: Implement screenshot functionality
-    // This would require:
-    // 1. Installing html2canvas or similar library
-    // 2. Capturing screenshots of all 3 trees
-    // 3. Combining them into a single image
-    // 4. Triggering download or share
-    return false;
+    try {
+        // Get the tabsRef from the store
+        const tabsRef = get(tabsRefStore);
+        if (!tabsRef || !tabsRef.captureTreeImageByIndex) {
+            console.error("Tabs reference not available");
+            return false;
+        }
+
+        // Capture all three trees (0=Guardian, 1=Vanguard, 2=Cannon)
+        const tree1Blob = await tabsRef.captureTreeImageByIndex(0);
+        const tree2Blob = await tabsRef.captureTreeImageByIndex(1);
+        const tree3Blob = await tabsRef.captureTreeImageByIndex(2);
+
+        if (!tree1Blob || !tree2Blob || !tree3Blob) {
+            console.error("Failed to capture tree images");
+            return false;
+        }
+
+        // Combine the three trees horizontally
+        const combinedBlob = await combineTreeImagesHorizontally(
+            tree1Blob,
+            tree2Blob,
+            tree3Blob,
+        );
+
+        if (!combinedBlob) {
+            console.error("Failed to combine tree images");
+            return false;
+        }
+
+        // Copy the combined image to clipboard
+        return await copyImageBlobToClipboard(combinedBlob);
+    } catch (error) {
+        console.error("Failed to save build as image:", error);
+        return false;
+    }
+}
+
+/**
+ * Copies an image blob to clipboard
+ * @param blob Image blob to copy
+ * @returns Promise<boolean> true if successful
+ */
+async function copyImageBlobToClipboard(blob: Blob): Promise<boolean> {
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+        console.error("Clipboard API not available");
+        return false;
+    }
+
+    try {
+        const item = new ClipboardItem({ "image/png": blob });
+        await navigator.clipboard.write([item]);
+        return true;
+    } catch (error) {
+        console.error("Failed to copy image to clipboard:", error);
+        return false;
+    }
 }
 
 /**
