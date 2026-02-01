@@ -20,14 +20,15 @@ export interface BuildPresetsData {
 }
 
 function defaultPresetsData(): BuildPresetsData {
+    const defaultId = generatePresetId();
     const emptyBuildCode = encodeBuildData({
         trees: [[], [], []],
         owned: 0,
     });
     return {
-        activePresetId: "default",
+        activePresetId: defaultId,
         presets: [
-            { id: "default", name: "Default", buildCode: emptyBuildCode },
+            { id: defaultId, name: "Default", buildCode: emptyBuildCode },
         ],
     };
 }
