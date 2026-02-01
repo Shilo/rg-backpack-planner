@@ -95,7 +95,7 @@ export function tryShowStoppedPreviewToast(): boolean {
 export function tryShowClonedBuildToast(): boolean {
     return checkSessionStorageAndShowToast(CLONED_BUILD_KEY, (previewName) =>
         previewName
-            ? `Cloned preview build to "${previewName}"`
+            ? `Cloned build to "${previewName}"`
             : "Cloned preview build",
     );
 }
