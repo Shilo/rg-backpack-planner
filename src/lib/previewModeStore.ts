@@ -10,12 +10,12 @@ export const isPreviewMode = writable(false);
  * Sets the preview mode state
  */
 export function setPreviewMode(value: boolean): void {
-  isPreviewMode.set(value);
+    isPreviewMode.set(value);
 }
 
 /**
  * Gets the current preview mode state
  */
 export function getIsPreviewMode(): boolean {
-  return get(isPreviewMode);
+    return get(isPreviewMode);
 }

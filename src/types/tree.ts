@@ -12,7 +12,7 @@ export type Node = {
 };
 
 export type SkillId =
-    "attack_boost"
+    | "attack_boost"
     | "hp_boost"
     | "defense_boost"
     | "ignore_dodge"

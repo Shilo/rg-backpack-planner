@@ -6,5 +6,5 @@ export const guardianTree = createTree(
     // Orange Branch
     ["stun", "skill_crit"],
     // Blue Branch
-    ["stun", "pierce_resistance"]
-)
+    ["stun", "pierce_resistance"],
+);

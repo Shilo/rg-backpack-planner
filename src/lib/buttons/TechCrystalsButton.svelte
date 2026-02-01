@@ -1,78 +1,68 @@
 <script lang="ts">
-  import { HexagonIcon } from "phosphor-svelte";
-  import Button from "../Button.svelte";
-  import { formatNumber } from "../mathUtil";
-  import { openTechCrystalsOwnedModal } from "../techCrystalModal";
-  import {
-    techCrystalsSpent,
-    techCrystalsOwned,
-    techCrystalsOwnedStorageUpdateFlag,
-    getTechCrystalsOwnedFromStorage,
-    getTechCrystalsSpentFromStorage,
-  } from "../techCrystalStore";
+    import { HexagonIcon } from "phosphor-svelte";
+    import Button from "../Button.svelte";
+    import { formatNumber } from "../mathUtil";
+    import { openTechCrystalsOwnedModal } from "../techCrystalModal";
+    import {
+        techCrystalsSpent,
+        techCrystalsOwned,
+        techCrystalsFromActivePreset,
+    } from "../techCrystalStore";
 
-  export let disabled: boolean | undefined = false;
-  export let tooltipSubject: string = "your";
+    export let disabled: boolean | undefined = false;
+    export let tooltipSubject: string = "your";
 
-  // Store localStorage values when disabled to avoid re-reading on every reactive update
-  let storageOwned = 0;
-  let storageSpent = 0;
-
-  // Update storage values when disabled, and whenever owned storage is written
-  $: if (disabled) {
-    // Reference flag so this block reruns whenever storage is written
-    $techCrystalsOwnedStorageUpdateFlag;
-    storageOwned = getTechCrystalsOwnedFromStorage();
-    storageSpent = getTechCrystalsSpentFromStorage();
-  }
-
-  // When disabled, use storage values from localStorage (non-reactive)
-  // When enabled, use reactive stores
-  $: owned = disabled ? storageOwned : $techCrystalsOwned;
-  $: spent = disabled ? storageSpent : $techCrystalsSpent;
-  $: hasOwned = owned > 0;
+    // When disabled (preview mode), read from active preset's stored buildCode
+    // When enabled (personal mode), use reactive stores
+    $: owned = disabled
+        ? $techCrystalsFromActivePreset.owned
+        : $techCrystalsOwned;
+    $: spent = disabled
+        ? $techCrystalsFromActivePreset.spent
+        : $techCrystalsSpent;
+    $: hasOwned = owned > 0;
 </script>
 
 <Button
-  on:click={() => {
-    openTechCrystalsOwnedModal(owned);
-  }}
-  tooltipText={`Change ${tooltipSubject} Tech Crystal owned (budget)`}
-  icon={HexagonIcon}
-  iconClass="button-icon button-icon-filled"
-  iconWeight="fill"
-  {disabled}
+    on:click={() => {
+        openTechCrystalsOwnedModal(owned, tooltipSubject);
+    }}
+    tooltipText={`Change ${tooltipSubject} Tech Crystal owned (budget)`}
+    icon={HexagonIcon}
+    iconClass="button-icon button-icon-filled"
+    iconWeight="fill"
+    {disabled}
 >
-  Tech Crystals spent:<br />
-  <span
-    class="tech-crystals-spent"
-    class:is-negative={spent > owned && hasOwned}
-  >
-    {formatNumber(spent)}
-  </span>
-  <span class="tech-crystals-separator"> / </span>
-  <span class="tech-crystals-owned">{formatNumber(owned)}</span>
+    Tech Crystals spent:<br />
+    <span
+        class="tech-crystals-spent"
+        class:is-negative={spent > owned && hasOwned}
+    >
+        {formatNumber(spent)}
+    </span>
+    <span class="tech-crystals-separator"> / </span>
+    <span class="tech-crystals-owned">{formatNumber(owned)}</span>
 </Button>
 
 <style>
-  .tech-crystals-spent {
-    color: #ffffff;
-  }
+    .tech-crystals-spent {
+        color: #ffffff;
+    }
 
-  .tech-crystals-spent.is-negative {
-    color: #f87171;
-  }
+    .tech-crystals-spent.is-negative {
+        color: #f87171;
+    }
 
-  .tech-crystals-separator {
-    color: #c7d6ff;
-  }
+    .tech-crystals-separator {
+        color: #c7d6ff;
+    }
 
-  .tech-crystals-owned {
-    color: #e6f0ff;
-  }
+    .tech-crystals-owned {
+        color: #e6f0ff;
+    }
 
-  :global(.button-icon-filled) {
-    fill: currentColor;
-    stroke: none;
-  }
+    :global(.button-icon-filled) {
+        fill: currentColor;
+        stroke: none;
+    }
 </style>

@@ -1,9 +1,25 @@
-import { mount } from 'svelte'
-import './app.css'
-import App from './App.svelte'
+import { mount } from "svelte";
+import "./app.css";
+import App from "./App.svelte";
 
 const app = mount(App, {
-  target: document.getElementById('app')!,
-})
+    target: document.getElementById("app")!,
+});
 
-export default app
+const handleGlobalContextMenu = (event: MouseEvent) => {
+    const target = event.target as HTMLElement | null;
+    if (
+        target?.closest(
+            'input, textarea, [contenteditable="true"], [data-allow-native-contextmenu]',
+        )
+    ) {
+        return;
+    }
+    event.preventDefault();
+};
+
+document.addEventListener("contextmenu", handleGlobalContextMenu, {
+    capture: true,
+});
+
+export default app;

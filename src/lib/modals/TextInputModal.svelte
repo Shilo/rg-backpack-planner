@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { ComponentType } from "svelte";
     import type { IconWeight } from "phosphor-svelte";
+    import { onMount } from "svelte";
     import Button from "../Button.svelte";
 
     export let title = "";
@@ -9,12 +10,38 @@
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
-    export let confirmLabel = "Confirm";
+    export let label = "Value";
+    export let value = "";
+    export let maxLength = 25;
+    export let placeholder = "";
+    export let confirmLabel = "Save";
     export let cancelLabel = "Cancel";
-    export let confirmNegative = false;
-    export let confirmPositive = false;
-    export let onConfirm: (() => void) | null = null;
+    export let onConfirm: ((value: string) => void) | null = null;
     export let onCancel: (() => void) | null = null;
+
+    let inputValue = value;
+    let inputEl: HTMLInputElement | null = null;
+
+    $: isConfirmDisabled = inputValue.trim() === "";
+
+    function handleConfirm() {
+        const trimmed = inputValue.trim();
+        if (trimmed) {
+            onConfirm?.(trimmed);
+        }
+    }
+
+    function handleKeydown(event: KeyboardEvent) {
+        if (event.key === "Enter" && !isConfirmDisabled) {
+            event.preventDefault();
+            handleConfirm();
+        }
+    }
+
+    onMount(() => {
+        inputEl?.focus();
+        inputEl?.select();
+    });
 </script>
 
 <div class="modal-content">
@@ -34,15 +61,27 @@
     {#if message}
         <p class="modal-message">{message}</p>
     {/if}
+    <label class="modal-label" for="modal-text-input">{label}</label>
+    <input
+        id="modal-text-input"
+        class="modal-input"
+        bind:this={inputEl}
+        type="text"
+        bind:value={inputValue}
+        maxlength={maxLength}
+        {placeholder}
+        autocomplete="off"
+        on:keydown={handleKeydown}
+    />
     <div class="modal-actions">
         <Button data-modal-cancel on:click={() => onCancel?.()}>
             {cancelLabel}
         </Button>
         <Button
             data-modal-confirm
-            on:click={() => onConfirm?.()}
-            negative={confirmNegative}
-            positive={confirmPositive}
+            on:click={handleConfirm}
+            disabled={isConfirmDisabled}
+            positive
         >
             {confirmLabel}
         </Button>
@@ -88,6 +127,34 @@
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;
+    }
+
+    .modal-label {
+        margin: 0;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #c8d6f7;
+    }
+
+    .modal-input {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(16, 25, 43, 0.6);
+        border: 1px solid rgba(82, 112, 189, 0.4);
+        border-radius: 8px;
+        color: #f1f5ff;
+        font-size: 0.95rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s ease;
+    }
+
+    .modal-input:focus {
+        border-color: rgba(82, 112, 189, 0.8);
+    }
+
+    .modal-input::placeholder {
+        color: rgba(185, 199, 236, 0.4);
     }
 
     .modal-actions {

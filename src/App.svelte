@@ -31,26 +31,34 @@
         applyTechCrystalDeltaForTree,
         recalculateTechCrystalsSpent,
         techCrystalsOwned,
-        getTechCrystalsOwnedFromStorageNullable,
     } from "./lib/techCrystalStore";
-    import { applyBuildFromUrl } from "./lib/buildData/applier";
+    import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
-    import { decodeBuildData, type BuildData } from "./lib/buildData/encoder";
+    import {
+        decodeBuildData,
+        encodeBuildData,
+        type BuildData,
+    } from "./lib/buildData/encoder";
     import { guardianTree } from "./config/guardianTree";
     import { vanguardTree } from "./config/vanguardTree";
     import { cannonTree } from "./config/cannonTree";
     import {
-        loadTreeProgress,
-        initTreeProgressPersistence,
-    } from "./lib/treeProgressStore";
+        loadPresetsFromStorage,
+        updateActivePresetBuildCode,
+    } from "./lib/buildPresetsStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
-    import { clearPreviewBuildName, previewBuildName, getPreviewTitle } from "./lib/previewBuildNameStore";
+    import {
+        clearPreviewBuildName,
+        previewBuildName,
+        getPreviewTitle,
+    } from "./lib/previewBuildNameStore";
     import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
     import {
         showToastDelayed,
         tryShowStoppedPreviewToast,
         tryShowClonedBuildToast,
     } from "./lib/toast";
+    import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
 
     let tabsRef: {
@@ -69,6 +77,16 @@
     const swipeCloseThreshold = 70;
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
+
+    function closeTransientUiForPreview() {
+        closeModal();
+        closeMenu();
+        if (typeof document !== "undefined") {
+            document.dispatchEvent(
+                new KeyboardEvent("keydown", { key: "Escape" }),
+            );
+        }
+    }
 
     // Check if we should show controls tab on initial load
     const shouldShowControls = (() => {
@@ -189,7 +207,6 @@
     // Subscriptions for preview mode and persistence, reused across URL re-initializations
     let unsubscribeTreeLevels: (() => void) | null = null;
     let unsubscribeTechCrystals: (() => void) | null = null;
-    let unsubscribePersistence: (() => void) | null = null;
 
     /**
      * Initialize app state based on the current URL.
@@ -215,8 +232,6 @@
         unsubscribeTreeLevels = null;
         unsubscribeTechCrystals?.();
         unsubscribeTechCrystals = null;
-        unsubscribePersistence?.();
-        unsubscribePersistence = null;
 
         // Check if there's a build in the URL (hash-based: /{base}#{encoded})
         // Only enter preview mode if we can actually decode valid build data
@@ -265,6 +280,7 @@
 
                 // Show toast about preview mode
                 const title = getPreviewTitle(get(previewBuildName));
+                closeTransientUiForPreview();
                 showToastDelayed(`Viewing ${title.toLowerCase()} build`);
             }
 
@@ -291,7 +307,7 @@
             ) {
                 return;
             }
-            // Personal mode: Private build from localStorage
+            // Personal mode: Private build from presets (localStorage)
             setPreviewMode(false);
             clearPreviewBuildName();
 
@@ -299,29 +315,31 @@
             tryShowStoppedPreviewToast();
             tryShowClonedBuildToast();
 
-            // Load from localStorage
-            const savedProgress = loadTreeProgress(tabs);
-            if (savedProgress) {
-                const currentTrees = get(treeLevels);
-                // Only apply if the saved progress matches the current tree structure
-                if (savedProgress.length === currentTrees.length) {
-                    savedProgress.forEach((tree, index) => {
-                        setTreeLevels(index, tree);
-                    });
-                    // Recalculate tech crystals spent after loading from localStorage
-                    recalculateTechCrystalsSpent(savedProgress);
+            // Load from presets: apply active preset to treeLevels and techCrystalsOwned
+            const presetsData = loadPresetsFromStorage();
+            const activePreset = presetsData.presets.find(
+                (p) => p.id === presetsData.active,
+            );
+            if (activePreset) {
+                const buildData = decodeBuildData(activePreset.buildCode);
+                if (buildData) {
+                    applyBuildData(tabs, buildData);
                 }
             }
 
-            // Load tech crystals owned from localStorage
-            const savedTechCrystals = getTechCrystalsOwnedFromStorageNullable();
-            if (savedTechCrystals !== null) {
-                // Set without triggering save (we're loading, not changing)
-                techCrystalsOwned.set(savedTechCrystals);
-            }
-
-            // Initialize auto-save: subscribe to treeLevels changes
-            unsubscribePersistence = initTreeProgressPersistence();
+            // Persist personal mode changes to active preset (subscribe to treeLevels and techCrystalsOwned)
+            const persistToActivePreset = () => {
+                if (get(isPreviewMode)) return;
+                const levels = get(treeLevels);
+                const owned = get(techCrystalsOwned);
+                updateActivePresetBuildCode(
+                    encodeBuildData({ trees: levels, owned }),
+                );
+            };
+            unsubscribeTreeLevels = treeLevels.subscribe(persistToActivePreset);
+            unsubscribeTechCrystals = techCrystalsOwned.subscribe(
+                persistToActivePreset,
+            );
         }
     }
 
@@ -360,7 +378,6 @@
         return () => {
             unsubscribeTreeLevels?.();
             unsubscribeTechCrystals?.();
-            unsubscribePersistence?.();
 
             if (typeof window !== "undefined") {
                 window.removeEventListener("hashchange", handleHashchange);
@@ -373,7 +390,6 @@
     class="app-shell"
     class:menu-open={isMenuOpen}
     role="application"
-    on:contextmenu|preventDefault
     on:touchstart|passive={handleTouchStart}
     on:touchmove|passive={handleTouchMove}
     on:touchend={handleTouchEnd}
@@ -440,36 +456,33 @@
         min-height: 0;
     }
 
-    .top-left-actions {
+    .top-left-actions,
+    .top-right-actions {
         position: fixed;
         top: 10px;
-        left: 10px;
-        z-index: 6;
+        z-index: var(--z-index-hud);
         display: inline-flex;
         flex-direction: column;
-        align-items: flex-start;
         gap: 10px;
         pointer-events: none;
+    }
+
+    .top-left-actions {
+        left: 10px;
+        align-items: flex-start;
         transition: left 0.15s ease;
     }
 
     .top-right-actions {
-        position: fixed;
-        top: 10px;
         right: 10px;
-        z-index: 6;
-        display: inline-flex;
-        flex-direction: column;
         align-items: flex-end;
-        gap: 10px;
-        pointer-events: none;
         transition: right 0.15s ease;
     }
 
     @media (min-width: 768px) {
         .top-left-actions,
         .top-right-actions {
-            z-index: 8;
+            z-index: var(--z-index-hud-over-side-menu-backdrop);
         }
 
         .app-shell.menu-open .top-left-actions,
