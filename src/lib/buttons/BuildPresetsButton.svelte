@@ -160,26 +160,33 @@
                 const wasActive = data.activePresetId === presetId;
                 const remaining = data.presets.filter((p) => p.id !== presetId);
                 deletePreset(presetId);
-                if (wasActive && remaining.length > 0) {
+                if (remaining.length === 0) {
+                    handleAddBuild(true);
+                } else if (wasActive) {
                     const first = remaining[0];
                     setActivePresetId(first.id);
                     const buildData = decodeBuildData(first.encoded);
                     if (buildData) applyBuildData(tabs, buildData);
+                    closeEditMenu();
                 }
-                closeEditMenu();
             },
         });
     }
 
-    function handleAddBuild() {
+    function handleAddBuild(skipPrompt: boolean = false) {
         const emptyTrees = tabs.map(() => []);
         const emptyOwned = 0;
         const encoded = encodeBuildData({
             trees: emptyTrees,
             owned: emptyOwned,
         });
-        const name = window.prompt("Preset name", "New");
-        if (name == null) return;
+        let name: string | null;
+        if (skipPrompt) {
+            name = "Default";
+        } else {
+            name = window.prompt("Preset name", "New");
+            if (name == null) return;
+        }
         const preset = addPreset(name.trim() || "New", encoded);
         setActivePresetId(preset.id);
         applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
