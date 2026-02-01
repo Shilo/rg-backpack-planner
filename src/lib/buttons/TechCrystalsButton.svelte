@@ -3,14 +3,23 @@
     import Button from "../Button.svelte";
     import { formatNumber } from "../mathUtil";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
-    import { techCrystalsSpent, techCrystalsOwned } from "../techCrystalStore";
+    import {
+        techCrystalsSpent,
+        techCrystalsOwned,
+        techCrystalsFromActivePreset,
+    } from "../techCrystalStore";
 
     export let disabled: boolean | undefined = false;
     export let tooltipSubject: string = "your";
 
-    // In preview mode (disabled), stores already hold the preview build's owned/spent
-    $: owned = $techCrystalsOwned;
-    $: spent = $techCrystalsSpent;
+    // When disabled (preview mode), read from active preset's stored buildCode
+    // When enabled (personal mode), use reactive stores
+    $: owned = disabled
+        ? $techCrystalsFromActivePreset.owned
+        : $techCrystalsOwned;
+    $: spent = disabled
+        ? $techCrystalsFromActivePreset.spent
+        : $techCrystalsSpent;
     $: hasOwned = owned > 0;
 </script>
 
