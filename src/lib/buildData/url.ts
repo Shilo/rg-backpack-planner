@@ -147,7 +147,8 @@ export function isDefaultPresetName(name?: string | null): boolean {
     if (!name) return false;
     if (name === "Default") return true;
     if (name === "New") return true;
-    return /^New\s+\d+$/.test(name);
+    if (name === "Clone") return true;
+    return /^(?:New|Clone)\s+\d+$/.test(name);
 }
 
 /**
