@@ -6,14 +6,7 @@
     import ContextMenu from "./ContextMenu.svelte";
     import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
     import { portal } from "./portal";
-
-    const NAME_CHAR_LIMIT = 25;
-
-    function truncateName(name: string): string {
-        return name.length > NAME_CHAR_LIMIT
-            ? name.slice(0, NAME_CHAR_LIMIT) + "..."
-            : name;
-    }
+    import { truncateText } from "./stringUtil";
 
     let buttonElement: HTMLButtonElement | null = null;
     let menuOpen = false;
@@ -45,7 +38,7 @@
     >
         Preview
         {#if $previewBuildName}
-            <span class="build-name">{truncateName($previewBuildName)}</span>
+            <span class="build-name">{truncateText($previewBuildName)}</span>
         {/if}
     </Button>
 

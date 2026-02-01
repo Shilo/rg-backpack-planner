@@ -27,6 +27,7 @@
     import { applyBuildData } from "../buildData/applier";
     import { showToast } from "../toast";
     import { openModal } from "../modalStore";
+    import { truncateText } from "../stringUtil";
     import { guardianTree } from "../../config/guardianTree";
     import { vanguardTree } from "../../config/vanguardTree";
     import { cannonTree } from "../../config/cannonTree";
@@ -38,14 +39,6 @@
         { nodes: vanguardTree },
         { nodes: cannonTree },
     ];
-
-    const NAME_CHAR_LIMIT = 25;
-
-    function truncateName(name: string): string {
-        return name.length > NAME_CHAR_LIMIT
-            ? name.slice(0, NAME_CHAR_LIMIT) + "..."
-            : name;
-    }
 
     let presetsMenuOpen = false;
     let presetsMenuX = 0;
@@ -71,7 +64,7 @@
         : "Backpack tech tree build";
     $: editPresetTooltipSubject = editPreset?.name ?? "your";
     $: editMenuTitle = editPreset?.name
-        ? `Edit: ${truncateName(editPreset.name)}`
+        ? `Edit: ${truncateText(editPreset.name)}`
         : "Edit";
 
     async function openPresetsMenu() {
@@ -270,7 +263,7 @@
     icon={ShareNetworkIcon}
     {disabled}
 >
-    Preset: {truncateName($activePresetName)}
+    Preset: {truncateText($activePresetName)}
 </Button>
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
@@ -289,18 +282,18 @@
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}
                         tooltipText={isActive
-                            ? `Active preset: ${truncateName(preset.name)}`
-                            : `Switch to preset: ${truncateName(preset.name)}`}
-                        aria-label={`Switch to preset: ${truncateName(preset.name)}`}
+                            ? `Active preset: ${truncateText(preset.name)}`
+                            : `Switch to preset: ${truncateText(preset.name)}`}
+                        aria-label={`Switch to preset: ${truncateText(preset.name)}`}
                         icon={isActive ? CheckIcon : null}
                         on:click={() => switchToPreset(preset.id)}
                     >
-                        {truncateName(preset.name)}
+                        {truncateText(preset.name)}
                     </Button>
                     <Button
                         class="preset-edit-btn dropdown-button"
-                        tooltipText={`Edit preset: ${truncateName(preset.name)}`}
-                        aria-label={`Edit preset: ${truncateName(preset.name)}`}
+                        tooltipText={`Edit preset: ${truncateText(preset.name)}`}
+                        aria-label={`Edit preset: ${truncateText(preset.name)}`}
                         icon={DotsThreeVerticalIcon}
                         on:click={(e) => openEditMenu(e, preset.id)}
                     />
@@ -351,7 +344,7 @@
                 title="Share"
                 tooltipSubject={editPresetTooltipSubject}
                 menuTitle={editPreset?.name
-                    ? `Share: ${truncateName(editPreset.name)}`
+                    ? `Share: ${truncateText(editPreset.name)}`
                     : "Share Preset"}
                 buildName={editPreset?.name}
                 buildData={editPresetBuildData}
