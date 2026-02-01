@@ -202,24 +202,29 @@
         title="Build Presets"
         onClose={closePresetsMenu}
     >
-        {#each $buildPresetsStore.presets as preset (preset.id)}
-            <div class="preset-row button-group">
-                <Button
-                    class="preset-name-btn"
-                    on:click={() => switchToPreset(preset.id)}
-                >
-                    {preset.name.length > NAME_CHAR_LIMIT
-                        ? preset.name.slice(0, NAME_CHAR_LIMIT) + "..."
-                        : preset.name}
-                </Button>
-                <Button
-                    class="preset-edit-btn dropdown-button"
-                    aria-label="Edit preset"
-                    icon={DotsThreeVerticalIcon}
-                    on:click={(e) => openEditMenu(e, preset.id)}
-                />
-            </div>
-        {/each}
+        <div class="presets-list">
+            {#each $buildPresetsStore.presets as preset (preset.id)}
+                <div class="preset-row button-group">
+                    <Button
+                        class="preset-name-btn"
+                        tooltipText={`Switch to preset: ${preset.name}`}
+                        aria-label={`Switch to preset: ${preset.name}`}
+                        on:click={() => switchToPreset(preset.id)}
+                    >
+                        {preset.name.length > NAME_CHAR_LIMIT
+                            ? preset.name.slice(0, NAME_CHAR_LIMIT) + "..."
+                            : preset.name}
+                    </Button>
+                    <Button
+                        class="preset-edit-btn dropdown-button"
+                        tooltipText={`Edit preset: ${preset.name}`}
+                        aria-label={`Edit preset: ${preset.name}`}
+                        icon={DotsThreeVerticalIcon}
+                        on:click={(e) => openEditMenu(e, preset.id)}
+                    />
+                </div>
+            {/each}
+        </div>
         <Button
             on:click={handleAddBuild}
             tooltipText="Create an empty build preset"
@@ -245,7 +250,7 @@
         >
             <Button
                 on:click={() => handleRename(editMenuPresetId!)}
-                tooltipText="Rename preset"
+                tooltipText="Edit preset name"
                 icon={PencilSimpleIcon}
             >
                 Rename
@@ -309,5 +314,13 @@
 
     :global(.preset-edit-btn) {
         flex-shrink: 0;
+    }
+
+    .presets-list {
+        max-height: min(400px, 40vh);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
     }
 </style>
