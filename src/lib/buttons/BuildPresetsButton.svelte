@@ -25,6 +25,7 @@
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
     import { applyBuildData } from "../buildData/applier";
+    import { showToast } from "../toast";
     import { openModal } from "../modalStore";
     import { guardianTree } from "../../config/guardianTree";
     import { vanguardTree } from "../../config/vanguardTree";
@@ -114,6 +115,7 @@
         if (!buildData) return;
         setActivePresetId(presetId);
         applyBuildData(tabs, buildData);
+        showToast(`Viewing ${preset.name} preset`);
         closePresetsMenu();
     }
 
