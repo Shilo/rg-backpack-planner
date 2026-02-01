@@ -8,7 +8,7 @@ import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
-import { tabsRefStore } from "../buildImageExport/tabsRefStore";
+import { captureTreeImageByIndex } from "../buildImageExport/captureService";
 import { combineTreeImagesHorizontally } from "../buildImageExport/combineImages";
 
 /**
@@ -69,16 +69,10 @@ export async function saveBuildToUrl(
 export async function saveBuildAsImage(): Promise<boolean> {
     try {
         // Get the tabsRef from the store
-        const tabsRef = get(tabsRefStore);
-        if (!tabsRef || !tabsRef.captureTreeImageByIndex) {
-            console.error("Tabs reference not available");
-            return false;
-        }
-
         // Capture all three trees (0=Guardian, 1=Vanguard, 2=Cannon)
-        const tree1Blob = await tabsRef.captureTreeImageByIndex(0);
-        const tree2Blob = await tabsRef.captureTreeImageByIndex(1);
-        const tree3Blob = await tabsRef.captureTreeImageByIndex(2);
+        const tree1Blob = await captureTreeImageByIndex(0);
+        const tree2Blob = await captureTreeImageByIndex(1);
+        const tree3Blob = await captureTreeImageByIndex(2);
 
         if (!tree1Blob || !tree2Blob || !tree3Blob) {
             console.error("Failed to capture tree images");

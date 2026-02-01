@@ -10,7 +10,8 @@
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
-    import { captureTreeAsPng } from "./buildImageExport/captureTree";
+    import { isCapturing } from "./buildImageExport/captureState";
+    import { tabsCaptureBridgeStore } from "./buildImageExport/tabsCaptureBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -145,7 +146,9 @@
         const nextId = tabs[activeIndex]?.id ?? "";
         if (hasMounted && nextId && nextId !== lastActiveTabId) {
             lastActiveTabId = nextId;
-            void tick().then(() => treeRef?.triggerFade?.());
+            if (!get(isCapturing)) {
+                void tick().then(() => treeRef?.triggerFade?.());
+            }
         }
     }
 
@@ -367,44 +370,6 @@
         closeTabMenu();
     }
 
-    export async function captureTreeImageByIndex(
-        tabIndex: number,
-    ): Promise<Blob | null> {
-        if (tabIndex < 0 || tabIndex >= tabs.length) {
-            return null;
-        }
-
-        const currentIndex = activeIndex;
-        const rootEl =
-            typeof document !== "undefined" ? document.documentElement : null;
-        rootEl?.classList.add("snapdom-capture");
-
-        try {
-            if (tabIndex !== activeIndex) {
-                setActive(tabIndex);
-                await tick();
-                await new Promise<void>((resolve) => {
-                    requestAnimationFrame(() => resolve());
-                });
-            }
-
-            const element = treeRef?.getTreeCanvasElement?.() ?? null;
-            const blob = await captureTreeAsPng(element);
-
-            if (tabIndex !== currentIndex) {
-                setActive(currentIndex);
-                await tick();
-                await new Promise<void>((resolve) => {
-                    requestAnimationFrame(() => resolve());
-                });
-            }
-
-            return blob;
-        } finally {
-            rootEl?.classList.remove("snapdom-capture");
-        }
-    }
-
     function onTabClick(index: number) {
         if (tabPressState.fired) {
             tabPressState.fired = false;
@@ -420,6 +385,15 @@
 
     function handleLevelsChange(nextLevels: number[]) {
         setTreeLevels(activeIndex, [...nextLevels]);
+    }
+
+    $: if (treeRef) {
+        tabsCaptureBridgeStore.set({
+            setActiveIndex: setActive,
+            getActiveIndex: () => activeIndex,
+            getTreeCanvasElement: () =>
+                treeRef?.getTreeCanvasElement?.() ?? null,
+        });
     }
 </script>
 
