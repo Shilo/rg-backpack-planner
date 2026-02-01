@@ -12,7 +12,7 @@
     import Tree from "./Tree.svelte";
     import {
         isCaptureInProgress,
-        registerTabsCaptureBridge,
+        captureAction,
     } from "./buildImageExport/captureService";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
@@ -110,16 +110,7 @@
         });
         observer.observe(tabsBarEl);
         bottomInset = tabsBarEl.offsetHeight;
-        const unregisterCaptureBridge = registerTabsCaptureBridge({
-            setActiveIndex: setActive,
-            getActiveIndex: () => activeIndex,
-            getTreeCanvasElement: () =>
-                treeRef?.getTreeCanvasElement?.() ?? null,
-        });
-        return () => {
-            observer.disconnect();
-            unregisterCaptureBridge();
-        };
+        return () => observer.disconnect();
     });
     function clampIndex(index: number) {
         if (index < 0) return 0;
@@ -441,6 +432,12 @@
         on:pointerup={clearBackgroundPress}
         on:pointercancel={clearBackgroundPress}
         on:pointerleave={clearBackgroundPress}
+        use:captureAction={{
+            setActiveIndex: setActive,
+            getActiveIndex: () => activeIndex,
+            getTreeCanvasElement: () =>
+                treeRef?.getTreeCanvasElement?.() ?? null,
+        }}
     >
         {#if tabs[activeIndex]}
             {#key tabs[activeIndex].id}

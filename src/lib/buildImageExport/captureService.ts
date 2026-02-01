@@ -10,15 +10,6 @@ type TabsCaptureBridge = {
 let tabsBridge: TabsCaptureBridge | null = null;
 let captureInProgress = false;
 
-export function registerTabsCaptureBridge(bridge: TabsCaptureBridge) {
-    tabsBridge = bridge;
-    return () => {
-        if (tabsBridge === bridge) {
-            tabsBridge = null;
-        }
-    };
-}
-
 export function isCaptureInProgress() {
     return captureInProgress;
 }
@@ -185,4 +176,19 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     }
 
     return combineTreeImagesHorizontally(tree1Blob, tree2Blob, tree3Blob);
+}
+
+/**
+ * Svelte action for automatic capture bridge registration
+ * Usage: use:captureAction={{ setActiveIndex, getActiveIndex, getTreeCanvasElement }}
+ */
+export function captureAction(_node: HTMLElement, bridge: TabsCaptureBridge) {
+    tabsBridge = bridge;
+    return {
+        destroy: () => {
+            if (tabsBridge === bridge) {
+                tabsBridge = null;
+            }
+        },
+    };
 }
