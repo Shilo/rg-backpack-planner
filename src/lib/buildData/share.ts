@@ -7,9 +7,7 @@ import type { BuildData } from "./encoder";
 import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
-import { previewBuildName } from "../previewBuildNameStore";
 import { get } from "svelte/store";
-import { BuildImageExporter } from "./imageExport/BuildImageExporter";
 
 /**
  * Copies text to clipboard
@@ -63,34 +61,17 @@ export async function saveBuildToUrl(
 
 /**
  * Saves the current build as an image
- * Captures all 3 trees at fit-all state, combines into single PNG with metadata,
- * and copies to clipboard with fallback to download.
+ * TODO: Implement screenshot functionality for all 3 trees
+ * This would require html2canvas or similar library
  */
 export async function saveBuildAsImage(): Promise<boolean> {
-    // Guard for non-browser environment
-    if (typeof window === "undefined") {
-        return false;
-    }
-
-    try {
-        // Get build name from store if available
-        const buildName = get(previewBuildName);
-
-        // Create exporter and run export
-        const exporter = new BuildImageExporter();
-        const result = await exporter.export(buildName ?? undefined);
-
-        if (result.success) {
-            console.log(`Build image captured and shared via ${result.data}`);
-            return true;
-        } else {
-            console.error("Build image export failed:", result.error);
-            return false;
-        }
-    } catch (error) {
-        console.error("Unexpected error during build image export:", error);
-        return false;
-    }
+    // TODO: Implement screenshot functionality
+    // This would require:
+    // 1. Installing html2canvas or similar library
+    // 2. Capturing screenshots of all 3 trees
+    // 3. Combining them into a single image
+    // 4. Triggering download or share
+    return false;
 }
 
 /**
