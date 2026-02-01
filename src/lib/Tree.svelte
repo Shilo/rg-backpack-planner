@@ -49,6 +49,7 @@
 
     let viewportEl: HTMLDivElement | null = null;
     let treeCanvasEl: HTMLDivElement | null = null;
+    let transitionsDisabled = false;
 
     export function getTreeCanvasElement(): HTMLDivElement | null {
         return viewportEl ?? treeCanvasEl;
@@ -784,6 +785,27 @@
     }
 
     onMount(() => {
+        if (typeof document !== "undefined") {
+            const rootEl = document.documentElement;
+            const updateTransitionsDisabled = () => {
+                transitionsDisabled =
+                    rootEl.classList.contains("snapdom-capture");
+            };
+
+            updateTransitionsDisabled();
+
+            const observer = new MutationObserver(() => {
+                updateTransitionsDisabled();
+            });
+
+            observer.observe(rootEl, {
+                attributes: true,
+                attributeFilter: ["class"],
+            });
+
+            return () => observer.disconnect();
+        }
+
         // Set up callback for close-up view changes to trigger focus without toast
         closeUpView.setOnChange(() => {
             focusTreeInView(false);
@@ -834,7 +856,10 @@
 </script>
 
 {#key fadeKey}
-    <div class="tree-root" in:fade={{ duration: 300 }}>
+    <div
+        class="tree-root"
+        in:fade={{ duration: transitionsDisabled ? 0 : 300 }}
+    >
         <div
             class="tree-viewport"
             class:pan-enabled={!gesturesDisabled}
