@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { truncateText } from "./stringUtil";
 
 /**
  * Store that tracks the name of the currently previewed build (if any)
@@ -25,5 +26,5 @@ export function clearPreviewBuildName(): void {
  * Used for replacing "Preview" text with the build name in UI components
  */
 export function getPreviewTitle(buildName: string | null): string {
-    return buildName ?? "Preview";
+    return buildName ? truncateText(buildName) : "Preview";
 }

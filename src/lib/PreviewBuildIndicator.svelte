@@ -38,6 +38,7 @@
     >
         Preview
         {#if $previewBuildName}
+            <br />
             <span class="build-name">{truncateText($previewBuildName)}</span>
         {/if}
     </Button>
@@ -74,7 +75,7 @@
 
     .build-name {
         color: rgba(185, 199, 236, 0.9);
-        margin-left: 4px;
+        font-size: 0.75rem;
     }
 
     .preview-build-indicator-menu-portal {
