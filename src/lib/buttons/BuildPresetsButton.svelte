@@ -5,7 +5,7 @@
         PencilSimpleIcon,
         PlusIcon,
         ShareNetworkIcon,
-        TrashIcon,
+        TrashSimpleIcon,
     } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import ShareBuildButton from "./ShareBuildButton.svelte";
@@ -152,7 +152,7 @@
             confirmLabel: "Delete preset",
             cancelLabel: "Cancel",
             confirmNegative: true,
-            titleIcon: TrashIcon,
+            titleIcon: TrashSimpleIcon,
             onConfirm: () => {
                 const wasActive = data.activePresetId === presetId;
                 const remaining = data.presets.filter((p) => p.id !== presetId);
@@ -189,6 +189,28 @@
         setActivePresetId(preset.id);
         applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
         closePresetsMenu();
+    }
+
+    function handleDeleteAllAndAddNew() {
+        const data = get(buildPresetsStore);
+        if (data.presets.length === 0) {
+            handleAddBuild(true);
+            return;
+        }
+        openModal({
+            type: "confirm",
+            title: "Delete all presets",
+            message:
+                "Are you sure you want to delete all build presets? A new default preset will be created.",
+            confirmLabel: "Delete all",
+            cancelLabel: "Cancel",
+            confirmNegative: true,
+            titleIcon: TrashSimpleIcon,
+            onConfirm: () => {
+                data.presets.forEach((preset) => deletePreset(preset.id));
+                handleAddBuild(true);
+            },
+        });
     }
 </script>
 
@@ -232,13 +254,22 @@
                 </div>
             {/each}
         </div>
-        <Button
-            on:click={() => handleAddBuild()}
-            tooltipText="Create an empty build preset"
-            icon={PlusIcon}
-        >
-            Add new build
-        </Button>
+        <div class="button-group">
+            <Button
+                on:click={() => handleAddBuild()}
+                tooltipText="Create an empty build preset"
+                icon={PlusIcon}
+            >
+                Add new build
+            </Button>
+            <Button
+                class="dropdown-button"
+                on:click={handleDeleteAllAndAddNew}
+                tooltipText="Delete all presets and create a new one"
+                icon={TrashSimpleIcon}
+                negative
+            />
+        </div>
     </ContextMenu>
 </div>
 
@@ -274,7 +305,7 @@
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
                 tooltipText="Remove build preset"
-                icon={TrashIcon}
+                icon={TrashSimpleIcon}
                 negative
             >
                 Delete
