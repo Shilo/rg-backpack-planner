@@ -62,7 +62,6 @@
               (preset) => preset.id === editMenuPresetId,
           ) ?? null)
         : null;
-    $: console.log("Edit preset:", editPreset);
     $: editPresetBuildData = editPreset
         ? decodeBuildData(editPreset.buildCode)
         : null;
@@ -319,6 +318,7 @@
                     ? `Share: ${truncateName(editPreset.name)}`
                     : "Share Preset"}
                 buildName={editPreset?.name}
+                buildData={editPresetBuildData}
                 shareTitle={editPresetShareTitle}
                 showScreenshot={false}
                 disabled={!editPresetBuildData}

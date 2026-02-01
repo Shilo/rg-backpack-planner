@@ -31,18 +31,25 @@ async function copyToClipboard(text: string): Promise<boolean> {
 }
 
 /**
- * Saves the current build to a shareable URL and copies it to clipboard
+ * Saves a build to a shareable URL and copies it to clipboard
  * @param buildName Optional build name to include in the share URL
+ * @param customBuildData Optional build data to share. If not provided, uses current store state
  */
 export async function saveBuildToUrl(
     buildName?: string | null,
+    customBuildData?: BuildData,
 ): Promise<boolean> {
     try {
-        const buildData: BuildData = {
-            trees: get(treeLevels),
-            owned: get(techCrystalsOwned),
-            ...(buildName && { name: buildName }),
-        };
+        const buildData: BuildData = customBuildData
+            ? {
+                  ...customBuildData,
+                  ...(buildName && { name: buildName }),
+              }
+            : {
+                  trees: get(treeLevels),
+                  owned: get(techCrystalsOwned),
+                  ...(buildName && { name: buildName }),
+              };
         const shareUrl = createShareUrl(buildData);
         const success = await copyToClipboard(shareUrl);
         if (success) {
@@ -76,10 +83,10 @@ export async function saveBuildAsImage(): Promise<boolean> {
 export type ShareBuildUrlResult = "shared" | "copied" | "cancelled" | "failed";
 
 /**
- * Shares the current build URL using the Web Share API when available,
+ * Shares a build URL using the Web Share API when available,
  * falling back to copying the URL to the clipboard.
  *
- * @param options Share options including optional buildName, title, and text
+ * @param options Share options including optional buildName, title, text, and customBuildData
  * @returns Status string describing what happened:
  * - "shared": Native share dialog succeeded.
  * - "cancelled": User dismissed the native share dialog.
@@ -90,17 +97,23 @@ export async function shareBuildUrlNative(options?: {
     buildName?: string | null;
     title?: string;
     text?: string;
+    customBuildData?: BuildData;
 }): Promise<ShareBuildUrlResult> {
     // SSR / non-browser guard
     if (typeof window === "undefined" || typeof navigator === "undefined") {
         return "failed";
     }
 
-    const buildData: BuildData = {
-        trees: get(treeLevels),
-        owned: get(techCrystalsOwned),
-        ...(options?.buildName && { name: options.buildName }),
-    };
+    const buildData: BuildData = options?.customBuildData
+        ? {
+              ...options.customBuildData,
+              ...(options.buildName && { name: options.buildName }),
+          }
+        : {
+              trees: get(treeLevels),
+              owned: get(techCrystalsOwned),
+              ...(options?.buildName && { name: options.buildName }),
+          };
     const shareUrl = createShareUrl(buildData);
 
     // Prefer Web Share API when available

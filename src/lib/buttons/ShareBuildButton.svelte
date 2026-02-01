@@ -10,12 +10,14 @@
     } from "../buildData/share";
     import { portal } from "../portal";
     import { activePresetName } from "../buildPresetsStore";
+    import type { BuildData } from "../buildData/encoder";
 
     export let title: string | undefined;
     export let disabled: boolean | undefined = false;
     export let tooltipSubject: string = "your";
     export let menuTitle = "Share Build";
     export let buildName: string | null = null;
+    export let buildData: BuildData | null = null;
     export let shareTitle: string | undefined = undefined;
     export let shareText: string | undefined = undefined;
     export let showShareToApp = true;
@@ -62,6 +64,7 @@
             buildName: effectiveBuildName,
             title: effectiveTitle,
             text: shareText,
+            customBuildData: buildData ?? undefined,
         });
 
         if (result === "failed") {
@@ -72,7 +75,10 @@
 
     async function handleCopyLink() {
         closeShareMenu();
-        const success = await saveBuildToUrl(effectiveBuildName);
+        const success = await saveBuildToUrl(
+            effectiveBuildName,
+            buildData ?? undefined,
+        );
         if (success) {
             showToast("Share link copied to clipboard");
         } else {
