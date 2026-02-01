@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { truncateText } from "./stringUtil";
 
 export type ToastTone = "positive" | "negative";
 
@@ -95,7 +96,7 @@ export function tryShowStoppedPreviewToast(): boolean {
 export function tryShowClonedBuildToast(): boolean {
     return checkSessionStorageAndShowToast(CLONED_BUILD_KEY, (previewName) =>
         previewName
-            ? `Cloned build to "${previewName}"`
+            ? `Cloned build to "${truncateText(previewName)}"`
             : "Cloned preview build",
     );
 }

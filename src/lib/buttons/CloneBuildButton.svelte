@@ -15,6 +15,7 @@
     import { clearShareFromUrl } from "../buildData/url";
     import { openModal } from "../modalStore";
     import { previewBuildName } from "../previewBuildNameStore";
+    import { truncateText } from "../stringUtil";
 
     function handleCloneBuild() {
         const previewName = get(previewBuildName) ?? "";
@@ -23,7 +24,7 @@
             type: "confirm",
             title: "CLONE PREVIEW BUILD",
             titleIcon: CopySimpleIcon as unknown as ComponentType,
-            message: `create a new preset named "${uniqueName}" from the preview build.`,
+            message: `create a new preset named "${truncateText(uniqueName)}" from the preview build.`,
             confirmLabel: "Clone",
             cancelLabel: "Cancel",
             confirmPositive: true,

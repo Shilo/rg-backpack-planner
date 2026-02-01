@@ -108,7 +108,7 @@
         if (!buildData) return;
         setActivePresetId(presetId);
         applyBuildData(tabs, buildData);
-        showToast(`Viewing ${preset.name} preset`);
+        showToast(`Viewing ${truncateText(preset.name)} preset`);
         closePresetsMenu();
     }
 
