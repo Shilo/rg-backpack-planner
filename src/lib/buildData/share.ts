@@ -52,9 +52,6 @@ export async function saveBuildToUrl(
               };
         const shareUrl = createShareUrl(buildData);
         const success = await copyToClipboard(shareUrl);
-        if (success) {
-            console.log(shareUrl);
-        }
         return success;
     } catch (error) {
         console.error("Failed to save build URL:", error);
