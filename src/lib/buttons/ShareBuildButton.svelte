@@ -196,19 +196,11 @@
         width: 0;
         height: 0;
         pointer-events: none;
-        z-index: 200;
+        z-index: var(--z-index-context-menu-share);
     }
 
     /* Allow pointer events when menu is open so backdrop can block interactions */
     .share-menu-portal.menu-open {
         pointer-events: auto;
-    }
-
-    .share-menu-portal :global(.context-menu) {
-        z-index: 201;
-    }
-
-    .share-menu-portal :global(.context-menu-backdrop) {
-        z-index: 200;
     }
 </style>

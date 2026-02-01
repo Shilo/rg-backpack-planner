@@ -329,7 +329,7 @@
         padding: 8px;
         display: grid;
         gap: 6px;
-        z-index: 20;
+        z-index: var(--z-index-context-menu);
         width: max-content;
         cursor: move;
         touch-action: none;
@@ -363,7 +363,7 @@
         background: rgba(6, 9, 18, 0.72);
         border: none;
         padding: 0;
-        z-index: 19;
+        z-index: calc(var(--z-index-context-menu) - 1);
         cursor: default;
     }
 </style>

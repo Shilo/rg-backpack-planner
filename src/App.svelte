@@ -457,36 +457,33 @@
         min-height: 0;
     }
 
-    .top-left-actions {
+    .top-left-actions,
+    .top-right-actions {
         position: fixed;
         top: 10px;
-        left: 10px;
-        z-index: 6;
+        z-index: var(--z-index-hud);
         display: inline-flex;
         flex-direction: column;
-        align-items: flex-start;
         gap: 10px;
         pointer-events: none;
+    }
+
+    .top-left-actions {
+        left: 10px;
+        align-items: flex-start;
         transition: left 0.15s ease;
     }
 
     .top-right-actions {
-        position: fixed;
-        top: 10px;
         right: 10px;
-        z-index: 6;
-        display: inline-flex;
-        flex-direction: column;
         align-items: flex-end;
-        gap: 10px;
-        pointer-events: none;
         transition: right 0.15s ease;
     }
 
     @media (min-width: 768px) {
         .top-left-actions,
         .top-right-actions {
-            z-index: 8;
+            z-index: var(--z-index-hud-over-side-menu-backdrop);
         }
 
         .app-shell.menu-open .top-left-actions,

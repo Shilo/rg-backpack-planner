@@ -263,7 +263,7 @@
         width: 0;
         height: 0;
         pointer-events: none;
-        z-index: 101;
+        z-index: var(--z-index-context-menu);
     }
 
     .presets-menu-portal.menu-open,

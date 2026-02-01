@@ -145,10 +145,3 @@
         {$tooltipStore.text}
     </div>
 {/if}
-
-<style>
-    .tooltip {
-        position: fixed;
-        z-index: 300;
-    }
-</style>

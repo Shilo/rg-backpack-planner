@@ -352,19 +352,10 @@
         width: 0;
         height: 0;
         pointer-events: none;
-        z-index: 101;
+        z-index: var(--z-index-context-menu-over-modal);
     }
 
     .dropdown-menu-portal.menu-open {
         pointer-events: auto;
-    }
-
-    /* Ensure ContextMenu appears above modal (modal z-index is 45) */
-    .dropdown-menu-portal :global(.context-menu) {
-        z-index: 50;
-    }
-
-    .dropdown-menu-portal :global(.context-menu-backdrop) {
-        z-index: 49;
     }
 </style>
