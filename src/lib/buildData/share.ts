@@ -9,6 +9,7 @@ import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
 import { captureCombinedTreesImage } from "../buildImageExport/captureService";
+import { showToast } from "../toast";
 
 /**
  * Copies text to clipboard
@@ -61,26 +62,38 @@ export async function saveBuildToUrl(
 }
 
 /**
- * Saves the current build as an image
+ * Shares the current build as an image
  * Captures all three trees (Guardian, Vanguard, Cannon) and combines them horizontally
  * Exports as a transparent PNG and copies to clipboard
  */
-export async function saveBuildAsImage(): Promise<boolean> {
+export async function shareBuildAsImage(): Promise<void> {
+    const showScreenshotToast = (success: boolean) => {
+        showToast(
+            success
+                ? "Share screenshot copied to clipboard"
+                : "Unable to copy screenshot",
+            {
+                tone: success ? "positive" : "negative",
+            },
+        );
+    };
+
     try {
-        // Get the tabsRef from the store
         // Capture all three trees (0=Guardian, 1=Vanguard, 2=Cannon)
         const combinedBlob = await captureCombinedTreesImage();
 
         if (!combinedBlob) {
             console.error("Failed to combine tree images");
-            return false;
+            showScreenshotToast(false);
+            return;
         }
 
         // Copy the combined image to clipboard
-        return await copyImageBlobToClipboard(combinedBlob);
+        const success = await copyImageBlobToClipboard(combinedBlob);
+        showScreenshotToast(success);
     } catch (error) {
-        console.error("Failed to save build as image:", error);
-        return false;
+        console.error("Failed to share build as image:", error);
+        showScreenshotToast(false);
     }
 }
 
