@@ -81,6 +81,7 @@
             data-modal-confirm
             on:click={handleConfirm}
             disabled={isConfirmDisabled}
+            positive
         >
             {confirmLabel}
         </Button>

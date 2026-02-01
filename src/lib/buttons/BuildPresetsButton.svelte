@@ -151,7 +151,7 @@
             type: "textInput",
             title: "Rename Build Preset",
             titleIcon: PencilSimpleIcon,
-            message: "Enter a new name for this build preset",
+            message: "Type a new name for this build preset",
             textInput: {
                 label: "Preset name",
                 value: preset.name,
@@ -217,7 +217,7 @@
                 type: "textInput",
                 title: "New Build Preset",
                 titleIcon: PlusIcon,
-                message: "Enter a name for this build preset",
+                message: "Type a name for this build preset",
                 textInput: {
                     label: "Preset name",
                     value: defaultName,
