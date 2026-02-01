@@ -40,6 +40,12 @@
 
     const NAME_CHAR_LIMIT = 25;
 
+    function truncateName(name: string): string {
+        return name.length > NAME_CHAR_LIMIT
+            ? name.slice(0, NAME_CHAR_LIMIT) + "..."
+            : name;
+    }
+
     let presetsMenuOpen = false;
     let presetsMenuX = 0;
     let presetsMenuY = 0;
@@ -73,7 +79,7 @@
         : "Backpack tech tree build";
     $: editPresetTooltipSubject = editPreset?.name ?? "your";
     $: editMenuTitle = editPreset?.name
-        ? `Edit: ${editPreset.name.length > NAME_CHAR_LIMIT ? editPreset.name.slice(0, NAME_CHAR_LIMIT) + "..." : editPreset.name}`
+        ? `Edit: ${truncateName(editPreset.name)}`
         : "Edit";
 
     function openPresetsMenu() {
@@ -188,9 +194,7 @@
     icon={ShareNetworkIcon}
     {disabled}
 >
-    Preset: {activePresetName.length > NAME_CHAR_LIMIT
-        ? activePresetName.slice(0, NAME_CHAR_LIMIT) + "..."
-        : activePresetName}
+    Preset: {truncateName(activePresetName)}
 </Button>
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
@@ -207,18 +211,16 @@
                 <div class="preset-row button-group">
                     <Button
                         class="preset-name-btn"
-                        tooltipText={`Switch to preset: ${preset.name}`}
-                        aria-label={`Switch to preset: ${preset.name}`}
+                        tooltipText={`Switch to preset: ${truncateName(preset.name)}`}
+                        aria-label={`Switch to preset: ${truncateName(preset.name)}`}
                         on:click={() => switchToPreset(preset.id)}
                     >
-                        {preset.name.length > NAME_CHAR_LIMIT
-                            ? preset.name.slice(0, NAME_CHAR_LIMIT) + "..."
-                            : preset.name}
+                        {truncateName(preset.name)}
                     </Button>
                     <Button
                         class="preset-edit-btn dropdown-button"
-                        tooltipText={`Edit preset: ${preset.name}`}
-                        aria-label={`Edit preset: ${preset.name}`}
+                        tooltipText={`Edit preset: ${truncateName(preset.name)}`}
+                        aria-label={`Edit preset: ${truncateName(preset.name)}`}
                         icon={DotsThreeVerticalIcon}
                         on:click={(e) => openEditMenu(e, preset.id)}
                     />
