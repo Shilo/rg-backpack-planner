@@ -8,8 +8,7 @@ import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
-import { captureTreeImageByIndex } from "../buildImageExport/captureService";
-import { combineTreeImagesHorizontally } from "../buildImageExport/combineImages";
+import { captureCombinedTreesImage } from "../buildImageExport/captureService";
 
 /**
  * Copies text to clipboard
@@ -70,21 +69,7 @@ export async function saveBuildAsImage(): Promise<boolean> {
     try {
         // Get the tabsRef from the store
         // Capture all three trees (0=Guardian, 1=Vanguard, 2=Cannon)
-        const tree1Blob = await captureTreeImageByIndex(0);
-        const tree2Blob = await captureTreeImageByIndex(1);
-        const tree3Blob = await captureTreeImageByIndex(2);
-
-        if (!tree1Blob || !tree2Blob || !tree3Blob) {
-            console.error("Failed to capture tree images");
-            return false;
-        }
-
-        // Combine the three trees horizontally
-        const combinedBlob = await combineTreeImagesHorizontally(
-            tree1Blob,
-            tree2Blob,
-            tree3Blob,
-        );
+        const combinedBlob = await captureCombinedTreesImage();
 
         if (!combinedBlob) {
             console.error("Failed to combine tree images");

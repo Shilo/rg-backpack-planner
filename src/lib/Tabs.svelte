@@ -10,8 +10,10 @@
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
-    import { isCapturing } from "./buildImageExport/captureState";
-    import { tabsCaptureBridgeStore } from "./buildImageExport/tabsCaptureBridge";
+    import {
+        isCaptureInProgress,
+        registerTabsCaptureBridge,
+    } from "./buildImageExport/captureService";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -108,7 +110,16 @@
         });
         observer.observe(tabsBarEl);
         bottomInset = tabsBarEl.offsetHeight;
-        return () => observer.disconnect();
+        const unregisterCaptureBridge = registerTabsCaptureBridge({
+            setActiveIndex: setActive,
+            getActiveIndex: () => activeIndex,
+            getTreeCanvasElement: () =>
+                treeRef?.getTreeCanvasElement?.() ?? null,
+        });
+        return () => {
+            observer.disconnect();
+            unregisterCaptureBridge();
+        };
     });
     function clampIndex(index: number) {
         if (index < 0) return 0;
@@ -146,7 +157,7 @@
         const nextId = tabs[activeIndex]?.id ?? "";
         if (hasMounted && nextId && nextId !== lastActiveTabId) {
             lastActiveTabId = nextId;
-            if (!get(isCapturing)) {
+            if (!isCaptureInProgress()) {
                 void tick().then(() => treeRef?.triggerFade?.());
             }
         }
@@ -385,15 +396,6 @@
 
     function handleLevelsChange(nextLevels: number[]) {
         setTreeLevels(activeIndex, [...nextLevels]);
-    }
-
-    $: if (treeRef) {
-        tabsCaptureBridgeStore.set({
-            setActiveIndex: setActive,
-            getActiveIndex: () => activeIndex,
-            getTreeCanvasElement: () =>
-                treeRef?.getTreeCanvasElement?.() ?? null,
-        });
     }
 </script>
 
