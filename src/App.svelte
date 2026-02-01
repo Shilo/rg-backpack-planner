@@ -390,7 +390,6 @@
     class="app-shell"
     class:menu-open={isMenuOpen}
     role="application"
-    on:contextmenu|preventDefault
     on:touchstart|passive={handleTouchStart}
     on:touchmove|passive={handleTouchMove}
     on:touchend={handleTouchEnd}
