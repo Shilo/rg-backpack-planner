@@ -54,23 +54,23 @@ export function showToastDelayed(
 }
 
 /**
- * Checks sessionStorage for a key, and if it equals "true", removes it and shows a toast.
+ * Checks sessionStorage for a key, and if it exists, removes it and shows a toast.
  * Useful for showing toasts after page reloads (e.g., after cloning a build or stopping preview).
  * @param sessionStorageKey The sessionStorage key to check
- * @param toastMessage The message to show in the toast
+ * @param toastMessage Arrow function that receives the stored value and returns the toast message
  * @returns true if the key was found and processed, false otherwise
  */
 export function checkSessionStorageAndShowToast(
     sessionStorageKey: string,
-    toastMessage: string,
+    toastMessage: (value: string) => string,
 ): boolean {
     if (typeof window === "undefined") return false;
 
     const value = sessionStorage.getItem(sessionStorageKey);
-    if (value !== "true") return false;
+    if (value === null) return false;
 
     sessionStorage.removeItem(sessionStorageKey);
-    showToastDelayed(toastMessage);
+    showToastDelayed(toastMessage(value));
     return true;
 }
 
@@ -84,7 +84,7 @@ const CLONED_BUILD_KEY = "rg-backpack-planner-cloned-build-toast";
 export function tryShowStoppedPreviewToast(): boolean {
     return checkSessionStorageAndShowToast(
         STOPPED_PREVIEW_KEY,
-        "Back to personal build",
+        () => "Back to personal build",
     );
 }
 
@@ -93,9 +93,10 @@ export function tryShowStoppedPreviewToast(): boolean {
  * @returns true if the flag was found and processed, false otherwise
  */
 export function tryShowClonedBuildToast(): boolean {
-    return checkSessionStorageAndShowToast(
-        CLONED_BUILD_KEY,
-        "Cloned preview to personal build",
+    return checkSessionStorageAndShowToast(CLONED_BUILD_KEY, (previewName) =>
+        previewName
+            ? `Cloned preview build to "${previewName}"`
+            : "Cloned preview build",
     );
 }
 
@@ -110,9 +111,10 @@ export function queueStoppedPreviewToast(): void {
 
 /**
  * Queues a cloned build toast to be shown on next page load.
- * Sets a flag in sessionStorage that will be checked after reload.
+ * Sets the preview name in sessionStorage that will be checked after reload.
+ * @param previewName The name of the preview build that was cloned (or empty string if not available)
  */
-export function queueClonedBuildToast(): void {
+export function queueClonedBuildToast(previewName: string = ""): void {
     if (typeof window === "undefined") return;
-    sessionStorage.setItem(CLONED_BUILD_KEY, true.toString());
+    sessionStorage.setItem(CLONED_BUILD_KEY, previewName);
 }

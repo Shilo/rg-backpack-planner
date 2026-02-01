@@ -39,7 +39,7 @@
                     setActivePresetId(preset.id);
 
                     if (typeof window !== "undefined") {
-                        queueClonedBuildToast();
+                        queueClonedBuildToast(uniqueName);
                         clearShareFromUrl(false);
                         window.location.reload();
                     }
