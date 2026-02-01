@@ -53,7 +53,7 @@
         cancelGestures?: () => void;
         getViewState?: () => TreeViewState;
         getFocusViewState?: () => TreeViewState | null;
-        getTreeCanvasElement?: () => HTMLDivElement | null;
+        getTreeCanvas?: () => HTMLDivElement | null;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -435,7 +435,7 @@
         use:captureAction={{
             setActive,
             getActive: () => activeIndex,
-            getTreeCanvas: () => treeRef?.getTreeCanvasElement?.(),
+            getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
         }}
     >
         {#if tabs[activeIndex]}

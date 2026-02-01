@@ -4,7 +4,7 @@ import { snapdom } from "@zumer/snapdom";
 type TabsCaptureBridge = {
     setActive: (index: number) => void;
     getActive: () => number;
-    getTreeCanvas: () => HTMLDivElement | undefined;
+    getTreeCanvas: () => HTMLDivElement | null;
 };
 
 let tabsBridge: TabsCaptureBridge | null = null;
@@ -21,7 +21,7 @@ async function waitForNextFrame(): Promise<void> {
 }
 
 async function captureElementAsPng(
-    element: HTMLElement | undefined,
+    element: HTMLElement | null,
 ): Promise<Blob | null> {
     if (!element) {
         console.error("Tree element is null");
@@ -180,7 +180,7 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
 
 /**
  * Svelte action for automatic capture bridge registration
- * Usage: use:captureAction={{ setActiveIndex, getActiveIndex, getTreeCanvasElement }}
+ * Usage: use:captureAction={{ setActive, getActive, getTreeCanvas }}
  */
 export function captureAction(_node: HTMLElement, bridge: TabsCaptureBridge) {
     tabsBridge = bridge;

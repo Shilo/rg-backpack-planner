@@ -50,7 +50,7 @@
     let viewportEl: HTMLDivElement | null = null;
     let treeCanvasEl: HTMLDivElement | null = null;
 
-    export function getTreeCanvasElement(): HTMLDivElement | null {
+    export function getTreeCanvas(): HTMLDivElement | null {
         return viewportEl ?? treeCanvasEl;
     }
     let viewportSize = { width: 0, height: 0 };
