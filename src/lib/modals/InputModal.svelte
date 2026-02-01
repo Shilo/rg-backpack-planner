@@ -201,8 +201,12 @@
     </div>
     <div class="modal-actions">
         <div class="modal-actions__right">
-            <Button on:click={() => onCancel?.()}>{cancelLabel}</Button>
-            <Button on:click={handleConfirm} positive>{confirmLabel}</Button>
+            <Button data-modal-cancel on:click={() => onCancel?.()}>
+                {cancelLabel}
+            </Button>
+            <Button data-modal-confirm on:click={handleConfirm} positive>
+                {confirmLabel}
+            </Button>
         </div>
     </div>
 </div>

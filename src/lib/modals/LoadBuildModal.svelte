@@ -201,10 +201,13 @@
 
     <div class="modal-actions">
         <div class="modal-actions__row modal-actions__row--right">
-            <Button on:click={handleCancel}>{cancelLabel}</Button>
+            <Button data-modal-cancel on:click={handleCancel}>
+                {cancelLabel}
+            </Button>
             <div class="button-group">
                 <Button
                     bind:element={previewButtonElement}
+                    data-modal-confirm
                     on:click={() => handleLoad()}
                     disabled={isLoading}
                     positive

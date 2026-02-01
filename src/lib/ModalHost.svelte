@@ -67,10 +67,31 @@
         handleCancel();
     }
 
+    function triggerModalAction(selector: string) {
+        const button = document.querySelector<HTMLButtonElement>(selector);
+        if (!button || button.disabled) return false;
+        button.click();
+        return true;
+    }
+
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key !== "Escape" || !$modalStore) return;
-        event.preventDefault();
-        handleCancel();
+        if (!$modalStore) return;
+
+        if (event.key === "Escape") {
+            event.preventDefault();
+            if (!triggerModalAction("[data-modal-cancel]")) {
+                handleCancel();
+            }
+            return;
+        }
+
+        if (event.key === "Enter") {
+            if (document.activeElement instanceof HTMLButtonElement) return;
+            event.preventDefault();
+            if (!triggerModalAction("[data-modal-confirm]")) {
+                handleConfirm();
+            }
+        }
     }
 </script>
 

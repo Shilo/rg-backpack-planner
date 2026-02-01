@@ -35,8 +35,11 @@
         <p class="modal-message">{message}</p>
     {/if}
     <div class="modal-actions">
-        <Button on:click={() => onCancel?.()}>{cancelLabel}</Button>
+        <Button data-modal-cancel on:click={() => onCancel?.()}>
+            {cancelLabel}
+        </Button>
         <Button
+            data-modal-confirm
             on:click={() => onConfirm?.()}
             negative={confirmNegative}
             positive={confirmPositive}
