@@ -32,7 +32,6 @@ async function captureElementAsPng(
         const blob = await snapdom.toBlob(element, {
             type: "png",
             backgroundColor: "transparent",
-            scale: 1,
             exclude: [
                 ".tree-context-menu",
                 ".tooltip",
