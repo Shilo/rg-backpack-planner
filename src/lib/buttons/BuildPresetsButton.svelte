@@ -283,6 +283,7 @@
         </div>
         <div class="button-group">
             <Button
+                class="add-new-build-btn"
                 on:click={() => handleAddBuild()}
                 tooltipText="Create an empty build preset"
                 icon={PlusIcon}
@@ -386,6 +387,11 @@
 
     :global(.preset-edit-btn) {
         flex-shrink: 0;
+    }
+
+    :global(.add-new-build-btn) {
+        flex: 1;
+        min-width: 0;
     }
 
     .presets-list {

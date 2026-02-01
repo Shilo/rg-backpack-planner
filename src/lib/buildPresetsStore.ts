@@ -184,18 +184,24 @@ export function getUniquePresetName(
     desiredName: string,
     fallbackName: string,
 ): string {
-    const baseName = desiredName.trim() || fallbackName.trim() || "Preset";
+    const inputName = desiredName.trim() || fallbackName.trim() || "Preset";
     const existingNames = get(buildPresetsStore).presets.map((preset) =>
         preset.name.toLowerCase(),
     );
-    if (!existingNames.includes(baseName.toLowerCase())) {
-        return baseName;
+
+    if (!existingNames.includes(inputName.toLowerCase())) {
+        return inputName;
     }
-    let counter = 2;
-    let candidate = `${baseName} ${counter}`;
+
+    // Extract trailing number if it exists (e.g., "Build 5" -> namePrefix="Build", counter=5)
+    const match = inputName.match(/^(.+?)\s+(\d+)$/);
+    const namePrefix = match ? match[1] : inputName;
+    let counter = match ? parseInt(match[2], 10) : 2;
+
+    let candidate = `${namePrefix} ${counter}`;
     while (existingNames.includes(candidate.toLowerCase())) {
         counter++;
-        candidate = `${baseName} ${counter}`;
+        candidate = `${namePrefix} ${counter}`;
     }
     return candidate;
 }
