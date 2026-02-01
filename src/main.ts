@@ -15,7 +15,6 @@ const handleGlobalContextMenu = (event: MouseEvent) => {
     ) {
         return;
     }
-    console.log("Preventing global context menu", new Date().toISOString());
     event.preventDefault();
 };
 
