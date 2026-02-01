@@ -38,6 +38,8 @@
         { nodes: cannonTree },
     ];
 
+    const NAME_CHAR_LIMIT = 25;
+
     let presetsMenuOpen = false;
     let presetsMenuX = 0;
     let presetsMenuY = 0;
@@ -70,6 +72,9 @@
         ? `${editPreset.name} build`
         : "Backpack tech tree build";
     $: editPresetTooltipSubject = editPreset?.name ?? "your";
+    $: editMenuTitle = editPreset?.name
+        ? `Edit: ${editPreset.name.length > NAME_CHAR_LIMIT ? editPreset.name.slice(0, NAME_CHAR_LIMIT) + "..." : editPreset.name}`
+        : "Edit";
 
     function openPresetsMenu() {
         if (!presetsButtonElement) return;
@@ -139,11 +144,12 @@
         closeEditMenu();
         openModal({
             type: "confirm",
-            title: "Delete preset",
-            message: `Delete "${preset.name}"?`,
-            confirmLabel: "Delete",
+            title: "Delete build preset",
+            message: `Are you sure you want to remove "${preset.name}" preset?`,
+            confirmLabel: "Delete preset",
             cancelLabel: "Cancel",
             confirmNegative: true,
+            titleIcon: TrashIcon,
             onConfirm: () => {
                 const wasActive = data.activePresetId === presetId;
                 const remaining = data.presets.filter((p) => p.id !== presetId);
@@ -163,9 +169,9 @@
         const trees = get(treeLevels);
         const owned = get(techCrystalsOwned);
         const encoded = encodeBuildData({ trees, owned });
-        const name = window.prompt("Preset name", "New build");
+        const name = window.prompt("Preset name", "New");
         if (name == null) return;
-        const preset = addPreset(name.trim() || "New build", encoded);
+        const preset = addPreset(name.trim() || "New", encoded);
         setActivePresetId(preset.id);
         closePresetsMenu();
     }
@@ -174,11 +180,13 @@
 <Button
     bind:element={presetsButtonElement}
     on:click={openPresetsMenu}
-    tooltipText="Saved build presets"
+    tooltipText="Change build preset"
     icon={ShareNetworkIcon}
     {disabled}
 >
-    Preset: {activePresetName}
+    Preset: {activePresetName.length > NAME_CHAR_LIMIT
+        ? activePresetName.slice(0, NAME_CHAR_LIMIT) + "..."
+        : activePresetName}
 </Button>
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
@@ -196,7 +204,9 @@
                     class="preset-name-btn"
                     on:click={() => switchToPreset(preset.id)}
                 >
-                    {preset.name}
+                    {preset.name.length > NAME_CHAR_LIMIT
+                        ? preset.name.slice(0, NAME_CHAR_LIMIT) + "..."
+                        : preset.name}
                 </Button>
                 <Button
                     class="preset-edit-btn dropdown-button"
@@ -226,7 +236,7 @@
             x={editMenuX}
             y={editMenuY}
             isOpen={true}
-            title="Edit"
+            title={editMenuTitle}
             onClose={closeEditMenu}
         >
             <Button
@@ -247,7 +257,7 @@
             />
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
-                tooltipText="Delete preset"
+                tooltipText="Remove build preset"
                 icon={TrashIcon}
                 negative
             >
