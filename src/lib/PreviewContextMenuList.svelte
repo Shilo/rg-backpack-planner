@@ -6,6 +6,7 @@
     import TechCrystalsButton from "./buttons/TechCrystalsButton.svelte";
     import CloneBuildButton from "./buttons/CloneBuildButton.svelte";
     import { queueStoppedPreviewToast } from "./toast";
+    import { previewBuildName } from "./previewBuildNameStore";
 
     function handleStopPreview() {
         // Remove build data from URL and reload to switch to personal mode
@@ -25,7 +26,11 @@
 </script>
 
 <TechCrystalsButton tooltipSubject="preview" />
-<ShareBuildButton title="Share preview build" tooltipSubject="preview" />
+<ShareBuildButton
+    title="Share preview build"
+    tooltipSubject="preview"
+    buildName={$previewBuildName}
+/>
 <CloneBuildButton />
 <Button
     on:click={handleStopPreview}

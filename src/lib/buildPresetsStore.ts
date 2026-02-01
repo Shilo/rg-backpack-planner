@@ -3,7 +3,7 @@
  * Personal mode state (tree levels + tech crystals owned) is driven by the active preset.
  */
 
-import { writable, get } from "svelte/store";
+import { writable, get, derived } from "svelte/store";
 import { encodeBuildData } from "./buildData/encoder";
 
 const STORAGE_KEY = "rg-backpack-planner-build-presets";
@@ -204,3 +204,13 @@ export function getUniquePresetName(
     }
     return candidate;
 }
+
+/**
+ * Derived store for the name of the currently active preset
+ */
+export const activePresetName = derived(buildPresetsStore, (data) => {
+    const activePreset = data.presets.find(
+        (preset) => preset.id === data.active,
+    );
+    return activePreset?.name ?? "Default";
+});

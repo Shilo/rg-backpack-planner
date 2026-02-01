@@ -20,11 +20,11 @@
         deletePreset,
         addPreset,
         getUniquePresetName,
+        activePresetName,
     } from "../buildPresetsStore";
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
     import { applyBuildData } from "../buildData/applier";
-    import { createShareUrl } from "../buildData/url";
     import { openModal } from "../modalStore";
     import { guardianTree } from "../../config/guardianTree";
     import { vanguardTree } from "../../config/vanguardTree";
@@ -57,23 +57,15 @@
     let editMenuY = 0;
     let editIconElement: HTMLButtonElement | null = null;
 
-    $: activePresetName =
-        $buildPresetsStore.presets.find(
-            (preset) => preset.id === $buildPresetsStore.active,
-        )?.name ?? "Default";
-
     $: editPreset = editMenuPresetId
         ? ($buildPresetsStore.presets.find(
               (preset) => preset.id === editMenuPresetId,
           ) ?? null)
         : null;
+    $: console.log("Edit preset:", editPreset);
     $: editPresetBuildData = editPreset
         ? decodeBuildData(editPreset.buildCode)
         : null;
-    $: editPresetShareUrl =
-        editPresetBuildData && editPreset
-            ? createShareUrl({ ...editPresetBuildData, name: editPreset.name })
-            : null;
     $: editPresetShareTitle = editPreset?.name
         ? `${editPreset.name} build`
         : "Backpack tech tree build";
@@ -243,7 +235,7 @@
     icon={ShareNetworkIcon}
     {disabled}
 >
-    Preset: {truncateName(activePresetName)}
+    Preset: {truncateName($activePresetName)}
 </Button>
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
@@ -326,10 +318,10 @@
                 menuTitle={editPreset?.name
                     ? `Share: ${truncateName(editPreset.name)}`
                     : "Share Preset"}
-                shareUrl={editPresetShareUrl}
+                buildName={editPreset?.name}
                 shareTitle={editPresetShareTitle}
                 showScreenshot={false}
-                disabled={!editPresetShareUrl}
+                disabled={!editPresetBuildData}
             />
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}

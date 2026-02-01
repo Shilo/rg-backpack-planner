@@ -7,15 +7,15 @@
         saveBuildAsImage,
         saveBuildToUrl,
         shareBuildUrlNative,
-        type ShareBuildUrlResult,
     } from "../buildData/share";
     import { portal } from "../portal";
+    import { activePresetName } from "../buildPresetsStore";
 
     export let title: string | undefined;
     export let disabled: boolean | undefined = false;
     export let tooltipSubject: string = "your";
     export let menuTitle = "Share Build";
-    export let shareUrl: string | null = null;
+    export let buildName: string | null = null;
     export let shareTitle: string | undefined = undefined;
     export let shareText: string | undefined = undefined;
     export let showShareToApp = true;
@@ -26,6 +26,9 @@
     let shareMenuX = 0;
     let shareMenuY = 0;
     let shareButtonElement: HTMLButtonElement | null = null;
+
+    // Use active preset name as default if buildName not provided
+    $: effectiveBuildName = buildName ?? $activePresetName;
 
     function handleShareBuildClick() {
         if (!shareButtonElement) return;
@@ -51,59 +54,15 @@
         }
     }
 
-    async function shareCustomUrlNative(
-        url: string,
-        options?: { title?: string; text?: string },
-    ): Promise<ShareBuildUrlResult> {
-        if (typeof window === "undefined" || typeof navigator === "undefined") {
-            return "failed";
-        }
-
-        if (typeof navigator.share === "function") {
-            try {
-                await navigator.share({
-                    url,
-                    title: options?.title,
-                    text: options?.text,
-                });
-                return "shared";
-            } catch (error: unknown) {
-                const err = error as { name?: string };
-                if (err?.name === "AbortError") {
-                    return "cancelled";
-                }
-            }
-        }
-
-        if (
-            navigator.clipboard &&
-            typeof navigator.clipboard.writeText === "function"
-        ) {
-            try {
-                await navigator.clipboard.writeText(url);
-                return "copied";
-            } catch (error) {
-                console.error("Failed to copy share URL to clipboard:", error);
-                return "failed";
-            }
-        }
-
-        return "failed";
-    }
-
     async function handleShareToApp() {
         closeShareMenu();
         const effectiveTitle =
             shareTitle ?? title ?? "Backpack tech tree build";
-        const result = shareUrl
-            ? await shareCustomUrlNative(shareUrl, {
-                  title: effectiveTitle,
-                  text: shareText,
-              })
-            : await shareBuildUrlNative({
-                  title: effectiveTitle,
-                  text: shareText,
-              });
+        const result = await shareBuildUrlNative({
+            buildName: effectiveBuildName,
+            title: effectiveTitle,
+            text: shareText,
+        });
 
         if (result === "failed") {
             showToast("Unable to share link", { tone: "negative" });
@@ -113,25 +72,7 @@
 
     async function handleCopyLink() {
         closeShareMenu();
-        if (shareUrl) {
-            if (
-                navigator.clipboard &&
-                typeof navigator.clipboard.writeText === "function"
-            ) {
-                try {
-                    await navigator.clipboard.writeText(shareUrl);
-                    showToast("Share link copied to clipboard");
-                    return;
-                } catch {
-                    showToast("Unable to copy link", { tone: "negative" });
-                    return;
-                }
-            }
-            showToast("Unable to copy link", { tone: "negative" });
-            return;
-        }
-
-        const success = await saveBuildToUrl();
+        const success = await saveBuildToUrl(effectiveBuildName);
         if (success) {
             showToast("Share link copied to clipboard");
         } else {

@@ -3,16 +3,52 @@
  * Handles clipboard and image sharing functionality
  */
 
+import type { BuildData } from "./encoder";
 import { createShareUrl } from "./url";
+import { treeLevels } from "../treeLevelsStore";
+import { techCrystalsOwned } from "../techCrystalStore";
+import { get } from "svelte/store";
+
+/**
+ * Copies text to clipboard
+ */
+async function copyToClipboard(text: string): Promise<boolean> {
+    if (
+        typeof navigator === "undefined" ||
+        !navigator.clipboard ||
+        typeof navigator.clipboard.writeText !== "function"
+    ) {
+        return false;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch (error) {
+        console.error("Failed to copy to clipboard:", error);
+        return false;
+    }
+}
 
 /**
  * Saves the current build to a shareable URL and copies it to clipboard
+ * @param buildName Optional build name to include in the share URL
  */
-export async function saveBuildToUrl(): Promise<boolean> {
+export async function saveBuildToUrl(
+    buildName?: string | null,
+): Promise<boolean> {
     try {
-        const shareUrl = createShareUrl();
-        await navigator.clipboard.writeText(shareUrl);
-        return true;
+        const buildData: BuildData = {
+            trees: get(treeLevels),
+            owned: get(techCrystalsOwned),
+            ...(buildName && { name: buildName }),
+        };
+        const shareUrl = createShareUrl(buildData);
+        const success = await copyToClipboard(shareUrl);
+        if (success) {
+            console.log(shareUrl);
+        }
+        return success;
     } catch (error) {
         console.error("Failed to save build URL:", error);
         return false;
@@ -43,13 +79,15 @@ export type ShareBuildUrlResult = "shared" | "copied" | "cancelled" | "failed";
  * Shares the current build URL using the Web Share API when available,
  * falling back to copying the URL to the clipboard.
  *
- * Returns a status string describing what happened:
+ * @param options Share options including optional buildName, title, and text
+ * @returns Status string describing what happened:
  * - "shared": Native share dialog succeeded.
  * - "cancelled": User dismissed the native share dialog.
  * - "copied": URL was copied to clipboard (fallback).
  * - "failed": All mechanisms failed.
  */
 export async function shareBuildUrlNative(options?: {
+    buildName?: string | null;
     title?: string;
     text?: string;
 }): Promise<ShareBuildUrlResult> {
@@ -58,7 +96,12 @@ export async function shareBuildUrlNative(options?: {
         return "failed";
     }
 
-    const shareUrl = createShareUrl();
+    const buildData: BuildData = {
+        trees: get(treeLevels),
+        owned: get(techCrystalsOwned),
+        ...(options?.buildName && { name: options.buildName }),
+    };
+    const shareUrl = createShareUrl(buildData);
 
     // Prefer Web Share API when available
     if (typeof navigator.share === "function") {
@@ -85,18 +128,6 @@ export async function shareBuildUrlNative(options?: {
     }
 
     // Clipboard fallback
-    if (
-        navigator.clipboard &&
-        typeof navigator.clipboard.writeText === "function"
-    ) {
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            return "copied";
-        } catch (error) {
-            console.error("Failed to copy share URL to clipboard:", error);
-            return "failed";
-        }
-    }
-
-    return "failed";
+    const clipboardSuccess = await copyToClipboard(shareUrl);
+    return clipboardSuccess ? "copied" : "failed";
 }
