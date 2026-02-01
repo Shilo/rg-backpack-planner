@@ -166,7 +166,7 @@
                     const buildData = decodeBuildData(first.encoded);
                     if (buildData) applyBuildData(tabs, buildData);
                 }
-                closePresetsMenu();
+                closeEditMenu();
             },
         });
     }
