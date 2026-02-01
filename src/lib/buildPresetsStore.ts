@@ -100,7 +100,13 @@ export function savePresetsToStorage(data: BuildPresetsData): void {
 const initialData = loadPresetsFromStorage();
 export const buildPresetsStore = writable<BuildPresetsData>(initialData);
 
+// Skip saving on initial subscription to prevent overwriting localStorage on page load
+let isInitialized = false;
 buildPresetsStore.subscribe((data) => {
+    if (!isInitialized) {
+        isInitialized = true;
+        return;
+    }
     savePresetsToStorage(data);
 });
 
