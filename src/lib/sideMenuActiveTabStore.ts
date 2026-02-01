@@ -33,7 +33,11 @@ function setStoredActiveTab(tab: SideMenuTab): void {
 
 // Create writable store that syncs with localStorage
 function createSideMenuActiveTabStore() {
-    const { subscribe, set: setWritable, update: updateWritable } = writable<SideMenuTab>(getStoredActiveTab());
+    const {
+        subscribe,
+        set: setWritable,
+        update: updateWritable,
+    } = writable<SideMenuTab>(getStoredActiveTab());
 
     return {
         subscribe,

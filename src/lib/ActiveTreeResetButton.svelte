@@ -1,52 +1,52 @@
 <script lang="ts">
-  import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
-  import Button from "./Button.svelte";
-  import { openModal } from "./modalStore";
+    import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
+    import Button from "./Button.svelte";
+    import { openModal } from "./modalStore";
 
-  export let onReset: (() => void) | null = null;
-  export let treeLabel = "";
-  export let canReset = false;
+    export let onReset: (() => void) | null = null;
+    export let treeLabel = "";
+    export let canReset = false;
 
-  $: trimmedTreeLabel = treeLabel.trim();
-  $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
-  $: modalTitle = trimmedTreeLabel
-    ? `RESET ${trimmedTreeLabel} TREE?`
-    : "RESET TREE?";
-  $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
-  $: showReset = canReset && !!onReset;
+    $: trimmedTreeLabel = treeLabel.trim();
+    $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
+    $: modalTitle = trimmedTreeLabel
+        ? `RESET ${trimmedTreeLabel} TREE?`
+        : "RESET TREE?";
+    $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
+    $: showReset = canReset && !!onReset;
 
-  const handleReset = () => {
-    if (!onReset) return;
-    openModal({
-      type: "confirm",
-      title: modalTitle,
-      titleIcon: ArrowCounterClockwiseIcon,
-      message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
-      confirmLabel: confirmText,
-      cancelLabel: "Cancel",
-      confirmNegative: true,
-      onConfirm: () => {
-        onReset();
-      },
-    });
-  };
+    const handleReset = () => {
+        if (!onReset) return;
+        openModal({
+            type: "confirm",
+            title: modalTitle,
+            titleIcon: ArrowCounterClockwiseIcon,
+            message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
+            confirmLabel: confirmText,
+            cancelLabel: "Cancel",
+            confirmNegative: true,
+            onConfirm: () => {
+                onReset();
+            },
+        });
+    };
 </script>
 
 {#if showReset}
-  <Button
-    class="active-tree-reset"
-    type="button"
-    aria-label={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`}
-    tooltipText={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`}
-    icon={ArrowCounterClockwiseIcon}
-    iconClass="active-tree-reset__icon"
-    negative
-    on:click={handleReset}
-  />
+    <Button
+        class="active-tree-reset"
+        type="button"
+        aria-label={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`}
+        tooltipText={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`}
+        icon={ArrowCounterClockwiseIcon}
+        iconClass="active-tree-reset__icon"
+        negative
+        on:click={handleReset}
+    />
 {/if}
 
 <style>
-  :global(.active-tree-reset) {
-    border-radius: 999px !important;
-  }
+    :global(.active-tree-reset) {
+        border-radius: 999px !important;
+    }
 </style>

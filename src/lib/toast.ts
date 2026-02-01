@@ -3,39 +3,39 @@ import { writable } from "svelte/store";
 export type ToastTone = "positive" | "negative";
 
 export type Toast = {
-  id: string;
-  message: string;
-  tone: ToastTone;
-  durationMs: number;
+    id: string;
+    message: string;
+    tone: ToastTone;
+    durationMs: number;
 };
 
 const DEFAULT_DURATION_MS = 2600;
 
 function createId() {
-  return `toast-${Math.random().toString(36).slice(2, 10)}`;
+    return `toast-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export const toastStore = writable<Toast[]>([]);
 
 export function showToast(
-  message: string,
-  options?: Partial<Pick<Toast, "tone" | "durationMs">>,
+    message: string,
+    options?: Partial<Pick<Toast, "tone" | "durationMs">>,
 ) {
-  const toast: Toast = {
-    id: createId(),
-    message,
-    tone: options?.tone ?? "positive",
-    durationMs: options?.durationMs ?? DEFAULT_DURATION_MS,
-  };
-  toastStore.update((toasts) => {
-    const updated = [...toasts, toast];
-    return updated.slice(-3); // Keep only the last 3 toasts
-  });
-  return toast.id;
+    const toast: Toast = {
+        id: createId(),
+        message,
+        tone: options?.tone ?? "positive",
+        durationMs: options?.durationMs ?? DEFAULT_DURATION_MS,
+    };
+    toastStore.update((toasts) => {
+        const updated = [...toasts, toast];
+        return updated.slice(-3); // Keep only the last 3 toasts
+    });
+    return toast.id;
 }
 
 export function dismissToast(id: string) {
-  toastStore.update((toasts) => toasts.filter((toast) => toast.id !== id));
+    toastStore.update((toasts) => toasts.filter((toast) => toast.id !== id));
 }
 
 /**
@@ -45,12 +45,12 @@ export function dismissToast(id: string) {
  * @param options Optional toast options (tone, durationMs)
  */
 export function showToastDelayed(
-  message: string,
-  options?: Partial<Pick<Toast, "tone" | "durationMs">>,
+    message: string,
+    options?: Partial<Pick<Toast, "tone" | "durationMs">>,
 ): void {
-  setTimeout(() => {
-    showToast(message, options);
-  }, 100);
+    setTimeout(() => {
+        showToast(message, options);
+    }, 100);
 }
 
 /**
@@ -61,17 +61,17 @@ export function showToastDelayed(
  * @returns true if the key was found and processed, false otherwise
  */
 export function checkSessionStorageAndShowToast(
-  sessionStorageKey: string,
-  toastMessage: string,
+    sessionStorageKey: string,
+    toastMessage: string,
 ): boolean {
-  if (typeof window === "undefined") return false;
+    if (typeof window === "undefined") return false;
 
-  const value = sessionStorage.getItem(sessionStorageKey);
-  if (value !== "true") return false;
+    const value = sessionStorage.getItem(sessionStorageKey);
+    if (value !== "true") return false;
 
-  sessionStorage.removeItem(sessionStorageKey);
-  showToastDelayed(toastMessage);
-  return true;
+    sessionStorage.removeItem(sessionStorageKey);
+    showToastDelayed(toastMessage);
+    return true;
 }
 
 const STOPPED_PREVIEW_KEY = "rg-backpack-planner-stopped-preview-toast";
@@ -82,10 +82,10 @@ const CLONED_BUILD_KEY = "rg-backpack-planner-cloned-build-toast";
  * @returns true if the flag was found and processed, false otherwise
  */
 export function tryShowStoppedPreviewToast(): boolean {
-  return checkSessionStorageAndShowToast(
-    STOPPED_PREVIEW_KEY,
-    "Back to personal build",
-  );
+    return checkSessionStorageAndShowToast(
+        STOPPED_PREVIEW_KEY,
+        "Back to personal build",
+    );
 }
 
 /**
@@ -93,10 +93,10 @@ export function tryShowStoppedPreviewToast(): boolean {
  * @returns true if the flag was found and processed, false otherwise
  */
 export function tryShowClonedBuildToast(): boolean {
-  return checkSessionStorageAndShowToast(
-    CLONED_BUILD_KEY,
-    "Cloned preview to personal build",
-  );
+    return checkSessionStorageAndShowToast(
+        CLONED_BUILD_KEY,
+        "Cloned preview to personal build",
+    );
 }
 
 /**
@@ -104,8 +104,8 @@ export function tryShowClonedBuildToast(): boolean {
  * Sets a flag in sessionStorage that will be checked after reload.
  */
 export function queueStoppedPreviewToast(): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(STOPPED_PREVIEW_KEY, true.toString());
+    if (typeof window === "undefined") return;
+    sessionStorage.setItem(STOPPED_PREVIEW_KEY, true.toString());
 }
 
 /**
@@ -113,6 +113,6 @@ export function queueStoppedPreviewToast(): void {
  * Sets a flag in sessionStorage that will be checked after reload.
  */
 export function queueClonedBuildToast(): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(CLONED_BUILD_KEY, true.toString());
+    if (typeof window === "undefined") return;
+    sessionStorage.setItem(CLONED_BUILD_KEY, true.toString());
 }

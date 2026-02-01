@@ -45,8 +45,7 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
     const o = raw as Record<string, unknown>;
     const active = o.active;
     const presets = o.presets;
-    if (typeof active !== "string" || !Array.isArray(presets))
-        return null;
+    if (typeof active !== "string" || !Array.isArray(presets)) return null;
     if (presets.length === 0) return null;
     const list: BuildPreset[] = [];
     for (const p of presets) {

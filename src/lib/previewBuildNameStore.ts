@@ -10,14 +10,14 @@ export const previewBuildName = writable<string | null>(null);
  * Sets the preview build name
  */
 export function setPreviewBuildName(name: string | null): void {
-  previewBuildName.set(name);
+    previewBuildName.set(name);
 }
 
 /**
  * Clears the preview build name
  */
 export function clearPreviewBuildName(): void {
-  previewBuildName.set(null);
+    previewBuildName.set(null);
 }
 
 /**
@@ -25,5 +25,5 @@ export function clearPreviewBuildName(): void {
  * Used for replacing "Preview" text with the build name in UI components
  */
 export function getPreviewTitle(buildName: string | null): string {
-  return buildName ?? "Preview";
+    return buildName ?? "Preview";
 }

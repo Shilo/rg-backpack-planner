@@ -6,5 +6,5 @@ export const vanguardTree = createTree(
     // Orange Branch
     ["pierce_damage", "critical_hit"],
     // Blue Branch
-    ["pierce_damage", "counterattack_resistance"]
-)
+    ["pierce_damage", "counterattack_resistance"],
+);

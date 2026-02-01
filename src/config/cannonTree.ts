@@ -6,5 +6,5 @@ export const cannonTree = createTree(
     // Orange Branch
     ["skill_crit_resistance", "damage_reflection_chance"],
     // Blue Branch
-    ["damage_reflection_chance", "ignore_stun"]
+    ["damage_reflection_chance", "ignore_stun"],
 );

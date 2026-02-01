@@ -257,8 +257,7 @@
     >
         <div class="presets-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
-                {@const isActive =
-                    preset.id === $buildPresetsStore.active}
+                {@const isActive = preset.id === $buildPresetsStore.active}
                 <div class="preset-row button-group" data-preset-id={preset.id}>
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}
