@@ -182,7 +182,8 @@
         if (skipPrompt) {
             name = "Default";
         } else {
-            name = window.prompt("Preset name", "New");
+            const presetsLength = get(buildPresetsStore).presets.length + 1;
+            name = window.prompt("Preset name", `New ${presetsLength}`);
             if (name == null) return;
         }
         const preset = addPreset(name.trim() || "New", buildCode);
