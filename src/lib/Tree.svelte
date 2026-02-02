@@ -49,10 +49,8 @@
 
     let viewportEl: HTMLDivElement | null = null;
     let treeCanvasEl: HTMLDivElement | null = null;
+    export const getTreeCanvas = (): HTMLDivElement | null => treeCanvasEl;
 
-    export function getTreeCanvas(): HTMLDivElement | null {
-        return viewportEl ?? treeCanvasEl;
-    }
     let viewportSize = { width: 0, height: 0 };
 
     let offsetX = 0;

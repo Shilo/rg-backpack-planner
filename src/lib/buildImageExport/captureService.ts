@@ -32,6 +32,8 @@ async function captureElementAsPng(
         const blob = await snapdom.toBlob(element, {
             type: "png",
             backgroundColor: "transparent",
+            outerTransforms: false,
+            outerShadows: false,
             exclude: [
                 ".tree-context-menu",
                 ".tooltip",
@@ -40,8 +42,6 @@ async function captureElementAsPng(
                 ".modal",
                 ".overlay",
             ],
-            outerShadows: false,
-            outerTransforms: true,
         });
 
         return blob;
