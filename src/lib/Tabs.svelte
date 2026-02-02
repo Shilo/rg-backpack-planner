@@ -119,6 +119,8 @@
     }
 
     function setActive(index: number) {
+        if (index === activeIndex) return;
+
         lastViewState = treeRef?.getViewState?.() ?? lastViewState;
         activeIndex = clampIndex(index);
         // Persist active tab ID to localStorage (only if not initial restore)

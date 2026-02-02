@@ -4,7 +4,7 @@ import { snapdom } from "@zumer/snapdom";
 type TabsCaptureBridge = {
     setActive: (index: number) => void;
     getActive: () => number;
-    getTreeCanvas: () => HTMLDivElement | null;
+    getTreeCanvas: () => HTMLDivElement | null | undefined;
 };
 
 let tabsBridge: TabsCaptureBridge | null = null;
@@ -14,17 +14,11 @@ export function isCaptureInProgress() {
     return captureInProgress;
 }
 
-async function waitForNextFrame(): Promise<void> {
-    await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => resolve());
-    });
-}
-
 async function captureElementAsPng(
-    element: HTMLElement | null,
+    element: HTMLElement | null | undefined,
 ): Promise<Blob | null> {
     if (!element) {
-        console.error("Tree element is null");
+        console.error("Capture element is null");
         return null;
     }
 
@@ -264,99 +258,39 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
 
 export async function captureTreeImageByIndex(
     tabIndex: number,
+    bridge: TabsCaptureBridge,
 ): Promise<Blob | null> {
-    const bridge = tabsBridge;
-    if (!bridge) {
-        return null;
-    }
-
     return withCaptureState(async () => {
-        const currentIndex = bridge.getActive();
-
-        if (tabIndex !== currentIndex) {
+        if (tabIndex !== bridge.getActive()) {
             bridge.setActive(tabIndex);
             await tick();
-            await waitForNextFrame();
         }
 
         const element = bridge.getTreeCanvas();
-        const blob = await captureElementAsPng(element);
-
-        if (tabIndex !== currentIndex) {
-            bridge.setActive(currentIndex);
-            await tick();
-            await waitForNextFrame();
-        }
-
-        return blob;
+        return await captureElementAsPng(element);
     });
 }
 
 export async function captureCombinedTreesImage(): Promise<Blob | null> {
-    const tree1Blob = await captureTreeImageByIndex(0);
-    const tree2Blob = await captureTreeImageByIndex(1);
-    const tree3Blob = await captureTreeImageByIndex(2);
+    const bridge = tabsBridge;
+    if (!bridge) {
+        return null;
+    }
+    const currentIndex = bridge.getActive();
+
+    const tree1Blob = await captureTreeImageByIndex(0, bridge);
+    bridge.setActive(currentIndex);
+    return tree1Blob;
+    const tree2Blob = await captureTreeImageByIndex(1, bridge);
+    const tree3Blob = await captureTreeImageByIndex(2, bridge);
+
+    bridge.setActive(currentIndex);
 
     if (!tree1Blob || !tree2Blob || !tree3Blob) {
         return null;
     }
 
     return combineTreeImagesHorizontally(tree1Blob, tree2Blob, tree3Blob);
-}
-
-export async function testCaptureFirstTree(): Promise<void> {
-    const bridge = tabsBridge;
-    if (!bridge) {
-        console.error("No bridge available");
-        return;
-    }
-
-    try {
-        const currentIndex = bridge.getActive();
-        if (currentIndex !== 0) {
-            bridge.setActive(0);
-            await tick();
-            await waitForNextFrame();
-        }
-
-        const element = bridge.getTreeCanvas();
-        if (!element) {
-            console.error("Tree element is null");
-            return;
-        }
-
-        const img = await snapdom.toPng(element, {
-            backgroundColor: "transparent",
-            outerTransforms: false,
-            outerShadows: false,
-            exclude: [
-                ".tree-context-menu",
-                ".tooltip",
-                ".context-menu",
-                "[role='tooltip']",
-                ".modal",
-                ".overlay",
-            ],
-        });
-
-        img.style.position = "fixed";
-        img.style.top = "10px";
-        img.style.left = "10px";
-        img.style.zIndex = "10000";
-        img.style.border = "2px solid red";
-        img.style.maxWidth = "500px";
-        img.style.maxHeight = "500px";
-        document.body.appendChild(img);
-        console.log("First tree image displayed on page (red border)");
-
-        if (currentIndex !== 0) {
-            bridge.setActive(currentIndex);
-            await tick();
-            await waitForNextFrame();
-        }
-    } catch (error) {
-        console.error("Failed to display image:", error);
-    }
 }
 
 /**
