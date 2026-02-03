@@ -87,7 +87,6 @@ async function captureElementAsPng(
 }
 
 function createAndAttachOffscreenParent() {
-    console.log("Creating offscreen parent for capture");
     const parent = document.createElement("div");
     parent.style.position = "absolute";
     parent.style.left = "-9999px";
@@ -226,17 +225,15 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     if (!bridge) {
         return null;
     }
-    const currentIndex = bridge.getActive();
 
     return withCaptureState(async () => {
         const parent = createAndAttachOffscreenParent();
+        const currentIndex = bridge.getActive();
+
         try {
             const tree1Blob = await captureTreeImageByIndex(0, bridge, parent);
             const tree2Blob = await captureTreeImageByIndex(1, bridge, parent);
             const tree3Blob = await captureTreeImageByIndex(2, bridge, parent);
-
-            // Restore active tab
-            bridge.setActive(currentIndex);
 
             if (!tree1Blob || !tree2Blob || !tree3Blob) {
                 return null;
@@ -248,6 +245,9 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
                 tree3Blob,
             );
         } finally {
+            // Restore active tab
+            bridge.setActive(currentIndex);
+
             try {
                 document.body.removeChild(parent);
             } catch (_) {}
