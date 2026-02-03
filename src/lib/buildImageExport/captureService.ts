@@ -36,29 +36,18 @@ async function captureElementAsPng(
     }
 
     try {
-        // Get dimensions without transforms by temporarily resetting transform
-        const originalTransform = element.style.transform;
-        element.style.transform = "none";
-
-        // Force layout recalculation
-        const rect = TREE_VISIBLE_BOUNDS; //element.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-
         // Clone the element
         const clone = element.cloneNode(true) as HTMLElement;
 
-        // Restore original transform immediately
-        element.style.transform = originalTransform;
-
-        // Reset other non-default CSS values on clone
+        // Reset non-default CSS values on clone
+        clone.style.transform = "none";
         clone.style.transition = "none";
         clone.style.animation = "none";
         clone.style.filter = "none";
         clone.style.opacity = "1";
         clone.style.boxShadow = "none";
 
-        // Offset clone by 50% of its size (center it)
+        // Offset clone by center node position
         clone.style.position = "absolute";
         clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
         clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
