@@ -83,7 +83,11 @@
         title="Preview Builds"
         onClose={() => onClose?.()}
     >
-        <Button icon={LinkIcon} on:click={handleOpenLoadModal}>
+        <Button
+            icon={LinkIcon}
+            tooltipText="Preview build from link or code"
+            on:click={handleOpenLoadModal}
+        >
             From Link/Code
         </Button>
         <div class="section-title">Recommended</div>
@@ -91,6 +95,7 @@
             {#each premadeBuilds as build}
                 <Button
                     icon={premadeBuildIcons[build.name] ?? ShareNetworkIcon}
+                    tooltipText={`Preview ${build.name} build`}
                     on:click={() => handlePremadeClick(build.code)}
                 >
                     {build.name}

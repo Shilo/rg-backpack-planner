@@ -145,7 +145,7 @@
         <Button
             bind:element={previewButtonElement}
             on:click={handlePreviewDropdownClick}
-            tooltipText={"Preview premade build or link/code"}
+            tooltipText={"Preview shareable link/code or premade build"}
             icon={EyeIcon}
         >
             Preview
