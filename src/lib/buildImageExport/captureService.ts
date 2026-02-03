@@ -32,14 +32,13 @@ async function captureElementAsPng(
         const width = rect.width;
         const height = rect.height;
 
-        // Restore original transform immediately
-        element.style.transform = originalTransform;
-
         // Clone the element
         const clone = element.cloneNode(true) as HTMLElement;
 
-        // Reset transform and other non-default CSS values on clone
-        clone.style.transform = "none";
+        // Restore original transform immediately
+        element.style.transform = originalTransform;
+
+        // Reset other non-default CSS values on clone
         clone.style.transition = "none";
         clone.style.animation = "none";
         clone.style.filter = "none";
@@ -65,7 +64,8 @@ async function captureElementAsPng(
         document.body.appendChild(parent);
 
         try {
-            const img = await snapdom.toImg(parent, {
+            return await snapdom.toBlob(parent, {
+                type: "png",
                 backgroundColor: "transparent",
                 outerTransforms: false,
                 outerShadows: false,
@@ -78,22 +78,6 @@ async function captureElementAsPng(
                     ".overlay",
                 ],
             });
-
-            // Convert img to blob
-            const blob = await new Promise<Blob | null>((resolve) => {
-                const canvas = document.createElement("canvas");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext("2d");
-                if (!ctx) {
-                    resolve(null);
-                    return;
-                }
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob((blob) => resolve(blob), "image/png");
-            });
-
-            return blob;
         } finally {
             // Cleanup
             document.body.removeChild(parent);
