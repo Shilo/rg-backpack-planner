@@ -29,8 +29,9 @@ export function isCaptureInProgress() {
 
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
+    parent: HTMLElement,
 ): Promise<Blob | null> {
-    if (!element) {
+    if (!element || !parent) {
         console.error("Capture element is null");
         return null;
     }
@@ -52,18 +53,11 @@ async function captureElementAsPng(
         clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
         clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
 
-        // Create parent div (off-screen)
-        const parent = document.createElement("div");
-        parent.style.position = "absolute";
-        parent.style.left = "-9999px";
-        parent.style.top = "-9999px";
-        parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
-        parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
-        parent.style.overflow = "visible";
+        // Clear any previous contents and append the clone
+        try {
+            while (parent.firstChild) parent.removeChild(parent.firstChild);
+        } catch (_) {}
         parent.appendChild(clone);
-
-        // Add to DOM temporarily for SnapDOM
-        document.body.appendChild(parent);
 
         try {
             return await snapdom.toBlob(parent, {
@@ -81,13 +75,29 @@ async function captureElementAsPng(
                 ],
             });
         } finally {
-            // Cleanup
-            document.body.removeChild(parent);
+            // remove the clone to avoid memory leaks
+            try {
+                if (clone.parentNode === parent) parent.removeChild(clone);
+            } catch (_) {}
         }
     } catch (error) {
         console.error("Failed to capture tree as PNG:", error);
         return null;
     }
+}
+
+function createAndAttachOffscreenParent() {
+    console.log("Creating offscreen parent for capture");
+    const parent = document.createElement("div");
+    parent.style.position = "absolute";
+    parent.style.left = "-9999px";
+    parent.style.top = "-9999px";
+    parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
+    parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
+    parent.style.overflow = "visible";
+
+    document.body.appendChild(parent);
+    return parent;
 }
 
 async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
@@ -198,6 +208,7 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
 export async function captureTreeImageByIndex(
     tabIndex: number,
     bridge: TabsCaptureBridge,
+    parent: HTMLElement,
 ): Promise<Blob | null> {
     return withCaptureState(async () => {
         if (tabIndex !== bridge.getActive()) {
@@ -206,7 +217,7 @@ export async function captureTreeImageByIndex(
         }
 
         const element = bridge.getTreeCanvas();
-        return await captureElementAsPng(element);
+        return await captureElementAsPng(element, parent);
     });
 }
 
@@ -217,17 +228,31 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     }
     const currentIndex = bridge.getActive();
 
-    const tree1Blob = await captureTreeImageByIndex(0, bridge);
-    const tree2Blob = await captureTreeImageByIndex(1, bridge);
-    const tree3Blob = await captureTreeImageByIndex(2, bridge);
+    return withCaptureState(async () => {
+        const parent = createAndAttachOffscreenParent();
+        try {
+            const tree1Blob = await captureTreeImageByIndex(0, bridge, parent);
+            const tree2Blob = await captureTreeImageByIndex(1, bridge, parent);
+            const tree3Blob = await captureTreeImageByIndex(2, bridge, parent);
 
-    bridge.setActive(currentIndex);
+            // Restore active tab
+            bridge.setActive(currentIndex);
 
-    if (!tree1Blob || !tree2Blob || !tree3Blob) {
-        return null;
-    }
+            if (!tree1Blob || !tree2Blob || !tree3Blob) {
+                return null;
+            }
 
-    return combineTreeImagesHorizontally(tree1Blob, tree2Blob, tree3Blob);
+            return combineTreeImagesHorizontally(
+                tree1Blob,
+                tree2Blob,
+                tree3Blob,
+            );
+        } finally {
+            try {
+                document.body.removeChild(parent);
+            } catch (_) {}
+        }
+    });
 }
 
 /**
