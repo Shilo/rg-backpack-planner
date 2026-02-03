@@ -82,14 +82,16 @@
             From Link/Code
         </Button>
         <div class="section-title">Recommended</div>
-        {#each premadeBuilds as build}
-            <Button
-                icon={premadeBuildIcons[build.name] ?? ShareNetworkIcon}
-                on:click={() => handlePremadeClick(build.code)}
-            >
-                {build.name}
-            </Button>
-        {/each}
+        <div class="premade-builds-list">
+            {#each premadeBuilds as build}
+                <Button
+                    icon={premadeBuildIcons[build.name] ?? ShareNetworkIcon}
+                    on:click={() => handlePremadeClick(build.code)}
+                >
+                    {build.name}
+                </Button>
+            {/each}
+        </div>
     </ContextMenu>
 </div>
 
@@ -118,5 +120,13 @@
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;
+    }
+
+    .premade-builds-list {
+        max-height: min(400px, 40vh);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
     }
 </style>
