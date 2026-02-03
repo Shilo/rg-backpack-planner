@@ -4,7 +4,9 @@
     import {
         ClipboardIcon,
         CaretDownIcon,
-        RobotIcon,
+        SunIcon,
+        SpiralIcon,
+        MoonIcon,
         ShareNetworkIcon,
         SwordIcon,
     } from "phosphor-svelte";
@@ -44,8 +46,10 @@
 
     // Recommended build key (from package.json) → icon component
     const recommendedBuildIcons: Record<string, Component> = {
-        pve: RobotIcon,
-        pvp: SwordIcon,
+        "top early": SunIcon,
+        "top early stun": SpiralIcon,
+        "top late": MoonIcon,
+        "top late pvp": SwordIcon,
     };
 
     // Dynamically get all recommended builds from package.json
@@ -240,7 +244,7 @@
             x={dropdownMenuX}
             y={dropdownMenuY}
             isOpen={dropdownMenuOpen}
-            title="Recommended Builds"
+            title="Preview Builds"
             onClose={closeDropdownMenu}
         >
             {#each recommendedBuilds as build}
@@ -249,7 +253,7 @@
                     on:click={() => handleRecommendedClick(build.code)}
                     disabled={isLoading}
                 >
-                    Preview {build.name} build
+                    {build.name}
                 </Button>
             {/each}
         </ContextMenu>
