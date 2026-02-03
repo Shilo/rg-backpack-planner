@@ -10,7 +10,7 @@ export function openLoadBuildModal(onLoaded?: () => void) {
         // Cast to any to satisfy TS ComponentType constraint
         titleIcon: EyeIcon as any,
         message:
-            "Type link or build code. ▼ icon for recommended builds. (Preview is temporary and won't affect your current build.)",
+            "Type link or build code. (Preview is temporary and won't affect your current build.)",
         confirmLabel: "Preview build",
         cancelLabel: "Cancel",
         onConfirm: () => {

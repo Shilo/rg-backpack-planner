@@ -127,7 +127,7 @@
         <ShareBuildButton title="Share" disabled={$isPreviewMode} />
         <Button
             on:click={() => openLoadBuildModal(() => onClose?.())}
-            tooltipText={"Type a shareable link or build code. ▼ icon for recommended builds"}
+            tooltipText={"Type a shareable link or build code."}
             icon={EyeIcon}
         >
             Preview

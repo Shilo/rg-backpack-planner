@@ -44,17 +44,17 @@
     let dropdownMenuX = 0;
     let dropdownMenuY = 0;
 
-    // Recommended build key (from package.json) → icon component
-    const recommendedBuildIcons: Record<string, Component> = {
+    // Premade build key (from package.json) → icon component
+    const premadeBuildIcons: Record<string, Component> = {
         "top early": SunIcon,
         "top early stun": SpiralIcon,
         "top late": MoonIcon,
         "top late pvp": SwordIcon,
     };
 
-    // Dynamically get all recommended builds from package.json
-    const recommendedBuilds = (() => {
-        const builds = appPackage?.recommendedBuilds;
+    // Dynamically get all premade builds from package.json
+    const premadeBuilds = (() => {
+        const builds = appPackage?.premadeBuilds;
         if (!builds || typeof builds !== "object") return [];
 
         return Object.entries(builds)
@@ -67,7 +67,7 @@
             }));
     })();
 
-    const hasRecommendedBuilds = recommendedBuilds.length > 0;
+    const hasPremadeBuilds = premadeBuilds.length > 0;
 
     function handleCancel() {
         onCancel?.();
@@ -127,14 +127,14 @@
         }
     }
 
-    function handleRecommendedClick(buildCode: string) {
+    function handlePremadeClick(buildCode: string) {
         triggerHaptic();
         closeDropdownMenu();
         void handleLoad(buildCode);
     }
 
     function handleDropdownClick() {
-        if (!previewButtonElement || !hasRecommendedBuilds) return;
+        if (!previewButtonElement || !hasPremadeBuilds) return;
         triggerHaptic();
         const rect = previewButtonElement.getBoundingClientRect();
         dropdownMenuX = rect.left + rect.width / 2;
@@ -218,15 +218,15 @@
                 >
                     {confirmLabel}
                 </Button>
-                {#if hasRecommendedBuilds}
+                {#if hasPremadeBuilds}
                     <Button
                         on:click={handleDropdownClick}
                         disabled={isLoading}
                         positive
                         class="dropdown-button"
                         icon={CaretDownIcon}
-                        tooltipText="Show recommended builds"
-                        aria-label="Show recommended builds"
+                        tooltipText="Show premade builds"
+                        aria-label="Show premade builds"
                     />
                 {/if}
             </div>
@@ -234,7 +234,7 @@
     </div>
 </div>
 
-{#if hasRecommendedBuilds}
+{#if hasPremadeBuilds}
     <div
         use:portal
         class="dropdown-menu-portal"
@@ -247,10 +247,10 @@
             title="Preview Builds"
             onClose={closeDropdownMenu}
         >
-            {#each recommendedBuilds as build}
+            {#each premadeBuilds as build}
                 <Button
-                    icon={recommendedBuildIcons[build.name] ?? ShareNetworkIcon}
-                    on:click={() => handleRecommendedClick(build.code)}
+                    icon={premadeBuildIcons[build.name] ?? ShareNetworkIcon}
+                    on:click={() => handlePremadeClick(build.code)}
                     disabled={isLoading}
                 >
                     {build.name}
