@@ -14,12 +14,12 @@
         "name": "Run! Goddess",
         "url": "https://rungoddess.topgamesinc.com"
     },
-    "premadeBuilds": {
-        "starter": "Starter|_",
-        "early stun": "Early Stun|_",
-        "late pve": "Late PvE|_",
-        "late pvp": "Late PvP|_"
-    },
+    "premadeBuilds": [
+        "Starter|_",
+        "Early Stun|_",
+        "Late PvE|_",
+        "Late PvP|_"
+    ],
     "private": true,
     "type": "module",
     "scripts": {

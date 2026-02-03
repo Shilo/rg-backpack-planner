@@ -213,6 +213,18 @@ export function parseEncodedFromUserInput(input: string): string | null {
 }
 
 /**
+ * Extracts the build name from an encoded build string.
+ * Uses the name separator ("|") and returns the first component if present.
+ */
+export function getBuildNameFromEncoded(encoded: string): string | null {
+    if (typeof encoded !== "string") return null;
+    const separatorIndex = encoded.indexOf("|");
+    if (separatorIndex === -1) return null;
+    const name = encoded.slice(0, separatorIndex).trim();
+    return name || null;
+}
+
+/**
  * Updates the current URL with the current build data
  * Used in preview mode to keep URL in sync with changes
  * Does not reload the page, just updates the URL

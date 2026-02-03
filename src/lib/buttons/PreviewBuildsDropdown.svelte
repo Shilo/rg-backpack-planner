@@ -2,7 +2,7 @@
     import {
         SunIcon,
         SpiralIcon,
-        MoonIcon,
+        ShieldIcon,
         ShareNetworkIcon,
         SwordIcon,
         LinkIcon,
@@ -15,6 +15,7 @@
     import {
         parseEncodedFromUserInput,
         navigateToEncodedBuild,
+        getBuildNameFromEncoded,
     } from "../buildData/url";
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
@@ -30,25 +31,29 @@
 
     // Premade build key (from package.json) → icon component
     const premadeBuildIcons: Record<string, Component> = {
-        starter: SunIcon,
-        "early stun": SpiralIcon,
-        "late pve": MoonIcon,
-        "late pvp": SwordIcon,
+        Starter: SunIcon,
+        "Early Stun": SpiralIcon,
+        "Late PvE": ShieldIcon,
+        "Late PvP": SwordIcon,
     };
 
     // Dynamically get all premade builds from package.json
     const premadeBuilds = (() => {
         const builds = appPackage?.premadeBuilds;
-        if (!builds || typeof builds !== "object") return [];
+        if (!Array.isArray(builds)) return [];
 
-        return Object.entries(builds)
+        return builds
             .filter(
-                ([, value]) => typeof value === "string" && value.trim() !== "",
+                (value): value is string =>
+                    typeof value === "string" && value.trim() !== "",
             )
-            .map(([key, value]) => ({
-                name: key,
-                code: value as string,
-            }));
+            .map((value) => {
+                const name = getBuildNameFromEncoded(value) ?? "Preview";
+                return {
+                    name,
+                    code: value,
+                };
+            });
     })();
 
     function handlePremadeClick(buildCode: string) {
