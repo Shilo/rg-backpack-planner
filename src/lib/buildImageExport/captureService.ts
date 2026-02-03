@@ -1,6 +1,19 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 
+const TREE_VISIBLE_BOUNDS = {
+    centerNode: {
+        x: 295,
+        y: 356,
+    },
+    width: 701,
+    height: 694,
+    // Actual size is:
+    // width: 703
+    // height: 696
+    // snapdom seems to add a 1px extra margin around the captured area
+};
+
 type TabsCaptureBridge = {
     setActive: (index: number) => void;
     getActive: () => number;
@@ -28,7 +41,7 @@ async function captureElementAsPng(
         element.style.transform = "none";
 
         // Force layout recalculation
-        const rect = element.getBoundingClientRect();
+        const rect = TREE_VISIBLE_BOUNDS; //element.getBoundingClientRect();
         const width = rect.width;
         const height = rect.height;
 
@@ -47,16 +60,16 @@ async function captureElementAsPng(
 
         // Offset clone by 50% of its size (center it)
         clone.style.position = "absolute";
-        clone.style.left = `${width}px`;
-        clone.style.top = `${height}px`;
+        clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
+        clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
 
         // Create parent div (off-screen)
         const parent = document.createElement("div");
         parent.style.position = "absolute";
         parent.style.left = "-9999px";
         parent.style.top = "-9999px";
-        parent.style.width = `${width * 4}px`;
-        parent.style.height = `${height * 4}px`;
+        parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
+        parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
         parent.style.overflow = "visible";
         parent.appendChild(clone);
 
@@ -107,88 +120,15 @@ async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     });
 }
 
-async function cropAndCenterBlobContent(blob: Blob): Promise<Blob> {
-    const img = await blobToImage(blob);
-
-    // Draw image to canvas to analyze pixel data
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = img.width;
-    tempCanvas.height = img.height;
-    const tempCtx = tempCanvas.getContext("2d");
-    if (!tempCtx) return blob;
-
-    tempCtx.drawImage(img, 0, 0);
-    const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
-    const data = imageData.data;
-
-    // Find bounds of non-transparent pixels
-    let minX = img.width,
-        maxX = 0,
-        minY = img.height,
-        maxY = 0;
-    let hasContent = false;
-
-    for (let i = 3; i < data.length; i += 4) {
-        if (data[i] > 0) {
-            hasContent = true;
-            const pixelIndex = (i - 3) / 4;
-            const x = pixelIndex % img.width;
-            const y = Math.floor(pixelIndex / img.width);
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
-        }
-    }
-
-    // If no content, return original
-    if (!hasContent) return blob;
-
-    const contentWidth = maxX - minX + 1;
-    const contentHeight = maxY - minY + 1;
-    const padding = 10;
-
-    // Create canvas with padding, centering the cropped content
-    const croppedCanvas = document.createElement("canvas");
-    croppedCanvas.width = contentWidth + padding * 2;
-    croppedCanvas.height = contentHeight + padding * 2;
-    const croppedCtx = croppedCanvas.getContext("2d");
-    if (!croppedCtx) return blob;
-
-    // Draw the cropped region (translating to padding offset)
-    croppedCtx.drawImage(
-        img,
-        minX,
-        minY,
-        contentWidth,
-        contentHeight,
-        padding,
-        padding,
-        contentWidth,
-        contentHeight,
-    );
-
-    return new Promise((resolve) => {
-        croppedCanvas.toBlob((newBlob) => {
-            resolve(newBlob || blob);
-        }, "image/png");
-    });
-}
-
 async function combineTreeImagesHorizontally(
     tree1Blob: Blob,
     tree2Blob: Blob,
     tree3Blob: Blob,
 ): Promise<Blob | null> {
     try {
-        // Crop and center each tree's content
-        const croppedBlob1 = await cropAndCenterBlobContent(tree1Blob);
-        const croppedBlob2 = await cropAndCenterBlobContent(tree2Blob);
-        const croppedBlob3 = await cropAndCenterBlobContent(tree3Blob);
-
-        const img1 = await blobToImage(croppedBlob1);
-        const img2 = await blobToImage(croppedBlob2);
-        const img3 = await blobToImage(croppedBlob3);
+        const img1 = await blobToImage(tree1Blob);
+        const img2 = await blobToImage(tree2Blob);
+        const img3 = await blobToImage(tree3Blob);
 
         const padding = 10;
         const maxHeight = Math.max(img1.height, img2.height, img3.height);
@@ -263,8 +203,6 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     const currentIndex = bridge.getActive();
 
     const tree1Blob = await captureTreeImageByIndex(0, bridge);
-    bridge.setActive(currentIndex);
-    return tree1Blob;
     const tree2Blob = await captureTreeImageByIndex(1, bridge);
     const tree3Blob = await captureTreeImageByIndex(2, bridge);
 
