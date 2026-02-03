@@ -55,9 +55,13 @@ async function captureElementAsPng(
 
         // Clear any previous contents and append the clone
         try {
-            while (parent.firstChild) parent.removeChild(parent.firstChild);
-        } catch (_) {}
-        parent.appendChild(clone);
+            parent.replaceChildren(clone);
+        } catch (_) {
+            try {
+                while (parent.firstChild) parent.removeChild(parent.firstChild);
+            } catch (_) {}
+            parent.appendChild(clone);
+        }
 
         try {
             return await snapdom.toBlob(parent, {
@@ -77,8 +81,12 @@ async function captureElementAsPng(
         } finally {
             // remove the clone to avoid memory leaks
             try {
-                if (clone.parentNode === parent) parent.removeChild(clone);
-            } catch (_) {}
+                parent.replaceChildren();
+            } catch (_) {
+                try {
+                    if (clone.parentNode === parent) parent.removeChild(clone);
+                } catch (_) {}
+            }
         }
     } catch (error) {
         console.error("Failed to capture tree as PNG:", error);
