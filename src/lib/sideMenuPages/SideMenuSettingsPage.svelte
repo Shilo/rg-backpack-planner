@@ -17,6 +17,7 @@
     import BuildPresetsButton from "../buttons/BuildPresetsButton.svelte";
     import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
     import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
+    import PreviewBuildsDropdown from "../buttons/PreviewBuildsDropdown.svelte";
     import { closeUpView } from "../closeUpViewStore";
     import { openModal } from "../modalStore";
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
@@ -27,7 +28,6 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
-    import { openLoadBuildModal } from "../loadBuildModal";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -40,6 +40,11 @@
 
     const POS_EPSILON = 0.5;
     const SCALE_EPSILON = 0.001;
+
+    let previewButtonElement: HTMLButtonElement | null = null;
+    let dropdownMenuOpen = false;
+    let dropdownMenuX = 0;
+    let dropdownMenuY = 0;
 
     const isClose = (a: number, b: number, epsilon: number) =>
         Math.abs(a - b) <= epsilon;
@@ -116,6 +121,18 @@
             },
         });
     }
+
+    function handlePreviewDropdownClick() {
+        if (!previewButtonElement) return;
+        const rect = previewButtonElement.getBoundingClientRect();
+        dropdownMenuX = rect.left + rect.width / 2;
+        dropdownMenuY = rect.bottom + 8;
+        dropdownMenuOpen = true;
+    }
+
+    function closeDropdownMenu() {
+        dropdownMenuOpen = false;
+    }
 </script>
 
 <SideMenuPreviewSection />
@@ -126,8 +143,9 @@
     <div class="button-row">
         <ShareBuildButton title="Share" disabled={$isPreviewMode} />
         <Button
-            on:click={() => openLoadBuildModal(() => onClose?.())}
-            tooltipText={"Type a shareable link or build code."}
+            bind:element={previewButtonElement}
+            on:click={handlePreviewDropdownClick}
+            tooltipText={"Preview premade build or link/code"}
             icon={EyeIcon}
         >
             Preview
@@ -215,6 +233,14 @@
         Clear All Data
     </Button>
 </SideMenuSection>
+
+<PreviewBuildsDropdown
+    x={dropdownMenuX}
+    y={dropdownMenuY}
+    isOpen={dropdownMenuOpen}
+    onClose={closeDropdownMenu}
+    onPreview={() => onClose?.()}
+/>
 
 <style>
     .spacer {

@@ -86,7 +86,7 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={`Share "${truncateText(tooltipSubject)}" build`}
+    tooltipText={`Share ${truncateText(tooltipSubject)} build`}
     icon={ShareIcon}
     {disabled}
 >

@@ -15,10 +15,10 @@
         "url": "https://rungoddess.topgamesinc.com"
     },
     "premadeBuilds": {
-        "top early": "Top Early|_",
-        "top early stun": "Top Early Stun|_",
-        "top late": "Top Late|_",
-        "top late pvp": "Top Late PvP|_"
+        "starter": "Starter|_",
+        "early stun": "Early Stun|_",
+        "late pve": "Late PvE|_",
+        "late pvp": "Late PvP|_"
     },
     "private": true,
     "type": "module",

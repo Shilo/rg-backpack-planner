@@ -1,17 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { Component, ComponentType } from "svelte";
-    import {
-        ClipboardIcon,
-        CaretDownIcon,
-        SunIcon,
-        SpiralIcon,
-        MoonIcon,
-        ShareNetworkIcon,
-        SwordIcon,
-    } from "phosphor-svelte";
+    import type { ComponentType } from "svelte";
+    import { ClipboardIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
-    import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
     import {
         parseEncodedFromUserInput,
@@ -19,12 +10,8 @@
     } from "../buildData/url";
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
-    import { portal } from "../portal";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - package.json import is valid
-    import appPackage from "../../../package.json";
 
-    export let title = "PREVIEW shareable build";
+    export let title = "Preview shareable build";
     export let titleIcon: ComponentType | null = null;
     export let titleIconClass = "";
     export let titleIconAriaHidden = true;
@@ -39,35 +26,6 @@
     let inputText = "";
     let isLoading = false;
     let inputEl: HTMLInputElement | null = null;
-    let previewButtonElement: HTMLButtonElement | null = null;
-    let dropdownMenuOpen = false;
-    let dropdownMenuX = 0;
-    let dropdownMenuY = 0;
-
-    // Premade build key (from package.json) → icon component
-    const premadeBuildIcons: Record<string, Component> = {
-        "top early": SunIcon,
-        "top early stun": SpiralIcon,
-        "top late": MoonIcon,
-        "top late pvp": SwordIcon,
-    };
-
-    // Dynamically get all premade builds from package.json
-    const premadeBuilds = (() => {
-        const builds = appPackage?.premadeBuilds;
-        if (!builds || typeof builds !== "object") return [];
-
-        return Object.entries(builds)
-            .filter(
-                ([, value]) => typeof value === "string" && value.trim() !== "",
-            )
-            .map(([key, value]) => ({
-                name: key,
-                code: value as string,
-            }));
-    })();
-
-    const hasPremadeBuilds = premadeBuilds.length > 0;
 
     function handleCancel() {
         onCancel?.();
@@ -101,10 +59,10 @@
         }
     }
 
-    async function handleLoad(buildCode?: string) {
+    async function handleLoad() {
         if (isLoading) return;
 
-        const raw = (buildCode ?? inputText).trim();
+        const raw = inputText.trim();
         if (!raw) {
             showToast("Type link or build code", { tone: "negative" });
             inputEl?.focus();
@@ -125,25 +83,6 @@
         } finally {
             isLoading = false;
         }
-    }
-
-    function handlePremadeClick(buildCode: string) {
-        triggerHaptic();
-        closeDropdownMenu();
-        void handleLoad(buildCode);
-    }
-
-    function handleDropdownClick() {
-        if (!previewButtonElement || !hasPremadeBuilds) return;
-        triggerHaptic();
-        const rect = previewButtonElement.getBoundingClientRect();
-        dropdownMenuX = rect.left + rect.width / 2;
-        dropdownMenuY = rect.bottom + 8;
-        dropdownMenuOpen = true;
-    }
-
-    function closeDropdownMenu() {
-        dropdownMenuOpen = false;
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -208,57 +147,17 @@
             <Button data-modal-cancel on:click={handleCancel}>
                 {cancelLabel}
             </Button>
-            <div class="button-group">
-                <Button
-                    bind:element={previewButtonElement}
-                    data-modal-confirm
-                    on:click={() => handleLoad()}
-                    disabled={isLoading}
-                    positive
-                >
-                    {confirmLabel}
-                </Button>
-                {#if hasPremadeBuilds}
-                    <Button
-                        on:click={handleDropdownClick}
-                        disabled={isLoading}
-                        positive
-                        class="dropdown-button"
-                        icon={CaretDownIcon}
-                        tooltipText="Show premade builds"
-                        aria-label="Show premade builds"
-                    />
-                {/if}
-            </div>
+            <Button
+                data-modal-confirm
+                on:click={() => handleLoad()}
+                disabled={isLoading}
+                positive
+            >
+                {confirmLabel}
+            </Button>
         </div>
     </div>
 </div>
-
-{#if hasPremadeBuilds}
-    <div
-        use:portal
-        class="dropdown-menu-portal"
-        class:menu-open={dropdownMenuOpen}
-    >
-        <ContextMenu
-            x={dropdownMenuX}
-            y={dropdownMenuY}
-            isOpen={dropdownMenuOpen}
-            title="Preview Builds"
-            onClose={closeDropdownMenu}
-        >
-            {#each premadeBuilds as build}
-                <Button
-                    icon={premadeBuildIcons[build.name] ?? ShareNetworkIcon}
-                    on:click={() => handlePremadeClick(build.code)}
-                    disabled={isLoading}
-                >
-                    {build.name}
-                </Button>
-            {/each}
-        </ContextMenu>
-    </div>
-{/if}
 
 <style>
     .modal-content {
