@@ -130,10 +130,10 @@ async function combineTreeImagesHorizontally(
         const img2 = await blobToImage(tree2Blob);
         const img3 = await blobToImage(tree3Blob);
 
-        const padding = 10;
+        const spacing = 32; //spacing (half node size) between each tree, no outer padding
         const maxHeight = Math.max(img1.height, img2.height, img3.height);
-        const totalWidth = img1.width + img2.width + img3.width + padding * 2;
-        const totalHeight = maxHeight + padding * 2;
+        const totalWidth = img1.width + img2.width + img3.width + spacing * 2; // two gaps between three images
+        const totalHeight = maxHeight;
 
         const canvas = document.createElement("canvas");
         canvas.width = totalWidth;
@@ -145,16 +145,15 @@ async function combineTreeImagesHorizontally(
             return null;
         }
 
-        const yOffset = padding + (maxHeight - img1.height) / 2;
-        let xOffset = padding;
+        let xOffset = 0;
 
-        ctx.drawImage(img1, xOffset, yOffset);
-        xOffset += img1.width;
+        ctx.drawImage(img1, xOffset, (maxHeight - img1.height) / 2);
+        xOffset += img1.width + spacing;
 
-        ctx.drawImage(img2, xOffset, padding + (maxHeight - img2.height) / 2);
-        xOffset += img2.width;
+        ctx.drawImage(img2, xOffset, (maxHeight - img2.height) / 2);
+        xOffset += img2.width + spacing;
 
-        ctx.drawImage(img3, xOffset, padding + (maxHeight - img3.height) / 2);
+        ctx.drawImage(img3, xOffset, (maxHeight - img3.height) / 2);
 
         return new Promise((resolve) => {
             canvas.toBlob((blob) => {
