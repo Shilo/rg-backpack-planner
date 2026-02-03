@@ -15,6 +15,7 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import {
     setPreviewBuildName,
     clearPreviewBuildName,
+    previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
 
@@ -251,6 +252,7 @@ export function updateUrlWithCurrentBuild(): void {
         const buildData: BuildData = {
             trees: get(treeLevels),
             owned: get(techCrystalsOwned),
+            name: get(previewBuildName) ?? undefined,
         };
 
         const encoded = encodeBuildData(buildData);

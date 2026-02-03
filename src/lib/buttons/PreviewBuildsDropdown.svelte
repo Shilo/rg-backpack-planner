@@ -82,7 +82,7 @@
     >
         <Button
             icon={LinkIcon}
-            tooltipText="Preview build from link or code"
+            tooltipText="Preview build from shareable link or code"
             on:click={handleOpenLoadModal}
         >
             From Link/Code
