@@ -253,18 +253,4 @@
     .modal-actions__row--right {
         justify-content: flex-end;
     }
-
-    .dropdown-menu-portal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-        z-index: var(--z-index-context-menu-over-modal);
-    }
-
-    .dropdown-menu-portal.menu-open {
-        pointer-events: auto;
-    }
 </style>

@@ -16,9 +16,9 @@
     },
     "premadeBuilds": [
         "Starter|_",
-        "Early Stun|_",
-        "Late PvE|_",
-        "Late PvP|_"
+        "Early_Stun|_",
+        "Late_PvE|_",
+        "Late_PvP|_"
     ],
     "private": true,
     "type": "module",
