@@ -126,9 +126,9 @@ async function combineTreeImagesHorizontally(
     tree3Blob: Blob,
 ): Promise<Blob | null> {
     try {
-        const img1 = await blobToImage(tree1Blob);
-        const img2 = await blobToImage(tree2Blob);
-        const img3 = await blobToImage(tree3Blob);
+        let img1 = await blobToImage(tree1Blob);
+        let img2 = await blobToImage(tree2Blob);
+        let img3 = await blobToImage(tree3Blob);
 
         const spacing = 32; //spacing (half node size) between each tree, no outer padding
         const maxHeight = Math.max(img1.height, img2.height, img3.height);
@@ -157,6 +157,33 @@ async function combineTreeImagesHorizontally(
 
         return new Promise((resolve) => {
             canvas.toBlob((blob) => {
+                // If blob is null (very rare), clean up and return null
+                if (!blob) {
+                    try {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        canvas.width = 0;
+                        canvas.height = 0;
+                    } catch (_) {}
+
+                    img1 = img2 = img3 = null as any;
+                    resolve(null);
+                    return;
+                }
+
+                // Clear canvas backing store and drop image refs to make memory reclaiming easier
+                try {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvas.width = 0;
+                    canvas.height = 0;
+                } catch (_) {}
+
+                try {
+                    img1.src = "";
+                    img2.src = "";
+                    img3.src = "";
+                } catch (_) {}
+
+                img1 = img2 = img3 = null as any;
                 resolve(blob);
             }, "image/png");
         });
