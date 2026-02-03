@@ -11,7 +11,6 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { triggerHaptic } from "../haptics";
     import {
         parseEncodedFromUserInput,
         navigateToEncodedBuild,
@@ -57,7 +56,6 @@
     })();
 
     function handlePremadeClick(buildCode: string) {
-        triggerHaptic();
         onClose?.();
         const encoded = parseEncodedFromUserInput(buildCode);
         if (encoded) {
@@ -69,7 +67,6 @@
     }
 
     function handleOpenLoadModal() {
-        triggerHaptic();
         onClose?.();
         openLoadBuildModal(() => onPreview?.());
     }
