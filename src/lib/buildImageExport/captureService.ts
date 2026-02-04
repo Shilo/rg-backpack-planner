@@ -136,7 +136,7 @@ async function combineTreeImagesHorizontally(
         let img2 = await blobToImage(tree2Blob);
         let img3 = await blobToImage(tree3Blob);
 
-        const spacing = 32; //spacing (half node size) between each tree, no outer padding
+        const spacing = 32; // spacing (half node size) between each tree, no outer padding
         const maxHeight = Math.max(img1.height, img2.height, img3.height);
         const totalWidth = img1.width + img2.width + img3.width + spacing * 2; // two gaps between three images
         const totalHeight = maxHeight;
