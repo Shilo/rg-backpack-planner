@@ -66,88 +66,19 @@
         --brightness-available: 0.5;
         --brightness-available-hexagon: 0.6;
 
-        /* Fallback variables for nodes without region */
-        --fallback-bg-available: #1c2f52;
-        --fallback-bg-active: #2a3f73;
-        --fallback-bg-maxed: #4a2e0a;
-        --fallback-border-color: #4c6fff;
-        --fallback-border-color-active: #5aa6ff;
-        --fallback-border-color-maxed: #ffb347;
-        --fallback-text-color: #cdd7ff;
-        --fallback-text-color-active: #e1f0ff;
-        --fallback-text-color-maxed: #ffe8c7;
-    }
-
-    /* Top-left region (Orange theme) */
-    :global(.button.node.region-top-left) {
-        --bg-available: #6b3f1f;
-        --bg-active: #8b4f2f;
-        --bg-maxed: #ab5f3f;
-        --border-color: #ff6b35;
-        --border-color-maxed: #ff8c5a;
-        --text-color: #ffd4b8;
-        --text-color-maxed: #ffe8d4;
-    }
-
-    /* Bottom-left region (Yellow theme) */
-    :global(.button.node.region-bottom-left) {
-        --bg-available: #3d3d0a;
-        --bg-active: #5a5a1a;
-        --bg-maxed: #6a6a2a;
-        --border-color: #ffd700;
-        --border-color-maxed: #ffeb3b;
-        --text-color: #fff9cc;
-        --text-color-maxed: #fffdd0;
-    }
-
-    /* Right region (Blue theme) */
-    :global(.button.node.region-right) {
+        /* Default color variables (overridden by region-specific rules) */
         --bg-available: #1c2f52;
         --bg-active: #2a3f73;
-        --bg-maxed: #3a4f83;
-        --border-color: #4a90e2;
-        --border-color-maxed: #6bb6ff;
-        --text-color: #b8d9ff;
-        --text-color-active: #c8e5ff;
-        --text-color-maxed: #e1f0ff;
-    }
-
-    /* Hexagon border colors */
-    :global(.button.node.region-top-left.node-hexagon) {
-        --border-color: #ff6b35;
-        --border-color-maxed: #ff8c5a;
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon) {
-        --border-color: #ffd700;
-        --border-color-maxed: #ffeb3b;
-    }
-
-    :global(.button.node.region-right.node-hexagon) {
-        --border-color: #4a90e2;
-        --border-color-maxed: #6bb6ff;
-    }
-
-    :global(.button.node.node-hexagon) {
+        --bg-maxed: #4a2e0a;
         --border-color: #4c6fff;
+        --border-color-active: #5aa6ff;
         --border-color-maxed: #ffb347;
-    }
-
-    /* Hexagon background colors */
-    :global(.button.node.region-top-left.node-hexagon) {
-        --hex-bg: #2f2e2a;
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon) {
-        --hex-bg: #2f2f2a;
-    }
-
-    :global(.button.node.region-right.node-hexagon) {
+        --text-color: #cdd7ff;
+        --text-color-active: #e1f0ff;
+        --text-color-maxed: #ffe8c7;
         --hex-bg: #2a3441;
-    }
 
-    /* Base node styles */
-    :global(.button.node) {
+        /* Base node styles */
         position: relative;
         width: 64px;
         height: 64px;
@@ -165,12 +96,61 @@
         text-align: center;
     }
 
+    /* Top-left region (Orange theme) */
+    :global(.button.node.region-top-left) {
+        --bg-available: #6b3f1f;
+        --bg-active: #8b4f2f;
+        --bg-maxed: #ab5f3f;
+        --border-color: #ff6b35;
+        --border-color-active: #ff6b35;
+        --border-color-maxed: #ff8c5a;
+        --text-color: #ffd4b8;
+        --text-color-active: #ffd4b8;
+        --text-color-maxed: #ffe8d4;
+    }
+
+    /* Bottom-left region (Yellow theme) */
+    :global(.button.node.region-bottom-left) {
+        --bg-available: #3d3d0a;
+        --bg-active: #5a5a1a;
+        --bg-maxed: #6a6a2a;
+        --border-color: #ffd700;
+        --border-color-active: #ffd700;
+        --border-color-maxed: #ffeb3b;
+        --text-color: #fff9cc;
+        --text-color-active: #fff9cc;
+        --text-color-maxed: #fffdd0;
+    }
+
+    /* Right region (Blue theme) */
+    :global(.button.node.region-right) {
+        --bg-available: #1c2f52;
+        --bg-active: #2a3f73;
+        --bg-maxed: #3a4f83;
+        --border-color: #4a90e2;
+        --border-color-active: #4a90e2;
+        --border-color-maxed: #6bb6ff;
+        --text-color: #b8d9ff;
+        --text-color-active: #c8e5ff;
+        --text-color-maxed: #e1f0ff;
+    }
+
+    /* Hexagon background colors per region */
+    :global(.button.node.region-top-left.node-hexagon) {
+        --hex-bg: #2f2e2a;
+    }
+
+    :global(.button.node.region-bottom-left.node-hexagon) {
+        --hex-bg: #2f2f2a;
+    }
+
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
     :global(.button.node.node-hexagon) {
         border-radius: 0;
         border: none;
         position: relative;
         overflow: visible;
+        background: var(--hex-bg) !important;
         clip-path: polygon(
             25% 0%,
             75% 0%,
@@ -213,154 +193,10 @@
         );
         z-index: -1;
         pointer-events: none;
-        background: #2a3441; /* Default, overridden by region-specific rules */
+        background: var(--hex-bg);
     }
 
-    /* Top-left region border colors */
-    :global(.button.node.region-top-left.node-hexagon.locked::before) {
-        background: var(--border-color);
-        filter: brightness(var(--brightness-locked-hexagon));
-    }
-
-    :global(.button.node.region-top-left.node-hexagon.available::before) {
-        background: var(--border-color);
-        filter: brightness(var(--brightness-available-hexagon))
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.region-top-left.node-hexagon.active::before) {
-        background: var(--border-color);
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 30%, transparent)
-            );
-    }
-
-    :global(.button.node.region-top-left.node-hexagon.maxed::before) {
-        background: var(--border-color-maxed);
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 50%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 30%,
-                        transparent
-                    )
-            );
-    }
-
-    /* Bottom-left region border colors */
-    :global(.button.node.region-bottom-left.node-hexagon.locked::before) {
-        background: var(--border-color);
-        filter: brightness(var(--brightness-locked-hexagon));
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon.available::before) {
-        background: var(--border-color);
-        filter: brightness(var(--brightness-available-hexagon))
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon.active::before) {
-        background: var(--border-color);
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 30%, transparent)
-            );
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon.maxed::before) {
-        background: var(--border-color-maxed);
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 50%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 30%,
-                        transparent
-                    )
-            );
-    }
-
-    /* Right region border colors */
-    :global(.button.node.region-right.node-hexagon.locked::before) {
-        background: var(--border-color);
-        filter: brightness(var(--brightness-locked-hexagon));
-    }
-
-    :global(.button.node.region-right.node-hexagon.available::before) {
-        background: var(--border-color);
-        filter: brightness(var(--brightness-available-hexagon))
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.region-right.node-hexagon.active::before) {
-        background: var(--border-color);
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 30%, transparent)
-            );
-    }
-
-    :global(.button.node.region-right.node-hexagon.maxed::before) {
-        background: var(--border-color-maxed);
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 50%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 30%,
-                        transparent
-                    )
-            );
-    }
-
-    /* Fallback for nodes without region */
+    /* Hexagon border (::before) state styles */
     :global(.button.node.node-hexagon.locked::before) {
         background: var(--border-color);
         filter: brightness(var(--brightness-locked-hexagon));
@@ -408,153 +244,7 @@
             );
     }
 
-    /* Hexagon inner colors - dark slate gray with theme variants */
-    :global(.button.node.region-top-left.node-hexagon) {
-        background: var(--hex-bg) !important;
-    }
-
-    :global(.button.node.region-top-left.node-hexagon::after) {
-        background: var(--hex-bg);
-    }
-
-    :global(.button.node.region-top-left.node-hexagon.available) {
-        filter: brightness(var(--brightness-available-hexagon))
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
-            );
-    }
-
-    :global(.button.node.region-top-left.node-hexagon.active) {
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.region-top-left.node-hexagon.maxed) {
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 40%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 20%,
-                        transparent
-                    )
-            );
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon) {
-        background: var(--hex-bg) !important;
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon::after) {
-        background: var(--hex-bg);
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon.available) {
-        filter: brightness(var(--brightness-available-hexagon))
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
-            );
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon.active) {
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon.maxed) {
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 40%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 20%,
-                        transparent
-                    )
-            );
-    }
-
-    :global(.button.node.region-right.node-hexagon) {
-        background: var(--hex-bg) !important;
-    }
-
-    :global(.button.node.region-right.node-hexagon::after) {
-        background: var(--hex-bg);
-    }
-
-    :global(.button.node.region-right.node-hexagon.available) {
-        filter: brightness(var(--brightness-available-hexagon))
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
-            );
-    }
-
-    :global(.button.node.region-right.node-hexagon.active) {
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.region-right.node-hexagon.maxed) {
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 40%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 20%,
-                        transparent
-                    )
-            );
-    }
-
-    /* Fallback for nodes without region */
-    :global(.button.node.node-hexagon::after) {
-        background: #2a3441;
-    }
-
+    /* Hexagon element glow state styles */
     :global(.button.node.node-hexagon.available) {
         filter: brightness(var(--brightness-available-hexagon))
             drop-shadow(
@@ -639,143 +329,36 @@
         transform-origin: center bottom;
     }
 
-    /* Top-left region (Orange theme - colorblind-friendly red-orange) */
-    :global(.button.node.region-top-left.locked) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        filter: brightness(var(--brightness-locked));
-    }
-
-    :global(.button.node.region-top-left.available) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        filter: brightness(var(--brightness-available));
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 20%, transparent);
-    }
-
-    :global(.button.node.region-top-left.active) {
-        background: var(--bg-active);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 30%, transparent);
-    }
-
-    :global(.button.node.region-top-left.maxed) {
-        background: var(--bg-maxed);
-        border-color: var(--border-color-maxed);
-        color: var(--text-color-maxed);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
-    }
-
-    /* Bottom-left region (Yellow theme - bright gold for colorblind-friendly) */
-    :global(.button.node.region-bottom-left.locked) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        filter: brightness(var(--brightness-locked));
-    }
-
-    :global(.button.node.region-bottom-left.available) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        filter: brightness(var(--brightness-available));
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 20%, transparent);
-    }
-
-    :global(.button.node.region-bottom-left.active) {
-        background: var(--bg-active);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 30%, transparent);
-    }
-
-    :global(.button.node.region-bottom-left.maxed) {
-        background: var(--bg-maxed);
-        border-color: var(--border-color-maxed);
-        color: var(--text-color-maxed);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
-    }
-
-    /* Right region (Blue theme - saturated blue for colorblind-friendly) */
-    :global(.button.node.region-right.locked) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        filter: brightness(var(--brightness-locked));
-    }
-
-    :global(.button.node.region-right.available) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
-        filter: brightness(var(--brightness-available));
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 20%, transparent);
-    }
-
-    :global(.button.node.region-right.active) {
-        background: var(--bg-active);
-        border-color: var(--border-color);
-        color: var(--text-color-active);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 30%, transparent);
-    }
-
-    :global(.button.node.region-right.maxed) {
-        background: var(--bg-maxed);
-        border-color: var(--border-color-maxed);
-        color: var(--text-color-maxed);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
-    }
-
-    /* Fallback for nodes without region (shouldn't happen) */
+    /* Node state styles */
     :global(.button.node.locked) {
-        background: var(--fallback-bg-available);
-        border-color: var(--fallback-border-color);
-        color: var(--fallback-text-color);
+        background: var(--bg-available);
+        border-color: var(--border-color);
+        color: var(--text-color);
         filter: brightness(var(--brightness-locked));
     }
 
     :global(.button.node.available) {
-        background: var(--fallback-bg-available);
-        border-color: var(--fallback-border-color);
-        color: var(--fallback-text-color);
+        background: var(--bg-available);
+        border-color: var(--border-color);
+        color: var(--text-color);
         filter: brightness(var(--brightness-available));
         box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--fallback-border-color) 20%, transparent);
+            color-mix(in srgb, var(--border-color) 20%, transparent);
     }
 
     :global(.button.node.active) {
-        background: var(--fallback-bg-active);
-        border-color: var(--fallback-border-color-active);
-        color: var(--fallback-text-color-active);
+        background: var(--bg-active);
+        border-color: var(--border-color-active);
+        color: var(--text-color-active);
         box-shadow: 0 0 0 2px
-            color-mix(
-                in srgb,
-                var(--fallback-border-color-active) 30%,
-                transparent
-            );
+            color-mix(in srgb, var(--border-color-active) 30%, transparent);
     }
 
     :global(.button.node.maxed) {
-        background: var(--fallback-bg-maxed);
-        border-color: var(--fallback-border-color-maxed);
-        color: var(--fallback-text-color-maxed);
+        background: var(--bg-maxed);
+        border-color: var(--border-color-maxed);
+        color: var(--text-color-maxed);
         box-shadow: 0 0 0 2px
-            color-mix(
-                in srgb,
-                var(--fallback-border-color-maxed) 35%,
-                transparent
-            );
+            color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
     }
 </style>
