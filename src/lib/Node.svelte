@@ -61,8 +61,13 @@
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
         /* Filter values for unleveled states */
-        --filter-locked: grayscale(1) brightness(0.4);
+        --filter-locked: brightness(0.4);
         --filter-available: brightness(0.5);
+
+        /* Locked state colors (grayscale, same for all regions) */
+        --bg-locked: #2a2a35;
+        --border-color-locked: #55556a;
+        --text-color-locked: #8888a0;
 
         /* Default color variables (overridden by region-specific rules) */
         --bg-available: #1c2f52;
@@ -194,9 +199,14 @@
         background: var(--hex-bg);
     }
 
+    /* Override hex-bg for locked hexagons so body is also grayscale */
+    :global(.button.node.node-hexagon.locked) {
+        --hex-bg: var(--bg-locked);
+    }
+
     /* Hexagon border (::before) state styles */
     :global(.button.node.node-hexagon.locked::before) {
-        background: var(--border-color);
+        background: var(--border-color-locked);
         filter: var(--filter-locked);
     }
 
@@ -329,9 +339,9 @@
 
     /* Node state styles */
     :global(.button.node.locked) {
-        background: var(--bg-available);
-        border-color: var(--border-color);
-        color: var(--text-color);
+        background: var(--bg-locked);
+        border-color: var(--border-color-locked);
+        color: var(--text-color-locked);
         filter: var(--filter-locked);
     }
 
