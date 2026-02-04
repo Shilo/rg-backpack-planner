@@ -21,10 +21,10 @@ type TabsCaptureBridge = {
 };
 
 let tabsBridge: TabsCaptureBridge | null = null;
-let captureInProgress = false;
+let captureInProgressCount = 0;
 
 export function isCaptureInProgress() {
-    return captureInProgress;
+    return captureInProgressCount > 0;
 }
 
 async function captureElementAsPng(
@@ -202,13 +202,18 @@ async function combineTreeImagesHorizontally(
 async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
     const rootEl =
         typeof document !== "undefined" ? document.documentElement : null;
-    captureInProgress = true;
-    rootEl?.classList.add("snapdom-capture");
+    const isFirstCall = captureInProgressCount === 0;
+    captureInProgressCount++;
+    if (isFirstCall) {
+        rootEl?.classList.add("snapdom-capture");
+    }
     try {
         return await callback();
     } finally {
-        rootEl?.classList.remove("snapdom-capture");
-        captureInProgress = false;
+        captureInProgressCount--;
+        if (captureInProgressCount === 0) {
+            rootEl?.classList.remove("snapdom-capture");
+        }
     }
 }
 
