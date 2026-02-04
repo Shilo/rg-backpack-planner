@@ -5,7 +5,11 @@
  */
 
 import type { BuildData } from "../src/lib/buildData/encoder";
-import { encodeBuildData, decodeBuildData } from "../src/lib/buildData/encoder";
+import {
+    encodeBuildData,
+    decodeBuildData,
+    decodeNameSpaces,
+} from "../src/lib/buildData/encoder";
 import { getBuildNameFromEncoded } from "../src/lib/buildData/url";
 
 function fromObjectTrees(trees: Array<Record<string, number>>): number[][] {
@@ -770,6 +774,101 @@ const decodeCompatibilityCases: Array<{
             name: "Named Build",
         },
     },
+    // Underscore-encoded name tests (new URL-safe encoding)
+    {
+        name: "Build with underscore-encoded name: single space",
+        serialized: "My_Build|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: "My Build",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: multiple spaces",
+        serialized: "My_Cool_Build|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: "My Cool Build",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: consecutive spaces",
+        serialized: "Build__Name|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: "Build  Name",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: leading and trailing spaces",
+        serialized: "_Build_|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: " Build ",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: only underscores",
+        serialized: "___|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: "   ",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: no spaces",
+        serialized: "BuildName|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: "BuildName",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: mixed with special chars",
+        serialized: "Build_1_(PVE)|1",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+            owned: 0,
+            name: "Build 1 (PVE)",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: complex build with owned",
+        serialized: "PVE_Guardian_Max|1,1;1,1;1,1;a",
+        expected: {
+            trees: fromObjectTrees([
+                { "0": 1, "10": 1 },
+                { "0": 1, "10": 1 },
+                { "0": 1, "10": 1 },
+            ]),
+            owned: 10,
+            name: "PVE Guardian Max",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: empty build",
+        serialized: "Empty_Test|_",
+        expected: {
+            trees: [[], [], []],
+            owned: 0,
+            name: "Empty Test",
+        },
+    },
+    {
+        name: "Build with underscore-encoded name: tree-level RLE",
+        serialized: "Three_Identical_Trees|1:3",
+        expected: {
+            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+            owned: 0,
+            name: "Three Identical Trees",
+        },
+    },
 ];
 
 /**
@@ -1330,18 +1429,18 @@ const buildNameTestCases: Array<{
     {
         name: "Whitespace-only name after URL decode",
         encoded: "%20%20%20|1",
-        expected: "   ", // URL-encoded spaces decode to literal spaces after trim
+        expected: "   ",
     },
     // Edge cases - malformed input
     {
         name: "Invalid URL encoding (incomplete percent)",
         encoded: "My%2Build|1",
-        expected: "My+uild", // %2B decodes to '+', followed by 'uild'
+        expected: "My+uild",
     },
     {
         name: "Invalid URL encoding (non-hex characters)",
         encoded: "My%ZZBuild|1",
-        expected: "My%ZZBuild", // Decoding fails, falls back to converting underscores only
+        expected: "My%ZZBuild",
     },
     {
         name: "Multiple separators (use first)",
@@ -1351,12 +1450,12 @@ const buildNameTestCases: Array<{
     {
         name: "Name with trailing whitespace (URL encoded)",
         encoded: "MyBuild%20%20%20|1",
-        expected: "MyBuild   ", // URL-encoded spaces decode to literal spaces after literal trim
+        expected: "MyBuild   ",
     },
     {
         name: "Name with leading whitespace (URL encoded)",
         encoded: "%20%20%20MyBuild|1",
-        expected: "   MyBuild", // URL-encoded spaces decode to literal spaces after literal trim
+        expected: "   MyBuild",
     },
     // Type safety
     {
@@ -1433,6 +1532,143 @@ export function runBuildNameTests() {
     };
 }
 
+/**
+ * Run name encoding/decoding utility function tests
+ */
+export function runNameEncodingTests() {
+    console.log("===");
+    console.log("Name Encoding/Decoding Utility Tests");
+    console.log("===");
+    console.log();
+
+    let passedTests = 0;
+    let failedTests = 0;
+
+    const nameEncodingTestCases: Array<{
+        name: string;
+        input: string;
+        expected: string;
+    }> = [
+        {
+            name: "Single underscore to space",
+            input: "My_Build",
+            expected: "My Build",
+        },
+        {
+            name: "Multiple underscores to spaces",
+            input: "My_Cool_Build_Name",
+            expected: "My Cool Build Name",
+        },
+        {
+            name: "Consecutive underscores to consecutive spaces",
+            input: "Build__Name",
+            expected: "Build  Name",
+        },
+        {
+            name: "Three consecutive underscores",
+            input: "A___B",
+            expected: "A   B",
+        },
+        {
+            name: "Leading underscore to leading space",
+            input: "_Build",
+            expected: " Build",
+        },
+        {
+            name: "Trailing underscore to trailing space",
+            input: "Build_",
+            expected: "Build ",
+        },
+        {
+            name: "Leading and trailing underscores",
+            input: "_Build_Name_",
+            expected: " Build Name ",
+        },
+        {
+            name: "Only underscores (single)",
+            input: "_",
+            expected: " ",
+        },
+        {
+            name: "Only underscores (multiple)",
+            input: "___",
+            expected: "   ",
+        },
+        {
+            name: "No underscores (no change)",
+            input: "BuildName",
+            expected: "BuildName",
+        },
+        {
+            name: "Empty string",
+            input: "",
+            expected: "",
+        },
+        {
+            name: "Mixed with numbers",
+            input: "Build_1_PVE",
+            expected: "Build 1 PVE",
+        },
+        {
+            name: "Mixed with special characters",
+            input: "Build_#1_(PVE)",
+            expected: "Build #1 (PVE)",
+        },
+        {
+            name: "Mixed with hyphens and underscores",
+            input: "PVE-Build_v2.0",
+            expected: "PVE-Build v2.0",
+        },
+        {
+            name: "Very long name with many underscores",
+            input: "This_is_a_very_long_build_name_for_testing",
+            expected: "This is a very long build name for testing",
+        },
+    ];
+
+    nameEncodingTestCases.forEach((testCase, index) => {
+        console.log(`Name Test ${index + 1}: ${testCase.name}`);
+        console.log("---");
+
+        try {
+            const result = decodeNameSpaces(testCase.input);
+
+            if (result === testCase.expected) {
+                console.log("✅ PASSED");
+                passedTests++;
+            } else {
+                console.log("❌ FAILED: Output mismatch");
+                console.log(`   Input:    "${testCase.input}"`);
+                console.log(`   Expected: "${testCase.expected}"`);
+                console.log(`   Got:      "${result}"`);
+                failedTests++;
+            }
+        } catch (error) {
+            console.log(
+                `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            failedTests++;
+        }
+
+        console.log();
+    });
+
+    console.log("===");
+    console.log("Name Encoding Tests Summary");
+    console.log("===");
+    console.log(`📊 Total name tests: ${nameEncodingTestCases.length}`);
+    console.log(`✅ Passed: ${passedTests}`);
+    console.log(`❌ Failed: ${failedTests}`);
+    console.log("===");
+
+    return {
+        total: nameEncodingTestCases.length,
+        passed: passedTests,
+        failed: failedTests,
+        skipped: 0,
+    };
+}
+
 // Auto-run when imported
 try {
     const errorSummary = runErrorTests();
@@ -1441,6 +1677,7 @@ try {
     console.log();
     const decodeSummary = runDecoderCompatibilityTests();
     console.log();
+    const nameSummary = runNameEncodingTests();
     const buildNameSummary = runBuildNameTests();
     console.log();
 
@@ -1449,13 +1686,29 @@ try {
     console.log("Final Combined Summary");
     console.log("===");
     const totalTests =
-        errorSummary.total + normalSummary.total + decodeSummary.total + buildNameSummary.total;
+        errorSummary.total +
+        normalSummary.total +
+        decodeSummary.total +
+        nameSummary.total +
+        buildNameSummary.total;
     const totalPassed =
-        errorSummary.passed + normalSummary.passed + decodeSummary.passed + buildNameSummary.passed;
+        errorSummary.passed +
+        normalSummary.passed +
+        decodeSummary.passed +
+        nameSummary.passed +
+        buildNameSummary.passed;
     const totalFailed =
-        errorSummary.failed + normalSummary.failed + decodeSummary.failed + buildNameSummary.failed;
+        errorSummary.failed +
+        normalSummary.failed +
+        decodeSummary.failed +
+        nameSummary.failed +
+        buildNameSummary.failed;
     const totalSkipped =
-        errorSummary.skipped + normalSummary.skipped + decodeSummary.skipped + buildNameSummary.skipped;
+        errorSummary.skipped +
+        normalSummary.skipped +
+        decodeSummary.skipped +
+        nameSummary.skipped +
+        buildNameSummary.skipped;
 
     console.log(`📊 Total tests (all): ${totalTests}`);
     console.log(
@@ -1466,6 +1719,9 @@ try {
     );
     console.log(
         `   - Decoder compatibility tests: ${decodeSummary.total} (${decodeSummary.passed} passed, ${decodeSummary.failed} failed, ${decodeSummary.skipped} skipped)`,
+    );
+    console.log(
+        `   - Name encoding tests: ${nameSummary.total} (${nameSummary.passed} passed, ${nameSummary.failed} failed, ${nameSummary.skipped} skipped)`,
     );
     console.log(
         `   - Build name extraction tests: ${buildNameSummary.total} (${buildNameSummary.passed} passed, ${buildNameSummary.failed} failed, ${buildNameSummary.skipped} skipped)`,
