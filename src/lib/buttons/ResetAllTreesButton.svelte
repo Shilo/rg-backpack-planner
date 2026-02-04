@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import { ArrowsCounterClockwiseIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { openModal } from "../modalStore";
@@ -20,7 +20,7 @@
         openModal({
             type: "confirm",
             title: "RESET ALL TREES?",
-            titleIcon: ArrowsCounterClockwiseIcon as unknown as ComponentType,
+            titleIcon: ArrowsCounterClockwiseIcon as unknown as Component,
             message:
                 "Revert all nodes to level 0 and refund all Tech Crystals.",
             confirmLabel: "Reset all",

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { openModal } from "../modalStore";
@@ -28,7 +28,7 @@
         openModal({
             type: "confirm",
             title: modalTitle,
-            titleIcon: ArrowCounterClockwiseIcon as unknown as ComponentType,
+            titleIcon: ArrowCounterClockwiseIcon as unknown as Component,
             message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
             confirmLabel: confirmText,
             cancelLabel: "Cancel",

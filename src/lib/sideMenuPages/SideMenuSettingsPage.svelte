@@ -8,7 +8,7 @@
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -74,7 +74,7 @@
         openModal({
             type: "confirm",
             title: "RESET SETTINGS",
-            titleIcon: ClockCounterClockwiseIcon as unknown as ComponentType,
+            titleIcon: ClockCounterClockwiseIcon as unknown as Component,
             message:
                 "Restore all settings to their default values. This will not affect your backpack tree progress.",
             confirmLabel: "Reset settings",
@@ -105,7 +105,7 @@
         openModal({
             type: "confirm",
             title: "CLEAR ALL DATA",
-            titleIcon: TrashSimpleIcon as unknown as ComponentType,
+            titleIcon: TrashSimpleIcon as unknown as Component,
             message:
                 "Delete all data and reload the application. This will reset all trees, settings, and progress.",
             confirmLabel: "Clear all data",
@@ -159,7 +159,7 @@
         label="Single Level Up"
         ariaLabel="Single level up mode"
         tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10"
-        icon={ArrowUpIcon as unknown as ComponentType}
+        icon={ArrowUpIcon as unknown as Component}
         onToggle={() => singleLevelUp.toggle()}
     />
 </SideMenuSection>
@@ -170,7 +170,7 @@
         label="Close-up View"
         ariaLabel="Close-up view (150% zoom)"
         tooltipText="Increase the initial zoom scale by 1.5x"
-        icon={MagnifyingGlassPlusIcon as unknown as ComponentType}
+        icon={MagnifyingGlassPlusIcon as unknown as Component}
         onToggle={() => closeUpView.toggle()}
     />
     <Button

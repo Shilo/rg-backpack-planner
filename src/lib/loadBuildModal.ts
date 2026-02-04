@@ -7,8 +7,7 @@ export function openLoadBuildModal(onLoaded?: () => void) {
     openModal({
         type: "loadBuild",
         title: "PREVIEW SHAREABLE BUILD",
-        // Cast to any to satisfy TS ComponentType constraint
-        titleIcon: EyeIcon as any,
+        titleIcon: EyeIcon,
         message:
             "Type link or build code. (Preview is temporary and won't affect your current build.)",
         confirmLabel: "Preview build",
