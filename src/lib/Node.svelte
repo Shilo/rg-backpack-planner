@@ -60,7 +60,7 @@
 
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
-        /* Brightness values for locked states */
+        /* Brightness values for unleveled states */
         --brightness-locked: 0.25;
         --brightness-locked-hexagon: 0.3;
         --brightness-available: 0.5;
