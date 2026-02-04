@@ -253,19 +253,27 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
+    // Region base colors for links (matching node border colors)
+    const regionColors: Record<NodeRegion, string> = {
+        "top-left": "255, 107, 53", // Red-orange
+        "bottom-left": "255, 215, 0", // Bright gold
+        right: "74, 144, 226", // Saturated blue
+    };
+
+    // Locked link color (grayscale, matching --border-color-locked: #55556a)
+    const lockedLinkColor = "85, 85, 106";
+
     function getLinkColor(
         to: NodeType,
         toIndex: number,
-        isActive: boolean,
+        toState: NodeState,
     ): string {
-        const toRegion = getNodeRegion(to, toIndex);
-        const opacity = isActive ? 0.8 : 0.4;
-
-        // Use the target node's region color for the link
-        // Colorblind-friendly: Orange (more red-orange), Yellow (bright gold), Blue (saturated)
-        if (toRegion === "top-left") return `rgba(255, 107, 53, ${opacity})`; // Red-orange
-        if (toRegion === "bottom-left") return `rgba(255, 215, 0, ${opacity})`; // Bright gold
-        return `rgba(74, 144, 226, ${opacity})`; // Saturated blue
+        if (toState === "locked")
+            return `rgba(${lockedLinkColor}, 0.4)`;
+        if (toState === "available")
+            return `rgba(${regionColors[getNodeRegion(to, toIndex)]}, 0.4)`;
+        // active or maxed
+        return `rgba(${regionColors[getNodeRegion(to, toIndex)]}, 0.8)`;
     }
 
     function levelUp(index: NodeIndex) {
@@ -860,14 +868,15 @@
                         {@const toNode = getNodeAt(link.to)}
                         {#if toNode}
                             {@const toIndex = link.to}
-                            {@const isActive =
-                                link.from === undefined ||
-                                (link.from !== undefined &&
-                                    getLevelFrom(levels, link.from) > 0)}
+                            {@const toState = getState(
+                                toNode,
+                                toIndex,
+                                levels,
+                            )}
                             {@const linkColor = getLinkColor(
                                 toNode,
                                 toIndex,
-                                isActive,
+                                toState,
                             )}
                             <line
                                 x1={fromNode ? fromNode.x : 0}
@@ -979,7 +988,7 @@
     }
 
     .tree-links line {
-        stroke-width: 2;
+        stroke-width: 4;
         transition: stroke-opacity 0.2s;
     }
 </style>
