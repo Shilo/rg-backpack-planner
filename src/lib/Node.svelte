@@ -60,11 +60,9 @@
 
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
-        /* Brightness values for unleveled states */
-        --brightness-locked: 0.25;
-        --brightness-locked-hexagon: 0.3;
-        --brightness-available: 0.5;
-        --brightness-available-hexagon: 0.6;
+        /* Filter values for unleveled states */
+        --filter-locked: grayscale(1) brightness(0.5);
+        --filter-available: brightness(0.5);
 
         /* Default color variables (overridden by region-specific rules) */
         --bg-available: #1c2f52;
@@ -199,12 +197,12 @@
     /* Hexagon border (::before) state styles */
     :global(.button.node.node-hexagon.locked::before) {
         background: var(--border-color);
-        filter: brightness(var(--brightness-locked-hexagon));
+        filter: var(--filter-locked);
     }
 
     :global(.button.node.node-hexagon.available::before) {
         background: var(--border-color);
-        filter: brightness(var(--brightness-available-hexagon))
+        filter: var(--filter-available)
             drop-shadow(
                 0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
             )
@@ -246,7 +244,7 @@
 
     /* Hexagon element glow state styles */
     :global(.button.node.node-hexagon.available) {
-        filter: brightness(var(--brightness-available-hexagon))
+        filter: var(--filter-available)
             drop-shadow(
                 0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
             )
@@ -334,14 +332,14 @@
         background: var(--bg-available);
         border-color: var(--border-color);
         color: var(--text-color);
-        filter: brightness(var(--brightness-locked));
+        filter: var(--filter-locked);
     }
 
     :global(.button.node.available) {
         background: var(--bg-available);
         border-color: var(--border-color);
         color: var(--text-color);
-        filter: brightness(var(--brightness-available));
+        filter: var(--filter-available);
         box-shadow: 0 0 0 2px
             color-mix(in srgb, var(--border-color) 20%, transparent);
     }
