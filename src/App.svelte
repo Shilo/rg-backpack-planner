@@ -312,15 +312,16 @@
             setPreviewMode(false);
             clearPreviewBuildName();
 
-            // Check if we just stopped preview mode or cloned build
-            tryShowStoppedPreviewToast();
-            tryShowClonedBuildToast();
-
             // Load from presets: apply active preset to treeLevels and techCrystalsOwned
             const presetsData = loadPresetsFromStorage();
             const activePreset = presetsData.presets.find(
                 (p) => p.id === presetsData.active,
             );
+
+            // Check if we just stopped preview mode or cloned build
+            tryShowStoppedPreviewToast(activePreset?.name);
+            tryShowClonedBuildToast();
+
             if (activePreset) {
                 const buildData = decodeBuildData(activePreset.buildCode);
                 if (buildData) {
