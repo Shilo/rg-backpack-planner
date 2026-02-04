@@ -61,10 +61,25 @@ Each tree has 30 nodes defined in `src/config/`:
 - Haptic feedback via Vibration API (`haptics.ts`)
 
 ### Modal System
-Decoupled via `modalStore`:
+Types: `"confirm"`, `"input"`, `"textInput"`, `"loadBuild"`
+
 ```typescript
-openModal({ type: "confirm", title: "...", onConfirm: () => {...} })
+import { openModal } from "./modalStore";
+
+openModal({
+    type: "confirm",
+    title: "Delete Build?",
+    message: "This cannot be undone.",
+    confirmNegative: true,  // red confirm button
+    onConfirm: () => { /* handle confirm */ },
+    onCancel: () => { /* optional cancel handler */ }
+});
 ```
+
+To add a new modal type:
+1. Add type to `ModalType` union in `modalStore.ts`
+2. Create component in `src/lib/modals/`
+3. Add conditional render in `ModalHost.svelte`
 
 ## Naming Conventions
 
