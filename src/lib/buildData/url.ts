@@ -7,6 +7,7 @@ import type { BuildData } from "./encoder";
 import {
     encodeBuildData,
     decodeBuildData,
+    decodeNameSpaces,
     SERIALIZED_PATTERN,
 } from "./encoder";
 import { treeLevels } from "../treeLevelsStore";
@@ -14,6 +15,7 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import {
     setPreviewBuildName,
     clearPreviewBuildName,
+    previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
 
@@ -213,6 +215,26 @@ export function parseEncodedFromUserInput(input: string): string | null {
 }
 
 /**
+ * Extracts the build name from an encoded build string.
+ * Uses the name separator ("|") and returns the first component if present.
+ * Properly decodes URL encoding and underscores to spaces.
+ */
+export function getBuildNameFromEncoded(encoded: string): string | null {
+    if (typeof encoded !== "string") return null;
+    const separatorIndex = encoded.indexOf("|");
+    if (separatorIndex === -1) return null;
+    const namePart = encoded.slice(0, separatorIndex).trim();
+    if (!namePart) return null;
+    try {
+        // Decode URL encoding, then convert underscores to spaces
+        return decodeNameSpaces(decodeURIComponent(namePart));
+    } catch (error) {
+        // If decoding fails, just convert underscores
+        return decodeNameSpaces(namePart);
+    }
+}
+
+/**
  * Updates the current URL with the current build data
  * Used in preview mode to keep URL in sync with changes
  * Does not reload the page, just updates the URL
@@ -230,6 +252,7 @@ export function updateUrlWithCurrentBuild(): void {
         const buildData: BuildData = {
             trees: get(treeLevels),
             owned: get(techCrystalsOwned),
+            name: get(previewBuildName) ?? undefined,
         };
 
         const encoded = encodeBuildData(buildData);

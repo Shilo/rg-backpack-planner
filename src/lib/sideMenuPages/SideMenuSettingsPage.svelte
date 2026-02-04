@@ -8,7 +8,7 @@
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -17,6 +17,7 @@
     import BuildPresetsButton from "../buttons/BuildPresetsButton.svelte";
     import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
     import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
+    import PreviewBuildsDropdown from "../buttons/PreviewBuildsDropdown.svelte";
     import { closeUpView } from "../closeUpViewStore";
     import { openModal } from "../modalStore";
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
@@ -27,7 +28,6 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
-    import { openLoadBuildModal } from "../loadBuildModal";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -40,6 +40,11 @@
 
     const POS_EPSILON = 0.5;
     const SCALE_EPSILON = 0.001;
+
+    let previewButtonElement: HTMLButtonElement | null = null;
+    let dropdownMenuOpen = false;
+    let dropdownMenuX = 0;
+    let dropdownMenuY = 0;
 
     const isClose = (a: number, b: number, epsilon: number) =>
         Math.abs(a - b) <= epsilon;
@@ -69,7 +74,7 @@
         openModal({
             type: "confirm",
             title: "RESET SETTINGS",
-            titleIcon: ClockCounterClockwiseIcon as unknown as ComponentType,
+            titleIcon: ClockCounterClockwiseIcon as unknown as Component,
             message:
                 "Restore all settings to their default values. This will not affect your backpack tree progress.",
             confirmLabel: "Reset settings",
@@ -100,7 +105,7 @@
         openModal({
             type: "confirm",
             title: "CLEAR ALL DATA",
-            titleIcon: TrashSimpleIcon as unknown as ComponentType,
+            titleIcon: TrashSimpleIcon as unknown as Component,
             message:
                 "Delete all data and reload the application. This will reset all trees, settings, and progress.",
             confirmLabel: "Clear all data",
@@ -116,6 +121,18 @@
             },
         });
     }
+
+    function handlePreviewDropdownClick() {
+        if (!previewButtonElement) return;
+        const rect = previewButtonElement.getBoundingClientRect();
+        dropdownMenuX = rect.left + rect.width / 2;
+        dropdownMenuY = rect.bottom + 8;
+        dropdownMenuOpen = true;
+    }
+
+    function closeDropdownMenu() {
+        dropdownMenuOpen = false;
+    }
 </script>
 
 <SideMenuPreviewSection />
@@ -126,8 +143,9 @@
     <div class="button-row">
         <ShareBuildButton title="Share" disabled={$isPreviewMode} />
         <Button
-            on:click={() => openLoadBuildModal(() => onClose?.())}
-            tooltipText={"Type a shareable link or build code. ▼ icon for recommended builds"}
+            bind:element={previewButtonElement}
+            on:click={handlePreviewDropdownClick}
+            tooltipText={"Preview shareable link/code or premade build"}
             icon={EyeIcon}
         >
             Preview
@@ -141,7 +159,7 @@
         label="Single Level Up"
         ariaLabel="Single level up mode"
         tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10"
-        icon={ArrowUpIcon as unknown as ComponentType}
+        icon={ArrowUpIcon as unknown as Component}
         onToggle={() => singleLevelUp.toggle()}
     />
 </SideMenuSection>
@@ -152,7 +170,7 @@
         label="Close-up View"
         ariaLabel="Close-up view (150% zoom)"
         tooltipText="Increase the initial zoom scale by 1.5x"
-        icon={MagnifyingGlassPlusIcon as unknown as ComponentType}
+        icon={MagnifyingGlassPlusIcon as unknown as Component}
         onToggle={() => closeUpView.toggle()}
     />
     <Button
@@ -215,6 +233,14 @@
         Clear All Data
     </Button>
 </SideMenuSection>
+
+<PreviewBuildsDropdown
+    x={dropdownMenuX}
+    y={dropdownMenuY}
+    isOpen={dropdownMenuOpen}
+    onClose={closeDropdownMenu}
+    onPreview={() => onClose?.()}
+/>
 
 <style>
     .spacer {

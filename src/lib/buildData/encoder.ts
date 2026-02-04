@@ -293,6 +293,24 @@ function expandRLE(valueString: string): string[] {
 }
 
 /**
+ * Replaces spaces with underscores for URL-safe name encoding
+ * @param text The text to encode
+ * @returns Text with spaces replaced by underscores
+ */
+function encodeNameSpaces(text: string): string {
+    return text.replace(/ /g, "_");
+}
+
+/**
+ * Replaces underscores with spaces for URL-safe name decoding
+ * @param text The text to decode
+ * @returns Text with underscores replaced by spaces
+ */
+export function decodeNameSpaces(text: string): string {
+    return text.replace(/_/g, " ");
+}
+
+/**
  * Finds the last non-empty index in an array of strings
  * @param strings Array of strings to search
  * @returns Index of last non-empty string, or -1 if all empty
@@ -322,9 +340,10 @@ function serializeArrayFormat(
     name?: string,
 ): string {
     // Build name prefix if present
+    // Replace spaces with underscores to avoid %20 encoding in URLs
     const namePrefix =
         name && name.trim()
-            ? `${encodeURIComponent(name.trim())}${SEPARATOR_BUILD_NAME}`
+            ? `${encodeURIComponent(encodeNameSpaces(name.trim()))}${SEPARATOR_BUILD_NAME}`
             : "";
     // Serialize each tree's branches
     const treeStrings: string[] = treeBranchArrays.map((branches) => {
@@ -462,10 +481,11 @@ function parseArrayFormat(
         buildDataPart = serialized.slice(nameSeparatorIndex + 1);
         if (namePart) {
             try {
-                buildName = decodeURIComponent(namePart);
+                // Replace underscores with spaces (supports both _ and %20 for spaces)
+                buildName = decodeNameSpaces(decodeURIComponent(namePart));
             } catch (error) {
-                // If decoding fails, use the raw string
-                buildName = namePart;
+                // If decoding fails, use the raw string and replace underscores
+                buildName = decodeNameSpaces(namePart);
             }
         }
     }

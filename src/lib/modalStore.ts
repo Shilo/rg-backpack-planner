@@ -1,4 +1,4 @@
-import type { ComponentType } from "svelte";
+import type { Component } from "svelte";
 import type { IconWeight } from "phosphor-svelte";
 import { writable } from "svelte/store";
 
@@ -21,7 +21,7 @@ export type TextInputConfig = {
 export type ModalPayload = {
     type: ModalType;
     title: string;
-    titleIcon?: ComponentType | null;
+    titleIcon?: Component | null;
     titleIconClass?: string;
     titleIconWeight?: IconWeight;
     message?: string;

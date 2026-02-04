@@ -82,10 +82,12 @@ const CLONED_BUILD_KEY = "rg-backpack-planner-cloned-build-toast";
  * Checks sessionStorage for stopped preview flag and shows toast.
  * @returns true if the flag was found and processed, false otherwise
  */
-export function tryShowStoppedPreviewToast(): boolean {
+export function tryShowStoppedPreviewToast(
+    presetName: string = "Default",
+): boolean {
     return checkSessionStorageAndShowToast(
         STOPPED_PREVIEW_KEY,
-        () => "Back to personal build",
+        () => `Back to ${truncateText(presetName)} build`,
     );
 }
 

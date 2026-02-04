@@ -309,7 +309,7 @@
         title="Build Presets"
         onClose={closePresetsMenu}
     >
-        <div class="presets-list">
+        <div class="premade-builds-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
                 {@const isActive = preset.id === $buildPresetsStore.active}
                 <div class="preset-row button-group" data-preset-id={preset.id}>
@@ -469,7 +469,7 @@
         min-width: 0;
     }
 
-    .presets-list {
+    .premade-builds-list {
         max-height: min(400px, 40vh);
         overflow-y: auto;
         display: flex;

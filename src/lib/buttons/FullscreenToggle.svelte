@@ -1,6 +1,6 @@
 <script lang="ts">
     import { CornersInIcon, CornersOutIcon } from "phosphor-svelte";
-    import type { Component, ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import { onDestroy, onMount } from "svelte";
     import Button from "../Button.svelte";
     import {
@@ -74,7 +74,7 @@
         label="Fullscreen"
         ariaLabel="Toggle fullscreen mode"
         tooltipText="Use fullscreen where your browser supports it"
-        icon={CornersOutIcon as unknown as ComponentType}
+        icon={CornersOutIcon as unknown as Component}
         onToggle={handleToggleFullscreen}
     />
 {/if}

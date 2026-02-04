@@ -4,7 +4,7 @@
     import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
     import {
-        saveBuildAsImage,
+        shareBuildAsImage,
         saveBuildToUrl,
         shareBuildUrlNative,
     } from "../buildData/share";
@@ -49,12 +49,7 @@
 
     async function handleCopyScreenshot() {
         closeShareMenu();
-        const success = await saveBuildAsImage();
-        if (success) {
-            showToast("Share image saved", { tone: "positive" });
-        } else {
-            showToast("Share image feature coming soon", { tone: "positive" });
-        }
+        await shareBuildAsImage();
     }
 
     async function handleShareToApp() {
@@ -91,7 +86,7 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={`Share "${truncateText(tooltipSubject)}" build`}
+    tooltipText={`Share ${truncateText(tooltipSubject)} build`}
     icon={ShareIcon}
     {disabled}
 >

@@ -1,15 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { Component, ComponentType } from "svelte";
-    import {
-        ClipboardIcon,
-        CaretDownIcon,
-        RobotIcon,
-        ShareNetworkIcon,
-        SwordIcon,
-    } from "phosphor-svelte";
+    import type { Component } from "svelte";
+    import { ClipboardIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
-    import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
     import {
         parseEncodedFromUserInput,
@@ -17,13 +10,9 @@
     } from "../buildData/url";
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
-    import { portal } from "../portal";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - package.json import is valid
-    import appPackage from "../../../package.json";
 
-    export let title = "PREVIEW shareable build";
-    export let titleIcon: ComponentType | null = null;
+    export let title = "Preview shareable build";
+    export let titleIcon: Component | null = null;
     export let titleIconClass = "";
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
@@ -37,33 +26,6 @@
     let inputText = "";
     let isLoading = false;
     let inputEl: HTMLInputElement | null = null;
-    let previewButtonElement: HTMLButtonElement | null = null;
-    let dropdownMenuOpen = false;
-    let dropdownMenuX = 0;
-    let dropdownMenuY = 0;
-
-    // Recommended build key (from package.json) → icon component
-    const recommendedBuildIcons: Record<string, Component> = {
-        pve: RobotIcon,
-        pvp: SwordIcon,
-    };
-
-    // Dynamically get all recommended builds from package.json
-    const recommendedBuilds = (() => {
-        const builds = appPackage?.recommendedBuilds;
-        if (!builds || typeof builds !== "object") return [];
-
-        return Object.entries(builds)
-            .filter(
-                ([, value]) => typeof value === "string" && value.trim() !== "",
-            )
-            .map(([key, value]) => ({
-                name: key,
-                code: value as string,
-            }));
-    })();
-
-    const hasRecommendedBuilds = recommendedBuilds.length > 0;
 
     function handleCancel() {
         onCancel?.();
@@ -97,10 +59,10 @@
         }
     }
 
-    async function handleLoad(buildCode?: string) {
+    async function handleLoad() {
         if (isLoading) return;
 
-        const raw = (buildCode ?? inputText).trim();
+        const raw = inputText.trim();
         if (!raw) {
             showToast("Type link or build code", { tone: "negative" });
             inputEl?.focus();
@@ -121,25 +83,6 @@
         } finally {
             isLoading = false;
         }
-    }
-
-    function handleRecommendedClick(buildCode: string) {
-        triggerHaptic();
-        closeDropdownMenu();
-        void handleLoad(buildCode);
-    }
-
-    function handleDropdownClick() {
-        if (!previewButtonElement || !hasRecommendedBuilds) return;
-        triggerHaptic();
-        const rect = previewButtonElement.getBoundingClientRect();
-        dropdownMenuX = rect.left + rect.width / 2;
-        dropdownMenuY = rect.bottom + 8;
-        dropdownMenuOpen = true;
-    }
-
-    function closeDropdownMenu() {
-        dropdownMenuOpen = false;
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -204,57 +147,17 @@
             <Button data-modal-cancel on:click={handleCancel}>
                 {cancelLabel}
             </Button>
-            <div class="button-group">
-                <Button
-                    bind:element={previewButtonElement}
-                    data-modal-confirm
-                    on:click={() => handleLoad()}
-                    disabled={isLoading}
-                    positive
-                >
-                    {confirmLabel}
-                </Button>
-                {#if hasRecommendedBuilds}
-                    <Button
-                        on:click={handleDropdownClick}
-                        disabled={isLoading}
-                        positive
-                        class="dropdown-button"
-                        icon={CaretDownIcon}
-                        tooltipText="Show recommended builds"
-                        aria-label="Show recommended builds"
-                    />
-                {/if}
-            </div>
+            <Button
+                data-modal-confirm
+                on:click={() => handleLoad()}
+                disabled={isLoading}
+                positive
+            >
+                {confirmLabel}
+            </Button>
         </div>
     </div>
 </div>
-
-{#if hasRecommendedBuilds}
-    <div
-        use:portal
-        class="dropdown-menu-portal"
-        class:menu-open={dropdownMenuOpen}
-    >
-        <ContextMenu
-            x={dropdownMenuX}
-            y={dropdownMenuY}
-            isOpen={dropdownMenuOpen}
-            title="Recommended Builds"
-            onClose={closeDropdownMenu}
-        >
-            {#each recommendedBuilds as build}
-                <Button
-                    icon={recommendedBuildIcons[build.name] ?? ShareNetworkIcon}
-                    on:click={() => handleRecommendedClick(build.code)}
-                    disabled={isLoading}
-                >
-                    Preview {build.name} build
-                </Button>
-            {/each}
-        </ContextMenu>
-    </div>
-{/if}
 
 <style>
     .modal-content {
@@ -349,19 +252,5 @@
 
     .modal-actions__row--right {
         justify-content: flex-end;
-    }
-
-    .dropdown-menu-portal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-        z-index: var(--z-index-context-menu-over-modal);
-    }
-
-    .dropdown-menu-portal.menu-open {
-        pointer-events: auto;
     }
 </style>

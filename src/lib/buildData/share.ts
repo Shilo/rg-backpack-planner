@@ -8,6 +8,8 @@ import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
+import { captureCombinedTreesImage } from "../buildImageExport/captureService";
+import { showToast } from "../toast";
 
 /**
  * Copies text to clipboard
@@ -60,18 +62,67 @@ export async function saveBuildToUrl(
 }
 
 /**
- * Saves the current build as an image
- * TODO: Implement screenshot functionality for all 3 trees
- * This would require html2canvas or similar library
+ * Shares the current build as an image
+ * Captures all three trees (Guardian, Vanguard, Cannon) and combines them horizontally
+ * Exports as a transparent PNG and copies to clipboard
  */
-export async function saveBuildAsImage(): Promise<boolean> {
-    // TODO: Implement screenshot functionality
-    // This would require:
-    // 1. Installing html2canvas or similar library
-    // 2. Capturing screenshots of all 3 trees
-    // 3. Combining them into a single image
-    // 4. Triggering download or share
-    return false;
+let isShareImageProcessing = false;
+
+export async function shareBuildAsImage(): Promise<void> {
+    if (isShareImageProcessing) return;
+    isShareImageProcessing = true;
+
+    const showScreenshotToast = (success: boolean) => {
+        showToast(
+            success
+                ? "Share screenshot copied to clipboard"
+                : "Unable to copy screenshot",
+            {
+                tone: success ? "positive" : "negative",
+            },
+        );
+    };
+
+    try {
+        // Capture all three trees (0=Guardian, 1=Vanguard, 2=Cannon)
+        const combinedBlob = await captureCombinedTreesImage();
+
+        if (!combinedBlob) {
+            console.error("Failed to combine tree images");
+            showScreenshotToast(false);
+            return;
+        }
+
+        // Copy the combined image to clipboard
+        const success = await copyImageBlobToClipboard(combinedBlob);
+        showScreenshotToast(success);
+    } catch (error) {
+        console.error("Failed to share build as image:", error);
+        showScreenshotToast(false);
+    } finally {
+        isShareImageProcessing = false;
+    }
+}
+
+/**
+ * Copies an image blob to clipboard
+ * @param blob Image blob to copy
+ * @returns Promise<boolean> true if successful
+ */
+async function copyImageBlobToClipboard(blob: Blob): Promise<boolean> {
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+        console.error("Clipboard API not available");
+        return false;
+    }
+
+    try {
+        const item = new ClipboardItem({ "image/png": blob });
+        await navigator.clipboard.write([item]);
+        return true;
+    } catch (error) {
+        console.error("Failed to copy image to clipboard:", error);
+        return false;
+    }
 }
 
 /**

@@ -33,6 +33,7 @@
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
+    import { shareBuildAsImage } from "./lib/buildData/share";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
     import {
         decodeBuildData,
@@ -311,15 +312,16 @@
             setPreviewMode(false);
             clearPreviewBuildName();
 
-            // Check if we just stopped preview mode or cloned build
-            tryShowStoppedPreviewToast();
-            tryShowClonedBuildToast();
-
             // Load from presets: apply active preset to treeLevels and techCrystalsOwned
             const presetsData = loadPresetsFromStorage();
             const activePreset = presetsData.presets.find(
                 (p) => p.id === presetsData.active,
             );
+
+            // Check if we just stopped preview mode or cloned build
+            tryShowStoppedPreviewToast(activePreset?.name);
+            tryShowClonedBuildToast();
+
             if (activePreset) {
                 const buildData = decodeBuildData(activePreset.buildCode);
                 if (buildData) {
@@ -345,6 +347,15 @@
 
     onMount(() => {
         ensureInstallListeners();
+
+        // Global hotkey: F9 to share build as image
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.repeat || e.key !== "F9") return;
+
+            e.preventDefault();
+            shareBuildAsImage();
+        };
+        window.addEventListener("keydown", handleKeyDown);
 
         async function runInitialization() {
             await initializeFromUrl();
@@ -381,6 +392,7 @@
 
             if (typeof window !== "undefined") {
                 window.removeEventListener("hashchange", handleHashchange);
+                window.removeEventListener("keydown", handleKeyDown);
             }
         };
     });

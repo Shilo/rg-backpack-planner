@@ -10,6 +10,10 @@
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
+    import {
+        isCaptureInProgress,
+        captureAction,
+    } from "./buildImageExport/captureService";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -49,6 +53,7 @@
         cancelGestures?: () => void;
         getViewState?: () => TreeViewState;
         getFocusViewState?: () => TreeViewState | null;
+        getTreeCanvas?: () => HTMLDivElement | null;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -114,6 +119,8 @@
     }
 
     function setActive(index: number) {
+        if (index === activeIndex) return;
+
         lastViewState = treeRef?.getViewState?.() ?? lastViewState;
         activeIndex = clampIndex(index);
         // Persist active tab ID to localStorage (only if not initial restore)
@@ -143,7 +150,9 @@
         const nextId = tabs[activeIndex]?.id ?? "";
         if (hasMounted && nextId && nextId !== lastActiveTabId) {
             lastActiveTabId = nextId;
-            void tick().then(() => treeRef?.triggerFade?.());
+            if (!isCaptureInProgress()) {
+                void tick().then(() => treeRef?.triggerFade?.());
+            }
         }
     }
 
@@ -425,6 +434,11 @@
         on:pointerup={clearBackgroundPress}
         on:pointercancel={clearBackgroundPress}
         on:pointerleave={clearBackgroundPress}
+        use:captureAction={{
+            setActive,
+            getActive: () => activeIndex,
+            getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
+        }}
     >
         {#if tabs[activeIndex]}
             {#key tabs[activeIndex].id}

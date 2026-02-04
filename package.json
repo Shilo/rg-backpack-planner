@@ -14,10 +14,12 @@
         "name": "Run! Goddess",
         "url": "https://rungoddess.topgamesinc.com"
     },
-    "recommendedBuilds": {
-        "pve": "Recommended PvE|_",
-        "pvp": "Recommended PvP|_"
-    },
+    "premadeBuilds": [
+        "Starter|_",
+        "Early_Stun|_",
+        "Late_PvE|_",
+        "Late_PvP|_"
+    ],
     "private": true,
     "type": "module",
     "scripts": {
@@ -38,5 +40,8 @@
         "typescript": "~5.9.3",
         "vite": "^7.2.4",
         "vite-plugin-pwa": "^1.2.0"
+    },
+    "dependencies": {
+        "@zumer/snapdom": "^2.0.2"
     }
 }

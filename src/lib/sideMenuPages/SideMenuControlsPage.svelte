@@ -12,6 +12,7 @@
         HandSwipeRightIcon,
         HandTapIcon,
         HexagonIcon,
+        ImageIcon,
         ListIcon,
         MouseLeftClickIcon,
         MouseRightClickIcon,
@@ -144,15 +145,18 @@
 
     let showMouse = true;
     let showTouch = true;
+    let showKeyboard = true;
     let canInstall = false;
     let isInstalled = false;
 
     function detectInputSupport() {
         let supportsTouch = false;
         let supportsMouse = false;
+
         if (typeof navigator !== "undefined") {
             supportsTouch = (navigator.maxTouchPoints ?? 0) > 0;
         }
+
         if (typeof window !== "undefined" && window.matchMedia) {
             supportsMouse =
                 window.matchMedia("(any-pointer: fine)").matches ||
@@ -162,11 +166,14 @@
                 window.matchMedia("(any-pointer: coarse)").matches ||
                 window.matchMedia("(pointer: coarse)").matches;
         }
+
         if (!supportsTouch && !supportsMouse) {
             supportsMouse = true;
         }
+
         showMouse = supportsMouse;
         showTouch = supportsTouch;
+        showKeyboard = supportsMouse;
     }
 
     $: pointerControls = controls.filter((c) => c.device !== "touch");
@@ -255,6 +262,23 @@
                             </div>
                         </li>
                     {/each}
+                </ul>
+            </SideMenuSection>
+        {/if}
+        {#if showKeyboard}
+            <SideMenuSection title="Keyboard">
+                <ul class="control-list">
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <ImageIcon />
+                        </span>
+                        <div class="control-text">
+                            <p class="control-label">F9 - Screenshot</p>
+                            <p class="control-desc">
+                                Copy screenshot of all trees to clipboard
+                            </p>
+                        </div>
+                    </li>
                 </ul>
             </SideMenuSection>
         {/if}

@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     export let checked = false;
     export let label = "";
     export let ariaLabel: string | undefined = undefined;
     export let tooltipText: string | undefined = undefined;
-    export let icon: ComponentType | null = null;
+    export let icon: Component | null = null;
     export let iconClass = "toggle-icon";
     export let onToggle: (() => void) | null = null;
     import { triggerHaptic } from "./haptics";

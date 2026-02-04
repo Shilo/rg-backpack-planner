@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import type { IconWeight } from "phosphor-svelte";
     import { onMount } from "svelte";
     import Button from "../Button.svelte";
 
     export let title = "";
-    export let titleIcon: ComponentType | null = null;
+    export let titleIcon: Component | null = null;
     export let titleIconClass = "";
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;

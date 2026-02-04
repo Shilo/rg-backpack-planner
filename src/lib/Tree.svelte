@@ -48,6 +48,9 @@
         null;
 
     let viewportEl: HTMLDivElement | null = null;
+    let treeCanvasEl: HTMLDivElement | null = null;
+    export const getTreeCanvas = (): HTMLDivElement | null => treeCanvasEl;
+
     let viewportSize = { width: 0, height: 0 };
 
     let offsetX = 0;
@@ -845,6 +848,7 @@
         >
             <div
                 class="tree-canvas"
+                bind:this={treeCanvasEl}
                 style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
             >
                 <svg class="tree-links">

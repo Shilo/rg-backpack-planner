@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ComponentType } from "svelte";
+    import type { Component } from "svelte";
     import { CopySimpleIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { get } from "svelte/store";
@@ -23,7 +23,7 @@
         openModal({
             type: "confirm",
             title: "CLONE PREVIEW BUILD",
-            titleIcon: CopySimpleIcon as unknown as ComponentType,
+            titleIcon: CopySimpleIcon as unknown as Component,
             message: `create a new preset named "${truncateText(uniqueName)}" from the preview build.`,
             confirmLabel: "Clone",
             cancelLabel: "Cancel",
