@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
+import { DEFAULT_PRESET_NAME } from "./buildPresetsStore";
 
 export type ToastTone = "positive" | "negative";
 
@@ -83,7 +84,7 @@ const CLONED_BUILD_KEY = "rg-backpack-planner-cloned-build-toast";
  * @returns true if the flag was found and processed, false otherwise
  */
 export function tryShowStoppedPreviewToast(
-    presetName: string = "Default",
+    presetName: string = DEFAULT_PRESET_NAME,
 ): boolean {
     return checkSessionStorageAndShowToast(
         STOPPED_PREVIEW_KEY,
