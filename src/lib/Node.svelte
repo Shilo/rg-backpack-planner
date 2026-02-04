@@ -61,7 +61,7 @@
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
         /* Filter values for unleveled states */
-        --filter-locked: grayscale(1) brightness(0.5);
+        --filter-locked: grayscale(1) brightness(0.4);
         --filter-available: brightness(0.5);
 
         /* Default color variables (overridden by region-specific rules) */
