@@ -1330,18 +1330,18 @@ const buildNameTestCases: Array<{
     {
         name: "Whitespace-only name after URL decode",
         encoded: "%20%20%20|1",
-        expected: "   ", // trim() happens before decode, so this becomes "   " after decode
+        expected: "   ", // URL-encoded spaces decode to literal spaces after trim
     },
     // Edge cases - malformed input
     {
         name: "Invalid URL encoding (incomplete percent)",
         encoded: "My%2Build|1",
-        expected: "My+uild", // %2B is decoded to '+' character
+        expected: "My+uild", // %2B decodes to '+', followed by 'uild'
     },
     {
         name: "Invalid URL encoding (non-hex characters)",
         encoded: "My%ZZBuild|1",
-        expected: "My%ZZBuild", // Falls back to just converting underscores when decode fails
+        expected: "My%ZZBuild", // Decoding fails, falls back to converting underscores only
     },
     {
         name: "Multiple separators (use first)",
@@ -1351,12 +1351,12 @@ const buildNameTestCases: Array<{
     {
         name: "Name with trailing whitespace (URL encoded)",
         encoded: "MyBuild%20%20%20|1",
-        expected: "MyBuild   ", // trim() happens before decode, so trailing spaces remain
+        expected: "MyBuild   ", // URL-encoded spaces decode to literal spaces after literal trim
     },
     {
         name: "Name with leading whitespace (URL encoded)",
         encoded: "%20%20%20MyBuild|1",
-        expected: "   MyBuild", // trim() happens before decode, so leading spaces remain
+        expected: "   MyBuild", // URL-encoded spaces decode to literal spaces after literal trim
     },
     // Type safety
     {
