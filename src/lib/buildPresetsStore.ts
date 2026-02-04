@@ -8,6 +8,8 @@ import { encodeBuildData } from "./buildData/encoder";
 
 const STORAGE_KEY = "rg-backpack-planner-build-presets";
 
+export const DEFAULT_PRESET_NAME = "Default";
+
 export interface BuildPreset {
     id: string;
     name: string;
@@ -28,7 +30,7 @@ function defaultPresetsData(): BuildPresetsData {
     return {
         active: defaultId,
         presets: [
-            { id: defaultId, name: "Default", buildCode: emptyBuildCode },
+            { id: defaultId, name: DEFAULT_PRESET_NAME, buildCode: emptyBuildCode },
         ],
     };
 }
@@ -244,5 +246,5 @@ export const activePresetName = derived(buildPresetsStore, (data) => {
     const activePreset = data.presets.find(
         (preset) => preset.id === data.active,
     );
-    return activePreset?.name ?? "Default";
+    return activePreset?.name ?? DEFAULT_PRESET_NAME;
 });
