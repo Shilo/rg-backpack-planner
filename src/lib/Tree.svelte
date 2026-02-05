@@ -903,7 +903,7 @@
                                 y1={fromNode ? fromNode.y : 0}
                                 x2={toNode.x}
                                 y2={toNode.y}
-                                style={`stroke: ${linkColor};`}
+                                style={`stroke: ${linkColor}; stroke-width: 4;`}
                             />
                         {/if}
                     {/each}
@@ -1008,7 +1008,6 @@
     }
 
     .tree-links line {
-        stroke-width: 4;
         transition: stroke-opacity 0.2s;
     }
 </style>
