@@ -253,15 +253,31 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
-    // Region base colors for links (matching node border colors)
-    const regionColors: Record<NodeRegion, string> = {
-        "top-left": "255, 107, 53", // Red-orange
-        "bottom-left": "255, 215, 0", // Bright gold
-        right: "74, 144, 226", // Saturated blue
+    // Border colors per region, matching Node.svelte CSS variables exactly
+    const regionBorderColor: Record<NodeRegion, string> = {
+        "top-left": "#ff6b35",
+        "bottom-left": "#ffd700",
+        right: "#4a90e2",
     };
 
-    // Locked link color (grayscale, matching --border-color-locked: #55556a)
-    const lockedLinkColor = "85, 85, 106";
+    const regionBorderColorMaxed: Record<NodeRegion, string> = {
+        "top-left": "#ff8c5a",
+        "bottom-left": "#ffeb3b",
+        right: "#6bb6ff",
+    };
+
+    const lockedBorderColor = "#55556a";
+
+    // Brightness values matching Node.svelte --filter-locked / --filter-available
+    const brightnessLocked = 0.4;
+    const brightnessAvailable = 0.5;
+
+    function applyBrightness(hex: string, brightness: number): string {
+        const r = Math.round(parseInt(hex.slice(1, 3), 16) * brightness);
+        const g = Math.round(parseInt(hex.slice(3, 5), 16) * brightness);
+        const b = Math.round(parseInt(hex.slice(5, 7), 16) * brightness);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
 
     function getLinkColor(
         to: NodeType,
@@ -269,11 +285,19 @@
         toState: NodeState,
     ): string {
         if (toState === "locked")
-            return `rgba(${lockedLinkColor}, 0.4)`;
+            return applyBrightness(lockedBorderColor, brightnessLocked);
+
+        const region = getNodeRegion(to, toIndex);
+
         if (toState === "available")
-            return `rgba(${regionColors[getNodeRegion(to, toIndex)]}, 0.4)`;
-        // active or maxed
-        return `rgba(${regionColors[getNodeRegion(to, toIndex)]}, 0.8)`;
+            return applyBrightness(
+                regionBorderColor[region],
+                brightnessAvailable,
+            );
+        if (toState === "maxed") return regionBorderColorMaxed[region];
+
+        // active
+        return regionBorderColor[region];
     }
 
     function levelUp(index: NodeIndex) {
@@ -868,11 +892,7 @@
                         {@const toNode = getNodeAt(link.to)}
                         {#if toNode}
                             {@const toIndex = link.to}
-                            {@const toState = getState(
-                                toNode,
-                                toIndex,
-                                levels,
-                            )}
+                            {@const toState = getState(toNode, toIndex, levels)}
                             {@const linkColor = getLinkColor(
                                 toNode,
                                 toIndex,
