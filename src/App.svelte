@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import Tabs from "./lib/Tabs.svelte";
+    import TreeTabs from "./lib/TreeTabs.svelte";
     import type { TabConfig } from "./types/tree";
     import SideMenu from "./lib/SideMenu.svelte";
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
@@ -435,7 +435,7 @@
         />
     </div>
     <main class="app-main">
-        <Tabs
+        <TreeTabs
             bind:this={tabsRef}
             bind:activeLabel={activeTreeName}
             bind:activeIndex={activeTreeIndex}

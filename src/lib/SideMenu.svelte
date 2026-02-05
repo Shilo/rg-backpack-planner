@@ -1,6 +1,12 @@
 <script lang="ts">
-    import { XIcon } from "phosphor-svelte";
-    import SideBarTabBar from "./SideBarTabBar.svelte";
+    import {
+        ChartBarIcon,
+        GameControllerIcon,
+        GearSixIcon,
+        XIcon,
+    } from "phosphor-svelte";
+    import TabBar from "./TabBar.svelte";
+    import type { TabBarItem } from "./TabBar.svelte";
     import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
     import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
     import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
@@ -13,6 +19,27 @@
         sideMenuActiveTab,
         type SideMenuTab,
     } from "./sideMenuActiveTabStore";
+
+    const sideMenuTabs: TabBarItem[] = [
+        {
+            id: "statistics",
+            label: "Statistics",
+            icon: ChartBarIcon,
+            tooltip: "View skills, levels, and tech crystal data",
+        },
+        {
+            id: "settings",
+            label: "Settings",
+            icon: GearSixIcon,
+            tooltip: "View options",
+        },
+        {
+            id: "controls",
+            label: "Controls",
+            icon: GameControllerIcon,
+            tooltip: "View input mapping",
+        },
+    ];
 
     export let isOpen = false;
     export let skipTransition = false;
@@ -34,6 +61,12 @@
         } else {
             setActiveTabWithoutPersist(tab);
         }
+    }
+
+    function handleSideMenuTabChange(tabId: string) {
+        activeTab = tabId as SideMenuTab;
+        setActiveTab(activeTab);
+        triggerHaptic();
     }
 
     function handleBackdropClick() {
@@ -88,7 +121,7 @@
         </nav>
     </div>
     <div class="side-menu__tab-bar-wrapper">
-        <SideBarTabBar bind:activeTab />
+        <TabBar tabs={sideMenuTabs} {activeTab} onTabChange={handleSideMenuTabChange} />
         <button
             class="side-menu__close-button"
             aria-label="Close menu"
