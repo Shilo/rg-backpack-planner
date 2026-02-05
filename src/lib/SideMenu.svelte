@@ -3,15 +3,13 @@
         ChartBarIcon,
         GameControllerIcon,
         GearSixIcon,
-        XIcon,
     } from "phosphor-svelte";
-    import TabBar from "./TabBar.svelte";
+    import BottomNavBar from "./BottomNavBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
     import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
     import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
     import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
     import { triggerHaptic } from "./haptics";
-    import { tooltip } from "./tooltip";
     import type { TreeViewState } from "./Tree.svelte";
     import {
         setActiveTab,
@@ -120,26 +118,15 @@
             </div>
         </nav>
     </div>
-    <div class="side-menu__tab-bar-wrapper">
-        <TabBar tabs={sideMenuTabs} {activeTab} onTabChange={handleSideMenuTabChange} />
-        <button
-            class="side-menu__close-button"
-            aria-label="Close menu"
-            use:tooltip={"Close menu"}
-            on:click={() => {
-                triggerHaptic();
-                onClose?.();
-            }}
-            type="button"
-        >
-            <svelte:component
-                this={XIcon}
-                class="side-menu__close-button-icon"
-                aria-hidden="true"
-                size={26}
-            />
-        </button>
-    </div>
+    <BottomNavBar
+        tabs={sideMenuTabs}
+        {activeTab}
+        onTabChange={handleSideMenuTabChange}
+        onClose={() => {
+            triggerHaptic();
+            onClose?.();
+        }}
+    />
 </aside>
 
 <style>
@@ -220,53 +207,5 @@
         flex: 1;
         min-height: 0;
         overflow: hidden;
-    }
-
-    .side-menu__tab-bar-wrapper {
-        flex: 0 0 auto;
-        width: 100%;
-        display: flex;
-        align-items: stretch;
-        position: relative;
-    }
-
-    .side-menu__close-button {
-        flex: 0 0 auto;
-        width: var(--side-menu-tab-height);
-        height: var(--side-menu-tab-height);
-        border: 1px solid rgba(180, 72, 72, 0.9);
-        background: rgba(84, 26, 32, 0.85);
-        color: #ffd7d7;
-        border-radius: 0;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition:
-            border-color 0.2s ease,
-            color 0.2s ease,
-            background 0.2s ease;
-    }
-
-    .side-menu__close-button:focus-visible {
-        outline: 2px solid rgba(120, 156, 240, 0.9);
-        outline-offset: 2px;
-    }
-
-    @media (hover: hover) {
-        .side-menu__close-button:hover {
-            filter: brightness(1.18);
-        }
-    }
-
-    .side-menu__close-button:active {
-        transform: scale(0.97);
-        filter: brightness(1.2);
-    }
-
-    .side-menu__close-button-icon {
-        width: 26px;
-        height: 26px;
     }
 </style>
