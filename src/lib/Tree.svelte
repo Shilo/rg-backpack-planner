@@ -883,7 +883,7 @@
                 bind:this={treeCanvasEl}
                 style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
             >
-                <svg class="tree-links">
+                <svg class="tree-links" overflow="visible">
                     {#each links() as link}
                         {@const fromNode =
                             link.from === undefined
