@@ -102,7 +102,7 @@
             25% 100%,
             0% 50%
         );
-        --hex-border-width: 2px;
+        --hex-border-width: 4px;
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
 
