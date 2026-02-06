@@ -33,7 +33,10 @@
     $: NodeIcon = stateIcons[state] ?? LockIcon;
 </script>
 
-<div class="node-wrapper" style="left: {x}px; top: {y}px;">
+<div
+    class={`node-wrapper ${isLeaf ? "node-wrapper-hex" : ""}`}
+    style="left: {x}px; top: {y}px;"
+>
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
         aria-label={label || String(id)}
@@ -56,6 +59,10 @@
     .node-wrapper {
         position: absolute;
         transform: translate(-50%, -50%);
+    }
+
+    .node-wrapper.node-wrapper-hex {
+        filter: drop-shadow(var(--shadow));
     }
 
     /* CSS Custom Properties - All color variables defined here */
@@ -203,6 +210,7 @@
         border: none;
         position: relative;
         overflow: visible;
+        box-shadow: none;
         background: transparent;
         clip-path: var(--hex-clip);
         isolation: isolate;
@@ -228,30 +236,6 @@
         background: var(--hex-fill);
         z-index: 0;
         pointer-events: none;
-    }
-
-    /* Hexagon border (::before) state styles */
-    :global(.button.node.node-hexagon.locked::before) {
-        background: var(--hex-border-color);
-        filter: var(--filter-locked);
-    }
-
-    :global(.button.node.node-hexagon.available::before) {
-        background: var(--hex-border-color);
-        filter: var(--filter-available);
-    }
-
-    :global(.button.node.node-hexagon.active::before) {
-        background: var(--hex-border-color);
-    }
-
-    :global(.button.node.node-hexagon.maxed::before) {
-        background: var(--hex-border-color);
-    }
-
-    /* Hexagon element glow state styles */
-    :global(.button.node.node-hexagon.available) {
-        filter: var(--filter-available);
     }
 
     :global(.button.node.node-hexagon .node-icon) {
