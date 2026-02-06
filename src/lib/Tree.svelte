@@ -253,24 +253,37 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
-    // Border colors per region, matching Node.svelte CSS variables exactly
+    // Read theme color from CSS custom property
+    function themeColor(name: string): string {
+        return getComputedStyle(document.documentElement)
+            .getPropertyValue(name)
+            .trim();
+    }
+
+    // Border colors per region, read from theme.css variables
     const regionBorderColor: Record<NodeRegion, string> = {
-        "top-left": "#ff6b35",
-        "bottom-left": "#ffd700",
-        right: "#4a90e2",
+        "top-left": themeColor("--color-node-orange-border"),
+        "bottom-left": themeColor("--color-node-yellow-border"),
+        right: themeColor("--color-node-blue-border"),
     };
 
     const regionBorderColorMaxed: Record<NodeRegion, string> = {
-        "top-left": "#ff8c5a",
-        "bottom-left": "#ffeb3b",
-        right: "#6bb6ff",
+        "top-left": themeColor("--color-node-orange-border-maxed"),
+        "bottom-left": themeColor("--color-node-yellow-border-maxed"),
+        right: themeColor("--color-node-blue-border-maxed"),
     };
 
-    const lockedBorderColor = "#55556a";
+    const lockedBorderColor = themeColor("--color-node-locked-border");
 
-    // Brightness values matching Node.svelte --filter-locked / --filter-available
-    const brightnessLocked = 0.4;
-    const brightnessAvailable = 0.5;
+    // Parse numeric brightness from CSS filter value like "brightness(0.4)"
+    function parseBrightness(cssVar: string): number {
+        const raw = themeColor(cssVar);
+        const match = raw.match(/[\d.]+/);
+        return match ? parseFloat(match[0]) : 1;
+    }
+
+    const brightnessLocked = parseBrightness("--filter-node-locked");
+    const brightnessAvailable = parseBrightness("--filter-node-available");
 
     function applyBrightness(hex: string, brightness: number): string {
         const r = Math.round(parseInt(hex.slice(1, 3), 16) * brightness);
