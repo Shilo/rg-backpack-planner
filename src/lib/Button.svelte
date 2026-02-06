@@ -180,7 +180,6 @@
     }
 
     .button:not(:disabled):active {
-        transform: scale(0.97);
         filter: var(--brightness-hover);
     }
 

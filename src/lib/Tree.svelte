@@ -253,74 +253,6 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
-    // Read theme color from CSS custom property
-    function themeColor(name: string): string {
-        return getComputedStyle(document.documentElement)
-            .getPropertyValue(name)
-            .trim();
-    }
-
-    // Border colors per region, read from theme.css primitives
-    const regionBorderColor: Record<NodeRegion, string> = {
-        "top-left": themeColor("--accent-orange"),
-        "bottom-left": themeColor("--accent-yellow"),
-        right: themeColor("--accent-blue"),
-    };
-
-    const regionBorderColorMaxed: Record<NodeRegion, string> = {
-        "top-left": themeColor("--accent-orange-light"),
-        "bottom-left": themeColor("--accent-yellow-light"),
-        right: themeColor("--accent-blue-light"),
-    };
-
-    const lockedBorderColor = themeColor("--node-locked-border");
-
-    // Parse numeric brightness from CSS filter value like "brightness(0.4)"
-    function parseBrightness(cssVar: string): number {
-        const raw = themeColor(cssVar);
-        const match = raw.match(/[\d.]+/);
-        return match ? parseFloat(match[0]) : 1;
-    }
-
-    const brightnessLocked = parseBrightness("--node-brightness-locked");
-    const brightnessAvailable = parseBrightness("--node-brightness-available");
-
-    function applyBrightness(color: string, brightness: number): string {
-        let r: number, g: number, b: number;
-        if (color.startsWith("#")) {
-            r = parseInt(color.slice(1, 3), 16);
-            g = parseInt(color.slice(3, 5), 16);
-            b = parseInt(color.slice(5, 7), 16);
-        } else {
-            const match = color.match(/(\d+),?\s*(\d+),?\s*(\d+)/);
-            if (!match) return color;
-            r = parseInt(match[1]);
-            g = parseInt(match[2]);
-            b = parseInt(match[3]);
-        }
-        return `rgb(${Math.round(r * brightness)}, ${Math.round(g * brightness)}, ${Math.round(b * brightness)})`;
-    }
-
-    function getLinkColor(
-        to: NodeType,
-        toIndex: number,
-        toState: NodeState,
-    ): string {
-        if (toState === "locked")
-            return applyBrightness(lockedBorderColor, brightnessLocked);
-
-        const region = getNodeRegion(to, toIndex);
-
-        if (toState === "available")
-            return applyBrightness(
-                regionBorderColor[region],
-                brightnessAvailable,
-            );
-        if (toState === "maxed") return regionBorderColorMaxed[region];
-
-        // active
-        return regionBorderColor[region];
-    }
 
     function levelUp(index: NodeIndex) {
         const node = getNodeAt(index);
@@ -915,17 +847,13 @@
                         {#if toNode}
                             {@const toIndex = link.to}
                             {@const toState = getState(toNode, toIndex, levels)}
-                            {@const linkColor = getLinkColor(
-                                toNode,
-                                toIndex,
-                                toState,
-                            )}
+                            {@const toRegion = getNodeRegion(toNode, toIndex)}
                             <line
+                                class={`tree-link ${toState} region-${toRegion}`}
                                 x1={fromNode ? fromNode.x : 0}
                                 y1={fromNode ? fromNode.y : 0}
                                 x2={toNode.x}
                                 y2={toNode.y}
-                                style={`stroke: ${linkColor}; stroke-width: 4;`}
                             />
                         {/if}
                     {/each}
@@ -1029,7 +957,43 @@
         overflow: visible;
     }
 
-    .tree-links line {
+    .tree-links .tree-link {
+        stroke-width: 4;
+        stroke: var(--link-color);
+        filter: none;
         transition: stroke-opacity 0.2s;
+    }
+
+    .tree-links .tree-link.region-top-left {
+        --link-color: var(--accent-orange);
+        --link-color-maxed: var(--accent-orange-light);
+    }
+
+    .tree-links .tree-link.region-bottom-left {
+        --link-color: var(--accent-yellow);
+        --link-color-maxed: var(--accent-yellow-light);
+    }
+
+    .tree-links .tree-link.region-right {
+        --link-color: var(--accent-blue);
+        --link-color-maxed: var(--accent-blue-light);
+    }
+
+    .tree-links .tree-link.locked {
+        stroke: var(--node-locked-border);
+        filter: var(--node-brightness-locked);
+    }
+
+    .tree-links .tree-link.available {
+        stroke: var(--link-color);
+        filter: var(--node-brightness-available);
+    }
+
+    .tree-links .tree-link.active {
+        stroke: var(--link-color);
+    }
+
+    .tree-links .tree-link.maxed {
+        stroke: var(--link-color-maxed);
     }
 </style>

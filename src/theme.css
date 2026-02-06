@@ -30,9 +30,10 @@
     --border-focus: color-mix(in srgb, var(--accent) 70%, white);
 
     /* Backgrounds */
-    --bg-raised: color-mix(in srgb, var(--surface) 70%, transparent);
+    --bg-raised: color-mix(in srgb, var(--surface) 80%, transparent);
     --bg-panel: color-mix(in srgb, var(--bg) 80%, transparent);
     --bg-input: color-mix(in srgb, var(--bg) 80%, var(--surface));
+    --bg-window: var(--bg);
 
     /* Danger states */
     --danger-bg: color-mix(in srgb, var(--accent-danger) 15%, var(--bg));
