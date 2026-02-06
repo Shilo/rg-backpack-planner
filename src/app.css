@@ -98,7 +98,7 @@ button {
     padding: 6px 10px;
     border-radius: var(--radius);
     background: var(--bg-panel);
-    border: 1px solid var(--border-subtle);
+    border: var(--border-width) solid var(--border-subtle);
     color: var(--text-muted);
     font-size: var(--font-base);
     letter-spacing: var(--tracking);

@@ -70,7 +70,7 @@
 <style>
     .tree-stats {
         padding: 8px 12px;
-        border-bottom: 1px solid var(--border-subtle);
+        border-bottom: var(--border-width) solid var(--border-subtle);
         display: flex;
         flex-direction: column;
         gap: 6px;

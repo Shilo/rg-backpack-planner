@@ -324,7 +324,7 @@
         position: fixed;
         transform: translate(-50%, -10%);
         background: var(--bg-panel);
-        border: 1px solid var(--border);
+        border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
         padding: 8px;
         display: grid;

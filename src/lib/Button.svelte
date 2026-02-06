@@ -113,7 +113,7 @@
 
 <style>
     .button {
-        border: 1px solid var(--border);
+        border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         color: var(--text-muted);
         border-radius: var(--radius);

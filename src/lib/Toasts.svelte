@@ -83,7 +83,7 @@
         width: fit-content;
         border-radius: var(--radius);
         background: var(--bg-raised);
-        border: 1px solid var(--border-subtle);
+        border: var(--border-width) solid var(--border-subtle);
         box-shadow: var(--shadow);
         color: var(--text-muted);
         font-size: var(--font-base);

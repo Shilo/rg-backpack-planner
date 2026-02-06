@@ -218,7 +218,7 @@
         width: 100%;
         height: 44px;
         border-radius: var(--radius);
-        border: 1px solid var(--border-subtle);
+        border: var(--border-width) solid var(--border-subtle);
         background: var(--bg-input);
         color: var(--text-muted);
         font-size: var(--font-base);

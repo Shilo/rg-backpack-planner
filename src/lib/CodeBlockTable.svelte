@@ -129,8 +129,8 @@
     }
 
     .codeblock-table__table td {
-        border-top: 1px solid var(--border-subtle);
-        border-left: 1px solid var(--border-subtle);
+        border-top: var(--border-width) solid var(--border-subtle);
+        border-left: var(--border-width) solid var(--border-subtle);
         padding: 6px 8px;
         text-align: left;
     }

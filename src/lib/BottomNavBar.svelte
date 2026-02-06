@@ -41,7 +41,7 @@
         flex: 0 0 auto;
         width: var(--side-menu-tab-height);
         height: var(--side-menu-tab-height);
-        border: 1px solid var(--danger-border);
+        border: var(--border-width) solid var(--danger-border);
         background: var(--danger-bg);
         color: var(--danger-text);
         border-radius: 0;

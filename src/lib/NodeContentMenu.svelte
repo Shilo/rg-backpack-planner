@@ -141,7 +141,7 @@
 <style>
     .node-stats {
         padding: 8px 12px;
-        border-bottom: 1px solid var(--border-subtle);
+        border-bottom: var(--border-width) solid var(--border-subtle);
         display: flex;
         align-items: flex-start;
         gap: 12px;

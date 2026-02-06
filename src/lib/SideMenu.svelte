@@ -162,7 +162,7 @@
                 10px
         );
         background: var(--bg-panel);
-        border-left: 1px solid var(--border-subtle);
+        border-left: var(--border-width) solid var(--border-subtle);
         transform: translateX(100%);
         transition: transform 0.15s ease;
         padding: 0;

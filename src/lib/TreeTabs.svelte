@@ -566,7 +566,7 @@
     }
 
     :global(.fullscreen-button) {
-        border: 1px solid var(--border);
+        border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         color: var(--text-muted);
         width: var(--tab-height);
@@ -585,7 +585,7 @@
     }
 
     :global(.menu-button) {
-        border: 1px solid var(--border);
+        border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         color: var(--text-muted);
         width: var(--tab-height);

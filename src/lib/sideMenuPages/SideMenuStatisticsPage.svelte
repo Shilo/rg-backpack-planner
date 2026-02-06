@@ -56,7 +56,7 @@
     .side-menu__stats-card {
         display: grid;
         gap: 0;
-        border: 1px solid var(--border-subtle);
+        border: var(--border-width) solid var(--border-subtle);
         border-radius: var(--radius);
         overflow: hidden;
     }

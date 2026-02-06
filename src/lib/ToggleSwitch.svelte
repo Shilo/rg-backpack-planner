@@ -50,7 +50,7 @@
         width: 100%;
         height: 40px;
         padding: 10px 12px;
-        border: 1px solid var(--border);
+        border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius);
         color: var(--text-muted);
@@ -109,7 +109,7 @@
         height: 30px;
         border-radius: var(--radius);
         background: color-mix(in srgb, var(--border) 80%, transparent);
-        border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+        border: var(--border-width) solid color-mix(in srgb, var(--border) 90%, transparent);
         transition:
             background var(--ease),
             border-color var(--ease);

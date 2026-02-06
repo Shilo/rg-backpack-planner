@@ -28,11 +28,12 @@
     /* Borders */
     --border-subtle: color-mix(in srgb, var(--border) 50%, transparent);
     --border-focus: color-mix(in srgb, var(--accent) 70%, white);
+    --border-width: 1px;
 
     /* Backgrounds */
-    --bg-raised: color-mix(in srgb, var(--surface) 80%, transparent);
+    --bg-raised: color-mix(in srgb, var(--surface) 50%, transparent);
     --bg-panel: color-mix(in srgb, var(--bg) 80%, transparent);
-    --bg-input: color-mix(in srgb, var(--bg) 80%, var(--surface));
+    --bg-input: color-mix(in srgb, var(--bg) 50%, var(--surface));
     --bg-window: var(--bg);
 
     /* Danger states */

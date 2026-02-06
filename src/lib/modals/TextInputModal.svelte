@@ -140,7 +140,7 @@
         width: 100%;
         padding: 10px 12px;
         background: var(--bg-input);
-        border: 1px solid var(--border-subtle);
+        border: var(--border-width) solid var(--border-subtle);
         border-radius: var(--radius);
         color: var(--text);
         font-size: var(--font-base);
