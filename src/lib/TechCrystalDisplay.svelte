@@ -60,7 +60,7 @@
     }
 
     .currency-spent.is-negative {
-        color: var(--danger);
+        color: var(--accent-danger);
     }
 
     .currency-separator {

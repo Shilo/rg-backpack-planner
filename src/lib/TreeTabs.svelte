@@ -504,7 +504,7 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: radial-gradient(circle at top, var(--n4), var(--n2) 75%);
+        background: radial-gradient(circle at top, color-mix(in srgb, var(--bg) 40%, var(--surface)), var(--bg) 75%);
         position: relative;
     }
 
@@ -532,7 +532,7 @@
     }
 
     :global(.tab-buttons button) {
-        color: var(--text-subtle);
+        color: var(--text-muted);
         padding: 0 10px;
         height: var(--tab-height);
         border-radius: var(--radius-sm);
@@ -556,15 +556,15 @@
     }
 
     :global(.tab-buttons button.active) {
-        background: var(--active-bg);
-        color: var(--text-secondary);
-        border-color: var(--n8);
+        background: color-mix(in srgb, var(--surface) 78%, var(--accent));
+        color: var(--text-muted);
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
     }
 
     :global(.fullscreen-button) {
         border: 1px solid var(--border);
         background: var(--bg-raised);
-        color: var(--text-subtle);
+        color: var(--text-muted);
         width: var(--tab-height);
         height: var(--tab-height);
         border-radius: var(--radius-sm);
@@ -583,11 +583,11 @@
     :global(.menu-button) {
         border: 1px solid var(--border);
         background: var(--bg-raised);
-        color: var(--text-subtle);
+        color: var(--text-muted);
         width: var(--tab-height);
         height: var(--tab-height);
         border-radius: var(--radius-sm);
-        font-size: var(--font-2xl);
+        font-size: var(--font-xl);
         padding: 0;
         display: flex;
         align-items: center;

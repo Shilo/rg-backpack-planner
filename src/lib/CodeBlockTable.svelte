@@ -144,12 +144,12 @@
     }
 
     .codeblock-table__table tbody {
-        color: var(--text-secondary);
+        color: var(--text-muted);
     }
 
     .codeblock-table__section {
         background: var(--bg-input);
-        color: var(--text-secondary);
+        color: var(--text-muted);
         font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking-tight);
     }

@@ -450,8 +450,8 @@
     }
 
     :global(.preset-name-btn.active) {
-        background: var(--active-bg) !important;
-        border-color: var(--n8) !important;
+        background: color-mix(in srgb, var(--surface) 78%, var(--accent)) !important;
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
     }
 
     :global(.preset-name-btn .button-text) {

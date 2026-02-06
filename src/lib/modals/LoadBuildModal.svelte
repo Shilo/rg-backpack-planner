@@ -192,7 +192,7 @@
 
     .modal-message {
         margin: 0;
-        font-size: var(--font-md);
+        font-size: var(--font-base);
         color: var(--text-muted);
         line-height: 1.4;
         overflow-wrap: anywhere;
@@ -220,8 +220,8 @@
         border-radius: var(--radius-md);
         border: 1px solid var(--border-subtle);
         background: var(--bg-input);
-        color: var(--text-secondary);
-        font-size: var(--font-md);
+        color: var(--text-muted);
+        font-size: var(--font-base);
         padding: 0 10px;
         text-transform: none;
     }

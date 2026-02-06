@@ -69,7 +69,7 @@
 
     .bottom-nav-bar__close-button:active {
         transform: scale(0.97);
-        filter: var(--brightness-active);
+        filter: var(--brightness-hover);
     }
 
     :global(.bottom-nav-bar__close-icon) {

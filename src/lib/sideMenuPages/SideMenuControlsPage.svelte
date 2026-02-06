@@ -408,7 +408,7 @@
     .control-icon {
         width: 20px;
         height: 20px;
-        color: var(--text-secondary);
+        color: var(--text-muted);
     }
 
     .control-icon :global(svg),
@@ -435,7 +435,7 @@
 
     .control-label {
         margin: 0;
-        font-size: var(--font-md);
+        font-size: var(--font-base);
         color: var(--text);
         overflow-wrap: break-word;
     }
@@ -449,7 +449,7 @@
     }
 
     .control-desc :global(a) {
-        color: var(--text-subtle);
+        color: var(--text-muted);
     }
 
     .app-info-actions {

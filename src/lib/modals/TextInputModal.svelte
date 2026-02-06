@@ -121,7 +121,7 @@
 
     .modal-message {
         margin: 0;
-        font-size: var(--font-md);
+        font-size: var(--font-base);
         color: var(--text-muted);
         line-height: 1.4;
         overflow-wrap: anywhere;
@@ -132,7 +132,7 @@
     .modal-label {
         margin: 0;
         font-size: var(--font-base);
-        font-weight: var(--weight-medium);
+        font-weight: 500;
         color: var(--text-muted);
     }
 
@@ -143,10 +143,10 @@
         border: 1px solid var(--border-subtle);
         border-radius: var(--radius-sm);
         color: var(--text);
-        font-size: var(--font-md);
+        font-size: var(--font-base);
         font-family: inherit;
         outline: none;
-        transition: border-color var(--ease-medium);
+        transition: border-color 0.15s ease;
     }
 
     .modal-input:focus {

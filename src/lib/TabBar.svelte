@@ -63,7 +63,7 @@
         min-width: var(--side-menu-tab-min-width, 72px);
         border: 1px solid var(--border);
         background: transparent;
-        color: var(--text-subtle);
+        color: var(--text-muted);
         border-radius: 0;
         height: var(--side-menu-tab-height);
         padding: 4px 6px;
@@ -105,9 +105,9 @@
     }
 
     .tab-bar__tab-button.active {
-        background: var(--active-bg);
-        color: var(--text-secondary);
-        border-color: var(--n8);
+        background: color-mix(in srgb, var(--surface) 78%, var(--accent));
+        color: var(--text-muted);
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
         z-index: 2;
     }
 
@@ -124,6 +124,6 @@
 
     .tab-bar__tab-button:active {
         transform: scale(0.97);
-        filter: var(--brightness-active);
+        filter: var(--brightness-hover);
     }
 </style>

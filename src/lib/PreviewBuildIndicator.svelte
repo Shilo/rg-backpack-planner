@@ -66,7 +66,7 @@
         border-radius: var(--radius-full) !important;
         font-weight: var(--weight-semibold);
         font-size: var(--font-base) !important;
-        letter-spacing: var(--tracking-normal);
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         padding: 6px 12px;
         pointer-events: auto;

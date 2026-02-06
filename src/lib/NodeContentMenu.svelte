@@ -178,7 +178,7 @@
     }
 
     .stat-label {
-        color: var(--text-subtle);
+        color: var(--text-muted);
     }
 
     .stat-value {
@@ -190,7 +190,7 @@
         width: 100%;
         height: 6px;
         background: var(--bg-raised);
-        border-radius: var(--radius-xs);
+        border-radius: 3px;
         overflow: hidden;
         margin-top: 2px;
     }
@@ -198,7 +198,7 @@
     .level-progress-bar {
         height: 100%;
         background: linear-gradient(90deg, var(--accent), var(--accent-light));
-        border-radius: var(--radius-xs);
+        border-radius: 3px;
         transition: width var(--ease-default);
     }
 

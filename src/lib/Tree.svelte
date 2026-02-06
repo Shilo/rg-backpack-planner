@@ -264,13 +264,13 @@
     const regionBorderColor: Record<NodeRegion, string> = {
         "top-left": themeColor("--accent-orange"),
         "bottom-left": themeColor("--accent-yellow"),
-        right: themeColor("--accent-cyan"),
+        right: themeColor("--accent-blue"),
     };
 
     const regionBorderColorMaxed: Record<NodeRegion, string> = {
         "top-left": themeColor("--accent-orange-light"),
         "bottom-left": themeColor("--accent-yellow-light"),
-        right: themeColor("--accent-cyan-light"),
+        right: themeColor("--accent-blue-light"),
     };
 
     const lockedBorderColor = themeColor("--node-locked-border");
@@ -283,13 +283,22 @@
     }
 
     const brightnessLocked = parseBrightness("--brightness-dim");
-    const brightnessAvailable = parseBrightness("--brightness-subdued");
+    const brightnessAvailable = parseBrightness("--brightness-available");
 
-    function applyBrightness(hex: string, brightness: number): string {
-        const r = Math.round(parseInt(hex.slice(1, 3), 16) * brightness);
-        const g = Math.round(parseInt(hex.slice(3, 5), 16) * brightness);
-        const b = Math.round(parseInt(hex.slice(5, 7), 16) * brightness);
-        return `rgb(${r}, ${g}, ${b})`;
+    function applyBrightness(color: string, brightness: number): string {
+        let r: number, g: number, b: number;
+        if (color.startsWith("#")) {
+            r = parseInt(color.slice(1, 3), 16);
+            g = parseInt(color.slice(3, 5), 16);
+            b = parseInt(color.slice(5, 7), 16);
+        } else {
+            const match = color.match(/(\d+),?\s*(\d+),?\s*(\d+)/);
+            if (!match) return color;
+            r = parseInt(match[1]);
+            g = parseInt(match[2]);
+            b = parseInt(match[3]);
+        }
+        return `rgb(${Math.round(r * brightness)}, ${Math.round(g * brightness)}, ${Math.round(b * brightness)})`;
     }
 
     function getLinkColor(

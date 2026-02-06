@@ -53,7 +53,7 @@
         border: 1px solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius-md);
-        color: var(--text-secondary);
+        color: var(--text-muted);
         font-size: var(--font-base);
         line-height: var(--leading-tight);
         cursor: pointer;
@@ -80,7 +80,7 @@
 
     .toggle-row:active {
         transform: scale(0.97);
-        filter: var(--brightness-active);
+        filter: var(--brightness-hover);
     }
 
     .toggle-icon {
@@ -108,8 +108,8 @@
         width: 50px;
         height: 30px;
         border-radius: var(--radius-lg);
-        background: color-mix(in srgb, var(--n6) 80%, transparent);
-        border: 1px solid color-mix(in srgb, var(--n6) 90%, transparent);
+        background: color-mix(in srgb, var(--border) 80%, transparent);
+        border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
         transition:
             background var(--ease-default),
             border-color var(--ease-default);

@@ -1,98 +1,78 @@
 :root {
     /* ═══════════════════════════════════════════════
-       Layer 1 — Primitives (~25 hex values)
+       Primitives (11 hex values)
        To create a new theme, swap only these.
        ═══════════════════════════════════════════════ */
 
-    /* Neutral scale (blue-tinted) */
-    --n1: #060d1a;
-    --n2: #0b1220;
-    --n3: #101a2e;
-    --n4: #162238;
-    --n5: #1e2d4a;
-    --n6: #2c3c61;
-    --n7: #3d5a95;
-    --n8: #4f6fbf;
-    --n9: #8fa4ce;
-    --n10: #b9c7ec;
-    --n11: #d4e1ff;
-    --n12: #ecf0ff;
+    --bg: #0b1220;
+    --surface: #1e2d4a;
+    --text: #ecf0ff;
+    --text-muted: #c0cfed;
+    --border: #2c3c61;
 
-    /* Accent colors (hex — needed by Tree.svelte JS hex math) */
     --accent: #4c6fff;
-    --accent-light: #5aa6ff;
     --accent-orange: #ff6b35;
-    --accent-orange-light: #ff8c5a;
     --accent-yellow: #ffd700;
-    --accent-yellow-light: #ffeb3b;
-    --accent-cyan: #4a90e2;
-    --accent-cyan-light: #6bb6ff;
-    --accent-amber: #ffb347;
+    --accent-blue: #4a90e2;
 
-    /* Status colors */
-    --danger: #f87171;
-    --success: #4ade80;
+    --accent-danger: #ef6461;
+    --accent-success: #38bdf8;
 
     /* ═══════════════════════════════════════════════
-       Layer 2 — Semantic Tokens (derived)
+       Derived Colors (~22 vars, auto from primitives)
        ═══════════════════════════════════════════════ */
 
-    /* Backgrounds */
-    --bg: var(--n2);
-    --bg-raised: color-mix(in srgb, var(--n4) 70%, transparent);
-    --bg-surface: var(--n5);
-    --bg-panel: color-mix(in srgb, var(--n2) 98%, transparent);
-    --bg-overlay: color-mix(in srgb, var(--n1) 72%, transparent);
-    --bg-input: color-mix(in srgb, var(--n3) 60%, transparent);
+    /* Light accents */
+    --accent-light: color-mix(in srgb, var(--accent) 55%, white);
+    --accent-orange-light: color-mix(in srgb, var(--accent-orange) 60%, white);
+    --accent-yellow-light: color-mix(in srgb, var(--accent-yellow) 70%, white);
+    --accent-blue-light: color-mix(in srgb, var(--accent-blue) 55%, white);
 
     /* Text */
-    --text: var(--n12);
-    --text-secondary: var(--n11);
-    --text-muted: var(--n10);
-    --text-subtle: var(--n9);
-    --text-disabled: color-mix(in srgb, var(--n10) 75%, transparent);
+    --text-disabled: color-mix(in srgb, var(--text-muted) 60%, transparent);
 
     /* Borders */
-    --border: var(--n6);
-    --border-subtle: color-mix(in srgb, var(--n6) 50%, transparent);
-    --border-strong: var(--n7);
-    --border-focus: color-mix(in srgb, var(--accent-light) 90%, transparent);
+    --border-subtle: color-mix(in srgb, var(--border) 50%, transparent);
+    --border-strong: color-mix(in srgb, var(--border) 50%, var(--text-muted));
+    --border-focus: color-mix(in srgb, var(--accent) 70%, white);
 
-    /* Interactive */
-    --active: var(--accent);
-    --active-hover: var(--accent-light);
-    --active-bg: color-mix(in srgb, var(--n5) 78%, var(--accent));
+    /* Backgrounds */
+    --bg-raised: color-mix(in srgb, var(--surface) 70%, transparent);
+    --bg-panel: color-mix(in srgb, var(--bg) 98%, transparent);
+    --bg-overlay: color-mix(in srgb, var(--bg) 80%, transparent);
+    --bg-input: color-mix(in srgb, var(--bg) 80%, var(--surface));
 
-    /* Danger */
-    --danger-bg: color-mix(in srgb, var(--danger) 15%, var(--n2));
-    --danger-border: color-mix(in srgb, var(--danger) 70%, transparent);
-    --danger-text: #ffd7d7;
+    /* Danger states */
+    --danger-bg: color-mix(in srgb, var(--accent-danger) 15%, var(--bg));
+    --danger-border: color-mix(in srgb, var(--accent-danger) 70%, transparent);
+    --danger-text: color-mix(in srgb, var(--accent-danger) 40%, white);
 
-    /* Success */
-    --success-bg: color-mix(in srgb, var(--success) 15%, var(--n2));
-    --success-border: color-mix(in srgb, var(--success) 70%, transparent);
-    --success-text: #d9ffe9;
+    /* Success states */
+    --success-bg: color-mix(in srgb, var(--accent-success) 15%, var(--bg));
+    --success-border: color-mix(in srgb, var(--accent-success) 70%, transparent);
+    --success-text: color-mix(in srgb, var(--accent-success) 40%, white);
+
+    /* Node locked (fully derived) */
+    --node-locked-bg: color-mix(in srgb, var(--surface) 55%, #555);
+    --node-locked-border: color-mix(in srgb, var(--border) 50%, #888);
+    --node-locked-text: color-mix(in srgb, var(--text-muted) 45%, #888);
 
     /* ═══════════════════════════════════════════════
-       Layer 3 — Typography, Radius, Shadows, Effects
+       Typography, Radius, Shadows, Effects
        ═══════════════════════════════════════════════ */
 
-    /* Font sizes (7) */
-    --font-xs: 0.65rem;
-    --font-sm: 0.75rem;
-    --font-base: 0.85rem;
-    --font-md: 0.95rem;
-    --font-lg: 1.05rem;
-    --font-xl: 1.25rem;
-    --font-2xl: 1.35rem;
+    /* Font sizes (5) */
+    --font-xs: 0.7rem;
+    --font-sm: 0.8rem;
+    --font-base: 0.9rem;
+    --font-lg: 1.1rem;
+    --font-xl: 1.3rem;
 
-    /* Font weights */
-    --weight-medium: 500;
+    /* Font weights (2) */
     --weight-semibold: 600;
     --weight-bold: bold;
 
-    /* Border radius (5) */
-    --radius-xs: 3px;
+    /* Border radius (4) */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -100,42 +80,30 @@
 
     /* Box shadows (4) */
     --shadow-sm: 0 2px 4px color-mix(in srgb, black 20%, transparent);
-    --shadow-md: 0 8px 20px color-mix(in srgb, var(--n1) 45%, transparent);
-    --shadow-lg: 0 20px 40px color-mix(in srgb, var(--n1) 55%, transparent);
+    --shadow-md: 0 8px 20px color-mix(in srgb, var(--bg) 55%, transparent);
+    --shadow-lg: 0 20px 40px color-mix(in srgb, var(--bg) 65%, transparent);
     --shadow-text: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.6),
         1px 0 2px rgba(0, 0, 0, 0.9), -1px 0 2px rgba(0, 0, 0, 0.9);
 
-    /* Brightness / Filter */
+    /* Brightness / Filter (3) */
     --brightness-hover: brightness(1.18);
-    --brightness-active: brightness(1.2);
     --brightness-dim: brightness(0.4);
-    --brightness-subdued: brightness(0.5);
+    --brightness-available: brightness(0.5);
 
-    /* Transitions */
+    /* Transitions (2) */
     --ease-fast: 0.12s ease;
-    --ease-medium: 0.15s ease;
     --ease-default: 0.2s ease;
 
-    /* Opacity */
+    /* Opacity (2) */
     --opacity-disabled: 0.5;
-    --opacity-muted: 0.7;
     --opacity-soft: 0.85;
 
-    /* Letter spacing */
+    /* Letter spacing (2) */
     --tracking-tight: 0.02em;
-    --tracking-normal: 0.06em;
     --tracking-wide: 0.12em;
 
-    /* Line height */
+    /* Line height (3) */
     --leading-none: 1;
     --leading-tight: 1.1;
-    --leading-snug: 1.2;
     --leading-normal: 1.3;
-
-    /* ═══════════════════════════════════════════════
-       Node — Locked state (shared across regions)
-       ═══════════════════════════════════════════════ */
-    --node-locked-bg: #2a2a35;
-    --node-locked-border: #55556a;
-    --node-locked-text: #8888a0;
 }

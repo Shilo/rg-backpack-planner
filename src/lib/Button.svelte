@@ -115,7 +115,7 @@
     .button {
         border: 1px solid var(--border);
         background: var(--bg-raised);
-        color: var(--text-secondary);
+        color: var(--text-muted);
         border-radius: var(--radius-md);
         text-align: left;
         line-height: var(--leading-none);
@@ -181,7 +181,7 @@
 
     .button:not(:disabled):active {
         transform: scale(0.97);
-        filter: var(--brightness-active);
+        filter: var(--brightness-hover);
     }
 
     .button-sm {

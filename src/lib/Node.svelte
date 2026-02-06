@@ -62,7 +62,7 @@
     :global(.button.node) {
         /* Filter values for unleveled states */
         --filter-locked: var(--brightness-dim);
-        --filter-available: var(--brightness-subdued);
+        --filter-available: var(--brightness-available);
 
         /* Locked state colors (grayscale, same for all regions) */
         --bg-locked: var(--node-locked-bg);
@@ -70,16 +70,16 @@
         --text-color-locked: var(--node-locked-text);
 
         /* Default region color variables (blue accent) */
-        --bg-available: color-mix(in srgb, var(--accent) 18%, var(--n3));
-        --bg-active: color-mix(in srgb, var(--accent) 28%, var(--n4));
-        --bg-maxed: color-mix(in srgb, var(--accent-amber) 35%, var(--n5));
+        --bg-available: color-mix(in srgb, var(--accent) 18%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
+        --bg-active: color-mix(in srgb, var(--accent) 28%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
+        --bg-maxed: color-mix(in srgb, var(--accent-light) 35%, var(--surface));
         --border-color: var(--accent);
         --border-color-active: var(--accent-light);
-        --border-color-maxed: var(--accent-amber);
+        --border-color-maxed: var(--accent-light);
         --text-color: color-mix(in srgb, var(--accent) 55%, white);
         --text-color-active: color-mix(in srgb, var(--accent-light) 45%, white);
-        --text-color-maxed: color-mix(in srgb, var(--accent-amber) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent) 8%, var(--n5));
+        --text-color-maxed: color-mix(in srgb, var(--accent-light) 35%, white);
+        --hex-bg: color-mix(in srgb, var(--accent) 8%, var(--surface));
 
         /* Base node styles */
         position: relative;
@@ -89,7 +89,7 @@
         border: 2px solid transparent;
         display: grid;
         place-items: center;
-        background: var(--bg-surface);
+        background: var(--surface);
         color: var(--text);
         font-family: inherit;
         cursor: pointer;
@@ -101,44 +101,44 @@
 
     /* Top-left region (Orange theme) */
     :global(.button.node.region-top-left) {
-        --bg-available: color-mix(in srgb, var(--accent-orange) 22%, var(--n3));
-        --bg-active: color-mix(in srgb, var(--accent-orange) 32%, var(--n4));
-        --bg-maxed: color-mix(in srgb, var(--accent-orange) 42%, var(--n5));
+        --bg-available: color-mix(in srgb, var(--accent-orange) 22%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
+        --bg-active: color-mix(in srgb, var(--accent-orange) 32%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
+        --bg-maxed: color-mix(in srgb, var(--accent-orange) 42%, var(--surface));
         --border-color: var(--accent-orange);
         --border-color-active: var(--accent-orange);
         --border-color-maxed: var(--accent-orange-light);
         --text-color: color-mix(in srgb, var(--accent-orange) 55%, white);
         --text-color-active: color-mix(in srgb, var(--accent-orange) 55%, white);
         --text-color-maxed: color-mix(in srgb, var(--accent-orange) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent-orange) 8%, var(--n5));
+        --hex-bg: color-mix(in srgb, var(--accent-orange) 8%, var(--surface));
     }
 
     /* Bottom-left region (Yellow theme) */
     :global(.button.node.region-bottom-left) {
-        --bg-available: color-mix(in srgb, var(--accent-yellow) 22%, var(--n3));
-        --bg-active: color-mix(in srgb, var(--accent-yellow) 32%, var(--n4));
-        --bg-maxed: color-mix(in srgb, var(--accent-yellow) 42%, var(--n5));
+        --bg-available: color-mix(in srgb, var(--accent-yellow) 22%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
+        --bg-active: color-mix(in srgb, var(--accent-yellow) 32%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
+        --bg-maxed: color-mix(in srgb, var(--accent-yellow) 42%, var(--surface));
         --border-color: var(--accent-yellow);
         --border-color-active: var(--accent-yellow);
         --border-color-maxed: var(--accent-yellow-light);
         --text-color: color-mix(in srgb, var(--accent-yellow) 55%, white);
         --text-color-active: color-mix(in srgb, var(--accent-yellow) 55%, white);
         --text-color-maxed: color-mix(in srgb, var(--accent-yellow) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent-yellow) 8%, var(--n5));
+        --hex-bg: color-mix(in srgb, var(--accent-yellow) 8%, var(--surface));
     }
 
-    /* Right region (Blue/Cyan theme) */
+    /* Right region (Blue theme) */
     :global(.button.node.region-right) {
-        --bg-available: color-mix(in srgb, var(--accent-cyan) 22%, var(--n3));
-        --bg-active: color-mix(in srgb, var(--accent-cyan) 32%, var(--n4));
-        --bg-maxed: color-mix(in srgb, var(--accent-cyan) 42%, var(--n5));
-        --border-color: var(--accent-cyan);
-        --border-color-active: var(--accent-cyan);
-        --border-color-maxed: var(--accent-cyan-light);
-        --text-color: color-mix(in srgb, var(--accent-cyan) 55%, white);
-        --text-color-active: color-mix(in srgb, var(--accent-cyan) 55%, white);
-        --text-color-maxed: color-mix(in srgb, var(--accent-cyan) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent-cyan) 8%, var(--n5));
+        --bg-available: color-mix(in srgb, var(--accent-blue) 22%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
+        --bg-active: color-mix(in srgb, var(--accent-blue) 32%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
+        --bg-maxed: color-mix(in srgb, var(--accent-blue) 42%, var(--surface));
+        --border-color: var(--accent-blue);
+        --border-color-active: var(--accent-blue);
+        --border-color-maxed: var(--accent-blue-light);
+        --text-color: color-mix(in srgb, var(--accent-blue) 55%, white);
+        --text-color-active: color-mix(in srgb, var(--accent-blue) 55%, white);
+        --text-color-maxed: color-mix(in srgb, var(--accent-blue) 35%, white);
+        --hex-bg: color-mix(in srgb, var(--accent-blue) 8%, var(--surface));
     }
 
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
@@ -297,7 +297,7 @@
     :global(.node-icon) {
         width: calc(32px * var(--icon-scale, 1));
         height: calc(32px * var(--icon-scale, 1));
-        opacity: var(--opacity-muted);
+        opacity: 0.7;
         grid-area: stack;
         position: absolute;
         top: 50%;
@@ -316,7 +316,7 @@
         left: 50%;
         pointer-events: none;
         white-space: nowrap;
-        line-height: var(--leading-snug);
+        line-height: 1.2;
         font-size: var(--font-sm);
         font-weight: var(--weight-semibold);
         color: white;

@@ -85,8 +85,8 @@
         background: var(--bg-raised);
         border: 1px solid var(--border-strong);
         box-shadow: var(--shadow-md);
-        color: var(--text-secondary);
-        font-size: var(--font-md);
+        color: var(--text-muted);
+        font-size: var(--font-base);
         line-height: var(--leading-normal);
     }
 

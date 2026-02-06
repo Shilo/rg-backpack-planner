@@ -68,7 +68,7 @@
         border-radius: 0px !important;
         background: transparent !important;
         border: none !important;
-        color: var(--text-subtle) !important;
+        color: var(--text-muted) !important;
         width: 18px !important;
         height: 18px !important;
 

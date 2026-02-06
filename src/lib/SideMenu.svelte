@@ -136,7 +136,7 @@
         background: var(--bg-overlay);
         opacity: 0;
         pointer-events: none;
-        transition: opacity var(--ease-medium);
+        transition: opacity 0.15s ease;
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-side-menu) - 2);
@@ -164,7 +164,7 @@
         background: var(--bg-panel);
         border-left: 1px solid var(--border-subtle);
         transform: translateX(100%);
-        transition: transform var(--ease-medium);
+        transition: transform 0.15s ease;
         padding: 0;
         display: flex;
         flex-direction: column;

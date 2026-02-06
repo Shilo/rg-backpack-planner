@@ -50,7 +50,7 @@
     }
 
     .tech-crystals-spent.is-negative {
-        color: var(--danger);
+        color: var(--accent-danger);
     }
 
     .tech-crystals-separator {

@@ -193,7 +193,7 @@
         width: min(92vw, 380px);
         border-radius: var(--radius-lg);
         background: var(--bg-panel);
-        border: 1px solid color-mix(in srgb, var(--n8) 50%, transparent);
+        border: 1px solid color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 50%, transparent);
         box-shadow: var(--shadow-lg);
         padding: 0;
         overflow: hidden;

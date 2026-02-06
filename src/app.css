@@ -69,7 +69,7 @@ button {
 }
 
 * {
-    scrollbar-color: var(--n7) color-mix(in srgb, var(--n2) 80%, transparent);
+    scrollbar-color: var(--border-strong) color-mix(in srgb, var(--bg) 80%, transparent);
     scrollbar-width: thin;
 }
 
@@ -79,17 +79,17 @@ button {
 }
 
 *::-webkit-scrollbar-track {
-    background: color-mix(in srgb, var(--n2) 80%, transparent);
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
 }
 
 *::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--n8) 60%, transparent);
+    background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 60%, transparent);
     border-radius: var(--radius-full);
-    border: 2px solid color-mix(in srgb, var(--n2) 80%, transparent);
+    border: 2px solid color-mix(in srgb, var(--bg) 80%, transparent);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--n8) 85%, transparent);
+    background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 85%, transparent);
 }
 
 .tooltip {
@@ -99,7 +99,7 @@ button {
     border-radius: var(--radius-sm);
     background: var(--bg-panel);
     border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
+    color: var(--text-muted);
     font-size: var(--font-base);
     letter-spacing: var(--tracking-tight);
     max-width: 240px;
@@ -113,14 +113,14 @@ button {
 }
 
 .modal-message a {
-    color: var(--active);
+    color: var(--accent);
     text-decoration: none;
     font-weight: var(--weight-bold);
 }
 
 .modal-message a:hover,
 .modal-message a:focus-visible {
-    color: var(--active-hover);
+    color: var(--accent-light);
 }
 
 @media (hover: none) {
