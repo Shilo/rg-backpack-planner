@@ -112,17 +112,6 @@ button {
     pointer-events: none;
 }
 
-.modal-message a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: var(--weight-bold);
-}
-
-.modal-message a:hover,
-.modal-message a:focus-visible {
-    color: var(--accent-light);
-}
-
 @media (hover: none) {
     .tooltip {
         transform: none;
