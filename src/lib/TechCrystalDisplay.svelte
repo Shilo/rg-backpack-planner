@@ -28,7 +28,12 @@
         <span class="currency-separator"> / </span>
         <span class="currency-owned">{formatNumber($techCrystalsOwned)}</span>
     {/if}
-    <HexagonIcon size={26} weight="fill" aria-hidden="true" />
+    <HexagonIcon
+        size={26}
+        weight="fill"
+        aria-hidden="true"
+        style="color: var(--text-muted);"
+    />
 </Button>
 
 <style>
