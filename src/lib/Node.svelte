@@ -62,7 +62,7 @@
     }
 
     .node-wrapper.node-wrapper-hex {
-        filter: drop-shadow(var(--shadow));
+        filter: drop-shadow(var(--shadow-node));
     }
 
     /* CSS Custom Properties - All color variables defined here */
@@ -102,7 +102,7 @@
             25% 100%,
             0% 50%
         );
-        --hex-border-width: 4px;
+        --hex-border-width: 3px;
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
 
@@ -122,7 +122,7 @@
         user-select: none;
         padding: 0;
         text-align: center;
-        box-shadow: var(--shadow);
+        box-shadow: var(--shadow-node);
     }
 
     /* Top-left region (Orange theme) */
