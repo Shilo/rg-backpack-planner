@@ -63,10 +63,10 @@
 
 <style>
     :global(.preview-indicator-button) {
-        border-radius: 999px !important;
-        font-weight: 600;
-        font-size: 0.85rem !important;
-        letter-spacing: 0.06em;
+        border-radius: var(--radius-pill) !important;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-body) !important;
+        letter-spacing: var(--letter-spacing-default);
         text-transform: uppercase;
         padding: 6px 12px;
         pointer-events: auto;
@@ -74,8 +74,8 @@
     }
 
     .build-name {
-        color: rgba(185, 199, 236, 0.9);
-        font-size: 0.75rem;
+        color: var(--color-preview-text);
+        font-size: var(--font-size-sm);
     }
 
     .preview-build-indicator-menu-portal {

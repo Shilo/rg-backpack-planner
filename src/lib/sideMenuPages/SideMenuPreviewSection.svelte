@@ -20,9 +20,9 @@
 
 <style>
     .preview-section {
-        background: rgba(79, 111, 191, 0.2);
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
+        background: var(--color-preview-bg);
+        border-bottom-left-radius: var(--radius-md);
+        border-bottom-right-radius: var(--radius-md);
         padding-top: 8px;
         margin-top: 0px !important;
         padding-bottom: 7px !important;

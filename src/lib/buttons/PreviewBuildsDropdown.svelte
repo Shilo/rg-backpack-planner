@@ -119,10 +119,10 @@
 
     .section-title {
         margin: 0;
-        font-size: 0.8rem;
-        letter-spacing: 0.12em;
+        font-size: var(--font-size-body-sm);
+        letter-spacing: var(--letter-spacing-wide);
         text-transform: uppercase;
-        color: rgba(201, 214, 245, 0.75);
+        color: var(--color-context-menu-text);
         padding-left: 4px;
         overflow-wrap: anywhere;
         word-break: break-word;

@@ -125,12 +125,12 @@
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        font-size: 0.8rem;
+        font-size: var(--font-size-body-sm);
     }
 
     .codeblock-table__table td {
-        border-top: 1px solid rgba(74, 110, 184, 0.35);
-        border-left: 1px solid rgba(74, 110, 184, 0.35);
+        border-top: 1px solid var(--color-code-border);
+        border-left: 1px solid var(--color-code-border);
         padding: 6px 8px;
         text-align: left;
     }
@@ -144,13 +144,13 @@
     }
 
     .codeblock-table__table tbody {
-        color: #c8d7ff;
+        color: var(--color-code-text);
     }
 
     .codeblock-table__section {
-        background: rgba(15, 23, 42, 0.6);
-        color: #dbe6ff;
-        font-weight: 600;
-        letter-spacing: 0.02em;
+        background: var(--color-code-row-bg);
+        color: var(--color-code-text-alt);
+        font-weight: var(--font-weight-semibold);
+        letter-spacing: var(--letter-spacing-tight);
     }
 </style>

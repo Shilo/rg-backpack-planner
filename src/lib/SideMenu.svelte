@@ -133,10 +133,10 @@
     :global(.menu-backdrop) {
         position: fixed;
         inset: 0;
-        background: rgba(3, 6, 15, 0.6);
+        background: var(--color-side-menu-backdrop);
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.15s ease;
+        transition: opacity var(--transition-slow);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-side-menu) - 2);
@@ -161,10 +161,10 @@
             3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
                 10px
         );
-        background: rgba(10, 16, 28, 0.98);
-        border-left: 1px solid rgba(79, 111, 191, 0.35);
+        background: var(--color-side-menu-bg);
+        border-left: 1px solid var(--color-side-menu-border);
         transform: translateX(100%);
-        transition: transform 0.15s ease;
+        transition: transform var(--transition-slow);
         padding: 0;
         display: flex;
         flex-direction: column;

@@ -69,21 +69,21 @@
 
     .modal-header h2 {
         margin: 0;
-        font-size: 1.05rem;
-        color: #f1f5ff;
-        line-height: 1;
+        font-size: var(--font-size-heading);
+        color: var(--color-modal-title);
+        line-height: var(--line-height-none);
     }
 
     :global(.modal-title-icon) {
         width: 18px;
         height: 18px;
-        color: #b9c7ec;
+        color: var(--color-modal-label);
     }
 
     .modal-message {
         margin: 0;
-        font-size: 0.92rem;
-        color: #c8d6f7;
+        font-size: var(--font-size-modal-body);
+        color: var(--color-modal-text);
         line-height: 1.4;
         overflow-wrap: anywhere;
         word-break: break-word;

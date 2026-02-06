@@ -323,9 +323,9 @@
     .context-menu {
         position: fixed;
         transform: translate(-50%, -10%);
-        background: rgba(10, 16, 28, 0.98);
-        border: 1px solid #2f3f66;
-        border-radius: 10px;
+        background: var(--color-context-menu-bg);
+        border: 1px solid var(--color-context-menu-border);
+        border-radius: var(--radius-default);
         padding: 8px;
         display: grid;
         gap: 6px;
@@ -351,10 +351,10 @@
 
     .context-menu__title {
         margin: 0;
-        font-size: 0.85rem;
-        letter-spacing: 0.12em;
+        font-size: var(--font-size-body);
+        letter-spacing: var(--letter-spacing-wide);
         text-transform: uppercase;
-        color: rgba(201, 214, 245, 0.75);
+        color: var(--color-context-menu-text);
         padding-left: 4px;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -364,7 +364,7 @@
     .context-menu-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(6, 9, 18, 0.72);
+        background: var(--color-context-menu-overlay);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);

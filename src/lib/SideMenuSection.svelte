@@ -29,10 +29,10 @@
 
     .side-menu-section__title {
         margin: 0;
-        font-size: 0.85rem;
-        letter-spacing: 0.12em;
+        font-size: var(--font-size-body);
+        letter-spacing: var(--letter-spacing-wide);
         text-transform: uppercase;
-        color: rgba(201, 214, 245, 0.75);
+        color: var(--color-side-menu-section-text);
     }
 
     .side-menu-section__action {

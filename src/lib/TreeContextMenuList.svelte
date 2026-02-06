@@ -70,7 +70,7 @@
 <style>
     .tree-stats {
         padding: 8px 12px;
-        border-bottom: 1px solid rgba(44, 60, 97, 0.5);
+        border-bottom: 1px solid var(--color-divider);
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -80,31 +80,31 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.875rem;
+        font-size: var(--font-size-body-alt);
     }
 
     .stat-label {
-        color: #8fa4ce;
+        color: var(--color-context-menu-inactive);
     }
 
     .stat-value {
-        color: #e8eefc;
-        font-weight: 600;
+        color: var(--color-context-menu-active);
+        font-weight: var(--font-weight-semibold);
     }
 
     .level-progress {
         width: 100%;
         height: 6px;
-        background: rgba(44, 53, 80, 0.5);
-        border-radius: 3px;
+        background: var(--color-context-menu-hover);
+        border-radius: var(--radius-xs);
         overflow: hidden;
         margin-top: 2px;
     }
 
     .level-progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, #4c6fff, #5aa6ff);
-        border-radius: 3px;
-        transition: width 0.2s ease;
+        background: var(--color-context-menu-active-gradient);
+        border-radius: var(--radius-xs);
+        transition: width var(--transition-default);
     }
 </style>

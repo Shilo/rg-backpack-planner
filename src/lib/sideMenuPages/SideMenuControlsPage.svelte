@@ -408,7 +408,7 @@
     .control-icon {
         width: 20px;
         height: 20px;
-        color: #d7e2ff;
+        color: var(--color-side-menu-heading);
     }
 
     .control-icon :global(svg),
@@ -419,13 +419,13 @@
     }
 
     .control-icon__image {
-        opacity: 0.85;
+        opacity: var(--opacity-side-menu-icon);
         filter: brightness(0) saturate(100%) invert(90%) sepia(5%)
             saturate(1200%) hue-rotate(195deg) brightness(110%) contrast(90%);
     }
 
     .control-icon-filled {
-        color: #b9c7ec;
+        color: var(--color-side-menu-subtext);
     }
 
     .control-text {
@@ -435,21 +435,21 @@
 
     .control-label {
         margin: 0;
-        font-size: 0.92rem;
-        color: #f1f5ff;
+        font-size: var(--font-size-modal-body);
+        color: var(--color-side-menu-primary-text);
         overflow-wrap: break-word;
     }
 
     .control-desc {
         margin: 0;
-        font-size: 0.85rem;
-        color: #b9c7ec;
+        font-size: var(--font-size-body);
+        color: var(--color-side-menu-subtext);
         line-height: 1.35;
         overflow-wrap: break-word;
     }
 
     .control-desc :global(a) {
-        color: #a7b7e6;
+        color: var(--color-side-menu-stats-text);
     }
 
     .app-info-actions {

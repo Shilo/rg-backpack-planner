@@ -181,7 +181,7 @@
     .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(6, 9, 18, 0.72);
+        background: var(--color-modal-backdrop);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -191,10 +191,10 @@
 
     .modal-shell {
         width: min(92vw, 380px);
-        border-radius: 16px;
-        background: rgba(14, 21, 36, 0.98);
-        border: 1px solid rgba(82, 112, 189, 0.5);
-        box-shadow: 0 20px 40px rgba(6, 9, 18, 0.55);
+        border-radius: var(--radius-lg);
+        background: var(--color-modal-bg);
+        border: 1px solid var(--color-modal-border);
+        box-shadow: var(--shadow-modal);
         padding: 0;
         overflow: hidden;
         display: grid;

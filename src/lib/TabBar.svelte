@@ -61,9 +61,9 @@
     .tab-bar__tab-button {
         flex: 1;
         min-width: var(--side-menu-tab-min-width, 72px);
-        border: 1px solid #2c3c61;
+        border: 1px solid var(--color-tab-border);
         background: transparent;
-        color: #8fa4ce;
+        color: var(--color-tab-inactive-text);
         border-radius: 0;
         height: var(--side-menu-tab-height);
         padding: 4px 6px;
@@ -76,10 +76,10 @@
         position: relative;
         z-index: 1;
         transition:
-            border-color 0.2s ease,
-            color 0.2s ease,
-            background 0.2s ease,
-            z-index 0.2s ease;
+            border-color var(--transition-default),
+            color var(--transition-default),
+            background var(--transition-default),
+            z-index var(--transition-default);
         pointer-events: auto;
     }
 
@@ -90,8 +90,8 @@
     }
 
     .tab-bar__tab-label {
-        font-size: 0.65rem;
-        line-height: 1;
+        font-size: var(--font-size-xs);
+        line-height: var(--line-height-none);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         white-space: nowrap;
@@ -105,25 +105,25 @@
     }
 
     .tab-bar__tab-button.active {
-        background: rgba(34, 49, 82, 0.78);
-        color: #e7efff;
-        border-color: #4f6fbf;
+        background: var(--color-tab-active-bg);
+        color: var(--color-tab-active-text);
+        border-color: var(--color-tab-active-border);
         z-index: 2;
     }
 
     .tab-bar__tab-button:focus-visible {
-        outline: 2px solid rgba(120, 156, 240, 0.9);
+        outline: 2px solid var(--color-button-focus-outline);
         outline-offset: 2px;
     }
 
     @media (hover: hover) {
         .tab-bar__tab-button:not(.active):hover {
-            filter: brightness(1.18);
+            filter: var(--brightness-hover);
         }
     }
 
     .tab-bar__tab-button:active {
         transform: scale(0.97);
-        filter: brightness(1.2);
+        filter: var(--brightness-active);
     }
 </style>

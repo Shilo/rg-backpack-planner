@@ -61,36 +61,36 @@
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
         /* Filter values for unleveled states */
-        --filter-locked: brightness(0.4);
-        --filter-available: brightness(0.5);
+        --filter-locked: var(--filter-node-locked);
+        --filter-available: var(--filter-node-available);
 
         /* Locked state colors (grayscale, same for all regions) */
-        --bg-locked: #2a2a35;
-        --border-color-locked: #55556a;
-        --text-color-locked: #8888a0;
+        --bg-locked: var(--color-node-locked-bg);
+        --border-color-locked: var(--color-node-locked-border);
+        --text-color-locked: var(--color-node-locked-text);
 
         /* Default color variables (overridden by region-specific rules) */
-        --bg-available: #1c2f52;
-        --bg-active: #2a3f73;
-        --bg-maxed: #4a2e0a;
-        --border-color: #4c6fff;
-        --border-color-active: #5aa6ff;
-        --border-color-maxed: #ffb347;
-        --text-color: #cdd7ff;
-        --text-color-active: #e1f0ff;
-        --text-color-maxed: #ffe8c7;
-        --hex-bg: #2a3441;
+        --bg-available: var(--color-node-default-bg-available);
+        --bg-active: var(--color-node-default-bg-active);
+        --bg-maxed: var(--color-node-default-bg-maxed);
+        --border-color: var(--color-node-default-border);
+        --border-color-active: var(--color-node-default-border-active);
+        --border-color-maxed: var(--color-node-default-border-maxed);
+        --text-color: var(--color-node-default-text);
+        --text-color-active: var(--color-node-default-text-active);
+        --text-color-maxed: var(--color-node-default-text-maxed);
+        --hex-bg: var(--color-node-default-hex-bg);
 
         /* Base node styles */
         position: relative;
         width: 64px;
         height: 64px;
-        border-radius: 999px;
+        border-radius: var(--radius-pill);
         border: 2px solid transparent;
         display: grid;
         place-items: center;
-        background: #1f2a44;
-        color: #e8eefc;
+        background: var(--color-node-bg);
+        color: var(--color-node-text);
         font-family: inherit;
         cursor: pointer;
         touch-action: none;
@@ -101,50 +101,50 @@
 
     /* Top-left region (Orange theme) */
     :global(.button.node.region-top-left) {
-        --bg-available: #6b3f1f;
-        --bg-active: #8b4f2f;
-        --bg-maxed: #ab5f3f;
-        --border-color: #ff6b35;
-        --border-color-active: #ff6b35;
-        --border-color-maxed: #ff8c5a;
-        --text-color: #ffd4b8;
-        --text-color-active: #ffd4b8;
-        --text-color-maxed: #ffe8d4;
+        --bg-available: var(--color-node-orange-bg-available);
+        --bg-active: var(--color-node-orange-bg-active);
+        --bg-maxed: var(--color-node-orange-bg-maxed);
+        --border-color: var(--color-node-orange-border);
+        --border-color-active: var(--color-node-orange-border-active);
+        --border-color-maxed: var(--color-node-orange-border-maxed);
+        --text-color: var(--color-node-orange-text);
+        --text-color-active: var(--color-node-orange-text-active);
+        --text-color-maxed: var(--color-node-orange-text-maxed);
     }
 
     /* Bottom-left region (Yellow theme) */
     :global(.button.node.region-bottom-left) {
-        --bg-available: #3d3d0a;
-        --bg-active: #5a5a1a;
-        --bg-maxed: #6a6a2a;
-        --border-color: #ffd700;
-        --border-color-active: #ffd700;
-        --border-color-maxed: #ffeb3b;
-        --text-color: #fff9cc;
-        --text-color-active: #fff9cc;
-        --text-color-maxed: #fffdd0;
+        --bg-available: var(--color-node-yellow-bg-available);
+        --bg-active: var(--color-node-yellow-bg-active);
+        --bg-maxed: var(--color-node-yellow-bg-maxed);
+        --border-color: var(--color-node-yellow-border);
+        --border-color-active: var(--color-node-yellow-border-active);
+        --border-color-maxed: var(--color-node-yellow-border-maxed);
+        --text-color: var(--color-node-yellow-text);
+        --text-color-active: var(--color-node-yellow-text-active);
+        --text-color-maxed: var(--color-node-yellow-text-maxed);
     }
 
     /* Right region (Blue theme) */
     :global(.button.node.region-right) {
-        --bg-available: #1c2f52;
-        --bg-active: #2a3f73;
-        --bg-maxed: #3a4f83;
-        --border-color: #4a90e2;
-        --border-color-active: #4a90e2;
-        --border-color-maxed: #6bb6ff;
-        --text-color: #b8d9ff;
-        --text-color-active: #c8e5ff;
-        --text-color-maxed: #e1f0ff;
+        --bg-available: var(--color-node-blue-bg-available);
+        --bg-active: var(--color-node-blue-bg-active);
+        --bg-maxed: var(--color-node-blue-bg-maxed);
+        --border-color: var(--color-node-blue-border);
+        --border-color-active: var(--color-node-blue-border-active);
+        --border-color-maxed: var(--color-node-blue-border-maxed);
+        --text-color: var(--color-node-blue-text);
+        --text-color-active: var(--color-node-blue-text-active);
+        --text-color-maxed: var(--color-node-blue-text-maxed);
     }
 
     /* Hexagon background colors per region */
     :global(.button.node.region-top-left.node-hexagon) {
-        --hex-bg: #2f2e2a;
+        --hex-bg: var(--color-node-orange-hex-bg);
     }
 
     :global(.button.node.region-bottom-left.node-hexagon) {
-        --hex-bg: #2f2f2a;
+        --hex-bg: var(--color-node-yellow-hex-bg);
     }
 
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
@@ -303,7 +303,7 @@
     :global(.node-icon) {
         width: calc(32px * var(--icon-scale, 1));
         height: calc(32px * var(--icon-scale, 1));
-        opacity: 0.7;
+        opacity: var(--opacity-node-icon);
         grid-area: stack;
         position: absolute;
         top: 50%;
@@ -322,18 +322,14 @@
         left: 50%;
         pointer-events: none;
         white-space: nowrap;
-        line-height: 1.2;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #ffffff;
-        text-shadow:
-            0 1px 2px rgba(0, 0, 0, 0.9),
-            0 0 4px rgba(0, 0, 0, 0.6),
-            1px 0 2px rgba(0, 0, 0, 0.9),
-            -1px 0 2px rgba(0, 0, 0, 0.9);
-        background: rgba(0, 0, 0, 0.4);
+        line-height: var(--line-height-node);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-node-level-text);
+        text-shadow: var(--shadow-node-text);
+        background: var(--color-node-level-bg);
         padding: 2px 4px;
-        border-radius: 8px;
+        border-radius: var(--radius-sm);
         transform-origin: center bottom;
     }
 

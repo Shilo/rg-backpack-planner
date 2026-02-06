@@ -450,8 +450,8 @@
     }
 
     :global(.preset-name-btn.active) {
-        background: rgba(70, 95, 165, 0.4) !important;
-        border-color: rgba(120, 156, 240, 0.6) !important;
+        background: var(--color-preset-bg) !important;
+        border-color: var(--color-preset-border) !important;
     }
 
     :global(.preset-name-btn .button-text) {

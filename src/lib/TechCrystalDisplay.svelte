@@ -33,21 +33,21 @@
 
 <style>
     :global(.currency-display) {
-        border-radius: 999px !important;
+        border-radius: var(--radius-pill) !important;
         display: inline-flex;
         align-items: center;
         gap: 2px;
         padding: 6px 10px 6px 12px;
-        font-weight: 600;
-        font-size: 1.25rem !important;
-        letter-spacing: 0.02em;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-crystal) !important;
+        letter-spacing: var(--letter-spacing-tight);
     }
 
     :global(.currency-display .button-text) {
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        line-height: 1;
+        line-height: var(--line-height-none);
     }
 
     :global(.currency-display svg) {
@@ -56,18 +56,18 @@
 
     .currency-spent {
         text-align: right;
-        color: #ffffff;
+        color: var(--color-crystal-total);
     }
 
     .currency-spent.is-negative {
-        color: #f87171;
+        color: var(--color-crystal-required);
     }
 
     .currency-separator {
-        color: #c7d6ff;
+        color: var(--color-crystal-available);
     }
 
     .currency-owned {
-        color: #e6f0ff;
+        color: var(--color-crystal-maxed);
     }
 </style>

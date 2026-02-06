@@ -108,21 +108,21 @@
 
     .modal-header h2 {
         margin: 0;
-        font-size: 1.05rem;
-        color: #f1f5ff;
-        line-height: 1;
+        font-size: var(--font-size-heading);
+        color: var(--color-modal-title);
+        line-height: var(--line-height-none);
     }
 
     :global(.modal-title-icon) {
         width: 18px;
         height: 18px;
-        color: #b9c7ec;
+        color: var(--color-modal-label);
     }
 
     .modal-message {
         margin: 0;
-        font-size: 0.92rem;
-        color: #c8d6f7;
+        font-size: var(--font-size-modal-body);
+        color: var(--color-modal-text);
         line-height: 1.4;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -131,30 +131,30 @@
 
     .modal-label {
         margin: 0;
-        font-size: 0.88rem;
-        font-weight: 500;
-        color: #c8d6f7;
+        font-size: var(--font-size-body-md);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-modal-text);
     }
 
     .modal-input {
         width: 100%;
         padding: 10px 12px;
-        background: rgba(16, 25, 43, 0.6);
-        border: 1px solid rgba(82, 112, 189, 0.4);
-        border-radius: 8px;
-        color: #f1f5ff;
-        font-size: 0.95rem;
+        background: var(--color-modal-input-bg);
+        border: 1px solid var(--color-modal-input-border);
+        border-radius: var(--radius-sm);
+        color: var(--color-modal-title);
+        font-size: var(--font-size-modal-input);
         font-family: inherit;
         outline: none;
-        transition: border-color 0.15s ease;
+        transition: border-color var(--transition-slow);
     }
 
     .modal-input:focus {
-        border-color: rgba(82, 112, 189, 0.8);
+        border-color: var(--color-modal-input-focus-border);
     }
 
     .modal-input::placeholder {
-        color: rgba(185, 199, 236, 0.4);
+        color: var(--color-modal-input-placeholder);
     }
 
     .modal-actions {

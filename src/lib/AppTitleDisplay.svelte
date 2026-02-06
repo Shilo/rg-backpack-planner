@@ -50,10 +50,10 @@
     }
 
     :global(.app-title-display) {
-        border-radius: 999px !important;
-        font-weight: 600;
-        font-size: 0.85rem !important;
-        letter-spacing: 0.06em;
+        border-radius: var(--radius-pill) !important;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-body) !important;
+        letter-spacing: var(--letter-spacing-default);
         text-transform: uppercase;
         padding: 6px 12px;
         pointer-events: auto;

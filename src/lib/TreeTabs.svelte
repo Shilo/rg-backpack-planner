@@ -504,7 +504,7 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: radial-gradient(circle at top, #162238, #0c1425 75%);
+        background: radial-gradient(circle at top, var(--color-tree-tabs-gradient-start), var(--color-tree-tabs-gradient-end) 75%);
         position: relative;
     }
 
@@ -532,10 +532,10 @@
     }
 
     :global(.tab-buttons button) {
-        color: #8fa4ce;
+        color: var(--color-tab-inactive-text);
         padding: 0 10px;
         height: var(--tab-height);
-        border-radius: 10px;
+        border-radius: var(--radius-default);
         text-transform: uppercase;
         letter-spacing: 0.08em;
         display: flex;
@@ -556,18 +556,18 @@
     }
 
     :global(.tab-buttons button.active) {
-        background: rgba(34, 49, 82, 0.78);
-        color: #e7efff;
-        border-color: #4f6fbf;
+        background: var(--color-tab-active-bg);
+        color: var(--color-tab-active-text);
+        border-color: var(--color-tab-active-border);
     }
 
     :global(.fullscreen-button) {
-        border: 1px solid #2c3c61;
-        background: rgba(17, 27, 45, 0.7);
-        color: #8fa4ce;
+        border: 1px solid var(--color-button-border);
+        background: var(--color-button-bg);
+        color: var(--color-tab-inactive-text);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: 10px;
+        border-radius: var(--radius-default);
         padding: 0;
         display: flex;
         align-items: center;
@@ -581,13 +581,13 @@
     }
 
     :global(.menu-button) {
-        border: 1px solid #2c3c61;
-        background: rgba(17, 27, 45, 0.7);
-        color: #8fa4ce;
+        border: 1px solid var(--color-button-border);
+        background: var(--color-button-bg);
+        color: var(--color-tab-inactive-text);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: 10px;
-        font-size: 1.35rem;
+        border-radius: var(--radius-default);
+        font-size: var(--font-size-tree-tab);
         padding: 0;
         display: flex;
         align-items: center;

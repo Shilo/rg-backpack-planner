@@ -40,8 +40,8 @@ body {
         system-ui,
         -apple-system,
         sans-serif;
-    background: #0b1220;
-    color: #eef2ff;
+    background: var(--color-body-bg);
+    color: var(--color-body-text);
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
@@ -69,7 +69,7 @@ button {
 }
 
 * {
-    scrollbar-color: #3f5fa5 rgba(12, 20, 37, 0.8);
+    scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
     scrollbar-width: thin;
 }
 
@@ -79,48 +79,48 @@ button {
 }
 
 *::-webkit-scrollbar-track {
-    background: rgba(12, 20, 37, 0.8);
+    background: var(--color-scrollbar-track);
 }
 
 *::-webkit-scrollbar-thumb {
-    background: rgba(79, 111, 191, 0.6);
-    border-radius: 999px;
-    border: 2px solid rgba(12, 20, 37, 0.8);
+    background: var(--color-scrollbar-thumb-bg);
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--color-scrollbar-track);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: rgba(79, 111, 191, 0.85);
+    background: var(--color-scrollbar-thumb-hover);
 }
 
 .tooltip {
     position: fixed;
     z-index: var(--z-index-tooltip);
     padding: 6px 10px;
-    border-radius: 8px;
-    background: rgba(20, 28, 46, 0.96);
-    border: 1px solid rgba(60, 86, 140, 0.6);
-    color: #e7efff;
-    font-size: 0.85rem;
-    letter-spacing: 0.02em;
+    border-radius: var(--radius-sm);
+    background: var(--color-tooltip-bg);
+    border: 1px solid var(--color-tooltip-border);
+    color: var(--color-tooltip-text);
+    font-size: var(--font-size-body);
+    letter-spacing: var(--letter-spacing-tight);
     max-width: 240px;
     text-align: center;
     white-space: pre-line;
     overflow-wrap: anywhere;
     word-break: break-word;
     hyphens: auto;
-    box-shadow: 0 8px 20px rgba(9, 13, 25, 0.45);
+    box-shadow: var(--shadow-tooltip);
     pointer-events: none;
 }
 
 .modal-message a {
-    color: #9fb6ff;
+    color: var(--color-link);
     text-decoration: none;
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
 }
 
 .modal-message a:hover,
 .modal-message a:focus-visible {
-    color: #c8d6ff;
+    color: var(--color-link-hover);
 }
 
 @media (hover: none) {

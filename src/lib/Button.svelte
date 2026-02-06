@@ -113,16 +113,16 @@
 
 <style>
     .button {
-        border: 1px solid #2c3c61;
-        background: rgba(17, 27, 45, 0.7);
-        color: #d4e1ff;
-        border-radius: 12px;
+        border: 1px solid var(--color-button-border);
+        background: var(--color-button-bg);
+        color: var(--color-button-text);
+        border-radius: var(--radius-md);
         text-align: left;
-        line-height: 1;
+        line-height: var(--line-height-none);
         transition:
-            border-color 0.2s ease,
-            color 0.2s ease,
-            background 0.2s ease;
+            border-color var(--transition-default),
+            color var(--transition-default),
+            background var(--transition-default);
     }
 
     .button:not(:disabled) {
@@ -143,7 +143,7 @@
     }
 
     .button-text {
-        line-height: 1.1;
+        line-height: var(--line-height-tight);
     }
 
     .button-icon {
@@ -153,60 +153,60 @@
     }
 
     .button:disabled {
-        opacity: 0.5;
+        opacity: var(--opacity-disabled);
         cursor: not-allowed;
-        border-color: rgba(46, 63, 98, 0.7);
-        background: rgba(12, 18, 31, 0.6);
-        color: rgba(152, 170, 210, 0.75);
+        border-color: var(--color-button-disabled-border);
+        background: var(--color-button-disabled-bg);
+        color: var(--color-button-disabled-text);
         filter: none;
         transform: none;
     }
 
     .button:focus-visible {
-        outline: 2px solid rgba(120, 156, 240, 0.9);
+        outline: 2px solid var(--color-button-focus-outline);
         outline-offset: 2px;
     }
 
     .button {
         transition:
-            transform 0.12s ease,
-            filter 0.12s ease;
+            transform var(--transition-fast),
+            filter var(--transition-fast);
     }
 
     @media (hover: hover) {
         .button:not(:disabled):hover {
-            filter: brightness(1.18);
+            filter: var(--brightness-hover);
         }
     }
 
     .button:not(:disabled):active {
         transform: scale(0.97);
-        filter: brightness(1.2);
+        filter: var(--brightness-active);
     }
 
     .button-sm {
         height: 32px;
         min-width: 32px;
-        font-size: 0.75rem;
+        font-size: var(--font-size-sm);
     }
 
     .button-md {
         min-height: 38px;
         min-width: 38px;
         padding: 4px 12px;
-        font-size: 0.85rem;
+        font-size: var(--font-size-body);
     }
 
     .button-negative {
-        border-color: rgba(180, 72, 72, 0.9);
-        background: rgba(84, 26, 32, 0.85);
-        color: #ffd7d7;
+        border-color: var(--color-button-negative-border);
+        background: var(--color-button-negative-bg);
+        color: var(--color-button-negative-text);
     }
 
     .button-positive {
-        border-color: rgba(70, 162, 120, 0.9);
-        background: rgba(18, 54, 40, 0.85);
-        color: #d9ffe9;
+        border-color: var(--color-button-positive-border);
+        background: var(--color-button-positive-bg);
+        color: var(--color-button-positive-text);
     }
 
     :global(.button-group) {
