@@ -253,7 +253,6 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
-
     function levelUp(index: NodeIndex) {
         const node = getNodeAt(index);
         if (!node) return false;
