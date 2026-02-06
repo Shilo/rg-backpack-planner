@@ -24,6 +24,7 @@
     import InstallPwaButton, {
         subscribeInstallState,
     } from "../buttons/InstallPwaButton.svelte";
+    import AppIcon from "../icons/AppIcon.svelte";
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { getOSName } from "../systemUtil";
@@ -34,7 +35,6 @@
     const appTitleWithVersion = appVersion
         ? `${appName} v${appVersion}`
         : (appName ?? "");
-    const appIconUrl = `${import.meta.env.BASE_URL}icon.svg`;
     const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
         | string
         | undefined;
@@ -195,11 +195,7 @@
             <div class="app-info-actions">
                 <div class="control-row">
                     <span class="control-icon" aria-hidden="true">
-                        <img
-                            src={appIconUrl}
-                            alt={`${appName || "App"} icon`}
-                            class="control-icon__image"
-                        />
+                        <AppIcon />
                     </span>
                     <div class="control-text">
                         {#if appDescription}
@@ -411,16 +407,10 @@
         color: var(--text-muted);
     }
 
-    .control-icon :global(svg),
-    .control-icon__image {
+    .control-icon :global(svg) {
         width: 100%;
         height: 100%;
         display: block;
-    }
-
-    .control-icon__image {
-        filter: brightness(0) saturate(100%) invert(90%) sepia(5%)
-            saturate(1200%) hue-rotate(195deg) brightness(110%) contrast(90%);
     }
 
     .control-icon-filled {
@@ -434,14 +424,14 @@
 
     .control-label {
         margin: 0;
-        font-size: var(--font-base);
+        font-size: var(--font);
         color: var(--text);
         overflow-wrap: break-word;
     }
 
     .control-desc {
         margin: 0;
-        font-size: var(--font-base);
+        font-size: var(--font);
         color: var(--text-muted);
         line-height: 1.35;
         overflow-wrap: break-word;
