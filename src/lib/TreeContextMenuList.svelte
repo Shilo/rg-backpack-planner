@@ -89,7 +89,7 @@
 
     .stat-value {
         color: var(--text);
-        font-weight: var(--weight-semibold);
+        font-weight: var(--weight-bold);
     }
 
     .level-progress {
@@ -105,6 +105,6 @@
         height: 100%;
         background: linear-gradient(90deg, var(--accent), var(--accent-light));
         border-radius: 3px;
-        transition: width var(--ease-default);
+        transition: width var(--ease);
     }
 </style>

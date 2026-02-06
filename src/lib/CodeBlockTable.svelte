@@ -150,7 +150,7 @@
     .codeblock-table__section {
         background: var(--bg-input);
         color: var(--text-muted);
-        font-weight: var(--weight-semibold);
-        letter-spacing: var(--tracking-tight);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking);
     }
 </style>

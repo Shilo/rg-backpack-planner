@@ -84,10 +84,10 @@
         border-radius: var(--radius-sm);
         background: var(--bg-raised);
         border: 1px solid var(--border-strong);
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--shadow);
         color: var(--text-muted);
         font-size: var(--font-base);
-        line-height: var(--leading-normal);
+        line-height: var(--leading);
     }
 
     .toast--negative {

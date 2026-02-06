@@ -116,13 +116,13 @@
         border: 1px solid var(--border);
         background: var(--bg-raised);
         color: var(--text-muted);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius);
         text-align: left;
         line-height: var(--leading-none);
         transition:
-            border-color var(--ease-default),
-            color var(--ease-default),
-            background var(--ease-default);
+            border-color var(--ease),
+            color var(--ease),
+            background var(--ease);
     }
 
     .button:not(:disabled) {

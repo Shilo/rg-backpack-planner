@@ -38,9 +38,9 @@
         align-items: center;
         gap: 2px;
         padding: 6px 10px 6px 12px;
-        font-weight: var(--weight-semibold);
+        font-weight: var(--weight-bold);
         font-size: var(--font-xl) !important;
-        letter-spacing: var(--tracking-tight);
+        letter-spacing: var(--tracking);
     }
 
     :global(.currency-display .button-text) {

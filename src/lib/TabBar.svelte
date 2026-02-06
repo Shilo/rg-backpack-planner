@@ -76,10 +76,10 @@
         position: relative;
         z-index: 1;
         transition:
-            border-color var(--ease-default),
-            color var(--ease-default),
-            background var(--ease-default),
-            z-index var(--ease-default);
+            border-color var(--ease),
+            color var(--ease),
+            background var(--ease),
+            z-index var(--ease);
         pointer-events: auto;
     }
 

@@ -57,7 +57,7 @@
         display: grid;
         gap: 0;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius);
         overflow: hidden;
     }
 

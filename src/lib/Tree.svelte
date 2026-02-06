@@ -282,8 +282,8 @@
         return match ? parseFloat(match[0]) : 1;
     }
 
-    const brightnessLocked = parseBrightness("--brightness-dim");
-    const brightnessAvailable = parseBrightness("--brightness-available");
+    const brightnessLocked = parseBrightness("--node-brightness-locked");
+    const brightnessAvailable = parseBrightness("--node-brightness-available");
 
     function applyBrightness(color: string, brightness: number): string {
         let r: number, g: number, b: number;

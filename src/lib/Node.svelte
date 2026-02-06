@@ -61,8 +61,8 @@
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
         /* Filter values for unleveled states */
-        --filter-locked: var(--brightness-dim);
-        --filter-available: var(--brightness-available);
+        --filter-locked: var(--node-brightness-locked);
+        --filter-available: var(--node-brightness-available);
 
         /* Locked state colors (grayscale, same for all regions) */
         --bg-locked: var(--node-locked-bg);
@@ -318,7 +318,7 @@
         white-space: nowrap;
         line-height: 1.2;
         font-size: var(--font-sm);
-        font-weight: var(--weight-semibold);
+        font-weight: var(--weight-bold);
         color: white;
         text-shadow: var(--shadow-text);
         background: rgba(0, 0, 0, 0.4);

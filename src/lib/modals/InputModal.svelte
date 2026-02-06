@@ -260,7 +260,7 @@
     .modal-label {
         font-size: var(--font-base);
         color: var(--text-muted);
-        letter-spacing: var(--tracking-tight);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
     }
 
@@ -280,7 +280,7 @@
         min-width: 0;
         width: 100%;
         height: 44px;
-        border-radius: var(--radius-md);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         background: var(--bg-input);
         color: var(--text-muted);
@@ -299,7 +299,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: var(--radius-md);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         background: var(--bg-input);
         color: var(--text-muted);

@@ -21,8 +21,8 @@
 <style>
     .preview-section {
         background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 20%, transparent);
-        border-bottom-left-radius: var(--radius-md);
-        border-bottom-right-radius: var(--radius-md);
+        border-bottom-left-radius: var(--radius);
+        border-bottom-right-radius: var(--radius);
         padding-top: 8px;
         margin-top: 0px !important;
         padding-bottom: 7px !important;

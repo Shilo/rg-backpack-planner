@@ -51,9 +51,9 @@
         justify-content: center;
         cursor: pointer;
         transition:
-            border-color var(--ease-default),
-            color var(--ease-default),
-            background var(--ease-default);
+            border-color var(--ease),
+            color var(--ease),
+            background var(--ease);
     }
 
     .bottom-nav-bar__close-button:focus-visible {
