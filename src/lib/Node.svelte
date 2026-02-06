@@ -70,8 +70,16 @@
         --text-color-locked: var(--node-locked-text);
 
         /* Default region color variables (blue accent) */
-        --bg-available: color-mix(in srgb, var(--accent) 18%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
-        --bg-active: color-mix(in srgb, var(--accent) 28%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
+        --bg-available: color-mix(
+            in srgb,
+            var(--accent) 18%,
+            color-mix(in srgb, var(--bg) 70%, var(--surface))
+        );
+        --bg-active: color-mix(
+            in srgb,
+            var(--accent) 28%,
+            color-mix(in srgb, var(--bg) 40%, var(--surface))
+        );
         --bg-maxed: color-mix(in srgb, var(--accent-light) 35%, var(--surface));
         --border-color: var(--accent);
         --border-color-active: var(--accent-light);
@@ -79,7 +87,17 @@
         --text-color: color-mix(in srgb, var(--accent) 55%, white);
         --text-color-active: color-mix(in srgb, var(--accent-light) 45%, white);
         --text-color-maxed: color-mix(in srgb, var(--accent-light) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent) 8%, var(--surface));
+        --hex-clip: polygon(
+            25% 0%,
+            75% 0%,
+            100% 50%,
+            75% 100%,
+            25% 100%,
+            0% 50%
+        );
+        --hex-border-width: 2px;
+        --hex-fill: var(--surface);
+        --hex-border-color: var(--border);
 
         /* Base node styles */
         position: relative;
@@ -97,40 +115,79 @@
         user-select: none;
         padding: 0;
         text-align: center;
+        box-shadow: var(--shadow);
     }
 
     /* Top-left region (Orange theme) */
     :global(.button.node.region-top-left) {
-        --bg-available: color-mix(in srgb, var(--accent-orange) 22%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
-        --bg-active: color-mix(in srgb, var(--accent-orange) 32%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
-        --bg-maxed: color-mix(in srgb, var(--accent-orange) 42%, var(--surface));
+        --bg-available: color-mix(
+            in srgb,
+            var(--accent-orange) 22%,
+            color-mix(in srgb, var(--bg) 70%, var(--surface))
+        );
+        --bg-active: color-mix(
+            in srgb,
+            var(--accent-orange) 32%,
+            color-mix(in srgb, var(--bg) 40%, var(--surface))
+        );
+        --bg-maxed: color-mix(
+            in srgb,
+            var(--accent-orange) 42%,
+            var(--surface)
+        );
         --border-color: var(--accent-orange);
         --border-color-active: var(--accent-orange);
         --border-color-maxed: var(--accent-orange-light);
         --text-color: color-mix(in srgb, var(--accent-orange) 55%, white);
-        --text-color-active: color-mix(in srgb, var(--accent-orange) 55%, white);
+        --text-color-active: color-mix(
+            in srgb,
+            var(--accent-orange) 55%,
+            white
+        );
         --text-color-maxed: color-mix(in srgb, var(--accent-orange) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent-orange) 8%, var(--surface));
     }
 
     /* Bottom-left region (Yellow theme) */
     :global(.button.node.region-bottom-left) {
-        --bg-available: color-mix(in srgb, var(--accent-yellow) 22%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
-        --bg-active: color-mix(in srgb, var(--accent-yellow) 32%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
-        --bg-maxed: color-mix(in srgb, var(--accent-yellow) 42%, var(--surface));
+        --bg-available: color-mix(
+            in srgb,
+            var(--accent-yellow) 22%,
+            color-mix(in srgb, var(--bg) 70%, var(--surface))
+        );
+        --bg-active: color-mix(
+            in srgb,
+            var(--accent-yellow) 32%,
+            color-mix(in srgb, var(--bg) 40%, var(--surface))
+        );
+        --bg-maxed: color-mix(
+            in srgb,
+            var(--accent-yellow) 42%,
+            var(--surface)
+        );
         --border-color: var(--accent-yellow);
         --border-color-active: var(--accent-yellow);
         --border-color-maxed: var(--accent-yellow-light);
         --text-color: color-mix(in srgb, var(--accent-yellow) 55%, white);
-        --text-color-active: color-mix(in srgb, var(--accent-yellow) 55%, white);
+        --text-color-active: color-mix(
+            in srgb,
+            var(--accent-yellow) 55%,
+            white
+        );
         --text-color-maxed: color-mix(in srgb, var(--accent-yellow) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent-yellow) 8%, var(--surface));
     }
 
     /* Right region (Blue theme) */
     :global(.button.node.region-right) {
-        --bg-available: color-mix(in srgb, var(--accent-blue) 22%, color-mix(in srgb, var(--bg) 70%, var(--surface)));
-        --bg-active: color-mix(in srgb, var(--accent-blue) 32%, color-mix(in srgb, var(--bg) 40%, var(--surface)));
+        --bg-available: color-mix(
+            in srgb,
+            var(--accent-blue) 22%,
+            color-mix(in srgb, var(--bg) 70%, var(--surface))
+        );
+        --bg-active: color-mix(
+            in srgb,
+            var(--accent-blue) 32%,
+            color-mix(in srgb, var(--bg) 40%, var(--surface))
+        );
         --bg-maxed: color-mix(in srgb, var(--accent-blue) 42%, var(--surface));
         --border-color: var(--accent-blue);
         --border-color-active: var(--accent-blue);
@@ -138,7 +195,6 @@
         --text-color: color-mix(in srgb, var(--accent-blue) 55%, white);
         --text-color-active: color-mix(in srgb, var(--accent-blue) 55%, white);
         --text-color-maxed: color-mix(in srgb, var(--accent-blue) 35%, white);
-        --hex-bg: color-mix(in srgb, var(--accent-blue) 8%, var(--surface));
     }
 
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
@@ -147,143 +203,63 @@
         border: none;
         position: relative;
         overflow: visible;
-        background: var(--hex-bg) !important;
-        clip-path: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
+        background: transparent;
+        clip-path: var(--hex-clip);
+        isolation: isolate;
     }
 
     /* Create border using pseudo-element that follows the hexagon shape */
     :global(.button.node.node-hexagon::before) {
         content: "";
         position: absolute;
-        inset: -3px;
-        clip-path: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
-        z-index: -1;
+        inset: 0;
+        clip-path: var(--hex-clip);
+        background: var(--hex-border-color);
+        z-index: 0;
         pointer-events: none;
     }
 
-    /* Create inner hexagon mask to show only the border */
+    /* Inner fill to create a true hexagon stroke */
     :global(.button.node.node-hexagon::after) {
         content: "";
         position: absolute;
-        inset: 3px;
-        clip-path: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
-        z-index: -1;
+        inset: var(--hex-border-width);
+        clip-path: var(--hex-clip);
+        background: var(--hex-fill);
+        z-index: 0;
         pointer-events: none;
-        background: var(--hex-bg);
-    }
-
-    /* Override hex-bg for locked hexagons so body is also grayscale */
-    :global(.button.node.node-hexagon.locked) {
-        --hex-bg: var(--bg-locked);
     }
 
     /* Hexagon border (::before) state styles */
     :global(.button.node.node-hexagon.locked::before) {
-        background: var(--border-color-locked);
+        background: var(--hex-border-color);
         filter: var(--filter-locked);
     }
 
     :global(.button.node.node-hexagon.available::before) {
-        background: var(--border-color);
-        filter: var(--filter-available)
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
+        background: var(--hex-border-color);
+        filter: var(--filter-available);
     }
 
     :global(.button.node.node-hexagon.active::before) {
-        background: var(--border-color);
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 30%, transparent)
-            );
+        background: var(--hex-border-color);
     }
 
     :global(.button.node.node-hexagon.maxed::before) {
-        background: var(--border-color-maxed);
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 50%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 30%,
-                        transparent
-                    )
-            );
+        background: var(--hex-border-color);
     }
 
     /* Hexagon element glow state styles */
     :global(.button.node.node-hexagon.available) {
-        filter: var(--filter-available)
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
-            );
+        filter: var(--filter-available);
     }
 
-    :global(.button.node.node-hexagon.active) {
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
+    :global(.button.node.node-hexagon .node-icon) {
+        z-index: 1;
     }
 
-    :global(.button.node.node-hexagon.maxed) {
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 40%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 20%,
-                        transparent
-                    )
-            );
+    :global(.button.node.node-hexagon) .node-level {
+        z-index: 1;
     }
 
     :global(.button.node.with-icon) {
@@ -333,6 +309,8 @@
         border-color: var(--border-color-locked);
         color: var(--text-color-locked);
         filter: var(--filter-locked);
+        --hex-fill: var(--bg-locked);
+        --hex-border-color: var(--border-color-locked);
     }
 
     :global(.button.node.available) {
@@ -340,23 +318,23 @@
         border-color: var(--border-color);
         color: var(--text-color);
         filter: var(--filter-available);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 20%, transparent);
+        --hex-fill: var(--bg-available);
+        --hex-border-color: var(--border-color);
     }
 
     :global(.button.node.active) {
         background: var(--bg-active);
         border-color: var(--border-color-active);
         color: var(--text-color-active);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-active) 30%, transparent);
+        --hex-fill: var(--bg-active);
+        --hex-border-color: var(--border-color-active);
     }
 
     :global(.button.node.maxed) {
         background: var(--bg-maxed);
         border-color: var(--border-color-maxed);
         color: var(--text-color-maxed);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
+        --hex-fill: var(--bg-maxed);
+        --hex-border-color: var(--border-color-maxed);
     }
 </style>
