@@ -81,9 +81,9 @@
         gap: 12px;
         padding: 10px 12px;
         width: fit-content;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         background: var(--bg-raised);
-        border: 1px solid var(--border-strong);
+        border: 1px solid var(--border-subtle);
         box-shadow: var(--shadow);
         color: var(--text-muted);
         font-size: var(--font-base);

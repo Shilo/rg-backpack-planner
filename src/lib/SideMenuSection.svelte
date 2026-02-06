@@ -30,7 +30,7 @@
     .side-menu-section__title {
         margin: 0;
         font-size: var(--font-base);
-        letter-spacing: var(--tracking-wide);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
         color: var(--text-disabled);
     }

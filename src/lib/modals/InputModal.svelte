@@ -284,7 +284,7 @@
         border: 1px solid var(--border-subtle);
         background: var(--bg-input);
         color: var(--text-muted);
-        font-size: var(--font-xl);
+        font-size: var(--font-lg);
         text-align: center;
     }
 
@@ -303,7 +303,7 @@
         border: 1px solid var(--border-subtle);
         background: var(--bg-input);
         color: var(--text-muted);
-        font-size: var(--font-xl);
+        font-size: var(--font-lg);
     }
 
     .stepper:active {

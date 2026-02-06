@@ -69,7 +69,7 @@ button {
 }
 
 * {
-    scrollbar-color: var(--border-strong) transparent;
+    scrollbar-color: var(--border-subtle) transparent;
     scrollbar-width: thin;
 }
 
@@ -96,7 +96,7 @@ button {
     position: fixed;
     z-index: var(--z-index-tooltip);
     padding: 6px 10px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
     background: var(--bg-panel);
     border: 1px solid var(--border-subtle);
     color: var(--text-muted);

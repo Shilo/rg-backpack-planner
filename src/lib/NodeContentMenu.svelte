@@ -159,7 +159,7 @@
     .node-icon-wrapper :global(svg) {
         width: 24px;
         height: 24px;
-        opacity: var(--opacity-soft);
+        opacity: var(--opacity-disabled);
     }
 
     .node-stats-content {

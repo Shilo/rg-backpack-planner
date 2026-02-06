@@ -143,7 +143,7 @@
     }
 
     .button-text {
-        line-height: var(--leading-tight);
+        line-height: var(--leading);
     }
 
     .button-icon {
@@ -169,8 +169,8 @@
 
     .button {
         transition:
-            transform var(--ease-fast),
-            filter var(--ease-fast);
+            transform var(--ease),
+            filter var(--ease);
     }
 
     @media (hover: hover) {

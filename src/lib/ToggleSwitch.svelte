@@ -55,14 +55,14 @@
         border-radius: var(--radius);
         color: var(--text-muted);
         font-size: var(--font-base);
-        line-height: var(--leading-tight);
+        line-height: var(--leading);
         cursor: pointer;
         transition:
             border-color var(--ease),
             color var(--ease),
             background var(--ease),
-            transform var(--ease-fast),
-            filter var(--ease-fast);
+            transform var(--ease),
+            filter var(--ease);
         text-align: left;
         -webkit-tap-highlight-color: transparent;
     }
@@ -107,7 +107,7 @@
         position: relative;
         width: 50px;
         height: 30px;
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius);
         background: color-mix(in srgb, var(--border) 80%, transparent);
         border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
         transition:
@@ -130,7 +130,7 @@
         border-radius: 50%;
         background: white;
         transition: transform var(--ease);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow);
     }
 
     .toggle-switch.active .toggle-switch__thumb {

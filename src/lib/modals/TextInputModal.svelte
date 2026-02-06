@@ -141,7 +141,7 @@
         padding: 10px 12px;
         background: var(--bg-input);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         color: var(--text);
         font-size: var(--font-base);
         font-family: inherit;
@@ -150,7 +150,7 @@
     }
 
     .modal-input:focus {
-        border-color: var(--border-strong);
+        border-color: var(--border-subtle);
     }
 
     .modal-input::placeholder {

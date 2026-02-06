@@ -39,7 +39,7 @@
         gap: 2px;
         padding: 6px 10px 6px 12px;
         font-weight: var(--weight-bold);
-        font-size: var(--font-xl) !important;
+        font-size: var(--font-lg) !important;
         letter-spacing: var(--tracking);
     }
 

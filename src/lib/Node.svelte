@@ -323,7 +323,7 @@
         text-shadow: var(--shadow-text);
         background: rgba(0, 0, 0, 0.4);
         padding: 2px 4px;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         transform-origin: center bottom;
     }
 

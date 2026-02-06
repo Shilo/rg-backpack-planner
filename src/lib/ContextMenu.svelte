@@ -325,7 +325,7 @@
         transform: translate(-50%, -10%);
         background: var(--bg-panel);
         border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         padding: 8px;
         display: grid;
         gap: 6px;
@@ -352,7 +352,7 @@
     .context-menu__title {
         margin: 0;
         font-size: var(--font-base);
-        letter-spacing: var(--tracking-wide);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
         color: var(--text-disabled);
         padding-left: 4px;
@@ -364,7 +364,7 @@
     .context-menu-backdrop {
         position: fixed;
         inset: 0;
-        background: var(--bg-overlay);
+        background: var(--bg-panel);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);

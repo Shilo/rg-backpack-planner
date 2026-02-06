@@ -535,7 +535,7 @@
         color: var(--text-muted);
         padding: 0 10px;
         height: var(--tab-height);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         text-transform: uppercase;
         letter-spacing: 0.08em;
         display: flex;
@@ -567,7 +567,7 @@
         color: var(--text-muted);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         padding: 0;
         display: flex;
         align-items: center;
@@ -586,8 +586,8 @@
         color: var(--text-muted);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: var(--radius-sm);
-        font-size: var(--font-xl);
+        border-radius: var(--radius);
+        font-size: var(--font-lg);
         padding: 0;
         display: flex;
         align-items: center;
