@@ -41,9 +41,9 @@
         flex: 0 0 auto;
         width: var(--side-menu-tab-height);
         height: var(--side-menu-tab-height);
-        border: 1px solid var(--color-button-negative-border);
-        background: var(--color-button-negative-bg);
-        color: var(--color-button-negative-text);
+        border: 1px solid var(--danger-border);
+        background: var(--danger-bg);
+        color: var(--danger-text);
         border-radius: 0;
         padding: 0;
         display: flex;
@@ -51,13 +51,13 @@
         justify-content: center;
         cursor: pointer;
         transition:
-            border-color var(--transition-default),
-            color var(--transition-default),
-            background var(--transition-default);
+            border-color var(--ease-default),
+            color var(--ease-default),
+            background var(--ease-default);
     }
 
     .bottom-nav-bar__close-button:focus-visible {
-        outline: 2px solid var(--color-button-focus-outline);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 

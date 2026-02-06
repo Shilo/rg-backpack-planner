@@ -408,7 +408,7 @@
     .control-icon {
         width: 20px;
         height: 20px;
-        color: var(--color-side-menu-heading);
+        color: var(--text-secondary);
     }
 
     .control-icon :global(svg),
@@ -419,13 +419,13 @@
     }
 
     .control-icon__image {
-        opacity: var(--opacity-side-menu-icon);
+        opacity: var(--opacity-soft);
         filter: brightness(0) saturate(100%) invert(90%) sepia(5%)
             saturate(1200%) hue-rotate(195deg) brightness(110%) contrast(90%);
     }
 
     .control-icon-filled {
-        color: var(--color-side-menu-subtext);
+        color: var(--text-muted);
     }
 
     .control-text {
@@ -435,21 +435,21 @@
 
     .control-label {
         margin: 0;
-        font-size: var(--font-size-modal-body);
-        color: var(--color-side-menu-primary-text);
+        font-size: var(--font-md);
+        color: var(--text);
         overflow-wrap: break-word;
     }
 
     .control-desc {
         margin: 0;
-        font-size: var(--font-size-body);
-        color: var(--color-side-menu-subtext);
+        font-size: var(--font-base);
+        color: var(--text-muted);
         line-height: 1.35;
         overflow-wrap: break-word;
     }
 
     .control-desc :global(a) {
-        color: var(--color-side-menu-stats-text);
+        color: var(--text-subtle);
     }
 
     .app-info-actions {

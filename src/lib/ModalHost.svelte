@@ -181,7 +181,7 @@
     .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: var(--color-modal-backdrop);
+        background: var(--bg-overlay);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -192,9 +192,9 @@
     .modal-shell {
         width: min(92vw, 380px);
         border-radius: var(--radius-lg);
-        background: var(--color-modal-bg);
-        border: 1px solid var(--color-modal-border);
-        box-shadow: var(--shadow-modal);
+        background: var(--bg-panel);
+        border: 1px solid color-mix(in srgb, var(--n8) 50%, transparent);
+        box-shadow: var(--shadow-lg);
         padding: 0;
         overflow: hidden;
         display: grid;

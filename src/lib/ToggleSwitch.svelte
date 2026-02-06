@@ -50,25 +50,25 @@
         width: 100%;
         height: 40px;
         padding: 10px 12px;
-        border: 1px solid var(--color-button-border);
-        background: var(--color-button-bg);
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
         border-radius: var(--radius-md);
-        color: var(--color-button-text);
-        font-size: var(--font-size-body);
-        line-height: var(--line-height-tight);
+        color: var(--text-secondary);
+        font-size: var(--font-base);
+        line-height: var(--leading-tight);
         cursor: pointer;
         transition:
-            border-color var(--transition-default),
-            color var(--transition-default),
-            background var(--transition-default),
-            transform var(--transition-fast),
-            filter var(--transition-fast);
+            border-color var(--ease-default),
+            color var(--ease-default),
+            background var(--ease-default),
+            transform var(--ease-fast),
+            filter var(--ease-fast);
         text-align: left;
         -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-row:focus-visible {
-        outline: 2px solid var(--color-button-focus-outline);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 
@@ -107,18 +107,18 @@
         position: relative;
         width: 50px;
         height: 30px;
-        border-radius: var(--radius-toggle);
-        background: var(--color-toggle-off-bg);
-        border: 1px solid var(--color-toggle-off-border);
+        border-radius: var(--radius-lg);
+        background: color-mix(in srgb, var(--n6) 80%, transparent);
+        border: 1px solid color-mix(in srgb, var(--n6) 90%, transparent);
         transition:
-            background var(--transition-default),
-            border-color var(--transition-default);
+            background var(--ease-default),
+            border-color var(--ease-default);
         flex-shrink: 0;
     }
 
     .toggle-switch.active {
-        background: var(--color-toggle-on-bg);
-        border-color: var(--color-toggle-on-border);
+        background: color-mix(in srgb, var(--accent-light) 90%, transparent);
+        border-color: var(--accent-light);
     }
 
     .toggle-switch__thumb {
@@ -128,9 +128,9 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: var(--color-toggle-thumb);
-        transition: transform var(--transition-default);
-        box-shadow: var(--shadow-toggle-thumb);
+        background: white;
+        transition: transform var(--ease-default);
+        box-shadow: var(--shadow-sm);
     }
 
     .toggle-switch.active .toggle-switch__thumb {

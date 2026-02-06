@@ -260,20 +260,20 @@
             .trim();
     }
 
-    // Border colors per region, read from theme.css variables
+    // Border colors per region, read from theme.css primitives
     const regionBorderColor: Record<NodeRegion, string> = {
-        "top-left": themeColor("--color-node-orange-border"),
-        "bottom-left": themeColor("--color-node-yellow-border"),
-        right: themeColor("--color-node-blue-border"),
+        "top-left": themeColor("--accent-orange"),
+        "bottom-left": themeColor("--accent-yellow"),
+        right: themeColor("--accent-cyan"),
     };
 
     const regionBorderColorMaxed: Record<NodeRegion, string> = {
-        "top-left": themeColor("--color-node-orange-border-maxed"),
-        "bottom-left": themeColor("--color-node-yellow-border-maxed"),
-        right: themeColor("--color-node-blue-border-maxed"),
+        "top-left": themeColor("--accent-orange-light"),
+        "bottom-left": themeColor("--accent-yellow-light"),
+        right: themeColor("--accent-cyan-light"),
     };
 
-    const lockedBorderColor = themeColor("--color-node-locked-border");
+    const lockedBorderColor = themeColor("--node-locked-border");
 
     // Parse numeric brightness from CSS filter value like "brightness(0.4)"
     function parseBrightness(cssVar: string): number {
@@ -282,8 +282,8 @@
         return match ? parseFloat(match[0]) : 1;
     }
 
-    const brightnessLocked = parseBrightness("--filter-node-locked");
-    const brightnessAvailable = parseBrightness("--filter-node-available");
+    const brightnessLocked = parseBrightness("--brightness-dim");
+    const brightnessAvailable = parseBrightness("--brightness-subdued");
 
     function applyBrightness(hex: string, brightness: number): string {
         const r = Math.round(parseInt(hex.slice(1, 3), 16) * brightness);

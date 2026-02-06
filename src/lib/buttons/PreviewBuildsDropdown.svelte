@@ -119,10 +119,10 @@
 
     .section-title {
         margin: 0;
-        font-size: var(--font-size-body-sm);
-        letter-spacing: var(--letter-spacing-wide);
+        font-size: var(--font-base);
+        letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        color: var(--color-context-menu-text);
+        color: var(--text-disabled);
         padding-left: 4px;
         overflow-wrap: anywhere;
         word-break: break-word;

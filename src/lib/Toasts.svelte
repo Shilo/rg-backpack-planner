@@ -81,19 +81,19 @@
         gap: 12px;
         padding: 10px 12px;
         width: fit-content;
-        border-radius: var(--radius-default);
-        background: var(--color-toast-bg);
-        border: 1px solid var(--color-toast-border);
-        box-shadow: var(--shadow-toast);
-        color: var(--color-toast-text);
-        font-size: var(--font-size-toast);
-        line-height: var(--line-height-toast);
+        border-radius: var(--radius-sm);
+        background: var(--bg-raised);
+        border: 1px solid var(--border-strong);
+        box-shadow: var(--shadow-md);
+        color: var(--text-secondary);
+        font-size: var(--font-md);
+        line-height: var(--leading-normal);
     }
 
     .toast--negative {
-        background: var(--color-toast-error-bg);
-        border-color: var(--color-toast-error-border);
-        color: var(--color-toast-error-text);
+        background: var(--danger-bg);
+        border-color: var(--danger-border);
+        color: var(--danger-text);
     }
 
     .toast__message {

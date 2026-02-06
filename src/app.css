@@ -40,8 +40,8 @@ body {
         system-ui,
         -apple-system,
         sans-serif;
-    background: var(--color-body-bg);
-    color: var(--color-body-text);
+    background: var(--bg);
+    color: var(--text);
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
@@ -69,7 +69,7 @@ button {
 }
 
 * {
-    scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+    scrollbar-color: var(--n7) color-mix(in srgb, var(--n2) 80%, transparent);
     scrollbar-width: thin;
 }
 
@@ -79,17 +79,17 @@ button {
 }
 
 *::-webkit-scrollbar-track {
-    background: var(--color-scrollbar-track);
+    background: color-mix(in srgb, var(--n2) 80%, transparent);
 }
 
 *::-webkit-scrollbar-thumb {
-    background: var(--color-scrollbar-thumb-bg);
-    border-radius: var(--radius-pill);
-    border: 2px solid var(--color-scrollbar-track);
+    background: color-mix(in srgb, var(--n8) 60%, transparent);
+    border-radius: var(--radius-full);
+    border: 2px solid color-mix(in srgb, var(--n2) 80%, transparent);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: var(--color-scrollbar-thumb-hover);
+    background: color-mix(in srgb, var(--n8) 85%, transparent);
 }
 
 .tooltip {
@@ -97,30 +97,30 @@ button {
     z-index: var(--z-index-tooltip);
     padding: 6px 10px;
     border-radius: var(--radius-sm);
-    background: var(--color-tooltip-bg);
-    border: 1px solid var(--color-tooltip-border);
-    color: var(--color-tooltip-text);
-    font-size: var(--font-size-body);
-    letter-spacing: var(--letter-spacing-tight);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: var(--font-base);
+    letter-spacing: var(--tracking-tight);
     max-width: 240px;
     text-align: center;
     white-space: pre-line;
     overflow-wrap: anywhere;
     word-break: break-word;
     hyphens: auto;
-    box-shadow: var(--shadow-tooltip);
+    box-shadow: var(--shadow-md);
     pointer-events: none;
 }
 
 .modal-message a {
-    color: var(--color-link);
+    color: var(--active);
     text-decoration: none;
-    font-weight: var(--font-weight-bold);
+    font-weight: var(--weight-bold);
 }
 
 .modal-message a:hover,
 .modal-message a:focus-visible {
-    color: var(--color-link-hover);
+    color: var(--active-hover);
 }
 
 @media (hover: none) {

@@ -63,10 +63,10 @@
 
 <style>
     :global(.preview-indicator-button) {
-        border-radius: var(--radius-pill) !important;
-        font-weight: var(--font-weight-semibold);
-        font-size: var(--font-size-body) !important;
-        letter-spacing: var(--letter-spacing-default);
+        border-radius: var(--radius-full) !important;
+        font-weight: var(--weight-semibold);
+        font-size: var(--font-base) !important;
+        letter-spacing: var(--tracking-normal);
         text-transform: uppercase;
         padding: 6px 12px;
         pointer-events: auto;
@@ -74,8 +74,8 @@
     }
 
     .build-name {
-        color: var(--color-preview-text);
-        font-size: var(--font-size-sm);
+        color: var(--text-disabled);
+        font-size: var(--font-sm);
     }
 
     .preview-build-indicator-menu-portal {

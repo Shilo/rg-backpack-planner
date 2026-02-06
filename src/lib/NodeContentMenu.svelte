@@ -141,7 +141,7 @@
 <style>
     .node-stats {
         padding: 8px 12px;
-        border-bottom: 1px solid var(--color-divider);
+        border-bottom: 1px solid var(--border-subtle);
         display: flex;
         align-items: flex-start;
         gap: 12px;
@@ -159,7 +159,7 @@
     .node-icon-wrapper :global(svg) {
         width: 24px;
         height: 24px;
-        opacity: var(--opacity-menu-item);
+        opacity: var(--opacity-soft);
     }
 
     .node-stats-content {
@@ -174,22 +174,22 @@
         justify-content: space-between;
         align-items: center;
         gap: 8px;
-        font-size: var(--font-size-body-alt);
+        font-size: var(--font-base);
     }
 
     .stat-label {
-        color: var(--color-context-menu-inactive);
+        color: var(--text-subtle);
     }
 
     .stat-value {
-        color: var(--color-context-menu-active);
-        font-weight: var(--font-weight-semibold);
+        color: var(--text);
+        font-weight: var(--weight-semibold);
     }
 
     .level-progress {
         width: 100%;
         height: 6px;
-        background: var(--color-context-menu-hover);
+        background: var(--bg-raised);
         border-radius: var(--radius-xs);
         overflow: hidden;
         margin-top: 2px;
@@ -197,9 +197,9 @@
 
     .level-progress-bar {
         height: 100%;
-        background: var(--color-context-menu-active-gradient);
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
         border-radius: var(--radius-xs);
-        transition: width var(--transition-default);
+        transition: width var(--ease-default);
     }
 
     .button-grid {

@@ -113,16 +113,16 @@
 
 <style>
     .button {
-        border: 1px solid var(--color-button-border);
-        background: var(--color-button-bg);
-        color: var(--color-button-text);
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-secondary);
         border-radius: var(--radius-md);
         text-align: left;
-        line-height: var(--line-height-none);
+        line-height: var(--leading-none);
         transition:
-            border-color var(--transition-default),
-            color var(--transition-default),
-            background var(--transition-default);
+            border-color var(--ease-default),
+            color var(--ease-default),
+            background var(--ease-default);
     }
 
     .button:not(:disabled) {
@@ -143,7 +143,7 @@
     }
 
     .button-text {
-        line-height: var(--line-height-tight);
+        line-height: var(--leading-tight);
     }
 
     .button-icon {
@@ -155,22 +155,22 @@
     .button:disabled {
         opacity: var(--opacity-disabled);
         cursor: not-allowed;
-        border-color: var(--color-button-disabled-border);
-        background: var(--color-button-disabled-bg);
-        color: var(--color-button-disabled-text);
+        border-color: var(--border-subtle);
+        background: var(--bg-input);
+        color: var(--text-disabled);
         filter: none;
         transform: none;
     }
 
     .button:focus-visible {
-        outline: 2px solid var(--color-button-focus-outline);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 
     .button {
         transition:
-            transform var(--transition-fast),
-            filter var(--transition-fast);
+            transform var(--ease-fast),
+            filter var(--ease-fast);
     }
 
     @media (hover: hover) {
@@ -187,26 +187,26 @@
     .button-sm {
         height: 32px;
         min-width: 32px;
-        font-size: var(--font-size-sm);
+        font-size: var(--font-sm);
     }
 
     .button-md {
         min-height: 38px;
         min-width: 38px;
         padding: 4px 12px;
-        font-size: var(--font-size-body);
+        font-size: var(--font-base);
     }
 
     .button-negative {
-        border-color: var(--color-button-negative-border);
-        background: var(--color-button-negative-bg);
-        color: var(--color-button-negative-text);
+        border-color: var(--danger-border);
+        background: var(--danger-bg);
+        color: var(--danger-text);
     }
 
     .button-positive {
-        border-color: var(--color-button-positive-border);
-        background: var(--color-button-positive-bg);
-        color: var(--color-button-positive-text);
+        border-color: var(--success-border);
+        background: var(--success-bg);
+        color: var(--success-text);
     }
 
     :global(.button-group) {

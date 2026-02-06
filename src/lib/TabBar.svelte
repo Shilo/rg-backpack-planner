@@ -61,9 +61,9 @@
     .tab-bar__tab-button {
         flex: 1;
         min-width: var(--side-menu-tab-min-width, 72px);
-        border: 1px solid var(--color-tab-border);
+        border: 1px solid var(--border);
         background: transparent;
-        color: var(--color-tab-inactive-text);
+        color: var(--text-subtle);
         border-radius: 0;
         height: var(--side-menu-tab-height);
         padding: 4px 6px;
@@ -76,10 +76,10 @@
         position: relative;
         z-index: 1;
         transition:
-            border-color var(--transition-default),
-            color var(--transition-default),
-            background var(--transition-default),
-            z-index var(--transition-default);
+            border-color var(--ease-default),
+            color var(--ease-default),
+            background var(--ease-default),
+            z-index var(--ease-default);
         pointer-events: auto;
     }
 
@@ -90,8 +90,8 @@
     }
 
     .tab-bar__tab-label {
-        font-size: var(--font-size-xs);
-        line-height: var(--line-height-none);
+        font-size: var(--font-xs);
+        line-height: var(--leading-none);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         white-space: nowrap;
@@ -105,14 +105,14 @@
     }
 
     .tab-bar__tab-button.active {
-        background: var(--color-tab-active-bg);
-        color: var(--color-tab-active-text);
-        border-color: var(--color-tab-active-border);
+        background: var(--active-bg);
+        color: var(--text-secondary);
+        border-color: var(--n8);
         z-index: 2;
     }
 
     .tab-bar__tab-button:focus-visible {
-        outline: 2px solid var(--color-button-focus-outline);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 

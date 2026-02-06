@@ -20,7 +20,7 @@
 
 <style>
     .preview-section {
-        background: var(--color-preview-bg);
+        background: color-mix(in srgb, var(--n8) 20%, transparent);
         border-bottom-left-radius: var(--radius-md);
         border-bottom-right-radius: var(--radius-md);
         padding-top: 8px;

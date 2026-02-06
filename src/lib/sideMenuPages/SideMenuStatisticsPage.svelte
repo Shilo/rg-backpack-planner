@@ -56,7 +56,7 @@
     .side-menu__stats-card {
         display: grid;
         gap: 0;
-        border: 1px solid var(--color-code-border);
+        border: 1px solid var(--border-subtle);
         border-radius: var(--radius-md);
         overflow: hidden;
     }
@@ -68,7 +68,7 @@
         border-radius: 0px !important;
         background: transparent !important;
         border: none !important;
-        color: var(--color-side-menu-stats-text) !important;
+        color: var(--text-subtle) !important;
         width: 18px !important;
         height: 18px !important;
 

@@ -179,21 +179,21 @@
 
     .modal-header h2 {
         margin: 0;
-        font-size: var(--font-size-heading);
-        color: var(--color-modal-title);
-        line-height: var(--line-height-none);
+        font-size: var(--font-lg);
+        color: var(--text);
+        line-height: var(--leading-none);
     }
 
     :global(.modal-title-icon) {
         width: 18px;
         height: 18px;
-        color: var(--color-modal-label);
+        color: var(--text-muted);
     }
 
     .modal-message {
         margin: 0;
-        font-size: var(--font-size-modal-body);
-        color: var(--color-modal-text);
+        font-size: var(--font-md);
+        color: var(--text-muted);
         line-height: 1.4;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -201,9 +201,9 @@
     }
 
     .modal-label {
-        font-size: var(--font-size-body);
-        color: var(--color-modal-label);
-        letter-spacing: var(--letter-spacing-tight);
+        font-size: var(--font-base);
+        color: var(--text-muted);
+        letter-spacing: var(--tracking-tight);
         text-transform: uppercase;
     }
 
@@ -218,16 +218,16 @@
         width: 100%;
         height: 44px;
         border-radius: var(--radius-md);
-        border: 1px solid var(--color-modal-input-alt-border);
-        background: var(--color-modal-input-alt-bg2);
-        color: var(--color-tooltip-text);
-        font-size: var(--font-size-modal-input-lg);
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-input);
+        color: var(--text-secondary);
+        font-size: var(--font-md);
         padding: 0 10px;
         text-transform: none;
     }
 
     .modal-input:focus-visible {
-        outline: 2px solid var(--color-button-focus-outline);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 

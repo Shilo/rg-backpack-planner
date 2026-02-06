@@ -504,7 +504,7 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: radial-gradient(circle at top, var(--color-tree-tabs-gradient-start), var(--color-tree-tabs-gradient-end) 75%);
+        background: radial-gradient(circle at top, var(--n4), var(--n2) 75%);
         position: relative;
     }
 
@@ -532,10 +532,10 @@
     }
 
     :global(.tab-buttons button) {
-        color: var(--color-tab-inactive-text);
+        color: var(--text-subtle);
         padding: 0 10px;
         height: var(--tab-height);
-        border-radius: var(--radius-default);
+        border-radius: var(--radius-sm);
         text-transform: uppercase;
         letter-spacing: 0.08em;
         display: flex;
@@ -556,18 +556,18 @@
     }
 
     :global(.tab-buttons button.active) {
-        background: var(--color-tab-active-bg);
-        color: var(--color-tab-active-text);
-        border-color: var(--color-tab-active-border);
+        background: var(--active-bg);
+        color: var(--text-secondary);
+        border-color: var(--n8);
     }
 
     :global(.fullscreen-button) {
-        border: 1px solid var(--color-button-border);
-        background: var(--color-button-bg);
-        color: var(--color-tab-inactive-text);
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-subtle);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: var(--radius-default);
+        border-radius: var(--radius-sm);
         padding: 0;
         display: flex;
         align-items: center;
@@ -581,13 +581,13 @@
     }
 
     :global(.menu-button) {
-        border: 1px solid var(--color-button-border);
-        background: var(--color-button-bg);
-        color: var(--color-tab-inactive-text);
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-subtle);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: var(--radius-default);
-        font-size: var(--font-size-tree-tab);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-2xl);
         padding: 0;
         display: flex;
         align-items: center;
