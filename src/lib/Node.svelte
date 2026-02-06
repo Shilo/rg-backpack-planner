@@ -62,7 +62,7 @@
     }
 
     .node-wrapper.node-wrapper-hex {
-        filter: drop-shadow(var(--shadow-node));
+        filter: drop-shadow(var(--shadow-node-hex));
     }
 
     /* CSS Custom Properties - All color variables defined here */
