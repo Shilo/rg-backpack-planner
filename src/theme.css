@@ -28,7 +28,6 @@
     /* Borders */
     --border-subtle: color-mix(in srgb, var(--border) 50%, transparent);
     --border-focus: color-mix(in srgb, var(--accent) 70%, white);
-    --border-width: 1px;
 
     /* Backgrounds */
     --bg-raised: color-mix(in srgb, var(--surface) 50%, transparent);
@@ -54,6 +53,16 @@
     --node-locked-bg: color-mix(in srgb, var(--surface) 55%, #555);
     --node-locked-border: color-mix(in srgb, var(--border) 50%, #888);
     --node-locked-text: color-mix(in srgb, var(--text-muted) 45%, #888);
+
+    /* ═══ Layout ═══ */
+
+    /* Edge */
+    --border-width: 1px;
+
+    /* Padding */
+    --spacing-sm: 4px;
+    --spacing-md: 8px;
+    --spacing-lg: 12px;
 
     /* ═══ Typography & Effects ═══ */
 
