@@ -61,7 +61,7 @@
     :global(.root-node-icon) {
         width: 100%;
         height: 100%;
-        color: var(--text-muted);
+        color: var(--border);
         fill: currentColor;
     }
 </style>
