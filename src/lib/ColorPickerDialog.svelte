@@ -11,11 +11,14 @@
     export let initialColor: ThemeColor = { h: 264, c: 0.19 };
     export let onApply: ((color: ThemeColor) => void) | null = null;
     export let onCancel: (() => void) | null = null;
+    export let onChange: ((color: ThemeColor) => void) | null = null;
 
     let h = initialColor.h;
     let c = initialColor.c;
     let hexInput = "";
     let hexInputEl: HTMLInputElement | null = null;
+    let isEditingHex = false;
+    let wasOpen = false;
 
     // Hue bar pointer tracking
     let hueBarEl: HTMLDivElement | null = null;
@@ -54,7 +57,7 @@
     $: colorName = getColorName(h);
 
     // Sync hex input when h/c change (but not during manual editing)
-    $: hexInput = oklchToHex(0.65, c, h);
+    $: if (!isEditingHex) hexInput = oklchToHex(0.65, c, h);
 
     // Generate hue gradient CSS (oklch stops every 30°)
     function buildHueGradient(): string {
@@ -70,10 +73,19 @@
     // Chroma gradient depends on current hue
     $: chromaGradient = `linear-gradient(to right, oklch(0.65 0 ${h}), oklch(0.65 ${MAX_CHROMA} ${h}))`;
 
-    // Reset local state when dialog opens
+    // Reset local state only on open transition (not on every dependency change)
+    $: {
+        if (isOpen && !wasOpen) {
+            h = initialColor.h;
+            c = initialColor.c;
+            isEditingHex = false;
+        }
+        wasOpen = isOpen;
+    }
+
+    // Live preview: notify parent when color changes while open
     $: if (isOpen) {
-        h = initialColor.h;
-        c = initialColor.c;
+        onChange?.({ h, c });
     }
 
     // ── Hue bar pointer events ──
@@ -266,10 +278,17 @@
                         value={hexInput}
                         maxlength="7"
                         autocomplete="off"
+                        autocapitalize="none"
+                        autocorrect="off"
                         spellcheck="false"
                         bind:this={hexInputEl}
                         on:input={handleHexInput}
                         on:keydown={handleHexKeydown}
+                        on:focus={() => (isEditingHex = true)}
+                        on:blur={() => {
+                            isEditingHex = false;
+                            hexInput = oklchToHex(0.65, c, h);
+                        }}
                     />
                 </div>
 
@@ -291,7 +310,7 @@
     .color-picker-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: var(--backdrop-overlay, rgba(0, 0, 0, 0.5));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -373,7 +392,7 @@
         width: 64px;
         height: 64px;
         border-radius: var(--radius-full);
-        border: 3px solid var(--border);
+        border: 3px solid rgba(128, 128, 128, 0.3);
         transition: background 0.1s ease;
     }
 

@@ -192,31 +192,32 @@ export function applyTheme(
 
     // ── Region accent palettes ──
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: 55, chroma: 0.18 },
-        { name: "yellow", hue: 100, chroma: 0.16 },
+        { name: "orange", hue: 25, chroma: 0.23 },
+        { name: "yellow", hue: 95, chroma: 0.19 },
         { name: "blue", hue: 255, chroma: 0.15 },
     ];
 
     for (const region of regions) {
-        const hue = harmonize(region.hue, source.h, harmonizeAmount);
+        const rawHue = region.hue;
+        const softenedHue = harmonize(region.hue, source.h, harmonizeAmount);
         const c = region.chroma;
 
         if (isDark) {
-            vars[`--region-${region.name}-accent`] = oklchToHex(0.72, c, hue);
-            vars[`--region-${region.name}-light`] = oklchToHex(0.85, c, hue);
-            vars[`--region-${region.name}-bg-available`] = oklchToHex(0.22, c * 0.5, hue);
-            vars[`--region-${region.name}-bg-active`] = oklchToHex(0.30, c * 0.6, hue);
-            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(0.38, c * 0.7, hue);
-            vars[`--region-${region.name}-text`] = oklchToHex(0.80, c * 0.7, hue);
-            vars[`--region-${region.name}-text-maxed`] = oklchToHex(0.90, c * 0.5, hue);
+            vars[`--region-${region.name}-accent`] = oklchToHex(0.72, c, rawHue);
+            vars[`--region-${region.name}-light`] = oklchToHex(0.85, c, rawHue);
+            vars[`--region-${region.name}-bg-available`] = oklchToHex(0.22, c * 0.5, softenedHue);
+            vars[`--region-${region.name}-bg-active`] = oklchToHex(0.36, c * 0.7, rawHue);
+            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(0.46, c * 0.8, rawHue);
+            vars[`--region-${region.name}-text`] = oklchToHex(0.80, c * 0.7, rawHue);
+            vars[`--region-${region.name}-text-maxed`] = oklchToHex(0.90, c * 0.5, rawHue);
         } else {
-            vars[`--region-${region.name}-accent`] = oklchToHex(0.50, c, hue);
-            vars[`--region-${region.name}-light`] = oklchToHex(0.40, c, hue);
-            vars[`--region-${region.name}-bg-available`] = oklchToHex(0.92, c * 0.3, hue);
-            vars[`--region-${region.name}-bg-active`] = oklchToHex(0.86, c * 0.4, hue);
-            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(0.80, c * 0.5, hue);
-            vars[`--region-${region.name}-text`] = oklchToHex(0.30, c * 0.7, hue);
-            vars[`--region-${region.name}-text-maxed`] = oklchToHex(0.20, c * 0.5, hue);
+            vars[`--region-${region.name}-accent`] = oklchToHex(0.50, c, rawHue);
+            vars[`--region-${region.name}-light`] = oklchToHex(0.40, c, rawHue);
+            vars[`--region-${region.name}-bg-available`] = oklchToHex(0.92, c * 0.3, softenedHue);
+            vars[`--region-${region.name}-bg-active`] = oklchToHex(0.86, c * 0.4, rawHue);
+            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(0.80, c * 0.5, rawHue);
+            vars[`--region-${region.name}-text`] = oklchToHex(0.30, c * 0.7, rawHue);
+            vars[`--region-${region.name}-text-maxed`] = oklchToHex(0.20, c * 0.5, rawHue);
         }
     }
 
@@ -226,17 +227,19 @@ export function applyTheme(
         vars["--shadow"] = `0 8px 20px ${bgHex}80`;
         vars["--shadow-node"] = `0 4px 10px ${bgHex}80`;
         vars["--shadow-node-hex"] = `0 4px 5px ${bgHex}`;
+        vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.5)";
     } else {
         vars["--shadow"] = "0 8px 20px rgba(0,0,0,0.08)";
         vars["--shadow-node"] = "0 4px 10px rgba(0,0,0,0.10)";
         vars["--shadow-node-hex"] = "0 2px 4px rgba(0,0,0,0.12)";
+        vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.6)";
     }
 
     // ── Dynamic filter variables (mode-dependent) ──
     if (isDark) {
         vars["--brightness-hover"] = "brightness(1.2)";
-        vars["--node-brightness-locked"] = "brightness(0.4)";
-        vars["--node-brightness-available"] = "brightness(0.5)";
+        vars["--node-brightness-locked"] = "brightness(0.7)";
+        vars["--node-brightness-available"] = "brightness(0.65)";
         vars["--shadow-text"] =
             "0 1px 2px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.6), 1px 0 2px rgba(0,0,0,0.9), -1px 0 2px rgba(0,0,0,0.9)";
     } else {

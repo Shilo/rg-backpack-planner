@@ -61,7 +61,7 @@
 
     .currency-spent {
         text-align: right;
-        color: white;
+        color: var(--text);
     }
 
     .currency-spent.is-negative {

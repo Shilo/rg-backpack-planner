@@ -115,6 +115,8 @@ preview_eval: document.querySelector('.side-menu__content').scrollTop = document
 
 **Viewport size matters:** At mobile width (< 500px), the side menu slides over the full screen. Use `preview_resize` to 800x600 or wider to see the side menu alongside the tree.
 
+**Preview pane must be open:** The preview tools (`preview_screenshot`, `preview_snapshot`, etc.) stall indefinitely if the Preview pane is not already open in Claude Desktop. There is no way to programmatically open it. If a preview call hangs, the user must manually open the Preview pane in Claude Desktop for it to complete. Avoid chaining multiple preview verification steps without confirming the pane is responsive.
+
 **Other caveats:**
 - On Windows, `launch.json` uses `node` directly (`node node_modules/vite/bin/vite.js`) instead of `npm run dev` because `preview_start` cannot spawn `.cmd` shims.
 - Run `npm run build` before using the `preview` server (it serves the `dist/` folder).

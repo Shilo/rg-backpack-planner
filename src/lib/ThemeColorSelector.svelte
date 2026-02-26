@@ -1,7 +1,8 @@
 <script lang="ts">
     import { PaletteIcon } from "phosphor-svelte";
     import { themeColor, type ThemeColor } from "./themeColorStore";
-    import { oklchToHex } from "./themeEngine";
+    import { oklchToHex, applyTheme } from "./themeEngine";
+    import { darkMode } from "./darkModeStore";
     import { triggerHaptic } from "./haptics";
     import { tooltip } from "./tooltip";
     import { portal } from "./portal";
@@ -21,6 +22,7 @@
     let dropdownX = 0;
     let dropdownY = 0;
     let pickerOpen = false;
+    let pickerInitialColor: ThemeColor = { h: 264, c: 0.19 };
 
     $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
 
@@ -56,7 +58,12 @@
 
     function openCustomPicker() {
         closeDropdown();
+        pickerInitialColor = { ...$themeColor };
         pickerOpen = true;
+    }
+
+    function handlePickerPreview(color: ThemeColor) {
+        applyTheme(color, $darkMode ? "dark" : "light");
     }
 
     function handlePickerApply(color: ThemeColor) {
@@ -65,6 +72,7 @@
     }
 
     function handlePickerCancel() {
+        themeColor.set(pickerInitialColor);
         pickerOpen = false;
     }
 </script>
@@ -114,21 +122,26 @@
         {/each}
         <button
             class="preset-item"
+            class:preset-selected={currentLabel === "Custom"}
             type="button"
             on:click={openCustomPicker}
         >
             <span
                 class="preset-swatch preset-swatch-custom"
-                style="background: {currentHex}"
+                style="background: {currentLabel === 'Custom' ? currentHex : 'var(--border)'}"
             ></span>
             <span class="preset-label">Custom...</span>
+            {#if currentLabel === "Custom"}
+                <span class="preset-check" aria-hidden="true"></span>
+            {/if}
         </button>
     </ContextMenu>
 </div>
 
 <ColorPickerDialog
     isOpen={pickerOpen}
-    initialColor={$themeColor}
+    initialColor={pickerInitialColor}
+    onChange={handlePickerPreview}
     onApply={handlePickerApply}
     onCancel={handlePickerCancel}
 />
@@ -196,8 +209,8 @@
     }
 
     .theme-button-swatch {
-        width: 20px;
-        height: 20px;
+        width: 50px;
+        height: 30px;
         border-radius: var(--radius-full);
         border: 2px solid var(--border);
         flex-shrink: 0;
@@ -224,6 +237,7 @@
         align-items: center;
         gap: var(--spacing-lg);
         width: 100%;
+        min-width: 160px;
         padding: var(--spacing-sm) var(--spacing-lg);
         min-height: 38px;
         border: var(--border-width) solid var(--border);
@@ -260,8 +274,8 @@
     }
 
     .preset-swatch {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
         border-radius: var(--radius-full);
         border: 2px solid var(--border-subtle);
         flex-shrink: 0;

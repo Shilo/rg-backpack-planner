@@ -46,7 +46,7 @@
 
 <style>
     .tech-crystals-spent {
-        color: white;
+        color: var(--text);
     }
 
     .tech-crystals-spent.is-negative {
