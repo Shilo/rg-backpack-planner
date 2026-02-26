@@ -88,6 +88,17 @@ To add a new modal type:
 - **Types:** PascalCase (`Tree`, `BuildData`, `NodeState`)
 - **Constants:** SCREAMING_SNAKE_CASE (`DEFAULT_DURATION_MS`)
 
+## Preview (Claude Code)
+
+Server configs live in `.claude/launch.json` (`dev` on port 5173, `preview` on port 4173).
+
+To start the dev server, call `preview_start` with name `"dev"`.
+
+**Caveats:**
+- The app is served under the `/rg-backpack-planner/` base path (matching GitHub Pages). After starting the server, navigate to `http://localhost:5173/rg-backpack-planner/` — the root `/` will show a blank page.
+- On Windows, `launch.json` uses `node` directly (`node node_modules/vite/bin/vite.js`) instead of `npm run dev` because `preview_start` cannot spawn `.cmd` shims.
+- Run `npm run build` before using the `preview` server (it serves the `dist/` folder).
+
 ## Deployment
 
 - GitHub Pages at `/rg-backpack-planner/` base path
