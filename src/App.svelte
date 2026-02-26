@@ -471,22 +471,22 @@
     .top-left-actions,
     .top-right-actions {
         position: fixed;
-        top: 10px;
+        top: var(--spacing-lg);
         z-index: var(--z-index-hud);
         display: inline-flex;
         flex-direction: column;
-        gap: 10px;
+        gap: var(--spacing-lg);
         pointer-events: none;
     }
 
     .top-left-actions {
-        left: 10px;
+        left: var(--spacing-lg);
         align-items: flex-start;
         transition: left 0.15s ease;
     }
 
     .top-right-actions {
-        right: 10px;
+        right: var(--spacing-lg);
         align-items: flex-end;
         transition: right 0.15s ease;
     }

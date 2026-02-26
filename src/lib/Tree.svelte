@@ -923,7 +923,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .tree-viewport {

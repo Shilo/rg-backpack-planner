@@ -328,7 +328,7 @@
         border-radius: var(--radius);
         padding: var(--spacing-md);
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
         z-index: var(--z-index-context-menu);
         width: max-content;
         max-width: calc(100vw - 16px);

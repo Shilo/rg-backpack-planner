@@ -17,14 +17,14 @@
 <style>
     .side-menu-section {
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .side-menu-section__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .side-menu-section__title {
@@ -38,7 +38,7 @@
     .side-menu-section__action {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .side-menu-section__action:empty {
@@ -47,6 +47,6 @@
 
     .side-menu-section__content {
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 </style>

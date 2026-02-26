@@ -91,7 +91,7 @@
 <style>
     .modal-content {
         display: grid;
-        gap: 12px;
+        gap: var(--spacing-lg);
         padding: var(--spacing-md);
     }
 
@@ -103,7 +103,7 @@
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .modal-header h2 {
@@ -160,6 +160,6 @@
     .modal-actions {
         display: flex;
         justify-content: flex-end;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 </style>

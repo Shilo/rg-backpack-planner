@@ -198,7 +198,7 @@
         padding: 0;
         overflow: hidden;
         display: grid;
-        gap: 14px;
+        gap: var(--spacing-lg);
     }
 
     @media (max-width: 480px) {

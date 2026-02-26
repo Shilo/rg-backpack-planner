@@ -51,7 +51,7 @@
     :global(.currency-display .button-text) {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: var(--spacing-sm);
         line-height: var(--leading-none);
     }
 

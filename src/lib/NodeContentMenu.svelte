@@ -144,7 +144,7 @@
         border-bottom: var(--border-width) solid var(--border-subtle);
         display: flex;
         align-items: flex-start;
-        gap: 12px;
+        gap: var(--spacing-lg);
     }
 
     .node-icon-wrapper {
@@ -166,14 +166,14 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .stat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
         font-size: var(--font-base);
     }
 
@@ -205,6 +205,6 @@
     .button-grid {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 </style>

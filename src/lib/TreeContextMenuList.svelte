@@ -73,7 +73,7 @@
         border-bottom: var(--border-width) solid var(--border-subtle);
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .stat-row {

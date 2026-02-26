@@ -134,6 +134,6 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 </style>

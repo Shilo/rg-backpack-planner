@@ -118,7 +118,7 @@
 <style>
     .codeblock-table {
         display: grid;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .codeblock-table__table {

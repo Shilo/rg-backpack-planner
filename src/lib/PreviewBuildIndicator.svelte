@@ -70,7 +70,7 @@
         text-transform: uppercase;
         padding: var(--spacing-sm) var(--spacing-lg);
         pointer-events: auto;
-        gap: 4px !important;
+        gap: var(--spacing-sm) !important;
     }
 
     .build-name {

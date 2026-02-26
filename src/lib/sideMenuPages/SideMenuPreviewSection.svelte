@@ -28,8 +28,8 @@
         padding-bottom: var(--spacing-md) !important;
         margin-bottom: -7px;
         padding-left: var(--spacing-md);
-        margin-left: -10px;
+        margin-left: calc(-1 * var(--spacing-md));
         padding-right: var(--spacing-md);
-        margin-right: -10px;
+        margin-right: calc(-1 * var(--spacing-md));
     }
 </style>

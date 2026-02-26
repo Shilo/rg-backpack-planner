@@ -498,7 +498,7 @@
 <style>
     .tabs-root {
         --menu-width: 38px;
-        --menu-gap: 4px;
+        --menu-gap: var(--spacing-sm);
         display: flex;
         flex-direction: column;
         height: 100%;
@@ -545,7 +545,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: var(--spacing-md);
         min-width: 0;
         overflow: hidden;
     }

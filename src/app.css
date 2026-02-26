@@ -5,12 +5,13 @@
 }
 
 :root {
-    --bar-pad: 10px;
+    --bar-pad: var(--spacing-lg);
     --tab-height: 38px;
-    --side-menu-tab-height: calc(var(--tab-height) + 10px);
+    --side-menu-tab-height: calc(var(--tab-height) + var(--spacing-lg));
     --side-menu-tab-min-width: 72px;
     --side-menu-width: calc(
-        3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px
+        3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
+            var(--spacing-lg)
     );
 
     --z-index-hud: 5;

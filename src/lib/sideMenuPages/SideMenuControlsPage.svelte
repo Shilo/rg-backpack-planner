@@ -376,13 +376,13 @@
     .controls-page {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
         min-width: 0;
     }
 
     .controls-sections {
         display: grid;
-        gap: 10px;
+        gap: var(--spacing-lg);
         min-width: 0;
     }
 
@@ -391,13 +391,13 @@
         margin: 0;
         padding: 0;
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .control-row {
         display: grid;
         grid-template-columns: 24px minmax(0, 1fr);
-        gap: 6px;
+        gap: var(--spacing-md);
         align-items: start;
     }
 
@@ -419,7 +419,7 @@
 
     .control-text {
         display: grid;
-        gap: 4px;
+        gap: var(--spacing-sm);
     }
 
     .control-label {
@@ -445,7 +445,7 @@
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .app-info-actions > .control-row {
@@ -457,7 +457,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 6px;
+        gap: var(--spacing-md);
         flex-shrink: 0;
     }
 </style>

@@ -244,7 +244,7 @@
 
 <style>
     .spacer {
-        height: 6px;
+        height: var(--spacing-md);
     }
 
     .button-row {

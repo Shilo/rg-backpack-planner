@@ -162,7 +162,7 @@
 <style>
     .modal-content {
         display: grid;
-        gap: 12px;
+        gap: var(--spacing-lg);
         padding: var(--spacing-md);
     }
 
@@ -174,7 +174,7 @@
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .modal-header h2 {
@@ -210,7 +210,7 @@
     .modal-input-row {
         display: grid;
         grid-template-columns: minmax(0, 96px) minmax(0, 1fr);
-        gap: 8px;
+        gap: var(--spacing-md);
         align-items: center;
     }
 
@@ -241,13 +241,13 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .modal-actions__row {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .modal-actions__row--right {

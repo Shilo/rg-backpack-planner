@@ -46,7 +46,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        gap: var(--spacing-lg);
         width: 100%;
         height: 40px;
         padding: var(--spacing-md) var(--spacing-lg);

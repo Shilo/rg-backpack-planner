@@ -69,7 +69,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: var(--spacing-lg);
         z-index: var(--z-index-toast);
         pointer-events: none;
     }
@@ -78,7 +78,7 @@
         pointer-events: auto;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: var(--spacing-lg);
         padding: var(--spacing-md) var(--spacing-lg);
         width: fit-content;
         border-radius: var(--radius);

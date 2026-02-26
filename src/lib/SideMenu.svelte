@@ -159,7 +159,7 @@
         max-width: 100%;
         width: calc(
             3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
-                10px
+                var(--spacing-lg)
         );
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
@@ -191,15 +191,15 @@
 
     .side-menu__content-inner {
         display: grid;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .side-menu__content-inner > :global(:first-child) {
-        margin-top: 8px;
+        margin-top: var(--spacing-md);
     }
 
     .side-menu__content-inner > :global(:last-child) {
-        margin-bottom: 10px;
+        margin-bottom: var(--spacing-lg);
     }
 
     .side-menu__scroll-area {

@@ -214,7 +214,7 @@
 <style>
     .modal-content {
         display: grid;
-        gap: 12px;
+        gap: var(--spacing-lg);
         padding: var(--spacing-md);
     }
 
@@ -231,7 +231,7 @@
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .modal-header h2 {
@@ -272,7 +272,7 @@
             minmax(20px, 1fr)
             minmax(0, 44px)
             minmax(0, 60px);
-        gap: 6px;
+        gap: var(--spacing-md);
         align-items: center;
     }
 
@@ -338,12 +338,12 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .modal-actions__right {
         display: flex;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .reset-button {
