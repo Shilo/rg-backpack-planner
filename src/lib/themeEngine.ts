@@ -81,14 +81,8 @@ function harmonize(regionHue: number, sourceHue: number, amount = 0.15): number 
 
 // ── Theme Application ───────────────────────────────────────
 
-export function applyTheme(sourceHex?: string): void {
-    const hex =
-        sourceHex ??
-        (getComputedStyle(document.documentElement)
-            .getPropertyValue("--theme-source")
-            .trim() ||
-            "#4c6fff");
-    const [r, g, b] = hexToRgb(hex);
+export function applyTheme(sourceHex = "#4c6fff"): void {
+    const [r, g, b] = hexToRgb(sourceHex);
     const source = rgbToOklch(r, g, b);
 
     const vars: Record<string, string> = {};
