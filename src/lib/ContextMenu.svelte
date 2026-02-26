@@ -364,7 +364,7 @@
     .context-menu-backdrop {
         position: fixed;
         inset: 0;
-        background: var(--bg-panel);
+        background: rgba(0, 0, 0, 0.3);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);

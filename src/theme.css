@@ -1,58 +1,74 @@
 :root {
-    /* ═══ Primitives (11 hex — the ONLY values to change for a theme) ═══ */
-    --bg: #0b1220;
-    --surface: #1e2d4a;
-    --text: #ecf0ff;
-    --text-muted: #c0cfed;
-    --border: #2c3c61;
+    /* ═══ Color Fallbacks (pre-computed from #4c6fff, overridden by themeEngine.ts) ═══ */
 
-    --accent: #4c6fff;
-    --accent-orange: #ff6b35;
-    --accent-yellow: #ffd700;
-    --accent-blue: #4a90e2;
-
-    --accent-danger: #ef6461;
-    --accent-success: #38bdf8;
-
-    /* ═══ Derived Colors ═══ */
-
-    /* Light accents */
-    --accent-light: color-mix(in srgb, var(--accent) 55%, white);
-    --accent-orange-light: color-mix(in srgb, var(--accent-orange) 60%, white);
-    --accent-yellow-light: color-mix(in srgb, var(--accent-yellow) 70%, white);
-    --accent-blue-light: color-mix(in srgb, var(--accent-blue) 55%, white);
+    /* Neutral surfaces */
+    --bg: #090b11;
+    --bg-panel: #0f1118;
+    --bg-input: #16181f;
+    --surface: #1d1f26;
+    --bg-raised: #24262e;
+    --border: #383a42;
+    --border-subtle: #2b2e35;
 
     /* Text */
-    --text-disabled: color-mix(in srgb, var(--text-muted) 60%, transparent);
+    --text: #e3e8f5;
+    --text-muted: #b3b7c4;
+    --text-disabled: #6d717d;
 
-    /* Borders */
-    --border-subtle: color-mix(in srgb, var(--border) 50%, transparent);
-    --border-focus: color-mix(in srgb, var(--accent) 70%, white);
+    /* Primary accent */
+    --accent: #6c8bff;
+    --accent-light: #8fb3ff;
+    --border-focus: #7a9cff;
 
-    /* Backgrounds */
-    --bg-raised: color-mix(in srgb, var(--surface) 50%, transparent);
-    --bg-panel: color-mix(in srgb, var(--bg) 80%, transparent);
-    --bg-input: color-mix(in srgb, var(--bg) 50%, var(--surface));
-    --bg-window: var(--bg);
+    /* Danger */
+    --accent-danger: #f17262;
+    --danger-bg: #330c08;
+    --danger-border: #9b2018;
+    --danger-text: #ffb6aa;
 
-    /* Danger states */
-    --danger-bg: color-mix(in srgb, var(--accent-danger) 15%, var(--bg));
-    --danger-border: color-mix(in srgb, var(--accent-danger) 70%, transparent);
-    --danger-text: color-mix(in srgb, var(--accent-danger) 40%, white);
-
-    /* Success states */
-    --success-bg: color-mix(in srgb, var(--accent-success) 15%, var(--bg));
-    --success-border: color-mix(
-        in srgb,
-        var(--accent-success) 70%,
-        transparent
-    );
-    --success-text: color-mix(in srgb, var(--accent-success) 40%, white);
+    /* Success */
+    --accent-success: #2fb5d8;
+    --success-bg: #001f2a;
+    --success-border: #006283;
+    --success-text: #98d9ef;
 
     /* Node locked */
-    --node-locked-bg: color-mix(in srgb, var(--surface) 55%, #555);
-    --node-locked-border: color-mix(in srgb, var(--border) 50%, #888);
-    --node-locked-text: color-mix(in srgb, var(--text-muted) 45%, #888);
+    --node-locked-bg: #27292c;
+    --node-locked-border: #414246;
+    --node-locked-text: #67696d;
+
+    /* Region palettes */
+    --region-orange-accent: #ff7254;
+    --region-orange-light: #ff9d7d;
+    --region-orange-bg-available: #3a0100;
+    --region-orange-bg-active: #580e01;
+    --region-orange-bg-maxed: #771e0b;
+    --region-orange-text: #ff9f88;
+    --region-orange-text-maxed: #ffc9b7;
+
+    --region-yellow-accent: #8cb534;
+    --region-yellow-light: #b5e063;
+    --region-yellow-bg-available: #122000;
+    --region-yellow-bg-active: #223500;
+    --region-yellow-bg-maxed: #344c00;
+    --region-yellow-text: #accb7a;
+    --region-yellow-text-maxed: #d1e8ae;
+
+    --region-blue-accent: #65a5ff;
+    --region-blue-light: #8dcfff;
+    --region-blue-bg-available: #01193c;
+    --region-blue-bg-active: #0b2c5a;
+    --region-blue-bg-maxed: #194179;
+    --region-blue-text: #93c0ff;
+    --region-blue-text-maxed: #bfe0ff;
+
+    /* Shadows */
+    --shadow: 0 8px 20px #090b1180;
+    --shadow-node: 0 4px 10px #090b1180;
+    --shadow-node-hex: 0 4px 5px #090b11;
+    --shadow-text:
+        0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.6),
+        1px 0 2px rgba(0, 0, 0, 0.9), -1px 0 2px rgba(0, 0, 0, 0.9);
 
     /* ═══ Layout ═══ */
 
@@ -78,14 +94,6 @@
     /* Border radius */
     --radius: 12px;
     --radius-full: 999px;
-
-    /* Shadows */
-    --shadow: 0 8px 20px color-mix(in srgb, var(--bg) 50%, transparent);
-    --shadow-node: 0 4px 10px color-mix(in srgb, var(--bg) 50%, transparent);
-    --shadow-node-hex: 0 4px 5px color-mix(in srgb, var(--bg) 100%, transparent);
-    --shadow-text:
-        0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.6),
-        1px 0 2px rgba(0, 0, 0, 0.9), -1px 0 2px rgba(0, 0, 0, 0.9);
 
     /* Brightness / Filter */
     --brightness-hover: brightness(1.2);

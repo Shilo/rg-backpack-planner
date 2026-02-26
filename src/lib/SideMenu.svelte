@@ -133,7 +133,7 @@
     :global(.menu-backdrop) {
         position: fixed;
         inset: 0;
-        background: var(--bg-panel);
+        background: rgba(0, 0, 0, 0.5);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.15s ease;

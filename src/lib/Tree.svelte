@@ -964,18 +964,18 @@
     }
 
     .tree-links .tree-link.region-top-left {
-        --link-color: var(--accent-orange);
-        --link-color-maxed: var(--accent-orange-light);
+        --link-color: var(--region-orange-accent);
+        --link-color-maxed: var(--region-orange-light);
     }
 
     .tree-links .tree-link.region-bottom-left {
-        --link-color: var(--accent-yellow);
-        --link-color-maxed: var(--accent-yellow-light);
+        --link-color: var(--region-yellow-accent);
+        --link-color-maxed: var(--region-yellow-light);
     }
 
     .tree-links .tree-link.region-right {
-        --link-color: var(--accent-blue);
-        --link-color-maxed: var(--accent-blue-light);
+        --link-color: var(--region-blue-accent);
+        --link-color-maxed: var(--region-blue-light);
     }
 
     .tree-links .tree-link.locked {

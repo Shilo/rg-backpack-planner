@@ -76,24 +76,16 @@
         --border-color-locked: var(--node-locked-border);
         --text-color-locked: var(--node-locked-text);
 
-        /* Default region color variables (blue accent) */
-        --bg-available: color-mix(
-            in srgb,
-            var(--accent) 18%,
-            color-mix(in srgb, var(--bg) 70%, var(--surface))
-        );
-        --bg-active: color-mix(
-            in srgb,
-            var(--accent) 28%,
-            color-mix(in srgb, var(--bg) 40%, var(--surface))
-        );
-        --bg-maxed: color-mix(in srgb, var(--accent-light) 35%, var(--surface));
-        --border-color: var(--accent);
-        --border-color-active: var(--accent-light);
-        --border-color-maxed: var(--accent-light);
-        --text-color: color-mix(in srgb, var(--accent) 55%, white);
-        --text-color-active: color-mix(in srgb, var(--accent-light) 45%, white);
-        --text-color-maxed: color-mix(in srgb, var(--accent-light) 35%, white);
+        /* Default region color variables (blue — matches region-right) */
+        --bg-available: var(--region-blue-bg-available);
+        --bg-active: var(--region-blue-bg-active);
+        --bg-maxed: var(--region-blue-bg-maxed);
+        --border-color: var(--region-blue-accent);
+        --border-color-active: var(--region-blue-accent);
+        --border-color-maxed: var(--region-blue-light);
+        --text-color: var(--region-blue-text);
+        --text-color-active: var(--region-blue-text);
+        --text-color-maxed: var(--region-blue-text-maxed);
         --hex-clip: polygon(
             25% 0%,
             75% 0%,
@@ -127,81 +119,41 @@
 
     /* Top-left region (Orange theme) */
     :global(.button.node.region-top-left) {
-        --bg-available: color-mix(
-            in srgb,
-            var(--accent-orange) 22%,
-            color-mix(in srgb, var(--bg) 70%, var(--surface))
-        );
-        --bg-active: color-mix(
-            in srgb,
-            var(--accent-orange) 32%,
-            color-mix(in srgb, var(--bg) 40%, var(--surface))
-        );
-        --bg-maxed: color-mix(
-            in srgb,
-            var(--accent-orange) 42%,
-            var(--surface)
-        );
-        --border-color: var(--accent-orange);
-        --border-color-active: var(--accent-orange);
-        --border-color-maxed: var(--accent-orange-light);
-        --text-color: color-mix(in srgb, var(--accent-orange) 55%, white);
-        --text-color-active: color-mix(
-            in srgb,
-            var(--accent-orange) 55%,
-            white
-        );
-        --text-color-maxed: color-mix(in srgb, var(--accent-orange) 35%, white);
+        --bg-available: var(--region-orange-bg-available);
+        --bg-active: var(--region-orange-bg-active);
+        --bg-maxed: var(--region-orange-bg-maxed);
+        --border-color: var(--region-orange-accent);
+        --border-color-active: var(--region-orange-accent);
+        --border-color-maxed: var(--region-orange-light);
+        --text-color: var(--region-orange-text);
+        --text-color-active: var(--region-orange-text);
+        --text-color-maxed: var(--region-orange-text-maxed);
     }
 
     /* Bottom-left region (Yellow theme) */
     :global(.button.node.region-bottom-left) {
-        --bg-available: color-mix(
-            in srgb,
-            var(--accent-yellow) 22%,
-            color-mix(in srgb, var(--bg) 70%, var(--surface))
-        );
-        --bg-active: color-mix(
-            in srgb,
-            var(--accent-yellow) 32%,
-            color-mix(in srgb, var(--bg) 40%, var(--surface))
-        );
-        --bg-maxed: color-mix(
-            in srgb,
-            var(--accent-yellow) 42%,
-            var(--surface)
-        );
-        --border-color: var(--accent-yellow);
-        --border-color-active: var(--accent-yellow);
-        --border-color-maxed: var(--accent-yellow-light);
-        --text-color: color-mix(in srgb, var(--accent-yellow) 55%, white);
-        --text-color-active: color-mix(
-            in srgb,
-            var(--accent-yellow) 55%,
-            white
-        );
-        --text-color-maxed: color-mix(in srgb, var(--accent-yellow) 35%, white);
+        --bg-available: var(--region-yellow-bg-available);
+        --bg-active: var(--region-yellow-bg-active);
+        --bg-maxed: var(--region-yellow-bg-maxed);
+        --border-color: var(--region-yellow-accent);
+        --border-color-active: var(--region-yellow-accent);
+        --border-color-maxed: var(--region-yellow-light);
+        --text-color: var(--region-yellow-text);
+        --text-color-active: var(--region-yellow-text);
+        --text-color-maxed: var(--region-yellow-text-maxed);
     }
 
     /* Right region (Blue theme) */
     :global(.button.node.region-right) {
-        --bg-available: color-mix(
-            in srgb,
-            var(--accent-blue) 22%,
-            color-mix(in srgb, var(--bg) 70%, var(--surface))
-        );
-        --bg-active: color-mix(
-            in srgb,
-            var(--accent-blue) 32%,
-            color-mix(in srgb, var(--bg) 40%, var(--surface))
-        );
-        --bg-maxed: color-mix(in srgb, var(--accent-blue) 42%, var(--surface));
-        --border-color: var(--accent-blue);
-        --border-color-active: var(--accent-blue);
-        --border-color-maxed: var(--accent-blue-light);
-        --text-color: color-mix(in srgb, var(--accent-blue) 55%, white);
-        --text-color-active: color-mix(in srgb, var(--accent-blue) 55%, white);
-        --text-color-maxed: color-mix(in srgb, var(--accent-blue) 35%, white);
+        --bg-available: var(--region-blue-bg-available);
+        --bg-active: var(--region-blue-bg-active);
+        --bg-maxed: var(--region-blue-bg-maxed);
+        --border-color: var(--region-blue-accent);
+        --border-color-active: var(--region-blue-accent);
+        --border-color-maxed: var(--region-blue-light);
+        --text-color: var(--region-blue-text);
+        --text-color-active: var(--region-blue-text);
+        --text-color-maxed: var(--region-blue-text-maxed);
     }
 
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
