@@ -103,9 +103,9 @@ export function applyTheme(
     const vars: Record<string, string> = {};
 
     // ── Mode-dependent parameters ──
-    const neutralChroma = source.c * (isDark ? 0.14 : 0.06);
-    const textChroma = source.c * (isDark ? 0.10 : 0.05);
-    const harmonizeAmount = isDark ? 0.25 : 0.20;
+    const neutralChroma = source.c * (isDark ? 0.14 : 0.12);
+    const textChroma = source.c * (isDark ? 0.10 : 0.08);
+    const harmonizeAmount = 0.25;
 
     // ── Neutral surfaces ──
     if (isDark) {
@@ -117,13 +117,13 @@ export function applyTheme(
         vars["--border"] = oklchToHex(0.35, neutralChroma, source.h);
         vars["--border-subtle"] = oklchToHex(0.30, neutralChroma, source.h);
     } else {
-        vars["--bg"] = oklchToHex(0.98, neutralChroma, source.h);
-        vars["--bg-panel"] = oklchToHex(0.96, neutralChroma, source.h);
-        vars["--bg-input"] = oklchToHex(0.94, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(0.92, neutralChroma, source.h);
-        vars["--bg-raised"] = oklchToHex(0.97, neutralChroma, source.h);
-        vars["--border"] = oklchToHex(0.78, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.85, neutralChroma, source.h);
+        vars["--bg"] = oklchToHex(0.96, neutralChroma, source.h);
+        vars["--bg-panel"] = oklchToHex(0.94, neutralChroma, source.h);
+        vars["--bg-input"] = oklchToHex(0.92, neutralChroma, source.h);
+        vars["--surface"] = oklchToHex(0.90, neutralChroma, source.h);
+        vars["--bg-raised"] = oklchToHex(0.95, neutralChroma, source.h);
+        vars["--border"] = oklchToHex(0.72, neutralChroma, source.h);
+        vars["--border-subtle"] = oklchToHex(0.80, neutralChroma, source.h);
     }
 
     // ── Text ──
@@ -132,8 +132,8 @@ export function applyTheme(
         vars["--text-muted"] = oklchToHex(0.78, textChroma, source.h);
         vars["--text-disabled"] = oklchToHex(0.55, textChroma, source.h);
     } else {
-        vars["--text"] = oklchToHex(0.16, textChroma, source.h);
-        vars["--text-muted"] = oklchToHex(0.35, textChroma, source.h);
+        vars["--text"] = oklchToHex(0.18, textChroma, source.h);
+        vars["--text-muted"] = oklchToHex(0.38, textChroma, source.h);
         vars["--text-disabled"] = oklchToHex(0.55, textChroma, source.h);
     }
 

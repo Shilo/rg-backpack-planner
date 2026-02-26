@@ -1,144 +1,286 @@
 <script lang="ts">
     import { PaletteIcon } from "phosphor-svelte";
     import { themeColor, type ThemeColor } from "./themeColorStore";
-    import { hexToOklch, oklchToHex } from "./themeEngine";
+    import { oklchToHex } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
     import { tooltip } from "./tooltip";
+    import { portal } from "./portal";
+    import ContextMenu from "./ContextMenu.svelte";
+    import ColorPickerDialog from "./ColorPickerDialog.svelte";
 
     const PRESETS: { h: number; c: number; label: string; hex: string }[] = [
         { h: 264, c: 0.19, label: "Blue", hex: oklchToHex(0.65, 0.19, 264) },
-        { h: 300, c: 0.17, label: "Violet", hex: oklchToHex(0.65, 0.17, 300) },
-        { h: 345, c: 0.18, label: "Pink", hex: oklchToHex(0.65, 0.18, 345) },
-        { h: 25, c: 0.18, label: "Red", hex: oklchToHex(0.65, 0.18, 25) },
-        { h: 75, c: 0.16, label: "Amber", hex: oklchToHex(0.65, 0.16, 75) },
-        { h: 150, c: 0.16, label: "Green", hex: oklchToHex(0.65, 0.16, 150) },
-        { h: 195, c: 0.13, label: "Teal", hex: oklchToHex(0.65, 0.13, 195) },
-        { h: 230, c: 0.10, label: "Steel", hex: oklchToHex(0.65, 0.10, 230) },
+        { h: 0, c: 0.18, label: "Rose", hex: oklchToHex(0.65, 0.18, 0) },
+        { h: 70, c: 0.16, label: "Amber", hex: oklchToHex(0.65, 0.16, 70) },
+        { h: 155, c: 0.17, label: "Green", hex: oklchToHex(0.65, 0.17, 155) },
+        { h: 305, c: 0.17, label: "Violet", hex: oklchToHex(0.65, 0.17, 305) },
     ];
 
-    $: isPresetSelected = PRESETS.some(
-        (p) => p.h === $themeColor.h && p.c === $themeColor.c,
-    );
+    let buttonEl: HTMLButtonElement | null = null;
+    let dropdownOpen = false;
+    let dropdownX = 0;
+    let dropdownY = 0;
+    let pickerOpen = false;
 
-    $: customDisplayHex = isPresetSelected
-        ? oklchToHex(0.50, 0.0, 0)
-        : oklchToHex(0.65, $themeColor.c, $themeColor.h);
+    $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
+
+    $: currentLabel = (() => {
+        const match = PRESETS.find(
+            (p) => p.h === $themeColor.h && p.c === $themeColor.c,
+        );
+        return match ? match.label : "Custom";
+    })();
+
+    function openDropdown() {
+        if (!buttonEl) return;
+        triggerHaptic();
+        const rect = buttonEl.getBoundingClientRect();
+        dropdownX = rect.left + rect.width / 2;
+        dropdownY = rect.bottom + 8;
+        dropdownOpen = true;
+    }
+
+    function closeDropdown() {
+        dropdownOpen = false;
+    }
 
     function selectPreset(preset: { h: number; c: number }) {
         themeColor.set({ h: preset.h, c: preset.c });
         triggerHaptic();
+        closeDropdown();
     }
 
     function isSelected(preset: { h: number; c: number }, current: ThemeColor): boolean {
         return preset.h === current.h && preset.c === current.c;
     }
 
-    function handleNativeColorChange(event: Event) {
-        const hex = (event.target as HTMLInputElement).value;
-        const oklch = hexToOklch(hex);
-        themeColor.set(oklch);
+    function openCustomPicker() {
+        closeDropdown();
+        pickerOpen = true;
+    }
+
+    function handlePickerApply(color: ThemeColor) {
+        themeColor.set(color);
+        pickerOpen = false;
+    }
+
+    function handlePickerCancel() {
+        pickerOpen = false;
     }
 </script>
 
-<div class="color-swatches">
-    {#each PRESETS as preset}
-        <button
-            class="swatch"
-            class:selected={isSelected(preset, $themeColor)}
-            style="background: {preset.hex}"
-            aria-label="Theme color: {preset.label}"
-            use:tooltip={preset.label}
-            on:click={() => selectPreset(preset)}
-        ></button>
-    {/each}
-    <label
-        class="swatch custom-swatch"
-        class:selected={!isPresetSelected}
-        style="background: {customDisplayHex}"
-        use:tooltip={"Custom color"}
+<button
+    class="theme-color-button"
+    type="button"
+    bind:this={buttonEl}
+    aria-label="Theme Color: {currentLabel}"
+    use:tooltip={"Change theme color"}
+    on:click={openDropdown}
+>
+    <span class="theme-button-icon">
+        <PaletteIcon size={26} />
+    </span>
+    <span class="theme-button-label">Theme Color</span>
+    <span
+        class="theme-button-swatch"
+        style="background: {currentHex}"
+    ></span>
+</button>
+
+<div use:portal class="theme-dropdown-portal" class:menu-open={dropdownOpen}>
+    <ContextMenu
+        x={dropdownX}
+        y={dropdownY}
+        isOpen={dropdownOpen}
+        title="Theme Color"
+        onClose={closeDropdown}
     >
-        <PaletteIcon size={16} />
-        <input
-            type="color"
-            value={oklchToHex(0.65, $themeColor.c, $themeColor.h)}
-            on:input={handleNativeColorChange}
-            class="native-color-input"
-        />
-    </label>
+        {#each PRESETS as preset}
+            <button
+                class="preset-item"
+                class:preset-selected={isSelected(preset, $themeColor)}
+                type="button"
+                on:click={() => selectPreset(preset)}
+            >
+                <span
+                    class="preset-swatch"
+                    style="background: {preset.hex}"
+                ></span>
+                <span class="preset-label">{preset.label}</span>
+                {#if isSelected(preset, $themeColor)}
+                    <span class="preset-check" aria-hidden="true"></span>
+                {/if}
+            </button>
+        {/each}
+        <button
+            class="preset-item"
+            type="button"
+            on:click={openCustomPicker}
+        >
+            <span
+                class="preset-swatch preset-swatch-custom"
+                style="background: {currentHex}"
+            ></span>
+            <span class="preset-label">Custom...</span>
+        </button>
+    </ContextMenu>
 </div>
 
-<style>
-    .color-swatches {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-        padding: var(--spacing-md) var(--spacing-lg);
-        background: var(--bg-raised);
-        border: var(--border-width) solid var(--border);
-        border-radius: var(--radius);
-    }
+<ColorPickerDialog
+    isOpen={pickerOpen}
+    initialColor={$themeColor}
+    onApply={handlePickerApply}
+    onCancel={handlePickerCancel}
+/>
 
-    .swatch {
-        width: 32px;
-        height: 32px;
-        border-radius: var(--radius-full);
-        border: 2px solid transparent;
+<style>
+    /* Button row (matches ToggleSwitch styling) */
+    .theme-color-button {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-lg);
+        width: 100%;
+        height: 40px;
+        padding: var(--spacing-md) var(--spacing-lg);
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        font-size: var(--font-base);
+        line-height: var(--leading);
         cursor: pointer;
-        display: grid;
-        place-items: center;
         transition:
             border-color var(--ease),
-            transform var(--ease);
+            color var(--ease),
+            background var(--ease),
+            transform var(--ease),
+            filter var(--ease);
+        text-align: left;
         -webkit-tap-highlight-color: transparent;
-        padding: 0;
-        flex-shrink: 0;
     }
 
-    .swatch:focus-visible {
+    .theme-color-button:focus-visible {
         outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 
     @media (hover: hover) {
-        .swatch:hover {
+        .theme-color-button:hover {
             filter: var(--brightness-hover);
         }
     }
 
-    .swatch:active {
-        transform: scale(0.9);
+    .theme-color-button:active {
+        transform: scale(0.97);
+        filter: var(--brightness-hover);
     }
 
-    .swatch.selected {
-        border-color: var(--text);
-        transform: scale(1.1);
+    .theme-button-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        flex-shrink: 0;
+        color: currentColor;
     }
 
-    .swatch.selected:active {
-        transform: scale(1.0);
-    }
-
-    .custom-swatch {
-        border: 2px dashed var(--border);
-        display: grid;
-        place-items: center;
-        color: var(--text-muted);
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
-
-    .custom-swatch.selected {
-        border-style: solid;
-        border-color: var(--text);
-    }
-
-    .native-color-input {
-        position: absolute;
-        opacity: 0;
+    .theme-button-icon :global(svg) {
         width: 100%;
         height: 100%;
+    }
+
+    .theme-button-label {
+        flex: 1;
+        user-select: none;
+    }
+
+    .theme-button-swatch {
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-full);
+        border: 2px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    /* Dropdown portal */
+    .theme-dropdown-portal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+        z-index: var(--z-index-context-menu-over-modal);
+    }
+
+    .theme-dropdown-portal.menu-open {
+        pointer-events: auto;
+    }
+
+    /* Preset items in dropdown */
+    .preset-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-lg);
+        width: 100%;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        min-height: 38px;
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        font-size: var(--font-base);
         cursor: pointer;
-        inset: 0;
+        text-align: left;
+        transition:
+            filter var(--ease),
+            transform var(--ease);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (hover: hover) {
+        .preset-item:hover {
+            filter: var(--brightness-hover);
+        }
+    }
+
+    .preset-item:active {
+        filter: var(--brightness-hover);
+    }
+
+    .preset-item:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
+    .preset-selected {
+        border-color: var(--accent);
+        color: var(--text);
+    }
+
+    .preset-swatch {
+        width: 18px;
+        height: 18px;
+        border-radius: var(--radius-full);
+        border: 2px solid var(--border-subtle);
+        flex-shrink: 0;
+    }
+
+    .preset-swatch-custom {
+        border-style: dashed;
+    }
+
+    .preset-label {
+        flex: 1;
+        user-select: none;
+    }
+
+    .preset-check {
+        width: 8px;
+        height: 8px;
+        border-radius: var(--radius-full);
+        background: var(--accent);
+        flex-shrink: 0;
     }
 </style>

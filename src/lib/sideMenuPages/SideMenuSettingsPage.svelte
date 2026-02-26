@@ -144,18 +144,6 @@
 
 <SideMenuPreviewSection />
 
-<SideMenuSection title="Theme">
-    <ThemeColorSelector />
-    <ToggleSwitch
-        checked={$darkMode}
-        label={$darkMode ? "Dark Mode" : "Light Mode"}
-        ariaLabel="Toggle dark or light mode"
-        tooltipText="Switch between dark and light color scheme"
-        icon={($darkMode ? MoonIcon : SunIcon) as unknown as Component}
-        onToggle={() => darkMode.toggle()}
-    />
-</SideMenuSection>
-
 <SideMenuSection title="Build">
     <BuildPresetsButton disabled={$isPreviewMode} />
     <TechCrystalsButton disabled={$isPreviewMode} />
@@ -225,6 +213,15 @@
 </SideMenuSection>
 
 <SideMenuSection title="Application">
+    <ThemeColorSelector />
+    <ToggleSwitch
+        checked={$darkMode}
+        label={$darkMode ? "Dark Mode" : "Light Mode"}
+        ariaLabel="Toggle dark or light mode"
+        tooltipText="Switch between dark and light color scheme"
+        icon={($darkMode ? MoonIcon : SunIcon) as unknown as Component}
+        onToggle={() => darkMode.toggle()}
+    />
     <FullscreenToggle />
     <InstallPwaButton title={true} />
     <Button
