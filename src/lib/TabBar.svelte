@@ -66,7 +66,7 @@
         color: var(--text-muted);
         border-radius: 0;
         height: var(--side-menu-tab-height);
-        padding: 4px 6px;
+        padding: var(--spacing-sm);
         display: flex;
         flex-direction: column;
         align-items: center;

@@ -131,7 +131,7 @@
     .codeblock-table__table td {
         border-top: var(--border-width) solid var(--border-subtle);
         border-left: var(--border-width) solid var(--border-subtle);
-        padding: 6px 8px;
+        padding: var(--spacing-sm) var(--spacing-md);
         text-align: left;
     }
 

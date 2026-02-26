@@ -326,7 +326,7 @@
         background: var(--bg-panel);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
-        padding: 8px;
+        padding: var(--spacing-md);
         display: grid;
         gap: 6px;
         z-index: var(--z-index-context-menu);
@@ -355,7 +355,7 @@
         letter-spacing: var(--tracking);
         text-transform: uppercase;
         color: var(--text-disabled);
-        padding-left: 4px;
+        padding-left: var(--spacing-sm);
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;

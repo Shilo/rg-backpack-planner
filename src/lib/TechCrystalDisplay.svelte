@@ -42,7 +42,7 @@
         display: inline-flex;
         align-items: center;
         gap: 2px;
-        padding: 6px 10px 6px 12px;
+        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-lg);
         font-weight: var(--weight-bold);
         font-size: var(--font-lg) !important;
         letter-spacing: var(--tracking);

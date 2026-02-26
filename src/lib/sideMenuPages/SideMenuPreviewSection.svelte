@@ -23,13 +23,13 @@
         background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 20%, transparent);
         border-bottom-left-radius: var(--radius);
         border-bottom-right-radius: var(--radius);
-        padding-top: 8px;
+        padding-top: var(--spacing-md);
         margin-top: 0px !important;
-        padding-bottom: 7px !important;
+        padding-bottom: var(--spacing-md) !important;
         margin-bottom: -7px;
-        padding-left: 10px;
+        padding-left: var(--spacing-md);
         margin-left: -10px;
-        padding-right: 10px;
+        padding-right: var(--spacing-md);
         margin-right: -10px;
     }
 </style>

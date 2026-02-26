@@ -123,7 +123,7 @@
         letter-spacing: var(--tracking);
         text-transform: uppercase;
         color: var(--text-disabled);
-        padding-left: 4px;
+        padding-left: var(--spacing-sm);
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;

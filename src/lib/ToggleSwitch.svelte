@@ -49,7 +49,7 @@
         gap: 10px;
         width: 100%;
         height: 40px;
-        padding: 10px 12px;
+        padding: var(--spacing-md) var(--spacing-lg);
         border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius);

@@ -163,7 +163,7 @@
     .modal-content {
         display: grid;
         gap: 12px;
-        padding: 10px;
+        padding: var(--spacing-md);
     }
 
     .modal-header {
@@ -222,7 +222,7 @@
         background: var(--bg-input);
         color: var(--text-muted);
         font-size: var(--font-base);
-        padding: 0 10px;
+        padding: 0 var(--spacing-md);
         text-transform: none;
     }
 

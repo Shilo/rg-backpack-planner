@@ -282,7 +282,7 @@
         color: white;
         text-shadow: var(--shadow-text);
         background: rgba(0, 0, 0, 0.4);
-        padding: 2px 4px;
+        padding: var(--spacing-sm);
         border-radius: var(--radius);
         transform-origin: center bottom;
     }

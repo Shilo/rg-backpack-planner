@@ -215,7 +215,7 @@
     .modal-content {
         display: grid;
         gap: 12px;
-        padding: 10px;
+        padding: var(--spacing-md);
     }
 
     :global(.modal-shell) {

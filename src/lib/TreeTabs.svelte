@@ -537,7 +537,7 @@
 
     :global(.tab-buttons button) {
         color: var(--text-muted);
-        padding: 0 10px;
+        padding: 0 var(--spacing-md);
         height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;

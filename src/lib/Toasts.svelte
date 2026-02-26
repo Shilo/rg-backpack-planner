@@ -79,7 +79,7 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 10px 12px;
+        padding: var(--spacing-md) var(--spacing-lg);
         width: fit-content;
         border-radius: var(--radius);
         background: var(--bg-raised);

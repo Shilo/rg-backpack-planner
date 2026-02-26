@@ -92,7 +92,7 @@
     .modal-content {
         display: grid;
         gap: 12px;
-        padding: 10px;
+        padding: var(--spacing-md);
     }
 
     .modal-header {
@@ -138,7 +138,7 @@
 
     .modal-input {
         width: 100%;
-        padding: 10px 12px;
+        padding: var(--spacing-md) var(--spacing-lg);
         background: var(--bg-input);
         border: var(--border-width) solid var(--border-subtle);
         border-radius: var(--radius);

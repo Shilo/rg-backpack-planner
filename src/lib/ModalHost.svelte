@@ -185,7 +185,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 16px;
+        padding: var(--spacing-lg);
         z-index: var(--z-index-modal);
     }
 

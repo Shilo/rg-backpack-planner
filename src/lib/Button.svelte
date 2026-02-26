@@ -192,7 +192,7 @@
     .button-md {
         min-height: 38px;
         min-width: 38px;
-        padding: 4px 12px;
+        padding: var(--spacing-sm) var(--spacing-lg);
         font-size: var(--font-base);
     }
 

@@ -140,7 +140,7 @@
 
 <style>
     .node-stats {
-        padding: 8px 12px;
+        padding: var(--spacing-md) var(--spacing-lg);
         border-bottom: var(--border-width) solid var(--border-subtle);
         display: flex;
         align-items: flex-start;

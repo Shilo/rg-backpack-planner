@@ -68,7 +68,7 @@
         font-size: var(--font-base) !important;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        padding: 6px 12px;
+        padding: var(--spacing-sm) var(--spacing-lg);
         pointer-events: auto;
         gap: 4px !important;
     }
