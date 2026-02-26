@@ -2,9 +2,9 @@ import { mount } from "svelte";
 import "./theme.css";
 import "./app.css";
 import App from "./App.svelte";
-import { applyTheme } from "./lib/themeEngine";
+import { initThemeReactivity } from "./lib/themeApply";
 
-applyTheme();
+initThemeReactivity();
 
 const app = mount(App, {
     target: document.getElementById("app")!,

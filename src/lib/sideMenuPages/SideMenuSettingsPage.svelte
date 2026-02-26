@@ -5,6 +5,8 @@
         ClockCounterClockwiseIcon,
         CubeFocusIcon,
         MagnifyingGlassPlusIcon,
+        MoonIcon,
+        SunIcon,
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
@@ -19,6 +21,9 @@
     import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
     import PreviewBuildsDropdown from "../buttons/PreviewBuildsDropdown.svelte";
     import { closeUpView } from "../closeUpViewStore";
+    import { darkMode } from "../darkModeStore";
+    import { themeColor } from "../themeColorStore";
+    import ThemeColorSelector from "../ThemeColorSelector.svelte";
     import { openModal } from "../modalStore";
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
     import { isPreviewMode } from "../previewModeStore";
@@ -83,6 +88,8 @@
             onConfirm: () => {
                 singleLevelUp.resetToDefault();
                 closeUpView.resetToDefault();
+                themeColor.resetToDefault();
+                darkMode.resetToDefault();
 
                 showToast("Settings reset to defaults");
                 onClose?.();
@@ -136,6 +143,18 @@
 </script>
 
 <SideMenuPreviewSection />
+
+<SideMenuSection title="Theme">
+    <ThemeColorSelector />
+    <ToggleSwitch
+        checked={$darkMode}
+        label={$darkMode ? "Dark Mode" : "Light Mode"}
+        ariaLabel="Toggle dark or light mode"
+        tooltipText="Switch between dark and light color scheme"
+        icon={($darkMode ? MoonIcon : SunIcon) as unknown as Component}
+        onToggle={() => darkMode.toggle()}
+    />
+</SideMenuSection>
 
 <SideMenuSection title="Build">
     <BuildPresetsButton disabled={$isPreviewMode} />

@@ -24,16 +24,6 @@
     --radius: 12px;
     --radius-full: 999px;
 
-    /* Shadows (non-color portion — color shadows set by themeEngine) */
-    --shadow-text:
-        0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.6),
-        1px 0 2px rgba(0, 0, 0, 0.9), -1px 0 2px rgba(0, 0, 0, 0.9);
-
-    /* Brightness / Filter */
-    --brightness-hover: brightness(1.2);
-    --node-brightness-locked: brightness(0.4);
-    --node-brightness-available: brightness(0.5);
-
     /* Transitions */
     --ease: 0.2s ease;
 
