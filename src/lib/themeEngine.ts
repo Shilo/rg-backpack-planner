@@ -69,20 +69,6 @@ function oklchToHex(L: number, C: number, H: number): string {
     return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
-// ── Tonal Palette ───────────────────────────────────────────
-
-function tonalPalette(
-    hue: number,
-    chroma: number,
-    tones: number[],
-): Map<number, string> {
-    const map = new Map<number, string>();
-    for (const t of tones) {
-        map.set(t, oklchToHex(t / 100, chroma, hue));
-    }
-    return map;
-}
-
 // ── Hue Harmonization ───────────────────────────────────────
 
 function harmonize(regionHue: number, sourceHue: number, amount = 0.15): number {
@@ -95,8 +81,14 @@ function harmonize(regionHue: number, sourceHue: number, amount = 0.15): number 
 
 // ── Theme Application ───────────────────────────────────────
 
-export function applyTheme(sourceHex = "#4c6fff"): void {
-    const [r, g, b] = hexToRgb(sourceHex);
+export function applyTheme(sourceHex?: string): void {
+    const hex =
+        sourceHex ??
+        (getComputedStyle(document.documentElement)
+            .getPropertyValue("--theme-source")
+            .trim() ||
+            "#4c6fff");
+    const [r, g, b] = hexToRgb(hex);
     const source = rgbToOklch(r, g, b);
 
     const vars: Record<string, string> = {};

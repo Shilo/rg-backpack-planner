@@ -1,74 +1,6 @@
 :root {
-    /* ═══ Color Fallbacks (pre-computed from #4c6fff, overridden by themeEngine.ts) ═══ */
-
-    /* Neutral surfaces */
-    --bg: #090b11;
-    --bg-panel: #0f1118;
-    --bg-input: #16181f;
-    --surface: #1d1f26;
-    --bg-raised: #24262e;
-    --border: #383a42;
-    --border-subtle: #2b2e35;
-
-    /* Text */
-    --text: #e3e8f5;
-    --text-muted: #b3b7c4;
-    --text-disabled: #6d717d;
-
-    /* Primary accent */
-    --accent: #6c8bff;
-    --accent-light: #8fb3ff;
-    --border-focus: #7a9cff;
-
-    /* Danger */
-    --accent-danger: #f17262;
-    --danger-bg: #330c08;
-    --danger-border: #9b2018;
-    --danger-text: #ffb6aa;
-
-    /* Success */
-    --accent-success: #2fb5d8;
-    --success-bg: #001f2a;
-    --success-border: #006283;
-    --success-text: #98d9ef;
-
-    /* Node locked */
-    --node-locked-bg: #27292c;
-    --node-locked-border: #414246;
-    --node-locked-text: #67696d;
-
-    /* Region palettes */
-    --region-orange-accent: #ff7254;
-    --region-orange-light: #ff9d7d;
-    --region-orange-bg-available: #3a0100;
-    --region-orange-bg-active: #580e01;
-    --region-orange-bg-maxed: #771e0b;
-    --region-orange-text: #ff9f88;
-    --region-orange-text-maxed: #ffc9b7;
-
-    --region-yellow-accent: #8cb534;
-    --region-yellow-light: #b5e063;
-    --region-yellow-bg-available: #122000;
-    --region-yellow-bg-active: #223500;
-    --region-yellow-bg-maxed: #344c00;
-    --region-yellow-text: #accb7a;
-    --region-yellow-text-maxed: #d1e8ae;
-
-    --region-blue-accent: #65a5ff;
-    --region-blue-light: #8dcfff;
-    --region-blue-bg-available: #01193c;
-    --region-blue-bg-active: #0b2c5a;
-    --region-blue-bg-maxed: #194179;
-    --region-blue-text: #93c0ff;
-    --region-blue-text-maxed: #bfe0ff;
-
-    /* Shadows */
-    --shadow: 0 8px 20px #090b1180;
-    --shadow-node: 0 4px 10px #090b1180;
-    --shadow-node-hex: 0 4px 5px #090b11;
-    --shadow-text:
-        0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.6),
-        1px 0 2px rgba(0, 0, 0, 0.9), -1px 0 2px rgba(0, 0, 0, 0.9);
+    /* ═══ Theme Source Color ═══ */
+    --theme-source: #4c6fff;
 
     /* ═══ Layout ═══ */
 
@@ -94,6 +26,11 @@
     /* Border radius */
     --radius: 12px;
     --radius-full: 999px;
+
+    /* Shadows (non-color portion — color shadows set by themeEngine) */
+    --shadow-text:
+        0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.6),
+        1px 0 2px rgba(0, 0, 0, 0.9), -1px 0 2px rgba(0, 0, 0, 0.9);
 
     /* Brightness / Filter */
     --brightness-hover: brightness(1.2);
