@@ -104,7 +104,7 @@
             previewDark = get(darkMode);
 
             // Initialize grid selection (compute accentL inline to avoid cycle)
-            const initL = previewDark ? 0.70 : 0.45;
+            const initL = initialColor.l ?? (previewDark ? 0.70 : 0.45);
             selectedL = initL;
             if (c < 0.015) {
                 gridSelectedRow = 0;
@@ -130,7 +130,7 @@
 
     // Live preview
     $: if (isOpen) {
-        applyTheme({ h, c }, previewDark ? "dark" : "light");
+        applyTheme({ h, c, l: selectedL }, previewDark ? "dark" : "light");
     }
 
     // ── Grayscale row pointer events ──
@@ -256,8 +256,8 @@
         triggerHaptic();
         const realDark = get(darkMode);
         const savedH = c < 0.015 ? 0 : h;
-        applyTheme({ h: savedH, c }, realDark ? "dark" : "light");
-        onApply?.({ h: savedH, c });
+        applyTheme({ h: savedH, c, l: selectedL }, realDark ? "dark" : "light");
+        onApply?.({ h: savedH, c, l: selectedL });
     }
 
     function handleCancel() {

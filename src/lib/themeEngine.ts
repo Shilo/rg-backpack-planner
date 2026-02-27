@@ -91,6 +91,7 @@ function harmonize(regionHue: number, sourceHue: number, amount: number): number
 export interface ThemeSource {
     h: number; // hue 0–360
     c: number; // chroma 0–0.4+
+    l?: number; // optional accent lightness 0–1
 }
 
 // ── Theme Application ───────────────────────────────────────
@@ -139,13 +140,15 @@ export function applyTheme(
 
     // ── Primary accent ──
     if (isDark) {
-        vars["--accent"] = oklchToHex(0.70, source.c, source.h);
-        vars["--accent-light"] = oklchToHex(0.82, source.c, source.h);
-        vars["--border-focus"] = oklchToHex(0.75, source.c, source.h);
+        const accentL = source.l ?? 0.70;
+        vars["--accent"] = oklchToHex(accentL, source.c, source.h);
+        vars["--accent-light"] = oklchToHex(Math.min(accentL + 0.12, 0.95), source.c, source.h);
+        vars["--border-focus"] = oklchToHex(Math.min(accentL + 0.05, 0.95), source.c, source.h);
     } else {
-        vars["--accent"] = oklchToHex(0.45, source.c, source.h);
-        vars["--accent-light"] = oklchToHex(0.55, source.c, source.h);
-        vars["--border-focus"] = oklchToHex(0.50, source.c, source.h);
+        const accentL = source.l ?? 0.45;
+        vars["--accent"] = oklchToHex(accentL, source.c, source.h);
+        vars["--accent-light"] = oklchToHex(Math.min(accentL + 0.10, 0.95), source.c, source.h);
+        vars["--border-focus"] = oklchToHex(Math.min(accentL + 0.05, 0.95), source.c, source.h);
     }
 
     // ── Error/Danger ──

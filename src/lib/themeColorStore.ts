@@ -3,6 +3,7 @@ import { writable } from "svelte/store";
 export interface ThemeColor {
     h: number;
     c: number;
+    l?: number;
 }
 
 const STORAGE_KEY = "rg-backpack-planner-theme-color";
@@ -24,7 +25,11 @@ function getThemeColor(): ThemeColor {
             parsed.c >= 0 &&
             parsed.c <= 0.5
         ) {
-            return parsed;
+            const result: ThemeColor = { h: parsed.h, c: parsed.c };
+            if (typeof parsed.l === "number" && parsed.l >= 0 && parsed.l <= 1) {
+                result.l = parsed.l;
+            }
+            return result;
         }
     } catch {
         // ignore malformed data
