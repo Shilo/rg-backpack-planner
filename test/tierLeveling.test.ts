@@ -520,4 +520,69 @@ const child: Node = {
     }
 })();
 
+(function yellowLeafParentConsistency() {
+    // Focus on the second-to-last yellow node (index 8) and its leaf (index 9).
+    const nodes: Node[] = [
+        { skillId: "attack_boost", maxLevel: 100, radius: 1, x: 0, y: 0 },
+        { skillId: "hp_boost", parent: 0, maxLevel: 100, radius: 1, x: 0, y: 10 },
+        { skillId: "defense_boost", parent: 0, maxLevel: 100, radius: 1, x: -10, y: 0 },
+        { skillId: "skill_crit", parent: 1, maxLevel: 100, radius: 1, x: 5, y: 20 },
+        { skillId: "ignore_dodge", parent: 1, maxLevel: 100, radius: 1, x: -5, y: 20 },
+        { skillId: "pierce_resistance", parent: 2, maxLevel: 100, radius: 1, x: -15, y: 10 },
+        { skillId: "dodge", parent: 2, maxLevel: 100, radius: 1, x: -20, y: 0 },
+        { skillId: "global_def", parent: [3, 4], maxLevel: 50, radius: 1, x: 0, y: 30 },
+        { skillId: "global_hp", parent: [5, 6], maxLevel: 50, radius: 1, x: -25, y: 10 }, // target node
+        { skillId: "final_damage_boost", parent: [7, 8], maxLevel: 1, radius: 1, x: -15, y: 25 }, // leaf
+    ];
+
+    const targetIndex = 8;
+    const leafIndex = 9;
+
+    const assertState = (levels: LevelsByIndex) => {
+        // Leaf stays in its domain (0 or 1).
+        const leafLevel = levels[leafIndex] ?? 0;
+        assert(leafLevel === 0 || leafLevel === 1, "leaf level must be 0 or 1");
+
+        // Target node may not exceed its unlocked tier.
+        const targetTier = tierIndex(levels[targetIndex] ?? 0, nodes[targetIndex].maxLevel);
+        const unlockedTarget = unlockedTierForNode(nodes, levels, targetIndex);
+        assert(
+            targetTier <= unlockedTarget,
+            `node 8 tier ${targetTier} exceeds unlocked ${unlockedTarget}`,
+        );
+
+        // Every parent of node 8 must be at least the same tier as node 8.
+        const parents = [5, 6];
+        parents.forEach((pi) => {
+            const parentTier = tierIndex(levels[pi] ?? 0, nodes[pi].maxLevel);
+            assert(
+                parentTier >= targetTier,
+                `parent ${pi} tier ${parentTier} below node8 tier ${targetTier}`,
+            );
+        });
+
+        // Leaf must not exceed its unlocked tier (min of parents 7 and 8).
+        const leafTier = tierIndex(leafLevel, nodes[leafIndex].maxLevel);
+        const unlockedLeaf = unlockedTierForNode(nodes, levels, leafIndex);
+        assert(
+            leafTier <= unlockedLeaf,
+            `leaf tier ${leafTier} exceeds unlocked ${unlockedLeaf}`,
+        );
+    };
+
+    let levels: LevelsByIndex = Array(nodes.length).fill(0);
+
+    // Increment node 8 by +20 until max (50).
+    for (const target of [20, 40, 50]) {
+        levels = applyLevelChange({ nodes, levels, index: targetIndex, targetLevel: target }).levels;
+        assertState(levels);
+    }
+
+    // Decrement node 8 by -20 until 0.
+    for (const target of [30, 10, 0]) {
+        levels = applyLevelChange({ nodes, levels, index: targetIndex, targetLevel: target }).levels;
+        assertState(levels);
+    }
+})();
+
 console.log("tierLeveling tests passed");
