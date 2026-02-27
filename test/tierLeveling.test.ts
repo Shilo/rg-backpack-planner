@@ -403,4 +403,62 @@ const child: Node = {
     assertEqual(next[1], 0, "child clamped to tier 0 cap");
 })();
 
+(function incrementDecrementSymmetry() {
+    // Both processIncrease and clampDescendants use the same formula for the
+    // child level threshold: tierUpper(parentTier - 1, childMaxLevel).
+    // Verify at every tier boundary for multiple maxLevel combinations.
+
+    const p100: Node = { skillId: "attack_boost", maxLevel: 100, radius: 1, x: 0, y: 0 };
+    const c100: Node = { skillId: "hp_boost", parent: 0, maxLevel: 100, radius: 1, x: 0, y: 0 };
+
+    // maxLevel=100 parent + child (tierSize=20, boundaries at 20/40/60/80/100)
+    // At tier T the child threshold is tierUpper(T-1, 100)
+    const cases100: { tier: number; incTarget: number; decFrom: LevelsByIndex; decTarget: number; expected: number }[] = [
+        { tier: 2, incTarget: 21, decFrom: [41, 40], decTarget: 21, expected: 20 },
+        { tier: 3, incTarget: 41, decFrom: [61, 60], decTarget: 41, expected: 40 },
+        { tier: 4, incTarget: 61, decFrom: [81, 80], decTarget: 61, expected: 60 },
+    ];
+    for (const { tier, incTarget, decFrom, decTarget, expected } of cases100) {
+        const inc = applyLevelChange({ nodes: [p100, c100], levels: [0, 0], index: 0, targetLevel: incTarget });
+        assertEqual(inc.levels[1], expected, `100/100 inc tier${tier}: child → ${expected}`);
+        const dec = applyLevelChange({ nodes: [p100, c100], levels: decFrom, index: 0, targetLevel: decTarget });
+        assertEqual(dec.levels[1], expected, `100/100 dec tier${tier}: child → ${expected}`);
+    }
+
+    // Tier 1 boundary: child threshold = tierUpper(0, 100) = 0
+    {
+        const inc = applyLevelChange({ nodes: [p100, c100], levels: [0, 0], index: 0, targetLevel: 1 });
+        assertEqual(inc.levels[1], 0, "100/100 inc tier1: child stays 0");
+        const dec = applyLevelChange({ nodes: [p100, c100], levels: [21, 20], index: 0, targetLevel: 20 });
+        assertEqual(dec.levels[1], 0, "100/100 dec tier1: child clamped to 0");
+    }
+
+    // maxLevel=100 parent, maxLevel=1 child
+    const c1: Node = { skillId: "final_damage_boost", parent: 0, maxLevel: 1, radius: 1, x: 0, y: 0 };
+    {
+        // Tier 2: tierUpper(1, 1) = 1
+        const inc = applyLevelChange({ nodes: [p100, c1], levels: [0, 0], index: 0, targetLevel: 21 });
+        assertEqual(inc.levels[1], 1, "100/1 inc tier2: child raised to 1");
+        const dec = applyLevelChange({ nodes: [p100, c1], levels: [41, 1], index: 0, targetLevel: 21 });
+        assertEqual(dec.levels[1], 1, "100/1 dec tier2: child stays 1");
+    }
+    {
+        // Tier 1: tierUpper(0, 1) = 0
+        const inc = applyLevelChange({ nodes: [p100, c1], levels: [0, 0], index: 0, targetLevel: 1 });
+        assertEqual(inc.levels[1], 0, "100/1 inc tier1: child stays 0");
+        const dec = applyLevelChange({ nodes: [p100, c1], levels: [21, 1], index: 0, targetLevel: 20 });
+        assertEqual(dec.levels[1], 0, "100/1 dec tier1: child clamped to 0");
+    }
+
+    // maxLevel=50 parent, maxLevel=100 child (different tierSizes)
+    const p50: Node = { skillId: "global_def", maxLevel: 50, radius: 1, x: 0, y: 0 };
+    {
+        // Tier 2 (parent level 11): child threshold = tierUpper(1, 100) = 20
+        const inc = applyLevelChange({ nodes: [p50, c100], levels: [0, 0], index: 0, targetLevel: 11 });
+        assertEqual(inc.levels[1], 20, "50/100 inc tier2: child raised to 20");
+        const dec = applyLevelChange({ nodes: [p50, c100], levels: [21, 40], index: 0, targetLevel: 11 });
+        assertEqual(dec.levels[1], 20, "50/100 dec tier2: child clamped to 20");
+    }
+})();
+
 console.log("tierLeveling tests passed");
