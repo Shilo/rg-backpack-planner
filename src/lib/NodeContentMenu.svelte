@@ -198,17 +198,24 @@
 
     .level-progress-bar {
         height: 100%;
-        background-image: linear-gradient(90deg, var(--accent), var(--accent-light)),
-            repeating-linear-gradient(
-                90deg,
-                transparent,
-                transparent calc(20% - 1px),
-                rgba(0, 0, 0, 0.25) calc(20% - 1px),
-                rgba(0, 0, 0, 0.25) 20%
-            );
-        background-blend-mode: overlay;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
         border-radius: 4px;
         transition: width var(--ease);
+        position: relative;
+    }
+
+    .level-progress::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent calc(20% - 0.5px),
+            rgba(0, 0, 0, 0.35) calc(20% - 0.5px),
+            rgba(0, 0, 0, 0.35) 20%
+        );
+        pointer-events: none;
     }
 
     .button-grid {
