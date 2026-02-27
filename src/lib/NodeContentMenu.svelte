@@ -87,15 +87,16 @@
                 <span class="stat-value">
                     {(() => {
                         const totalTiers = maxLevel > 1 ? 5 : 1;
-                        const displayMax =
-                            totalTiers === 1 ? 1 : totalTiers - 1; // 4 for multi-tier, 1 for single-tier
-                        if (totalTiers === 1)
-                            return Math.min(1, level > 0 ? 1 : 0);
-                        const chunk = Math.ceil(maxLevel / 5);
-                        return Math.min(displayMax, Math.floor(level / chunk));
+                        if (maxLevel <= 0) return 0;
+                        if (totalTiers === 1) return level > 0 ? 1 : 0;
+
+                        const chunk = maxLevel / totalTiers;
+                        const tier = Math.floor(level / chunk);
+
+                        return Math.min(totalTiers, tier);
                     })()}
                     /
-                    {maxLevel > 1 ? 4 : 1}
+                    {maxLevel > 1 ? 5 : 1}
                 </span>
             </div>
             <div
