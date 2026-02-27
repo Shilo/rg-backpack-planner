@@ -17,6 +17,13 @@ function assertEqual<T>(actual: T, expected: T, message?: string) {
     }
 }
 
+function assertLevelsEqual(actual: LevelsByIndex, expected: LevelsByIndex, message?: string) {
+    assertEqual(actual.length, expected.length, message ?? "levels length mismatch");
+    actual.forEach((value, idx) => {
+        assertEqual(value, expected[idx], `${message ?? "levels mismatch"} [${idx}]`);
+    });
+}
+
 // Simple tree helpers
 const root: Node = {
     skillId: "attack_boost",
@@ -583,6 +590,39 @@ const child: Node = {
         levels = applyLevelChange({ nodes, levels, index: targetIndex, targetLevel: target }).levels;
         assertState(levels);
     }
+})();
+
+(function childIncrementDecrementRestoresSnapshot() {
+    const nodes: Node[] = [root, child];
+    let levels: LevelsByIndex = [0, 0];
+
+    // Level first node (parent) by +30
+    let result = applyLevelChange({ nodes, levels, index: 0, targetLevel: 30 });
+    levels = result.levels;
+    const snapshot = levels.slice();
+    assertEqual(snapshot[0], 30, "parent leveled to 30");
+    assertEqual(snapshot[1], 20, "child raised to tier1 cap after parent +30");
+
+    // Level second node (child) by +10
+    result = applyLevelChange({
+        nodes,
+        levels,
+        index: 1,
+        targetLevel: levels[1] + 10,
+    });
+    levels = result.levels;
+    assertEqual(levels[1], 30, "child leveled to 30 after +10");
+    assertEqual(levels[0], 30, "parent unchanged during child +10");
+
+    // Level second node (child) by -10
+    result = applyLevelChange({
+        nodes,
+        levels,
+        index: 1,
+        targetLevel: levels[1] - 10,
+    });
+    levels = result.levels;
+    assertLevelsEqual(levels, snapshot, "tree restored to snapshot after child decrement");
 })();
 
 console.log("tierLeveling tests passed");
