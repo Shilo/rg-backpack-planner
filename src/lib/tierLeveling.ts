@@ -169,9 +169,15 @@ export function applyLevelChange(params: {
 
     const ensureParentsForTier = (i: number, tier: number) => {
         if (tier <= 0) return;
-        const requiredLevel = tierUpper(tier - 1, nodes[i].maxLevel);
         const parents = parentIndices(nodes[i]);
-        parents.forEach((pi) => ensureAtLeast(pi, requiredLevel));
+        parents.forEach((pi) => {
+            const requiredLevel = tierUpper(tier, nodes[pi].maxLevel);
+            if (ensureAtLeast(pi, requiredLevel)) {
+                ensureParentsForTier(pi, tier);
+            } else {
+                ensureParentsForTier(pi, tier);
+            }
+        });
     };
 
     const currentLevel = next[index] ?? 0;

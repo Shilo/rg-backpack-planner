@@ -48,7 +48,7 @@ const child: Node = {
     const nodes: Node[] = [root, child];
     const levels: LevelsByIndex = [0, 0];
     const { levels: next } = applyLevelChange({ nodes, levels, index: 1, targetLevel: 21 });
-    assertEqual(next[0], 20, "parent raised to prev tier cap");
+    assertEqual(next[0], 40, "parent raised to child tier cap");
     assertEqual(next[1], 21, "child set to target");
 })();
 
@@ -65,8 +65,8 @@ const child: Node = {
     const levels: LevelsByIndex = [0, 0];
     const { levels: next } = applyLevelChange({ nodes, levels, index: 1, targetLevel: 100 });
     assertEqual(next[1], 100, "child maxed");
-    // child enters tiers 1-5, so parent should end at tier4 cap = 80
-    assertEqual(next[0], 80, "parent raised to tier4 cap");
+    // parent should be raised to child's tier cap (tier5) = 100
+    assertEqual(next[0], 100, "parent raised to child max tier cap");
 })();
 
 (function downwardClamp() {
@@ -105,9 +105,9 @@ const child: Node = {
     const unlocked = unlockedTierForNode(nodes, levels, 2);
     assertEqual(unlocked, 1, "min parent tier used");
     const result = applyLevelChange({ nodes, levels, index: 2, targetLevel: 21 });
-    // child can be leveled but cascade should raise parents only to prev tier (tier1 -> 20)
+    // child leveled to tier2 -> parents raised to tier2 cap (40)
     assertEqual(result.levels[0], 40, "parent a unchanged (already higher)");
-    assertEqual(result.levels[1], 20, "parent b raised to prev tier cap");
+    assertEqual(result.levels[1], 40, "parent b raised to tier2 cap");
 })();
 
 (function childlessCascadeRaisesAll() {
@@ -172,6 +172,53 @@ const child: Node = {
     assertEqual(next[3], 20, "locked grandchild raised to tier1 cap even while visually locked");
 })();
 
+(function availabilityRequiresTier0Cap() {
+    const parent: Node = {
+        skillId: "attack_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const child: Node = {
+        skillId: "hp_boost",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const nodes: Node[] = [parent, child];
+    let levels: LevelsByIndex = [1, 0];
+    let available = levels[0] >= tierUpper(1, parent.maxLevel);
+    assertEqual(available, false, "child locked when parent below tier0 cap");
+    levels = [20, 0];
+    available = levels[0] >= tierUpper(1, parent.maxLevel);
+    assertEqual(available, true, "child available when parent hits tier0 cap");
+})();
+
+(function availabilityCapRespectsMax50() {
+    const parent: Node = {
+        skillId: "global_def",
+        maxLevel: 50,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const child: Node = {
+        skillId: "global_hp",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const nodes: Node[] = [parent, child];
+    const needed = tierUpper(1, parent.maxLevel);
+    assertEqual(5 >= needed, false, "below tier0 cap");
+    assertEqual(10 >= needed, true, "at tier0 cap");
+})();
+
 (function enforceParentsWithinSameTier() {
     const parent: Node = {
         skillId: "attack_boost",
@@ -196,8 +243,71 @@ const child: Node = {
         index: 1,
         targetLevel: 26,
     });
-    assertEqual(next[0], 20, "parent raised to previous tier cap even without child tier change");
+    assertEqual(next[0], 40, "parent raised to child's tier cap even without child tier change");
     assertEqual(next[1], 26, "child leveled");
+})();
+
+(function parentRaisedOnTier0LevelUp() {
+    const parent: Node = {
+        skillId: "attack_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const child: Node = {
+        skillId: "hp_boost",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const nodes: Node[] = [parent, child];
+    const { levels: next } = applyLevelChange({
+        nodes,
+        levels: [0, 0],
+        index: 1,
+        targetLevel: 1,
+    });
+    assertEqual(next[0], 20, "parent raised to tier0 cap on child tier0 level up");
+    assertEqual(next[1], 1, "child leveled to 1");
+})();
+
+(function grandparentsRaisedToChildTier() {
+    const grand: Node = {
+        skillId: "defense_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const parent: Node = {
+        skillId: "attack_boost",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const child: Node = {
+        skillId: "hp_boost",
+        parent: 1,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const nodes: Node[] = [grand, parent, child];
+    const { levels: next } = applyLevelChange({
+        nodes,
+        levels: [0, 0, 0],
+        index: 2,
+        targetLevel: 21,
+    });
+    assertEqual(next[2], 21, "child leveled to tier1");
+    assertEqual(next[1], 40, "parent raised to child tier cap (tier1 -> 40)");
+    assertEqual(next[0], 40, "grandparent also raised to same tier cap");
 })();
 
 (function branchIsolation() {

@@ -25,10 +25,7 @@
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { closeUpView } from "./closeUpViewStore";
     import { singleLevelUp } from "./singleLevelUpStore";
-    import {
-        applyLevelChange,
-        unlockedTierForNode,
-    } from "./tierLeveling";
+    import { applyLevelChange, tierUpper } from "./tierLeveling";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
 
     export let nodes: NodeType[] = [];
@@ -200,8 +197,15 @@
         index: number,
         levelsSnapshot: LevelsByIndex,
     ): boolean {
-        const unlocked = unlockedTierForNode(nodes, levelsSnapshot, index);
-        return unlocked >= 1;
+        const parents = parentIndices(node);
+        if (parents.length === 0) return true;
+        return parents.every((pi) => {
+            const parent = getNodeAt(pi);
+            if (!parent) return false;
+            const level = getLevelFrom(levelsSnapshot, pi);
+            const needed = tierUpper(1, parent.maxLevel);
+            return level >= needed;
+        });
     }
 
     function getState(
