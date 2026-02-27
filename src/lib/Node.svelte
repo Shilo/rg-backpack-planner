@@ -10,6 +10,7 @@
         PlusIcon,
     } from "phosphor-svelte";
     import Button from "./Button.svelte";
+    import NodeFlash from "./NodeFlash.svelte";
     import { formatNumber } from "./mathUtil";
 
     export let id: number;
@@ -58,6 +59,7 @@
                 >T{tier}</span
             >
         {/if}
+        <NodeFlash {level} {isLeaf} />
     </Button>
 </div>
 
@@ -106,6 +108,7 @@
 
         /* Base node styles */
         position: relative;
+        overflow: hidden;
         width: 64px;
         height: 64px;
         border-radius: var(--radius-full);
