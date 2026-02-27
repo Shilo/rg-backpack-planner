@@ -221,9 +221,14 @@
         <button
             class="icon-button"
             type="button"
-            aria-label={$darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={$darkMode
+                ? "Switch to light mode"
+                : "Switch to dark mode"}
             use:tooltip={"Switch between dark and light color scheme"}
-            on:click={() => { triggerHaptic(); darkMode.toggle(); }}
+            on:click={() => {
+                triggerHaptic();
+                darkMode.toggle();
+            }}
         >
             {#if $darkMode}
                 <MoonIcon size={26} />
@@ -283,7 +288,7 @@
     }
 
     .icon-button {
-        width: 36px;
+        width: 39px;
         height: 40px;
         display: grid;
         place-items: center;
