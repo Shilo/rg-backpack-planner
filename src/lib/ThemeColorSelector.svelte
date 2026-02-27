@@ -209,6 +209,12 @@
         flex-shrink: 0;
     }
 
+    /* Remove right border-radius when inside a button-group */
+    :global(.button-group) .theme-color-button {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
     /* Dropdown portal */
     .theme-dropdown-portal {
         position: fixed;
