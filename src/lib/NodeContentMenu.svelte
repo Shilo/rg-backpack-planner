@@ -46,7 +46,7 @@
         if (max <= 1) return "";
         const size = Math.ceil(max / 5);
         const positions = [1, 2, 3, 4].map((t) => (t * size * 100) / max);
-        const thickness = "3px";
+        const thickness = "2px";
         const color = "var(--bg-panel)";
         return positions
             .map(
