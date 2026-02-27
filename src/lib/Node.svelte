@@ -44,7 +44,7 @@
         data-node-id={String(id)}
         icon={NodeIcon}
         iconClass="node-icon"
-        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius}; --tier-border-width: ${tier + 2}px;`}
+        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius}; --tier-border-width: ${2 * (tier + 1)}px; --hex-border-width: ${2 * (tier + 1)}px;`}
     >
         {#if level > 0}
             <span
@@ -100,7 +100,7 @@
             25% 100%,
             0% 50%
         );
-        --hex-border-width: 3px;
+        --hex-border-width: var(--tier-border-width, 3px);
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
 
@@ -109,7 +109,7 @@
         width: 64px;
         height: 64px;
         border-radius: var(--radius-full);
-        border: 0;
+        border: var(--tier-border-width, 2px) solid transparent;
         display: grid;
         place-items: center;
         background: var(--surface);
@@ -120,9 +120,7 @@
         user-select: none;
         padding: 0;
         text-align: center;
-        box-shadow: 0 0 0 var(--tier-border-width, 2px)
-                var(--tier-border-color, var(--border-color)),
-            var(--shadow-node);
+        box-shadow: var(--shadow-node);
     }
 
     /* Top-left region (Orange theme) */
@@ -170,9 +168,7 @@
         border: none;
         position: relative;
         overflow: visible;
-        box-shadow: 0 0 0 var(--tier-border-width, 2px)
-                var(--tier-border-color, var(--border-color)),
-            var(--shadow-node);
+        box-shadow: none;
         background: transparent;
         clip-path: var(--hex-clip);
         isolation: isolate;
@@ -274,7 +270,6 @@
         filter: var(--filter-locked);
         --hex-fill: var(--bg-locked);
         --hex-border-color: var(--border-color-locked);
-        --tier-border-color: var(--border-color-locked);
     }
 
     :global(.button.node.available) {
@@ -284,7 +279,6 @@
         filter: var(--filter-available);
         --hex-fill: var(--bg-available);
         --hex-border-color: var(--border-color);
-        --tier-border-color: var(--border-color);
     }
 
     :global(.button.node.active) {
@@ -293,7 +287,6 @@
         color: var(--text-color-active);
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
-        --tier-border-color: var(--border-color-active);
     }
 
     :global(.button.node.maxed) {
@@ -302,6 +295,5 @@
         color: var(--text-color-maxed);
         --hex-fill: var(--bg-maxed);
         --hex-border-color: var(--border-color-maxed);
-        --tier-border-color: var(--border-color-maxed);
     }
 </style>
