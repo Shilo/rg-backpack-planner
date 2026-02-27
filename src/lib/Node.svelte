@@ -44,7 +44,7 @@
         data-node-id={String(id)}
         icon={NodeIcon}
         iconClass="node-icon"
-        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius}; --tier-border-width: ${2 * (tier + 1)}px; --hex-border-width: ${2 * (tier + 1)}px;`}
+        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
     >
         {#if level > 0}
             <span
@@ -100,7 +100,7 @@
             25% 100%,
             0% 50%
         );
-        --hex-border-width: var(--tier-border-width, 3px);
+        --hex-border-width: 3px;
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
 
@@ -109,7 +109,7 @@
         width: 64px;
         height: 64px;
         border-radius: var(--radius-full);
-        border: var(--tier-border-width, 2px) solid transparent;
+        border: 2px solid transparent;
         display: grid;
         place-items: center;
         background: var(--surface);
