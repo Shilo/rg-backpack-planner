@@ -25,7 +25,7 @@
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { closeUpView } from "./closeUpViewStore";
     import { singleLevelUp } from "./singleLevelUpStore";
-    import { applyLevelChange, tierUpper } from "./tierLeveling";
+    import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
 
     export let nodes: NodeType[] = [];
@@ -845,6 +845,7 @@
                 {#each nodes as node, i}
                     {@const level = getLevelFrom(levels, i)}
                     {@const state = getState(node, i, levels)}
+                    {@const tier = tierIndex(level, node.maxLevel)}
                     {@const region = getNodeRegion(node, i)}
                     {@const isLeaf = isLeafNode(node, i)}
                     <Node
@@ -854,6 +855,7 @@
                         label={node.skillId}
                         {level}
                         {state}
+                        tier={tier}
                         radius={node.radius ?? 1}
                         {scale}
                         {region}

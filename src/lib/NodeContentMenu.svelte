@@ -188,17 +188,26 @@
 
     .level-progress {
         width: 100%;
-        height: 6px;
+        height: 10px;
         background: var(--bg-raised);
-        border-radius: 3px;
+        border-radius: 4px;
         overflow: hidden;
         margin-top: 2px;
+        position: relative;
     }
 
     .level-progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, var(--accent), var(--accent-light));
-        border-radius: 3px;
+        background-image: linear-gradient(90deg, var(--accent), var(--accent-light)),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent calc(20% - 1px),
+                rgba(0, 0, 0, 0.25) calc(20% - 1px),
+                rgba(0, 0, 0, 0.25) 20%
+            );
+        background-blend-mode: overlay;
+        border-radius: 4px;
         transition: width var(--ease);
     }
 

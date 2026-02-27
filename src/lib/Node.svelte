@@ -18,6 +18,7 @@
     export let label: string = "";
     export let level: number = 0;
     export let state: NodeState = "locked";
+    export let tier: number = 0;
     export let radius: number = 1;
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
@@ -43,13 +44,18 @@
         data-node-id={String(id)}
         icon={NodeIcon}
         iconClass="node-icon"
-        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
+        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius}; --tier-border-width: ${2 * (tier + 1)}px; --hex-border-width: ${2 * (tier + 1)}px;`}
     >
         {#if level > 0}
             <span
                 class="node-level"
                 style={`transform: translate(-50%, 50%) scale(${1 / scale});`}
                 >{formatNumber(level)}</span
+            >
+            <span
+                class="node-tier"
+                style={`transform: translate(-50%, -120%) scale(${1 / scale});`}
+                >T{tier}</span
             >
         {/if}
     </Button>
@@ -94,7 +100,7 @@
             25% 100%,
             0% 50%
         );
-        --hex-border-width: 3px;
+        --hex-border-width: var(--tier-border-width, 3px);
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
 
@@ -103,7 +109,7 @@
         width: 64px;
         height: 64px;
         border-radius: var(--radius-full);
-        border: 2px solid transparent;
+        border: var(--tier-border-width, 2px) solid transparent;
         display: grid;
         place-items: center;
         background: var(--surface);
@@ -237,6 +243,23 @@
         padding: var(--spacing-sm);
         border-radius: var(--radius);
         transform-origin: center bottom;
+    }
+
+    .node-tier {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        pointer-events: none;
+        white-space: nowrap;
+        line-height: 1.2;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-bold);
+        color: white;
+        text-shadow: var(--shadow-text);
+        background: rgba(0, 0, 0, 0.5);
+        padding: 2px 6px;
+        border-radius: var(--radius);
+        transform-origin: center top;
     }
 
     /* Node state styles */
