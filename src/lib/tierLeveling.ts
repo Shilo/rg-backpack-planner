@@ -167,6 +167,13 @@ export function applyLevelChange(params: {
         });
     };
 
+    const ensureParentsForTier = (i: number, tier: number) => {
+        if (tier <= 0) return;
+        const requiredLevel = tierUpper(tier - 1, nodes[i].maxLevel);
+        const parents = parentIndices(nodes[i]);
+        parents.forEach((pi) => ensureAtLeast(pi, requiredLevel));
+    };
+
     const currentLevel = next[index] ?? 0;
     const clampedTarget = clamp(params.targetLevel, 0, node.maxLevel);
     if (clampedTarget === currentLevel) {
@@ -177,6 +184,10 @@ export function applyLevelChange(params: {
     const newTier = tierIndex(clampedTarget, node.maxLevel);
 
     setLevel(index, clampedTarget);
+
+    if (clampedTarget > currentLevel) {
+        ensureParentsForTier(index, newTier);
+    }
 
     if (newTier > oldTier) {
         processIncrease(index, oldTier, newTier);

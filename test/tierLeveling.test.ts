@@ -172,6 +172,34 @@ const child: Node = {
     assertEqual(next[3], 20, "locked grandchild raised to tier1 cap even while visually locked");
 })();
 
+(function enforceParentsWithinSameTier() {
+    const parent: Node = {
+        skillId: "attack_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const child: Node = {
+        skillId: "hp_boost",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const nodes: Node[] = [parent, child];
+    const levels: LevelsByIndex = [10, 25]; // child already tier2, parent below required 20
+    const { levels: next } = applyLevelChange({
+        nodes,
+        levels,
+        index: 1,
+        targetLevel: 26,
+    });
+    assertEqual(next[0], 20, "parent raised to previous tier cap even without child tier change");
+    assertEqual(next[1], 26, "child leveled");
+})();
+
 (function branchIsolation() {
     // two branches (roots with no shared parents/children)
     const yRoot: Node = { skillId: "attack_boost", maxLevel: 100, radius: 1, x: 0, y: 0 };
