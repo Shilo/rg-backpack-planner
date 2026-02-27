@@ -1,8 +1,7 @@
 <script lang="ts">
     import { PaletteIcon } from "phosphor-svelte";
     import { themeColor, type ThemeColor } from "./themeColorStore";
-    import { oklchToHex, applyTheme } from "./themeEngine";
-    import { darkMode } from "./darkModeStore";
+    import { oklchToHex } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
     import { tooltip } from "./tooltip";
     import { portal } from "./portal";
@@ -60,10 +59,6 @@
         closeDropdown();
         pickerInitialColor = { ...$themeColor };
         pickerOpen = true;
-    }
-
-    function handlePickerPreview(color: ThemeColor) {
-        applyTheme(color, $darkMode ? "dark" : "light");
     }
 
     function handlePickerApply(color: ThemeColor) {
@@ -141,7 +136,6 @@
 <ColorPickerDialog
     isOpen={pickerOpen}
     initialColor={pickerInitialColor}
-    onChange={handlePickerPreview}
     onApply={handlePickerApply}
     onCancel={handlePickerCancel}
 />
