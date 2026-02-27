@@ -25,6 +25,10 @@
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { closeUpView } from "./closeUpViewStore";
     import { singleLevelUp } from "./singleLevelUpStore";
+    import {
+        applyLevelChange,
+        unlockedTierForNode,
+    } from "./tierLeveling";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
 
     export let nodes: NodeType[] = [];
@@ -196,9 +200,8 @@
         index: number,
         levelsSnapshot: LevelsByIndex,
     ): boolean {
-        const parents = parentIndices(node);
-        if (parents.length === 0) return true;
-        return parents.every((pi) => getLevelFrom(levelsSnapshot, pi) > 0);
+        const unlocked = unlockedTierForNode(nodes, levelsSnapshot, index);
+        return unlocked >= 1;
     }
 
     function getState(
@@ -253,76 +256,39 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
+    function applyChange(index: NodeIndex, targetLevel: number) {
+        const { levels: nextLevels, deltas } = applyLevelChange({
+            nodes,
+            levels,
+            index,
+            targetLevel,
+        });
+        if (deltas.length === 0) return false;
+        updateLevels(nextLevels);
+        deltas.forEach(({ index: idx, delta }) =>
+            onNodeLevelChange?.(delta, idx),
+        );
+        return true;
+    }
+
     function levelUp(index: NodeIndex) {
         const node = getNodeAt(index);
         if (!node) return false;
         const level = getLevel(index);
         const nextLevel = Math.min(level + 1, node.maxLevel);
-        if (nextLevel === level) return false;
-        const nextLevels = levels.slice();
-        nextLevels[index] = nextLevel;
-        updateLevels(nextLevels);
-        onNodeLevelChange?.(1, index);
-
-        maxOutParents(index);
-        return true;
-    }
-
-    function maxOutParents(index: NodeIndex) {
-        const node = getNodeAt(index);
-        if (!node) return;
-        const parents = parentIndices(node);
-        for (const pi of parents) {
-            const parentNode = getNodeAt(pi);
-            if (!parentNode) continue;
-            const parentLevel = getLevel(pi);
-            if (parentLevel < parentNode.maxLevel) {
-                const delta = parentNode.maxLevel - parentLevel;
-                const nextLevels = levels.slice();
-                nextLevels[pi] = parentNode.maxLevel;
-                updateLevels(nextLevels);
-                onNodeLevelChange?.(delta, pi);
-                maxOutParents(pi);
-            }
-        }
-    }
-
-    function resetChildren(index: NodeIndex) {
-        nodes.forEach((node, i) => {
-            const parents = parentIndices(node);
-            if (parents.includes(index)) {
-                const childLevel = getLevel(i);
-                if (childLevel > 0) {
-                    const nextLevels = levels.slice();
-                    nextLevels[i] = 0;
-                    updateLevels(nextLevels);
-                    onNodeLevelChange?.(-childLevel, i);
-                    resetChildren(i);
-                }
-            }
-        });
+        return applyChange(index, nextLevel);
     }
 
     function levelDown(index: NodeIndex) {
         const level = getLevel(index);
         if (level === 0) return;
-        const nextLevels = levels.slice();
-        nextLevels[index] = level - 1;
-        updateLevels(nextLevels);
-        onNodeLevelChange?.(-1, index);
-        if (level - 1 === 0) {
-            resetChildren(index);
-        }
+        applyChange(index, level - 1);
     }
 
     function resetNode(index: NodeIndex) {
         const level = getLevel(index);
         if (level === 0) return;
-        const nextLevels = levels.slice();
-        nextLevels[index] = 0;
-        updateLevels(nextLevels);
-        onNodeLevelChange?.(-level, index);
-        resetChildren(index);
+        applyChange(index, 0);
     }
 
     function levelUpBy10(index: NodeIndex) {
@@ -330,12 +296,7 @@
         if (!node) return;
         const level = getLevel(index);
         const nextLevel = Math.min(level + 10, node.maxLevel);
-        if (nextLevel === level) return;
-        const nextLevels = levels.slice();
-        nextLevels[index] = nextLevel;
-        updateLevels(nextLevels);
-        onNodeLevelChange?.(nextLevel - level, index);
-        maxOutParents(index);
+        applyChange(index, nextLevel);
     }
 
     function maxNode(index: NodeIndex) {
@@ -343,11 +304,7 @@
         if (!node) return;
         const level = getLevel(index);
         if (level >= node.maxLevel) return;
-        const nextLevels = levels.slice();
-        nextLevels[index] = node.maxLevel;
-        updateLevels(nextLevels);
-        onNodeLevelChange?.(node.maxLevel - level, index);
-        maxOutParents(index);
+        applyChange(index, node.maxLevel);
     }
 
     export function resetAllNodes() {

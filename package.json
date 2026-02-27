@@ -27,7 +27,8 @@
         "build": "vite build && node scripts/copy-404.cjs",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-        "pwa:assets": "pwa-assets-generator --preset minimal-2023 public/icon.svg"
+        "pwa:assets": "pwa-assets-generator --preset minimal-2023 public/icon.svg",
+        "test:tier": "ts-node-esm --project tsconfig.test.json test/tierLeveling.test.ts"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.1",
@@ -37,6 +38,7 @@
         "phosphor-svelte": "^3.1.0",
         "svelte": "^5.43.8",
         "svelte-check": "^4.3.4",
+        "ts-node": "^10.9.2",
         "typescript": "~5.9.3",
         "vite": "^7.2.4",
         "vite-plugin-pwa": "^1.2.0"
