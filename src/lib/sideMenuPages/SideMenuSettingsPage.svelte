@@ -147,9 +147,10 @@
 <SideMenuSection title="Build">
     <BuildPresetsButton disabled={$isPreviewMode} />
     <TechCrystalsButton disabled={$isPreviewMode} />
-    <div class="button-row">
+    <div class="button-group build-share-row">
         <ShareBuildButton title="Share" disabled={$isPreviewMode} />
         <Button
+            class="dropdown-button"
             bind:element={previewButtonElement}
             on:click={handlePreviewDropdownClick}
             tooltipText={"Preview shareable link/code or premade build"}
@@ -213,15 +214,15 @@
 </SideMenuSection>
 
 <SideMenuSection title="Application">
-    <ThemeColorSelector />
-    <ToggleSwitch
-        checked={$darkMode}
-        label={$darkMode ? "Dark Mode" : "Light Mode"}
-        ariaLabel="Toggle dark or light mode"
-        tooltipText="Switch between dark and light color scheme"
-        icon={($darkMode ? MoonIcon : SunIcon) as unknown as Component}
-        onToggle={() => darkMode.toggle()}
-    />
+    <div class="button-group theme-row">
+        <ThemeColorSelector />
+        <Button
+            class="dropdown-button"
+            on:click={() => darkMode.toggle()}
+            tooltipText="Switch between dark and light color scheme"
+            icon={($darkMode ? MoonIcon : SunIcon) as unknown as Component}
+        />
+    </div>
     <FullscreenToggle />
     <InstallPwaButton title={true} />
     <Button
@@ -263,29 +264,11 @@
         height: var(--spacing-md);
     }
 
-    .button-row {
-        display: flex;
-        gap: 2px;
-    }
-
-    .button-row :global(:first-child) {
+    .build-share-row :global(button) {
         flex: 1;
-        min-width: 0;
     }
 
-    .button-row :global(:first-child .button-icon) {
-        flex: 0 0 auto;
-        width: 26px;
-        height: 26px;
-    }
-
-    .button-row :global(:first-child .button-icon svg) {
-        width: 26px;
-        height: 26px;
-        flex-shrink: 0;
-    }
-
-    .button-row :global(:first-child .button-text) {
+    .theme-row :global(:first-child) {
         flex: 1;
         min-width: 0;
     }

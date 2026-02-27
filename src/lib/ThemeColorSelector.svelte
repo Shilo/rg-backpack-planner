@@ -76,14 +76,14 @@
     class="theme-color-button"
     type="button"
     bind:this={buttonEl}
-    aria-label="Theme Color: {currentLabel}"
-    use:tooltip={"Change theme color"}
+    aria-label="Theme: {currentLabel}"
+    use:tooltip={"Change theme"}
     on:click={openDropdown}
 >
     <span class="theme-button-icon">
         <PaletteIcon size={26} />
     </span>
-    <span class="theme-button-label">Theme Color</span>
+    <span class="theme-button-label">Theme</span>
     <span
         class="theme-button-swatch"
         style="background: {currentHex}"
@@ -95,7 +95,7 @@
         x={dropdownX}
         y={dropdownY}
         isOpen={dropdownOpen}
-        title="Theme Color"
+        title="Theme"
         onClose={closeDropdown}
     >
         {#each PRESETS as preset}
@@ -146,7 +146,6 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-lg);
-        width: 100%;
         height: 40px;
         padding: var(--spacing-md) var(--spacing-lg);
         border: var(--border-width) solid var(--border);
