@@ -35,28 +35,45 @@
 
     $: NodeIcon = stateIcons[state] ?? LockIcon;
 
+    let flash = false;
     let lastLevel = level;
-    let flashKey = 0;
-    let flashQueued = false;
-    let rafId: number | null = null;
+    let flashTimeout: ReturnType<typeof setTimeout> | null = null;
+    let flashPending = false;
+    let flashScheduled = false;
+    $: flashClass = flash ? ($darkMode ? "flash-dark" : "flash-light") : "";
+
+    function triggerFlash() {
+        if (flashTimeout) {
+            clearTimeout(flashTimeout);
+        }
+        flash = false;
+        // Wait a tick so removing and re-adding the class reliably retriggers the animation
+        tick().then(() => {
+            flash = true;
+            console.log("Node flash", { id, level });
+            flashTimeout = setTimeout(() => {
+                flash = false;
+            }, 260);
+        });
+    }
 
     $: if (level !== lastLevel) {
         lastLevel = level;
-        if (!flashQueued) {
-            flashQueued = true;
+        flashPending = true;
+        if (!flashScheduled) {
+            flashScheduled = true;
             tick().then(() => {
-                if (rafId !== null) cancelAnimationFrame(rafId);
-                rafId = requestAnimationFrame(() => {
-                    flashKey += 1;
-                    flashQueued = false;
-                    rafId = null;
-                });
+                if (flashPending) {
+                    triggerFlash();
+                }
+                flashPending = false;
+                flashScheduled = false;
             });
         }
     }
 
     onDestroy(() => {
-        if (rafId !== null) cancelAnimationFrame(rafId);
+        if (flashTimeout) clearTimeout(flashTimeout);
     });
 </script>
 
@@ -65,19 +82,13 @@
     style="left: {x}px; top: {y}px;"
 >
     <Button
-        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
+        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""} ${flashClass}`}
         aria-label={label || String(id)}
         data-node-id={String(id)}
         icon={NodeIcon}
         iconClass="node-icon"
         style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
     >
-        {#key flashKey}
-            <span
-                class={`flash-layer ${isLeaf ? "hex" : ""} ${$darkMode ? "dark" : "light"}`}
-                aria-hidden="true"
-            ></span>
-        {/key}
         {#if level > 0}
             <span
                 class="node-level"
@@ -275,7 +286,6 @@
         padding: var(--spacing-sm);
         border-radius: var(--radius);
         transform-origin: center bottom;
-        z-index: 2;
     }
 
     .node-tier {
@@ -293,7 +303,6 @@
         padding: 2px 6px;
         border-radius: var(--radius);
         transform-origin: center top;
-        z-index: 2;
     }
 
     /* Node state styles */
@@ -331,34 +340,36 @@
         --hex-border-color: var(--border-color-maxed);
     }
 
-    /* Flash overlay */
-    .flash-layer {
+    :global(.button.node.flash-dark::after),
+    :global(.button.node.flash-light::after) {
+        content: "";
         position: absolute;
         inset: 0;
         border-radius: inherit;
+        clip-path: inherit;
         pointer-events: none;
-        z-index: 1;
-        animation: flashFill 200ms ease-out forwards;
+        animation: nodeFlashFill 240ms ease-out forwards;
+        z-index: 2;
     }
 
-    .flash-layer.dark {
+    :global(.button.node.flash-dark::after) {
         background: rgba(255, 255, 255, 0.32);
         mix-blend-mode: screen;
     }
 
-    .flash-layer.light {
+    :global(.button.node.flash-light::after) {
         background: rgba(0, 0, 0, 0.22);
         mix-blend-mode: multiply;
     }
 
-    .flash-layer.hex {
+    :global(.button.node.node-hexagon.flash-dark::after),
+    :global(.button.node.node-hexagon.flash-light::after) {
         clip-path: var(--hex-clip);
         border-radius: 0;
         inset: var(--hex-border-width);
-        overflow: hidden;
     }
 
-    @keyframes flashFill {
+    @keyframes nodeFlashFill {
         0% {
             opacity: 0;
         }
