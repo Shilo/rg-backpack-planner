@@ -11,6 +11,8 @@
         EyeIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
+    import { tooltip } from "../tooltip";
+    import { triggerHaptic } from "../haptics";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -216,12 +218,19 @@
 <SideMenuSection title="Application">
     <div class="button-group theme-row">
         <ThemeColorSelector />
-        <Button
-            class="dropdown-button"
-            on:click={() => darkMode.toggle()}
-            tooltipText="Switch between dark and light color scheme"
-            icon={($darkMode ? MoonIcon : SunIcon) as unknown as Component}
-        />
+        <button
+            class="icon-button"
+            type="button"
+            aria-label={$darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            use:tooltip={"Switch between dark and light color scheme"}
+            on:click={() => { triggerHaptic(); darkMode.toggle(); }}
+        >
+            {#if $darkMode}
+                <MoonIcon size={18} />
+            {:else}
+                <SunIcon size={18} />
+            {/if}
+        </button>
     </div>
     <FullscreenToggle />
     <InstallPwaButton title={true} />
@@ -271,5 +280,44 @@
     .theme-row :global(:first-child) {
         flex: 1;
         min-width: 0;
+    }
+
+    .icon-button {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        background: var(--bg-raised);
+        border: var(--border-width) solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition:
+            filter var(--ease),
+            transform var(--ease);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (hover: hover) {
+        .icon-button:hover {
+            filter: var(--brightness-hover);
+        }
+    }
+
+    .icon-button:active {
+        transform: scale(0.92);
+    }
+
+    .icon-button:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
+    /* Flat left edge and no left border when in button-group */
+    .theme-row .icon-button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
     }
 </style>
