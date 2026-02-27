@@ -56,7 +56,7 @@
             <span
                 class="node-tier"
                 style={`transform: translate(-50%, -120%) scale(${1 / scale});`}
-                >T{tier}</span
+                >{tier}</span
             >
         {/if}
         <NodeFlash {level} {isLeaf} />
@@ -233,7 +233,7 @@
 
     .node-level {
         position: absolute;
-        bottom: 0;
+        bottom: 10px;
         left: 50%;
         pointer-events: none;
         white-space: nowrap;
@@ -251,7 +251,7 @@
 
     .node-tier {
         position: absolute;
-        top: 0;
+        top: 25px;
         left: 50%;
         pointer-events: none;
         white-space: nowrap;
