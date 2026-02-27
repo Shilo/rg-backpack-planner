@@ -869,6 +869,11 @@
                 x={contextMenu?.x ?? 0}
                 y={contextMenu?.y ?? 0}
                 isOpen={!!contextMenu}
+                skillId={contextMenu &&
+                contextMenu.index !== null &&
+                getNodeAt(contextMenu.index)
+                    ? getNodeAt(contextMenu.index)!.skillId
+                    : null}
                 onClose={closeContextMenu}
                 onMax={maxNode}
                 onReset={resetNode}

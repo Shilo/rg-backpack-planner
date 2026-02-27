@@ -29,6 +29,9 @@
     export let level: number = 0;
     export let maxLevel: number = 0;
     export let state: "locked" | "available" | "active" | "maxed" = "locked";
+    export let skillId: string | null = null;
+
+    $: isSingleLevel = maxLevel <= 1;
 
     const stateIcons = {
         locked: LockIcon,
@@ -56,7 +59,14 @@
     $: tickImage = tickGradient(maxLevel);
 </script>
 
-<ContextMenu {x} {y} {isOpen} title={"Node"} ariaLabel="Node actions" {onClose}>
+<ContextMenu
+    {x}
+    {y}
+    {isOpen}
+    title={skillId ?? "Node"}
+    ariaLabel="Node actions"
+    {onClose}
+>
     <div class="node-stats">
         <div class="node-icon-wrapper">
             <svelte:component this={NodeIcon} />
@@ -77,8 +87,10 @@
                 <span class="stat-value">
                     {(() => {
                         const totalTiers = maxLevel > 1 ? 5 : 1;
-                        const displayMax = totalTiers === 1 ? 1 : totalTiers - 1; // 4 for multi-tier, 1 for single-tier
-                        if (totalTiers === 1) return Math.min(1, level > 0 ? 1 : 0);
+                        const displayMax =
+                            totalTiers === 1 ? 1 : totalTiers - 1; // 4 for multi-tier, 1 for single-tier
+                        if (totalTiers === 1)
+                            return Math.min(1, level > 0 ? 1 : 0);
                         const chunk = Math.ceil(maxLevel / 5);
                         return Math.min(displayMax, Math.floor(level / chunk));
                     })()}
@@ -112,28 +124,30 @@
         >
             +1
         </Button>
-        <Button
-            on:click={() => {
-                if (nodeIndex === null || !onIncrementBy10) return;
-                onIncrementBy10(nodeIndex);
-            }}
-            disabled={nodeIndex === null || level >= maxLevel}
-            icon={CaretDoubleUpIcon}
-            positive
-        >
-            +10
-        </Button>
-        <Button
-            on:click={() => {
-                if (nodeIndex === null || !onMax) return;
-                onMax(nodeIndex);
-            }}
-            disabled={nodeIndex === null || level >= maxLevel}
-            icon={CaretLineUpIcon}
-            positive
-        >
-            Max
-        </Button>
+        {#if !isSingleLevel}
+            <Button
+                on:click={() => {
+                    if (nodeIndex === null || !onIncrementBy10) return;
+                    onIncrementBy10(nodeIndex);
+                }}
+                disabled={nodeIndex === null || level >= maxLevel}
+                icon={CaretDoubleUpIcon}
+                positive
+            >
+                +10
+            </Button>
+            <Button
+                on:click={() => {
+                    if (nodeIndex === null || !onMax) return;
+                    onMax(nodeIndex);
+                }}
+                disabled={nodeIndex === null || level >= maxLevel}
+                icon={CaretLineUpIcon}
+                positive
+            >
+                Max
+            </Button>
+        {/if}
         <Button
             on:click={() => {
                 if (nodeIndex === null || !onDecrement) return;
@@ -145,32 +159,34 @@
         >
             -1
         </Button>
-        <Button
-            on:click={() => {
-                if (nodeIndex === null || !onDecrement) return;
-                for (let i = 0; i < 10; i++) onDecrement(nodeIndex);
-            }}
-            disabled={nodeIndex === null || level <= 0}
-            icon={CaretDoubleDownIcon}
-            negative
-        >
-            −10
-        </Button>
-        <Button
-            on:click={() => {
-                if (nodeIndex === null || !onReset) return;
-                onReset(nodeIndex);
-            }}
-            toastMessage={nodeIndex !== null && onReset
-                ? `Reset node`
-                : undefined}
-            toastNegative
-            disabled={nodeIndex === null || level <= 0}
-            icon={ArrowCounterClockwiseIcon}
-            negative
-        >
-            Reset
-        </Button>
+        {#if !isSingleLevel}
+            <Button
+                on:click={() => {
+                    if (nodeIndex === null || !onDecrement) return;
+                    for (let i = 0; i < 10; i++) onDecrement(nodeIndex);
+                }}
+                disabled={nodeIndex === null || level <= 0}
+                icon={CaretDoubleDownIcon}
+                negative
+            >
+                −10
+            </Button>
+            <Button
+                on:click={() => {
+                    if (nodeIndex === null || !onReset) return;
+                    onReset(nodeIndex);
+                }}
+                toastMessage={nodeIndex !== null && onReset
+                    ? `Reset node`
+                    : undefined}
+                toastNegative
+                disabled={nodeIndex === null || level <= 0}
+                icon={ArrowCounterClockwiseIcon}
+                negative
+            >
+                Reset
+            </Button>
+        {/if}
     </div>
 </ContextMenu>
 
