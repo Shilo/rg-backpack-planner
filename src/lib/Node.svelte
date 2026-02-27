@@ -39,7 +39,7 @@
     style="left: {x}px; top: {y}px;"
 >
     <Button
-        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""} ${flashClass}`}
+        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
         aria-label={label || String(id)}
         data-node-id={String(id)}
         icon={NodeIcon}
@@ -243,6 +243,7 @@
         padding: var(--spacing-sm);
         border-radius: var(--radius);
         transform-origin: center bottom;
+        z-index: 2;
     }
 
     .node-tier {
@@ -260,6 +261,7 @@
         padding: 2px 6px;
         border-radius: var(--radius);
         transform-origin: center top;
+        z-index: 2;
     }
 
     /* Node state styles */
