@@ -282,7 +282,7 @@
         flex: 1;
     }
 
-    .theme-row :global(:first-child) {
+    .theme-row > :global(:first-child) {
         flex: 1;
         min-width: 0;
     }
