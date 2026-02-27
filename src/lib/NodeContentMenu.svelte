@@ -226,15 +226,15 @@
         overflow: hidden;
         margin-top: 2px;
         position: relative;
+        clip-path: inset(0 round 4px);
     }
 
     .level-progress-bar {
         height: 100%;
         background: linear-gradient(90deg, var(--accent), var(--accent-light));
-        border-radius: 4px 0 0 4px;
         transition: width var(--ease);
         position: relative;
-        clip-path: inset(0 0 0 0 round 4px);
+        border-radius: 0;
     }
 
     .level-progress-ticks {
