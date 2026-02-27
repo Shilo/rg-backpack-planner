@@ -4,13 +4,13 @@
     {
       "name": "dev",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["node_modules/vite/bin/vite.js"],
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--host"],
       "port": 5173
     },
     {
       "name": "preview",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["node_modules/vite/bin/vite.js", "preview"],
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "preview", "--host"],
       "port": 4173
     }
   ]
