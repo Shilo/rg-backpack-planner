@@ -39,7 +39,7 @@
     style="left: {x}px; top: {y}px;"
 >
     <Button
-        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
+        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""} ${flashClass}`}
         aria-label={label || String(id)}
         data-node-id={String(id)}
         icon={NodeIcon}
