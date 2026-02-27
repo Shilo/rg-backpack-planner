@@ -599,9 +599,12 @@ const child: Node = {
     // Level first node (parent) by +30
     let result = applyLevelChange({ nodes, levels, index: 0, targetLevel: 30 });
     levels = result.levels;
-    const snapshot = levels.slice();
-    assertEqual(snapshot[0], 30, "parent leveled to 30");
-    assertEqual(snapshot[1], 20, "child raised to tier1 cap after parent +30");
+    const snapshot: LevelsByIndex = [30, 20];
+    assertLevelsEqual(
+        levels,
+        snapshot,
+        "after parent +30, all node levels match expected snapshot",
+    );
 
     // Level second node (child) by +10
     result = applyLevelChange({
@@ -611,8 +614,11 @@ const child: Node = {
         targetLevel: levels[1] + 10,
     });
     levels = result.levels;
-    assertEqual(levels[1], 30, "child leveled to 30 after +10");
-    assertEqual(levels[0], 30, "parent unchanged during child +10");
+    assertLevelsEqual(
+        levels,
+        [30, 30],
+        "after child +10, all node levels match expected values",
+    );
 
     // Level second node (child) by -10
     result = applyLevelChange({
