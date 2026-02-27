@@ -400,9 +400,9 @@
                                 on:click={handleModeToggle}
                             >
                                 {#if previewDark}
-                                    <SunIcon size={18} />
-                                {:else}
                                     <MoonIcon size={18} />
+                                {:else}
+                                    <SunIcon size={18} />
                                 {/if}
                             </button>
                         </div>

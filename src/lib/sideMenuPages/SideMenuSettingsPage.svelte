@@ -226,9 +226,9 @@
             on:click={() => { triggerHaptic(); darkMode.toggle(); }}
         >
             {#if $darkMode}
-                <MoonIcon size={18} />
+                <MoonIcon size={26} />
             {:else}
-                <SunIcon size={18} />
+                <SunIcon size={26} />
             {/if}
         </button>
     </div>
@@ -284,7 +284,7 @@
 
     .icon-button {
         width: 36px;
-        height: 36px;
+        height: 40px;
         display: grid;
         place-items: center;
         background: var(--bg-raised);
