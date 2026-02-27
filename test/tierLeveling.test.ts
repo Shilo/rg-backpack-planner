@@ -132,6 +132,46 @@ const child: Node = {
     assertEqual(next[1], 10, "other raised to previous tier cap (tier1 of 50)");
 })();
 
+(function raisesLockedNodesToo() {
+    const base: Node = {
+        skillId: "attack_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const a: Node = {
+        skillId: "hp_boost",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const b: Node = {
+        skillId: "defense_boost",
+        parent: 0,
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const locked: Node = {
+        skillId: "global_def",
+        parent: [1, 2],
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const nodes: Node[] = [base, a, b, locked];
+    const levels: LevelsByIndex = [20, 0, 0, 0];
+    const { levels: next } = applyLevelChange({ nodes, levels, index: 0, targetLevel: 21 });
+    assertEqual(next[1], 20, "child a raised to tier1 cap");
+    assertEqual(next[2], 20, "child b raised to tier1 cap");
+    assertEqual(next[3], 20, "locked grandchild raised to tier1 cap even while visually locked");
+})();
+
 (function noTierNodeDoesNotUnlock() {
     const one: Node = {
         skillId: "final_damage_boost",

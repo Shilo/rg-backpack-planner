@@ -115,13 +115,11 @@ export function applyLevelChange(params: {
                 ensureAtLeast(ci, childCap);
             });
 
-            if (children.length === 0) {
-                nodes.forEach((n, idx) => {
-                    if (idx === i) return;
-                    const cap = tierUpper(prevTier, n.maxLevel);
-                    ensureAtLeast(idx, cap);
-                });
-            }
+            // Raise all nodes (even if visually locked) to the previous tier cap
+            nodes.forEach((n, idx) => {
+                const cap = tierUpper(prevTier, n.maxLevel);
+                ensureAtLeast(idx, cap);
+            });
         }
     };
 
