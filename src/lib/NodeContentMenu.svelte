@@ -38,6 +38,21 @@
     } as const;
 
     $: NodeIcon = stateIcons[state] ?? LockIcon;
+
+    const tickGradient = (max: number) => {
+        if (max <= 1) return "";
+        const positions = [20, 40, 60, 80];
+        const thickness = "3px";
+        const color = "var(--bg-panel)";
+        return positions
+            .map(
+                (p) =>
+                    `linear-gradient(90deg, transparent calc(${p}% - ${thickness}), ${color} calc(${p}% - ${thickness}), ${color} calc(${p}% + ${thickness}), transparent calc(${p}% + ${thickness}))`,
+            )
+            .join(", ");
+    };
+
+    $: tickImage = tickGradient(maxLevel);
 </script>
 
 <ContextMenu {x} {y} {isOpen} title={"Node"} ariaLabel="Node actions" {onClose}>
@@ -56,11 +71,17 @@
                     >{formatNumber(level)} / {formatNumber(maxLevel)}</span
                 >
             </div>
-            <div class="level-progress">
+            <div
+                class="level-progress"
+                style={`--tick-gradient:${tickImage}; --tick-thickness: 3px;`}
+            >
                 <div
                     class="level-progress-bar"
                     style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
                 ></div>
+                {#if tickImage}
+                    <div class="level-progress-ticks"></div>
+                {/if}
             </div>
         </div>
     </div>
@@ -196,34 +217,19 @@
         position: relative;
     }
 
-    .level-progress::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: linear-gradient(
-            90deg,
-            transparent 0,
-            transparent calc(100% - var(--tick-thickness, 3px)),
-            var(--tick-color, var(--border)) calc(100% - var(--tick-thickness, 3px)),
-            var(--tick-color, var(--border)) 100%
-        );
-        background-size: var(--tick-step, 20%) 100%;
-        background-repeat: repeat-x;
-        pointer-events: none;
-    }
-
-    .level-progress {
-        --tick-color: color-mix(in srgb, var(--accent) 70%, var(--border));
-        --tick-step: 20%;
-        --tick-thickness: 3px;
-    }
-
     .level-progress-bar {
         height: 100%;
         background: linear-gradient(90deg, var(--accent), var(--accent-light));
         border-radius: 4px;
         transition: width var(--ease);
         position: relative;
+    }
+
+    .level-progress-ticks {
+        position: absolute;
+        inset: 0;
+        background-image: var(--tick-gradient, none);
+        pointer-events: none;
     }
 
     .button-grid {
