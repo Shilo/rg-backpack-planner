@@ -23,7 +23,10 @@ export function tierUpper(
 ): number {
     if (tier <= 0) return 0;
     const size = tierSize(maxLevel);
-    if (size === 0) return 0;
+    if (size === 0) {
+        // maxLevel <= 1: treat any positive tier as fully maxed
+        return maxLevel;
+    }
     return Math.min(Math.ceil(size * tier), maxLevel);
 }
 
@@ -42,6 +45,26 @@ function buildChildrenMap(nodes: Node[]): Map<number, number[]> {
         });
     });
     return map;
+}
+
+function buildComponent(nodes: Node[], start: number): Set<number> {
+    const childrenMap = buildChildrenMap(nodes);
+    const visited = new Set<number>();
+    const stack = [start];
+    while (stack.length) {
+        const current = stack.pop()!;
+        if (visited.has(current)) continue;
+        visited.add(current);
+        const parents = parentIndices(nodes[current]);
+        parents.forEach((p) => {
+            if (!visited.has(p)) stack.push(p);
+        });
+        const children = childrenMap.get(current) ?? [];
+        children.forEach((c) => {
+            if (!visited.has(c)) stack.push(c);
+        });
+    }
+    return visited;
 }
 
 export function unlockedTierForNode(
@@ -74,6 +97,7 @@ export function applyLevelChange(params: {
     const next = levels.slice();
     const deltas: LevelDelta[] = [];
     const childrenMap = buildChildrenMap(nodes);
+    const component = buildComponent(nodes, index);
 
     const clamp = (value: number, min: number, max: number) =>
         Math.min(Math.max(value, min), max);
@@ -115,9 +139,9 @@ export function applyLevelChange(params: {
                 ensureAtLeast(ci, childCap);
             });
 
-            // Raise all nodes (even if visually locked) to the previous tier cap
-            nodes.forEach((n, idx) => {
-                const cap = tierUpper(prevTier, n.maxLevel);
+            // Raise all nodes in the same branch/component (even if visually locked) to the previous tier cap
+            component.forEach((idx) => {
+                const cap = tierUpper(prevTier, nodes[idx].maxLevel);
                 ensureAtLeast(idx, cap);
             });
         }

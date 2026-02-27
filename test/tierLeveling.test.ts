@@ -129,7 +129,7 @@ const child: Node = {
     const levels: LevelsByIndex = [0, 0];
     const { levels: next } = applyLevelChange({ nodes, levels, index: 0, targetLevel: 21 });
     assertEqual(next[0], 21, "solo leveled");
-    assertEqual(next[1], 10, "other raised to previous tier cap (tier1 of 50)");
+    assertEqual(next[1], 0, "other branch untouched");
 })();
 
 (function raisesLockedNodesToo() {
@@ -170,6 +170,19 @@ const child: Node = {
     assertEqual(next[1], 20, "child a raised to tier1 cap");
     assertEqual(next[2], 20, "child b raised to tier1 cap");
     assertEqual(next[3], 20, "locked grandchild raised to tier1 cap even while visually locked");
+})();
+
+(function branchIsolation() {
+    // two branches (roots with no shared parents/children)
+    const yRoot: Node = { skillId: "attack_boost", maxLevel: 100, radius: 1, x: 0, y: 0 };
+    const yChild: Node = { skillId: "hp_boost", parent: 0, maxLevel: 100, radius: 1, x: 0, y: 0 };
+    const bRoot: Node = { skillId: "hp_boost", maxLevel: 100, radius: 1, x: 0, y: 0 };
+    const bChild: Node = { skillId: "defense_boost", parent: 2, maxLevel: 50, radius: 1, x: 0, y: 0 };
+    const nodes: Node[] = [yRoot, yChild, bRoot, bChild];
+    const levels: LevelsByIndex = [20, 0, 0, 0];
+    const { levels: next } = applyLevelChange({ nodes, levels, index: 0, targetLevel: 21 });
+    assertEqual(next[1], 20, "yellow child raised");
+    assertEqual(next[3], 0, "blue child unchanged (other branch)");
 })();
 
 (function noTierNodeDoesNotUnlock() {
