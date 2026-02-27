@@ -76,7 +76,7 @@
                 <span class="stat-label">Tier:</span>
                 <span class="stat-value">
                     {maxLevel > 1
-                        ? Math.min(4, Math.max(0, Math.ceil(level / Math.ceil(maxLevel / 5)) - 1))
+                        ? Math.min(4, Math.floor(level / Math.ceil(maxLevel / 5)))
                         : 0}
                     /
                     {maxLevel > 1 ? 4 : 0}
