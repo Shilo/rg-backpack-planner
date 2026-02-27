@@ -73,17 +73,17 @@
         </div>
         <div class="node-stats-content">
             <div class="stat-row">
-                <span class="stat-label">DB & Val ATK Bonus</span>
+                <span class="stat-label">Bonus</span>
                 <span class="stat-value">30,000%</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Level:</span>
+                <span class="stat-label">Level</span>
                 <span class="stat-value"
                     >{formatNumber(level)} / {formatNumber(maxLevel)}</span
                 >
             </div>
             <div class="stat-row">
-                <span class="stat-label">Tier:</span>
+                <span class="stat-label">Tier</span>
                 <span class="stat-value">
                     {(() => {
                         const totalTiers = maxLevel > 1 ? 5 : 1;
@@ -112,17 +112,17 @@
             </div>
         </div>
     </div>
-    <div class="button-grid">
+    <div class="button-grid" class:stacked={isSingleLevel}>
         <Button
             on:click={() => {
                 if (nodeIndex === null || !onIncrement) return;
                 onIncrement(nodeIndex);
             }}
             disabled={nodeIndex === null || level >= maxLevel}
-            icon={CaretUpIcon}
+            icon={isSingleLevel ? CaretLineUpIcon : CaretUpIcon}
             positive
         >
-            +1
+            {isSingleLevel ? "Max" : "+1"}
         </Button>
         {#if !isSingleLevel}
             <Button
@@ -154,10 +154,10 @@
                 onDecrement(nodeIndex);
             }}
             disabled={nodeIndex === null || level <= 0}
-            icon={CaretDownIcon}
+            icon={isSingleLevel ? ArrowCounterClockwiseIcon : CaretDownIcon}
             negative
         >
-            -1
+            {isSingleLevel ? "Reset" : "−1"}
         </Button>
         {#if !isSingleLevel}
             <Button
@@ -268,5 +268,9 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: var(--spacing-md);
+    }
+
+    .button-grid.stacked {
+        grid-template-columns: 1fr;
     }
 </style>
