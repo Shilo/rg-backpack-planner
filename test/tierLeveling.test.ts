@@ -385,4 +385,22 @@ const child: Node = {
     assertEqual(next[2], 1, "single-point node leveled");
 })();
 
+(function decrementToTierBoundaryKeepsChild() {
+    const parent50: Node = { skillId: "global_def", maxLevel: 50, radius: 1, x: 0, y: 0 };
+    const leaf: Node = { skillId: "final_damage_boost", parent: 0, maxLevel: 1, radius: 1, x: 0, y: 0 };
+    const nodes: Node[] = [parent50, leaf];
+    const levels: LevelsByIndex = [11, 1];
+    const { levels: next } = applyLevelChange({ nodes, levels, index: 0, targetLevel: 10 });
+    assertEqual(next[0], 10, "parent decremented to tier boundary");
+    assertEqual(next[1], 0, "child clamped — mirrors increment behavior");
+})();
+
+(function downwardClampMultiTier() {
+    const nodes: Node[] = [root, child];
+    const levels: LevelsByIndex = [41, 40];
+    const { levels: next } = applyLevelChange({ nodes, levels, index: 0, targetLevel: 20 });
+    assertEqual(next[0], 20, "parent dropped to tier 1");
+    assertEqual(next[1], 0, "child clamped to tier 0 cap");
+})();
+
 console.log("tierLeveling tests passed");
