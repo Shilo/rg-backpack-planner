@@ -19,7 +19,11 @@ function delinearize(c: number): number {
     return Math.round(Math.min(Math.max(s, 0), 1) * 255);
 }
 
-export function rgbToOklch(r: number, g: number, b: number): { l: number; c: number; h: number } {
+export function rgbToOklch(
+    r: number,
+    g: number,
+    b: number,
+): { l: number; c: number; h: number } {
     const lr = linearize(r);
     const lg = linearize(g);
     const lb = linearize(b);
@@ -27,15 +31,15 @@ export function rgbToOklch(r: number, g: number, b: number): { l: number; c: num
     // sRGB → linear LMS (via XYZ, using Oklab's combined matrix)
     const l_ = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
     const m_ = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
-    const s_ = 0.0883024619 * lr + 0.2220049941 * lg + 0.6896925440 * lb;
+    const s_ = 0.0883024619 * lr + 0.2220049941 * lg + 0.689692544 * lb;
 
     const l_c = Math.cbrt(l_);
     const m_c = Math.cbrt(m_);
     const s_c = Math.cbrt(s_);
 
-    const L = 0.2104542553 * l_c + 0.7936177850 * m_c - 0.0040720468 * s_c;
-    const a = 1.9779984951 * l_c - 2.4285922050 * m_c + 0.4505937099 * s_c;
-    const bk = 0.0259040371 * l_c + 0.7827717662 * m_c - 0.8086757660 * s_c;
+    const L = 0.2104542553 * l_c + 0.793617785 * m_c - 0.0040720468 * s_c;
+    const a = 1.9779984951 * l_c - 2.428592205 * m_c + 0.4505937099 * s_c;
+    const bk = 0.0259040371 * l_c + 0.7827717662 * m_c - 0.808675766 * s_c;
 
     const C = Math.sqrt(a * a + bk * bk);
     let H = (Math.atan2(bk, a) * 180) / Math.PI;
@@ -51,7 +55,7 @@ export function oklchToHex(L: number, C: number, H: number): string {
 
     const l_c = L + 0.3963377774 * a + 0.2158037573 * bk;
     const m_c = L - 0.1055613458 * a - 0.0638541728 * bk;
-    const s_c = L - 0.0894841775 * a - 1.2914855480 * bk;
+    const s_c = L - 0.0894841775 * a - 1.291485548 * bk;
 
     const l_ = l_c * l_c * l_c;
     const m_ = m_c * m_c * m_c;
@@ -60,7 +64,7 @@ export function oklchToHex(L: number, C: number, H: number): string {
     // LMS → linear sRGB
     const lr = +4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_;
     const lg = -1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_;
-    const lb = -0.0041960863 * l_ - 0.7034186147 * m_ + 1.7076147010 * s_;
+    const lb = -0.0041960863 * l_ - 0.7034186147 * m_ + 1.707614701 * s_;
 
     const r = delinearize(lr);
     const g = delinearize(lg);
@@ -78,7 +82,11 @@ export function hexToOklch(hex: string): { h: number; c: number } {
 
 // ── Hue Harmonization ───────────────────────────────────────
 
-function harmonize(regionHue: number, sourceHue: number, amount: number): number {
+function harmonize(
+    regionHue: number,
+    sourceHue: number,
+    amount: number,
+): number {
     let diff = regionHue - sourceHue;
     // Shortest arc
     if (diff > 180) diff -= 360;
@@ -105,7 +113,7 @@ export function applyTheme(
 
     // ── Mode-dependent parameters ──
     const neutralChroma = source.c * (isDark ? 0.14 : 0.12);
-    const textChroma = source.c * (isDark ? 0.10 : 0.08);
+    const textChroma = source.c * (isDark ? 0.1 : 0.08);
     const harmonizeAmount = 0.25;
 
     // ── Neutral surfaces ──
@@ -116,15 +124,15 @@ export function applyTheme(
         vars["--surface"] = oklchToHex(0.24, neutralChroma, source.h);
         vars["--bg-raised"] = oklchToHex(0.27, neutralChroma, source.h);
         vars["--border"] = oklchToHex(0.35, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.30, neutralChroma, source.h);
+        vars["--border-subtle"] = oklchToHex(0.3, neutralChroma, source.h);
     } else {
         vars["--bg"] = oklchToHex(0.96, neutralChroma, source.h);
         vars["--bg-panel"] = oklchToHex(0.94, neutralChroma, source.h);
         vars["--bg-input"] = oklchToHex(0.92, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(0.90, neutralChroma, source.h);
+        vars["--surface"] = oklchToHex(0.9, neutralChroma, source.h);
         vars["--bg-raised"] = oklchToHex(0.95, neutralChroma, source.h);
         vars["--border"] = oklchToHex(0.72, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.80, neutralChroma, source.h);
+        vars["--border-subtle"] = oklchToHex(0.8, neutralChroma, source.h);
     }
 
     // ── Text ──
@@ -140,27 +148,43 @@ export function applyTheme(
 
     // ── Primary accent ──
     if (isDark) {
-        const accentL = source.l ?? 0.70;
+        const accentL = source.l ?? 0.7;
         vars["--accent"] = oklchToHex(accentL, source.c, source.h);
-        vars["--accent-light"] = oklchToHex(Math.min(accentL + 0.12, 0.95), source.c, source.h);
-        vars["--border-focus"] = oklchToHex(Math.min(accentL + 0.05, 0.95), source.c, source.h);
+        vars["--accent-light"] = oklchToHex(
+            Math.min(accentL + 0.12, 0.95),
+            source.c,
+            source.h,
+        );
+        vars["--border-focus"] = oklchToHex(
+            Math.min(accentL + 0.05, 0.95),
+            source.c,
+            source.h,
+        );
     } else {
         const accentL = source.l ?? 0.45;
         vars["--accent"] = oklchToHex(accentL, source.c, source.h);
-        vars["--accent-light"] = oklchToHex(Math.min(accentL + 0.10, 0.95), source.c, source.h);
-        vars["--border-focus"] = oklchToHex(Math.min(accentL + 0.05, 0.95), source.c, source.h);
+        vars["--accent-light"] = oklchToHex(
+            Math.min(accentL + 0.1, 0.95),
+            source.c,
+            source.h,
+        );
+        vars["--border-focus"] = oklchToHex(
+            Math.min(accentL + 0.05, 0.95),
+            source.c,
+            source.h,
+        );
     }
 
     // ── Error/Danger ──
     const dangerHue = 29;
     const dangerChroma = 0.16;
     if (isDark) {
-        vars["--accent-danger"] = oklchToHex(0.70, dangerChroma, dangerHue);
+        vars["--accent-danger"] = oklchToHex(0.7, dangerChroma, dangerHue);
         vars["--danger-bg"] = oklchToHex(0.22, dangerChroma * 0.4, dangerHue);
         vars["--danger-border"] = oklchToHex(0.45, dangerChroma, dangerHue);
         vars["--danger-text"] = oklchToHex(0.85, dangerChroma * 0.6, dangerHue);
     } else {
-        vars["--accent-danger"] = oklchToHex(0.50, dangerChroma, dangerHue);
+        vars["--accent-danger"] = oklchToHex(0.5, dangerChroma, dangerHue);
         vars["--danger-bg"] = oklchToHex(0.94, dangerChroma * 0.3, dangerHue);
         vars["--danger-border"] = oklchToHex(0.65, dangerChroma, dangerHue);
         vars["--danger-text"] = oklchToHex(0.35, dangerChroma * 0.6, dangerHue);
@@ -171,14 +195,30 @@ export function applyTheme(
     const successChroma = 0.12;
     if (isDark) {
         vars["--accent-success"] = oklchToHex(0.72, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(0.22, successChroma * 0.4, successHue);
+        vars["--success-bg"] = oklchToHex(
+            0.22,
+            successChroma * 0.4,
+            successHue,
+        );
         vars["--success-border"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(0.85, successChroma * 0.6, successHue);
+        vars["--success-text"] = oklchToHex(
+            0.85,
+            successChroma * 0.6,
+            successHue,
+        );
     } else {
         vars["--accent-success"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(0.94, successChroma * 0.3, successHue);
+        vars["--success-bg"] = oklchToHex(
+            0.94,
+            successChroma * 0.3,
+            successHue,
+        );
         vars["--success-border"] = oklchToHex(0.65, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(0.35, successChroma * 0.6, successHue);
+        vars["--success-text"] = oklchToHex(
+            0.35,
+            successChroma * 0.6,
+            successHue,
+        );
     }
 
     // ── Node locked ──
@@ -190,8 +230,13 @@ export function applyTheme(
     } else {
         vars["--node-locked-bg"] = oklchToHex(0.88, lockedChroma, source.h);
         vars["--node-locked-border"] = oklchToHex(0.75, lockedChroma, source.h);
-        vars["--node-locked-text"] = oklchToHex(0.60, lockedChroma, source.h);
+        vars["--node-locked-text"] = oklchToHex(0.6, lockedChroma, source.h);
     }
+
+    // ── Node flash ──
+    vars["--node-flash-color"] = isDark
+        ? "rgba(255, 255, 255, 0.5)"
+        : "rgba(0, 0, 0, 0.25)";
 
     // ── Region accent palettes ──
     const regions: { name: string; hue: number; chroma: number }[] = [
@@ -206,21 +251,65 @@ export function applyTheme(
         const c = region.chroma;
 
         if (isDark) {
-            vars[`--region-${region.name}-accent`] = oklchToHex(0.72, c, rawHue);
+            vars[`--region-${region.name}-accent`] = oklchToHex(
+                0.72,
+                c,
+                rawHue,
+            );
             vars[`--region-${region.name}-light`] = oklchToHex(0.85, c, rawHue);
-            vars[`--region-${region.name}-bg-available`] = oklchToHex(0.22, c * 0.5, softenedHue);
-            vars[`--region-${region.name}-bg-active`] = oklchToHex(0.36, c * 0.7, rawHue);
-            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(0.46, c * 0.8, rawHue);
-            vars[`--region-${region.name}-text`] = oklchToHex(0.80, c * 0.7, rawHue);
-            vars[`--region-${region.name}-text-maxed`] = oklchToHex(0.90, c * 0.5, rawHue);
+            vars[`--region-${region.name}-bg-available`] = oklchToHex(
+                0.22,
+                c * 0.5,
+                softenedHue,
+            );
+            vars[`--region-${region.name}-bg-active`] = oklchToHex(
+                0.36,
+                c * 0.7,
+                rawHue,
+            );
+            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(
+                0.46,
+                c * 0.8,
+                rawHue,
+            );
+            vars[`--region-${region.name}-text`] = oklchToHex(
+                0.8,
+                c * 0.7,
+                rawHue,
+            );
+            vars[`--region-${region.name}-text-maxed`] = oklchToHex(
+                0.9,
+                c * 0.5,
+                rawHue,
+            );
         } else {
-            vars[`--region-${region.name}-accent`] = oklchToHex(0.50, c, rawHue);
-            vars[`--region-${region.name}-light`] = oklchToHex(0.40, c, rawHue);
-            vars[`--region-${region.name}-bg-available`] = oklchToHex(0.92, c * 0.3, softenedHue);
-            vars[`--region-${region.name}-bg-active`] = oklchToHex(0.86, c * 0.4, rawHue);
-            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(0.80, c * 0.5, rawHue);
-            vars[`--region-${region.name}-text`] = oklchToHex(0.30, c * 0.7, rawHue);
-            vars[`--region-${region.name}-text-maxed`] = oklchToHex(0.20, c * 0.5, rawHue);
+            vars[`--region-${region.name}-accent`] = oklchToHex(0.5, c, rawHue);
+            vars[`--region-${region.name}-light`] = oklchToHex(0.4, c, rawHue);
+            vars[`--region-${region.name}-bg-available`] = oklchToHex(
+                0.92,
+                c * 0.3,
+                softenedHue,
+            );
+            vars[`--region-${region.name}-bg-active`] = oklchToHex(
+                0.86,
+                c * 0.4,
+                rawHue,
+            );
+            vars[`--region-${region.name}-bg-maxed`] = oklchToHex(
+                0.8,
+                c * 0.5,
+                rawHue,
+            );
+            vars[`--region-${region.name}-text`] = oklchToHex(
+                0.3,
+                c * 0.7,
+                rawHue,
+            );
+            vars[`--region-${region.name}-text-maxed`] = oklchToHex(
+                0.2,
+                c * 0.5,
+                rawHue,
+            );
         }
     }
 
