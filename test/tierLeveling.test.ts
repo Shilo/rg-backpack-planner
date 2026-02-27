@@ -461,4 +461,63 @@ const child: Node = {
     }
 })();
 
+(function yellowBranchIncrementDecrementSymmetry() {
+    // Yellow branch structure (indices 0-9):
+    //   Tier 1: [0] root (maxLevel=100)
+    //   Tier 2: [1] child of 0 (100), [2] child of 0 (100)
+    //   Tier 3: [3] child of 1 (100), [4] child of 1 (100), [5] child of 2 (100), [6] child of 2 (100)
+    //   Tier 4: [7] child of [3,4] (50), [8] child of [5,6] (50)
+    //   Tier 5: [9] child of [7,8] (1)
+    const nodes: Node[] = [
+        { skillId: "attack_boost", maxLevel: 100, radius: 1, x: 0, y: 0 },
+        { skillId: "hp_boost", parent: 0, maxLevel: 100, radius: 1, x: 0, y: 10 },
+        { skillId: "defense_boost", parent: 0, maxLevel: 100, radius: 1, x: -10, y: 0 },
+        { skillId: "skill_crit", parent: 1, maxLevel: 100, radius: 1, x: 5, y: 20 },
+        { skillId: "ignore_dodge", parent: 1, maxLevel: 100, radius: 1, x: -5, y: 20 },
+        { skillId: "pierce_resistance", parent: 2, maxLevel: 100, radius: 1, x: -15, y: 10 },
+        { skillId: "dodge", parent: 2, maxLevel: 100, radius: 1, x: -20, y: 0 },
+        { skillId: "global_def", parent: [3, 4], maxLevel: 50, radius: 1, x: 0, y: 30 },
+        { skillId: "global_hp", parent: [5, 6], maxLevel: 50, radius: 1, x: -25, y: 10 },
+        { skillId: "final_damage_boost", parent: [7, 8], maxLevel: 1, radius: 1, x: -15, y: 25 },
+    ];
+
+    // Increment root by +20 each step, recording snapshots
+    const incSnapshots: LevelsByIndex[] = [];
+    let levels: LevelsByIndex = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    incSnapshots.push(levels.slice());
+    for (let target = 20; target <= 100; target += 20) {
+        const result = applyLevelChange({ nodes, levels, index: 0, targetLevel: target });
+        levels = result.levels;
+        incSnapshots.push(levels.slice());
+    }
+    // incSnapshots[0] = root=0, [1] = root=20, ..., [5] = root=100
+
+    // Decrement root by -20 each step from root=100, recording snapshots
+    const decSnapshots: LevelsByIndex[] = [];
+    decSnapshots.push(levels.slice()); // root=100
+    for (let target = 80; target >= 0; target -= 20) {
+        const result = applyLevelChange({ nodes, levels, index: 0, targetLevel: target });
+        levels = result.levels;
+        decSnapshots.push(levels.slice());
+    }
+    // decSnapshots[0] = root=100, [1] = root=80, ..., [5] = root=0
+
+    // Compare: inc and dec snapshots at the same root level should match exactly
+    // incSnapshots[i] corresponds to root = i*20
+    // decSnapshots[j] corresponds to root = 100 - j*20 = (5-j)*20
+    // So incSnapshots[i] should equal decSnapshots[5-i]
+    for (let i = 0; i <= 5; i++) {
+        const rootLevel = i * 20;
+        const inc = incSnapshots[i];
+        const dec = decSnapshots[5 - i];
+        for (let n = 0; n < nodes.length; n++) {
+            assertEqual(
+                dec[n],
+                inc[n],
+                `root=${rootLevel} node[${n}]: dec=${dec[n]} should equal inc=${inc[n]}`,
+            );
+        }
+    }
+})();
+
 console.log("tierLeveling tests passed");
