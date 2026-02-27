@@ -200,21 +200,22 @@
         content: "";
         position: absolute;
         inset: 0;
-        background-image: repeating-linear-gradient(
+        background-image: linear-gradient(
             90deg,
-            transparent,
-            transparent calc(var(--tick-step, 20%) - var(--tick-thickness, 2px)),
-            var(--tick-color, var(--border)) calc(var(--tick-step, 20%) - var(--tick-thickness, 2px)),
-            var(--tick-color, var(--border)) var(--tick-step, 20%)
+            transparent 0,
+            transparent calc(100% - var(--tick-thickness, 3px)),
+            var(--tick-color, var(--border)) calc(100% - var(--tick-thickness, 3px)),
+            var(--tick-color, var(--border)) 100%
         );
         background-size: var(--tick-step, 20%) 100%;
+        background-repeat: repeat-x;
         pointer-events: none;
     }
 
     .level-progress {
         --tick-color: color-mix(in srgb, var(--accent) 70%, var(--border));
         --tick-step: 20%;
-        --tick-thickness: 2px;
+        --tick-thickness: 3px;
     }
 
     .level-progress-bar {
