@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+    import { onDestroy, tick } from "svelte";
     import {
         CheckCircleIcon,
         CrownIcon,
@@ -11,6 +12,7 @@
     } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import { formatNumber } from "./mathUtil";
+    import { darkMode } from "./darkModeStore";
 
     export let id: number;
     export let x: number = 0;
@@ -32,6 +34,47 @@
     } as const;
 
     $: NodeIcon = stateIcons[state] ?? LockIcon;
+
+    let flash = false;
+    let lastLevel = level;
+    let flashTimeout: ReturnType<typeof setTimeout> | null = null;
+    let flashPending = false;
+    let flashScheduled = false;
+    $: flashClass = flash ? ($darkMode ? "flash-dark" : "flash-light") : "";
+
+    function triggerFlash() {
+        if (flashTimeout) {
+            clearTimeout(flashTimeout);
+        }
+        flash = false;
+        // Wait a tick so removing and re-adding the class reliably retriggers the animation
+        tick().then(() => {
+            flash = true;
+            console.log("Node flash", { id, level });
+            flashTimeout = setTimeout(() => {
+                flash = false;
+            }, 260);
+        });
+    }
+
+    $: if (level !== lastLevel) {
+        lastLevel = level;
+        flashPending = true;
+        if (!flashScheduled) {
+            flashScheduled = true;
+            tick().then(() => {
+                if (flashPending) {
+                    triggerFlash();
+                }
+                flashPending = false;
+                flashScheduled = false;
+            });
+        }
+    }
+
+    onDestroy(() => {
+        if (flashTimeout) clearTimeout(flashTimeout);
+    });
 </script>
 
 <div
@@ -39,7 +82,7 @@
     style="left: {x}px; top: {y}px;"
 >
     <Button
-        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
+        class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""} ${flashClass}`}
         aria-label={label || String(id)}
         data-node-id={String(id)}
         icon={NodeIcon}
@@ -295,5 +338,46 @@
         color: var(--text-color-maxed);
         --hex-fill: var(--bg-maxed);
         --hex-border-color: var(--border-color-maxed);
+    }
+
+    :global(.button.node.flash-dark::after),
+    :global(.button.node.flash-light::after) {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        clip-path: inherit;
+        pointer-events: none;
+        animation: nodeFlashFill 240ms ease-out forwards;
+        z-index: 2;
+    }
+
+    :global(.button.node.flash-dark::after) {
+        background: rgba(255, 255, 255, 0.32);
+        mix-blend-mode: screen;
+    }
+
+    :global(.button.node.flash-light::after) {
+        background: rgba(0, 0, 0, 0.22);
+        mix-blend-mode: multiply;
+    }
+
+    :global(.button.node.node-hexagon.flash-dark::after),
+    :global(.button.node.node-hexagon.flash-light::after) {
+        clip-path: var(--hex-clip);
+        border-radius: 0;
+        inset: var(--hex-border-width);
+    }
+
+    @keyframes nodeFlashFill {
+        0% {
+            opacity: 0;
+        }
+        25% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
     }
 </style>
