@@ -17,28 +17,28 @@
 <style>
     .side-menu-section {
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .side-menu-section__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .side-menu-section__title {
         margin: 0;
-        font-size: 0.85rem;
-        letter-spacing: 0.12em;
+        font-size: var(--font-base);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
-        color: rgba(201, 214, 245, 0.75);
+        color: var(--text-disabled);
     }
 
     .side-menu-section__action {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .side-menu-section__action:empty {
@@ -47,6 +47,6 @@
 
     .side-menu-section__content {
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 </style>

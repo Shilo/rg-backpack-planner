@@ -46,19 +46,19 @@
 
 <style>
     .tech-crystals-spent {
-        color: #ffffff;
+        color: var(--text);
     }
 
     .tech-crystals-spent.is-negative {
-        color: #f87171;
+        color: var(--accent-danger);
     }
 
     .tech-crystals-separator {
-        color: #c7d6ff;
+        color: var(--text-muted);
     }
 
     .tech-crystals-owned {
-        color: #e6f0ff;
+        color: var(--text);
     }
 
     :global(.button-icon-filled) {

@@ -450,8 +450,8 @@
     }
 
     :global(.preset-name-btn.active) {
-        background: rgba(70, 95, 165, 0.4) !important;
-        border-color: rgba(120, 156, 240, 0.6) !important;
+        background: color-mix(in srgb, var(--surface) 78%, var(--accent)) !important;
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
     }
 
     :global(.preset-name-btn .button-text) {
@@ -474,7 +474,7 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     :global(.move-buttons-row) {

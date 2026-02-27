@@ -28,26 +28,31 @@
         <span class="currency-separator"> / </span>
         <span class="currency-owned">{formatNumber($techCrystalsOwned)}</span>
     {/if}
-    <HexagonIcon size={26} weight="fill" aria-hidden="true" />
+    <HexagonIcon
+        size={26}
+        weight="fill"
+        aria-hidden="true"
+        style="color: var(--text-muted);"
+    />
 </Button>
 
 <style>
     :global(.currency-display) {
-        border-radius: 999px !important;
+        border-radius: var(--radius-full) !important;
         display: inline-flex;
         align-items: center;
         gap: 2px;
-        padding: 6px 10px 6px 12px;
-        font-weight: 600;
-        font-size: 1.25rem !important;
-        letter-spacing: 0.02em;
+        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-lg);
+        font-weight: var(--weight-bold);
+        font-size: var(--font-lg) !important;
+        letter-spacing: var(--tracking);
     }
 
     :global(.currency-display .button-text) {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        line-height: 1;
+        gap: var(--spacing-sm);
+        line-height: var(--leading-none);
     }
 
     :global(.currency-display svg) {
@@ -56,18 +61,18 @@
 
     .currency-spent {
         text-align: right;
-        color: #ffffff;
+        color: var(--text);
     }
 
     .currency-spent.is-negative {
-        color: #f87171;
+        color: var(--accent-danger);
     }
 
     .currency-separator {
-        color: #c7d6ff;
+        color: var(--text-muted);
     }
 
     .currency-owned {
-        color: #e6f0ff;
+        color: var(--text);
     }
 </style>

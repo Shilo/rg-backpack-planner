@@ -88,6 +88,40 @@ To add a new modal type:
 - **Types:** PascalCase (`Tree`, `BuildData`, `NodeState`)
 - **Constants:** SCREAMING_SNAKE_CASE (`DEFAULT_DURATION_MS`)
 
+## Preview (Claude Code)
+
+Server configs live in `.claude/launch.json` (`dev` on port 5173, `preview` on port 4173).
+
+To start the dev server, call `preview_start` with name `"dev"`.
+
+**Base path:** The app is served at `/rg-backpack-planner/` (matching GitHub Pages). The root `/` shows a blank page. Always use the full URL: `http://localhost:5173/rg-backpack-planner/`
+
+**After starting or restarting the server**, always navigate explicitly:
+```js
+preview_eval: window.location.href = 'http://localhost:5173/rg-backpack-planner/'
+```
+Then wait for the page and take a screenshot before interacting. The browser may be on `chrome-error://` after a server restart and will not auto-recover.
+
+**HMR errors persist in console** from editing sessions even after code is fixed. If you see stale Vite HMR errors, restart the server (`preview_stop` then `preview_start`) and navigate again. Do not chase stale console errors.
+
+**Opening the side menu:** Use a single `preview_click` on `.menu-button`. Do NOT double-click (it opens then immediately closes). After opening, the side menu content is scrollable — use `preview_eval` to scroll:
+```js
+preview_eval: document.querySelector('.side-menu__content').scrollTop = document.querySelector('.side-menu__content').scrollHeight
+```
+
+**ContextMenu dropdowns** (theme color, preview builds, etc.) close automatically on any `pointerup` outside the menu. When testing dropdown items:
+- Use `preview_click` with a CSS selector (not JS `.click()`) to select items
+- Or set store values directly via `localStorage.setItem(...)` + page reload to bypass UI interaction
+
+**Viewport size matters:** At mobile width (< 500px), the side menu slides over the full screen. Use `preview_resize` to 800x600 or wider to see the side menu alongside the tree.
+
+**Preview pane must be open:** The preview tools (`preview_screenshot`, `preview_snapshot`, etc.) stall indefinitely if the Preview pane is not already open in Claude Desktop. There is no way to programmatically open it. If a preview call hangs, the user must manually open the Preview pane in Claude Desktop for it to complete. Avoid chaining multiple preview verification steps without confirming the pane is responsive.
+
+**Other caveats:**
+- Always use `--host` when starting the dev/preview server so the preview browser can connect. The `launch.json` configs already include this flag.
+- On Windows, `launch.json` uses `node` directly (`node node_modules/vite/bin/vite.js`) instead of `npm run dev` because `preview_start` cannot spawn `.cmd` shims.
+- Run `npm run build` before using the `preview` server (it serves the `dist/` folder).
+
 ## Deployment
 
 - GitHub Pages at `/rg-backpack-planner/` base path

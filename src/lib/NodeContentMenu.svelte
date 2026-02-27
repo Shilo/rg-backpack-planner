@@ -140,11 +140,11 @@
 
 <style>
     .node-stats {
-        padding: 8px 12px;
-        border-bottom: 1px solid rgba(44, 60, 97, 0.5);
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-bottom: var(--border-width) solid var(--border-subtle);
         display: flex;
         align-items: flex-start;
-        gap: 12px;
+        gap: var(--spacing-lg);
     }
 
     .node-icon-wrapper {
@@ -159,37 +159,37 @@
     .node-icon-wrapper :global(svg) {
         width: 24px;
         height: 24px;
-        opacity: 0.8;
+        opacity: var(--opacity-disabled);
     }
 
     .node-stats-content {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .stat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        font-size: 0.875rem;
+        gap: var(--spacing-md);
+        font-size: var(--font-base);
     }
 
     .stat-label {
-        color: #8fa4ce;
+        color: var(--text-muted);
     }
 
     .stat-value {
-        color: #e8eefc;
-        font-weight: 600;
+        color: var(--text);
+        font-weight: var(--weight-bold);
     }
 
     .level-progress {
         width: 100%;
         height: 6px;
-        background: rgba(44, 53, 80, 0.5);
+        background: var(--bg-raised);
         border-radius: 3px;
         overflow: hidden;
         margin-top: 2px;
@@ -197,14 +197,14 @@
 
     .level-progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, #4c6fff, #5aa6ff);
+        background: linear-gradient(90deg, var(--accent), var(--accent-light));
         border-radius: 3px;
-        transition: width 0.2s ease;
+        transition: width var(--ease);
     }
 
     .button-grid {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 </style>

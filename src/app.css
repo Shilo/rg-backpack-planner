@@ -5,12 +5,13 @@
 }
 
 :root {
-    --bar-pad: 10px;
+    --bar-pad: var(--spacing-lg);
     --tab-height: 38px;
-    --side-menu-tab-height: calc(var(--tab-height) + 10px);
+    --side-menu-tab-height: calc(var(--tab-height) + var(--spacing-lg));
     --side-menu-tab-min-width: 72px;
     --side-menu-width: calc(
-        3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + 10px
+        3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
+            var(--spacing-lg)
     );
 
     --z-index-hud: 5;
@@ -40,8 +41,8 @@ body {
         system-ui,
         -apple-system,
         sans-serif;
-    background: #0b1220;
-    color: #eef2ff;
+    background: var(--bg);
+    color: var(--text);
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
@@ -69,7 +70,7 @@ button {
 }
 
 * {
-    scrollbar-color: #3f5fa5 rgba(12, 20, 37, 0.8);
+    scrollbar-color: var(--border-subtle) transparent;
     scrollbar-width: thin;
 }
 
@@ -79,48 +80,37 @@ button {
 }
 
 *::-webkit-scrollbar-track {
-    background: rgba(12, 20, 37, 0.8);
+    background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-    background: rgba(79, 111, 191, 0.6);
-    border-radius: 999px;
-    border: 2px solid rgba(12, 20, 37, 0.8);
+    background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 60%, transparent);
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: rgba(79, 111, 191, 0.85);
+    background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 85%, transparent);
 }
 
 .tooltip {
     position: fixed;
     z-index: var(--z-index-tooltip);
-    padding: 6px 10px;
-    border-radius: 8px;
-    background: rgba(20, 28, 46, 0.96);
-    border: 1px solid rgba(60, 86, 140, 0.6);
-    color: #e7efff;
-    font-size: 0.85rem;
-    letter-spacing: 0.02em;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius);
+    background: var(--bg-panel);
+    border: var(--border-width) solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: var(--font-base);
+    letter-spacing: var(--tracking);
     max-width: 240px;
     text-align: center;
     white-space: pre-line;
     overflow-wrap: anywhere;
     word-break: break-word;
     hyphens: auto;
-    box-shadow: 0 8px 20px rgba(9, 13, 25, 0.45);
+    box-shadow: var(--shadow);
     pointer-events: none;
-}
-
-.modal-message a {
-    color: #9fb6ff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.modal-message a:hover,
-.modal-message a:focus-visible {
-    color: #c8d6ff;
 }
 
 @media (hover: none) {

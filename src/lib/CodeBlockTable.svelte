@@ -118,20 +118,20 @@
 <style>
     .codeblock-table {
         display: grid;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .codeblock-table__table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        font-size: 0.8rem;
+        font-size: var(--font-base);
     }
 
     .codeblock-table__table td {
-        border-top: 1px solid rgba(74, 110, 184, 0.35);
-        border-left: 1px solid rgba(74, 110, 184, 0.35);
-        padding: 6px 8px;
+        border-top: var(--border-width) solid var(--border-subtle);
+        border-left: var(--border-width) solid var(--border-subtle);
+        padding: var(--spacing-sm) var(--spacing-md);
         text-align: left;
     }
 
@@ -144,13 +144,13 @@
     }
 
     .codeblock-table__table tbody {
-        color: #c8d7ff;
+        color: var(--text-muted);
     }
 
     .codeblock-table__section {
-        background: rgba(15, 23, 42, 0.6);
-        color: #dbe6ff;
-        font-weight: 600;
-        letter-spacing: 0.02em;
+        background: var(--bg-input);
+        color: var(--text-muted);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking);
     }
 </style>

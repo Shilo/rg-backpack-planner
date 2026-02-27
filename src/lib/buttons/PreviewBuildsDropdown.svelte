@@ -119,11 +119,11 @@
 
     .section-title {
         margin: 0;
-        font-size: 0.8rem;
-        letter-spacing: 0.12em;
+        font-size: var(--font-base);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
-        color: rgba(201, 214, 245, 0.75);
-        padding-left: 4px;
+        color: var(--text-disabled);
+        padding-left: var(--spacing-sm);
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;
@@ -134,6 +134,6 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 </style>

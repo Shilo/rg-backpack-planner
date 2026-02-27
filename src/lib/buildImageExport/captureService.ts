@@ -27,6 +27,32 @@ export function isCaptureInProgress() {
     return captureInProgressCount > 0;
 }
 
+function preserveTreeLinkStrokeStyles(root: HTMLElement) {
+    // Ensure SVG link stroke styles survive capture (snapdom can miss CSS for SVG)
+    root.querySelectorAll<SVGLineElement>(".tree-link").forEach((line) => {
+        const computed = getComputedStyle(line);
+        const stroke = computed.stroke;
+        const strokeOpacity = computed.strokeOpacity;
+        const widthValue = Number.parseFloat(computed.strokeWidth);
+        const strokeWidth =
+            Number.isFinite(widthValue) && widthValue > 0
+                ? `${widthValue}px`
+                : "4px";
+        const filter = computed.filter;
+
+        if (stroke && stroke !== "none") {
+            line.style.stroke = stroke;
+        }
+        line.style.strokeWidth = strokeWidth;
+        if (strokeOpacity && strokeOpacity !== "1") {
+            line.style.strokeOpacity = strokeOpacity;
+        }
+        if (filter && filter !== "none") {
+            line.style.filter = filter;
+        }
+    });
+}
+
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
     parent: HTMLElement,
@@ -62,6 +88,8 @@ async function captureElementAsPng(
             } catch (_) {}
             parent.appendChild(clone);
         }
+
+        preserveTreeLinkStrokeStyles(clone);
 
         try {
             return await snapdom.toBlob(parent, {

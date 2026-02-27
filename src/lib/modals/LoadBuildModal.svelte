@@ -162,8 +162,8 @@
 <style>
     .modal-content {
         display: grid;
-        gap: 12px;
-        padding: 10px;
+        gap: var(--spacing-lg);
+        padding: var(--spacing-md);
     }
 
     .modal-header {
@@ -174,26 +174,26 @@
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .modal-header h2 {
         margin: 0;
-        font-size: 1.05rem;
-        color: #f1f5ff;
-        line-height: 1;
+        font-size: var(--font-lg);
+        color: var(--text);
+        line-height: var(--leading-none);
     }
 
     :global(.modal-title-icon) {
         width: 18px;
         height: 18px;
-        color: #b9c7ec;
+        color: var(--text-muted);
     }
 
     .modal-message {
         margin: 0;
-        font-size: 0.92rem;
-        color: #c8d6f7;
+        font-size: var(--font-base);
+        color: var(--text-muted);
         line-height: 1.4;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -201,33 +201,33 @@
     }
 
     .modal-label {
-        font-size: 0.85rem;
-        color: #b9c7ec;
-        letter-spacing: 0.02em;
+        font-size: var(--font-base);
+        color: var(--text-muted);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
     }
 
     .modal-input-row {
         display: grid;
         grid-template-columns: minmax(0, 96px) minmax(0, 1fr);
-        gap: 8px;
+        gap: var(--spacing-md);
         align-items: center;
     }
 
     .modal-input {
         width: 100%;
         height: 44px;
-        border-radius: 12px;
-        border: 1px solid rgba(72, 102, 172, 0.6);
-        background: rgba(12, 18, 32, 0.9);
-        color: #e7efff;
-        font-size: 0.96rem;
-        padding: 0 10px;
+        border-radius: var(--radius);
+        border: var(--border-width) solid var(--border-subtle);
+        background: var(--bg-input);
+        color: var(--text-muted);
+        font-size: var(--font-base);
+        padding: 0 var(--spacing-md);
         text-transform: none;
     }
 
     .modal-input:focus-visible {
-        outline: 2px solid rgba(120, 156, 240, 0.9);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 
@@ -241,13 +241,13 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .modal-actions__row {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 
     .modal-actions__row--right {

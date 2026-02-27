@@ -5,10 +5,14 @@
         ClockCounterClockwiseIcon,
         CubeFocusIcon,
         MagnifyingGlassPlusIcon,
+        MoonIcon,
+        SunIcon,
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
+    import { tooltip } from "../tooltip";
+    import { triggerHaptic } from "../haptics";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -19,6 +23,9 @@
     import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
     import PreviewBuildsDropdown from "../buttons/PreviewBuildsDropdown.svelte";
     import { closeUpView } from "../closeUpViewStore";
+    import { darkMode } from "../darkModeStore";
+    import { themeColor } from "../themeColorStore";
+    import ThemeColorSelector from "../ThemeColorSelector.svelte";
     import { openModal } from "../modalStore";
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
     import { isPreviewMode } from "../previewModeStore";
@@ -83,6 +90,8 @@
             onConfirm: () => {
                 singleLevelUp.resetToDefault();
                 closeUpView.resetToDefault();
+                themeColor.resetToDefault();
+                darkMode.resetToDefault();
 
                 showToast("Settings reset to defaults");
                 onClose?.();
@@ -140,9 +149,10 @@
 <SideMenuSection title="Build">
     <BuildPresetsButton disabled={$isPreviewMode} />
     <TechCrystalsButton disabled={$isPreviewMode} />
-    <div class="button-row">
+    <div class="button-group build-share-row">
         <ShareBuildButton title="Share" disabled={$isPreviewMode} />
         <Button
+            class="dropdown-button"
             bind:element={previewButtonElement}
             on:click={handlePreviewDropdownClick}
             tooltipText={"Preview shareable link/code or premade build"}
@@ -206,6 +216,22 @@
 </SideMenuSection>
 
 <SideMenuSection title="Application">
+    <div class="button-group theme-row">
+        <ThemeColorSelector />
+        <button
+            class="icon-button"
+            type="button"
+            aria-label={$darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            use:tooltip={"Switch between dark and light color scheme"}
+            on:click={() => { triggerHaptic(); darkMode.toggle(); }}
+        >
+            {#if $darkMode}
+                <MoonIcon size={18} />
+            {:else}
+                <SunIcon size={18} />
+            {/if}
+        </button>
+    </div>
     <FullscreenToggle />
     <InstallPwaButton title={true} />
     <Button
@@ -244,33 +270,54 @@
 
 <style>
     .spacer {
-        height: 6px;
+        height: var(--spacing-md);
     }
 
-    .button-row {
-        display: flex;
-        gap: 2px;
+    .build-share-row :global(button) {
+        flex: 1;
     }
 
-    .button-row :global(:first-child) {
+    .theme-row :global(:first-child) {
         flex: 1;
         min-width: 0;
     }
 
-    .button-row :global(:first-child .button-icon) {
-        flex: 0 0 auto;
-        width: 26px;
-        height: 26px;
-    }
-
-    .button-row :global(:first-child .button-icon svg) {
-        width: 26px;
-        height: 26px;
+    .icon-button {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        background: var(--bg-raised);
+        border: var(--border-width) solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        cursor: pointer;
         flex-shrink: 0;
+        transition:
+            filter var(--ease),
+            transform var(--ease);
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .button-row :global(:first-child .button-text) {
-        flex: 1;
-        min-width: 0;
+    @media (hover: hover) {
+        .icon-button:hover {
+            filter: var(--brightness-hover);
+        }
+    }
+
+    .icon-button:active {
+        transform: scale(0.92);
+    }
+
+    .icon-button:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
+    /* Flat left edge and no left border when in button-group */
+    .theme-row .icon-button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
     }
 </style>

@@ -52,8 +52,8 @@
 <style>
     .modal-content {
         display: grid;
-        gap: 12px;
-        padding: 10px;
+        gap: var(--spacing-lg);
+        padding: var(--spacing-md);
     }
 
     .modal-header {
@@ -64,26 +64,26 @@
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .modal-header h2 {
         margin: 0;
-        font-size: 1.05rem;
-        color: #f1f5ff;
-        line-height: 1;
+        font-size: var(--font-lg);
+        color: var(--text);
+        line-height: var(--leading-none);
     }
 
     :global(.modal-title-icon) {
         width: 18px;
         height: 18px;
-        color: #b9c7ec;
+        color: var(--text-muted);
     }
 
     .modal-message {
         margin: 0;
-        font-size: 0.92rem;
-        color: #c8d6f7;
+        font-size: var(--font-base);
+        color: var(--text-muted);
         line-height: 1.4;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -93,6 +93,6 @@
     .modal-actions {
         display: flex;
         justify-content: flex-end;
-        gap: 10px;
+        gap: var(--spacing-lg);
     }
 </style>

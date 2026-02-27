@@ -498,13 +498,17 @@
 <style>
     .tabs-root {
         --menu-width: 38px;
-        --menu-gap: 4px;
+        --menu-gap: var(--spacing-sm);
         display: flex;
         flex-direction: column;
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: radial-gradient(circle at top, #162238, #0c1425 75%);
+        background: radial-gradient(
+            circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
+            color-mix(in srgb, var(--bg) 40%, var(--surface)),
+            var(--bg) 75%
+        );
         position: relative;
     }
 
@@ -532,16 +536,16 @@
     }
 
     :global(.tab-buttons button) {
-        color: #8fa4ce;
-        padding: 0 10px;
+        color: var(--text-muted);
+        padding: 0 var(--spacing-md);
         height: var(--tab-height);
-        border-radius: 10px;
+        border-radius: var(--radius);
         text-transform: uppercase;
         letter-spacing: 0.08em;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: var(--spacing-md);
         min-width: 0;
         overflow: hidden;
     }
@@ -556,18 +560,18 @@
     }
 
     :global(.tab-buttons button.active) {
-        background: rgba(34, 49, 82, 0.78);
-        color: #e7efff;
-        border-color: #4f6fbf;
+        background: color-mix(in srgb, var(--surface) 78%, var(--accent));
+        color: var(--text-muted);
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
     }
 
     :global(.fullscreen-button) {
-        border: 1px solid #2c3c61;
-        background: rgba(17, 27, 45, 0.7);
-        color: #8fa4ce;
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: 10px;
+        border-radius: var(--radius);
         padding: 0;
         display: flex;
         align-items: center;
@@ -581,13 +585,13 @@
     }
 
     :global(.menu-button) {
-        border: 1px solid #2c3c61;
-        background: rgba(17, 27, 45, 0.7);
-        color: #8fa4ce;
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
         width: var(--tab-height);
         height: var(--tab-height);
-        border-radius: 10px;
-        font-size: 1.35rem;
+        border-radius: var(--radius);
+        font-size: var(--font-lg);
         padding: 0;
         display: flex;
         align-items: center;

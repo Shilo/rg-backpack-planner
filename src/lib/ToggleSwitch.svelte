@@ -46,41 +46,41 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        gap: var(--spacing-lg);
         width: 100%;
         height: 40px;
-        padding: 10px 12px;
-        border: 1px solid #2c3c61;
-        background: rgba(17, 27, 45, 0.7);
-        border-radius: 12px;
-        color: #d4e1ff;
-        font-size: 0.85rem;
-        line-height: 1.1;
+        padding: var(--spacing-md) var(--spacing-lg);
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        font-size: var(--font-base);
+        line-height: var(--leading);
         cursor: pointer;
         transition:
-            border-color 0.2s ease,
-            color 0.2s ease,
-            background 0.2s ease,
-            transform 0.12s ease,
-            filter 0.12s ease;
+            border-color var(--ease),
+            color var(--ease),
+            background var(--ease),
+            transform var(--ease),
+            filter var(--ease);
         text-align: left;
         -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-row:focus-visible {
-        outline: 2px solid rgba(120, 156, 240, 0.9);
+        outline: 2px solid var(--border-focus);
         outline-offset: 2px;
     }
 
     @media (hover: hover) {
         .toggle-row:hover {
-            filter: brightness(1.18);
+            filter: var(--brightness-hover);
         }
     }
 
     .toggle-row:active {
         transform: scale(0.97);
-        filter: brightness(1.2);
+        filter: var(--brightness-hover);
     }
 
     .toggle-icon {
@@ -107,18 +107,18 @@
         position: relative;
         width: 50px;
         height: 30px;
-        border-radius: 15px;
-        background: rgba(44, 60, 97, 0.8);
-        border: 1px solid rgba(44, 60, 97, 0.9);
+        border-radius: var(--radius);
+        background: color-mix(in srgb, var(--border) 80%, transparent);
+        border: var(--border-width) solid color-mix(in srgb, var(--border) 90%, transparent);
         transition:
-            background 0.2s ease,
-            border-color 0.2s ease;
+            background var(--ease),
+            border-color var(--ease);
         flex-shrink: 0;
     }
 
     .toggle-switch.active {
-        background: rgba(74, 144, 226, 0.9);
-        border-color: rgba(74, 144, 226, 1);
+        background: color-mix(in srgb, var(--accent-light) 90%, transparent);
+        border-color: var(--accent-light);
     }
 
     .toggle-switch__thumb {
@@ -128,9 +128,9 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: #ffffff;
-        transition: transform 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        background: white;
+        transition: transform var(--ease);
+        box-shadow: var(--shadow);
     }
 
     .toggle-switch.active .toggle-switch__thumb {

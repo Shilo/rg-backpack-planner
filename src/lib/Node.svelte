@@ -33,7 +33,10 @@
     $: NodeIcon = stateIcons[state] ?? LockIcon;
 </script>
 
-<div class="node-wrapper" style="left: {x}px; top: {y}px;">
+<div
+    class={`node-wrapper ${isLeaf ? "node-wrapper-hex" : ""}`}
+    style="left: {x}px; top: {y}px;"
+>
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
         aria-label={label || String(id)}
@@ -58,93 +61,99 @@
         transform: translate(-50%, -50%);
     }
 
+    .node-wrapper.node-wrapper-hex {
+        filter: drop-shadow(var(--shadow-node-hex));
+    }
+
     /* CSS Custom Properties - All color variables defined here */
     :global(.button.node) {
         /* Filter values for unleveled states */
-        --filter-locked: brightness(0.4);
-        --filter-available: brightness(0.5);
+        --filter-locked: var(--node-brightness-locked);
+        --filter-available: var(--node-brightness-available);
 
         /* Locked state colors (grayscale, same for all regions) */
-        --bg-locked: #2a2a35;
-        --border-color-locked: #55556a;
-        --text-color-locked: #8888a0;
+        --bg-locked: var(--node-locked-bg);
+        --border-color-locked: var(--node-locked-border);
+        --text-color-locked: var(--node-locked-text);
 
-        /* Default color variables (overridden by region-specific rules) */
-        --bg-available: #1c2f52;
-        --bg-active: #2a3f73;
-        --bg-maxed: #4a2e0a;
-        --border-color: #4c6fff;
-        --border-color-active: #5aa6ff;
-        --border-color-maxed: #ffb347;
-        --text-color: #cdd7ff;
-        --text-color-active: #e1f0ff;
-        --text-color-maxed: #ffe8c7;
-        --hex-bg: #2a3441;
+        /* Default region color variables (blue — matches region-right) */
+        --bg-available: var(--region-blue-bg-available);
+        --bg-active: var(--region-blue-bg-active);
+        --bg-maxed: var(--region-blue-bg-maxed);
+        --border-color: var(--region-blue-accent);
+        --border-color-active: var(--region-blue-accent);
+        --border-color-maxed: var(--region-blue-light);
+        --text-color: var(--region-blue-text);
+        --text-color-active: var(--region-blue-text);
+        --text-color-maxed: var(--region-blue-text-maxed);
+        --hex-clip: polygon(
+            25% 0%,
+            75% 0%,
+            100% 50%,
+            75% 100%,
+            25% 100%,
+            0% 50%
+        );
+        --hex-border-width: 3px;
+        --hex-fill: var(--surface);
+        --hex-border-color: var(--border);
 
         /* Base node styles */
         position: relative;
         width: 64px;
         height: 64px;
-        border-radius: 999px;
+        border-radius: var(--radius-full);
         border: 2px solid transparent;
         display: grid;
         place-items: center;
-        background: #1f2a44;
-        color: #e8eefc;
+        background: var(--surface);
+        color: var(--text);
         font-family: inherit;
         cursor: pointer;
         touch-action: none;
         user-select: none;
         padding: 0;
         text-align: center;
+        box-shadow: var(--shadow-node);
     }
 
     /* Top-left region (Orange theme) */
     :global(.button.node.region-top-left) {
-        --bg-available: #6b3f1f;
-        --bg-active: #8b4f2f;
-        --bg-maxed: #ab5f3f;
-        --border-color: #ff6b35;
-        --border-color-active: #ff6b35;
-        --border-color-maxed: #ff8c5a;
-        --text-color: #ffd4b8;
-        --text-color-active: #ffd4b8;
-        --text-color-maxed: #ffe8d4;
+        --bg-available: var(--region-orange-bg-available);
+        --bg-active: var(--region-orange-bg-active);
+        --bg-maxed: var(--region-orange-bg-maxed);
+        --border-color: var(--region-orange-accent);
+        --border-color-active: var(--region-orange-accent);
+        --border-color-maxed: var(--region-orange-light);
+        --text-color: var(--region-orange-text);
+        --text-color-active: var(--region-orange-text);
+        --text-color-maxed: var(--region-orange-text-maxed);
     }
 
     /* Bottom-left region (Yellow theme) */
     :global(.button.node.region-bottom-left) {
-        --bg-available: #3d3d0a;
-        --bg-active: #5a5a1a;
-        --bg-maxed: #6a6a2a;
-        --border-color: #ffd700;
-        --border-color-active: #ffd700;
-        --border-color-maxed: #ffeb3b;
-        --text-color: #fff9cc;
-        --text-color-active: #fff9cc;
-        --text-color-maxed: #fffdd0;
+        --bg-available: var(--region-yellow-bg-available);
+        --bg-active: var(--region-yellow-bg-active);
+        --bg-maxed: var(--region-yellow-bg-maxed);
+        --border-color: var(--region-yellow-accent);
+        --border-color-active: var(--region-yellow-accent);
+        --border-color-maxed: var(--region-yellow-light);
+        --text-color: var(--region-yellow-text);
+        --text-color-active: var(--region-yellow-text);
+        --text-color-maxed: var(--region-yellow-text-maxed);
     }
 
     /* Right region (Blue theme) */
     :global(.button.node.region-right) {
-        --bg-available: #1c2f52;
-        --bg-active: #2a3f73;
-        --bg-maxed: #3a4f83;
-        --border-color: #4a90e2;
-        --border-color-active: #4a90e2;
-        --border-color-maxed: #6bb6ff;
-        --text-color: #b8d9ff;
-        --text-color-active: #c8e5ff;
-        --text-color-maxed: #e1f0ff;
-    }
-
-    /* Hexagon background colors per region */
-    :global(.button.node.region-top-left.node-hexagon) {
-        --hex-bg: #2f2e2a;
-    }
-
-    :global(.button.node.region-bottom-left.node-hexagon) {
-        --hex-bg: #2f2f2a;
+        --bg-available: var(--region-blue-bg-available);
+        --bg-active: var(--region-blue-bg-active);
+        --bg-maxed: var(--region-blue-bg-maxed);
+        --border-color: var(--region-blue-accent);
+        --border-color-active: var(--region-blue-accent);
+        --border-color-maxed: var(--region-blue-light);
+        --text-color: var(--region-blue-text);
+        --text-color-active: var(--region-blue-text);
+        --text-color-maxed: var(--region-blue-text-maxed);
     }
 
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
@@ -153,143 +162,40 @@
         border: none;
         position: relative;
         overflow: visible;
-        background: var(--hex-bg) !important;
-        clip-path: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
+        box-shadow: none;
+        background: transparent;
+        clip-path: var(--hex-clip);
+        isolation: isolate;
     }
 
     /* Create border using pseudo-element that follows the hexagon shape */
     :global(.button.node.node-hexagon::before) {
         content: "";
         position: absolute;
-        inset: -3px;
-        clip-path: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
-        z-index: -1;
+        inset: 0;
+        clip-path: var(--hex-clip);
+        background: var(--hex-border-color);
+        z-index: 0;
         pointer-events: none;
     }
 
-    /* Create inner hexagon mask to show only the border */
+    /* Inner fill to create a true hexagon stroke */
     :global(.button.node.node-hexagon::after) {
         content: "";
         position: absolute;
-        inset: 3px;
-        clip-path: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
-        z-index: -1;
+        inset: var(--hex-border-width);
+        clip-path: var(--hex-clip);
+        background: var(--hex-fill);
+        z-index: 0;
         pointer-events: none;
-        background: var(--hex-bg);
     }
 
-    /* Override hex-bg for locked hexagons so body is also grayscale */
-    :global(.button.node.node-hexagon.locked) {
-        --hex-bg: var(--bg-locked);
+    :global(.button.node.node-hexagon .node-icon) {
+        z-index: 1;
     }
 
-    /* Hexagon border (::before) state styles */
-    :global(.button.node.node-hexagon.locked::before) {
-        background: var(--border-color-locked);
-        filter: var(--filter-locked);
-    }
-
-    :global(.button.node.node-hexagon.available::before) {
-        background: var(--border-color);
-        filter: var(--filter-available)
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.node-hexagon.active::before) {
-        background: var(--border-color);
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 50%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 30%, transparent)
-            );
-    }
-
-    :global(.button.node.node-hexagon.maxed::before) {
-        background: var(--border-color-maxed);
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 50%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 30%,
-                        transparent
-                    )
-            );
-    }
-
-    /* Hexagon element glow state styles */
-    :global(.button.node.node-hexagon.available) {
-        filter: var(--filter-available)
-            drop-shadow(
-                0 0 4px color-mix(in srgb, var(--border-color) 30%, transparent)
-            )
-            drop-shadow(
-                0 0 8px color-mix(in srgb, var(--border-color) 15%, transparent)
-            );
-    }
-
-    :global(.button.node.node-hexagon.active) {
-        filter: drop-shadow(
-                0 0 6px color-mix(in srgb, var(--border-color) 40%, transparent)
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(in srgb, var(--border-color) 20%, transparent)
-            );
-    }
-
-    :global(.button.node.node-hexagon.maxed) {
-        filter: drop-shadow(
-                0 0 6px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 40%,
-                        transparent
-                    )
-            )
-            drop-shadow(
-                0 0 12px
-                    color-mix(
-                        in srgb,
-                        var(--border-color-maxed) 20%,
-                        transparent
-                    )
-            );
+    :global(.button.node.node-hexagon) .node-level {
+        z-index: 1;
     }
 
     :global(.button.node.with-icon) {
@@ -323,17 +229,13 @@
         pointer-events: none;
         white-space: nowrap;
         line-height: 1.2;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #ffffff;
-        text-shadow:
-            0 1px 2px rgba(0, 0, 0, 0.9),
-            0 0 4px rgba(0, 0, 0, 0.6),
-            1px 0 2px rgba(0, 0, 0, 0.9),
-            -1px 0 2px rgba(0, 0, 0, 0.9);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-bold);
+        color: white;
+        text-shadow: var(--shadow-text);
         background: rgba(0, 0, 0, 0.4);
-        padding: 2px 4px;
-        border-radius: 8px;
+        padding: var(--spacing-sm);
+        border-radius: var(--radius);
         transform-origin: center bottom;
     }
 
@@ -343,6 +245,8 @@
         border-color: var(--border-color-locked);
         color: var(--text-color-locked);
         filter: var(--filter-locked);
+        --hex-fill: var(--bg-locked);
+        --hex-border-color: var(--border-color-locked);
     }
 
     :global(.button.node.available) {
@@ -350,23 +254,23 @@
         border-color: var(--border-color);
         color: var(--text-color);
         filter: var(--filter-available);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color) 20%, transparent);
+        --hex-fill: var(--bg-available);
+        --hex-border-color: var(--border-color);
     }
 
     :global(.button.node.active) {
         background: var(--bg-active);
         border-color: var(--border-color-active);
         color: var(--text-color-active);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-active) 30%, transparent);
+        --hex-fill: var(--bg-active);
+        --hex-border-color: var(--border-color-active);
     }
 
     :global(.button.node.maxed) {
         background: var(--bg-maxed);
         border-color: var(--border-color-maxed);
         color: var(--text-color-maxed);
-        box-shadow: 0 0 0 2px
-            color-mix(in srgb, var(--border-color-maxed) 35%, transparent);
+        --hex-fill: var(--bg-maxed);
+        --hex-border-color: var(--border-color-maxed);
     }
 </style>

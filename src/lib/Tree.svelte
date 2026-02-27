@@ -253,53 +253,6 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
-    // Border colors per region, matching Node.svelte CSS variables exactly
-    const regionBorderColor: Record<NodeRegion, string> = {
-        "top-left": "#ff6b35",
-        "bottom-left": "#ffd700",
-        right: "#4a90e2",
-    };
-
-    const regionBorderColorMaxed: Record<NodeRegion, string> = {
-        "top-left": "#ff8c5a",
-        "bottom-left": "#ffeb3b",
-        right: "#6bb6ff",
-    };
-
-    const lockedBorderColor = "#55556a";
-
-    // Brightness values matching Node.svelte --filter-locked / --filter-available
-    const brightnessLocked = 0.4;
-    const brightnessAvailable = 0.5;
-
-    function applyBrightness(hex: string, brightness: number): string {
-        const r = Math.round(parseInt(hex.slice(1, 3), 16) * brightness);
-        const g = Math.round(parseInt(hex.slice(3, 5), 16) * brightness);
-        const b = Math.round(parseInt(hex.slice(5, 7), 16) * brightness);
-        return `rgb(${r}, ${g}, ${b})`;
-    }
-
-    function getLinkColor(
-        to: NodeType,
-        toIndex: number,
-        toState: NodeState,
-    ): string {
-        if (toState === "locked")
-            return applyBrightness(lockedBorderColor, brightnessLocked);
-
-        const region = getNodeRegion(to, toIndex);
-
-        if (toState === "available")
-            return applyBrightness(
-                regionBorderColor[region],
-                brightnessAvailable,
-            );
-        if (toState === "maxed") return regionBorderColorMaxed[region];
-
-        // active
-        return regionBorderColor[region];
-    }
-
     function levelUp(index: NodeIndex) {
         const node = getNodeAt(index);
         if (!node) return false;
@@ -893,17 +846,13 @@
                         {#if toNode}
                             {@const toIndex = link.to}
                             {@const toState = getState(toNode, toIndex, levels)}
-                            {@const linkColor = getLinkColor(
-                                toNode,
-                                toIndex,
-                                toState,
-                            )}
+                            {@const toRegion = getNodeRegion(toNode, toIndex)}
                             <line
+                                class={`tree-link ${toState} region-${toRegion}`}
                                 x1={fromNode ? fromNode.x : 0}
                                 y1={fromNode ? fromNode.y : 0}
                                 x2={toNode.x}
                                 y2={toNode.y}
-                                style={`stroke: ${linkColor}; stroke-width: 4;`}
                             />
                         {/if}
                     {/each}
@@ -974,7 +923,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
 
     .tree-viewport {
@@ -1007,7 +956,43 @@
         overflow: visible;
     }
 
-    .tree-links line {
+    .tree-links .tree-link {
+        stroke-width: 4;
+        stroke: var(--link-color);
+        filter: none;
         transition: stroke-opacity 0.2s;
+    }
+
+    .tree-links .tree-link.region-top-left {
+        --link-color: var(--region-orange-accent);
+        --link-color-maxed: var(--region-orange-light);
+    }
+
+    .tree-links .tree-link.region-bottom-left {
+        --link-color: var(--region-yellow-accent);
+        --link-color-maxed: var(--region-yellow-light);
+    }
+
+    .tree-links .tree-link.region-right {
+        --link-color: var(--region-blue-accent);
+        --link-color-maxed: var(--region-blue-light);
+    }
+
+    .tree-links .tree-link.locked {
+        stroke: var(--node-locked-border);
+        filter: var(--node-brightness-locked);
+    }
+
+    .tree-links .tree-link.available {
+        stroke: var(--link-color);
+        filter: var(--node-brightness-available);
+    }
+
+    .tree-links .tree-link.active {
+        stroke: var(--link-color);
+    }
+
+    .tree-links .tree-link.maxed {
+        stroke: var(--link-color-maxed);
     }
 </style>

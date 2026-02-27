@@ -181,24 +181,24 @@
     .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(6, 9, 18, 0.72);
+        background: var(--bg-panel);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 16px;
+        padding: var(--spacing-lg);
         z-index: var(--z-index-modal);
     }
 
     .modal-shell {
         width: min(92vw, 380px);
-        border-radius: 16px;
-        background: rgba(14, 21, 36, 0.98);
-        border: 1px solid rgba(82, 112, 189, 0.5);
-        box-shadow: 0 20px 40px rgba(6, 9, 18, 0.55);
+        border-radius: var(--radius);
+        background: var(--bg-panel);
+        border: var(--border-width) solid color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 50%, transparent);
+        box-shadow: var(--shadow);
         padding: 0;
         overflow: hidden;
         display: grid;
-        gap: 14px;
+        gap: var(--spacing-lg);
     }
 
     @media (max-width: 480px) {

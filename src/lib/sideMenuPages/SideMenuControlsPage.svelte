@@ -24,6 +24,7 @@
     import InstallPwaButton, {
         subscribeInstallState,
     } from "../buttons/InstallPwaButton.svelte";
+    import AppIcon from "../icons/AppIcon.svelte";
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { getOSName } from "../systemUtil";
@@ -34,7 +35,6 @@
     const appTitleWithVersion = appVersion
         ? `${appName} v${appVersion}`
         : (appName ?? "");
-    const appIconUrl = `${import.meta.env.BASE_URL}icon.svg`;
     const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
         | string
         | undefined;
@@ -195,11 +195,7 @@
             <div class="app-info-actions">
                 <div class="control-row">
                     <span class="control-icon" aria-hidden="true">
-                        <img
-                            src={appIconUrl}
-                            alt={`${appName || "App"} icon`}
-                            class="control-icon__image"
-                        />
+                        <AppIcon />
                     </span>
                     <div class="control-text">
                         {#if appDescription}
@@ -380,13 +376,13 @@
     .controls-page {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: var(--spacing-md);
         min-width: 0;
     }
 
     .controls-sections {
         display: grid;
-        gap: 10px;
+        gap: var(--spacing-lg);
         min-width: 0;
     }
 
@@ -395,68 +391,61 @@
         margin: 0;
         padding: 0;
         display: grid;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .control-row {
         display: grid;
         grid-template-columns: 24px minmax(0, 1fr);
-        gap: 6px;
+        gap: var(--spacing-md);
         align-items: start;
     }
 
     .control-icon {
         width: 20px;
         height: 20px;
-        color: #d7e2ff;
+        color: var(--text-muted);
     }
 
-    .control-icon :global(svg),
-    .control-icon__image {
+    .control-icon :global(svg) {
         width: 100%;
         height: 100%;
         display: block;
     }
 
-    .control-icon__image {
-        opacity: 0.85;
-        filter: brightness(0) saturate(100%) invert(90%) sepia(5%)
-            saturate(1200%) hue-rotate(195deg) brightness(110%) contrast(90%);
-    }
-
     .control-icon-filled {
-        color: #b9c7ec;
+        color: var(--text-muted);
     }
 
     .control-text {
         display: grid;
-        gap: 4px;
+        gap: var(--spacing-sm);
     }
 
     .control-label {
         margin: 0;
-        font-size: 0.92rem;
-        color: #f1f5ff;
+        font-size: var(--font);
+        color: var(--text);
         overflow-wrap: break-word;
     }
 
     .control-desc {
         margin: 0;
-        font-size: 0.85rem;
-        color: #b9c7ec;
+        font-size: var(--font);
+        color: var(--text-muted);
         line-height: 1.35;
         overflow-wrap: break-word;
     }
 
     .control-desc :global(a) {
-        color: #a7b7e6;
+        color: var(--text-muted);
     }
 
     .app-info-actions {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 6px;
+        gap: var(--spacing-md);
     }
 
     .app-info-actions > .control-row {
@@ -468,7 +457,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 6px;
+        gap: var(--spacing-md);
         flex-shrink: 0;
     }
 </style>

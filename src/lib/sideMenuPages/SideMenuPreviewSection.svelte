@@ -20,16 +20,16 @@
 
 <style>
     .preview-section {
-        background: rgba(79, 111, 191, 0.2);
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
-        padding-top: 8px;
+        background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 20%, transparent);
+        border-bottom-left-radius: var(--radius);
+        border-bottom-right-radius: var(--radius);
+        padding-top: var(--spacing-md);
         margin-top: 0px !important;
-        padding-bottom: 7px !important;
+        padding-bottom: var(--spacing-md) !important;
         margin-bottom: -7px;
-        padding-left: 10px;
-        margin-left: -10px;
-        padding-right: 10px;
-        margin-right: -10px;
+        padding-left: var(--spacing-md);
+        margin-left: calc(-1 * var(--spacing-md));
+        padding-right: var(--spacing-md);
+        margin-right: calc(-1 * var(--spacing-md));
     }
 </style>
