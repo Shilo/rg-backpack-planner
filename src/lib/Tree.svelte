@@ -264,11 +264,11 @@
         updateLevels(nextLevels);
         onNodeLevelChange?.(1, index);
 
-        levelZeroParents(index);
+        maxOutParents(index);
         return true;
     }
 
-    function levelZeroParents(index: NodeIndex) {
+    function maxOutParents(index: NodeIndex) {
         const node = getNodeAt(index);
         if (!node) return;
         const parents = parentIndices(node);
@@ -276,17 +276,31 @@
             const parentNode = getNodeAt(pi);
             if (!parentNode) continue;
             const parentLevel = getLevel(pi);
-            if (parentLevel === 0) {
-                const nextLevel = Math.min(1, parentNode.maxLevel);
-                if (nextLevel > 0) {
-                    const nextLevels = levels.slice();
-                    nextLevels[pi] = nextLevel;
-                    updateLevels(nextLevels);
-                    onNodeLevelChange?.(1, pi);
-                    levelZeroParents(pi);
-                }
+            if (parentLevel < parentNode.maxLevel) {
+                const delta = parentNode.maxLevel - parentLevel;
+                const nextLevels = levels.slice();
+                nextLevels[pi] = parentNode.maxLevel;
+                updateLevels(nextLevels);
+                onNodeLevelChange?.(delta, pi);
+                maxOutParents(pi);
             }
         }
+    }
+
+    function resetChildren(index: NodeIndex) {
+        nodes.forEach((node, i) => {
+            const parents = parentIndices(node);
+            if (parents.includes(index)) {
+                const childLevel = getLevel(i);
+                if (childLevel > 0) {
+                    const nextLevels = levels.slice();
+                    nextLevels[i] = 0;
+                    updateLevels(nextLevels);
+                    onNodeLevelChange?.(-childLevel, i);
+                    resetChildren(i);
+                }
+            }
+        });
     }
 
     function levelDown(index: NodeIndex) {
@@ -296,6 +310,9 @@
         nextLevels[index] = level - 1;
         updateLevels(nextLevels);
         onNodeLevelChange?.(-1, index);
+        if (level - 1 === 0) {
+            resetChildren(index);
+        }
     }
 
     function resetNode(index: NodeIndex) {
@@ -305,6 +322,7 @@
         nextLevels[index] = 0;
         updateLevels(nextLevels);
         onNodeLevelChange?.(-level, index);
+        resetChildren(index);
     }
 
     function levelUpBy10(index: NodeIndex) {
@@ -317,7 +335,7 @@
         nextLevels[index] = nextLevel;
         updateLevels(nextLevels);
         onNodeLevelChange?.(nextLevel - level, index);
-        levelZeroParents(index);
+        maxOutParents(index);
     }
 
     function maxNode(index: NodeIndex) {
@@ -329,7 +347,7 @@
         nextLevels[index] = node.maxLevel;
         updateLevels(nextLevels);
         onNodeLevelChange?.(node.maxLevel - level, index);
-        levelZeroParents(index);
+        maxOutParents(index);
     }
 
     export function resetAllNodes() {
