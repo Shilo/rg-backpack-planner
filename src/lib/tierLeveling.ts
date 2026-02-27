@@ -148,23 +148,23 @@ export function applyLevelChange(params: {
         }
     };
 
-    const clampDescendants = (i: number) => {
+    const clampDescendants = (i: number, allowedTier: number) => {
         const children = childrenMap.get(i) ?? [];
         children.forEach((ci) => {
-            const parents = parentIndices(nodes[ci]);
-            const parentTiers = parents.map((pi) =>
+            // Determine how much tier this child is allowed to keep based on
+            // (a) the ancestor's allowed tier budget and (b) the lowest current
+            //     tier among its parents (min-gating for multi-parent nodes).
+            const parentTiers = parentIndices(nodes[ci]).map((pi) =>
                 tierIndex(next[pi] ?? 0, nodes[pi].maxLevel),
             );
-            const minParentTier = Math.min(...parentTiers);
-            const allowedTier = Math.max(0, minParentTier - 1);
-            const allowedLevel = tierUpper(allowedTier, nodes[ci].maxLevel);
+            const minParentTier = parentTiers.length ? Math.min(...parentTiers) : Infinity;
+            const childAllowedTier = Math.min(allowedTier, minParentTier);
+            const allowedLevel = tierUpper(childAllowedTier, nodes[ci].maxLevel);
             const prev = next[ci] ?? 0;
             if (prev > allowedLevel) {
                 setLevel(ci, allowedLevel);
-                clampDescendants(ci);
-            } else {
-                clampDescendants(ci);
             }
+            clampDescendants(ci, childAllowedTier);
         });
     };
 
@@ -196,7 +196,8 @@ export function applyLevelChange(params: {
     if (newTier > oldTier) {
         processIncrease(index, oldTier, newTier);
     } else if (newTier < oldTier) {
-        clampDescendants(index);
+        const allowedTier = Math.max(0, newTier - 1);
+        clampDescendants(index, allowedTier);
     }
 
     return { levels: next, deltas };
