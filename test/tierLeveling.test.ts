@@ -40,6 +40,7 @@ const child: Node = {
     assertEqual(tierSize(1), 0, "tierSize 1");
     assertEqual(tierIndex(0, 100), 0, "tierIndex 0");
     assertEqual(tierIndex(1, 100), 1, "tierIndex 1");
+    assertEqual(tierIndex(1, 1), 1, "tierIndex 1/1");
     assertEqual(tierUpper(1, 100), 20, "tierUpper 1/100");
     assertEqual(tierUpper(4, 50), 40, "tierUpper 4/50");
 })();
@@ -323,7 +324,7 @@ const child: Node = {
     assertEqual(next[3], 0, "blue child unchanged (other branch)");
 })();
 
-(function noTierNodeDoesNotUnlock() {
+(function onePointNodesUnlockAtTier1() {
     const one: Node = {
         skillId: "final_damage_boost",
         maxLevel: 1,
@@ -340,9 +341,48 @@ const child: Node = {
         y: 0,
     };
     const nodes: Node[] = [one, childOne];
-    const levels: LevelsByIndex = [1, 0];
-    const unlocked = unlockedTierForNode(nodes, levels, 1);
-    assertEqual(unlocked, 0, "no tiers when maxLevel=1");
+    let levels: LevelsByIndex = [0, 0];
+    let unlocked = unlockedTierForNode(nodes, levels, 1);
+    assertEqual(unlocked, 0, "locked when one-point parent is unspent");
+    levels = [1, 0];
+    unlocked = unlockedTierForNode(nodes, levels, 1);
+    assertEqual(unlocked, 1, "one-point parent counts as tier1 when leveled");
+})();
+
+(function singlePointNodeRaisesParents() {
+    const parent100: Node = {
+        skillId: "attack_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: 0,
+        y: 0,
+    };
+    const parent50: Node = {
+        skillId: "global_def",
+        maxLevel: 50,
+        radius: 1,
+        x: 10,
+        y: 0,
+    };
+    const final: Node = {
+        skillId: "final_damage_boost",
+        parent: [0, 1],
+        maxLevel: 1,
+        radius: 1,
+        x: 5,
+        y: 0,
+    };
+    const nodes: Node[] = [parent100, parent50, final];
+    const levels: LevelsByIndex = [0, 0, 0];
+    const { levels: next } = applyLevelChange({
+        nodes,
+        levels,
+        index: 2,
+        targetLevel: 1,
+    });
+    assertEqual(next[0], 20, "100-level parent raised to tier1 cap");
+    assertEqual(next[1], 10, "50-level parent raised to tier1 cap");
+    assertEqual(next[2], 1, "single-point node leveled");
 })();
 
 console.log("tierLeveling tests passed");

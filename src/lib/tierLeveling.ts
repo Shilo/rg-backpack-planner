@@ -10,7 +10,8 @@ export function tierSize(maxLevel: Node["maxLevel"]): number {
 }
 
 export function tierIndex(level: number, maxLevel: Node["maxLevel"]): number {
-    if (maxLevel <= 1 || level <= 0) return 0;
+    if (level <= 0) return 0;
+    if (maxLevel <= 1) return 1;
     const size = tierSize(maxLevel);
     if (size === 0) return 0;
     const tier = Math.floor((level - 1) / size) + 1;
@@ -172,11 +173,8 @@ export function applyLevelChange(params: {
         const parents = parentIndices(nodes[i]);
         parents.forEach((pi) => {
             const requiredLevel = tierUpper(tier, nodes[pi].maxLevel);
-            if (ensureAtLeast(pi, requiredLevel)) {
-                ensureParentsForTier(pi, tier);
-            } else {
-                ensureParentsForTier(pi, tier);
-            }
+            ensureAtLeast(pi, requiredLevel);
+            ensureParentsForTier(pi, tier);
         });
     };
 

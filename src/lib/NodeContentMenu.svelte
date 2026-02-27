@@ -14,7 +14,8 @@
     import Button from "./Button.svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import { formatNumber } from "./mathUtil";
-    import type { NodeIndex } from "../types/tree";
+    import { tierSize } from "./tierLeveling";
+    import type { Node, NodeIndex } from "../types/tree";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -57,6 +58,17 @@
     };
 
     $: tickImage = tickGradient(maxLevel);
+    $: totalTiers = maxLevel > 1 ? 5 : 1;
+    $: completedTiers = (() => {
+        if (maxLevel <= 0) return 0;
+        if (maxLevel <= 1) return level > 0 ? 1 : 0;
+
+        const size = tierSize(maxLevel as Node["maxLevel"]);
+        if (size === 0) return 0;
+
+        const completed = Math.floor(level / size);
+        return Math.min(totalTiers, completed);
+    })();
 </script>
 
 <ContextMenu
@@ -85,18 +97,9 @@
             <div class="stat-row">
                 <span class="stat-label">Tier</span>
                 <span class="stat-value">
-                    {(() => {
-                        const totalTiers = maxLevel > 1 ? 5 : 1;
-                        if (maxLevel <= 0) return 0;
-                        if (totalTiers === 1) return level > 0 ? 1 : 0;
-
-                        const chunk = maxLevel / totalTiers;
-                        const tier = Math.floor(level / chunk);
-
-                        return Math.min(totalTiers, tier);
-                    })()}
+                    {completedTiers}
                     /
-                    {maxLevel > 1 ? 5 : 1}
+                    {totalTiers}
                 </span>
             </div>
             <div
