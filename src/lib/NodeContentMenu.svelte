@@ -75,11 +75,15 @@
             <div class="stat-row">
                 <span class="stat-label">Tier:</span>
                 <span class="stat-value">
-                    {maxLevel > 1
-                        ? Math.min(4, Math.floor(level / Math.ceil(maxLevel / 5)))
-                        : 0}
+                    {(() => {
+                        const totalTiers = maxLevel > 1 ? 5 : 1;
+                        const displayMax = totalTiers === 1 ? 1 : totalTiers - 1; // 4 for multi-tier, 1 for single-tier
+                        if (totalTiers === 1) return Math.min(1, level > 0 ? 1 : 0);
+                        const chunk = Math.ceil(maxLevel / 5);
+                        return Math.min(displayMax, Math.floor(level / chunk));
+                    })()}
                     /
-                    {maxLevel > 1 ? 4 : 0}
+                    {maxLevel > 1 ? 4 : 1}
                 </span>
             </div>
             <div
