@@ -41,7 +41,8 @@
 
     const tickGradient = (max: number) => {
         if (max <= 1) return "";
-        const positions = [20, 40, 60, 80];
+        const size = Math.ceil(max / 5);
+        const positions = [1, 2, 3, 4].map((t) => (t * size * 100) / max);
         const thickness = "3px";
         const color = "var(--bg-panel)";
         return positions
@@ -66,10 +67,20 @@
                 <span class="stat-value">30,000%</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Levels:</span>
+                <span class="stat-label">Level:</span>
                 <span class="stat-value"
                     >{formatNumber(level)} / {formatNumber(maxLevel)}</span
                 >
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Tier:</span>
+                <span class="stat-value">
+                    {maxLevel > 1
+                        ? Math.min(4, Math.max(0, Math.ceil(level / Math.ceil(maxLevel / 5)) - 1))
+                        : 0}
+                    /
+                    {maxLevel > 1 ? 4 : 0}
+                </span>
             </div>
             <div
                 class="level-progress"
