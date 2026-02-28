@@ -23,3 +23,4 @@
 
 - GitHub Pages base path is `/rg-backpack-planner/`; keep routing SPA-safe.
 - If `public/icon.svg` changes, rerun `npm run pwa:assets`.
+- In Codex, cite sources as plain `path:line` text, not Markdown file links.
