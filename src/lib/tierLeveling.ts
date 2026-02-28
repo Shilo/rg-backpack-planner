@@ -328,7 +328,6 @@ export function applyLevelChange(params: {
         componentIndices,
         ancestorFlags,
     });
-
     let nextStableTier = currentStableTier;
     if (clampedTarget > startingLevel) {
         nextStableTier = Math.max(
@@ -344,10 +343,14 @@ export function applyLevelChange(params: {
         }
     }
 
-    next[index] = clampedTarget;
-
-    const wrappedTier = Math.max(nextStableTier - 1, 0);
     const isIncrement = clampedTarget > startingLevel;
+    const propagationStableTier =
+        !isIncrement && clampedTarget === 0
+            ? Math.max(nextStableTier, 1)
+            : nextStableTier;
+    const wrappedTier = Math.max(propagationStableTier - 1, 0);
+
+    next[index] = clampedTarget;
 
     for (const componentIndex of componentIndices) {
         if (componentIndex === index) continue;
@@ -356,7 +359,7 @@ export function applyLevelChange(params: {
         if (!componentNode) continue;
 
         const requiredTier = ancestorFlags[componentIndex]
-            ? nextStableTier
+            ? propagationStableTier
             : wrappedTier;
         const requiredLevel = tierUpper(requiredTier, componentNode.maxLevel);
         const currentLevel = current[componentIndex] ?? 0;

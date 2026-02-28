@@ -27,6 +27,7 @@ import {
     formatTierStepState,
     nextStableTier,
     partitionYellowBranchRoles,
+    propagationStableTier,
     tierExplicitScenarioCases,
     tierSeededInvariantCases,
     tierSweepCases,
@@ -543,12 +544,17 @@ function buildSweepExpectedSteps(testCase: SweepCase): ExpectedUiStep[] {
             currentStableTier: stableTier,
             maxLevel: targetNode.maxLevel,
         });
+        const reactiveTier = propagationStableTier({
+            previousLevel,
+            nextLevel: targetLevel,
+            stableTier,
+        });
 
         const expectedLevels = buildExpectedBranchLevels({
             nodes,
             targetIndex: testCase.targetIndex,
             targetLevel,
-            stableTier,
+            stableTier: reactiveTier,
             ancestors,
         });
 
@@ -682,6 +688,11 @@ function assertUiInvariantState(params: {
         nodes: yellowBranchNodes,
         targetIndex,
     });
+    const reactiveTier = propagationStableTier({
+        previousLevel,
+        nextLevel: clampedTarget,
+        stableTier: actualStableTier,
+    });
     const roles = partitionYellowBranchRoles(yellowBranchNodes, targetIndex);
 
     if ((actual.levels[targetIndex] ?? 0) !== clampedTarget) {
@@ -723,8 +734,8 @@ function assertUiInvariantState(params: {
 
         const previousNodeLevel = currentLevels[index] ?? 0;
         const assignedTier = roles.ancestors.has(index)
-            ? actualStableTier
-            : Math.max(actualStableTier - 1, 0);
+            ? reactiveTier
+            : Math.max(reactiveTier - 1, 0);
         const assignedLevel = expectedTierUpper(
             assignedTier,
             branchNode.maxLevel,

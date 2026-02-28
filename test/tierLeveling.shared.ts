@@ -54,6 +54,17 @@ export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
     },
     {
         expectedStates: [
+            [20, 20, 0, 1, 0, 0, 0, 0, 0, 0],
+            [20, 20, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        name: "Split tier-1 decrement to zero keeps ancestor support",
+        operations: [
+            { index: 3, targetLevel: 1 },
+            { index: 3, targetLevel: 0 },
+        ],
+    },
+    {
+        expectedStates: [
             [20, 20, 0, 20, 20, 0, 0, 10, 0, 0],
             [40, 40, 20, 40, 40, 20, 20, 20, 10, 1],
         ],
@@ -68,11 +79,11 @@ export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
             [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
             [100, 100, 100, 100, 100, 80, 100, 50, 40, 1],
             [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ],
-        name: "Cross-branch explicit unwind clears on tier-1 reset",
+        name: "Cross-branch explicit unwind clears after the root reset",
         operations: [
             { index: 7, targetLevel: 50 },
             { index: 6, targetLevel: 100 },
@@ -108,9 +119,9 @@ export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
         expectedStates: [
             [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
             [20, 20, 20, 0, 19, 0, 10, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [20, 0, 20, 0, 0, 0, 0, 0, 0, 0],
         ],
-        name: "Sibling support reset follows current target contract",
+        name: "Sibling support reset preserves target ancestors",
         operations: [
             { index: 6, targetLevel: 10 },
             { index: 4, targetLevel: 19 },
@@ -121,9 +132,9 @@ export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
         expectedStates: [
             [40, 40, 20, 20, 21, 20, 20, 10, 10, 1],
             [40, 40, 20, 39, 21, 20, 20, 10, 10, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [20, 20, 0, 0, 0, 0, 0, 0, 0, 0],
         ],
-        name: "Split tier-2 reset follows current target contract",
+        name: "Split tier-2 reset preserves target ancestors",
         operations: [
             { index: 4, targetLevel: 21 },
             { index: 3, targetLevel: 39 },
@@ -305,6 +316,20 @@ export function nextStableTier(params: {
     return currentStableTier;
 }
 
+export function propagationStableTier(params: {
+    previousLevel: number;
+    nextLevel: number;
+    stableTier: number;
+}): number {
+    const { previousLevel, nextLevel, stableTier } = params;
+
+    if (nextLevel < previousLevel && nextLevel === 0) {
+        return Math.max(stableTier, 1);
+    }
+
+    return stableTier;
+}
+
 export function buildExpectedBranchLevels(params: {
     nodes: Node[];
     targetIndex: number;
@@ -340,7 +365,12 @@ export function applyExpectedTargetTransition(params: {
     } = params;
     const nextLevels = [...currentLevels];
     const roles = partitionYellowBranchRoles(nodes, targetIndex);
-    const wrappedTier = Math.max(stableTier - 1, 0);
+    const reactiveTier = propagationStableTier({
+        previousLevel,
+        nextLevel,
+        stableTier,
+    });
+    const wrappedTier = Math.max(reactiveTier - 1, 0);
 
     nextLevels[targetIndex] = nextLevel;
     if (nextLevel === previousLevel) {
@@ -350,7 +380,9 @@ export function applyExpectedTargetTransition(params: {
     nodes.forEach((node, index) => {
         if (index === targetIndex) return;
 
-        const assignedTier = roles.ancestors.has(index) ? stableTier : wrappedTier;
+        const assignedTier = roles.ancestors.has(index)
+            ? reactiveTier
+            : wrappedTier;
         const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
         const currentLevel = currentLevels[index] ?? 0;
 

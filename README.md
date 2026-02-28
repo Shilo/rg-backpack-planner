@@ -130,13 +130,15 @@ For more detail on the hand-written CLI suites, see [test/README.md](test/README
 Tier leveling uses a stable-tier model with hysteresis:
 
 - the target node always moves to the exact requested level after clamping
+- if a level change drops the target to `0`, the target still lands at `0`, but
+  non-target propagation uses a virtual tier floor of `1` for that rebase
 - each operation is evaluated from the node you just changed; previously raised
   neighbors do not become independent reactive drivers
 - reactive nodes are updated every time the target changes, not only when the
   visible target tier label changes
-- ancestor nodes react to the target's stable tier
+- ancestor nodes react to the target's propagation tier
 - all other connected nodes in the branch react as wrapped nodes and use
-  `target stable tier - 1`
+  `target propagation tier - 1`
 
 Reactive thresholds depend on the node's `maxLevel`:
 
@@ -155,9 +157,9 @@ at the same number it rose:
   `20`, `40`, `60`, or `80`
 - `50` cap nodes drop reactive support when they fall below `10`, `20`, `30`,
   or `40`
-- a `1` cap node drops reactive support when it returns to `0`
-- if a tier-1 source drops from `1` to `0`, the reactive branch clears because
-  tier 1 only holds while the target stays at least `1`
+- a `1` cap node drops its own stable tier when it returns to `0`
+- if a decrement lands on `0`, ancestors still rebase against tier `1`, while
+  wrapped nodes (including descendants) rebase against tier `0`
 
 Once the next stable tier is known, reactive nodes use directional clamping:
 

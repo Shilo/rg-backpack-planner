@@ -15,6 +15,7 @@ import {
     formatTierStepState,
     nextStableTier,
     partitionYellowBranchRoles,
+    propagationStableTier,
     tierExplicitScenarioCases,
     tierSeededInvariantCases,
     tierSweepCases,
@@ -194,7 +195,12 @@ function assertBoundaryContract(params: {
     });
 
     const roles = partitionYellowBranchRoles(nodes, targetIndex);
-    const wrappedTier = Math.max(stableTier - 1, 0);
+    const reactiveTier = propagationStableTier({
+        previousLevel: from,
+        nextLevel: to,
+        stableTier,
+    });
+    const wrappedTier = Math.max(reactiveTier - 1, 0);
 
     if ((result.levels[targetIndex] ?? 0) !== to) {
         throw new Error(
@@ -208,7 +214,9 @@ function assertBoundaryContract(params: {
         if (index === targetIndex) return;
 
         const previousLevel = currentLevels[index] ?? 0;
-        const assignedTier = roles.ancestors.has(index) ? stableTier : wrappedTier;
+        const assignedTier = roles.ancestors.has(index)
+            ? reactiveTier
+            : wrappedTier;
         const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
 
         let expectedLevel = previousLevel;
@@ -444,6 +452,11 @@ function runSeededInvariantCase(testCase: ScenarioCase) {
             nodes,
             targetIndex: operation.index,
         });
+        const reactiveTier = propagationStableTier({
+            previousLevel,
+            nextLevel: clampedTarget,
+            stableTier: actualStableTier,
+        });
         const roles = partitionYellowBranchRoles(nodes, operation.index);
 
         logTierLine(
@@ -490,8 +503,8 @@ function runSeededInvariantCase(testCase: ScenarioCase) {
 
             const previousNodeLevel = currentLevels[index] ?? 0;
             const assignedTier = roles.ancestors.has(index)
-                ? actualStableTier
-                : Math.max(actualStableTier - 1, 0);
+                ? reactiveTier
+                : Math.max(reactiveTier - 1, 0);
             const assignedLevel = expectedTierUpper(
                 assignedTier,
                 branchNode.maxLevel,
@@ -561,12 +574,17 @@ function runSweepCase(testCase: SweepCase) {
             currentStableTier: stableTier,
             maxLevel: targetNode.maxLevel,
         });
+        const reactiveTier = propagationStableTier({
+            previousLevel,
+            nextLevel: targetLevel,
+            stableTier,
+        });
 
         const expectedLevels = buildExpectedBranchLevels({
             nodes,
             targetIndex: testCase.targetIndex,
             targetLevel,
-            stableTier,
+            stableTier: reactiveTier,
             ancestors,
         });
         formatTierStepState({
