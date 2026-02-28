@@ -88,9 +88,18 @@ npm run test:ui:tier
 ```
 
 That launches a visible Chromium window through Playwright, drives the real app
-under the existing `/rg-backpack-planner/` base path, and compares the rendered
-yellow-branch runtime state against the shared tier expectations after every
-step.
+under the existing `/rg-backpack-planner/` base path, applies each test step by
+calling `applyLevelChange()` directly with that operation's absolute target
+level, and compares the rendered yellow-branch runtime state against the shared
+tier expectations after every step.
+
+While the Playwright run is active, the app also shows the current test label
+inside the preview indicator area. That indicator is loaded from a dev-only
+module path and is intentionally excluded from the production `npm run build`
+bundle.
+
+In VS Code, the `.vscode/launch.json` profile `Test UI: Node Level` runs the
+same command.
 
 ## Running In The Browser
 
@@ -128,11 +137,18 @@ The tests are intentionally verbose:
 - tier tests print aligned `levels` and `tiers` arrays for each step
 - tier tests mirror their full output to `test/tierLeveling.output.log`
 - the Playwright tier UI run writes its output to `test/tierLeveling.ui.output.log`
+- the Playwright tier UI log reuses the same expected-step format as the CLI
+  tier log, then adds `actual levels` and `actual tiers`, so the two logs can
+  be compared directly
 - the Playwright tier UI run drives the production UI in a headed browser window
+- the Playwright tier UI run shows the active case label in the app while it is
+  running
 - the Playwright tier UI run compares DOM-derived `levels` and `tiers` against
   the shared tier expectations after every step
 - on a Playwright tier UI failure, a screenshot is saved under
   `test/artifacts/tier-leveling-ui/`
+- both tier log files are already ignored by git through the repo-wide `*.log`
+  rule in `.gitignore`
 - tier tests end by printing the absolute log-file path so it can be opened
   directly from terminals that support clickable `path:line` output
 - encoder tests print round-trip details and serialized-size comparisons
