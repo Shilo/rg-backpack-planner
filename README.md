@@ -182,6 +182,12 @@ test/                CLI test suites and docs
 dist/                Production output (generated)
 ```
 
+## Credits
+
+This project uses the following third-party assets:
+
+* **[250 Sci-fi Flat Icons](https://katgrabowska.itch.io/250-sci-fi-flat-icons)** by [KatGrabowska](https://katgrabowska.itch.io/) (Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)). Original icons were converted to SVG format and resized for this project.
+
 ## Deployment Notes
 
 - The deployed base path is `/rg-backpack-planner/`.
