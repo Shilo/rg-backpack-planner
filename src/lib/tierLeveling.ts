@@ -201,15 +201,24 @@ function cloneLevels(levels: LevelsByIndex, size: number): LevelsByIndex {
     return copy;
 }
 
+function stableTierHoldFloor(
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): number {
+    if (tier <= 0) return 0;
+    if (tier === 1) return Math.min(1, maxLevel);
+    return tierUpper(tier - 1, maxLevel);
+}
+
 function targetMeetsStableTierFloor(
     level: number,
     tier: number,
     maxLevel: Node["maxLevel"],
 ): boolean {
     if (tier <= 0) return true;
-    if (maxLevel <= 1) {
-        return tier === 1 && level > 0;
-    }
+    if (level <= 0) return false;
+    if (tier === 1) return true;
+    if (maxLevel <= 1) return tier === 1;
     return level >= tierUpper(tier - 1, maxLevel);
 }
 
@@ -326,12 +335,10 @@ export function applyLevelChange(params: {
             currentStableTier,
             tierIndex(clampedTarget, node.maxLevel),
         );
-    } else if (node.maxLevel <= 1 && clampedTarget === 0) {
-        nextStableTier = 0;
     } else {
         while (
             nextStableTier > 0 &&
-            clampedTarget < tierUpper(nextStableTier - 1, node.maxLevel)
+            clampedTarget < stableTierHoldFloor(nextStableTier, node.maxLevel)
         ) {
             nextStableTier -= 1;
         }

@@ -110,6 +110,15 @@ function expectedCompletedTier(
     return Math.min(Math.floor(level / size), MAX_TIERS);
 }
 
+function stableTierHoldFloor(
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): number {
+    if (tier <= 0) return 0;
+    if (tier === 1) return Math.min(1, maxLevel);
+    return expectedTierUpper(tier - 1, maxLevel);
+}
+
 export function expectedTierUpper(
     tier: number,
     maxLevel: Node["maxLevel"],
@@ -165,14 +174,16 @@ export function nextStableTier(params: {
     }
 
     if (nextLevel < previousLevel) {
-        const previousCompleted = expectedCompletedTier(
-            previousLevel,
-            maxLevel,
-        );
-        const nextCompleted = expectedCompletedTier(nextLevel, maxLevel);
-        if (nextCompleted < previousCompleted) {
-            return expectedTierIndex(nextLevel, maxLevel);
+        let nextStable = currentStableTier;
+
+        while (
+            nextStable > 0 &&
+            nextLevel < stableTierHoldFloor(nextStable, maxLevel)
+        ) {
+            nextStable -= 1;
         }
+
+        return nextStable;
     }
 
     return currentStableTier;
@@ -193,6 +204,47 @@ export function buildExpectedBranchLevels(params: {
         const requiredTier = ancestors.has(index) ? stableTier : wrappedTier;
         return expectedTierUpper(requiredTier, node.maxLevel);
     });
+}
+
+export function applyExpectedTargetTransition(params: {
+    currentLevels: number[];
+    nodes: Node[];
+    previousLevel: number;
+    nextLevel: number;
+    stableTier: number;
+    targetIndex: number;
+}): number[] {
+    const {
+        currentLevels,
+        nodes,
+        previousLevel,
+        nextLevel,
+        stableTier,
+        targetIndex,
+    } = params;
+    const nextLevels = [...currentLevels];
+    const roles = partitionYellowBranchRoles(nodes, targetIndex);
+    const wrappedTier = Math.max(stableTier - 1, 0);
+
+    nextLevels[targetIndex] = nextLevel;
+    if (nextLevel === previousLevel) {
+        return nextLevels;
+    }
+
+    nodes.forEach((node, index) => {
+        if (index === targetIndex) return;
+
+        const assignedTier = roles.ancestors.has(index) ? stableTier : wrappedTier;
+        const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
+        const currentLevel = currentLevels[index] ?? 0;
+
+        nextLevels[index] =
+            nextLevel > previousLevel
+                ? Math.max(currentLevel, assignedLevel)
+                : Math.min(currentLevel, assignedLevel);
+    });
+
+    return nextLevels;
 }
 
 export function formatTierStateGroup(params: {

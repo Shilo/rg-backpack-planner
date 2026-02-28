@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { applyLevelChange } from "../src/lib/tierLeveling.ts";
 import type { LevelsByIndex, Node } from "../src/types/tree.ts";
 import {
+    applyExpectedTargetTransition,
     buildSeededScenarioCase,
     buildExpectedBranchLevels,
     buildRoundTripSequence,
@@ -62,11 +63,11 @@ const explicitScenarioCases: Array<{
             [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
             [100, 100, 100, 100, 100, 80, 100, 50, 40, 1],
             [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
-            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ],
-        name: "Cross-branch explicit unwind",
+        name: "Cross-branch explicit unwind clears on tier-1 reset",
         operations: [
             { index: 7, targetLevel: 50 },
             { index: 6, targetLevel: 100 },
@@ -100,6 +101,32 @@ const explicitScenarioCases: Array<{
     },
     {
         expectedStates: [
+            [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
+            [20, 20, 20, 0, 19, 0, 10, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        name: "Sibling support reset follows current target contract",
+        operations: [
+            { index: 6, targetLevel: 10 },
+            { index: 4, targetLevel: 19 },
+            { index: 6, targetLevel: 0 },
+        ],
+    },
+    {
+        expectedStates: [
+            [40, 40, 20, 20, 21, 20, 20, 10, 10, 1],
+            [40, 40, 20, 39, 21, 20, 20, 10, 10, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        name: "Split tier-2 reset follows current target contract",
+        operations: [
+            { index: 4, targetLevel: 21 },
+            { index: 3, targetLevel: 39 },
+            { index: 4, targetLevel: 0 },
+        ],
+    },
+    {
+        expectedStates: [
             [80, 60, 80, 60, 60, 60, 61, 30, 30, 1],
             [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
         ],
@@ -117,6 +144,10 @@ const seededInvariantCases = [
     { name: "Yellow seeded invariants", seed: 37, steps: 8 },
     { name: "Yellow seeded invariants", seed: 53, steps: 8 },
 ];
+
+function uniqueBoundaryLevels(maxLevel: number): number[] {
+    return [...new Set(buildRoundTripSequence(maxLevel))];
+}
 
 function resetTierLogFile() {
     writeFileSync(TIER_LOG_FILE_URL, "", "utf8");
@@ -346,6 +377,98 @@ function assertTargetBoundaryContracts(params: {
             to: testCase.to,
         });
     });
+}
+
+function runTwoStepSequenceMatrix() {
+    const { nodes, levels: startingLevels } = createYellowBranchFixture();
+    let sequenceCount = 0;
+
+    nodes.forEach((firstTargetNode, firstTargetIndex) => {
+        const firstCandidateLevels = uniqueBoundaryLevels(firstTargetNode.maxLevel);
+
+        firstCandidateLevels.forEach((firstTargetLevel) => {
+            const firstStableTier = nextStableTier({
+                previousLevel: 0,
+                nextLevel: firstTargetLevel,
+                currentStableTier: 0,
+                maxLevel: firstTargetNode.maxLevel,
+            });
+            const firstExpectedLevels = applyExpectedTargetTransition({
+                currentLevels: startingLevels,
+                nodes,
+                previousLevel: 0,
+                nextLevel: firstTargetLevel,
+                stableTier: firstStableTier,
+                targetIndex: firstTargetIndex,
+            });
+            const firstResult = applyLevelChange({
+                nodes,
+                levels: startingLevels,
+                index: firstTargetIndex,
+                targetLevel: firstTargetLevel,
+            });
+
+            assertYellowBranchState({
+                caseName: `Two-step matrix first target ${firstTargetIndex}`,
+                nodes,
+                actualLevels: firstResult.levels,
+                expectedLevels: firstExpectedLevels,
+                previousLevel: 0,
+                nextLevel: firstTargetLevel,
+                stepIndex: 0,
+            });
+
+            nodes.forEach((secondTargetNode, secondTargetIndex) => {
+                const secondCandidateLevels = uniqueBoundaryLevels(
+                    secondTargetNode.maxLevel,
+                );
+                const secondStartingLevel =
+                    firstExpectedLevels[secondTargetIndex] ?? 0;
+                const secondCurrentStableTier = inferStableTierFromObservedState({
+                    levels: firstExpectedLevels,
+                    nodes,
+                    targetIndex: secondTargetIndex,
+                });
+
+                secondCandidateLevels.forEach((secondTargetLevel) => {
+                    const secondStableTier = nextStableTier({
+                        previousLevel: secondStartingLevel,
+                        nextLevel: secondTargetLevel,
+                        currentStableTier: secondCurrentStableTier,
+                        maxLevel: secondTargetNode.maxLevel,
+                    });
+                    const secondExpectedLevels = applyExpectedTargetTransition({
+                        currentLevels: firstExpectedLevels,
+                        nodes,
+                        previousLevel: secondStartingLevel,
+                        nextLevel: secondTargetLevel,
+                        stableTier: secondStableTier,
+                        targetIndex: secondTargetIndex,
+                    });
+                    const secondResult = applyLevelChange({
+                        nodes,
+                        levels: firstResult.levels,
+                        index: secondTargetIndex,
+                        targetLevel: secondTargetLevel,
+                    });
+
+                    assertYellowBranchState({
+                        caseName: `Two-step matrix ${firstTargetIndex} -> ${secondTargetIndex}`,
+                        nodes,
+                        actualLevels: secondResult.levels,
+                        expectedLevels: secondExpectedLevels,
+                        previousLevel: secondStartingLevel,
+                        nextLevel: secondTargetLevel,
+                        stepIndex: 1,
+                    });
+
+                    sequenceCount += 1;
+                });
+            });
+        });
+    });
+
+    return sequenceCount;
 }
 
 function meetsStableTierHoldFloor(params: {
@@ -674,6 +797,22 @@ export function runTierLevelingTests() {
     let passed = 0;
     let failed = 0;
 
+    logTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
+    logTierLine("---");
+
+    try {
+        const sequences = runTwoStepSequenceMatrix();
+        logTierLine(`✅ PASSED (${sequences} sequences)`);
+        passed++;
+    } catch (error) {
+        logTierLine(
+            `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        failed++;
+    }
+
+    logTierLine();
+
     cases.forEach((testCase, index) => {
         logTierLine(`Tier Test ${index + 1}: ${testCase.name}`);
         logTierLine("---");
@@ -740,7 +879,7 @@ export function runTierLevelingTests() {
     logTierLine("===");
     logTierLine(
         `📊 Total tests: ${
-            cases.length + explicitScenarioCases.length + seededInvariantCases.length
+            1 + cases.length + explicitScenarioCases.length + seededInvariantCases.length
         }`,
     );
     logTierLine(`✅ Passed: ${passed}`);
@@ -753,7 +892,8 @@ export function runTierLevelingTests() {
     }
 
     return {
-        total: cases.length + explicitScenarioCases.length + seededInvariantCases.length,
+        total:
+            1 + cases.length + explicitScenarioCases.length + seededInvariantCases.length,
         passed,
         failed,
     };
