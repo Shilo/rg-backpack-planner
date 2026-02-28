@@ -99,30 +99,23 @@ export function applyLevelChange(params: {
         Math.min(Math.max(value, min), max);
 
     const childrenMap = buildChildrenMap(nodes);
-    const component = buildComponent(nodes, index);
-    let branchLeafIndex: number | null = null;
-
-    component.forEach((componentIndex) => {
-        const outwardDependents = childrenMap.get(componentIndex)?.length ?? 0;
-        if (outwardDependents !== 0) return;
-        if (branchLeafIndex === null || componentIndex > branchLeafIndex) {
-            branchLeafIndex = componentIndex;
-        }
-    });
 
     const getUpperLevelOfTier = (nodeIndex: number, tier: number) =>
         tierUpper(tier, nodes[nodeIndex].maxLevel);
 
+    const getCompletedTier = (level: number, maxLevel: Node["maxLevel"]) => {
+        if (level <= 0) return 0;
+        if (maxLevel <= 1) return 1;
+        const size = tierSize(maxLevel);
+        if (size === 0) return 0;
+        return Math.min(Math.floor(level / size), MAX_TIERS);
+    };
+
     const getDirectParents = (nodeIndex: number) =>
         parentIndices(nodes[nodeIndex]);
 
-    const getDirectChildren = (nodeIndex: number) => {
-        const parents = parentIndices(nodes[nodeIndex]);
-        if (parents.length > 0) return parents;
-        if (branchLeafIndex === null) return [];
-        if (branchLeafIndex === nodeIndex) return [];
-        return [branchLeafIndex];
-    };
+    const getDirectChildren = (nodeIndex: number) =>
+        childrenMap.get(nodeIndex) ?? [];
 
     const getDirectNeighbors = (tierDelta: number) => {
         if (tierDelta === 0) return null;
@@ -132,22 +125,29 @@ export function applyLevelChange(params: {
 
     const getRequiredParentTier = (targetTier: number) => targetTier;
 
-    const getRequiredChildTier = (targetTier: number) => targetTier - 1;
+    const getRequiredChildTier = (targetCompletedTier: number) =>
+        targetCompletedTier;
 
-    const getRequiredNeighborTier = (targetTier: number, tierDelta: number) => {
-        if (tierDelta === 0) return 0;
-        if (tierDelta < 0) return getRequiredChildTier(targetTier);
+    const getRequiredNeighborTier = (
+        targetTier: number,
+        targetCompletedTier: number,
+        propagationDelta: number,
+    ) => {
+        if (propagationDelta === 0) return 0;
+        if (propagationDelta < 0) {
+            return getRequiredChildTier(targetCompletedTier);
+        }
         return getRequiredParentTier(targetTier);
     };
 
     const nodeSatisfiesTier = (
-        neighborTier: number,
-        requiredTier: number,
-        tierDelta: number,
+        currentLevel: number,
+        requiredLevel: number,
+        propagationDelta: number,
     ) => {
-        if (tierDelta === 0) return true;
-        if (tierDelta > 0) return neighborTier >= requiredTier;
-        return neighborTier <= requiredTier;
+        if (propagationDelta === 0) return true;
+        if (propagationDelta > 0) return currentLevel >= requiredLevel;
+        return currentLevel <= requiredLevel;
     };
 
     const setNodeLevel = (nodeIndex: number, requestedLevel: number) => {
@@ -160,33 +160,55 @@ export function applyLevelChange(params: {
 
         const currentTier = tierIndex(currentLevel, currentNode.maxLevel);
         const targetTier = tierIndex(clampedTarget, currentNode.maxLevel);
+        const currentCompletedTier = getCompletedTier(
+            currentLevel,
+            currentNode.maxLevel,
+        );
+        const targetCompletedTier = getCompletedTier(
+            clampedTarget,
+            currentNode.maxLevel,
+        );
         const tierDelta = targetTier - currentTier;
+        const propagationDelta =
+            tierDelta > 0
+                ? 1
+                : targetCompletedTier < currentCompletedTier
+                  ? -1
+                  : 0;
 
         next[nodeIndex] = clampedTarget;
         deltas.push({ index: nodeIndex, delta: clampedTarget - currentLevel });
 
-        const neighborGetter = getDirectNeighbors(tierDelta);
+        const neighborGetter = getDirectNeighbors(propagationDelta);
         if (neighborGetter === null) return;
 
-        const rawRequiredTier = getRequiredNeighborTier(targetTier, tierDelta);
+        const rawRequiredTier = getRequiredNeighborTier(
+            targetTier,
+            targetCompletedTier,
+            propagationDelta,
+        );
         const requiredTier = Math.max(rawRequiredTier, 0);
 
         neighborGetter(nodeIndex).forEach((neighborIndex) => {
             const neighbor = nodes[neighborIndex];
             if (!neighbor) return;
 
-            const neighborTier = tierIndex(
-                next[neighborIndex] ?? 0,
-                neighbor.maxLevel,
+            const neighborLevel = next[neighborIndex] ?? 0;
+            const requiredLevel = getUpperLevelOfTier(
+                neighborIndex,
+                requiredTier,
             );
-            if (nodeSatisfiesTier(neighborTier, requiredTier, tierDelta)) {
+            if (
+                nodeSatisfiesTier(
+                    neighborLevel,
+                    requiredLevel,
+                    propagationDelta,
+                )
+            ) {
                 return;
             }
 
-            setNodeLevel(
-                neighborIndex,
-                getUpperLevelOfTier(neighborIndex, requiredTier),
-            );
+            setNodeLevel(neighborIndex, requiredLevel);
         });
     };
 
