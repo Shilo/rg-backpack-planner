@@ -1,9 +1,14 @@
+import { appendFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { baseTree } from "../src/config/baseTree.ts";
 import { applyLevelChange } from "../src/lib/tierLeveling.ts";
 import type { LevelsByIndex, Node } from "../src/types/tree.ts";
 
 const MAX_TIERS = 5;
 const YELLOW_BRANCH_LENGTH = 10;
+const TIER_LOG_FILE_LABEL = "test/tierLeveling.output.log";
+const TIER_LOG_FILE_URL = new URL("./tierLeveling.output.log", import.meta.url);
+const TIER_LOG_FILE_PATH = fileURLToPath(TIER_LOG_FILE_URL);
 
 type SweepCase = {
     name: string;
@@ -127,7 +132,10 @@ function nextStableTier(params: {
     }
 
     if (nextLevel < previousLevel) {
-        const previousCompleted = expectedCompletedTier(previousLevel, maxLevel);
+        const previousCompleted = expectedCompletedTier(
+            previousLevel,
+            maxLevel,
+        );
         const nextCompleted = expectedCompletedTier(nextLevel, maxLevel);
         if (nextCompleted < previousCompleted) {
             return expectedTierIndex(nextLevel, maxLevel);
@@ -152,6 +160,47 @@ function buildExpectedBranchLevels(params: {
         const requiredTier = ancestors.has(index) ? stableTier : wrappedTier;
         return expectedTierUpper(requiredTier, node.maxLevel);
     });
+}
+
+function formatExpectedStepState(params: {
+    nodes: Node[];
+    expectedLevels: number[];
+    previousLevel: number;
+    nextLevel: number;
+    stepIndex: number;
+    targetIndex: number;
+}): string[] {
+    const {
+        nodes,
+        expectedLevels,
+        previousLevel,
+        nextLevel,
+        stepIndex,
+        targetIndex,
+    } = params;
+    const levelTokens = expectedLevels.map((level) => String(level));
+    const expectedTiers = nodes.map((node, index) =>
+        expectedTierIndex(expectedLevels[index] ?? 0, node.maxLevel),
+    );
+    const tierTokens = expectedTiers.map((tier, index) =>
+        String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
+    );
+
+    return [
+        `step ${stepIndex + 1} expected [index ${targetIndex}] (${previousLevel} -> ${nextLevel})`,
+        `- levels: [${levelTokens.join(", ")}]`,
+        `- tiers:  [${tierTokens.join(", ")}]`,
+        "",
+    ];
+}
+
+function resetTierLogFile() {
+    writeFileSync(TIER_LOG_FILE_URL, "", "utf8");
+}
+
+function logTierLine(line = "") {
+    console.log(line);
+    appendFileSync(TIER_LOG_FILE_URL, `${line}\n`, "utf8");
 }
 
 function assertYellowBranchState(params: {
@@ -225,6 +274,16 @@ function runSweepCase(testCase: SweepCase) {
             targetLevel,
             stableTier,
             ancestors,
+        });
+        formatExpectedStepState({
+            nodes,
+            expectedLevels,
+            previousLevel,
+            nextLevel: targetLevel,
+            stepIndex,
+            targetIndex: testCase.targetIndex,
+        }).forEach((line) => {
+            logTierLine(line);
         });
 
         assertYellowBranchState({
@@ -424,7 +483,8 @@ function buildSeededScenarioCase(testCase: SeededScenarioCase): ScenarioCase {
     let currentLevels = [...startingLevels];
     let previousIndex =
         preferredIndices[
-            Math.floor(random() * preferredIndices.length) % preferredIndices.length
+            Math.floor(random() * preferredIndices.length) %
+                preferredIndices.length
         ] ?? 0;
 
     for (let stepIndex = 0; stepIndex < testCase.steps; stepIndex += 1) {
@@ -448,14 +508,20 @@ function buildSeededScenarioCase(testCase: SeededScenarioCase): ScenarioCase {
         const candidateLevels = edgeBiasedLevelsForNode(nodes[index]);
         const currentLevel = currentLevels[index] ?? 0;
 
-        let levelPool = candidateLevels.filter((level) => level !== currentLevel);
+        let levelPool = candidateLevels.filter(
+            (level) => level !== currentLevel,
+        );
         if (currentLevel > 0 && random() < 0.65) {
-            const decreasing = levelPool.filter((level) => level < currentLevel);
+            const decreasing = levelPool.filter(
+                (level) => level < currentLevel,
+            );
             if (decreasing.length > 0) {
                 levelPool = decreasing;
             }
         } else {
-            const increasing = levelPool.filter((level) => level > currentLevel);
+            const increasing = levelPool.filter(
+                (level) => level > currentLevel,
+            );
             if (increasing.length > 0) {
                 levelPool = increasing;
             }
@@ -466,8 +532,9 @@ function buildSeededScenarioCase(testCase: SeededScenarioCase): ScenarioCase {
         }
 
         const targetLevel =
-            levelPool[Math.floor(random() * levelPool.length) % levelPool.length] ??
-            currentLevel;
+            levelPool[
+                Math.floor(random() * levelPool.length) % levelPool.length
+            ] ?? currentLevel;
         const operation = { index, targetLevel };
 
         operations.push(operation);
@@ -526,12 +593,23 @@ function runScenarioCase(
             index: operation.index,
             targetLevel: operation.targetLevel,
         });
+        const expectedLevels = expectedStates[stepIndex] ?? [];
+        formatExpectedStepState({
+            nodes,
+            expectedLevels,
+            previousLevel,
+            nextLevel: operation.targetLevel,
+            stepIndex,
+            targetIndex: operation.index,
+        }).forEach((line) => {
+            logTierLine(line);
+        });
 
         assertYellowBranchState({
             caseName: testCase.name,
             nodes,
             actualLevels: result.levels,
-            expectedLevels: expectedStates[stepIndex] ?? [],
+            expectedLevels,
             previousLevel,
             nextLevel: operation.targetLevel,
             stepIndex,
@@ -544,10 +622,12 @@ function runScenarioCase(
 }
 
 export function runTierLevelingTests() {
-    console.log("===");
-    console.log("Tier Leveling Tests");
-    console.log("===");
-    console.log();
+    resetTierLogFile();
+    logTierLine("===");
+    logTierLine("Tier Leveling Tests");
+    logTierLine(`Log file: ${TIER_LOG_FILE_LABEL}`);
+    logTierLine("===");
+    logTierLine();
 
     const cases: SweepCase[] = [
         { name: "Yellow root node round trip", targetIndex: 0 },
@@ -654,15 +734,15 @@ export function runTierLevelingTests() {
     let failed = 0;
 
     cases.forEach((testCase, index) => {
-        console.log(`Tier Test ${index + 1}: ${testCase.name}`);
-        console.log("---");
+        logTierLine(`Tier Test ${index + 1}: ${testCase.name}`);
+        logTierLine("---");
 
         try {
             const steps = runSweepCase(testCase);
-            console.log(`✅ PASSED (${steps} steps)`);
+            logTierLine(`✅ PASSED (${steps} steps)`);
             passed++;
         } catch (error) {
-            console.log(
+            logTierLine(
                 `❌ FAILED: ${
                     error instanceof Error ? error.message : String(error)
                 }`,
@@ -670,20 +750,20 @@ export function runTierLevelingTests() {
             failed++;
         }
 
-        console.log();
+        logTierLine();
     });
 
     scenarioCases.forEach((testCase, index) => {
-        console.log(`Scenario Test ${index + 1}: ${testCase.name}`);
-        console.log("---");
+        logTierLine(`Scenario Test ${index + 1}: ${testCase.name}`);
+        logTierLine("---");
 
         try {
             const expectedStates = buildExpectedStateForScenario(testCase);
             const steps = runScenarioCase(testCase, expectedStates);
-            console.log(`✅ PASSED (${steps} steps)`);
+            logTierLine(`✅ PASSED (${steps} steps)`);
             passed++;
         } catch (error) {
-            console.log(
+            logTierLine(
                 `❌ FAILED: ${
                     error instanceof Error ? error.message : String(error)
                 }`,
@@ -691,23 +771,23 @@ export function runTierLevelingTests() {
             failed++;
         }
 
-        console.log();
+        logTierLine();
     });
 
     seededScenarioCases.forEach((testCase, index) => {
-        console.log(
+        logTierLine(
             `Seeded Test ${index + 1}: ${testCase.name} (seed ${testCase.seed})`,
         );
-        console.log("---");
+        logTierLine("---");
 
         try {
             const generatedCase = buildSeededScenarioCase(testCase);
             const expectedStates = buildExpectedStateForScenario(generatedCase);
             const steps = runScenarioCase(generatedCase, expectedStates);
-            console.log(`✅ PASSED (${steps} steps)`);
+            logTierLine(`✅ PASSED (${steps} steps)`);
             passed++;
         } catch (error) {
-            console.log(
+            logTierLine(
                 `❌ FAILED: ${
                     error instanceof Error ? error.message : String(error)
                 }`,
@@ -715,20 +795,21 @@ export function runTierLevelingTests() {
             failed++;
         }
 
-        console.log();
+        logTierLine();
     });
 
-    console.log("===");
-    console.log("Tier Leveling Summary");
-    console.log("===");
-    console.log(
+    logTierLine("===");
+    logTierLine("Tier Leveling Summary");
+    logTierLine("===");
+    logTierLine(
         `📊 Total tests: ${
             cases.length + scenarioCases.length + seededScenarioCases.length
         }`,
     );
-    console.log(`✅ Passed: ${passed}`);
-    console.log(`❌ Failed: ${failed}`);
-    console.log("===");
+    logTierLine(`✅ Passed: ${passed}`);
+    logTierLine(`❌ Failed: ${failed}`);
+    logTierLine(`Log file: ${TIER_LOG_FILE_PATH}:1`);
+    logTierLine("===");
 
     if (failed > 0) {
         throw new Error(`${failed} tier leveling test(s) failed`);
