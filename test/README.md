@@ -1,24 +1,57 @@
 # Test Suite
 
-This folder contains the automated tests for the build-data encoder / decoder used by the share-link system.
+This folder contains the repo's hand-written test runners. The current entry
+point is `test/index.ts`, which imports both `test/tierLeveling.test.ts` and
+`test/encoder.test.ts`. Each file auto-runs when it is imported or executed.
 
-The current entry point is `test/index.ts`, which imports `test/encoder.test.ts`. The suite auto-runs when imported or executed.
+## Files
 
-## What Is Covered
+### `test/index.ts`
 
-`test/encoder.test.ts` currently exercises five areas:
+Loads the current CLI test suite in this order:
+
+1. `test/tierLeveling.test.ts`
+2. `test/encoder.test.ts`
+
+Use this when you want the same application-level test flow that `npm test`
+uses after type-checking.
+
+### `test/tierLeveling.test.ts`
+
+Exercises `applyLevelChange()` against the simulated yellow branch from
+`src/config/baseTree.ts`.
+
+Current coverage includes:
+
+1. Round-trip sweeps from level `0` to max level and back down for key yellow
+   branch nodes (root, early branch, split node, merged node, and final node)
+2. Scripted multi-step scenarios that mix increments and decrements across
+   related nodes to catch ancestor, descendant, and wrapped-node propagation
+3. Seeded deterministic simulations for additional edge-biased path coverage
+4. Per-step validation of every node in the branch, asserting both expected
+   level and derived tier state
+
+These tests are intended to catch the fragile threshold behavior around tier
+boundaries and branch hysteresis.
+
+### `test/encoder.test.ts`
+
+Exercises the share-link build-data encoder and decoder.
+
+Current coverage includes:
 
 1. Invalid-input handling for malformed share strings
 2. Encode/decode round-trip coverage for many build shapes
 3. Decoder compatibility cases for explicit serialized strings
-4. Build-name space encoding / decoding helpers
+4. Build-name space encoding and decoding helpers
 5. Build-name extraction from encoded share strings
 
-The tests focus on correctness first, but they also print compression stats so changes to the encoding format are easy to spot.
+The encoder tests also print compression stats so format changes are easy to
+spot while reviewing output.
 
-## Recommended Way To Run
+## Recommended Commands
 
-Run the full suite from the CLI:
+Run the full local verification path:
 
 ```bash
 npm test
@@ -29,21 +62,22 @@ That runs:
 1. `npm run check`
 2. `tsx test/index.ts`
 
-Use this path when you want the same result CI-style local verification should use.
-
-## Running Only The Test File
-
-If you have already run type checks and only want the test runner itself:
+Run the test files without `svelte-check`:
 
 ```bash
 npx tsx test/index.ts
 ```
 
-This skips the `svelte-check` / TypeScript validation done by `npm test`.
+Run a single suite directly:
+
+```bash
+npx tsx test/tierLeveling.test.ts
+npx tsx test/encoder.test.ts
+```
 
 ## Running In The Browser
 
-You can also run the suite from the browser console through Vite.
+You can also run the test entry from the browser console through Vite.
 
 1. Start the dev server:
 
@@ -55,7 +89,7 @@ You can also run the suite from the browser console through Vite.
 
     `http://localhost:5173/rg-backpack-planner/`
 
-3. In the browser console, import the test entry:
+3. Import the test entry in the browser console:
 
     ```js
     import("./test/index.ts");
@@ -69,31 +103,34 @@ import("/rg-backpack-planner/test/index.ts");
 
 ## Reading The Output
 
-The suite prints verbose logs by design:
+The tests are intentionally verbose:
 
-- each test group has its own header and summary
-- successful round-trip tests print original data, decoded data, and serialized output
-- encoding tests also print JSON length vs serialized length
-- the final section prints a combined total across all test groups
+- each suite prints its own header and summary
+- tier tests report pass/fail counts across sweep, scenario, and seeded cases
+- encoder tests print round-trip details and serialized-size comparisons
+- the overall run completes only if both imported suites finish without
+  throwing
 
 ### Expected Error Logs
 
-Some tests intentionally feed invalid strings into the decoder. During those cases, `decodeBuildData()` logs parser errors such as:
+Some encoder tests intentionally feed invalid strings into `decodeBuildData()`.
+During those cases, parser errors such as `Failed to parse array format` or
+`Invalid RLE format` are expected and do not mean the suite failed by
+themselves.
 
-- `Failed to parse array format`
-- `Invalid RLE format`
-
-Those logs are expected. They do **not** mean the suite failed by themselves. The actual result is the per-section summary and the final combined summary.
-
-If the summaries show zero failed tests, the suite passed.
+Rely on the per-suite summaries and the final process exit status to determine
+whether the run passed.
 
 ## When To Update These Tests
 
-Update or extend this suite whenever you change:
+Update or extend this folder when you change:
 
+- tier propagation or level-clamping behavior
+- yellow-branch traversal or parent/merge handling
 - the serialized share format
-- the build-name encoding rules
+- build-name encoding rules
 - decoder compatibility behavior
 - accepted or rejected malformed input cases
 
-If you change the encoder format intentionally, keep compatibility cases explicit so regressions are easy to detect.
+When format or tier behavior changes intentionally, keep the expectations
+explicit so regressions are easy to identify.
