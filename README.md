@@ -106,7 +106,11 @@ npm run pwa:assets  # regenerate PWA assets from public/icon.svg
 
 ## Testing
 
-The automated test suite is focused on the build-data encoder and decoder.
+The automated test suite covers both:
+
+- the build-data encoder and decoder
+- tier-level propagation and bulk-leveling behavior on the simulated yellow
+  branch
 
 Run it with:
 
@@ -119,7 +123,7 @@ That command runs:
 1. `npm run check`
 2. `tsx test/index.ts`
 
-For more detail on the encoder test suite, see [test/README.md](test/README.md).
+For more detail on the hand-written CLI suites, see [test/README.md](test/README.md).
 
 ## Project Structure
 
@@ -129,7 +133,7 @@ src/
   lib/               Components, stores, build-data logic, helpers
 public/              Static assets, icons, manifest inputs
 scripts/             Build helpers
-test/                Encoder test suite and docs
+test/                CLI test suites and docs
 dist/                Production output (generated)
 ```
 

@@ -31,9 +31,13 @@ Current coverage includes:
    decrements across related nodes to catch ancestor, descendant, and
    wrapped-node propagation without replaying the production algorithm in test
    code
-4. Per-step validation of every node in the branch, asserting both expected
-   level and derived tier state
-5. Per-step output that prints the target node index, the level transition,
+4. Fixed-seed invariant scenarios that hit partial levels, mixed target order,
+   inherited support, and same-tier decrements without generating full expected
+   branch states from helper code
+5. Per-step validation of every node in the branch, asserting both expected
+   level and derived tier state for sweep and explicit cases, then directional
+   invariants for the seeded cases
+6. Per-step output that prints the target node index, the level transition,
    aligned `levels` and `tiers` arrays, and mirrors the same output to
    `test/tierLeveling.output.log`
 
@@ -42,7 +46,10 @@ primary correctness oracle. The earlier shadow-oracle approach duplicated the
 same tier-transition reasoning as `applyLevelChange()`, which could create
 false passes when the tests and implementation shared the same bad assumption.
 The boundary-contract layer and explicit scenario tables keep the oracle
-smaller and more independent.
+smaller and more independent. The seeded invariant layer is secondary coverage:
+it checks independent rules after each step, including the fact that a
+decrement can still rebase non-target nodes with `min(...)` even when the
+target remains in the same stable tier.
 
 ### `test/encoder.test.ts`
 
@@ -140,7 +147,8 @@ The tests are intentionally verbose:
 
 - each suite prints its own header and summary
 - tier tests run a silent boundary-contract preflight before the logged cases
-- tier tests report pass/fail counts across sweep and explicit scenario cases
+- tier tests report pass/fail counts across sweep, explicit scenario, and
+  seeded invariant cases
 - tier tests print each expected step as `step N expected [index X] (A -> B)`
 - tier tests print aligned `levels` and `tiers` arrays for each step
 - tier tests mirror their full output to `test/tierLeveling.output.log`

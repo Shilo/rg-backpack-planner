@@ -339,26 +339,24 @@ export function applyLevelChange(params: {
 
     next[index] = clampedTarget;
 
-    if (nextStableTier !== currentStableTier) {
-        const wrappedTier = Math.max(nextStableTier - 1, 0);
-        const isIncrement = clampedTarget > startingLevel;
+    const wrappedTier = Math.max(nextStableTier - 1, 0);
+    const isIncrement = clampedTarget > startingLevel;
 
-        for (const componentIndex of componentIndices) {
-            if (componentIndex === index) continue;
+    for (const componentIndex of componentIndices) {
+        if (componentIndex === index) continue;
 
-            const componentNode = nodes[componentIndex];
-            if (!componentNode) continue;
+        const componentNode = nodes[componentIndex];
+        if (!componentNode) continue;
 
-            const requiredTier = ancestorFlags[componentIndex]
-                ? nextStableTier
-                : wrappedTier;
-            const requiredLevel = tierUpper(requiredTier, componentNode.maxLevel);
-            const currentLevel = current[componentIndex] ?? 0;
+        const requiredTier = ancestorFlags[componentIndex]
+            ? nextStableTier
+            : wrappedTier;
+        const requiredLevel = tierUpper(requiredTier, componentNode.maxLevel);
+        const currentLevel = current[componentIndex] ?? 0;
 
-            next[componentIndex] = isIncrement
-                ? Math.max(currentLevel, requiredLevel)
-                : Math.min(currentLevel, requiredLevel);
-        }
+        next[componentIndex] = isIncrement
+            ? Math.max(currentLevel, requiredLevel)
+            : Math.min(currentLevel, requiredLevel);
     }
 
     const deltas: LevelDelta[] = [];

@@ -89,6 +89,17 @@ const explicitScenarioCases: Array<{
     },
     {
         expectedStates: [
+            [20, 0, 20, 0, 0, 20, 20, 0, 10, 0],
+            [20, 0, 20, 0, 0, 0, 19, 0, 0, 0],
+        ],
+        name: "Wrapped tier-1 decrement rebases inherited support",
+        operations: [
+            { index: 8, targetLevel: 10 },
+            { index: 6, targetLevel: 19 },
+        ],
+    },
+    {
+        expectedStates: [
             [80, 60, 80, 60, 60, 60, 61, 30, 30, 1],
             [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
         ],
@@ -484,19 +495,18 @@ function runSeededInvariantCase(testCase: ScenarioCase) {
                 branchNode.maxLevel,
             );
 
-            let expectedLevel = previousNodeLevel;
-            if (actualStableTier > currentStableTier) {
-                expectedLevel = Math.max(previousNodeLevel, assignedLevel);
-                if (actualLevel !== expectedLevel) {
+            if (clampedTarget === previousLevel) {
+                if (actualLevel !== previousNodeLevel) {
                     throw new Error(
-                        `${testCase.name} step ${stepIndex} node ${index} expected level ${expectedLevel}, got ${actualLevel}`,
+                        `${testCase.name} step ${stepIndex} node ${index} expected level ${previousNodeLevel}, got ${actualLevel}`,
                     );
                 }
 
                 return;
             }
 
-            if (actualStableTier === currentStableTier) {
+            if (clampedTarget > previousLevel) {
+                const expectedLevel = Math.max(previousNodeLevel, assignedLevel);
                 if (actualLevel !== expectedLevel) {
                     throw new Error(
                         `${testCase.name} step ${stepIndex} node ${index} expected level ${expectedLevel}, got ${actualLevel}`,
