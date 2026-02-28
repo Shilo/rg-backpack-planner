@@ -12,6 +12,7 @@ import {
     type Page,
 } from "playwright";
 import { applyLevelChange } from "../src/lib/tierLeveling.ts";
+import { truncateText } from "../src/lib/stringUtil.ts";
 import {
     buildExpectedBranchLevels,
     buildExpectedStateForScenario,
@@ -33,6 +34,10 @@ import {
 
 const DEV_SERVER_URL = "http://127.0.0.1:4173";
 const APP_URL = `${DEV_SERVER_URL}/rg-backpack-planner/`;
+const PLAYWRIGHT_INDICATOR_STORE_MODULE_URL = new URL(
+    "./src/lib/dev/playwrightIndicatorStore.dev.ts",
+    APP_URL,
+).href;
 const TREE_LEVELS_STORE_MODULE_URL = new URL(
     "./src/lib/treeLevelsStore.ts",
     APP_URL,
@@ -73,6 +78,12 @@ type ExpectedUiStep = {
     previousLevel: number;
     stepIndex: number;
     targetIndex: number;
+};
+
+type PlaywrightIndicatorState = {
+    title: string;
+    detail: string | null;
+    tooltip: string;
 };
 
 const yellowBranchNodes = createYellowBranchFixture().nodes;
@@ -319,6 +330,91 @@ async function syncYellowBranchLevels(
     await waitForRenderedYellowBranch(page, branchLevels);
 }
 
+async function setPlaywrightIndicatorState(
+    page: Page,
+    state: PlaywrightIndicatorState | null,
+): Promise<void> {
+    await page.evaluate(
+        async ({
+            moduleUrl,
+            nextState,
+        }: {
+            moduleUrl: string;
+            nextState: PlaywrightIndicatorState | null;
+        }) => {
+            const { setPlaywrightIndicatorState } = await import(moduleUrl);
+            setPlaywrightIndicatorState(nextState);
+        },
+        {
+            moduleUrl: PLAYWRIGHT_INDICATOR_STORE_MODULE_URL,
+            nextState: state,
+        },
+    );
+}
+
+function buildPlaywrightIndicatorState(
+    caseLabel: string,
+): PlaywrightIndicatorState {
+    const separator = ": ";
+    const separatorIndex = caseLabel.indexOf(separator);
+
+    if (separatorIndex === -1) {
+        return {
+            title: caseLabel,
+            detail: null,
+            tooltip: "UI test in progress",
+        };
+    }
+
+    return {
+        title: caseLabel.slice(0, separatorIndex),
+        detail: caseLabel.slice(separatorIndex + separator.length),
+        tooltip: "UI test in progress",
+    };
+}
+
+async function waitForPlaywrightIndicator(
+    page: Page,
+    state: PlaywrightIndicatorState,
+): Promise<void> {
+    const expectedDetail = state.detail ? truncateText(state.detail) : null;
+
+    await page.waitForFunction(
+        ({
+            detail,
+            title,
+        }: {
+            detail: string | null;
+            title: string;
+        }) => {
+            const indicator = document.querySelector(".preview-indicator-button");
+            if (!(indicator instanceof HTMLElement)) {
+                return false;
+            }
+
+            const titleText = indicator
+                .querySelector(".indicator-title")
+                ?.textContent?.trim();
+            if (titleText !== title) {
+                return false;
+            }
+
+            if (detail === null) {
+                return indicator.querySelector(".build-name") === null;
+            }
+
+            const detailText = indicator
+                .querySelector(".build-name")
+                ?.textContent?.trim();
+            return detailText === detail;
+        },
+        {
+            detail: expectedDetail,
+            title: state.title,
+        },
+    );
+}
+
 async function setNodeToLevel(
     page: Page,
     index: number,
@@ -506,6 +602,9 @@ async function runUiCase(params: {
     logUiTierLine(caseLabel);
     logUiTierLine("---");
     await resetTierUiPage(page);
+    const indicatorState = buildPlaywrightIndicatorState(caseLabel);
+    await setPlaywrightIndicatorState(page, indicatorState);
+    await waitForPlaywrightIndicator(page, indicatorState);
 
     let failingStepIndex = 0;
 
@@ -631,6 +730,7 @@ const { browser, page, stopServer } = session;
 
 try {
     await runTierUiSuite(page);
+    await setPlaywrightIndicatorState(page, null);
 } finally {
     await browser?.close();
     await stopServer?.();

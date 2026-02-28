@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { EyeIcon } from "phosphor-svelte";
     import { isPreviewMode } from "./previewModeStore";
     import { previewBuildName, getPreviewTitle } from "./previewBuildNameStore";
@@ -12,9 +13,14 @@
     let menuOpen = false;
     let menuX = 0;
     let menuY = 0;
+    let devIndicatorState: {
+        title: string;
+        detail: string | null;
+        tooltip: string;
+    } | null = null;
 
     function handleButtonClick() {
-        if (!buttonElement) return;
+        if (!buttonElement || !$isPreviewMode) return;
         const rect = buttonElement.getBoundingClientRect();
         menuX = rect.left + rect.width / 2;
         menuY = rect.bottom + 8;
@@ -26,39 +32,76 @@
     }
 
     $: menuTitle = `${getPreviewTitle($previewBuildName)} Build`;
+    $: showIndicator = $isPreviewMode || (!$isPreviewMode && !!devIndicatorState);
+    $: indicatorTitle = $isPreviewMode
+        ? "Preview"
+        : (devIndicatorState?.title ?? "");
+    $: indicatorDetail = $isPreviewMode
+        ? $previewBuildName
+        : (devIndicatorState?.detail ?? null);
+    $: indicatorTooltip = $isPreviewMode
+        ? "Preview build options"
+        : (devIndicatorState?.tooltip ?? "");
+
+    onMount(() => {
+        if (import.meta.env.DEV) {
+            // Keep the Playwright indicator store out of production by only importing it in dev builds.
+            let cancelled = false;
+            let unsubscribe: (() => void) | null = null;
+
+            void import("./dev/playwrightIndicatorStore.dev").then(
+                ({ playwrightIndicatorState }) => {
+                    if (cancelled) {
+                        return;
+                    }
+
+                    unsubscribe = playwrightIndicatorState.subscribe((value) => {
+                        devIndicatorState = value;
+                    });
+                },
+            );
+
+            return () => {
+                cancelled = true;
+                unsubscribe?.();
+            };
+        }
+    });
 </script>
 
-{#if $isPreviewMode}
+{#if showIndicator}
     <Button
         bind:element={buttonElement}
         on:click={handleButtonClick}
-        tooltipText={"Preview build options"}
+        tooltipText={indicatorTooltip}
         class="preview-indicator-button"
         icon={EyeIcon}
     >
-        Preview
-        {#if $previewBuildName}
+        <span class="indicator-title">{indicatorTitle}</span>
+        {#if indicatorDetail}
             <br />
-            <span class="build-name">{truncateText($previewBuildName)}</span>
+            <span class="build-name">{truncateText(indicatorDetail)}</span>
         {/if}
     </Button>
 
-    <div
-        use:portal
-        class="preview-build-indicator-menu-portal"
-        class:menu-open={menuOpen}
-    >
-        <ContextMenu
-            x={menuX}
-            y={menuY}
-            isOpen={menuOpen}
-            title={menuTitle}
-            ariaLabel="Preview build options"
-            onClose={closeMenu}
+    {#if $isPreviewMode}
+        <div
+            use:portal
+            class="preview-build-indicator-menu-portal"
+            class:menu-open={menuOpen}
         >
-            <PreviewContextMenuList />
-        </ContextMenu>
-    </div>
+            <ContextMenu
+                x={menuX}
+                y={menuY}
+                isOpen={menuOpen}
+                title={menuTitle}
+                ariaLabel="Preview build options"
+                onClose={closeMenu}
+            >
+                <PreviewContextMenuList />
+            </ContextMenu>
+        </div>
+    {/if}
 {/if}
 
 <style>
