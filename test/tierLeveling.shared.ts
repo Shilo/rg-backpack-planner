@@ -159,6 +159,28 @@ export function buildExpectedBranchLevels(params: {
     });
 }
 
+export function formatTierStateLines(params: {
+    levelLabel: string;
+    levels: number[];
+    tierLabel: string;
+    tiers: number[];
+}): string[] {
+    const { levelLabel, levels, tierLabel, tiers } = params;
+    const levelTokens = levels.map((level) => String(level));
+    const tierTokens = tiers.map((tier, index) =>
+        String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
+    );
+    const paddedLabelLength = Math.max(levelLabel.length, tierLabel.length);
+
+    const formatLine = (label: string, tokens: string[]) =>
+        `- ${label.padEnd(paddedLabelLength, " ")} [${tokens.join(", ")}]`;
+
+    return [
+        formatLine(levelLabel, levelTokens),
+        formatLine(tierLabel, tierTokens),
+    ];
+}
+
 export function formatTierStepState(params: {
     nodes: Node[];
     expectedLevels: number[];
@@ -175,18 +197,18 @@ export function formatTierStepState(params: {
         stepIndex,
         targetIndex,
     } = params;
-    const levelTokens = expectedLevels.map((level) => String(level));
     const expectedTiers = nodes.map((node, index) =>
         expectedTierIndex(expectedLevels[index] ?? 0, node.maxLevel),
-    );
-    const tierTokens = expectedTiers.map((tier, index) =>
-        String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
     );
 
     return [
         `step ${stepIndex + 1} expected [index ${targetIndex}] (${previousLevel} -> ${nextLevel})`,
-        `- levels: [${levelTokens.join(", ")}]`,
-        `- tiers:  [${tierTokens.join(", ")}]`,
+        ...formatTierStateLines({
+            levelLabel: "levels:",
+            levels: expectedLevels,
+            tierLabel: "tiers:",
+            tiers: expectedTiers,
+        }),
         "",
     ];
 }

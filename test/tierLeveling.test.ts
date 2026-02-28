@@ -10,6 +10,7 @@ import {
     collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
+    formatTierStateLines,
     formatTierStepState,
     nextStableTier,
     tierScenarioCases,
@@ -73,6 +74,23 @@ function assertYellowBranchState(params: {
     });
 }
 
+function logActualTierStepState(nodes: Node[], actualLevels: LevelsByIndex): void {
+    const levels = nodes.map((_, index) => actualLevels[index] ?? 0);
+    const tiers = nodes.map((node, index) =>
+        expectedTierIndex(levels[index] ?? 0, node.maxLevel),
+    );
+
+    formatTierStateLines({
+        levelLabel: "actual levels:",
+        levels,
+        tierLabel: "actual tiers:",
+        tiers,
+    }).forEach((line) => {
+        logTierLine(line);
+    });
+    logTierLine();
+}
+
 function runSweepCase(testCase: SweepCase) {
     const { nodes, levels: startingLevels } = createYellowBranchFixture();
     let currentLevels = startingLevels;
@@ -112,9 +130,12 @@ function runSweepCase(testCase: SweepCase) {
             nextLevel: targetLevel,
             stepIndex,
             targetIndex: testCase.targetIndex,
-        }).forEach((line) => {
-            logTierLine(line);
-        });
+        })
+            .slice(0, -1)
+            .forEach((line) => {
+                logTierLine(line);
+            });
+        logActualTierStepState(nodes, result.levels);
 
         assertYellowBranchState({
             caseName: testCase.name,
@@ -162,9 +183,12 @@ function runScenarioCase(
             nextLevel: operation.targetLevel,
             stepIndex,
             targetIndex: operation.index,
-        }).forEach((line) => {
-            logTierLine(line);
-        });
+        })
+            .slice(0, -1)
+            .forEach((line) => {
+                logTierLine(line);
+            });
+        logActualTierStepState(nodes, result.levels);
 
         assertYellowBranchState({
             caseName: testCase.name,
