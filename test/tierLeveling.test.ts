@@ -10,6 +10,7 @@ import {
     collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
+    expectedTierUpper,
     formatTierStateGroup,
     formatTierStepState,
     nextStableTier,
@@ -104,6 +105,104 @@ function assertYellowBranchRolePartitioning() {
             "Expected wrapped nodes to include non-ancestors in the branch",
         );
     }
+}
+
+function assertSplitNodeBoundaryContracts() {
+    const { nodes, levels } = createYellowBranchFixture();
+    let currentLevels = levels;
+    const splitNodeBoundaryCases = [
+        { from: 0, to: 1, event: "up", stableTier: 1 },
+        { from: 1, to: 20, event: "none", stableTier: 1 },
+        { from: 20, to: 21, event: "up", stableTier: 2 },
+        { from: 21, to: 20, event: "none", stableTier: 2 },
+        { from: 20, to: 19, event: "down", stableTier: 1 },
+    ] as const;
+
+    splitNodeBoundaryCases.forEach((testCase, stepIndex) => {
+        currentLevels = assertBoundaryContract({
+            caseName: "Split node boundary contract",
+            currentLevels,
+            event: testCase.event,
+            from: testCase.from,
+            nodes,
+            stableTier: testCase.stableTier,
+            stepIndex,
+            targetIndex: 3,
+            to: testCase.to,
+        });
+    });
+}
+
+function assertBoundaryContract(params: {
+    caseName: string;
+    currentLevels: LevelsByIndex;
+    event: "up" | "down" | "none";
+    from: number;
+    nodes: Node[];
+    stableTier: number;
+    stepIndex: number;
+    targetIndex: number;
+    to: number;
+}): LevelsByIndex {
+    const {
+        caseName,
+        currentLevels,
+        event,
+        from,
+        nodes,
+        stableTier,
+        stepIndex,
+        targetIndex,
+        to,
+    } = params;
+    const currentLevel = currentLevels[targetIndex] ?? 0;
+    if (currentLevel !== from) {
+        throw new Error(
+            `${caseName} step ${stepIndex} expected target ${targetIndex} to start at ${from}, got ${currentLevel}`,
+        );
+    }
+
+    const result = applyLevelChange({
+        index: targetIndex,
+        levels: currentLevels,
+        nodes,
+        targetLevel: to,
+    });
+
+    const roles = partitionYellowBranchRoles(nodes, targetIndex);
+    const wrappedTier = Math.max(stableTier - 1, 0);
+
+    if ((result.levels[targetIndex] ?? 0) !== to) {
+        throw new Error(
+            `${caseName} step ${stepIndex} target ${targetIndex} expected level ${to}, got ${
+                result.levels[targetIndex] ?? 0
+            }`,
+        );
+    }
+
+    nodes.forEach((node, index) => {
+        if (index === targetIndex) return;
+
+        const previousLevel = currentLevels[index] ?? 0;
+        const assignedTier = roles.ancestors.has(index) ? stableTier : wrappedTier;
+        const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
+
+        let expectedLevel = previousLevel;
+        if (event === "up") {
+            expectedLevel = Math.max(previousLevel, assignedLevel);
+        } else if (event === "down") {
+            expectedLevel = Math.min(previousLevel, assignedLevel);
+        }
+
+        const actualLevel = result.levels[index] ?? 0;
+        if (actualLevel !== expectedLevel) {
+            throw new Error(
+                `${caseName} step ${stepIndex} node ${index} expected level ${expectedLevel}, got ${actualLevel}`,
+            );
+        }
+    });
+
+    return result.levels;
 }
 
 function runSweepCase(testCase: SweepCase) {
@@ -223,6 +322,7 @@ function runScenarioCase(
 
 export function runTierLevelingTests() {
     assertYellowBranchRolePartitioning();
+    assertSplitNodeBoundaryContracts();
     resetTierLogFile();
     logTierLine("===");
     logTierLine("Tier Leveling Tests");
