@@ -137,9 +137,6 @@ export function applyLevelChange(params: {
     const getDirectParents = (nodeIndex: number) =>
         parentIndices(nodes[nodeIndex]);
 
-    const getDirectChildren = (nodeIndex: number) =>
-        childrenMap.get(nodeIndex) ?? [];
-
     const getWrappedParentStep = (nodeIndex: number) => {
         const parents = getDirectParents(nodeIndex);
         if (parents.length > 0) {
@@ -151,20 +148,11 @@ export function applyLevelChange(params: {
         return { neighborIndices: [branchLeafIndex], wrapped: true };
     };
 
-    const getDescendantStep = (nodeIndex: number) => {
-        const children = getDirectChildren(nodeIndex);
-        if (children.length > 0) {
-            return { neighborIndices: children, wrapped: false };
-        }
-        return { neighborIndices: [], wrapped: false };
-    };
-
-    const getBranchTraversalStep = (
+    const getWrappedBranchStep = (
         nodeIndex: number,
         propagationDirection: number,
     ) => {
         if (propagationDirection === 0) return null;
-        if (propagationDirection < 0) return getDescendantStep(nodeIndex);
         return getWrappedParentStep(nodeIndex);
     };
 
@@ -172,27 +160,30 @@ export function applyLevelChange(params: {
 
     const getRequiredChildTier = (targetTier: number) => targetTier - 1;
 
-    const getRequiredWrappedParentTier = (targetTier: number) =>
-        getRequiredChildTier(targetTier);
-
-    const getRequiredDescendantTier = (targetCompletedTier: number) =>
-        targetCompletedTier;
-
-    const getRequiredNeighborTier = (
-        targetTier: number,
-        targetCompletedTier: number,
-        propagationDelta: number,
+    const getRequiredWrappedParentTier = (
+        nodeIndex: number,
+        requiredTier: number,
     ) => {
+        if (requiredTier <= 0) return 0;
+        if (requiredTier > 1) return getRequiredChildTier(requiredTier);
+
+        const currentLevel = next[nodeIndex] ?? 0;
+        const requiredLevel = getUpperLevelOfTier(nodeIndex, requiredTier);
+        return currentLevel >= requiredLevel ? requiredTier : 0;
+    };
+
+    const getRequiredNeighborTier = (targetTier: number, propagationDelta: number) => {
         if (propagationDelta === 0) return 0;
-        if (propagationDelta < 0) {
-            return getRequiredDescendantTier(targetCompletedTier);
-        }
         return getRequiredParentTier(targetTier);
     };
 
-    const getWrappedRequiredTier = (requiredTier: number, wrapped: boolean) => {
+    const getWrappedRequiredTier = (
+        nodeIndex: number,
+        requiredTier: number,
+        wrapped: boolean,
+    ) => {
         if (!wrapped) return requiredTier;
-        return getRequiredWrappedParentTier(requiredTier);
+        return getRequiredWrappedParentTier(nodeIndex, requiredTier);
     };
 
     const nodeSatisfiesTier = (
@@ -211,10 +202,7 @@ export function applyLevelChange(params: {
         currentCompletedTier: number,
         targetCompletedTier: number,
     ) => {
-        if (
-            targetTier > currentTier ||
-            targetCompletedTier > currentCompletedTier
-        ) {
+        if (targetTier > currentTier) {
             return 1;
         }
         if (
@@ -244,14 +232,14 @@ export function applyLevelChange(params: {
         propagationDirection: number,
         visited: Set<number>,
     ) => {
-        const traversalStep = getBranchTraversalStep(
+        const traversalStep = getWrappedBranchStep(
             nodeIndex,
             propagationDirection,
         );
         if (traversalStep === null) return;
 
         const stepRequiredTier = Math.max(
-            getWrappedRequiredTier(requiredTier, traversalStep.wrapped),
+            getWrappedRequiredTier(nodeIndex, requiredTier, traversalStep.wrapped),
             0,
         );
 
@@ -311,7 +299,6 @@ export function applyLevelChange(params: {
 
     const rawRequiredTier = getRequiredNeighborTier(
         targetTier,
-        targetCompletedTier,
         propagationDirection,
     );
     const requiredTier = Math.max(rawRequiredTier, 0);
