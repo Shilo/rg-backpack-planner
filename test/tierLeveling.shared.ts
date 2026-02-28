@@ -244,119 +244,6 @@ export function formatTierStepState(params: {
     ];
 }
 
-function currentStableTierForScenarioNode(params: {
-    nodes: Node[];
-    levels: number[];
-    targetIndex: number;
-}): number {
-    const { nodes, levels, targetIndex } = params;
-    const targetNode = nodes[targetIndex];
-    if (!targetNode) return 0;
-
-    const ancestors = collectAncestors(nodes, targetIndex);
-    const targetTier = expectedTierIndex(
-        levels[targetIndex] ?? 0,
-        targetNode.maxLevel,
-    );
-
-    if (ancestors.size === 0) {
-        let maxWrappedTier = 0;
-
-        nodes.forEach((node, index) => {
-            if (index === targetIndex) return;
-            maxWrappedTier = Math.max(
-                maxWrappedTier,
-                expectedTierIndex(levels[index] ?? 0, node.maxLevel),
-            );
-        });
-
-        if (maxWrappedTier > 0) {
-            return Math.max(targetTier, maxWrappedTier + 1);
-        }
-
-        return targetTier;
-    }
-
-    let maxAncestorTier = 0;
-    ancestors.forEach((ancestorIndex) => {
-        const ancestor = nodes[ancestorIndex];
-        maxAncestorTier = Math.max(
-            maxAncestorTier,
-            expectedTierIndex(levels[ancestorIndex] ?? 0, ancestor.maxLevel),
-        );
-    });
-
-    return Math.max(targetTier, maxAncestorTier);
-}
-
-function buildExpectedBranchStateForOperation(params: {
-    nodes: Node[];
-    currentLevels: number[];
-    operation: ScenarioOperation;
-}): number[] {
-    const { nodes, currentLevels, operation } = params;
-    const node = nodes[operation.index];
-    if (!node) {
-        return [...currentLevels];
-    }
-
-    const nextLevels = [...currentLevels];
-    const clampedTarget = Math.min(
-        Math.max(operation.targetLevel, 0),
-        node.maxLevel,
-    );
-    const startingLevel = currentLevels[operation.index] ?? 0;
-
-    if (clampedTarget === startingLevel) {
-        return nextLevels;
-    }
-
-    const ancestors = collectAncestors(nodes, operation.index);
-    const currentStableTier = currentStableTierForScenarioNode({
-        nodes,
-        levels: currentLevels,
-        targetIndex: operation.index,
-    });
-
-    let nextStableTier = currentStableTier;
-    if (clampedTarget > startingLevel) {
-        nextStableTier = Math.max(
-            currentStableTier,
-            expectedTierIndex(clampedTarget, node.maxLevel),
-        );
-    } else if (node.maxLevel <= 1 && clampedTarget === 0) {
-        nextStableTier = 0;
-    } else {
-        while (
-            nextStableTier > 0 &&
-            clampedTarget < expectedTierUpper(nextStableTier - 1, node.maxLevel)
-        ) {
-            nextStableTier -= 1;
-        }
-    }
-
-    nextLevels[operation.index] = clampedTarget;
-
-    if (nextStableTier !== currentStableTier) {
-        const wrappedTier = Math.max(nextStableTier - 1, 0);
-
-        nodes.forEach((componentNode, index) => {
-            if (index === operation.index) return;
-
-            const requiredTier = ancestors.has(index)
-                ? nextStableTier
-                : wrappedTier;
-
-            nextLevels[index] = expectedTierUpper(
-                requiredTier,
-                componentNode.maxLevel,
-            );
-        });
-    }
-
-    return nextLevels;
-}
-
 function collectDescendants(nodes: Node[], start: number): Set<number> {
     const descendants = new Set<number>();
     const stack = [start];
@@ -419,11 +306,11 @@ function relatedIndicesForScenarioNode(nodes: Node[], start: number): number[] {
 export function buildSeededScenarioCase(
     testCase: SeededScenarioCase,
 ): ScenarioCase {
-    const { nodes, levels: startingLevels } = createYellowBranchFixture();
+    const { nodes, levels } = createYellowBranchFixture();
     const random = createSeededRandom(testCase.seed);
     const preferredIndices = [0, 1, 2, 3, 5, 6, 7, 8, 9];
     const operations: ScenarioOperation[] = [];
-    let currentLevels = [...startingLevels];
+    let trackedLevels = [...levels];
     let previousIndex =
         preferredIndices[
             Math.floor(random() * preferredIndices.length) %
@@ -449,7 +336,7 @@ export function buildSeededScenarioCase(
                     candidateIndices.length
             ] ?? 0;
         const candidateLevels = edgeBiasedLevelsForNode(nodes[index]);
-        const currentLevel = currentLevels[index] ?? 0;
+        const currentLevel = trackedLevels[index] ?? 0;
 
         let levelPool = candidateLevels.filter(
             (level) => level !== currentLevel,
@@ -481,11 +368,10 @@ export function buildSeededScenarioCase(
         const operation = { index, targetLevel };
 
         operations.push(operation);
-        currentLevels = buildExpectedBranchStateForOperation({
-            nodes,
-            currentLevels,
-            operation,
-        });
+        trackedLevels[index] = Math.min(
+            Math.max(targetLevel, 0),
+            nodes[index]?.maxLevel ?? 0,
+        );
         previousIndex = index;
     }
 
@@ -495,125 +381,10 @@ export function buildSeededScenarioCase(
     };
 }
 
-export function buildExpectedStateForScenario(
-    testCase: ScenarioCase,
-): ScenarioExpectedStates {
-    const { nodes, levels: startingLevels } = createYellowBranchFixture();
-    const expectedStates: ScenarioExpectedStates = [];
-    let currentLevels = [...startingLevels];
-
-    testCase.operations.forEach((operation) => {
-        const nextLevels = buildExpectedBranchStateForOperation({
-            nodes,
-            currentLevels,
-            operation,
-        });
-        expectedStates.push(nextLevels);
-        currentLevels = [...nextLevels];
-    });
-
-    return expectedStates;
-}
-
 export const tierSweepCases: SweepCase[] = [
     { name: "Yellow root node round trip", targetIndex: 0 },
     { name: "Yellow second node round trip", targetIndex: 1 },
     { name: "Yellow tier-3 split node round trip", targetIndex: 3 },
     { name: "Yellow tier-4 merged node round trip", targetIndex: 7 },
     { name: "Yellow final node round trip", targetIndex: 9 },
-];
-
-export const tierScenarioCases: ScenarioCase[] = [
-    {
-        name: "Yellow sibling decrement handoff",
-        operations: [
-            { index: 1, targetLevel: 100 },
-            { index: 2, targetLevel: 0 },
-        ],
-    },
-    {
-        name: "Yellow final branch decrement handoff",
-        operations: [
-            { index: 9, targetLevel: 1 },
-            { index: 8, targetLevel: 0 },
-        ],
-    },
-    {
-        name: "Yellow merged branch unwind",
-        operations: [
-            { index: 7, targetLevel: 50 },
-            { index: 6, targetLevel: 0 },
-        ],
-    },
-    {
-        name: "Yellow merged node partial tier step-up",
-        operations: [
-            { index: 7, targetLevel: 10 },
-            { index: 7, targetLevel: 20 },
-        ],
-    },
-    {
-        name: "Yellow cross-branch cascading unwind",
-        operations: [
-            { index: 7, targetLevel: 50 },
-            { index: 6, targetLevel: 100 },
-            { index: 8, targetLevel: 50 },
-            { index: 1, targetLevel: 0 },
-            { index: 5, targetLevel: 0 },
-            { index: 0, targetLevel: 0 },
-        ],
-    },
-    {
-        name: "Yellow partial ancestor hysteresis",
-        operations: [
-            { index: 0, targetLevel: 21 },
-            { index: 6, targetLevel: 61 },
-            { index: 2, targetLevel: 41 },
-            { index: 2, targetLevel: 39 },
-        ],
-    },
-    {
-        name: "Yellow sibling partial bounce",
-        operations: [
-            { index: 1, targetLevel: 41 },
-            { index: 2, targetLevel: 61 },
-            { index: 2, targetLevel: 60 },
-            { index: 2, targetLevel: 59 },
-        ],
-    },
-    {
-        name: "Yellow split branch rollback",
-        operations: [
-            { index: 3, targetLevel: 100 },
-            { index: 4, targetLevel: 100 },
-            { index: 7, targetLevel: 50 },
-            { index: 4, targetLevel: 19 },
-        ],
-    },
-    {
-        name: "Yellow deep branch partial unwind",
-        operations: [
-            { index: 9, targetLevel: 1 },
-            { index: 8, targetLevel: 11 },
-            { index: 8, targetLevel: 10 },
-            { index: 8, targetLevel: 9 },
-        ],
-    },
-    {
-        name: "Yellow root partial reset after deep unlock",
-        operations: [
-            { index: 0, targetLevel: 81 },
-            { index: 9, targetLevel: 1 },
-            { index: 0, targetLevel: 79 },
-        ],
-    },
-];
-
-export const tierSeededScenarioCases: SeededScenarioCase[] = [
-    { name: "Yellow seeded simulation", seed: 11, steps: 8 },
-    { name: "Yellow seeded simulation", seed: 23, steps: 8 },
-    { name: "Yellow seeded simulation", seed: 37, steps: 8 },
-    { name: "Yellow seeded simulation", seed: 53, steps: 8 },
-    { name: "Yellow seeded simulation", seed: 71, steps: 8 },
-    { name: "Yellow seeded simulation", seed: 89, steps: 8 },
 ];
