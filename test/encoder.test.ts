@@ -1,16 +1,16 @@
 /**
  * Tests for build data encoding/decoding
- * Run with: node --loader ts-node/esm src/lib/buildData/encoder.test.ts
+ * Run with: npm run test
  * Or import and run in browser console
  */
 
-import type { BuildData } from "../src/lib/buildData/encoder";
+import type { BuildData } from "../src/lib/buildData/encoder.ts";
 import {
     encodeBuildData,
     decodeBuildData,
     decodeNameSpaces,
-} from "../src/lib/buildData/encoder";
-import { getBuildNameFromEncoded } from "../src/lib/buildData/url";
+} from "../src/lib/buildData/encoder.ts";
+import { getBuildNameFromEncoded } from "../src/lib/buildData/url.ts";
 
 function fromObjectTrees(trees: Array<Record<string, number>>): number[][] {
     const maxIndex = 30;

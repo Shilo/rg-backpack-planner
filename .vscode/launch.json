@@ -15,7 +15,7 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "test:tier"],
+            "runtimeArgs": ["run", "test"],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         }

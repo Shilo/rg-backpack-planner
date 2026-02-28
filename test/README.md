@@ -4,6 +4,14 @@ Tests for the build data encoding/decoding system.
 
 ## Running Tests
 
+### CLI (All Tests)
+
+```bash
+npm run test
+```
+
+This runs the full test suite through the shared `test/index.ts` entry point.
+
 ### Browser Console (Recommended)
 
 1. Start the dev server:
@@ -17,10 +25,10 @@ Tests for the build data encoding/decoding system.
 3. Import the test file:
 
     ```javascript
-    import("./test/encoder.test.js");
+    import("./test/index.js");
     ```
 
-    The tests will run automatically when imported.
+    The full test suite will run automatically when imported.
 
 ### Standalone HTML Page
 
