@@ -1,6 +1,9 @@
+import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
+import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import { fileURLToPath } from "node:url";
 import packageInfo from "../package.json";
 import {
     chromium,
@@ -10,18 +13,39 @@ import {
     type Page,
 } from "playwright";
 import {
+    buildExpectedBranchLevels,
     buildExpectedStateForScenario,
+    buildRoundTripSequence,
+    buildSeededScenarioCase,
+    collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
+    formatTierStepState,
+    nextStableTier,
     tierScenarioCases,
+    tierSeededScenarioCases,
+    tierSweepCases,
     YELLOW_BRANCH_LENGTH,
+    type ScenarioCase,
+    type ScenarioExpectedStates,
+    type SweepCase,
 } from "./tierLeveling.shared.ts";
 
 const DEV_SERVER_URL = "http://127.0.0.1:4173";
 const APP_URL = `${DEV_SERVER_URL}/rg-backpack-planner/`;
 const DEV_SERVER_START_TIMEOUT_MS = 20_000;
 const DEV_SERVER_POLL_DELAY_MS = 250;
-const BROWSER_SLOW_MO_MS = 150;
+const BROWSER_SLOW_MO_MS = 0;
+const CURRENT_VERSION = packageInfo.version ?? "0.1.0";
+const UI_TIER_LOG_FILE_LABEL = "test/tierLeveling.ui.output.log";
+const UI_TIER_LOG_FILE_URL = new URL(
+    "./tierLeveling.ui.output.log",
+    import.meta.url,
+);
+const UI_TIER_LOG_FILE_PATH = fileURLToPath(UI_TIER_LOG_FILE_URL);
+const UI_TIER_ARTIFACTS_DIR = fileURLToPath(
+    new URL("./artifacts/tier-leveling-ui/", import.meta.url),
+);
 
 type TierUiSession = {
     browser: Browser;
@@ -33,6 +57,14 @@ type TierUiSession = {
 type UiBranchState = {
     levels: number[];
     tiers: number[];
+};
+
+type ExpectedUiStep = {
+    expectedLevels: number[];
+    nextLevel: number;
+    previousLevel: number;
+    stepIndex: number;
+    targetIndex: number;
 };
 
 const NODE_ACTIONS_MENU_SELECTOR = '[role="menu"][aria-label="Node actions"]';
@@ -131,7 +163,7 @@ async function bootTierUiSession(): Promise<TierUiSession> {
                 version,
             );
             localStorage.setItem("rg-backpack-planner-single-level-up", "false");
-        }, packageInfo.version ?? "0.1.0");
+        }, CURRENT_VERSION);
 
         const page = await context.newPage();
 
@@ -149,6 +181,14 @@ async function bootTierUiSession(): Promise<TierUiSession> {
 
 async function ensureTierUiReady(page: Page): Promise<void> {
     await page.waitForSelector('[data-node-id="0"]', { state: "visible" });
+}
+
+function resetUiTierLogFile(): void {
+    writeFileSync(UI_TIER_LOG_FILE_URL, "", "utf8");
+}
+
+function logUiTierLine(line = ""): void {
+    appendFileSync(UI_TIER_LOG_FILE_URL, `${line}\n`, "utf8");
 }
 
 function nodeSelector(index: number): string {
@@ -337,24 +377,262 @@ function assertUiStateEqual(
     }
 }
 
-const firstCase = tierScenarioCases[0];
-const expectedStates = firstCase
-    ? buildExpectedStateForScenario(firstCase)
-    : [];
+function formatUiActualStepState(actual: UiBranchState): string[] {
+    const levelTokens = actual.levels.map((level) => String(level));
+    const tierTokens = actual.tiers.map((tier, index) =>
+        String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
+    );
+
+    return [
+        `- actual levels: [${levelTokens.join(", ")}]`,
+        `- actual tiers:  [${tierTokens.join(", ")}]`,
+    ];
+}
+
+function buildSweepExpectedSteps(testCase: SweepCase): ExpectedUiStep[] {
+    const { nodes } = createYellowBranchFixture();
+    const targetNode = nodes[testCase.targetIndex];
+    if (!targetNode) {
+        throw new Error(`Missing sweep target node ${testCase.targetIndex}`);
+    }
+
+    const sequence = buildRoundTripSequence(targetNode.maxLevel);
+    const ancestors = collectAncestors(nodes, testCase.targetIndex);
+    let previousLevel = 0;
+    let stableTier = 0;
+
+    return sequence.map((targetLevel, stepIndex) => {
+        const stepPreviousLevel = previousLevel;
+        stableTier = nextStableTier({
+            previousLevel,
+            nextLevel: targetLevel,
+            currentStableTier: stableTier,
+            maxLevel: targetNode.maxLevel,
+        });
+
+        const expectedLevels = buildExpectedBranchLevels({
+            nodes,
+            targetIndex: testCase.targetIndex,
+            targetLevel,
+            stableTier,
+            ancestors,
+        });
+
+        previousLevel = targetLevel;
+
+        return {
+            expectedLevels,
+            nextLevel: targetLevel,
+            previousLevel: stepPreviousLevel,
+            stepIndex,
+            targetIndex: testCase.targetIndex,
+        };
+    });
+}
+
+function buildScenarioExpectedSteps(
+    testCase: ScenarioCase,
+    expectedStates: ScenarioExpectedStates,
+): ExpectedUiStep[] {
+    const { levels: startingLevels } = createYellowBranchFixture();
+    let currentLevels = [...startingLevels];
+
+    if (expectedStates.length !== testCase.operations.length) {
+        throw new Error(
+            `${testCase.name} expected ${testCase.operations.length} states, got ${expectedStates.length}`,
+        );
+    }
+
+    return testCase.operations.map((operation, stepIndex) => {
+        const previousLevel = currentLevels[operation.index] ?? 0;
+        const expectedLevels = expectedStates[stepIndex] ?? [];
+        currentLevels = [...expectedLevels];
+
+        return {
+            expectedLevels,
+            nextLevel: operation.targetLevel,
+            previousLevel,
+            stepIndex,
+            targetIndex: operation.index,
+        };
+    });
+}
+
+async function resetTierUiPage(page: Page): Promise<void> {
+    if (!page.url().startsWith(DEV_SERVER_URL)) {
+        await page.goto(APP_URL);
+        await ensureTierUiReady(page);
+    }
+
+    await page.evaluate((version: string) => {
+        localStorage.clear();
+        localStorage.setItem("rg-backpack-planner-latest-used-version", version);
+        localStorage.setItem("rg-backpack-planner-single-level-up", "false");
+    }, CURRENT_VERSION);
+
+    await page.goto(APP_URL);
+    await ensureTierUiReady(page);
+}
+
+function sanitizePathSegment(value: string): string {
+    const sanitized = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+    return sanitized || "case";
+}
+
+async function captureUiFailureArtifact(
+    page: Page,
+    caseName: string,
+    stepIndex: number,
+): Promise<string> {
+    const caseDir = join(UI_TIER_ARTIFACTS_DIR, sanitizePathSegment(caseName));
+    mkdirSync(caseDir, { recursive: true });
+
+    const screenshotPath = join(caseDir, `step-${stepIndex + 1}.png`);
+    await page.screenshot({ fullPage: true, path: screenshotPath });
+
+    return screenshotPath;
+}
+
+async function runUiCase(params: {
+    caseName: string;
+    caseLabel: string;
+    page: Page;
+    steps: ExpectedUiStep[];
+}): Promise<number> {
+    const { caseName, caseLabel, page, steps } = params;
+
+    logUiTierLine(caseLabel);
+    logUiTierLine("---");
+    await resetTierUiPage(page);
+
+    let failingStepIndex = 0;
+
+    try {
+        for (const step of steps) {
+            failingStepIndex = step.stepIndex;
+
+            await setNodeToLevel(page, step.targetIndex, step.nextLevel);
+            const actual = await readYellowBranchState(page);
+
+            formatTierStepState({
+                nodes: yellowBranchNodes,
+                expectedLevels: step.expectedLevels,
+                previousLevel: step.previousLevel,
+                nextLevel: step.nextLevel,
+                stepIndex: step.stepIndex,
+                targetIndex: step.targetIndex,
+            })
+                .slice(0, -1)
+                .forEach((line) => {
+                    logUiTierLine(line);
+                });
+            formatUiActualStepState(actual).forEach((line) => {
+                logUiTierLine(line);
+            });
+            logUiTierLine();
+
+            assertUiStateEqual(caseName, step.expectedLevels, actual);
+        }
+
+        logUiTierLine(`✅ PASSED (${steps.length} steps)`);
+        return steps.length;
+    } catch (error) {
+        const screenshotPath = await captureUiFailureArtifact(
+            page,
+            caseName,
+            failingStepIndex,
+        );
+        logUiTierLine(
+            `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        logUiTierLine(`Screenshot: ${screenshotPath}`);
+        throw error;
+    } finally {
+        logUiTierLine();
+    }
+}
+
+async function runTierUiSuite(page: Page): Promise<void> {
+    resetUiTierLogFile();
+    logUiTierLine("===");
+    logUiTierLine("Tier Leveling UI Tests");
+    logUiTierLine(`Log file: ${UI_TIER_LOG_FILE_LABEL}`);
+    logUiTierLine("===");
+    logUiTierLine();
+
+    const total =
+        tierSweepCases.length +
+        tierScenarioCases.length +
+        tierSeededScenarioCases.length;
+    let passed = 0;
+    let failed = 0;
+    let suiteError: unknown = null;
+
+    try {
+        for (const [index, testCase] of tierSweepCases.entries()) {
+            await runUiCase({
+                caseName: testCase.name,
+                caseLabel: `Tier Test ${index + 1}: ${testCase.name}`,
+                page,
+                steps: buildSweepExpectedSteps(testCase),
+            });
+            passed++;
+        }
+
+        for (const [index, testCase] of tierScenarioCases.entries()) {
+            await runUiCase({
+                caseName: testCase.name,
+                caseLabel: `Scenario Test ${index + 1}: ${testCase.name}`,
+                page,
+                steps: buildScenarioExpectedSteps(
+                    testCase,
+                    buildExpectedStateForScenario(testCase),
+                ),
+            });
+            passed++;
+        }
+
+        for (const [index, testCase] of tierSeededScenarioCases.entries()) {
+            const generatedCase = buildSeededScenarioCase(testCase);
+            await runUiCase({
+                caseName: generatedCase.name,
+                caseLabel: `Seeded Test ${index + 1}: ${generatedCase.name}`,
+                page,
+                steps: buildScenarioExpectedSteps(
+                    generatedCase,
+                    buildExpectedStateForScenario(generatedCase),
+                ),
+            });
+            passed++;
+        }
+    } catch (error) {
+        failed = 1;
+        suiteError = error;
+    }
+
+    logUiTierLine("===");
+    logUiTierLine("Tier Leveling UI Summary");
+    logUiTierLine("===");
+    logUiTierLine(`📊 Total tests: ${total}`);
+    logUiTierLine(`✅ Passed: ${passed}`);
+    logUiTierLine(`❌ Failed: ${failed}`);
+    logUiTierLine(`Log file: ${UI_TIER_LOG_FILE_PATH}:1`);
+    logUiTierLine("===");
+
+    if (suiteError) {
+        throw suiteError;
+    }
+}
+
 const session = await bootTierUiSession();
 const { browser, page, stopServer } = session;
 
 try {
-    console.log(`Tier UI stub: ${firstCase?.name ?? "missing case"}`);
-    await page.goto(APP_URL);
-    await ensureTierUiReady(page);
-    await setNodeToLevel(page, 1, 100);
-    const actual = await readYellowBranchState(page);
-    assertUiStateEqual(
-        firstCase?.name ?? "missing case",
-        expectedStates[0] ?? [],
-        actual,
-    );
+    await runTierUiSuite(page);
 } finally {
     await browser?.close();
     await stopServer?.();
