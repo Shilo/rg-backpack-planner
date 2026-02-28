@@ -30,6 +30,9 @@ Current coverage includes:
 3. Seeded deterministic simulations for additional edge-biased path coverage
 4. Per-step validation of every node in the branch, asserting both expected
    level and derived tier state
+5. Per-step output that prints the target node index, the level transition,
+   aligned `levels` and `tiers` arrays, and mirrors the same output to
+   `test/tierLeveling.output.log`
 
 These tests are intended to catch the fragile threshold behavior around tier
 boundaries and branch hysteresis.
@@ -75,6 +78,9 @@ npx tsx test/tierLeveling.test.ts
 npx tsx test/encoder.test.ts
 ```
 
+When you run the tier suite directly, it also writes a full mirror of the tier
+output to `test/tierLeveling.output.log`.
+
 ## Running In The Browser
 
 You can also run the test entry from the browser console through Vite.
@@ -107,6 +113,11 @@ The tests are intentionally verbose:
 
 - each suite prints its own header and summary
 - tier tests report pass/fail counts across sweep, scenario, and seeded cases
+- tier tests print each expected step as `step N expected [index X] (A -> B)`
+- tier tests print aligned `levels` and `tiers` arrays for each step
+- tier tests mirror their full output to `test/tierLeveling.output.log`
+- tier tests end by printing the absolute log-file path so it can be opened
+  directly from terminals that support clickable `path:line` output
 - encoder tests print round-trip details and serialized-size comparisons
 - the overall run completes only if both imported suites finish without
   throwing
