@@ -25,17 +25,24 @@ Current coverage includes:
 
 1. Round-trip sweeps from level `0` to max level and back down for key yellow
    branch nodes (root, early branch, split node, merged node, and final node)
-2. Scripted multi-step scenarios that mix increments and decrements across
-   related nodes to catch ancestor, descendant, and wrapped-node propagation
-3. Seeded deterministic simulations for additional edge-biased path coverage
+2. A silent boundary-contract layer that checks exact tier-threshold behavior
+   for split, root, merged, and final targets before the logged suite starts
+3. Hand-authored multi-step regression scenarios that mix increments and
+   decrements across related nodes to catch ancestor, descendant, and
+   wrapped-node propagation without replaying the production algorithm in test
+   code
 4. Per-step validation of every node in the branch, asserting both expected
    level and derived tier state
 5. Per-step output that prints the target node index, the level transition,
    aligned `levels` and `tiers` arrays, and mirrors the same output to
    `test/tierLeveling.output.log`
 
-These tests are intended to catch the fragile threshold behavior around tier
-boundaries and branch hysteresis.
+The active CLI tier suite no longer uses generated scenario expectations as its
+primary correctness oracle. The earlier shadow-oracle approach duplicated the
+same tier-transition reasoning as `applyLevelChange()`, which could create
+false passes when the tests and implementation shared the same bad assumption.
+The boundary-contract layer and explicit scenario tables keep the oracle
+smaller and more independent.
 
 ### `test/encoder.test.ts`
 
@@ -132,7 +139,8 @@ import("/rg-backpack-planner/test/index.ts");
 The tests are intentionally verbose:
 
 - each suite prints its own header and summary
-- tier tests report pass/fail counts across sweep, scenario, and seeded cases
+- tier tests run a silent boundary-contract preflight before the logged cases
+- tier tests report pass/fail counts across sweep and explicit scenario cases
 - tier tests print each expected step as `step N expected [index X] (A -> B)`
 - tier tests print aligned `levels` and `tiers` arrays for each step
 - tier tests mirror their full output to `test/tierLeveling.output.log`
