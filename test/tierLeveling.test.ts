@@ -579,6 +579,13 @@ export function runTierLevelingTests() {
             ],
         },
         {
+            name: "Yellow merged node partial tier step-up",
+            operations: [
+                { index: 7, targetLevel: 10 },
+                { index: 7, targetLevel: 20 },
+            ],
+        },
+        {
             name: "Yellow cross-branch cascading unwind",
             operations: [
                 { index: 7, targetLevel: 50 },

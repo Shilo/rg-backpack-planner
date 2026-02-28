@@ -10,8 +10,8 @@ point is `test/index.ts`, which imports both `test/tierLeveling.test.ts` and
 
 Loads the current CLI test suite in this order:
 
-1. `test/tierLeveling.test.ts`
-2. `test/encoder.test.ts`
+1. `test/encoder.test.ts`
+2. `test/tierLeveling.test.ts`
 
 Use this when you want the same application-level test flow that `npm test`
 uses after type-checking.
