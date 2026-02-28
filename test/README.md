@@ -81,6 +81,17 @@ npx tsx test/encoder.test.ts
 When you run the tier suite directly, it also writes a full mirror of the tier
 output to `test/tierLeveling.output.log`.
 
+Run the headed production-UI verification path:
+
+```bash
+npm run test:ui:tier
+```
+
+That launches a visible Chromium window through Playwright, drives the real app
+under the existing `/rg-backpack-planner/` base path, and compares the rendered
+yellow-branch runtime state against the shared tier expectations after every
+step.
+
 ## Running In The Browser
 
 You can also run the test entry from the browser console through Vite.
@@ -116,6 +127,12 @@ The tests are intentionally verbose:
 - tier tests print each expected step as `step N expected [index X] (A -> B)`
 - tier tests print aligned `levels` and `tiers` arrays for each step
 - tier tests mirror their full output to `test/tierLeveling.output.log`
+- the Playwright tier UI run writes its output to `test/tierLeveling.ui.output.log`
+- the Playwright tier UI run drives the production UI in a headed browser window
+- the Playwright tier UI run compares DOM-derived `levels` and `tiers` against
+  the shared tier expectations after every step
+- on a Playwright tier UI failure, a screenshot is saved under
+  `test/artifacts/tier-leveling-ui/`
 - tier tests end by printing the absolute log-file path so it can be opened
   directly from terminals that support clickable `path:line` output
 - encoder tests print round-trip details and serialized-size comparisons
