@@ -4,9 +4,7 @@ import { applyLevelChange } from "../src/lib/tierLeveling.ts";
 import type { LevelsByIndex, Node } from "../src/types/tree.ts";
 import {
     buildExpectedBranchLevels,
-    buildExpectedStateForScenario,
     buildRoundTripSequence,
-    buildSeededScenarioCase,
     collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
@@ -15,8 +13,6 @@ import {
     formatTierStepState,
     nextStableTier,
     partitionYellowBranchRoles,
-    tierScenarioCases,
-    tierSeededScenarioCases,
     tierSweepCases,
     type ScenarioCase,
     type ScenarioExpectedStates,
@@ -26,6 +22,60 @@ import {
 const TIER_LOG_FILE_LABEL = "test/tierLeveling.output.log";
 const TIER_LOG_FILE_URL = new URL("./tierLeveling.output.log", import.meta.url);
 const TIER_LOG_FILE_PATH = fileURLToPath(TIER_LOG_FILE_URL);
+const explicitScenarioCases: Array<{
+    expectedStates: ScenarioExpectedStates;
+    name: string;
+    operations: ScenarioCase["operations"];
+}> = [
+    {
+        expectedStates: [[40, 40, 20, 21, 20, 20, 20, 10, 10, 1]],
+        name: "Split node explicit tier-2 unlock",
+        operations: [{ index: 3, targetLevel: 21 }],
+    },
+    {
+        expectedStates: [
+            [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
+            [40, 40, 20, 20, 20, 20, 20, 10, 10, 1],
+            [20, 20, 0, 19, 0, 0, 0, 0, 0, 0],
+        ],
+        name: "Split node explicit hysteresis",
+        operations: [
+            { index: 3, targetLevel: 21 },
+            { index: 3, targetLevel: 20 },
+            { index: 3, targetLevel: 19 },
+        ],
+    },
+    {
+        expectedStates: [
+            [20, 20, 0, 20, 20, 0, 0, 10, 0, 0],
+            [40, 40, 20, 40, 40, 20, 20, 20, 10, 1],
+        ],
+        name: "Merged node explicit step-up",
+        operations: [
+            { index: 7, targetLevel: 10 },
+            { index: 7, targetLevel: 20 },
+        ],
+    },
+    {
+        expectedStates: [
+            [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
+            [100, 100, 80, 100, 100, 80, 100, 50, 40, 1],
+            [100, 100, 80, 100, 100, 80, 100, 50, 50, 1],
+            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        name: "Cross-branch explicit unwind",
+        operations: [
+            { index: 7, targetLevel: 50 },
+            { index: 6, targetLevel: 100 },
+            { index: 8, targetLevel: 50 },
+            { index: 1, targetLevel: 0 },
+            { index: 5, targetLevel: 0 },
+            { index: 0, targetLevel: 0 },
+        ],
+    },
+];
 
 function resetTierLogFile() {
     writeFileSync(TIER_LOG_FILE_URL, "", "utf8");
@@ -108,28 +158,51 @@ function assertYellowBranchRolePartitioning() {
 }
 
 function assertSplitNodeBoundaryContracts() {
-    const { nodes, levels } = createYellowBranchFixture();
-    let currentLevels = levels;
-    const splitNodeBoundaryCases = [
-        { from: 0, to: 1, event: "up", stableTier: 1 },
-        { from: 1, to: 20, event: "none", stableTier: 1 },
-        { from: 20, to: 21, event: "up", stableTier: 2 },
-        { from: 21, to: 20, event: "none", stableTier: 2 },
-        { from: 20, to: 19, event: "down", stableTier: 1 },
-    ] as const;
+    assertTargetBoundaryContracts({
+        boundaryCases: [
+            { from: 0, to: 1, event: "up", stableTier: 1 },
+            { from: 1, to: 20, event: "none", stableTier: 1 },
+            { from: 20, to: 21, event: "up", stableTier: 2 },
+            { from: 21, to: 20, event: "none", stableTier: 2 },
+            { from: 20, to: 19, event: "down", stableTier: 1 },
+        ],
+        caseName: "Split node boundary contract",
+        targetIndex: 3,
+    });
+}
 
-    splitNodeBoundaryCases.forEach((testCase, stepIndex) => {
-        currentLevels = assertBoundaryContract({
-            caseName: "Split node boundary contract",
-            currentLevels,
-            event: testCase.event,
-            from: testCase.from,
-            nodes,
-            stableTier: testCase.stableTier,
-            stepIndex,
-            targetIndex: 3,
-            to: testCase.to,
-        });
+function assertExtendedBoundaryContracts() {
+    assertTargetBoundaryContracts({
+        boundaryCases: [
+            { from: 0, to: 1, event: "up", stableTier: 1 },
+            { from: 1, to: 20, event: "none", stableTier: 1 },
+            { from: 20, to: 21, event: "up", stableTier: 2 },
+            { from: 21, to: 20, event: "none", stableTier: 2 },
+            { from: 20, to: 19, event: "down", stableTier: 1 },
+        ],
+        caseName: "Root node boundary contract",
+        targetIndex: 0,
+    });
+
+    assertTargetBoundaryContracts({
+        boundaryCases: [
+            { from: 0, to: 1, event: "up", stableTier: 1 },
+            { from: 1, to: 10, event: "none", stableTier: 1 },
+            { from: 10, to: 11, event: "up", stableTier: 2 },
+            { from: 11, to: 10, event: "none", stableTier: 2 },
+            { from: 10, to: 9, event: "down", stableTier: 1 },
+        ],
+        caseName: "Merged node boundary contract",
+        targetIndex: 7,
+    });
+
+    assertTargetBoundaryContracts({
+        boundaryCases: [
+            { from: 0, to: 1, event: "up", stableTier: 1 },
+            { from: 1, to: 0, event: "down", stableTier: 0 },
+        ],
+        caseName: "Final node boundary contract",
+        targetIndex: 9,
     });
 }
 
@@ -203,6 +276,35 @@ function assertBoundaryContract(params: {
     });
 
     return result.levels;
+}
+
+function assertTargetBoundaryContracts(params: {
+    boundaryCases: ReadonlyArray<{
+        from: number;
+        to: number;
+        event: "up" | "down" | "none";
+        stableTier: number;
+    }>;
+    caseName: string;
+    targetIndex: number;
+}) {
+    const { boundaryCases, caseName, targetIndex } = params;
+    const { nodes, levels } = createYellowBranchFixture();
+    let currentLevels = levels;
+
+    boundaryCases.forEach((testCase, stepIndex) => {
+        currentLevels = assertBoundaryContract({
+            caseName,
+            currentLevels,
+            event: testCase.event,
+            from: testCase.from,
+            nodes,
+            stableTier: testCase.stableTier,
+            stepIndex,
+            targetIndex,
+            to: testCase.to,
+        });
+    });
 }
 
 function runSweepCase(testCase: SweepCase) {
@@ -320,9 +422,18 @@ function runScenarioCase(
     return testCase.operations.length;
 }
 
+function runExplicitScenarioCase(testCase: {
+    expectedStates: ScenarioExpectedStates;
+    name: string;
+    operations: ScenarioCase["operations"];
+}) {
+    return runScenarioCase(testCase, testCase.expectedStates);
+}
+
 export function runTierLevelingTests() {
     assertYellowBranchRolePartitioning();
     assertSplitNodeBoundaryContracts();
+    assertExtendedBoundaryContracts();
     resetTierLogFile();
     logTierLine("===");
     logTierLine("Tier Leveling Tests");
@@ -331,8 +442,6 @@ export function runTierLevelingTests() {
     logTierLine();
 
     const cases = tierSweepCases;
-    const scenarioCases = tierScenarioCases;
-    const seededScenarioCases = tierSeededScenarioCases;
 
     let passed = 0;
     let failed = 0;
@@ -357,37 +466,12 @@ export function runTierLevelingTests() {
         logTierLine();
     });
 
-    scenarioCases.forEach((testCase, index) => {
-        logTierLine(`Scenario Test ${index + 1}: ${testCase.name}`);
+    explicitScenarioCases.forEach((testCase, index) => {
+        logTierLine(`Explicit Scenario Test ${index + 1}: ${testCase.name}`);
         logTierLine("---");
 
         try {
-            const expectedStates = buildExpectedStateForScenario(testCase);
-            const steps = runScenarioCase(testCase, expectedStates);
-            logTierLine(`✅ PASSED (${steps} steps)`);
-            passed++;
-        } catch (error) {
-            logTierLine(
-                `❌ FAILED: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            );
-            failed++;
-        }
-
-        logTierLine();
-    });
-
-    seededScenarioCases.forEach((testCase, index) => {
-        logTierLine(
-            `Seeded Test ${index + 1}: ${testCase.name} (seed ${testCase.seed})`,
-        );
-        logTierLine("---");
-
-        try {
-            const generatedCase = buildSeededScenarioCase(testCase);
-            const expectedStates = buildExpectedStateForScenario(generatedCase);
-            const steps = runScenarioCase(generatedCase, expectedStates);
+            const steps = runExplicitScenarioCase(testCase);
             logTierLine(`✅ PASSED (${steps} steps)`);
             passed++;
         } catch (error) {
@@ -405,11 +489,7 @@ export function runTierLevelingTests() {
     logTierLine("===");
     logTierLine("Tier Leveling Summary");
     logTierLine("===");
-    logTierLine(
-        `📊 Total tests: ${
-            cases.length + scenarioCases.length + seededScenarioCases.length
-        }`,
-    );
+    logTierLine(`📊 Total tests: ${cases.length + explicitScenarioCases.length}`);
     logTierLine(`✅ Passed: ${passed}`);
     logTierLine(`❌ Failed: ${failed}`);
     logTierLine(`Log file: ${TIER_LOG_FILE_PATH}:1`);
@@ -420,7 +500,7 @@ export function runTierLevelingTests() {
     }
 
     return {
-        total: cases.length + scenarioCases.length + seededScenarioCases.length,
+        total: cases.length + explicitScenarioCases.length,
         passed,
         failed,
     };
