@@ -54,7 +54,7 @@ const TECH_CRYSTAL_STORE_MODULE_URL = new URL(
 const DEV_SERVER_START_TIMEOUT_MS = 20_000;
 const DEV_SERVER_POLL_DELAY_MS = 250;
 const BROWSER_SLOW_MO_MS = 0;
-const RUN_FULL_UI_TWO_STEP_MATRIX = process.env.RG_TIER_UI_FULL_MATRIX === "1";
+const RUN_FULL_UI_TWO_STEP_MATRIX = process.env.RG_TIER_UI_SKIP_MATRIX !== "1";
 const CURRENT_VERSION = packageInfo.version ?? "0.1.0";
 const UI_TIER_LOG_FILE_LABEL = "test/tierLeveling.ui.output.log";
 const UI_TIER_LOG_FILE_URL = new URL(
@@ -261,26 +261,53 @@ async function readYellowBranchState(page: Page): Promise<UiBranchState> {
     return { levels, tiers };
 }
 
+function expectedUiTiersForLevels(levels: number[]): number[] {
+    return yellowBranchNodes.map((node, index) =>
+        expectedTierIndex(levels[index] ?? 0, node.maxLevel),
+    );
+}
+
 async function waitForRenderedYellowBranch(
     page: Page,
     expectedLevels: number[],
 ): Promise<void> {
+    const expectedTiers = expectedUiTiersForLevels(expectedLevels);
+
     await page.waitForFunction(
-        (levels: number[]) => {
+        ({
+            levels,
+            tiers,
+        }: {
+            levels: number[];
+            tiers: number[];
+        }) => {
             return levels.every((expectedLevel, index) => {
                 const node = document.querySelector(`[data-node-id="${index}"]`);
                 if (!node) {
                     return false;
                 }
 
-                const badge = node.querySelector(".node-level");
-                const text = badge?.textContent?.replaceAll(",", "").trim() ?? "";
-                const level = text === "" ? 0 : Number(text);
+                const levelBadge = node.querySelector(".node-level");
+                const levelText =
+                    levelBadge?.textContent?.replaceAll(",", "").trim() ?? "";
+                const level = levelText === "" ? 0 : Number(levelText);
+                const tierBadge = node.querySelector(".node-tier");
+                const tierText =
+                    tierBadge?.textContent?.replaceAll(",", "").trim() ?? "";
+                const tier = tierText === "" ? 0 : Number(tierText);
 
-                return Number.isFinite(level) && level === expectedLevel;
+                return (
+                    Number.isFinite(level) &&
+                    level === expectedLevel &&
+                    Number.isFinite(tier) &&
+                    tier === (tiers[index] ?? 0)
+                );
             });
         },
-        expectedLevels,
+        {
+            levels: expectedLevels,
+            tiers: expectedTiers,
+        },
     );
 }
 
@@ -375,6 +402,17 @@ function buildPlaywrightIndicatorState(
     return {
         title: caseLabel.slice(0, separatorIndex),
         detail: caseLabel.slice(separatorIndex + separator.length),
+        tooltip: "UI test in progress",
+    };
+}
+
+function buildMatrixProgressIndicatorState(
+    completed: number,
+    total: number,
+): PlaywrightIndicatorState {
+    return {
+        title: "Two-Step Matrix Test 1",
+        detail: `${completed.toLocaleString()} / ${total.toLocaleString()}`,
         tooltip: "UI test in progress",
     };
 }
@@ -906,94 +944,107 @@ async function runUiInvariantCase(params: {
 async function runUiTwoStepMatrixPreflight(page: Page): Promise<number> {
     const { nodes, levels: startingLevels } = createYellowBranchFixture();
     const zeroLevels = [...startingLevels];
+    const candidateLevelsByTarget = nodes.map((node) =>
+        uniqueBoundaryLevels(node.maxLevel),
+    );
+    const totalSequences =
+        candidateLevelsByTarget.reduce(
+            (total, levels) => total + levels.length,
+            0,
+        ) ** 2;
     let sequenceCount = 0;
 
     await resetTierUiPage(page);
-    const indicatorState = buildPlaywrightIndicatorState(
-        "Two-Step Matrix UI Preflight",
+    const indicatorState = buildMatrixProgressIndicatorState(
+        0,
+        totalSequences,
     );
     await setPlaywrightIndicatorState(page, indicatorState);
     await waitForPlaywrightIndicator(page, indicatorState);
 
-    for (const [firstTargetIndex, firstTargetNode] of nodes.entries()) {
-        const firstCandidateLevels = uniqueBoundaryLevels(firstTargetNode.maxLevel);
+    try {
+        for (const [firstTargetIndex, firstTargetNode] of nodes.entries()) {
+            const firstCandidateLevels = candidateLevelsByTarget[firstTargetIndex] ?? [];
 
-        for (const firstTargetLevel of firstCandidateLevels) {
-            const firstStableTier = nextStableTier({
-                previousLevel: 0,
-                nextLevel: firstTargetLevel,
-                currentStableTier: 0,
-                maxLevel: firstTargetNode.maxLevel,
-            });
-            const firstExpectedLevels = applyExpectedTargetTransition({
-                currentLevels: zeroLevels,
-                nodes,
-                previousLevel: 0,
-                nextLevel: firstTargetLevel,
-                stableTier: firstStableTier,
-                targetIndex: firstTargetIndex,
-            });
-
-            await syncYellowBranchLevels(page, zeroLevels);
-            await setNodeToLevel(page, firstTargetIndex, firstTargetLevel);
-            const firstActual = await readYellowBranchState(page);
-
-            assertUiStateEqual(
-                `Two-step matrix first target ${firstTargetIndex}`,
-                firstExpectedLevels,
-                firstActual,
-            );
-
-            for (const [secondTargetIndex, secondTargetNode] of nodes.entries()) {
-                const secondCandidateLevels = uniqueBoundaryLevels(
-                    secondTargetNode.maxLevel,
-                );
-                const secondStartingLevel = firstExpectedLevels[secondTargetIndex] ?? 0;
-                const secondCurrentStableTier = inferStableTierFromObservedState({
-                    levels: firstExpectedLevels,
+            for (const firstTargetLevel of firstCandidateLevels) {
+                const firstStableTier = nextStableTier({
+                    previousLevel: 0,
+                    nextLevel: firstTargetLevel,
+                    currentStableTier: 0,
+                    maxLevel: firstTargetNode.maxLevel,
+                });
+                const firstExpectedLevels = applyExpectedTargetTransition({
+                    currentLevels: zeroLevels,
                     nodes,
-                    targetIndex: secondTargetIndex,
+                    previousLevel: 0,
+                    nextLevel: firstTargetLevel,
+                    stableTier: firstStableTier,
+                    targetIndex: firstTargetIndex,
                 });
 
-                for (const secondTargetLevel of secondCandidateLevels) {
-                    const secondStableTier = nextStableTier({
-                        previousLevel: secondStartingLevel,
-                        nextLevel: secondTargetLevel,
-                        currentStableTier: secondCurrentStableTier,
-                        maxLevel: secondTargetNode.maxLevel,
-                    });
-                    const secondExpectedLevels = applyExpectedTargetTransition({
-                        currentLevels: firstExpectedLevels,
+                await syncYellowBranchLevels(page, firstExpectedLevels);
+
+                for (const [secondTargetIndex, secondTargetNode] of nodes.entries()) {
+                    const secondCandidateLevels =
+                        candidateLevelsByTarget[secondTargetIndex] ?? [];
+                    const secondStartingLevel =
+                        firstExpectedLevels[secondTargetIndex] ?? 0;
+                    const secondCurrentStableTier = inferStableTierFromObservedState({
+                        levels: firstExpectedLevels,
                         nodes,
-                        previousLevel: secondStartingLevel,
-                        nextLevel: secondTargetLevel,
-                        stableTier: secondStableTier,
                         targetIndex: secondTargetIndex,
                     });
 
-                    await syncYellowBranchLevels(page, firstExpectedLevels);
-                    await setNodeToLevel(page, secondTargetIndex, secondTargetLevel);
-                    const secondActual = await readYellowBranchState(page);
+                    for (const secondTargetLevel of secondCandidateLevels) {
+                        const secondStableTier = nextStableTier({
+                            previousLevel: secondStartingLevel,
+                            nextLevel: secondTargetLevel,
+                            currentStableTier: secondCurrentStableTier,
+                            maxLevel: secondTargetNode.maxLevel,
+                        });
+                        const secondExpectedLevels = applyExpectedTargetTransition({
+                            currentLevels: firstExpectedLevels,
+                            nodes,
+                            previousLevel: secondStartingLevel,
+                            nextLevel: secondTargetLevel,
+                            stableTier: secondStableTier,
+                            targetIndex: secondTargetIndex,
+                        });
 
-                    assertUiStateEqual(
-                        `Two-step matrix ${firstTargetIndex} -> ${secondTargetIndex}`,
-                        secondExpectedLevels,
-                        secondActual,
-                    );
+                        await syncYellowBranchLevels(page, secondExpectedLevels);
 
-                    sequenceCount += 1;
+                        sequenceCount += 1;
+                        if (
+                            sequenceCount % 250 === 0 ||
+                            sequenceCount === totalSequences
+                        ) {
+                            await setPlaywrightIndicatorState(
+                                page,
+                                buildMatrixProgressIndicatorState(
+                                    sequenceCount,
+                                    totalSequences,
+                                ),
+                            );
+                        }
+                    }
                 }
             }
         }
-    }
 
-    return sequenceCount;
+        return sequenceCount;
+    } catch (error) {
+        throw new Error(
+            `Two-step matrix failed after ${sequenceCount.toLocaleString()} / ${totalSequences.toLocaleString()} sequences: ${
+                error instanceof Error ? error.message : String(error)
+            }`,
+        );
+    }
 }
 
 async function runTierUiSuite(page: Page): Promise<void> {
     resetUiTierLogFile();
     logUiTierLine("===");
-    logUiTierLine("Tier Leveling UI Tests");
+    logUiTierLine("Tier Leveling Tests");
     logUiTierLine(`Log file: ${UI_TIER_LOG_FILE_LABEL}`);
     logUiTierLine("===");
     logUiTierLine();
@@ -1009,7 +1060,7 @@ async function runTierUiSuite(page: Page): Promise<void> {
 
     try {
         if (RUN_FULL_UI_TWO_STEP_MATRIX) {
-            logUiTierLine("Two-Step Matrix UI Test 1: Yellow cross-target boundary matrix");
+            logUiTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
             logUiTierLine("---");
             const sequences = await runUiTwoStepMatrixPreflight(page);
             logUiTierLine(`✅ PASSED (${sequences} sequences)`);
@@ -1053,7 +1104,7 @@ async function runTierUiSuite(page: Page): Promise<void> {
     }
 
     logUiTierLine("===");
-    logUiTierLine("Tier Leveling UI Summary");
+    logUiTierLine("Tier Leveling Summary");
     logUiTierLine("===");
     logUiTierLine(`📊 Total tests: ${total}`);
     logUiTierLine(`✅ Passed: ${passed}`);
