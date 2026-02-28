@@ -103,12 +103,29 @@ function expectedTierUpper(tier: number, maxLevel: Node["maxLevel"]): number {
 }
 
 export function buildRoundTripSequence(maxLevel: number): number[] {
-    const ascending = Array.from({ length: maxLevel + 1 }, (_, level) => level);
-    const descending = Array.from(
-        { length: maxLevel + 1 },
-        (_, offset) => maxLevel - offset,
-    );
-    return [...ascending, ...descending];
+    const ascending =
+        maxLevel <= MAX_TIERS
+            ? Array.from({ length: maxLevel + 1 }, (_, level) => level)
+            : (() => {
+                  const checkpoints = new Set<number>([0, 1, maxLevel]);
+                  const tierSize = expectedTierSize(maxLevel);
+
+                  for (let tier = 1; tier <= MAX_TIERS; tier += 1) {
+                      const boundary = Math.min(tier * tierSize, maxLevel);
+
+                      [boundary - 1, boundary, boundary + 1].forEach((level) => {
+                          if (level >= 0 && level <= maxLevel) {
+                              checkpoints.add(level);
+                          }
+                      });
+                  }
+
+                  return [...checkpoints].sort((left, right) => left - right);
+              })();
+    const forward = ascending.length > 1 ? ascending.slice(1) : ascending;
+    const descending = ascending.slice(0, -1).reverse();
+
+    return [...forward, ...descending];
 }
 
 export function nextStableTier(params: {
