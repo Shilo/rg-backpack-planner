@@ -111,14 +111,16 @@ npm run test:ui:tier
 That launches a visible Chromium window through Playwright, drives the real app
 under the existing `/rg-backpack-planner/` base path, applies each test step by
 calling `applyLevelChange()` directly with that operation's absolute target
-level, and compares the rendered yellow-branch runtime state against the same
-shared sweep cases, explicit scenario tables, and seeded invariant operations
-used by the CLI tier suite.
+level for the sweep, explicit, and seeded cases, then compares the rendered
+yellow-branch runtime state against the same shared sweep cases, explicit
+scenario tables, and seeded invariant operations used by the CLI tier suite.
+The cross-target two-step matrix also runs by default so the headed UI suite
+stays aligned with the CLI suite's coverage shape, but that matrix preflight
+uses direct store sync of the already-derived expected states so it can finish
+in a reasonable time while still validating the rendered DOM output.
 
-If you want the headed UI run to include the full cross-target two-step matrix
-preflight as well, set `RG_TIER_UI_FULL_MATRIX=1` before launching
-`npm run test:ui:tier`. That parity mode is intentionally opt-in because it is
-much slower in a headed browser.
+If you need a faster headed smoke run, set `RG_TIER_UI_SKIP_MATRIX=1` before
+launching `npm run test:ui:tier`.
 
 While the Playwright run is active, the app also shows the current test label
 inside the preview indicator area. That indicator is loaded from a dev-only
@@ -175,8 +177,13 @@ The tests are intentionally verbose:
   running
 - the Playwright tier UI run compares DOM-derived `levels` and `tiers` against
   the shared tier expectations after every step
-- when `RG_TIER_UI_FULL_MATRIX=1` is set, the Playwright tier UI run also
-  executes the same silent cross-target matrix preflight used by the CLI suite
+- by default, the Playwright tier UI run also executes the same silent
+  cross-target matrix preflight used by the CLI suite
+- when the matrix is running, the preview indicator shows live completed/total
+  progress even though the log file keeps the same compact start/end matrix
+  output as the CLI suite
+- set `RG_TIER_UI_SKIP_MATRIX=1` if you need to skip the matrix for a quicker
+  headed smoke run
 - on a Playwright tier UI failure, a screenshot is saved under
   `test/artifacts/tier-leveling-ui/`
 - both tier log files are already ignored by git through the repo-wide `*.log`
