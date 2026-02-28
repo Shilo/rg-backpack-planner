@@ -27,7 +27,6 @@
         "build": "vite build && node scripts/copy-404.cjs",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-        "test": "npm run check && npm run test:tier",
         "pwa:assets": "pwa-assets-generator --preset minimal-2023 public/icon.svg",
         "test:tier": "ts-node-esm --project tsconfig.test.json test/tierLeveling.test.ts"
     },

@@ -3,20 +3,6 @@ import type { LevelsByIndex, Node, NodeIndex } from "../types/tree";
 export type LevelDelta = { index: NodeIndex; delta: number };
 
 const MAX_TIERS = 5;
-const DEBUG_TIER_LEVELING = true;
-const DEBUG_TIER_LEVELING_VERSION = "neighbor-first-v3";
-(globalThis as Record<string, unknown>).__TIER_LEVELING_VERSION =
-    DEBUG_TIER_LEVELING_VERSION;
-if (DEBUG_TIER_LEVELING) {
-    console.log(
-        `[tierLeveling:${DEBUG_TIER_LEVELING_VERSION}] module:init`,
-    );
-}
-
-function debugTier(...args: unknown[]) {
-    if (!DEBUG_TIER_LEVELING) return;
-    console.log(`[tierLeveling:${DEBUG_TIER_LEVELING_VERSION}]`, ...args);
-}
 
 export function tierSize(maxLevel: Node["maxLevel"]): number {
     if (maxLevel <= 1) return 0;
@@ -45,13 +31,13 @@ export function tierUpper(
     return Math.min(Math.ceil(size * tier), maxLevel);
 }
 
-function parentIndices(node: Node): NodeIndex[] {
+function parentIndices(node: Node): number[] {
     if (node.parent === undefined) return [];
     return Array.isArray(node.parent) ? node.parent : [node.parent];
 }
 
-function buildChildrenMap(nodes: Node[]): Map<NodeIndex, NodeIndex[]> {
-    const map = new Map<NodeIndex, NodeIndex[]>();
+function buildChildrenMap(nodes: Node[]): Map<number, number[]> {
+    const map = new Map<number, number[]>();
     nodes.forEach((_, i) => map.set(i, []));
     nodes.forEach((node, idx) => {
         parentIndices(node).forEach((pi) => {
@@ -60,6 +46,26 @@ function buildChildrenMap(nodes: Node[]): Map<NodeIndex, NodeIndex[]> {
         });
     });
     return map;
+}
+
+function buildComponent(nodes: Node[], start: number): Set<number> {
+    const childrenMap = buildChildrenMap(nodes);
+    const visited = new Set<number>();
+    const stack = [start];
+    while (stack.length) {
+        const current = stack.pop()!;
+        if (visited.has(current)) continue;
+        visited.add(current);
+        const parents = parentIndices(nodes[current]);
+        parents.forEach((p) => {
+            if (!visited.has(p)) stack.push(p);
+        });
+        const children = childrenMap.get(current) ?? [];
+        children.forEach((c) => {
+            if (!visited.has(c)) stack.push(c);
+        });
+    }
+    return visited;
 }
 
 export function unlockedTierForNode(
@@ -89,148 +95,109 @@ export function applyLevelChange(params: {
     const node = nodes[index];
     if (!node) return { levels: levels.slice(), deltas: [] };
 
-    debugTier("apply:start", {
-        index,
-        targetLevel: params.targetLevel,
-        currentLevel: levels[index] ?? 0,
-    });
-
     const next = levels.slice();
-    const deltaByIndex = new Map<NodeIndex, number>();
+    const deltas: LevelDelta[] = [];
     const childrenMap = buildChildrenMap(nodes);
+    const component = buildComponent(nodes, index);
 
-    const clampLevel = (value: number, max: number) =>
-        Math.min(Math.max(value, 0), max);
+    const clamp = (value: number, min: number, max: number) =>
+        Math.min(Math.max(value, min), max);
 
     const setLevel = (i: number, newLevel: number) => {
-        const targetNode = nodes[i];
-        if (!targetNode) return false;
         const prev = next[i] ?? 0;
-        const level = clampLevel(newLevel, targetNode.maxLevel);
+        const level = clamp(newLevel, 0, nodes[i].maxLevel);
         if (level === prev) return false;
         next[i] = level;
-        const delta = level - prev;
-        const existingDelta = deltaByIndex.get(i) ?? 0;
-        deltaByIndex.set(i, existingDelta + delta);
-        debugTier("setLevel", { index: i, prev, next: level, delta });
+        deltas.push({ index: i, delta: level - prev });
         return true;
     };
 
-    type CascadeDirection = "increment" | "decrement";
-
-    const clampedTarget = clampLevel(params.targetLevel, node.maxLevel);
-    const startLevel = next[index] ?? 0;
-    const startTier = tierIndex(startLevel, node.maxLevel);
-    const triggerTier = tierIndex(clampedTarget, node.maxLevel);
-
-    if (clampedTarget === startLevel) {
-        debugTier("apply:no-op", { index, level: startLevel });
-        return { levels: next, deltas: [] };
-    }
-
-    const direction: CascadeDirection =
-        clampedTarget > startLevel ? "increment" : "decrement";
-
-    debugTier("apply:direction", {
-        index,
-        startLevel,
-        startTier,
-        clampedTarget,
-        triggerTier,
-        startDirection: direction,
-    });
-
-    const cascadeNode = (
-        currentIndex: NodeIndex,
-        targetLevel: number,
-        ignoredNodes: NodeIndex[] | null = null,
-    ) => {
-        if (!nodes[currentIndex]) return;
-
-        const ignored = ignoredNodes ?? [];
-        if (ignored.includes(currentIndex)) return;
-        ignored.push(currentIndex);
-
-        const currentNode = nodes[currentIndex];
-        const previousLevel = next[currentIndex] ?? 0;
-        const previousTier = tierIndex(previousLevel, currentNode.maxLevel);
-        setLevel(currentIndex, targetLevel);
-        const currentLevel = next[currentIndex] ?? 0;
-        const currentTier = tierIndex(currentLevel, currentNode.maxLevel);
-        debugTier("cascade:visit", {
-            currentIndex,
-            targetLevel,
-            previousLevel,
-            currentLevel,
-            previousTier,
-            currentTier,
-            direction,
-            triggerTier,
-            ignoredNodes: ignored.slice(),
-        });
-
-        const toRecurse: NodeIndex[] = [];
-
-        const parents = parentIndices(currentNode);
-        for (const parentIndex of parents) {
-            if (!nodes[parentIndex] || ignored.includes(parentIndex)) continue;
-            const parent = nodes[parentIndex];
-            const parentLevel = next[parentIndex] ?? 0;
-            const parentCap = tierUpper(triggerTier, parent.maxLevel);
-            const desiredParentLevel = direction === "increment"
-                ? Math.max(parentLevel, parentCap)
-                : Math.min(parentLevel, parentCap);
-            debugTier("cascade:parent", {
-                from: currentIndex,
-                to: parentIndex,
-                direction,
-                currentTier,
-                triggerTier,
-                parentLevel,
-                parentCap,
-                desiredParentLevel,
-            });
-            setLevel(parentIndex, desiredParentLevel);
-            toRecurse.push(parentIndex);
-        }
-
-        const childTier = Math.max(0, triggerTier - 1);
-        const children = childrenMap.get(currentIndex) ?? [];
-        for (const childIndex of children) {
-            if (!nodes[childIndex] || ignored.includes(childIndex)) continue;
-            const child = nodes[childIndex];
-            const childLevel = next[childIndex] ?? 0;
-            const childCap = tierUpper(childTier, child.maxLevel);
-            const desiredChildLevel = direction === "increment"
-                ? Math.max(childLevel, childCap)
-                : Math.min(childLevel, childCap);
-            debugTier("cascade:child", {
-                from: currentIndex,
-                to: childIndex,
-                direction,
-                currentTier,
-                triggerTier,
-                childTier,
-                childLevel,
-                childCap,
-                desiredChildLevel,
-            });
-            setLevel(childIndex, desiredChildLevel);
-            toRecurse.push(childIndex);
-        }
-
-        for (const nextIndex of toRecurse) {
-            cascadeNode(nextIndex, next[nextIndex] ?? 0, ignored);
+    const ensureAtLeast = (i: number, minLevel: number) => {
+        const prev = next[i] ?? 0;
+        if (prev >= minLevel) return;
+        const oldTier = tierIndex(prev, nodes[i].maxLevel);
+        const newLevel = clamp(minLevel, 0, nodes[i].maxLevel);
+        setLevel(i, newLevel);
+        const newTier = tierIndex(newLevel, nodes[i].maxLevel);
+        if (newTier > oldTier) {
+            processIncrease(i, oldTier, newTier);
         }
     };
 
-    cascadeNode(index, clampedTarget, null);
-    const deltas: LevelDelta[] = Array.from(deltaByIndex.entries()).map(
-        ([deltaIndex, delta]) => ({
-            index: deltaIndex,
-            delta,
-        }),
-    );
-    debugTier("apply:end", { index, levels: next.slice(), deltas: deltas.slice() });
+    const processIncrease = (i: number, oldTier: number, newTier: number) => {
+        for (let step = oldTier + 1; step <= newTier; step += 1) {
+            const prevTier = step - 1;
+            const parents = parentIndices(nodes[i]);
+            const children = childrenMap.get(i) ?? [];
+            const prevTierCapCurrent = tierUpper(prevTier, nodes[i].maxLevel);
+
+            parents.forEach((pi) => {
+                ensureAtLeast(pi, prevTierCapCurrent);
+            });
+
+            children.forEach((ci) => {
+                const childCap = tierUpper(prevTier, nodes[ci].maxLevel);
+                ensureAtLeast(ci, childCap);
+            });
+
+            // Raise all nodes in the same branch/component (even if visually locked) to the previous tier cap
+            component.forEach((idx) => {
+                const cap = tierUpper(prevTier, nodes[idx].maxLevel);
+                ensureAtLeast(idx, cap);
+            });
+        }
+    };
+
+    const clampDescendants = (i: number) => {
+        const children = childrenMap.get(i) ?? [];
+        children.forEach((ci) => {
+            const parents = parentIndices(nodes[ci]);
+            const parentTiers = parents.map((pi) =>
+                tierIndex(next[pi] ?? 0, nodes[pi].maxLevel),
+            );
+            const minParentTier = Math.min(...parentTiers);
+            const allowedTier = Math.max(0, minParentTier - 1);
+            const allowedLevel = tierUpper(allowedTier, nodes[ci].maxLevel);
+            const prev = next[ci] ?? 0;
+            if (prev > allowedLevel) {
+                setLevel(ci, allowedLevel);
+                clampDescendants(ci);
+            } else {
+                clampDescendants(ci);
+            }
+        });
+    };
+
+    const ensureParentsForTier = (i: number, tier: number) => {
+        if (tier <= 0) return;
+        const parents = parentIndices(nodes[i]);
+        parents.forEach((pi) => {
+            const requiredLevel = tierUpper(tier, nodes[pi].maxLevel);
+            ensureAtLeast(pi, requiredLevel);
+            ensureParentsForTier(pi, tier);
+        });
+    };
+
+    const currentLevel = next[index] ?? 0;
+    const clampedTarget = clamp(params.targetLevel, 0, node.maxLevel);
+    if (clampedTarget === currentLevel) {
+        return { levels: next, deltas };
+    }
+
+    const oldTier = tierIndex(currentLevel, node.maxLevel);
+    const newTier = tierIndex(clampedTarget, node.maxLevel);
+
+    setLevel(index, clampedTarget);
+
+    if (clampedTarget > currentLevel) {
+        ensureParentsForTier(index, newTier);
+    }
+
+    if (newTier > oldTier) {
+        processIncrease(index, oldTier, newTier);
+    } else if (newTier < oldTier) {
+        clampDescendants(index);
+    }
+
     return { levels: next, deltas };
 }
