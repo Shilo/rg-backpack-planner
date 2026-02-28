@@ -58,11 +58,13 @@
     }
 
     // ── Grid data ──
-    const GRID_COLS = 10;
-    const ROW_LIGHTNESS = [0.85, 0.72, 0.60, 0.48, 0.36];
-    const COL_CHROMA = [0.00, 0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24, 0.27];
+    const GRID_COLS = 12;
+    const GRAY_COLS = 10;
+    const HUE_MARKERS = 12;
+    const ROW_LIGHTNESS = [0.86, 0.75, 0.64, 0.53, 0.42];
+    const MIN_CHROMA = 0;
+    const MAX_CHROMA = 0.27;
     const GRAY_LIGHTNESS = [0.95, 0.86, 0.77, 0.68, 0.59, 0.50, 0.41, 0.32, 0.23, 0.15];
-    const HUE_STEPS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324];
 
     // ── Accent lightness for current preview mode ──
     $: accentL = previewDark ? 0.70 : 0.45;
@@ -73,27 +75,10 @@
     $: if (!isEditingHex) hexInput = oklchToHex(selectedL, c, h);
 
     // Reactive chroma column (for gradient rows) — tracks c from any source
-    $: chromaCol = (() => {
-        let best = 0;
-        let bestD = Math.abs(COL_CHROMA[0] - c);
-        for (let i = 1; i < COL_CHROMA.length; i++) {
-            const d = Math.abs(COL_CHROMA[i] - c);
-            if (d < bestD) { bestD = d; best = i; }
-        }
-        return best;
-    })();
+    $: chromaCol = Math.round((Math.min(Math.max(c, MIN_CHROMA), MAX_CHROMA) / MAX_CHROMA) * (GRID_COLS - 1));
 
     // Reactive hue column — tracks h from any source
-    $: hueCol = (() => {
-        let best = 0;
-        let bestD = Math.abs(HUE_STEPS[0] - h);
-        for (let i = 1; i < HUE_STEPS.length; i++) {
-            // Handle wrap-around (e.g., h=350 is closer to 0 than to 324)
-            const d = Math.min(Math.abs(HUE_STEPS[i] - h), 360 - Math.abs(HUE_STEPS[i] - h));
-            if (d < bestD) { bestD = d; best = i; }
-        }
-        return best;
-    })();
+    $: hueCol = Math.round((((h % 360) + 360) % 360 / 360) * (HUE_MARKERS - 1));
 
     // Reset local state only on open transition
     $: {
@@ -137,7 +122,7 @@
     function updateGrayFromPointer(clientX: number) {
         if (!grayRowEl) return;
         const rect = grayRowEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(GRID_COLS - 1, Math.floor((clientX - rect.left) / (rect.width / GRID_COLS))));
+        const col = Math.max(0, Math.min(GRAY_COLS - 1, Math.floor((clientX - rect.left) / (rect.width / GRAY_COLS))));
         h = 0;
         c = 0;
         selectedL = GRAY_LIGHTNESS[col];
@@ -167,10 +152,11 @@
     function updateColorFromGrid(clientX: number, clientY: number) {
         if (!gridEl) return;
         const rect = gridEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(GRID_COLS - 1, Math.floor((clientX - rect.left) / (rect.width / GRID_COLS))));
-        const row = Math.max(0, Math.min(ROW_LIGHTNESS.length - 1, Math.floor((clientY - rect.top) / (rect.height / ROW_LIGHTNESS.length))));
-        c = COL_CHROMA[col];
-        selectedL = ROW_LIGHTNESS[row];
+        const xRatio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+        const yRatio = Math.min(Math.max((clientY - rect.top) / rect.height, 0), 1);
+        const row = Math.max(0, Math.min(ROW_LIGHTNESS.length - 1, Math.floor(yRatio * ROW_LIGHTNESS.length)));
+        c = Math.round((MIN_CHROMA + xRatio * (MAX_CHROMA - MIN_CHROMA)) * 1000) / 1000;
+        selectedL = Math.round((ROW_LIGHTNESS[row]) * 1000) / 1000;
         gridSelectedRow = row + 1; // +1 because row 0 = grayscale
     }
 
@@ -196,8 +182,8 @@
     function updateHueFromPointer(clientX: number) {
         if (!hueRowEl) return;
         const rect = hueRowEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(HUE_STEPS.length - 1, Math.floor((clientX - rect.left) / (rect.width / HUE_STEPS.length))));
-        h = HUE_STEPS[col];
+        const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+        h = Math.round(ratio * 360) % 360;
     }
 
     function handleHuePointerDown(event: PointerEvent) {
@@ -240,9 +226,8 @@
     // ── Random color ──
     function handleRandom() {
         triggerHaptic();
-        h = HUE_STEPS[Math.floor(Math.random() * HUE_STEPS.length)];
-        const chromaIdx = 4 + Math.floor(Math.random() * (COL_CHROMA.length - 4));
-        c = COL_CHROMA[chromaIdx];
+        h = Math.round(Math.random() * 359);
+        c = Math.round((0.1 + Math.random() * 0.17) * 1000) / 1000;
     }
 
     // ── Mode toggle ──
@@ -255,9 +240,11 @@
     function handleApply() {
         triggerHaptic();
         const realDark = get(darkMode);
-        const savedH = c < 0.015 ? 0 : h;
-        applyTheme({ h: savedH, c, l: selectedL }, realDark ? "dark" : "light");
-        onApply?.({ h: savedH, c, l: selectedL });
+        const savedH = c < 0.015 ? 0 : Math.round(h);
+        const savedC = Math.round(c * 1000) / 1000;
+        const savedL = Math.round(selectedL * 1000) / 1000;
+        applyTheme({ h: savedH, c: savedC, l: savedL }, realDark ? "dark" : "light");
+        onApply?.({ h: savedH, c: savedC, l: savedL });
     }
 
     function handleCancel() {
@@ -322,7 +309,7 @@
                     on:pointercancel={handleGridPointerUp}
                 >
                     {#each ROW_LIGHTNESS as L, row}
-                        {#each COL_CHROMA as C, col}
+                        {#each Array.from({ length: GRID_COLS }, (_, col) => Math.round(((col / (GRID_COLS - 1)) * MAX_CHROMA) * 1000) / 1000) as C, col}
                             <div
                                 class="grid-cell"
                                 class:grid-cell-selected={gridSelectedRow === row + 1 && col === chromaCol}
@@ -341,7 +328,7 @@
                     on:pointerup={handleHuePointerUp}
                     on:pointercancel={handleHuePointerUp}
                 >
-                    {#each HUE_STEPS as hueStep, col}
+                    {#each Array.from({ length: HUE_MARKERS }, (_, col) => Math.round((col / (HUE_MARKERS - 1)) * 360)) as hueStep, col}
                         <div
                             class="grid-cell"
                             class:grid-cell-selected={col === hueCol}
@@ -435,7 +422,7 @@
 
     .color-picker-card {
         width: min(95vw, 400px);
-        background: var(--bg-panel);
+        background: var(--surface-container);
         border: var(--border-width) solid
             color-mix(
                 in srgb,
@@ -464,8 +451,8 @@
     /* Gradient grid */
     .color-grid {
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        border-top: 2px solid var(--bg-panel);
+        grid-template-columns: repeat(12, 1fr);
+        border-top: 2px solid var(--surface-container);
         touch-action: none;
         user-select: none;
         -webkit-tap-highlight-color: transparent;
@@ -495,8 +482,8 @@
     /* Hue row */
     .hue-row {
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        border-top: 2px solid var(--bg-panel);
+        grid-template-columns: repeat(12, 1fr);
+        border-top: 2px solid var(--surface-container);
         touch-action: none;
         user-select: none;
         -webkit-tap-highlight-color: transparent;
@@ -544,8 +531,8 @@
         width: 96px;
         height: 28px;
         padding: 0 var(--spacing-sm);
-        background: var(--bg-input);
-        border: var(--border-width) solid var(--border-subtle);
+        background: var(--surface-container-highest);
+        border: var(--border-width) solid var(--outline-variant);
         border-radius: var(--radius);
         color: var(--text);
         font-size: var(--font-base);
@@ -582,20 +569,20 @@
         height: 36px;
         display: grid;
         place-items: center;
-        background: var(--bg-raised);
+        background: var(--surface-container-high);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
         color: var(--text-muted);
         cursor: pointer;
         transition:
-            filter var(--ease),
+            background var(--ease),
             transform var(--ease);
         -webkit-tap-highlight-color: transparent;
     }
 
     @media (hover: hover) {
         .icon-button:hover {
-            filter: var(--brightness-hover);
+            background: var(--surface-container-highest);
         }
     }
 

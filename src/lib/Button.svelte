@@ -21,6 +21,7 @@
     export let small = false;
     export let negative = false;
     export let positive = false;
+    export let variant: "filled" | "tonal" | "outlined" | "text" = "tonal";
     export let disabled: boolean | undefined = undefined;
     export let tooltipText: string | undefined = undefined;
     export let element: HTMLButtonElement | null = null;
@@ -35,6 +36,7 @@
     $: computedClass = [
         "button",
         small ? "button-sm" : "button-md",
+        `button-variant-${variant}`,
         negative ? "button-negative" : positive ? "button-positive" : "",
         restClass,
         icon ? "with-icon" : "",
@@ -113,16 +115,19 @@
 
 <style>
     .button {
-        border: var(--border-width) solid var(--border);
-        background: var(--bg-raised);
-        color: var(--text-muted);
+        border: var(--border-width) solid transparent;
+        background: var(--secondary-container);
+        color: var(--on-secondary-container);
         border-radius: var(--radius);
         text-align: left;
         line-height: var(--leading-none);
+        position: relative;
+        overflow: hidden;
         transition:
             border-color var(--ease),
             color var(--ease),
-            background var(--ease);
+            background var(--ease),
+            transform var(--ease);
     }
 
     .button:not(:disabled) {
@@ -167,20 +172,23 @@
         outline-offset: 2px;
     }
 
-    .button {
-        transition:
-            transform var(--ease),
-            filter var(--ease);
+    .button::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        pointer-events: none;
+        transition: background var(--ease);
     }
 
     @media (hover: hover) {
-        .button:not(:disabled):hover {
-            filter: var(--brightness-hover);
+        .button:not(:disabled):hover::after {
+            background: var(--state-hover);
         }
     }
 
-    .button:not(:disabled):active {
-        filter: var(--brightness-hover);
+    .button:not(:disabled):active::after {
+        background: var(--state-pressed);
     }
 
     .button-sm {
@@ -194,6 +202,31 @@
         min-width: 38px;
         padding: var(--spacing-sm) var(--spacing-lg);
         font-size: var(--font-base);
+    }
+
+
+    .button-variant-filled {
+        border-color: transparent;
+        background: var(--primary);
+        color: var(--on-primary);
+    }
+
+    .button-variant-tonal {
+        border-color: transparent;
+        background: var(--primary-container);
+        color: var(--on-primary-container);
+    }
+
+    .button-variant-outlined {
+        border-color: var(--outline);
+        background: transparent;
+        color: var(--on-surface-variant);
+    }
+
+    .button-variant-text {
+        border-color: transparent;
+        background: transparent;
+        color: var(--primary);
     }
 
     .button-negative {

@@ -41,7 +41,7 @@ body {
         system-ui,
         -apple-system,
         sans-serif;
-    background: var(--bg);
+    background: var(--surface);
     color: var(--text);
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
@@ -98,8 +98,8 @@ button {
     z-index: var(--z-index-tooltip);
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius);
-    background: var(--bg-panel);
-    border: var(--border-width) solid var(--border-subtle);
+    background: var(--surface-container);
+    border: var(--border-width) solid var(--outline-variant);
     color: var(--text-muted);
     font-size: var(--font-base);
     letter-spacing: var(--tracking);

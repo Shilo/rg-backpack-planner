@@ -1,20 +1,31 @@
 <script lang="ts">
     import { PaletteIcon } from "phosphor-svelte";
     import { themeColor, type ThemeColor } from "./themeColorStore";
-    import { oklchToHex } from "./themeEngine";
+    import {
+        createSpacedThemePresets,
+        oklchToHex,
+        type ThemePreset,
+    } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
     import { tooltip } from "./tooltip";
     import { portal } from "./portal";
     import ContextMenu from "./ContextMenu.svelte";
     import ColorPickerDialog from "./ColorPickerDialog.svelte";
 
-    const PRESETS: { h: number; c: number; label: string; hex: string }[] = [
-        { h: 264, c: 0.19, label: "Blue", hex: oklchToHex(0.65, 0.19, 264) },
-        { h: 0, c: 0.18, label: "Rose", hex: oklchToHex(0.65, 0.18, 0) },
-        { h: 70, c: 0.16, label: "Amber", hex: oklchToHex(0.65, 0.16, 70) },
-        { h: 155, c: 0.17, label: "Green", hex: oklchToHex(0.65, 0.17, 155) },
-        { h: 305, c: 0.17, label: "Violet", hex: oklchToHex(0.65, 0.17, 305) },
-    ];
+    const PRESETS: (ThemePreset & { hex: string })[] = createSpacedThemePresets([
+        { h: 255, c: 0.19, label: "Blue" },
+        { h: 276, c: 0.2, label: "Indigo" },
+        { h: 190, c: 0.16, label: "Teal" },
+        { h: 148, c: 0.17, label: "Green" },
+        { h: 85, c: 0.15, label: "Amber" },
+        { h: 45, c: 0.16, label: "Orange" },
+        { h: 12, c: 0.17, label: "Rose" },
+        { h: 315, c: 0.18, label: "Violet" },
+        { h: 260, c: 0.03, l: 0.62, label: "Neutral" },
+    ]).map((preset) => ({
+        ...preset,
+        hex: oklchToHex(preset.l ?? 0.65, preset.c, preset.h),
+    }));
 
     let buttonEl: HTMLButtonElement | null = null;
     let dropdownOpen = false;
@@ -27,7 +38,7 @@
 
     $: currentLabel = (() => {
         const match = PRESETS.find(
-            (p) => p.h === $themeColor.h && p.c === $themeColor.c,
+            (p) => p.h === $themeColor.h && p.c === $themeColor.c && p.l === $themeColor.l,
         );
         return match ? match.label : "Custom";
     })();
@@ -45,14 +56,14 @@
         dropdownOpen = false;
     }
 
-    function selectPreset(preset: { h: number; c: number }) {
-        themeColor.set({ h: preset.h, c: preset.c });
+    function selectPreset(preset: { h: number; c: number; l?: number }) {
+        themeColor.set({ h: preset.h, c: preset.c, l: preset.l });
         triggerHaptic();
         closeDropdown();
     }
 
-    function isSelected(preset: { h: number; c: number }, current: ThemeColor): boolean {
-        return preset.h === current.h && preset.c === current.c;
+    function isSelected(preset: { h: number; c: number; l?: number }, current: ThemeColor): boolean {
+        return preset.h === current.h && preset.c === current.c && preset.l === current.l;
     }
 
     function openCustomPicker() {
@@ -149,7 +160,7 @@
         height: 40px;
         padding: var(--spacing-md) var(--spacing-lg);
         border: var(--border-width) solid var(--border);
-        background: var(--bg-raised);
+        background: var(--surface-container-high);
         border-radius: var(--radius);
         color: var(--text-muted);
         font-size: var(--font-base);
@@ -159,9 +170,10 @@
             border-color var(--ease),
             color var(--ease),
             background var(--ease),
-            transform var(--ease),
-            filter var(--ease);
+            transform var(--ease);
         text-align: left;
+        position: relative;
+        overflow: hidden;
         -webkit-tap-highlight-color: transparent;
     }
 
@@ -171,14 +183,26 @@
     }
 
     @media (hover: hover) {
-        .theme-color-button:hover {
-            filter: var(--brightness-hover);
+        .theme-color-button:hover::after {
+            background: var(--state-hover);
         }
+    }
+
+    .theme-color-button::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        pointer-events: none;
+        transition: background var(--ease);
     }
 
     .theme-color-button:active {
         transform: scale(0.97);
-        filter: var(--brightness-hover);
+    }
+
+    .theme-color-button:active::after {
+        background: var(--state-pressed);
     }
 
     .theme-button-icon {
@@ -239,27 +263,27 @@
         min-width: 160px;
         padding: var(--spacing-sm) var(--spacing-lg);
         min-height: 38px;
-        border: var(--border-width) solid var(--border);
-        background: var(--bg-raised);
+        border: var(--border-width) solid var(--outline);
+        background: var(--surface-container-high);
         border-radius: var(--radius);
         color: var(--text-muted);
         font-size: var(--font-base);
         cursor: pointer;
         text-align: left;
         transition:
-            filter var(--ease),
-            transform var(--ease);
+            transform var(--ease),
+            background var(--ease);
         -webkit-tap-highlight-color: transparent;
     }
 
     @media (hover: hover) {
         .preset-item:hover {
-            filter: var(--brightness-hover);
+            background: var(--surface-container-highest);
         }
     }
 
     .preset-item:active {
-        filter: var(--brightness-hover);
+        background: var(--surface-container-highest);
     }
 
     .preset-item:focus-visible {
@@ -268,7 +292,7 @@
     }
 
     .preset-selected {
-        border-color: var(--accent);
+        border-color: var(--primary);
         color: var(--text);
     }
 
@@ -293,7 +317,7 @@
         width: 8px;
         height: 8px;
         border-radius: var(--radius-full);
-        background: var(--accent);
+        background: var(--primary);
         flex-shrink: 0;
     }
 </style>
