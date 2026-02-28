@@ -9,7 +9,7 @@ export interface ThemeColor {
 const STORAGE_KEY = "rg-backpack-planner-theme-color";
 
 /** Default source color: vibrant blue */
-const DEFAULT_THEME_COLOR: ThemeColor = { h: 264, c: 0.19 };
+const DEFAULT_THEME_COLOR: ThemeColor = { h: 264, c: 0.24 };
 
 function getThemeColor(): ThemeColor {
     if (typeof window === "undefined") return DEFAULT_THEME_COLOR;

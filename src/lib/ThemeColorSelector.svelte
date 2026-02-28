@@ -9,11 +9,11 @@
     import ColorPickerDialog from "./ColorPickerDialog.svelte";
 
     const PRESETS: { h: number; c: number; label: string; hex: string }[] = [
-        { h: 264, c: 0.19, label: "Blue", hex: oklchToHex(0.65, 0.19, 264) },
-        { h: 0, c: 0.18, label: "Rose", hex: oklchToHex(0.65, 0.18, 0) },
-        { h: 70, c: 0.16, label: "Amber", hex: oklchToHex(0.65, 0.16, 70) },
-        { h: 155, c: 0.17, label: "Green", hex: oklchToHex(0.65, 0.17, 155) },
-        { h: 305, c: 0.17, label: "Violet", hex: oklchToHex(0.65, 0.17, 305) },
+        { h: 264, c: 0.24, label: "Blue",   hex: oklchToHex(0.65, 0.24, 264) },
+        { h: 10,  c: 0.26, label: "Rose",   hex: oklchToHex(0.65, 0.26, 10)  },
+        { h: 52,  c: 0.22, label: "Amber",  hex: oklchToHex(0.65, 0.22, 52)  },
+        { h: 148, c: 0.23, label: "Green",  hex: oklchToHex(0.65, 0.23, 148) },
+        { h: 300, c: 0.24, label: "Violet", hex: oklchToHex(0.65, 0.24, 300) },
     ];
 
     let buttonEl: HTMLButtonElement | null = null;
@@ -21,7 +21,7 @@
     let dropdownX = 0;
     let dropdownY = 0;
     let pickerOpen = false;
-    let pickerInitialColor: ThemeColor = { h: 264, c: 0.19 };
+    let pickerInitialColor: ThemeColor = { h: 264, c: 0.24 };
 
     $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
 

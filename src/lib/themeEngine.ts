@@ -105,34 +105,34 @@ export interface ThemeSource {
 // ── Theme Application ───────────────────────────────────────
 
 export function applyTheme(
-    source: ThemeSource = { h: 264, c: 0.19 },
+    source: ThemeSource = { h: 264, c: 0.24 },
     mode: "dark" | "light" = "dark",
 ): void {
     const isDark = mode === "dark";
     const vars: Record<string, string> = {};
 
     // ── Mode-dependent parameters ──
-    const neutralChroma = source.c * (isDark ? 0.14 : 0.12);
-    const textChroma = source.c * (isDark ? 0.1 : 0.08);
+    const neutralChroma = Math.max(source.c * (isDark ? 0.22 : 0.18), 0.03);
+    const textChroma = source.c * (isDark ? 0.15 : 0.12);
     const harmonizeAmount = 0.25;
 
     // ── Neutral surfaces ──
     if (isDark) {
-        vars["--bg"] = oklchToHex(0.15, neutralChroma, source.h);
-        vars["--bg-panel"] = oklchToHex(0.18, neutralChroma, source.h);
-        vars["--bg-input"] = oklchToHex(0.21, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(0.24, neutralChroma, source.h);
-        vars["--bg-raised"] = oklchToHex(0.27, neutralChroma, source.h);
-        vars["--border"] = oklchToHex(0.35, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.3, neutralChroma, source.h);
+        vars["--bg"]             = oklchToHex(0.10, neutralChroma, source.h);
+        vars["--bg-panel"]       = oklchToHex(0.14, neutralChroma, source.h);
+        vars["--bg-input"]       = oklchToHex(0.18, neutralChroma, source.h);
+        vars["--surface"]        = oklchToHex(0.22, neutralChroma, source.h);
+        vars["--bg-raised"]      = oklchToHex(0.28, neutralChroma, source.h);
+        vars["--border"]         = oklchToHex(0.42, neutralChroma, source.h);
+        vars["--border-subtle"]  = oklchToHex(0.34, neutralChroma, source.h);
     } else {
-        vars["--bg"] = oklchToHex(0.96, neutralChroma, source.h);
-        vars["--bg-panel"] = oklchToHex(0.94, neutralChroma, source.h);
-        vars["--bg-input"] = oklchToHex(0.92, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(0.9, neutralChroma, source.h);
-        vars["--bg-raised"] = oklchToHex(0.95, neutralChroma, source.h);
-        vars["--border"] = oklchToHex(0.72, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.8, neutralChroma, source.h);
+        vars["--bg"]             = oklchToHex(0.97, neutralChroma, source.h);
+        vars["--bg-panel"]       = oklchToHex(0.94, neutralChroma, source.h);
+        vars["--bg-input"]       = oklchToHex(0.91, neutralChroma, source.h);
+        vars["--surface"]        = oklchToHex(0.88, neutralChroma, source.h);
+        vars["--bg-raised"]      = oklchToHex(0.84, neutralChroma, source.h);
+        vars["--border"]         = oklchToHex(0.68, neutralChroma, source.h);
+        vars["--border-subtle"]  = oklchToHex(0.78, neutralChroma, source.h);
     }
 
     // ── Text ──
@@ -175,9 +175,18 @@ export function applyTheme(
         );
     }
 
+    // ── Tinted accent container ──
+    if (isDark) {
+        vars["--bg-tinted"]      = oklchToHex(0.22, source.c * 0.35, source.h);
+        vars["--text-on-tinted"] = oklchToHex(0.88, source.c * 0.55, source.h);
+    } else {
+        vars["--bg-tinted"]      = oklchToHex(0.88, source.c * 0.25, source.h);
+        vars["--text-on-tinted"] = oklchToHex(0.25, source.c * 0.45, source.h);
+    }
+
     // ── Error/Danger ──
     const dangerHue = 29;
-    const dangerChroma = 0.16;
+    const dangerChroma = 0.22;
     if (isDark) {
         vars["--accent-danger"] = oklchToHex(0.7, dangerChroma, dangerHue);
         vars["--danger-bg"] = oklchToHex(0.22, dangerChroma * 0.4, dangerHue);
@@ -191,8 +200,8 @@ export function applyTheme(
     }
 
     // ── Success ──
-    const successHue = 220;
-    const successChroma = 0.12;
+    const successHue = 148;
+    const successChroma = 0.20;
     if (isDark) {
         vars["--accent-success"] = oklchToHex(0.72, successChroma, successHue);
         vars["--success-bg"] = oklchToHex(
