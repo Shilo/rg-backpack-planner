@@ -151,15 +151,12 @@ export function applyLevelChange(params: {
         return { neighborIndices: [branchLeafIndex], wrapped: true };
     };
 
-    const getWrappedChildStep = (nodeIndex: number) => {
+    const getDescendantStep = (nodeIndex: number) => {
         const children = getDirectChildren(nodeIndex);
         if (children.length > 0) {
             return { neighborIndices: children, wrapped: false };
         }
-        if (branchRootIndex === null || branchRootIndex === nodeIndex) {
-            return { neighborIndices: [], wrapped: false };
-        }
-        return { neighborIndices: [branchRootIndex], wrapped: true };
+        return { neighborIndices: [], wrapped: false };
     };
 
     const getBranchTraversalStep = (
@@ -167,7 +164,7 @@ export function applyLevelChange(params: {
         propagationDirection: number,
     ) => {
         if (propagationDirection === 0) return null;
-        if (propagationDirection < 0) return getWrappedChildStep(nodeIndex);
+        if (propagationDirection < 0) return getDescendantStep(nodeIndex);
         return getWrappedParentStep(nodeIndex);
     };
 
