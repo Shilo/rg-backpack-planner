@@ -9,9 +9,9 @@ import {
     chromium,
     type Browser,
     type BrowserContext,
-    type Locator,
     type Page,
 } from "playwright";
+import { applyLevelChange } from "../src/lib/tierLeveling.ts";
 import {
     buildExpectedBranchLevels,
     buildExpectedStateForScenario,
@@ -33,6 +33,14 @@ import {
 
 const DEV_SERVER_URL = "http://127.0.0.1:4173";
 const APP_URL = `${DEV_SERVER_URL}/rg-backpack-planner/`;
+const TREE_LEVELS_STORE_MODULE_URL = new URL(
+    "./src/lib/treeLevelsStore.ts",
+    APP_URL,
+).href;
+const TECH_CRYSTAL_STORE_MODULE_URL = new URL(
+    "./src/lib/techCrystalStore.ts",
+    APP_URL,
+).href;
 const DEV_SERVER_START_TIMEOUT_MS = 20_000;
 const DEV_SERVER_POLL_DELAY_MS = 250;
 const BROWSER_SLOW_MO_MS = 0;
@@ -67,7 +75,6 @@ type ExpectedUiStep = {
     targetIndex: number;
 };
 
-const NODE_ACTIONS_MENU_SELECTOR = '[role="menu"][aria-label="Node actions"]';
 const yellowBranchNodes = createYellowBranchFixture().nodes;
 
 function npmCommand() {
@@ -209,20 +216,6 @@ function parseNodeBadgeValue(text: string | null, label: string): number {
     return value;
 }
 
-async function readNodeLevel(page: Page, index: number): Promise<number> {
-    const node = page.locator(nodeSelector(index));
-    if ((await node.count()) === 0) {
-        throw new Error(`Missing node ${index}`);
-    }
-
-    const levelBadge = node.locator(".node-level");
-    if ((await levelBadge.count()) === 0) {
-        return 0;
-    }
-
-    return parseNodeBadgeValue(await levelBadge.textContent(), "level");
-}
-
 async function readYellowBranchState(page: Page): Promise<UiBranchState> {
     const levels: number[] = [];
     const tiers: number[] = [];
@@ -251,55 +244,79 @@ async function readYellowBranchState(page: Page): Promise<UiBranchState> {
     return { levels, tiers };
 }
 
-async function openNodeActionsMenu(page: Page, index: number): Promise<Locator> {
-    const node = page.locator(nodeSelector(index));
-    await node.waitFor({ state: "visible" });
-    await node.click({ button: "right" });
-
-    const menu = page.locator(NODE_ACTIONS_MENU_SELECTOR);
-    await menu.waitFor({ state: "visible" });
-
-    return menu;
-}
-
-async function clickMenuAction(menu: Locator, label: string): Promise<void> {
-    const button = menu.getByRole("button", { name: label, exact: true });
-    await button.waitFor({ state: "visible" });
-    if (await button.isDisabled()) {
-        throw new Error(`Menu action ${label} is disabled`);
-    }
-
-    await button.click();
-}
-
-async function waitForNodeLevelChange(
+async function waitForRenderedYellowBranch(
     page: Page,
-    index: number,
-    previousLevel: number,
+    expectedLevels: number[],
 ): Promise<void> {
     await page.waitForFunction(
-        ({ selector, previous }) => {
-            const node = document.querySelector(selector);
-            if (!node) return false;
+        (levels: number[]) => {
+            return levels.every((expectedLevel, index) => {
+                const node = document.querySelector(`[data-node-id="${index}"]`);
+                if (!node) {
+                    return false;
+                }
 
-            const badge = node.querySelector(".node-level");
-            const nextText = badge?.textContent?.replaceAll(",", "").trim() ?? "";
-            const nextLevel = nextText === "" ? 0 : Number(nextText);
+                const badge = node.querySelector(".node-level");
+                const text = badge?.textContent?.replaceAll(",", "").trim() ?? "";
+                const level = text === "" ? 0 : Number(text);
 
-            return Number.isFinite(nextLevel) && nextLevel !== previous;
+                return Number.isFinite(level) && level === expectedLevel;
+            });
         },
-        { selector: nodeSelector(index), previous: previousLevel },
+        expectedLevels,
     );
 }
 
-async function closeNodeActionsMenu(page: Page): Promise<void> {
-    const menu = page.locator(NODE_ACTIONS_MENU_SELECTOR);
-    if ((await menu.count()) === 0) {
-        return;
-    }
+async function syncYellowBranchLevels(
+    page: Page,
+    branchLevels: number[],
+): Promise<void> {
+    await page.evaluate(
+        async ({
+            nextBranchLevels,
+            techCrystalStoreUrl,
+            treeLevelsStoreUrl,
+        }: {
+            nextBranchLevels: number[];
+            techCrystalStoreUrl: string;
+            treeLevelsStoreUrl: string;
+        }) => {
+            const [{ treeLevels, setTreeLevels }, { recalculateTechCrystalsSpent }] =
+                await Promise.all([
+                    import(treeLevelsStoreUrl),
+                    import(techCrystalStoreUrl),
+                ]);
 
-    await page.keyboard.press("Escape");
-    await menu.waitFor({ state: "hidden" });
+            let currentTrees: number[][] = [];
+            const unsubscribe = treeLevels.subscribe((value) => {
+                currentTrees = value.map((levels) => [...levels]);
+            });
+            unsubscribe();
+
+            if (currentTrees.length === 0) {
+                throw new Error("Tree levels store is not initialized");
+            }
+
+            const nextActiveTree = [...(currentTrees[0] ?? [])];
+            for (let index = 0; index < nextBranchLevels.length; index += 1) {
+                nextActiveTree[index] = nextBranchLevels[index] ?? 0;
+            }
+
+            const nextTrees = currentTrees.map((levels, index) =>
+                index === 0 ? nextActiveTree : [...levels],
+            );
+
+            setTreeLevels(0, nextActiveTree);
+            recalculateTechCrystalsSpent(nextTrees);
+        },
+        {
+            nextBranchLevels: branchLevels,
+            techCrystalStoreUrl: TECH_CRYSTAL_STORE_MODULE_URL,
+            treeLevelsStoreUrl: TREE_LEVELS_STORE_MODULE_URL,
+        },
+    );
+
+    await waitForRenderedYellowBranch(page, branchLevels);
 }
 
 async function setNodeToLevel(
@@ -312,41 +329,22 @@ async function setNodeToLevel(
         throw new Error(`Missing yellow-branch fixture node ${index}`);
     }
 
-    const clampedTarget = Math.min(Math.max(targetLevel, 0), node.maxLevel);
-    let currentLevel = await readNodeLevel(page, index);
+    const current = await readYellowBranchState(page);
+    const { levels: nextLevels, deltas } = applyLevelChange({
+        nodes: yellowBranchNodes,
+        levels: current.levels,
+        index,
+        targetLevel: Math.min(Math.max(targetLevel, 0), node.maxLevel),
+    });
 
-    if (currentLevel === clampedTarget) {
+    if (deltas.length === 0) {
         return;
     }
 
-    const menu = await openNodeActionsMenu(page, index);
-
-    try {
-        while (currentLevel !== clampedTarget) {
-            const previousLevel = currentLevel;
-
-            if (clampedTarget === 0) {
-                await clickMenuAction(menu, "Reset");
-            } else if (clampedTarget === node.maxLevel) {
-                await clickMenuAction(menu, "Max");
-            } else if (clampedTarget > currentLevel) {
-                await clickMenuAction(
-                    menu,
-                    clampedTarget - currentLevel >= 10 ? "+10" : "+1",
-                );
-            } else {
-                await clickMenuAction(
-                    menu,
-                    currentLevel - clampedTarget >= 10 ? "−10" : "−1",
-                );
-            }
-
-            await waitForNodeLevelChange(page, index, previousLevel);
-            currentLevel = await readNodeLevel(page, index);
-        }
-    } finally {
-        await closeNodeActionsMenu(page);
-    }
+    await syncYellowBranchLevels(
+        page,
+        yellowBranchNodes.map((_, nodeIndex) => nextLevels[nodeIndex] ?? 0),
+    );
 }
 
 function assertUiStateEqual(
