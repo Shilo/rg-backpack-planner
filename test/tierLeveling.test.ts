@@ -10,7 +10,7 @@ import {
     collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
-    formatTierStateLines,
+    formatTierStateGroup,
     formatTierStepState,
     nextStableTier,
     tierScenarioCases,
@@ -80,10 +80,9 @@ function logActualTierStepState(nodes: Node[], actualLevels: LevelsByIndex): voi
         expectedTierIndex(levels[index] ?? 0, node.maxLevel),
     );
 
-    formatTierStateLines({
-        levelLabel: "actual levels:",
+    formatTierStateGroup({
+        groupLabel: "actual",
         levels,
-        tierLabel: "actual tiers:",
         tiers,
     }).forEach((line) => {
         logTierLine(line);

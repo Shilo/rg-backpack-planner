@@ -21,7 +21,7 @@ import {
     collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
-    formatTierStateLines,
+    formatTierStateGroup,
     formatTierStepState,
     nextStableTier,
     tierScenarioCases,
@@ -473,10 +473,9 @@ function assertUiStateEqual(
 }
 
 function formatUiActualStepState(actual: UiBranchState): string[] {
-    return formatTierStateLines({
-        levelLabel: "actual levels:",
+    return formatTierStateGroup({
+        groupLabel: "actual",
         levels: actual.levels,
-        tierLabel: "actual tiers:",
         tiers: actual.tiers,
     });
 }

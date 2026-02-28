@@ -159,23 +159,21 @@ export function buildExpectedBranchLevels(params: {
     });
 }
 
-export function formatTierStateLines(params: {
-    levelLabel: string;
+export function formatTierStateGroup(params: {
+    groupLabel: string;
     levels: number[];
-    tierLabel: string;
     tiers: number[];
 }): string[] {
-    const { levelLabel, levels, tierLabel, tiers } = params;
+    const { groupLabel, levels, tiers } = params;
     const levelTokens = levels.map((level) => String(level));
     const tierTokens = tiers.map((tier, index) =>
         String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
     );
-    const formatLine = (label: string, tokens: string[]) =>
-        `- ${label} [${tokens.join(", ")}]`;
 
     return [
-        formatLine(levelLabel, levelTokens),
-        formatLine(tierLabel, tierTokens),
+        `- ${groupLabel}:`,
+        `  - levels: [${levelTokens.join(", ")}]`,
+        `  - tiers:  [${tierTokens.join(", ")}]`,
     ];
 }
 
@@ -201,10 +199,9 @@ export function formatTierStepState(params: {
 
     return [
         `step ${stepIndex + 1} [index ${targetIndex}] (${previousLevel} -> ${nextLevel})`,
-        ...formatTierStateLines({
-            levelLabel: "expect levels:",
+        ...formatTierStateGroup({
+            groupLabel: "expected",
             levels: expectedLevels,
-            tierLabel: "expect tiers:",
             tiers: expectedTiers,
         }),
         "",
