@@ -18,10 +18,7 @@ export function tierIndex(level: number, maxLevel: Node["maxLevel"]): number {
     return Math.min(tier, MAX_TIERS);
 }
 
-export function tierUpper(
-    tier: number,
-    maxLevel: Node["maxLevel"],
-): number {
+export function tierUpper(tier: number, maxLevel: Node["maxLevel"]): number {
     if (tier <= 0) return 0;
     const size = tierSize(maxLevel);
     if (size === 0) {
@@ -143,6 +140,16 @@ export function applyLevelChange(params: {
         return getRequiredParentTier(targetTier);
     };
 
+    const nodeSatisfiesTier = (
+        neighborTier: number,
+        requiredTier: number,
+        tierDelta: number,
+    ) => {
+        if (tierDelta === 0) return true;
+        if (tierDelta > 0) return neighborTier >= requiredTier;
+        return neighborTier <= requiredTier;
+    };
+
     const setNodeLevel = (nodeIndex: number, requestedLevel: number) => {
         const currentNode = nodes[nodeIndex];
         if (!currentNode) return;
@@ -172,7 +179,9 @@ export function applyLevelChange(params: {
                 next[neighborIndex] ?? 0,
                 neighbor.maxLevel,
             );
-            if (neighborTier === requiredTier) return;
+            if (nodeSatisfiesTier(neighborTier, requiredTier, tierDelta)) {
+                return;
+            }
 
             setNodeLevel(
                 neighborIndex,
