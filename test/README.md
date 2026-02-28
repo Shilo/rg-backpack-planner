@@ -27,17 +27,20 @@ Current coverage includes:
    branch nodes (root, early branch, split node, merged node, and final node)
 2. A silent boundary-contract layer that checks exact tier-threshold behavior
    for split, root, merged, and final targets before the logged suite starts
-3. Hand-authored multi-step regression scenarios that mix increments and
+3. A silent cross-target two-step matrix that runs boundary-adjacent two-step
+   combinations across every yellow-branch target pairing and checks exact
+   rule-driven branch states without replaying the production algorithm
+4. Hand-authored multi-step regression scenarios that mix increments and
    decrements across related nodes to catch ancestor, descendant, and
-   wrapped-node propagation without replaying the production algorithm in test
-   code
-4. Fixed-seed invariant scenarios that hit partial levels, mixed target order,
-   inherited support, and same-tier decrements without generating full expected
-   branch states from helper code
-5. Per-step validation of every node in the branch, asserting both expected
+   wrapped-node propagation while staying aligned to the current-target
+   contract
+5. Fixed-seed invariant scenarios that hit partial levels, mixed target order,
+   and same-tier decrements without generating full expected branch states
+   from helper code
+6. Per-step validation of every node in the branch, asserting both expected
    level and derived tier state for sweep and explicit cases, then directional
    invariants for the seeded cases
-6. Per-step output that prints the target node index, the level transition,
+7. Per-step output that prints the target node index, the level transition,
    aligned `levels` and `tiers` arrays, and mirrors the same output to
    `test/tierLeveling.output.log`
 
@@ -46,10 +49,14 @@ primary correctness oracle. The earlier shadow-oracle approach duplicated the
 same tier-transition reasoning as `applyLevelChange()`, which could create
 false passes when the tests and implementation shared the same bad assumption.
 The boundary-contract layer and explicit scenario tables keep the oracle
-smaller and more independent. The seeded invariant layer is secondary coverage:
-it checks independent rules after each step, including the fact that a
-decrement can still rebase non-target nodes with `min(...)` even when the
-target remains in the same stable tier.
+smaller and more independent. The cross-target two-step matrix expands that
+exact coverage across many more boundary-adjacent handoffs without
+reintroducing a shadow simulator. The seeded invariant layer is secondary
+coverage: it checks independent rules after each step, including the fact that
+a decrement can still rebase non-target nodes with `min(...)` even when the
+target remains in the same stable tier. All of these tests assume the same
+core runtime rule: the node you just changed is the sole reactive driver for
+that operation.
 
 ### `test/encoder.test.ts`
 
@@ -147,8 +154,9 @@ The tests are intentionally verbose:
 
 - each suite prints its own header and summary
 - tier tests run a silent boundary-contract preflight before the logged cases
-- tier tests report pass/fail counts across sweep, explicit scenario, and
-  seeded invariant cases
+- tier tests run a silent cross-target two-step matrix before the logged cases
+- tier tests report pass/fail counts across the two-step matrix, sweep,
+  explicit scenario, and seeded invariant cases
 - tier tests print each expected step as `step N expected [index X] (A -> B)`
 - tier tests print aligned `levels` and `tiers` arrays for each step
 - tier tests mirror their full output to `test/tierLeveling.output.log`
