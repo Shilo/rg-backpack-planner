@@ -162,7 +162,7 @@ The tests are intentionally verbose:
 
 - each suite prints its own header and summary
 - tier tests run a silent boundary-contract preflight before the logged cases
-- tier tests run a silent cross-target two-step matrix before the logged cases
+- tier tests run a silent cross-target two-step matrix after the logged cases
 - tier tests report pass/fail counts across the two-step matrix, sweep,
   explicit scenario, and seeded invariant cases
 - tier tests print each expected step as `step N expected [index X] (A -> B)`
