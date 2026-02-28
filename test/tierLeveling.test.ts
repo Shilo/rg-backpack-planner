@@ -672,22 +672,6 @@ export function runTierLevelingTests() {
     let passed = 0;
     let failed = 0;
 
-    logTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
-    logTierLine("---");
-
-    try {
-        const sequences = runTwoStepSequenceMatrix();
-        logTierLine(`✅ PASSED (${sequences} sequences)`);
-        passed++;
-    } catch (error) {
-        logTierLine(
-            `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
-        );
-        failed++;
-    }
-
-    logTierLine();
-
     cases.forEach((testCase, index) => {
         logTierLine(`Tier Test ${index + 1}: ${testCase.name}`);
         logTierLine("---");
@@ -748,6 +732,22 @@ export function runTierLevelingTests() {
 
         logTierLine();
     });
+
+    logTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
+    logTierLine("---");
+
+    try {
+        const sequences = runTwoStepSequenceMatrix();
+        logTierLine(`✅ PASSED (${sequences} sequences)`);
+        passed++;
+    } catch (error) {
+        logTierLine(
+            `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        failed++;
+    }
+
+    logTierLine();
 
     logTierLine("===");
     logTierLine("Tier Leveling Summary");

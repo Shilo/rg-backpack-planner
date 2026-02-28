@@ -1059,15 +1059,6 @@ async function runTierUiSuite(page: Page): Promise<void> {
     let suiteError: unknown = null;
 
     try {
-        if (RUN_FULL_UI_TWO_STEP_MATRIX) {
-            logUiTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
-            logUiTierLine("---");
-            const sequences = await runUiTwoStepMatrixPreflight(page);
-            logUiTierLine(`✅ PASSED (${sequences} sequences)`);
-            logUiTierLine();
-            passed++;
-        }
-
         for (const [index, testCase] of tierSweepCases.entries()) {
             await runUiCase({
                 caseName: testCase.name,
@@ -1096,6 +1087,15 @@ async function runTierUiSuite(page: Page): Promise<void> {
                 operations: generatedCase.operations,
                 page,
             });
+            passed++;
+        }
+
+        if (RUN_FULL_UI_TWO_STEP_MATRIX) {
+            logUiTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
+            logUiTierLine("---");
+            const sequences = await runUiTwoStepMatrixPreflight(page);
+            logUiTierLine(`✅ PASSED (${sequences} sequences)`);
+            logUiTierLine();
             passed++;
         }
     } catch (error) {
