@@ -2,169 +2,139 @@
 
 <img src="public/icon.svg" alt="Backpack Planner icon" width="96" />
 
-Plan and share Backpack Tech builds for Run! Goddess.
+Backpack Planner is a Svelte 5 + TypeScript PWA for planning and sharing Backpack Tech builds for *Run! Goddess*.
 
 Live app: https://shilo.github.io/rg-backpack-planner  
 Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
-## What it does
+## Overview
 
-Backpack Planner is a web-based planner for the Backpack Tech system. It lets you build and compare Guardian, Vanguard, and Cannon trees while tracking tech crystal budgets and overall progress.
+The app lets you plan all three Backpack Tech trees:
+
+- Guardian
+- Vanguard
+- Cannon
+
+It is built for quick iteration while playing: you can level nodes, track Tech Crystal cost, save multiple builds locally, and share builds through compact URLs.
 
 ## Features
 
-### Tree Planning
+### Planning
 
-- **Multi-tab tree planner** for Guardian, Vanguard, and Cannon paths
-- **Node level adjustment** via tap/click or context menu
-- **Single Level Up mode**: Toggle between incrementing by 1 or maxing out nodes
-- **Node context menu**: Increase, decrease, max, or reset individual nodes
-- **Tree context menu**: Focus tree in view or reset entire tree
-- **Visual node states**: Locked, available, active, and maxed indicators
+- Interactive tree planner with tap, click, right-click, and long-press support
+- Per-node controls to increase, decrease, max, or reset levels
+- Tree-level actions to focus the active tree in view or reset it
+- Pan and zoom support for desktop and touch devices
+- Optional "Single Level Up" mode for one-step increments
+- Optional "Close-up View" mode for a tighter default zoom
 
-### Tech Crystal Management
+### Tracking
 
-- **Adjustable tech crystal budget** with live available/spent totals
-- **Per-tree tracking** of tech crystal spending
-- **Auto-calculation** of costs when adjusting node levels
-- **Tech Crystal display** in HUD showing spent and owned amounts
-
-### View & Navigation
-
-- **Pan and zoom** on trees (drag/scroll or pinch)
-- **Focus Tree in View**: Auto-fit and center tree with optimal zoom
-- **Close-up View toggle**: 150% initial zoom for better visibility
-- **View state persistence**: Remembers zoom and pan position
+- Tech Crystal owned / spent tracking
+- Per-tree and overall totals
+- Statistics panel with copy-to-clipboard support
+- Visual node state feedback for locked, available, active, and maxed nodes
 
 ### Build Management
 
-- **Auto-save**: Progress automatically saved to localStorage
-- **Load on startup**: Restores your build when you return
-- **Reset options**: Reset single tree or all trees at once
-- **Share builds**: Generate shareable URLs with encoded build data
-- **Preview mode**: View and edit shared builds without affecting your personal build
-- **Clone preview builds**: Copy a preview build to your personal build
-- **Stop preview**: Exit preview mode and return to personal build
-- **Share as image**: Screenshot functionality (coming soon)
+- Auto-save using `localStorage`
+- Multiple named local build presets
+- Rename, reorder, create, and delete presets
+- Load a build from a shared link or a raw build code
+- Preview shared builds without overwriting your personal saved presets
+- Clone a preview build into your own presets
+- Premade preview builds from `package.json`
 
-### Statistics & Tracking
+### Sharing
 
-- **Statistics panel**: View totals for all trees
-- **Copy stats to clipboard**: Quick sharing of build statistics
-- **Per-tree breakdown**: See levels and tech crystals spent per tree
-- **Progress tracking**: Monitor total node levels across all trees
+- Shareable hash-based URLs
+- Optional build names encoded into the share string
+- Native share sheet support where available
+- Clipboard fallback for share links
+- Copy a combined screenshot of all three trees to the clipboard
 
-### Settings & Customization
+### App / Platform
 
-- **Single Level Up toggle**: Control how nodes level up
-- **Close-up View toggle**: Adjust initial zoom level
-- **Reset settings**: Restore all settings to defaults
-- **Clear all data**: Delete all progress and settings (with confirmation)
+- Installable PWA
+- Offline support through `vite-plugin-pwa`
+- Responsive layout for desktop and mobile
+- Theme color controls, toasts, tooltips, and haptic feedback where supported
 
-### Progressive Web App (PWA)
+## How Sharing Works
 
-- **Install as PWA**: Install for offline access
-- **Offline support**: Use the app without internet connection
-- **Version tracking**: Automatic notifications for new versions
-- **App-like experience**: Full-screen, standalone app mode
+Build data is stored in the URL hash using a custom compact, URL-safe format implemented in `src/lib/buildData/`.
 
-### User Interface
+The encoder:
 
-- **Side menu**: Access Statistics, Settings, and Controls tabs
-- **Context menus**: Right-click or long-press for node and tree options
-- **Toast notifications**: Feedback for actions and errors
-- **Tooltips**: Helpful hints throughout the interface
-- **Haptic feedback**: Tactile response on supported devices
-- **Responsive design**: Works on desktop, tablet, and mobile
-- **Preview build indicator**: Visual indicator when viewing shared builds
+- stores node levels as arrays indexed by tree node position
+- groups values by branch (yellow, orange, blue)
+- trims trailing zeroes
+- uses base62 for numeric values
+- applies run-length encoding for repeated values and repeated trees
+- can include a URL-encoded build name before the build data
 
-## How to use
+This keeps shared URLs short enough to be practical while still round-tripping cleanly through the decoder.
 
-### Planning Your Build
+## Local Development
 
-1. Open a tree tab (Guardian, Vanguard, or Cannon) and adjust node levels to match your build
-2. Use the side menu to update Tech Crystals owned and see budget impact
-3. Toggle "Single Level Up" in Settings to control how nodes level up (increment by 1 vs max out)
-4. Use context menus (right-click or long-press) for precise node control
-
-### Sharing Builds
-
-1. Click "Share Build" in the side menu to generate a shareable link
-2. The link is automatically copied to your clipboard
-3. Share the link with others - they can view and edit your build in preview mode
-4. Preview builds can be cloned to personal builds using the "Clone Preview Build" option
-
-### Viewing Shared Builds
-
-1. Open a shared build link to enter preview mode
-2. The preview build indicator shows you're viewing a shared build
-3. Edit the build to see how changes affect stats
-4. Clone the build to save it as your personal build, or stop preview to return to your build
-
-### Managing Your Build
-
-- **Reset a tree**: Use the reset button in HUD or side menu to refund all tech crystals for the active tree
-- **Reset all trees**: Use the side menu to reset all trees at once
-- **Focus in view**: Use the "Focus Tree in View" button to auto-fit and center the tree
-- **Copy stats**: Use the copy button in Statistics to share your build stats
-
-## Controls
-
-### On-screen HUD
-
-- **Tech Crystals display**: View spent and set owned amount
-- **Reset active tree button**: Refund all Tech Crystals for the active tree
-- **Preview build indicator**: Shows when viewing a shared build (click for preview options)
-- **App title**: Click to open side menu to Controls tab
-
-### Side Menu
-
-The side menu has three tabs:
-
-- **Statistics**: View build statistics and copy to clipboard
-- **Settings**: Configure build options, view controls, and manage application
-- **Controls**: View app information, controls reference, and install PWA
-
-**Side menu actions:**
-
-- **Share Build**: Generate and copy shareable link (or share as image - coming soon)
-- **Tech Crystals button**: Set owned tech crystal amount
-- **Focus Tree in View**: Auto-fit and center the active tree
-- **Reset Tree**: Reset the active tree
-- **Reset All Trees**: Reset all three trees at once
-- **Install App**: Install as PWA for offline access (appears when available)
-- **Reload Window**: Refresh the application
-- **Reset Settings**: Restore all settings to defaults
-- **Clear All Data**: Delete all progress and settings (with confirmation)
-
-### Touch Controls
-
-- **Tap a node**: Add a node level and spend Tech Crystals (or increment by 1 if Single Level Up is enabled)
-- **Long press a node**: Show node context menu with increase, decrease, max, and reset options
-- **Long press empty space or tab**: Show tree context menu with focus in view and reset options
-- **Drag with one finger**: Pan around the tree
-- **Pinch with two fingers**: Zoom in and out on the tree
-- **Swipe right on side menu**: Close the side menu
-
-### Mouse Controls
-
-- **Click a node**: Add a node level and spend Tech Crystals (or increment by 1 if Single Level Up is enabled)
-- **Right-click a node**: Show node context menu with increase, decrease, max, and reset options
-- **Right-click empty space or tab**: Show tree context menu with focus in view and reset options
-- **Click and drag**: Pan around the tree
-- **Scroll wheel or trackpad**: Zoom in and out on the tree
-
-## Development
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Start the dev server:
+
+```bash
 npm run dev
 ```
 
-Other scripts:
+The app uses the GitHub Pages base path, so during local development the intended URL is:
+
+`http://localhost:5173/rg-backpack-planner/`
+
+## Available Scripts
 
 ```bash
-npm run build
-npm run preview
-npm run check
+npm run dev         # start the Vite dev server
+npm run build       # production build + copy index.html to 404.html
+npm run preview     # preview the built dist/ output
+npm run check       # svelte-check + TypeScript checks
+npm test            # npm run check + tsx test/index.ts
+npm run pwa:assets  # regenerate PWA assets from public/icon.svg
 ```
+
+## Testing
+
+The automated test suite is focused on the build-data encoder and decoder.
+
+Run it with:
+
+```bash
+npm test
+```
+
+That command runs:
+
+1. `npm run check`
+2. `tsx test/index.ts`
+
+For more detail on the encoder test suite, see [test/README.md](test/README.md).
+
+## Project Structure
+
+```text
+src/
+  config/            Tree definitions and shared tree metadata
+  lib/               Components, stores, build-data logic, helpers
+public/              Static assets, icons, manifest inputs
+scripts/             Build helpers
+test/                Encoder test suite and docs
+dist/                Production output (generated)
+```
+
+## Deployment Notes
+
+- The deployed base path is `/rg-backpack-planner/`.
+- `npm run build` copies `index.html` to `404.html` so GitHub Pages can route SPA URLs correctly.
+- If `public/icon.svg` changes, run `npm run pwa:assets` to refresh generated PWA icons.

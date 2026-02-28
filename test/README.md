@@ -1,18 +1,49 @@
-# Build Data Encoder Tests
+# Test Suite
 
-Tests for the build data encoding/decoding system.
+This folder contains the automated tests for the build-data encoder / decoder used by the share-link system.
 
-## Running Tests
+The current entry point is `test/index.ts`, which imports `test/encoder.test.ts`. The suite auto-runs when imported or executed.
 
-### CLI (All Tests)
+## What Is Covered
+
+`test/encoder.test.ts` currently exercises five areas:
+
+1. Invalid-input handling for malformed share strings
+2. Encode/decode round-trip coverage for many build shapes
+3. Decoder compatibility cases for explicit serialized strings
+4. Build-name space encoding / decoding helpers
+5. Build-name extraction from encoded share strings
+
+The tests focus on correctness first, but they also print compression stats so changes to the encoding format are easy to spot.
+
+## Recommended Way To Run
+
+Run the full suite from the CLI:
 
 ```bash
-npm run test
+npm test
 ```
 
-This runs the full test suite through the shared `test/index.ts` entry point.
+That runs:
 
-### Browser Console (Recommended)
+1. `npm run check`
+2. `tsx test/index.ts`
+
+Use this path when you want the same result CI-style local verification should use.
+
+## Running Only The Test File
+
+If you have already run type checks and only want the test runner itself:
+
+```bash
+npx tsx test/index.ts
+```
+
+This skips the `svelte-check` / TypeScript validation done by `npm test`.
+
+## Running In The Browser
+
+You can also run the suite from the browser console through Vite.
 
 1. Start the dev server:
 
@@ -20,54 +51,49 @@ This runs the full test suite through the shared `test/index.ts` entry point.
     npm run dev
     ```
 
-2. Open the browser console (F12)
+2. Open the app at:
 
-3. Import the test file:
+    `http://localhost:5173/rg-backpack-planner/`
 
-    ```javascript
-    import("./test/index.js");
+3. In the browser console, import the test entry:
+
+    ```js
+    import("./test/index.ts");
     ```
 
-    The full test suite will run automatically when imported.
+If you are not already on the app page, use an absolute path instead:
 
-### Standalone HTML Page
+```js
+import("/rg-backpack-planner/test/index.ts");
+```
 
-1. Start the dev server:
+## Reading The Output
 
-    ```bash
-    npm run dev
-    ```
+The suite prints verbose logs by design:
 
-2. Open `http://localhost:5173/test/encoder.html` in your browser
+- each test group has its own header and summary
+- successful round-trip tests print original data, decoded data, and serialized output
+- encoding tests also print JSON length vs serialized length
+- the final section prints a combined total across all test groups
 
-    (Note: You may need to create this HTML file if you want a UI-based test runner)
+### Expected Error Logs
 
-## What the Tests Do
+Some tests intentionally feed invalid strings into the decoder. During those cases, `decodeBuildData()` logs parser errors such as:
 
-The tests verify:
+- `Failed to parse array format`
+- `Invalid RLE format`
 
-- Encoding and decoding are lossless (round-trip integrity)
-- Custom serialized format is more compact than JSON
-- Various build configurations work correctly (empty builds, single nodes, complex builds, etc.)
+Those logs are expected. They do **not** mean the suite failed by themselves. The actual result is the per-section summary and the final combined summary.
 
-## Test Output
+If the summaries show zero failed tests, the suite passed.
 
-Each test prints:
+## When To Update These Tests
 
-- **Custom serialized length**: The compact custom format string length (before base64 encoding)
-- **JSON string length**: The JSON representation length for comparison
-- **Base64url encoded length**: The final URL-safe encoded length
-- **Compression ratios**: How much smaller the custom format is compared to JSON
-- **Original and decoded build data**: Full JSON for inspection
-- **Custom serialized string**: The actual compact format string
-- **Base64url encoded string**: The final encoded string used in URLs
+Update or extend this suite whenever you change:
 
-## Test Cases
+- the serialized share format
+- the build-name encoding rules
+- decoder compatibility behavior
+- accepted or rejected malformed input cases
 
-- Empty build (all zeros)
-- Single node level 1
-- Multiple nodes, all level 1
-- Mixed levels with zeros
-- High values
-- With owned crystals
-- Complex build with many nodes
+If you change the encoder format intentionally, keep compatibility cases explicit so regressions are easy to detect.
