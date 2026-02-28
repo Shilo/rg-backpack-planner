@@ -170,10 +170,8 @@ export function formatTierStateLines(params: {
     const tierTokens = tiers.map((tier, index) =>
         String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
     );
-    const paddedLabelLength = Math.max(levelLabel.length, tierLabel.length);
-
     const formatLine = (label: string, tokens: string[]) =>
-        `- ${label.padEnd(paddedLabelLength, " ")} [${tokens.join(", ")}]`;
+        `- ${label} [${tokens.join(", ")}]`;
 
     return [
         formatLine(levelLabel, levelTokens),
@@ -202,11 +200,11 @@ export function formatTierStepState(params: {
     );
 
     return [
-        `step ${stepIndex + 1} expected [index ${targetIndex}] (${previousLevel} -> ${nextLevel})`,
+        `step ${stepIndex + 1} [index ${targetIndex}] (${previousLevel} -> ${nextLevel})`,
         ...formatTierStateLines({
-            levelLabel: "levels:",
+            levelLabel: "expect levels:",
             levels: expectedLevels,
-            tierLabel: "tiers:",
+            tierLabel: "expect tiers:",
             tiers: expectedTiers,
         }),
         "",
