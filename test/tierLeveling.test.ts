@@ -59,8 +59,8 @@ const explicitScenarioCases: Array<{
     {
         expectedStates: [
             [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
-            [100, 100, 80, 100, 100, 80, 100, 50, 40, 1],
-            [100, 100, 80, 100, 100, 80, 100, 50, 50, 1],
+            [100, 100, 100, 100, 100, 80, 100, 50, 40, 1],
+            [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
             [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -73,6 +73,28 @@ const explicitScenarioCases: Array<{
             { index: 1, targetLevel: 0 },
             { index: 5, targetLevel: 0 },
             { index: 0, targetLevel: 0 },
+        ],
+    },
+    {
+        expectedStates: [
+            [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
+            [20, 20, 20, 0, 10, 0, 10, 0, 0, 0],
+        ],
+        name: "Sibling tier-1 unlock preserves existing wrapped progress",
+        operations: [
+            { index: 6, targetLevel: 10 },
+            { index: 4, targetLevel: 10 },
+        ],
+    },
+    {
+        expectedStates: [
+            [80, 60, 80, 60, 60, 60, 61, 30, 30, 1],
+            [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
+        ],
+        name: "Split node decrement from inherited tier-3 state uses min",
+        operations: [
+            { index: 6, targetLevel: 61 },
+            { index: 3, targetLevel: 21 },
         ],
     },
 ];

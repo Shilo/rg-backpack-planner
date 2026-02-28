@@ -201,6 +201,26 @@ function cloneLevels(levels: LevelsByIndex, size: number): LevelsByIndex {
     return copy;
 }
 
+function targetMeetsStableTierFloor(
+    level: number,
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): boolean {
+    if (tier <= 0) return true;
+    if (maxLevel <= 1) {
+        return tier === 1 && level > 0;
+    }
+    return level >= tierUpper(tier - 1, maxLevel);
+}
+
+function levelMeetsRequiredTier(
+    level: number,
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): boolean {
+    return level >= tierUpper(tier, maxLevel);
+}
+
 function currentStableTierForNode(params: {
     nodes: Node[];
     levels: LevelsByIndex;
@@ -212,38 +232,44 @@ function currentStableTierForNode(params: {
     const node = nodes[index];
     if (!node) return 0;
 
-    let maxAncestorTier = 0;
-    let maxWrappedTier = 0;
+    const targetLevel = levels[index] ?? 0;
+    let currentStableTier = 0;
 
-    for (const componentIndex of componentIndices) {
-        if (componentIndex === index) continue;
-
-        const componentNode = nodes[componentIndex];
-        if (!componentNode) continue;
-
-        const tier = tierIndex(
-            levels[componentIndex] ?? 0,
-            componentNode.maxLevel,
-        );
-
-        if (ancestorFlags[componentIndex]) {
-            maxAncestorTier = Math.max(maxAncestorTier, tier);
+    for (let candidateTier = 1; candidateTier <= MAX_TIERS; candidateTier += 1) {
+        if (!targetMeetsStableTierFloor(targetLevel, candidateTier, node.maxLevel)) {
             continue;
         }
 
-        maxWrappedTier = Math.max(maxWrappedTier, tier);
-    }
+        const wrappedTier = Math.max(candidateTier - 1, 0);
+        let satisfiesCandidateTier = true;
 
-    const targetTier = tierIndex(levels[index] ?? 0, node.maxLevel);
-    const hasAncestors = ancestorFlags.some(Boolean);
-    if (!hasAncestors) {
-        if (maxWrappedTier > 0) {
-            return Math.max(targetTier, maxWrappedTier + 1);
+        for (const componentIndex of componentIndices) {
+            if (componentIndex === index) continue;
+
+            const componentNode = nodes[componentIndex];
+            if (!componentNode) continue;
+
+            const requiredTier = ancestorFlags[componentIndex]
+                ? candidateTier
+                : wrappedTier;
+            if (
+                !levelMeetsRequiredTier(
+                    levels[componentIndex] ?? 0,
+                    requiredTier,
+                    componentNode.maxLevel,
+                )
+            ) {
+                satisfiesCandidateTier = false;
+                break;
+            }
         }
-        return targetTier;
+
+        if (satisfiesCandidateTier) {
+            currentStableTier = candidateTier;
+        }
     }
 
-    return Math.max(targetTier, maxAncestorTier);
+    return currentStableTier;
 }
 
 export function unlockedTierForNode(
@@ -315,6 +341,7 @@ export function applyLevelChange(params: {
 
     if (nextStableTier !== currentStableTier) {
         const wrappedTier = Math.max(nextStableTier - 1, 0);
+        const isIncrement = clampedTarget > startingLevel;
 
         for (const componentIndex of componentIndices) {
             if (componentIndex === index) continue;
@@ -325,8 +352,12 @@ export function applyLevelChange(params: {
             const requiredTier = ancestorFlags[componentIndex]
                 ? nextStableTier
                 : wrappedTier;
+            const requiredLevel = tierUpper(requiredTier, componentNode.maxLevel);
+            const currentLevel = current[componentIndex] ?? 0;
 
-            next[componentIndex] = tierUpper(requiredTier, componentNode.maxLevel);
+            next[componentIndex] = isIncrement
+                ? Math.max(currentLevel, requiredLevel)
+                : Math.min(currentLevel, requiredLevel);
         }
     }
 
