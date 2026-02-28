@@ -13,20 +13,24 @@ import {
 } from "playwright";
 import { applyLevelChange } from "../src/lib/tierLeveling.ts";
 import { truncateText } from "../src/lib/stringUtil.ts";
+import type { Node as TreeNode } from "../src/types/tree.ts";
 import {
+    applyExpectedTargetTransition,
     buildExpectedBranchLevels,
-    buildExpectedStateForScenario,
     buildRoundTripSequence,
     buildSeededScenarioCase,
     collectAncestors,
     createYellowBranchFixture,
     expectedTierIndex,
+    expectedTierUpper,
     formatTierStateGroup,
     formatTierStepState,
     nextStableTier,
-    tierScenarioCases,
-    tierSeededScenarioCases,
+    partitionYellowBranchRoles,
+    tierExplicitScenarioCases,
+    tierSeededInvariantCases,
     tierSweepCases,
+    uniqueBoundaryLevels,
     YELLOW_BRANCH_LENGTH,
     type ScenarioCase,
     type ScenarioExpectedStates,
@@ -50,6 +54,7 @@ const TECH_CRYSTAL_STORE_MODULE_URL = new URL(
 const DEV_SERVER_START_TIMEOUT_MS = 20_000;
 const DEV_SERVER_POLL_DELAY_MS = 250;
 const BROWSER_SLOW_MO_MS = 0;
+const RUN_FULL_UI_TWO_STEP_MATRIX = process.env.RG_TIER_UI_FULL_MATRIX === "1";
 const CURRENT_VERSION = packageInfo.version ?? "0.1.0";
 const UI_TIER_LOG_FILE_LABEL = "test/tierLeveling.ui.output.log";
 const UI_TIER_LOG_FILE_URL = new URL(
@@ -300,8 +305,8 @@ async function syncYellowBranchLevels(
                 ]);
 
             let currentTrees: number[][] = [];
-            const unsubscribe = treeLevels.subscribe((value) => {
-                currentTrees = value.map((levels) => [...levels]);
+            const unsubscribe = treeLevels.subscribe((value: number[][]) => {
+                currentTrees = value.map((levels: number[]) => [...levels]);
             });
             unsubscribe();
 
@@ -549,6 +554,179 @@ function buildScenarioExpectedSteps(
     });
 }
 
+function meetsStableTierHoldFloor(params: {
+    level: number;
+    maxLevel: TreeNode["maxLevel"];
+    tier: number;
+}): boolean {
+    const { level, maxLevel, tier } = params;
+
+    if (tier <= 0) return true;
+    if (level <= 0) return false;
+    if (maxLevel <= 1) return true;
+    if (tier === 1) return true;
+
+    return level >= expectedTierUpper(tier - 1, maxLevel);
+}
+
+function inferStableTierFromObservedState(params: {
+    levels: number[];
+    nodes: TreeNode[];
+    targetIndex: number;
+}): number {
+    const { levels, nodes, targetIndex } = params;
+    const targetNode = nodes[targetIndex];
+    if (!targetNode) return 0;
+
+    const roles = partitionYellowBranchRoles(nodes, targetIndex);
+    const targetLevel = levels[targetIndex] ?? 0;
+
+    for (let candidateTier = 5; candidateTier > 0; candidateTier -= 1) {
+        if (
+            !meetsStableTierHoldFloor({
+                level: targetLevel,
+                maxLevel: targetNode.maxLevel,
+                tier: candidateTier,
+            })
+        ) {
+            continue;
+        }
+
+        const wrappedTier = Math.max(candidateTier - 1, 0);
+        let satisfiesContract = true;
+
+        nodes.forEach((node, index) => {
+            if (!satisfiesContract || index === targetIndex) return;
+
+            const requiredTier = roles.ancestors.has(index)
+                ? candidateTier
+                : wrappedTier;
+            const requiredLevel = expectedTierUpper(requiredTier, node.maxLevel);
+            if ((levels[index] ?? 0) < requiredLevel) {
+                satisfiesContract = false;
+            }
+        });
+
+        if (satisfiesContract) {
+            return candidateTier;
+        }
+    }
+
+    return 0;
+}
+
+function assertUiInvariantState(params: {
+    caseName: string;
+    currentLevels: number[];
+    stepIndex: number;
+    targetIndex: number;
+    targetLevel: number;
+    actual: UiBranchState;
+}): void {
+    const { caseName, currentLevels, stepIndex, targetIndex, targetLevel, actual } =
+        params;
+    const node = yellowBranchNodes[targetIndex];
+    if (!node) {
+        throw new Error(
+            `${caseName} step ${stepIndex} targets missing node ${targetIndex}`,
+        );
+    }
+
+    const previousLevel = currentLevels[targetIndex] ?? 0;
+    const clampedTarget = Math.min(Math.max(targetLevel, 0), node.maxLevel);
+    const currentStableTier = inferStableTierFromObservedState({
+        levels: currentLevels,
+        nodes: yellowBranchNodes,
+        targetIndex,
+    });
+    const actualStableTier = inferStableTierFromObservedState({
+        levels: actual.levels,
+        nodes: yellowBranchNodes,
+        targetIndex,
+    });
+    const roles = partitionYellowBranchRoles(yellowBranchNodes, targetIndex);
+
+    if ((actual.levels[targetIndex] ?? 0) !== clampedTarget) {
+        throw new Error(
+            `${caseName} step ${stepIndex} target ${targetIndex} expected level ${clampedTarget}, got ${
+                actual.levels[targetIndex] ?? 0
+            }`,
+        );
+    }
+
+    if (clampedTarget > previousLevel && actualStableTier < currentStableTier) {
+        throw new Error(
+            `${caseName} step ${stepIndex} target ${targetIndex} stable tier decreased during increment (${currentStableTier} -> ${actualStableTier})`,
+        );
+    }
+
+    if (clampedTarget < previousLevel && actualStableTier > currentStableTier) {
+        throw new Error(
+            `${caseName} step ${stepIndex} target ${targetIndex} stable tier increased during decrement (${currentStableTier} -> ${actualStableTier})`,
+        );
+    }
+
+    if (clampedTarget === previousLevel && actualStableTier !== currentStableTier) {
+        throw new Error(
+            `${caseName} step ${stepIndex} target ${targetIndex} stable tier changed without a level change (${currentStableTier} -> ${actualStableTier})`,
+        );
+    }
+
+    yellowBranchNodes.forEach((branchNode, index) => {
+        const actualLevel = actual.levels[index] ?? 0;
+
+        if (actualLevel < 0 || actualLevel > branchNode.maxLevel) {
+            throw new Error(
+                `${caseName} step ${stepIndex} node ${index} exceeded bounds: ${actualLevel}`,
+            );
+        }
+
+        if (index === targetIndex) return;
+
+        const previousNodeLevel = currentLevels[index] ?? 0;
+        const assignedTier = roles.ancestors.has(index)
+            ? actualStableTier
+            : Math.max(actualStableTier - 1, 0);
+        const assignedLevel = expectedTierUpper(
+            assignedTier,
+            branchNode.maxLevel,
+        );
+
+        if (clampedTarget === previousLevel) {
+            if (actualLevel !== previousNodeLevel) {
+                throw new Error(
+                    `${caseName} step ${stepIndex} node ${index} expected level ${previousNodeLevel}, got ${actualLevel}`,
+                );
+            }
+
+            return;
+        }
+
+        if (clampedTarget > previousLevel) {
+            const expectedLevel = Math.max(previousNodeLevel, assignedLevel);
+            if (actualLevel !== expectedLevel) {
+                throw new Error(
+                    `${caseName} step ${stepIndex} node ${index} expected level ${expectedLevel}, got ${actualLevel}`,
+                );
+            }
+
+            return;
+        }
+
+        if (actualLevel > previousNodeLevel) {
+            throw new Error(
+                `${caseName} step ${stepIndex} node ${index} increased during decrement (${previousNodeLevel} -> ${actualLevel})`,
+            );
+        }
+
+        if (actualLevel < assignedLevel) {
+            throw new Error(
+                `${caseName} step ${stepIndex} node ${index} dropped below floor ${assignedLevel}, got ${actualLevel}`,
+            );
+        }
+    });
+}
+
 async function resetTierUiPage(page: Page): Promise<void> {
     if (!page.url().startsWith(DEV_SERVER_URL)) {
         await page.goto(APP_URL);
@@ -650,6 +828,168 @@ async function runUiCase(params: {
     }
 }
 
+async function runUiInvariantCase(params: {
+    caseName: string;
+    caseLabel: string;
+    operations: ScenarioCase["operations"];
+    page: Page;
+}): Promise<number> {
+    const { caseName, caseLabel, operations, page } = params;
+
+    logUiTierLine(caseLabel);
+    logUiTierLine("---");
+    await resetTierUiPage(page);
+    const indicatorState = buildPlaywrightIndicatorState(caseLabel);
+    await setPlaywrightIndicatorState(page, indicatorState);
+    await waitForPlaywrightIndicator(page, indicatorState);
+
+    let currentLevels = new Array(YELLOW_BRANCH_LENGTH).fill(0);
+    let failingStepIndex = 0;
+
+    try {
+        for (const [stepIndex, operation] of operations.entries()) {
+            failingStepIndex = stepIndex;
+            const previousLevel = currentLevels[operation.index] ?? 0;
+            const node = yellowBranchNodes[operation.index];
+            if (!node) {
+                throw new Error(
+                    `${caseName} step ${stepIndex} targets missing node ${operation.index}`,
+                );
+            }
+
+            const clampedTarget = Math.min(
+                Math.max(operation.targetLevel, 0),
+                node.maxLevel,
+            );
+
+            await setNodeToLevel(page, operation.index, operation.targetLevel);
+            const actual = await readYellowBranchState(page);
+
+            logUiTierLine(
+                `step ${stepIndex + 1} [index ${operation.index}] (${previousLevel} -> ${clampedTarget})`,
+            );
+            formatUiActualStepState(actual).forEach((line) => {
+                logUiTierLine(line);
+            });
+            logUiTierLine();
+
+            assertUiInvariantState({
+                caseName,
+                currentLevels,
+                stepIndex,
+                targetIndex: operation.index,
+                targetLevel: operation.targetLevel,
+                actual,
+            });
+
+            currentLevels = [...actual.levels];
+        }
+
+        logUiTierLine(`✅ PASSED (${operations.length} steps)`);
+        return operations.length;
+    } catch (error) {
+        const screenshotPath = await captureUiFailureArtifact(
+            page,
+            caseName,
+            failingStepIndex,
+        );
+        logUiTierLine(
+            `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        logUiTierLine(`Screenshot: ${screenshotPath}`);
+        throw error;
+    } finally {
+        logUiTierLine();
+    }
+}
+
+async function runUiTwoStepMatrixPreflight(page: Page): Promise<number> {
+    const { nodes, levels: startingLevels } = createYellowBranchFixture();
+    const zeroLevels = [...startingLevels];
+    let sequenceCount = 0;
+
+    await resetTierUiPage(page);
+    const indicatorState = buildPlaywrightIndicatorState(
+        "Two-Step Matrix UI Preflight",
+    );
+    await setPlaywrightIndicatorState(page, indicatorState);
+    await waitForPlaywrightIndicator(page, indicatorState);
+
+    for (const [firstTargetIndex, firstTargetNode] of nodes.entries()) {
+        const firstCandidateLevels = uniqueBoundaryLevels(firstTargetNode.maxLevel);
+
+        for (const firstTargetLevel of firstCandidateLevels) {
+            const firstStableTier = nextStableTier({
+                previousLevel: 0,
+                nextLevel: firstTargetLevel,
+                currentStableTier: 0,
+                maxLevel: firstTargetNode.maxLevel,
+            });
+            const firstExpectedLevels = applyExpectedTargetTransition({
+                currentLevels: zeroLevels,
+                nodes,
+                previousLevel: 0,
+                nextLevel: firstTargetLevel,
+                stableTier: firstStableTier,
+                targetIndex: firstTargetIndex,
+            });
+
+            await syncYellowBranchLevels(page, zeroLevels);
+            await setNodeToLevel(page, firstTargetIndex, firstTargetLevel);
+            const firstActual = await readYellowBranchState(page);
+
+            assertUiStateEqual(
+                `Two-step matrix first target ${firstTargetIndex}`,
+                firstExpectedLevels,
+                firstActual,
+            );
+
+            for (const [secondTargetIndex, secondTargetNode] of nodes.entries()) {
+                const secondCandidateLevels = uniqueBoundaryLevels(
+                    secondTargetNode.maxLevel,
+                );
+                const secondStartingLevel = firstExpectedLevels[secondTargetIndex] ?? 0;
+                const secondCurrentStableTier = inferStableTierFromObservedState({
+                    levels: firstExpectedLevels,
+                    nodes,
+                    targetIndex: secondTargetIndex,
+                });
+
+                for (const secondTargetLevel of secondCandidateLevels) {
+                    const secondStableTier = nextStableTier({
+                        previousLevel: secondStartingLevel,
+                        nextLevel: secondTargetLevel,
+                        currentStableTier: secondCurrentStableTier,
+                        maxLevel: secondTargetNode.maxLevel,
+                    });
+                    const secondExpectedLevels = applyExpectedTargetTransition({
+                        currentLevels: firstExpectedLevels,
+                        nodes,
+                        previousLevel: secondStartingLevel,
+                        nextLevel: secondTargetLevel,
+                        stableTier: secondStableTier,
+                        targetIndex: secondTargetIndex,
+                    });
+
+                    await syncYellowBranchLevels(page, firstExpectedLevels);
+                    await setNodeToLevel(page, secondTargetIndex, secondTargetLevel);
+                    const secondActual = await readYellowBranchState(page);
+
+                    assertUiStateEqual(
+                        `Two-step matrix ${firstTargetIndex} -> ${secondTargetIndex}`,
+                        secondExpectedLevels,
+                        secondActual,
+                    );
+
+                    sequenceCount += 1;
+                }
+            }
+        }
+    }
+
+    return sequenceCount;
+}
+
 async function runTierUiSuite(page: Page): Promise<void> {
     resetUiTierLogFile();
     logUiTierLine("===");
@@ -659,14 +999,24 @@ async function runTierUiSuite(page: Page): Promise<void> {
     logUiTierLine();
 
     const total =
+        (RUN_FULL_UI_TWO_STEP_MATRIX ? 1 : 0) +
         tierSweepCases.length +
-        tierScenarioCases.length +
-        tierSeededScenarioCases.length;
+        tierExplicitScenarioCases.length +
+        tierSeededInvariantCases.length;
     let passed = 0;
     let failed = 0;
     let suiteError: unknown = null;
 
     try {
+        if (RUN_FULL_UI_TWO_STEP_MATRIX) {
+            logUiTierLine("Two-Step Matrix UI Test 1: Yellow cross-target boundary matrix");
+            logUiTierLine("---");
+            const sequences = await runUiTwoStepMatrixPreflight(page);
+            logUiTierLine(`✅ PASSED (${sequences} sequences)`);
+            logUiTierLine();
+            passed++;
+        }
+
         for (const [index, testCase] of tierSweepCases.entries()) {
             await runUiCase({
                 caseName: testCase.name,
@@ -677,29 +1027,23 @@ async function runTierUiSuite(page: Page): Promise<void> {
             passed++;
         }
 
-        for (const [index, testCase] of tierScenarioCases.entries()) {
+        for (const [index, testCase] of tierExplicitScenarioCases.entries()) {
             await runUiCase({
                 caseName: testCase.name,
-                caseLabel: `Scenario Test ${index + 1}: ${testCase.name}`,
+                caseLabel: `Explicit Scenario Test ${index + 1}: ${testCase.name}`,
                 page,
-                steps: buildScenarioExpectedSteps(
-                    testCase,
-                    buildExpectedStateForScenario(testCase),
-                ),
+                steps: buildScenarioExpectedSteps(testCase, testCase.expectedStates),
             });
             passed++;
         }
 
-        for (const [index, testCase] of tierSeededScenarioCases.entries()) {
+        for (const [index, testCase] of tierSeededInvariantCases.entries()) {
             const generatedCase = buildSeededScenarioCase(testCase);
-            await runUiCase({
+            await runUiInvariantCase({
                 caseName: generatedCase.name,
-                caseLabel: `Seeded Test ${index + 1}: ${generatedCase.name}`,
+                caseLabel: `Seeded Invariant Test ${index + 1}: ${generatedCase.name}`,
+                operations: generatedCase.operations,
                 page,
-                steps: buildScenarioExpectedSteps(
-                    generatedCase,
-                    buildExpectedStateForScenario(generatedCase),
-                ),
             });
             passed++;
         }

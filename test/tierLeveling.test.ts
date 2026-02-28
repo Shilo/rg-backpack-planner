@@ -15,7 +15,11 @@ import {
     formatTierStepState,
     nextStableTier,
     partitionYellowBranchRoles,
+    tierExplicitScenarioCases,
+    tierSeededInvariantCases,
     tierSweepCases,
+    uniqueBoundaryLevels,
+    type ExplicitScenarioCase,
     type ScenarioCase,
     type ScenarioExpectedStates,
     type SweepCase,
@@ -24,131 +28,6 @@ import {
 const TIER_LOG_FILE_LABEL = "test/tierLeveling.output.log";
 const TIER_LOG_FILE_URL = new URL("./tierLeveling.output.log", import.meta.url);
 const TIER_LOG_FILE_PATH = fileURLToPath(TIER_LOG_FILE_URL);
-const explicitScenarioCases: Array<{
-    expectedStates: ScenarioExpectedStates;
-    name: string;
-    operations: ScenarioCase["operations"];
-}> = [
-    {
-        expectedStates: [[40, 40, 20, 21, 20, 20, 20, 10, 10, 1]],
-        name: "Split node explicit tier-2 unlock",
-        operations: [{ index: 3, targetLevel: 21 }],
-    },
-    {
-        expectedStates: [
-            [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
-            [40, 40, 20, 20, 20, 20, 20, 10, 10, 1],
-            [20, 20, 0, 19, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Split node explicit hysteresis",
-        operations: [
-            { index: 3, targetLevel: 21 },
-            { index: 3, targetLevel: 20 },
-            { index: 3, targetLevel: 19 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 20, 0, 20, 20, 0, 0, 10, 0, 0],
-            [40, 40, 20, 40, 40, 20, 20, 20, 10, 1],
-        ],
-        name: "Merged node explicit step-up",
-        operations: [
-            { index: 7, targetLevel: 10 },
-            { index: 7, targetLevel: 20 },
-        ],
-    },
-    {
-        expectedStates: [
-            [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
-            [100, 100, 100, 100, 100, 80, 100, 50, 40, 1],
-            [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Cross-branch explicit unwind clears on tier-1 reset",
-        operations: [
-            { index: 7, targetLevel: 50 },
-            { index: 6, targetLevel: 100 },
-            { index: 8, targetLevel: 50 },
-            { index: 1, targetLevel: 0 },
-            { index: 5, targetLevel: 0 },
-            { index: 0, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
-            [20, 20, 20, 0, 10, 0, 10, 0, 0, 0],
-        ],
-        name: "Sibling tier-1 unlock preserves existing wrapped progress",
-        operations: [
-            { index: 6, targetLevel: 10 },
-            { index: 4, targetLevel: 10 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 20, 20, 0, 10, 0],
-            [20, 0, 20, 0, 0, 0, 19, 0, 0, 0],
-        ],
-        name: "Wrapped tier-1 decrement rebases inherited support",
-        operations: [
-            { index: 8, targetLevel: 10 },
-            { index: 6, targetLevel: 19 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
-            [20, 20, 20, 0, 19, 0, 10, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Sibling support reset follows current target contract",
-        operations: [
-            { index: 6, targetLevel: 10 },
-            { index: 4, targetLevel: 19 },
-            { index: 6, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [40, 40, 20, 20, 21, 20, 20, 10, 10, 1],
-            [40, 40, 20, 39, 21, 20, 20, 10, 10, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Split tier-2 reset follows current target contract",
-        operations: [
-            { index: 4, targetLevel: 21 },
-            { index: 3, targetLevel: 39 },
-            { index: 4, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [80, 60, 80, 60, 60, 60, 61, 30, 30, 1],
-            [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
-        ],
-        name: "Split node decrement from inherited tier-3 state uses min",
-        operations: [
-            { index: 6, targetLevel: 61 },
-            { index: 3, targetLevel: 21 },
-        ],
-    },
-];
-
-const seededInvariantCases = [
-    { name: "Yellow seeded invariants", seed: 11, steps: 8 },
-    { name: "Yellow seeded invariants", seed: 23, steps: 8 },
-    { name: "Yellow seeded invariants", seed: 37, steps: 8 },
-    { name: "Yellow seeded invariants", seed: 53, steps: 8 },
-];
-
-function uniqueBoundaryLevels(maxLevel: number): number[] {
-    return [...new Set(buildRoundTripSequence(maxLevel))];
-}
-
 function resetTierLogFile() {
     writeFileSync(TIER_LOG_FILE_URL, "", "utf8");
 }
@@ -773,11 +652,7 @@ function runScenarioCase(
     return testCase.operations.length;
 }
 
-function runExplicitScenarioCase(testCase: {
-    expectedStates: ScenarioExpectedStates;
-    name: string;
-    operations: ScenarioCase["operations"];
-}) {
+function runExplicitScenarioCase(testCase: ExplicitScenarioCase) {
     return runScenarioCase(testCase, testCase.expectedStates);
 }
 
@@ -833,7 +708,7 @@ export function runTierLevelingTests() {
         logTierLine();
     });
 
-    explicitScenarioCases.forEach((testCase, index) => {
+    tierExplicitScenarioCases.forEach((testCase, index) => {
         logTierLine(`Explicit Scenario Test ${index + 1}: ${testCase.name}`);
         logTierLine("---");
 
@@ -853,7 +728,7 @@ export function runTierLevelingTests() {
         logTierLine();
     });
 
-    seededInvariantCases.forEach((testCase, index) => {
+    tierSeededInvariantCases.forEach((testCase, index) => {
         const seededCase = buildSeededScenarioCase(testCase);
         logTierLine(`Seeded Invariant Test ${index + 1}: ${seededCase.name}`);
         logTierLine("---");
@@ -879,7 +754,10 @@ export function runTierLevelingTests() {
     logTierLine("===");
     logTierLine(
         `📊 Total tests: ${
-            1 + cases.length + explicitScenarioCases.length + seededInvariantCases.length
+            1 +
+            cases.length +
+            tierExplicitScenarioCases.length +
+            tierSeededInvariantCases.length
         }`,
     );
     logTierLine(`✅ Passed: ${passed}`);
@@ -893,7 +771,10 @@ export function runTierLevelingTests() {
 
     return {
         total:
-            1 + cases.length + explicitScenarioCases.length + seededInvariantCases.length,
+            1 +
+            cases.length +
+            tierExplicitScenarioCases.length +
+            tierSeededInvariantCases.length,
         passed,
         failed,
     };
