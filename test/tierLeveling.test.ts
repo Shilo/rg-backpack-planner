@@ -13,6 +13,7 @@ import {
     formatTierStateGroup,
     formatTierStepState,
     nextStableTier,
+    partitionYellowBranchRoles,
     tierScenarioCases,
     tierSeededScenarioCases,
     tierSweepCases,
@@ -88,6 +89,21 @@ function logActualTierStepState(nodes: Node[], actualLevels: LevelsByIndex): voi
         logTierLine(line);
     });
     logTierLine();
+}
+
+function assertYellowBranchRolePartitioning() {
+    const { nodes } = createYellowBranchFixture();
+    const roles = partitionYellowBranchRoles(nodes, 3);
+
+    if (!roles.ancestors.has(0) || !roles.ancestors.has(1)) {
+        throw new Error("Expected node 3 ancestors to include 0 and 1");
+    }
+
+    if (!roles.wrapped.has(2) || !roles.wrapped.has(9)) {
+        throw new Error(
+            "Expected wrapped nodes to include non-ancestors in the branch",
+        );
+    }
 }
 
 function runSweepCase(testCase: SweepCase) {
@@ -206,6 +222,7 @@ function runScenarioCase(
 }
 
 export function runTierLevelingTests() {
+    assertYellowBranchRolePartitioning();
     resetTierLogFile();
     logTierLine("===");
     logTierLine("Tier Leveling Tests");

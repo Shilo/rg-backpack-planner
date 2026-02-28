@@ -67,6 +67,22 @@ export function collectAncestors(nodes: Node[], start: number): Set<number> {
     return ancestors;
 }
 
+export function partitionYellowBranchRoles(nodes: Node[], targetIndex: number): {
+    ancestors: Set<number>;
+    wrapped: Set<number>;
+} {
+    const ancestors = collectAncestors(nodes, targetIndex);
+    const wrapped = new Set<number>();
+
+    nodes.forEach((_, index) => {
+        if (index === targetIndex) return;
+        if (ancestors.has(index)) return;
+        wrapped.add(index);
+    });
+
+    return { ancestors, wrapped };
+}
+
 function expectedTierSize(maxLevel: Node["maxLevel"]): number {
     if (maxLevel <= 1) return 0;
     return maxLevel / MAX_TIERS;
@@ -94,7 +110,10 @@ function expectedCompletedTier(
     return Math.min(Math.floor(level / size), MAX_TIERS);
 }
 
-function expectedTierUpper(tier: number, maxLevel: Node["maxLevel"]): number {
+export function expectedTierUpper(
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): number {
     if (tier <= 0) return 0;
     if (maxLevel <= 1) return maxLevel;
     const size = expectedTierSize(maxLevel);
