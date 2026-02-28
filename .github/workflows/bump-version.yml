@@ -1,0 +1,42 @@
+name: Bump app version
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+
+jobs:
+    bump-version:
+        if: github.actor != 'github-actions[bot]'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+
+            - name: Bump version
+              run: node scripts/bump-version.cjs
+
+            - name: Commit and push version bump
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+                  if git diff --quiet; then
+                    echo "No version changes to commit."
+                    exit 0
+                  fi
+
+                  git add package.json package-lock.json
+                  git commit -m "ci: bump app revision"
+                  git push
