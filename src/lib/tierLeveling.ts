@@ -10,19 +10,25 @@ type TraversalMeta = {
 const MAX_TIERS = 5;
 const traversalMetaCache = new Map<string, TraversalMeta[]>();
 const BRANCH_SIZE = 10;
-const KNOWN_BRANCH_COMPONENT_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-const KNOWN_BRANCH_ANCESTOR_FLAGS = [
-    [false, false, false, false, false, false, false, false, false, false],
-    [true, false, false, false, false, false, false, false, false, false],
-    [true, false, false, false, false, false, false, false, false, false],
-    [true, true, false, false, false, false, false, false, false, false],
-    [true, true, false, false, false, false, false, false, false, false],
-    [true, false, true, false, false, false, false, false, false, false],
-    [true, false, true, false, false, false, false, false, false, false],
-    [true, true, false, true, true, false, false, false, false, false],
-    [true, false, true, false, false, true, true, false, false, false],
-    [true, true, true, true, true, true, true, true, true, false],
+const BRANCH_TOPOLOGY: { parent?: number | number[] }[] = [
+    {},                  // 0: root
+    { parent: 0 },       // 1
+    { parent: 0 },       // 2
+    { parent: 1 },       // 3
+    { parent: 1 },       // 4
+    { parent: 2 },       // 5
+    { parent: 2 },       // 6
+    { parent: [3, 4] },  // 7
+    { parent: [5, 6] },  // 8
+    { parent: [7, 8] },  // 9
 ];
+const KNOWN_BRANCH_COMPONENT_INDICES = buildComponentIndices(
+    BRANCH_TOPOLOGY as unknown as Node[],
+    0,
+);
+const KNOWN_BRANCH_ANCESTOR_FLAGS = BRANCH_TOPOLOGY.map((_, i) =>
+    buildAncestorFlags(BRANCH_TOPOLOGY as unknown as Node[], i),
+);
 const TOTAL_TREE_NODES = 30;
 
 export function tierSize(maxLevel: Node["maxLevel"]): number {
@@ -51,7 +57,7 @@ export function tierUpper(tier: number, maxLevel: Node["maxLevel"]): number {
 
 function parentIndices(node: Node): number[] {
     if (node.parent === undefined) return [];
-    return Array.isArray(node.parent) ? [...node.parent] : [node.parent];
+    return Array.isArray(node.parent) ? node.parent : [node.parent];
 }
 
 function buildChildrenList(nodes: Node[]): number[][] {
@@ -100,7 +106,7 @@ function buildAncestorFlags(nodes: Node[], start: number): boolean[] {
     const startNode = nodes[start];
     if (!startNode) return visited;
 
-    const stack = parentIndices(startNode);
+    const stack = [...parentIndices(startNode)];
     while (stack.length) {
         const current = stack.pop()!;
         if (visited[current]) continue;
@@ -308,17 +314,17 @@ export function applyLevelChange(params: {
     const node = nodes[index];
     if (!node) return { levels: cloneLevels(levels, nodes.length), deltas: [] };
 
-    const current = cloneLevels(levels, nodes.length);
-    const next = cloneLevels(levels, nodes.length);
-
     const clamp = (value: number, min: number, max: number) =>
         Math.min(Math.max(value, min), max);
 
-    const startingLevel = current[index] ?? 0;
+    const startingLevel = levels[index] ?? 0;
     const clampedTarget = clamp(targetLevel, 0, node.maxLevel);
     if (clampedTarget === startingLevel) {
-        return { levels: next, deltas: [] };
+        return { levels, deltas: [] };
     }
+
+    const current = cloneLevels(levels, nodes.length);
+    const next = cloneLevels(levels, nodes.length);
 
     const { componentIndices, ancestorFlags } = getTraversalMeta(nodes, index);
     const currentStableTier = currentStableTierForNode({
