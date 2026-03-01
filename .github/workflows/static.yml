@@ -62,7 +62,7 @@ jobs:
           fi
 
           git add package.json package-lock.json
-          git commit -m "ci: bump app revision"
+          git commit -m "ci: bump app version"
           git pull --rebase
           git push
 
