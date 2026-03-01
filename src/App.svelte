@@ -483,7 +483,7 @@
     .top-left-actions,
     .top-right-actions {
         position: fixed;
-        top: var(--spacing-lg);
+        top: calc(var(--spacing-lg) + env(safe-area-inset-top, 0px));
         z-index: var(--z-index-hud);
         display: inline-flex;
         flex-direction: column;
@@ -492,13 +492,13 @@
     }
 
     .top-left-actions {
-        left: var(--spacing-lg);
+        left: calc(var(--spacing-lg) + env(safe-area-inset-left, 0px));
         align-items: flex-start;
         transition: left 0.15s ease;
     }
 
     .top-right-actions {
-        right: var(--spacing-lg);
+        right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
         align-items: flex-end;
         transition: right 0.15s ease;
     }
