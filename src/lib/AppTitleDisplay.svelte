@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import Button from "./Button.svelte";
-    import { APP_SHORT_DISPLAY_NAME } from "./appInfo";
+    import { APP_DISPLAY_NAME } from "./appInfo";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
@@ -32,10 +32,10 @@
         <Button
             class="app-title-display"
             type="button"
-            aria-label={APP_SHORT_DISPLAY_NAME}
+            aria-label={APP_DISPLAY_NAME}
             on:click={() => onClick?.()}
         >
-            {APP_SHORT_DISPLAY_NAME}
+            {APP_DISPLAY_NAME}
         </Button>
     </div>
 {/if}

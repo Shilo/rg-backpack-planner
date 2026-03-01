@@ -1,7 +1,7 @@
 {
     "name": "backpack-planner",
     "version": "0.1.4",
-    "displayName": "Backpack Planner - Run! Goddess",
+    "displayName": "Backpack Planner",
     "description": "Plan and share Backpack Tech builds.",
     "app": {
         "sourceUrl": "https://github.com/shilo/rg-backpack-planner",

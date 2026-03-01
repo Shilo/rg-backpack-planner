@@ -12,7 +12,7 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { APP_DISPLAY_NAME } from "./lib/appInfo";
+    import { APP_DISPLAY_NAME_FULL } from "./lib/appInfo";
     import {
         treeLevels,
         sumLevels,
@@ -352,7 +352,7 @@
     onMount(() => {
         ensureInstallListeners();
 
-        document.title = APP_DISPLAY_NAME;
+        document.title = APP_DISPLAY_NAME_FULL;
 
         // Global hotkey: F9 to share build as image
         const handleKeyDown = (e: KeyboardEvent) => {
