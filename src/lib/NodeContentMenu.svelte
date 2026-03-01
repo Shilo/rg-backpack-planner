@@ -15,7 +15,8 @@
     import ContextMenu from "./ContextMenu.svelte";
     import { formatNumber } from "./mathUtil";
     import { tierSize } from "./tierLeveling";
-    import type { Node, NodeIndex } from "../types/tree";
+    import type { Node, NodeIndex, SkillId } from "../types/tree";
+    import { getSkillLevelInfo, SKILL_METADATA } from "../config/skillMetadata";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -31,7 +32,20 @@
     export let level: number = 0;
     export let maxLevel: number = 0;
     export let state: "locked" | "available" | "active" | "maxed" = "locked";
-    export let skillId: string | null = null;
+    export let skillId: SkillId | null = null;
+
+    function formatBonusValue(v: number): string {
+        if (v === 0) return "0";
+        if (Number.isInteger(v)) return formatNumber(v);
+        return String(parseFloat(v.toPrecision(3)));
+    }
+
+    $: levelInfo =
+        skillId !== null
+            ? getSkillLevelInfo(skillId, level, maxLevel)
+            : null;
+    $: description =
+        skillId !== null ? SKILL_METADATA[skillId].description : "";
 
     $: isSingleLevel = maxLevel <= 1;
 
@@ -85,10 +99,29 @@
             <svelte:component this={NodeIcon} />
         </div>
         <div class="node-stats-content">
-            <div class="stat-row">
-                <span class="stat-label">Bonus</span>
-                <span class="stat-value">30,000%</span>
-            </div>
+            {#if description}
+                <p class="skill-description">{description}</p>
+            {/if}
+            {#if levelInfo}
+                <div class="stat-row">
+                    <span class="stat-label">Bonus</span>
+                    <span class="stat-value">
+                        {formatBonusValue(levelInfo.totalValue)}{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(levelInfo.nextTotalValue)}{/if}
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Next Level Cost</span>
+                    <span class="stat-value">
+                        {levelInfo.costToNextLevel !== null
+                            ? formatNumber(levelInfo.costToNextLevel)
+                            : "MAX"}
+                    </span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Spent</span>
+                    <span class="stat-value">{formatNumber(levelInfo.totalCostSpent)}</span>
+                </div>
+            {/if}
             <div class="stat-row">
                 <span class="stat-label">Level</span>
                 <span class="stat-value"
@@ -224,6 +257,13 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
+    }
+
+    .skill-description {
+        margin: 0;
+        font-size: var(--font-sm);
+        color: var(--text-muted);
+        line-height: 1.4;
     }
 
     .stat-row {
