@@ -190,7 +190,17 @@ This project uses the following third-party assets:
 
 * **[250 Sci-fi Flat Icons](https://katgrabowska.itch.io/250-sci-fi-flat-icons)** by [KatGrabowska](https://katgrabowska.itch.io/) (Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)). Original icons were converted to SVG format and resized for this project.
 
-## Deployment Notes
+## Deployment
+
+The app deploys to GitHub Pages automatically on every push to `main` via the `.github/workflows/static.yml` workflow. If deploys aren't working, check the following:
+
+1. In your repo go to **Settings → Pages → Build and deployment** and set the **Source** to **GitHub Actions** (not "Deploy from a branch").
+2. Go to **Settings → Actions → General → Workflow permissions** and select **Read and write permissions**.
+3. Push to `main` to trigger a deploy.
+
+The workflow bumps the app version, builds, deploys to Pages, and commits the version bump back to `main`.
+
+### Notes
 
 - The deployed base path is `/rg-backpack-planner/`.
 - `npm run build` copies `index.html` to `404.html` so GitHub Pages can route SPA URLs correctly.

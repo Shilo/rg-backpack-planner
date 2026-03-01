@@ -28,13 +28,9 @@
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { getOSName } from "../systemUtil";
+    import { APP_SHORT_DISPLAY_NAME } from "../appInfo";
 
-    const appName = packageInfo.name;
     const appDescription = packageInfo.description ?? "";
-    const appVersion = packageInfo.version ?? "";
-    const appTitleWithVersion = appVersion
-        ? `${appName} v${appVersion}`
-        : (appName ?? "");
     const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
         | string
         | undefined;
@@ -191,7 +187,7 @@
 
 <div class="controls-page">
     <div class="controls-sections">
-        <SideMenuSection title={appTitleWithVersion}>
+        <SideMenuSection title={APP_SHORT_DISPLAY_NAME}>
             <div class="app-info-actions">
                 <div class="control-row">
                     <span class="control-icon" aria-hidden="true">

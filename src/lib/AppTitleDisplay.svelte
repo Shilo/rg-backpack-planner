@@ -1,17 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import packageInfo from "../../package.json";
     import Button from "./Button.svelte";
+    import { APP_SHORT_DISPLAY_NAME } from "./appInfo";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
 
     let hideForever = false;
     $: if (isMenuOpen) hideForever = true;
-
-    const title = packageInfo.name;
-    const version = packageInfo.version ?? "";
-    const titleWithVersion = version ? `${title} v${version}` : title;
 
     let wrapperElement: HTMLDivElement;
 
@@ -36,10 +32,10 @@
         <Button
             class="app-title-display"
             type="button"
-            aria-label={titleWithVersion}
+            aria-label={APP_SHORT_DISPLAY_NAME}
             on:click={() => onClick?.()}
         >
-            {titleWithVersion}
+            {APP_SHORT_DISPLAY_NAME}
         </Button>
     </div>
 {/if}
