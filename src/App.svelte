@@ -21,6 +21,8 @@
     import {
         isNewVersion,
         markVersionAsSeen,
+        getStoredVersion,
+        getCurrentVersion,
     } from "./lib/latestUsedVersionStore";
     import {
         getActiveTab,
@@ -91,6 +93,7 @@
     }
 
     // Check if we should show controls tab on initial load
+    const previousVersion = getStoredVersion();
     const shouldShowControls = (() => {
         const isNew = isNewVersion();
         if (isNew) {
@@ -360,12 +363,18 @@
         };
         window.addEventListener("keydown", handleKeyDown);
 
+        let hasRunVersionCheck = false;
+
         async function runInitialization() {
             await initializeFromUrl();
 
             // New-version controls behavior is tied to initial load, not history navigation
-            if (shouldShowControls) {
+            if (shouldShowControls && !hasRunVersionCheck) {
+                hasRunVersionCheck = true;
                 markVersionAsSeen();
+                if (previousVersion) {
+                    showToastDelayed(`Updated to v${getCurrentVersion()}`);
+                }
                 await tick();
                 // Ensure controls tab is active (backup in case component initialized before localStorage was set)
                 // Don't persist this change since it's for new version notification

@@ -100,12 +100,12 @@
     }
 
     async function handleReloadWindow() {
-        if (typeof window === "undefined") return;
-        // Unregister service workers so reload fetches fresh assets (fixes stale PWA cache)
         if ("serviceWorker" in navigator) {
-            const registrations =
-                await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map((reg) => reg.unregister()));
+            const registration =
+                await navigator.serviceWorker.getRegistration();
+            if (registration) {
+                await registration.update();
+            }
         }
         window.location.reload();
     }
