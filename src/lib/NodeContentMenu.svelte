@@ -25,6 +25,7 @@
     export let onMax: ((index: NodeIndex) => void) | null = null;
     export let onReset: ((index: NodeIndex) => void) | null = null;
     export let onDecrement: ((index: NodeIndex) => void) | null = null;
+    export let onDecrementBy10: ((index: NodeIndex) => void) | null = null;
     export let onIncrement: ((index: NodeIndex) => void) | null = null;
     export let onIncrementBy10: ((index: NodeIndex) => void) | null = null;
     export let level: number = 0;
@@ -166,8 +167,8 @@
         {#if !isSingleLevel}
             <Button
                 on:click={() => {
-                    if (nodeIndex === null || !onDecrement) return;
-                    for (let i = 0; i < 10; i++) onDecrement(nodeIndex);
+                    if (nodeIndex === null || !onDecrementBy10) return;
+                    onDecrementBy10(nodeIndex);
                 }}
                 disabled={nodeIndex === null || level <= 0}
                 icon={CaretDoubleDownIcon}
