@@ -1,4 +1,11 @@
 import type { SkillId } from "../types/tree";
+import {
+    statTotalValue,
+    globalTotalValue,
+    dodgeTotalValue,
+    skillTypeTotalValue,
+    finalDamageTotalValue,
+} from "./skillValueFns";
 
 export type SkillMetadata = {
     name: string;
@@ -57,33 +64,8 @@ const COSTS_50: readonly number[] = [
     4549, 4958, 5404, 5890, 6420, 6997, 7626, 8312, 9060, 9875,
 ];
 
-// ---------------------------------------------------------------------------
-// Value computation helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Cumulative bonus value for hp_boost / attack_boost / defense_boost.
- * 5 tiers of 20 levels each; bonus per level: +5, +10, +15, +20, +25.
- */
-function statTotalValue(level: number): number {
-    if (level <= 0) return 0;
-    const tier = Math.min(Math.floor((level - 1) / 20), 4);
-    const tierBases = [0, 100, 300, 600, 1000] as const;
-    const tierIncrements = [5, 10, 15, 20, 25] as const;
-    return tierBases[tier] + (level - tier * 20) * tierIncrements[tier];
-}
-
-/**
- * Cumulative bonus value for global_atk / global_def / global_hp.
- * 5 tiers of 10 levels each; bonus per level: +0.2, +0.4, +0.6, +0.8, +1.0.
- */
-function globalTotalValue(level: number): number {
-    if (level <= 0) return 0;
-    const tier = Math.min(Math.floor((level - 1) / 10), 4);
-    const tierBases = [0, 2, 6, 12, 20] as const;
-    const tierIncrements = [0.2, 0.4, 0.6, 0.8, 1.0] as const;
-    return tierBases[tier] + (level - tier * 10) * tierIncrements[tier];
-}
+/** Cost for final_damage_boost (maxLevel 1, one-time unlock). */
+const COSTS_FINAL: readonly number[] = [1000];
 
 // ---------------------------------------------------------------------------
 // Skill metadata registry
@@ -110,74 +92,74 @@ export const SKILL_METADATA: Record<SkillId, SkillMetadata> = {
         getTotalValue: statTotalValue,
     },
 
-    // --- Utility skill nodes (dodge-type, value = level × 0.001) ---
+    // --- Utility skill nodes (dodge-type) ---
     dodge: {
         name: "Dodge",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.001,
+        getTotalValue: dodgeTotalValue,
     },
     ignore_dodge: {
         name: "Ignore Dodge",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.001,
+        getTotalValue: dodgeTotalValue,
     },
 
-    // --- Class-specific skill nodes (value = level × 0.04) ---
+    // --- Class-specific skill nodes ---
     stun: {
         name: "Stun",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     pierce_resistance: {
         name: "Pierce Resistance",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     skill_crit: {
         name: "Skill Crit",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     pierce_damage: {
         name: "Pierce Damage",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     counterattack_resistance: {
         name: "Counterattack Resistance",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     critical_hit: {
         name: "Critical Hit",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     damage_reflection_chance: {
         name: "Damage Reflection Chance",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     ignore_stun: {
         name: "Ignore Stun",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
     skill_crit_resistance: {
         name: "Skill Crit Resistance",
         description: "",
         costs: COSTS_100_SKILL,
-        getTotalValue: (level) => level * 0.04,
+        getTotalValue: skillTypeTotalValue,
     },
 
     // --- Global bonus nodes (tiered value, maxLevel 50) ---
@@ -204,8 +186,8 @@ export const SKILL_METADATA: Record<SkillId, SkillMetadata> = {
     final_damage_boost: {
         name: "Final Damage Boost",
         description: "",
-        costs: [1000],
-        getTotalValue: (level) => (level > 0 ? 0.2 : 0),
+        costs: COSTS_FINAL,
+        getTotalValue: finalDamageTotalValue,
     },
 };
 
@@ -216,9 +198,9 @@ export const SKILL_METADATA: Record<SkillId, SkillMetadata> = {
 /**
  * Returns cost and value information for a skill at its current level.
  *
- * @param skillId    The skill to look up.
- * @param currentLevel  The node's current level (0 = not yet purchased).
- * @param maxLevel   The node's maximum level cap.
+ * @param skillId      The skill to look up.
+ * @param currentLevel The node's current level (0 = not yet purchased).
+ * @param maxLevel     The node's maximum level cap.
  */
 export function getSkillLevelInfo(
     skillId: SkillId,
