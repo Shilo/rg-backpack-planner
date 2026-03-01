@@ -106,7 +106,7 @@
                 <div class="stat-row">
                     <span class="stat-label">Bonus</span>
                     <span class="stat-value">
-                        {formatBonusValue(levelInfo.totalValue)}{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(levelInfo.nextTotalValue)}{/if}
+                        {formatBonusValue(levelInfo.totalValue * 100)}%{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(levelInfo.nextTotalValue * 100)}%{/if}
                     </span>
                 </div>
                 <div class="stat-row">
