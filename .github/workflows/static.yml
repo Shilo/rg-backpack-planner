@@ -37,7 +37,7 @@ jobs:
       - name: Bump version
         run: node scripts/bump-version.cjs
         env:
-          MAX_REVISION: "99"
+          MAX_REVISION: "19"
           MAX_MINOR: "9"
 
       - name: Build
