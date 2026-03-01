@@ -16,7 +16,6 @@
         techCrystalsSpentCannon,
     } from "../techCrystalStore";
     import { t } from "svelte-whisper";
-    import { getTreeLabel } from "../i18n";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<[string, string]> = [];
@@ -31,14 +30,14 @@
             [$t("statistics.finalDamageBoost"), $t("statistics.finalDamageBoostValue")],
             [$t("statistics.backpackNodeLevels"), ""],
             [$t("statistics.total"), formatNumber($treeLevelsTotal)],
-            [getTreeLabel("guardian"), formatNumber($treeLevelsGuardian)],
-            [getTreeLabel("vanguard"), formatNumber($treeLevelsVanguard)],
-            [getTreeLabel("cannon"), formatNumber($treeLevelsCannon)],
+            [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],
+            [$t("trees.vanguard"), formatNumber($treeLevelsVanguard)],
+            [$t("trees.cannon"), formatNumber($treeLevelsCannon)],
             [$t("statistics.techCrystalsSpent"), ""],
             [$t("statistics.total"), formatNumber($techCrystalsSpent)],
-            [getTreeLabel("guardian"), formatNumber($techCrystalsSpentGuardian)],
-            [getTreeLabel("vanguard"), formatNumber($techCrystalsSpentVanguard)],
-            [getTreeLabel("cannon"), formatNumber($techCrystalsSpentCannon)],
+            [$t("trees.guardian"), formatNumber($techCrystalsSpentGuardian)],
+            [$t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard)],
+            [$t("trees.cannon"), formatNumber($techCrystalsSpentCannon)],
         ];
     }
 </script>

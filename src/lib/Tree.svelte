@@ -28,7 +28,6 @@
     import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { t } from "svelte-whisper";
-    import { getSkillLabel } from "./i18n";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -861,7 +860,7 @@
                         id={i}
                         x={node.x}
                         y={node.y}
-                        label={getSkillLabel(node.skillId)}
+                        label={$t(`skills.${node.skillId}`)}
                         {level}
                         {state}
                         tier={tier}

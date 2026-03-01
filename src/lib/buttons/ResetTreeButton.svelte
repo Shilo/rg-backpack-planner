@@ -6,7 +6,6 @@
     import { sumLevels } from "../treeLevelsStore";
     import type { LevelsByIndex } from "../../types/tree";
     import { t } from "svelte-whisper";
-    import { getTreeName } from "../i18n";
 
     export let onReset: (() => void) | null = null;
     export let onPress: (() => void) | null = null;
@@ -16,7 +15,9 @@
     $: totalLevels = levelsById ? sumLevels(levelsById) : null;
     $: disabled = !onReset || (totalLevels !== null && totalLevels === 0);
     $: trimmedTreeLabel = treeLabel.trim();
-    $: treeName = getTreeName(trimmedTreeLabel);
+    $: treeName = trimmedTreeLabel
+        ? $t("trees.named", { label: trimmedTreeLabel })
+        : $t("trees.generic");
     $: modalTitle = trimmedTreeLabel
         ? $t("modal.resetTree.title", { treeName })
         : $t("modal.resetTree.titleDefault");

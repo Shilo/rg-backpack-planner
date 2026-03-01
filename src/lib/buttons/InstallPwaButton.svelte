@@ -91,7 +91,7 @@
     import { DownloadSimpleIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../haptics";
-    import { getOSName } from "../systemUtil";
+    import { getOSNameKey } from "../systemUtil";
     import { t } from "svelte-whisper";
 
     export let className = "";
@@ -100,7 +100,9 @@
     let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
     let canInstall = false;
     let isInstalled = false;
+    const osNameKey = getOSNameKey();
     $: appName = $t("app.name");
+    $: osName = $t(`os.${osNameKey}`);
 
     function updateLocalState(state: InstallState) {
         deferredInstallPrompt = state.deferredInstallPrompt;
@@ -126,7 +128,6 @@
 </script>
 
 {#if canInstall && !isInstalled}
-    {@const osName = getOSName()}
     <Button
         class={className}
         on:click={handleInstallClick}

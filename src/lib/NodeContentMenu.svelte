@@ -16,9 +16,7 @@
     import { formatNumber } from "./mathUtil";
     import { tierSize } from "./tierLeveling";
     import type { Node, NodeIndex } from "../types/tree";
-    import type { SkillId } from "../types/tree";
     import { t } from "svelte-whisper";
-    import { getSkillLabel } from "./i18n";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -79,7 +77,7 @@
     {x}
     {y}
     {isOpen}
-    title={skillId ? getSkillLabel(skillId as SkillId) : $t("contextMenu.nodeTitle")}
+    title={skillId ? $t(`skills.${skillId}`) : $t("contextMenu.nodeTitle")}
     ariaLabel={$t("contextMenu.nodeActions")}
     {onClose}
 >

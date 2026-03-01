@@ -3,14 +3,15 @@
     import Button from "./Button.svelte";
     import { openModal } from "./modalStore";
     import { t } from "svelte-whisper";
-    import { getTreeName } from "./i18n";
 
     export let onReset: (() => void) | null = null;
     export let treeLabel = "";
     export let canReset = false;
 
     $: trimmedTreeLabel = treeLabel.trim();
-    $: treeName = getTreeName(trimmedTreeLabel);
+    $: treeName = trimmedTreeLabel
+        ? $t("trees.named", { label: trimmedTreeLabel })
+        : $t("trees.generic");
     $: modalTitle = trimmedTreeLabel
         ? $t("modal.resetTree.titleQuestion", { treeName })
         : $t("modal.resetTree.titleDefaultQuestion");
