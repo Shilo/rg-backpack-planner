@@ -415,7 +415,6 @@
         "controlsTabInstallDescription": "在 {osName} 上安装渐进式网页应用（PWA）"
     },
     "install": {
-        "fallbackAppName": "应用",
         "ariaTooltip": "在 {osName} 上安装 {appName} 应用",
         "buttonLabel": "在 {osName} 上安装应用"
     },
@@ -423,13 +422,5 @@
         "copied": "已复制",
         "unableToCopy": "无法复制",
         "updatedVersionToast": "已更新到 v{version}"
-    },
-    "os": {
-        "device": "设备",
-        "ios": "iOS",
-        "android": "Android",
-        "windows": "Windows",
-        "macos": "macOS",
-        "linux": "Linux"
     }
 }

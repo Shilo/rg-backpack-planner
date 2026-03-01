@@ -415,7 +415,6 @@
         "controlsTabInstallDescription": "Install the Progressive Web App (PWA) on {osName}"
     },
     "install": {
-        "fallbackAppName": "app",
         "ariaTooltip": "Install {appName} app on {osName}",
         "buttonLabel": "Install app on {osName}"
     },
@@ -423,13 +422,5 @@
         "copied": "Copied",
         "unableToCopy": "Unable to copy",
         "updatedVersionToast": "Updated to v{version}"
-    },
-    "os": {
-        "device": "Device",
-        "ios": "iOS",
-        "android": "Android",
-        "windows": "Windows",
-        "macos": "macOS",
-        "linux": "Linux"
     }
 }

@@ -415,7 +415,6 @@
         "controlsTabInstallDescription": "{osName}にProgressive Web App（PWA）をインストール"
     },
     "install": {
-        "fallbackAppName": "アプリ",
         "ariaTooltip": "{osName}に{appName}アプリをインストール",
         "buttonLabel": "{osName}にアプリをインストール"
     },
@@ -423,13 +422,5 @@
         "copied": "コピーしました",
         "unableToCopy": "コピーできませんでした",
         "updatedVersionToast": "v{version}に更新しました"
-    },
-    "os": {
-        "device": "デバイス",
-        "ios": "iOS",
-        "android": "Android",
-        "windows": "Windows",
-        "macos": "macOS",
-        "linux": "Linux"
     }
 }

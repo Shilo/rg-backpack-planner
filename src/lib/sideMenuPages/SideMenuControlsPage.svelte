@@ -27,12 +27,12 @@
     import AppIcon from "../icons/AppIcon.svelte";
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
-    import { getOSNameKey } from "../systemUtil";
+    import { getOSName } from "../systemUtil";
     import { t } from "svelte-whisper";
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
     const version = getCurrentVersion();
-    const osNameKey = getOSNameKey();
+    const osName = getOSName();
     const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
         | string
         | undefined;
@@ -56,7 +56,6 @@
             : "";
     $: appName = $t("app.name");
     $: versionLabel = version === "unknown" ? "" : `v${version}`;
-    $: osName = $t(`os.${osNameKey}`);
     $: appSectionTitle =
         versionLabel.length > 0
             ? $t("app.titleWithVersion", { appName, version: versionLabel })

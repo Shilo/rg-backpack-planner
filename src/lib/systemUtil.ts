@@ -1,5 +1,3 @@
-import { tr } from "./i18n";
-
 export type OSNameKey =
     | "device"
     | "ios"
@@ -8,9 +6,17 @@ export type OSNameKey =
     | "macos"
     | "linux";
 
+const OS_DISPLAY_NAME: Record<OSNameKey, string> = {
+    device: "Device",
+    ios: "iOS",
+    android: "Android",
+    windows: "Windows",
+    macos: "macOS",
+    linux: "Linux",
+};
+
 /**
- * Detects the operating system name from the browser's user agent and platform.
- * @returns Localized OS name key.
+ * Detects the operating system name key from the browser's user agent and platform.
  */
 export function getOSNameKey(): OSNameKey {
     if (typeof window === "undefined" || typeof navigator === "undefined") {
@@ -48,8 +54,8 @@ export function getOSNameKey(): OSNameKey {
 }
 
 /**
- * Returns localized OS display name.
+ * Returns static OS display name.
  */
 export function getOSName(): string {
-    return tr(`os.${getOSNameKey()}`);
+    return OS_DISPLAY_NAME[getOSNameKey()];
 }
