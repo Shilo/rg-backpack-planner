@@ -66,17 +66,6 @@ const COSTS_50: readonly number[] = [
 const COSTS_FINAL: readonly number[] = [1000];
 
 // ---------------------------------------------------------------------------
-// Localization key helpers
-// ---------------------------------------------------------------------------
-
-export const SKILL_DESC_SUFFIX = "_DESC" as const;
-
-/** Returns the localization key for a skill's description. */
-export function getSkillDescKey(skillId: SkillId): string {
-    return skillId + SKILL_DESC_SUFFIX;
-}
-
-// ---------------------------------------------------------------------------
 // Skill metadata registry
 // ---------------------------------------------------------------------------
 
@@ -163,6 +152,17 @@ export const SKILL_METADATA: Record<SkillId, SkillMetadata> = {
         getTotalValue: finalDamageTotalValue,
     },
 };
+
+// ---------------------------------------------------------------------------
+// Localization key helpers
+// ---------------------------------------------------------------------------
+
+export const SKILL_DESC_SUFFIX = "_DESC" as const;
+
+/** Returns the localization key for a skill's description. */
+export function getSkillDescKey(skillId: SkillId): string {
+    return skillId + SKILL_DESC_SUFFIX;
+}
 
 // ---------------------------------------------------------------------------
 // Public lookup utility
