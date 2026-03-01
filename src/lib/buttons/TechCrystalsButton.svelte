@@ -9,8 +9,10 @@
         techCrystalsFromActivePreset,
     } from "../techCrystalStore";
 
+    const DEFAULT_TOOLTIP_SUBJECT = "your";
+
     export let disabled: boolean | undefined = false;
-    export let tooltipSubject: string = "your";
+    export let tooltipSubject: string = DEFAULT_TOOLTIP_SUBJECT;
 
     // When disabled (preview mode), read from active preset's stored buildCode
     // When enabled (personal mode), use reactive stores
@@ -25,7 +27,12 @@
 
 <Button
     on:click={() => {
-        openTechCrystalsOwnedModal(owned, tooltipSubject);
+        openTechCrystalsOwnedModal(
+            owned,
+            tooltipSubject !== DEFAULT_TOOLTIP_SUBJECT
+                ? tooltipSubject
+                : undefined,
+        );
     }}
     tooltipText={`Change ${tooltipSubject} Tech Crystal owned (budget)`}
     icon={HexagonIcon}
