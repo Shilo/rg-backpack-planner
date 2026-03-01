@@ -25,3 +25,11 @@
 - If `public/icon.svg` changes, rerun `npm run pwa:assets`.
 - When I ask you to commit, use only `npm test` by default. Do not run `npm run test:ui:tier` unless I explicitly request it.
 - In Codex, cite sources as plain `path:line` text, not Markdown file links.
+
+## Cursor Cloud specific instructions
+
+- **Single service**: This is a client-only Svelte 5 + Vite PWA with no backend or database. `npm run dev` is all that's needed.
+- **Dev URL**: The Vite dev server listens on `http://localhost:5173/rg-backpack-planner/` (note the base path).
+- **Lint/check**: `npm run check` runs `svelte-check` + `tsc`. There is no separate ESLint config.
+- **Tests**: `npm test` runs type checks then `tsx test/index.ts`. Per repo convention, do not run `npm run test:ui:tier` unless explicitly asked.
+- **Build**: `npm run build` produces `dist/` and copies `index.html` to `404.html` for SPA routing on GitHub Pages.
