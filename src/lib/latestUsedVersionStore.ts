@@ -4,7 +4,7 @@ import packageInfo from "../../package.json";
 const STORAGE_KEY = "rg-backpack-planner-latest-used-version";
 const currentVersion = packageInfo.version ?? "unknown";
 
-function getStoredVersion(): string | null {
+export function getStoredVersion(): string | null {
     if (typeof window === "undefined") return null;
     try {
         return localStorage.getItem(STORAGE_KEY);

@@ -10,6 +10,13 @@ const app = mount(App, {
     target: document.getElementById("app")!,
 });
 
+// Auto-reload when a new service worker takes control (e.g., after a deploy)
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        window.location.reload();
+    });
+}
+
 const handleGlobalContextMenu = (event: MouseEvent) => {
     const target = event.target as HTMLElement | null;
     if (
