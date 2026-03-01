@@ -139,7 +139,7 @@ The app deploys to GitHub Pages automatically on every push to `main` via the `.
 
 1. In your repo go to **Settings → Pages → Build and deployment** and set the **Source** to **GitHub Actions** (not "Deploy from a branch").
 2. Go to **Settings → Actions → General → Workflow permissions** and select **Read and write permissions**.
-3. Push to `main` (or trigger the workflow manually from **Actions → Deploy Vite app to Pages → Run workflow**).
+3. Push to `main` to trigger a deploy.
 
 The workflow bumps the app version, builds, deploys to Pages, and commits the version bump back to `main`.
 
