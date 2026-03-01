@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { readLocalStorage, writeLocalStorage } from "./storage";
 
 export type SideMenuTab = "statistics" | "settings" | "controls";
 
@@ -10,25 +11,15 @@ function isValidTab(tab: string): tab is SideMenuTab {
 }
 
 function getStoredActiveTab(): SideMenuTab {
-    if (typeof window === "undefined") return DEFAULT_TAB;
-    try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored && isValidTab(stored)) {
-            return stored;
-        }
-    } catch {
-        // localStorage not available, use default
+    const stored = readLocalStorage(STORAGE_KEY);
+    if (stored && isValidTab(stored)) {
+        return stored;
     }
     return DEFAULT_TAB;
 }
 
 function setStoredActiveTab(tab: SideMenuTab): void {
-    if (typeof window === "undefined") return;
-    try {
-        localStorage.setItem(STORAGE_KEY, tab);
-    } catch {
-        // localStorage not available
-    }
+    writeLocalStorage(STORAGE_KEY, tab);
 }
 
 // Create writable store that syncs with localStorage

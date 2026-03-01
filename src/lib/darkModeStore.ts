@@ -1,4 +1,9 @@
 import { writable } from "svelte/store";
+import {
+    readLocalStorage,
+    writeLocalStorage,
+    removeLocalStorage,
+} from "./storage";
 
 const STORAGE_KEY = "rg-backpack-planner-dark-mode";
 
@@ -6,15 +11,13 @@ const STORAGE_KEY = "rg-backpack-planner-dark-mode";
 const DEFAULT_DARK_MODE = true;
 
 function getDarkMode(): boolean {
-    if (typeof window === "undefined") return DEFAULT_DARK_MODE;
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readLocalStorage(STORAGE_KEY);
     if (stored === null) return DEFAULT_DARK_MODE;
     return stored === "true";
 }
 
 function setDarkMode(value: boolean) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, value.toString());
+    writeLocalStorage(STORAGE_KEY, value.toString());
 }
 
 function createDarkModeStore() {
@@ -27,8 +30,7 @@ function createDarkModeStore() {
             set(value);
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
-            localStorage.removeItem(STORAGE_KEY);
+            removeLocalStorage(STORAGE_KEY);
             setDarkMode(DEFAULT_DARK_MODE);
             set(DEFAULT_DARK_MODE);
         },

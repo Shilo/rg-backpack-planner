@@ -1,4 +1,9 @@
 import { writable } from "svelte/store";
+import {
+    readLocalStorage,
+    writeLocalStorage,
+    removeLocalStorage,
+} from "./storage";
 
 export interface ThemeColor {
     h: number;
@@ -12,8 +17,7 @@ const STORAGE_KEY = "rg-backpack-planner-theme-color";
 const DEFAULT_THEME_COLOR: ThemeColor = { h: 264, c: 0.19 };
 
 function getThemeColor(): ThemeColor {
-    if (typeof window === "undefined") return DEFAULT_THEME_COLOR;
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readLocalStorage(STORAGE_KEY);
     if (stored === null) return DEFAULT_THEME_COLOR;
     try {
         const parsed = JSON.parse(stored);
@@ -38,8 +42,7 @@ function getThemeColor(): ThemeColor {
 }
 
 function setThemeColor(value: ThemeColor) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    writeLocalStorage(STORAGE_KEY, JSON.stringify(value));
 }
 
 function createThemeColorStore() {
@@ -52,8 +55,7 @@ function createThemeColorStore() {
             set(value);
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
-            localStorage.removeItem(STORAGE_KEY);
+            removeLocalStorage(STORAGE_KEY);
             setThemeColor(DEFAULT_THEME_COLOR);
             set(DEFAULT_THEME_COLOR);
         },

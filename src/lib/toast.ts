@@ -1,6 +1,11 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
 import { DEFAULT_PRESET_NAME } from "./buildPresetsStore";
+import {
+    readSessionStorage,
+    writeSessionStorage,
+    removeSessionStorage,
+} from "./storage";
 
 export type ToastTone = "positive" | "negative";
 
@@ -66,12 +71,10 @@ export function checkSessionStorageAndShowToast(
     sessionStorageKey: string,
     toastMessage: (value: string) => string,
 ): boolean {
-    if (typeof window === "undefined") return false;
-
-    const value = sessionStorage.getItem(sessionStorageKey);
+    const value = readSessionStorage(sessionStorageKey);
     if (value === null) return false;
 
-    sessionStorage.removeItem(sessionStorageKey);
+    removeSessionStorage(sessionStorageKey);
     showToastDelayed(toastMessage(value));
     return true;
 }
@@ -109,8 +112,7 @@ export function tryShowClonedBuildToast(): boolean {
  * Sets a flag in sessionStorage that will be checked after reload.
  */
 export function queueStoppedPreviewToast(): void {
-    if (typeof window === "undefined") return;
-    sessionStorage.setItem(STOPPED_PREVIEW_KEY, true.toString());
+    writeSessionStorage(STOPPED_PREVIEW_KEY, true.toString());
 }
 
 /**
@@ -119,6 +121,5 @@ export function queueStoppedPreviewToast(): void {
  * @param previewName The name of the preview build that was cloned (or empty string if not available)
  */
 export function queueClonedBuildToast(previewName: string = ""): void {
-    if (typeof window === "undefined") return;
-    sessionStorage.setItem(CLONED_BUILD_KEY, previewName);
+    writeSessionStorage(CLONED_BUILD_KEY, previewName);
 }

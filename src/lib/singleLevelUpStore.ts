@@ -1,4 +1,9 @@
 import { writable } from "svelte/store";
+import {
+    readLocalStorage,
+    writeLocalStorage,
+    removeLocalStorage,
+} from "./storage";
 
 const STORAGE_KEY = "rg-backpack-planner-single-level-up";
 
@@ -6,14 +11,12 @@ const STORAGE_KEY = "rg-backpack-planner-single-level-up";
 const DEFAULT_SINGLE_LEVEL_UP = false;
 
 function getSingleLevelUp(): boolean {
-    if (typeof window === "undefined") return DEFAULT_SINGLE_LEVEL_UP;
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readLocalStorage(STORAGE_KEY);
     return stored === "true" ? true : DEFAULT_SINGLE_LEVEL_UP;
 }
 
 function setSingleLevelUp(value: boolean) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, value.toString());
+    writeLocalStorage(STORAGE_KEY, value.toString());
 }
 
 function createSingleLevelUpStore() {
@@ -26,8 +29,7 @@ function createSingleLevelUpStore() {
             set(value);
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
-            localStorage.removeItem(STORAGE_KEY);
+            removeLocalStorage(STORAGE_KEY);
             setSingleLevelUp(DEFAULT_SINGLE_LEVEL_UP);
             set(DEFAULT_SINGLE_LEVEL_UP);
         },

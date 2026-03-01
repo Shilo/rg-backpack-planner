@@ -326,11 +326,22 @@
             tryShowStoppedPreviewToast(activePreset?.name);
             tryShowClonedBuildToast();
 
+            const fallbackBuildData: BuildData = {
+                trees: tabs.map(() => []),
+                owned: 0,
+            };
             if (activePreset) {
                 const buildData = decodeBuildData(activePreset.buildCode);
-                if (buildData) {
+                if (!buildData) {
+                    applyBuildData(tabs, fallbackBuildData);
+                    updateActivePresetBuildCode(
+                        encodeBuildData(fallbackBuildData),
+                    );
+                } else {
                     applyBuildData(tabs, buildData);
                 }
+            } else {
+                applyBuildData(tabs, fallbackBuildData);
             }
 
             // Persist personal mode changes to active preset (subscribe to treeLevels and techCrystalsOwned)

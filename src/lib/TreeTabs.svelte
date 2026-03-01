@@ -61,7 +61,7 @@
         x: number;
         y: number;
         index: number;
-        hideView0ptions: boolean;
+        hideViewOptions: boolean;
     } | null = null;
     let hasMounted = false;
     let lastActiveTabId = "";
@@ -186,7 +186,7 @@
                 x: point.x,
                 y: point.y,
                 index,
-                hideView0ptions: true,
+                hideViewOptions: true,
             };
             return true;
         });
@@ -247,7 +247,7 @@
                 x: point.x,
                 y: point.y,
                 index: activeIndex,
-                hideView0ptions: false,
+                hideViewOptions: false,
             };
             treeRef?.cancelGestures?.();
             return true;
@@ -273,7 +273,7 @@
             x: event.clientX,
             y: event.clientY,
             index: activeIndex,
-            hideView0ptions: false,
+            hideViewOptions: false,
         };
         treeRef?.cancelGestures?.();
     }
@@ -308,7 +308,7 @@
             x: event.clientX,
             y: event.clientY,
             index,
-            hideView0ptions: true,
+            hideViewOptions: true,
         };
     }
 
@@ -462,7 +462,7 @@
                             x,
                             y,
                             index: activeIndex,
-                            hideView0ptions: false,
+                            hideViewOptions: false,
                         };
                         treeRef?.cancelGestures?.();
                     }}
@@ -488,7 +488,7 @@
         focusViewState={tabContextMenu?.index === activeIndex
             ? activeFocusViewState
             : null}
-        hideView0ptions={tabContextMenu?.hideView0ptions ?? false}
+        hideViewOptions={tabContextMenu?.hideViewOptions ?? false}
         onClose={closeTabMenu}
         onFocusInView={focusTabInView}
         onReset={resetTabTree}

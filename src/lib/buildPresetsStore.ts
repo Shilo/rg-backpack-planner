@@ -4,7 +4,8 @@
  */
 
 import { writable, get, derived } from "svelte/store";
-import { encodeBuildData } from "./buildData/encoder";
+import { decodeBuildData, encodeBuildData } from "./buildData/encoder";
+import { readLocalStorage, writeLocalStorage } from "./storage";
 
 const STORAGE_KEY = "rg-backpack-planner-build-presets";
 
@@ -49,26 +50,38 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
     const presets = o.presets;
     if (typeof active !== "string" || !Array.isArray(presets)) return null;
     if (presets.length === 0) return null;
+
     const list: BuildPreset[] = [];
+    const ids = new Set<string>();
     for (const p of presets) {
-        if (!p || typeof p !== "object") return null;
+        if (!p || typeof p !== "object") continue;
         const q = p as Record<string, unknown>;
         if (
             typeof q.id !== "string" ||
             typeof q.name !== "string" ||
             typeof q.buildCode !== "string"
         )
-            return null;
-        list.push({ id: q.id, name: q.name, buildCode: q.buildCode });
+            continue;
+        if (ids.has(q.id)) continue;
+        if (!decodeBuildData(q.buildCode)) continue;
+
+        ids.add(q.id);
+        list.push({
+            id: q.id,
+            name: q.name.trim() || "Build",
+            buildCode: q.buildCode,
+        });
     }
-    if (!list.some((p) => p.id === active)) return null;
-    return { active, presets: list };
+    if (list.length === 0) return null;
+    const activeId = list.some((preset) => preset.id === active)
+        ? active
+        : list[0].id;
+    return { active: activeId, presets: list };
 }
 
 export function loadPresetsFromStorage(): BuildPresetsData {
-    if (typeof window === "undefined") return defaultPresetsData();
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = readLocalStorage(STORAGE_KEY);
         if (stored === null) return defaultPresetsData();
         const parsed = JSON.parse(stored) as unknown;
         const validated = validatePresetsData(parsed);
@@ -79,23 +92,9 @@ export function loadPresetsFromStorage(): BuildPresetsData {
 }
 
 export function savePresetsToStorage(data: BuildPresetsData): void {
-    if (typeof window === "undefined") return;
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-        if (
-            error instanceof DOMException &&
-            error.name === "QuotaExceededError"
-        ) {
-            console.warn(
-                "localStorage quota exceeded, unable to save build presets",
-            );
-        } else {
-            console.error(
-                "Failed to save build presets to localStorage:",
-                error,
-            );
-        }
+    const serialized = JSON.stringify(data);
+    if (!writeLocalStorage(STORAGE_KEY, serialized)) {
+        console.warn("Unable to save build presets to localStorage");
     }
 }
 
