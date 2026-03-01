@@ -8,8 +8,6 @@ import {
 } from "./skillValueFns";
 
 export type SkillMetadata = {
-    name: string;
-    description: string;
     /** Cost to upgrade from level i to i+1; costs[0] = cost to reach level 1. */
     costs: readonly number[];
     /** Cumulative bonus value at the given level (level 0 returns 0). */
@@ -68,124 +66,99 @@ const COSTS_50: readonly number[] = [
 const COSTS_FINAL: readonly number[] = [1000];
 
 // ---------------------------------------------------------------------------
+// Localization key helpers
+// ---------------------------------------------------------------------------
+
+export const SKILL_DESC_SUFFIX = "_DESC" as const;
+
+/** Returns the localization key for a skill's description. */
+export function getSkillDescKey(skillId: SkillId): string {
+    return skillId + SKILL_DESC_SUFFIX;
+}
+
+// ---------------------------------------------------------------------------
 // Skill metadata registry
 // ---------------------------------------------------------------------------
 
 export const SKILL_METADATA: Record<SkillId, SkillMetadata> = {
     // --- Shared stat nodes (identical cost curve, tiered value) ---
     hp_boost: {
-        name: "HP Boost",
-        description: "",
         costs: COSTS_100_STAT,
         getTotalValue: statTotalValue,
     },
     attack_boost: {
-        name: "Attack Boost",
-        description: "",
         costs: COSTS_100_STAT,
         getTotalValue: statTotalValue,
     },
     defense_boost: {
-        name: "Defense Boost",
-        description: "",
         costs: COSTS_100_STAT,
         getTotalValue: statTotalValue,
     },
 
     // --- Utility skill nodes (dodge-type) ---
     dodge: {
-        name: "Dodge",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: dodgeTotalValue,
     },
     ignore_dodge: {
-        name: "Ignore Dodge",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: dodgeTotalValue,
     },
 
     // --- Class-specific skill nodes ---
     stun: {
-        name: "Stun",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     pierce_resistance: {
-        name: "Pierce Resistance",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     skill_crit: {
-        name: "Skill Crit",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     pierce_damage: {
-        name: "Pierce Damage",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     counterattack_resistance: {
-        name: "Counterattack Resistance",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     critical_hit: {
-        name: "Critical Hit",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     damage_reflection_chance: {
-        name: "Damage Reflection Chance",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     ignore_stun: {
-        name: "Ignore Stun",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
     skill_crit_resistance: {
-        name: "Skill Crit Resistance",
-        description: "",
         costs: COSTS_100_SKILL,
         getTotalValue: skillTypeTotalValue,
     },
 
     // --- Global bonus nodes (tiered value, maxLevel 50) ---
     global_atk: {
-        name: "Global ATK",
-        description: "",
         costs: COSTS_50,
         getTotalValue: globalTotalValue,
     },
     global_def: {
-        name: "Global DEF",
-        description: "",
         costs: COSTS_50,
         getTotalValue: globalTotalValue,
     },
     global_hp: {
-        name: "Global HP",
-        description: "",
         costs: COSTS_50,
         getTotalValue: globalTotalValue,
     },
 
     // --- Ultimate node (maxLevel 1, one-time unlock) ---
     final_damage_boost: {
-        name: "Final Damage Boost",
-        description: "",
         costs: COSTS_FINAL,
         getTotalValue: finalDamageTotalValue,
     },

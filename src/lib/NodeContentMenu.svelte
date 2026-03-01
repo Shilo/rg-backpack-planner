@@ -16,7 +16,7 @@
     import { formatNumber } from "./mathUtil";
     import { tierSize } from "./tierLeveling";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
-    import { getSkillLevelInfo, SKILL_METADATA } from "../config/skillMetadata";
+    import { getSkillLevelInfo, getSkillDescKey } from "../config/skillMetadata";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -44,8 +44,7 @@
         skillId !== null
             ? getSkillLevelInfo(skillId, level, maxLevel)
             : null;
-    $: description =
-        skillId !== null ? SKILL_METADATA[skillId].description : "";
+    $: descKey = skillId !== null ? getSkillDescKey(skillId) : null;
 
     $: isSingleLevel = maxLevel <= 1;
 
@@ -99,8 +98,8 @@
             <svelte:component this={NodeIcon} />
         </div>
         <div class="node-stats-content">
-            {#if description}
-                <p class="skill-description">{description}</p>
+            {#if descKey}
+                <p class="skill-description">{descKey}</p>
             {/if}
             {#if levelInfo}
                 <div class="stat-row">
