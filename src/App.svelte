@@ -363,11 +363,14 @@
         };
         window.addEventListener("keydown", handleKeyDown);
 
+        let hasRunVersionCheck = false;
+
         async function runInitialization() {
             await initializeFromUrl();
 
             // New-version controls behavior is tied to initial load, not history navigation
-            if (shouldShowControls) {
+            if (shouldShowControls && !hasRunVersionCheck) {
+                hasRunVersionCheck = true;
                 markVersionAsSeen();
                 if (previousVersion) {
                     showToastDelayed(`Updated to v${getCurrentVersion()}`);

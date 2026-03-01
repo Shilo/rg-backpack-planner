@@ -10,10 +10,14 @@ const app = mount(App, {
     target: document.getElementById("app")!,
 });
 
-// Auto-reload when a new service worker takes control (e.g., after a deploy)
+// Auto-reload when a new service worker takes control (e.g., after a deploy).
+// Track the initial controller so we only reload on updates, not first install.
 if ("serviceWorker" in navigator) {
+    const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-        window.location.reload();
+        if (hadController) {
+            window.location.reload();
+        }
     });
 }
 
