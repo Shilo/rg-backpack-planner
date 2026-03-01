@@ -11,6 +11,16 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Preview",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "preview", "--", "--host"],
+            "preLaunchTask": "npm: build",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Test",
             "type": "node",
             "request": "launch",

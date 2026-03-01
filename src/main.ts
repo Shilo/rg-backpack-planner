@@ -2,6 +2,7 @@ import { mount } from "svelte";
 import "./theme.css";
 import "./app.css";
 import App from "./App.svelte";
+import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
 import { initThemeReactivity } from "./lib/themeApply";
 
 initThemeReactivity();
@@ -22,14 +23,10 @@ if ("serviceWorker" in navigator) {
 }
 
 const handleGlobalContextMenu = (event: MouseEvent) => {
-    const target = event.target as HTMLElement | null;
-    if (
-        target?.closest(
-            'input, textarea, [contenteditable="true"], [data-allow-native-contextmenu]',
-        )
-    ) {
+    if (!shouldPreventGlobalContextMenu(event.target, import.meta.env.DEV)) {
         return;
     }
+
     event.preventDefault();
 };
 

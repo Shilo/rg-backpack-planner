@@ -69,6 +69,16 @@ button {
     -webkit-user-select: none;
 }
 
+/* Keep native copy/paste and context-menu affordances on editable surfaces. */
+input,
+textarea,
+[contenteditable]:not([contenteditable="false"]),
+[data-allow-native-contextmenu] {
+    user-select: text;
+    -webkit-user-select: text;
+    -webkit-touch-callout: default;
+}
+
 * {
     scrollbar-color: var(--border-subtle) transparent;
     scrollbar-width: thin;
