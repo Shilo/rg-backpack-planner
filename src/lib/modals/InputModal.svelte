@@ -9,6 +9,7 @@
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
+    import { t } from "svelte-whisper";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -16,18 +17,21 @@
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
-    export let label = "Value";
+    export let label = "";
     export let value = 0;
     export let min = 0;
     export let step = 1;
-    export let confirmLabel = "Save";
-    export let cancelLabel = "Cancel";
+    export let confirmLabel = "";
+    export let cancelLabel = "";
     export let onConfirm: ((value: number) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
     let valueText = `${Math.max(min, Math.floor(value))}`;
     let inputEl: HTMLInputElement | null = null;
     let modalShellEl: HTMLElement | null = null;
+    $: resolvedLabel = label || $t("modal.valueLabel");
+    $: resolvedConfirmLabel = confirmLabel || $t("modal.saveLabel");
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function parseValue() {
         const parsed = Number.parseInt(valueText, 10);
@@ -145,12 +149,12 @@
     {#if message}
         <p class="modal-message">{message}</p>
     {/if}
-    <label class="modal-label" for="modal-input">{label}</label>
+    <label class="modal-label" for="modal-input">{resolvedLabel}</label>
     <div class="modal-input-row">
         <button
             class="stepper stepper-icon reset-button"
             type="button"
-            aria-label="Reset value"
+            aria-label={$t("modal.input.resetValueAria")}
             disabled={isResetDisabled}
             on:click={() => handleStepperClick(handleReset)}
         >
@@ -162,7 +166,7 @@
         <button
             class="stepper stepper-icon"
             type="button"
-            aria-label="Decrease value"
+            aria-label={$t("modal.input.decreaseValueAria")}
             disabled={isDecreaseDisabled}
             on:click={() => handleStepperClick(() => stepValue(-step))}
         >
@@ -185,7 +189,7 @@
         <button
             class="stepper stepper-icon"
             type="button"
-            aria-label="Increase value"
+            aria-label={$t("modal.input.increaseValueAria")}
             on:click={() => handleStepperClick(() => stepValue(step))}
         >
             <PlusIcon class="stepper-icon__svg" aria-hidden="true" />
@@ -193,19 +197,19 @@
         <button
             class="stepper stepper-wide"
             type="button"
-            aria-label="Increase value by 100"
+            aria-label={$t("modal.input.increaseByHundredAria")}
             on:click={() => handleStepperClick(() => stepValue(100))}
         >
-            +100
+            {$t("modal.input.plusHundred")}
         </button>
     </div>
     <div class="modal-actions">
         <div class="modal-actions__right">
             <Button data-modal-cancel on:click={() => onCancel?.()}>
-                {cancelLabel}
+                {resolvedCancelLabel}
             </Button>
             <Button data-modal-confirm on:click={handleConfirm} positive>
-                {confirmLabel}
+                {resolvedConfirmLabel}
             </Button>
         </div>
     </div>

@@ -35,6 +35,13 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
+    import { t } from "svelte-whisper";
+    import {
+        SUPPORTED_LOCALES,
+        currentLocale,
+        setAppLocale,
+        type AppLocale,
+    } from "../i18n";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -52,6 +59,8 @@
     let dropdownMenuOpen = false;
     let dropdownMenuX = 0;
     let dropdownMenuY = 0;
+    let selectedLocale: AppLocale = "en";
+    $: selectedLocale = $currentLocale;
 
     const isClose = (a: number, b: number, epsilon: number) =>
         Math.abs(a - b) <= epsilon;
@@ -80,12 +89,11 @@
     function handleResetSettings() {
         openModal({
             type: "confirm",
-            title: "RESET SETTINGS",
+            title: $t("modal.resetSettings.title"),
             titleIcon: ClockCounterClockwiseIcon as unknown as Component,
-            message:
-                "Restore all settings to their default values. This will not affect your backpack tree progress.",
-            confirmLabel: "Reset settings",
-            cancelLabel: "Cancel",
+            message: $t("modal.resetSettings.message"),
+            confirmLabel: $t("modal.resetSettings.confirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 singleLevelUp.resetToDefault();
@@ -93,7 +101,7 @@
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
 
-                showToast("Settings reset to defaults");
+                showToast($t("modal.resetSettings.toast"));
                 onClose?.();
             },
         });
@@ -113,12 +121,11 @@
     function handleClearAllData() {
         openModal({
             type: "confirm",
-            title: "CLEAR ALL DATA",
+            title: $t("modal.clearAllData.title"),
             titleIcon: TrashSimpleIcon as unknown as Component,
-            message:
-                "Delete all data and reload the application. This will reset all trees, settings, and progress.",
-            confirmLabel: "Clear all data",
-            cancelLabel: "Cancel",
+            message: $t("modal.clearAllData.message"),
+            confirmLabel: $t("modal.clearAllData.confirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 // Clear all localStorage
@@ -142,44 +149,49 @@
     function closeDropdownMenu() {
         dropdownMenuOpen = false;
     }
+
+    function handleLanguageChange() {
+        if (!SUPPORTED_LOCALES.includes(selectedLocale)) return;
+        void setAppLocale(selectedLocale);
+    }
 </script>
 
 <SideMenuPreviewSection />
 
-<SideMenuSection title="Build">
+<SideMenuSection title={$t("sideMenu.sections.build")}>
     <BuildPresetsButton disabled={$isPreviewMode} />
     <TechCrystalsButton disabled={$isPreviewMode} />
     <div class="button-group build-share-row">
-        <ShareBuildButton title="Share" disabled={$isPreviewMode} />
+        <ShareBuildButton title={$t("settings.shareButton")} disabled={$isPreviewMode} />
         <Button
             class="dropdown-button"
             bind:element={previewButtonElement}
             on:click={handlePreviewDropdownClick}
-            tooltipText={"Preview shareable link/code or premade build"}
+            tooltipText={$t("settings.previewButtonTooltip")}
             icon={EyeIcon}
         >
-            Preview
+            {$t("settings.previewButton")}
         </Button>
     </div>
 </SideMenuSection>
 
-<SideMenuSection title="Node">
+<SideMenuSection title={$t("sideMenu.sections.node")}>
     <ToggleSwitch
         checked={$singleLevelUp}
-        label="Single Level Up"
-        ariaLabel="Single level up mode"
-        tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10"
+        label={$t("settings.singleLevelUp")}
+        ariaLabel={$t("settings.singleLevelUpAria")}
+        tooltipText={$t("settings.singleLevelUpTooltip")}
         icon={ArrowUpIcon as unknown as Component}
         onToggle={() => singleLevelUp.toggle()}
     />
 </SideMenuSection>
 
-<SideMenuSection title="View">
+<SideMenuSection title={$t("sideMenu.sections.view")}>
     <ToggleSwitch
         checked={$closeUpView}
-        label="Close-up View"
-        ariaLabel="Close-up view (150% zoom)"
-        tooltipText="Increase the initial zoom scale by 1.5x"
+        label={$t("settings.closeUpView")}
+        ariaLabel={$t("settings.closeUpViewAria")}
+        tooltipText={$t("settings.closeUpViewTooltip")}
         icon={MagnifyingGlassPlusIcon as unknown as Component}
         onToggle={() => closeUpView.toggle()}
     />
@@ -189,15 +201,15 @@
             onFocusInView();
             onClose?.();
         }}
-        tooltipText={"Fit nodes in view by resetting zoom and pan"}
+        tooltipText={$t("settings.focusTreeInViewTooltip")}
         icon={CubeFocusIcon}
         disabled={isFocusDisabled}
     >
-        Focus Tree in View
+        {$t("settings.focusTreeInView")}
     </Button>
 </SideMenuSection>
 
-<SideMenuSection title="Tree">
+<SideMenuSection title={$t("sideMenu.sections.tree")}>
     <ResetTreeButton
         onReset={() => {
             onResetTree?.();
@@ -215,16 +227,35 @@
     />
 </SideMenuSection>
 
-<SideMenuSection title="Application">
+<SideMenuSection title={$t("sideMenu.sections.application")}>
+    <div class="language-row">
+        <label for="language-select" class="language-label">
+            {$t("settings.languageLabel")}
+        </label>
+        <select
+            id="language-select"
+            class="language-select"
+            aria-label={$t("settings.languageLabel")}
+            use:tooltip={$t("settings.languageTooltip")}
+            bind:value={selectedLocale}
+            on:change={handleLanguageChange}
+        >
+            {#each SUPPORTED_LOCALES as localeCode}
+                <option value={localeCode}>
+                    {$t(`languageNames.${localeCode}`)}
+                </option>
+            {/each}
+        </select>
+    </div>
     <div class="button-group theme-row">
         <ThemeColorSelector />
         <button
             class="icon-button"
             type="button"
             aria-label={$darkMode
-                ? "Switch to light mode"
-                : "Switch to dark mode"}
-            use:tooltip={"Switch between dark and light color scheme"}
+                ? $t("settings.switchToLight")
+                : $t("settings.switchToDark")}
+            use:tooltip={$t("settings.themeModeTooltip")}
             on:click={() => {
                 triggerHaptic();
                 darkMode.toggle();
@@ -241,27 +272,27 @@
     <InstallPwaButton title={true} />
     <Button
         on:click={handleReloadWindow}
-        tooltipText={"Refresh page and load latest version"}
+        tooltipText={$t("settings.reloadWindowTooltip")}
         icon={ArrowClockwiseIcon}
     >
-        Reload Window
+        {$t("settings.reloadWindow")}
     </Button>
     <Button
         on:click={handleResetSettings}
-        tooltipText={"Restore all settings to their default values"}
+        tooltipText={$t("settings.resetSettingsTooltip")}
         icon={ClockCounterClockwiseIcon}
         negative
     >
-        Reset Settings
+        {$t("settings.resetSettings")}
     </Button>
     <div class="spacer"></div>
     <Button
         on:click={handleClearAllData}
-        tooltipText={"Delete all data and reload the application"}
+        tooltipText={$t("settings.clearAllDataTooltip")}
         icon={TrashSimpleIcon}
         negative
     >
-        Clear All Data
+        {$t("settings.clearAllData")}
     </Button>
 </SideMenuSection>
 
@@ -285,6 +316,33 @@
     .theme-row > :global(:first-child) {
         flex: 1;
         min-width: 0;
+    }
+
+    .language-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(130px, auto);
+        gap: var(--spacing-md);
+        align-items: center;
+    }
+
+    .language-label {
+        color: var(--text-muted);
+        font-size: var(--font-base);
+    }
+
+    .language-select {
+        min-height: 38px;
+        border-radius: var(--radius);
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text);
+        font-size: var(--font-base);
+        padding: 0 var(--spacing-md);
+    }
+
+    .language-select:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
     }
 
     .icon-button {

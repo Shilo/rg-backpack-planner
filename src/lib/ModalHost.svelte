@@ -7,6 +7,7 @@
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
+    import { t } from "svelte-whisper";
 
     let lastActiveElement: HTMLElement | null = null;
     let isMouseDownOnBackdrop = false;
@@ -103,7 +104,7 @@
         class="modal-backdrop"
         role="button"
         tabindex="0"
-        aria-label="Close modal"
+        aria-label={$t("modal.closeAria")}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
@@ -121,8 +122,9 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    confirmLabel={$modalStore.confirmLabel ?? "Confirm"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ??
+                        $t("modal.confirmLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     confirmNegative={$modalStore.confirmNegative ?? false}
                     confirmPositive={$modalStore.confirmPositive ?? false}
                     onConfirm={handleConfirm}
@@ -135,12 +137,12 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    label={$modalStore.input?.label ?? "Value"}
+                    label={$modalStore.input?.label ?? $t("modal.valueLabel")}
                     value={$modalStore.input?.value ?? 0}
                     min={$modalStore.input?.min ?? 0}
                     step={$modalStore.input?.step ?? 1}
-                    confirmLabel={$modalStore.confirmLabel ?? "Save"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ?? $t("modal.saveLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -151,12 +153,12 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    label={$modalStore.textInput?.label ?? "Value"}
+                    label={$modalStore.textInput?.label ?? $t("modal.valueLabel")}
                     value={$modalStore.textInput?.value ?? ""}
                     maxLength={$modalStore.textInput?.maxLength ?? 25}
                     placeholder={$modalStore.textInput?.placeholder ?? ""}
-                    confirmLabel={$modalStore.confirmLabel ?? "Save"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ?? $t("modal.saveLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -167,8 +169,9 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    confirmLabel={$modalStore.confirmLabel ?? "Preview build"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ??
+                        $t("modal.previewBuildLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
                 />

@@ -47,6 +47,7 @@
         "vite-plugin-pwa": "^1.2.0"
     },
     "dependencies": {
-        "@zumer/snapdom": "^2.0.2"
+        "@zumer/snapdom": "^2.0.2",
+        "svelte-whisper": "github:Shilo/svelte-whisper"
     }
 }

@@ -3,6 +3,7 @@
     import TreeContextMenuList from "./TreeContextMenuList.svelte";
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node, LevelsByIndex } from "../types/tree";
+    import { t } from "svelte-whisper";
 
     export let tabId = "";
     export let tabLabel = "";
@@ -30,8 +31,12 @@
     {x}
     {y}
     {isOpen}
-    title={tabLabel || "Tab actions"}
-    ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
+    title={tabLabel
+        ? $t("contextMenu.tabActionsWithLabel", { tabLabel })
+        : $t("contextMenu.tabActions")}
+    ariaLabel={tabLabel
+        ? $t("contextMenu.tabActionsWithLabel", { tabLabel })
+        : $t("contextMenu.tabActions")}
     {onClose}
     ignoreCloseTargetSelector={hideView0ptions ? ".tabs-bar" : null}
 >

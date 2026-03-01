@@ -12,11 +12,10 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { APP_DISPLAY_NAME_FULL } from "./lib/appInfo";
+    import { t } from "svelte-whisper";
     import {
         treeLevels,
         sumLevels,
-        setTreeLevels,
     } from "./lib/treeLevelsStore";
     import {
         isNewVersion,
@@ -64,6 +63,7 @@
     } from "./lib/toast";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
+    import { tr } from "./lib/i18n";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -103,15 +103,45 @@
         return isNew;
     })();
 
-    const tabs: TabConfig[] = [
-        { id: "guardian", label: "Guardian", nodes: guardianTree },
-        { id: "vanguard", label: "Vanguard", nodes: vanguardTree },
-        { id: "cannon", label: "Cannon", nodes: cannonTree },
+    const baseTabs: Array<{ id: "guardian" | "vanguard" | "cannon"; nodes: TabConfig["nodes"] }> = [
+        { id: "guardian", nodes: guardianTree },
+        { id: "vanguard", nodes: vanguardTree },
+        { id: "cannon", nodes: cannonTree },
     ];
 
-    initTechCrystalTrees(tabs);
+    const tabsForInit: TabConfig[] = baseTabs.map((tab) => ({
+        ...tab,
+        label: tr(`trees.${tab.id}`),
+    }));
+    initTechCrystalTrees(tabsForInit);
 
-    activeTreeName = tabs[0]?.label ?? "";
+    let tabs: TabConfig[] = tabsForInit;
+    $: tabs = baseTabs.map((tab) => ({
+        ...tab,
+        label: $t(`trees.${tab.id}`),
+    }));
+    $: if (!activeTreeName && tabs.length > 0) {
+        activeTreeName = tabs[0].label;
+    }
+
+    $: appName = $t("app.name");
+    $: gameName = $t("app.gameName");
+    $: appVersion = getCurrentVersion();
+    $: appVersionLabel = appVersion === "unknown" ? "" : `v${appVersion}`;
+    $: appTitle =
+        appVersionLabel.length > 0
+            ? $t("app.titleFullWithVersion", {
+                  appName,
+                  gameName,
+                  version: appVersionLabel,
+              })
+            : $t("app.titleFull", {
+                  appName,
+                  gameName,
+              });
+    $: if (typeof document !== "undefined") {
+        document.title = appTitle;
+    }
 
     function toggleMenu() {
         isMenuOpen = !isMenuOpen;
@@ -253,7 +283,7 @@
                     const basePath = getBasePath();
                     window.history.replaceState({}, "", basePath);
                     // Show toast to inform user
-                    showToastDelayed("Invalid share link", {
+                    showToastDelayed($t("preview.invalidShareLinkToast"), {
                         tone: "negative",
                     });
                 }
@@ -286,7 +316,11 @@
                 // Show toast about preview mode
                 const title = getPreviewTitle(get(previewBuildName));
                 closeTransientUiForPreview();
-                showToastDelayed(`Viewing ${title.toLowerCase()} build`);
+                showToastDelayed(
+                    $t("preview.viewingBuildToast", {
+                        name: title,
+                    }),
+                );
             }
 
             // Don't load from localStorage in preview mode
@@ -352,8 +386,6 @@
     onMount(() => {
         ensureInstallListeners();
 
-        document.title = APP_DISPLAY_NAME_FULL;
-
         // Global hotkey: F9 to share build as image
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat || e.key !== "F9") return;
@@ -373,7 +405,11 @@
                 hasRunVersionCheck = true;
                 markVersionAsSeen();
                 if (previousVersion) {
-                    showToastDelayed(`Updated to v${getCurrentVersion()}`);
+                    showToastDelayed(
+                        $t("toast.updatedVersionToast", {
+                            version: getCurrentVersion(),
+                        }),
+                    );
                 }
                 await tick();
                 // Ensure controls tab is active (backup in case component initialized before localStorage was set)

@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
 import { DEFAULT_PRESET_NAME } from "./buildPresetsStore";
+import { tr, getDisplayPresetName } from "./i18n";
 
 export type ToastTone = "positive" | "negative";
 
@@ -88,7 +89,10 @@ export function tryShowStoppedPreviewToast(
 ): boolean {
     return checkSessionStorageAndShowToast(
         STOPPED_PREVIEW_KEY,
-        () => `Back to ${truncateText(presetName)} build`,
+        () =>
+            tr("preview.backToBuildToast", {
+                name: truncateText(getDisplayPresetName(presetName)),
+            }),
     );
 }
 
@@ -99,8 +103,10 @@ export function tryShowStoppedPreviewToast(
 export function tryShowClonedBuildToast(): boolean {
     return checkSessionStorageAndShowToast(CLONED_BUILD_KEY, (previewName) =>
         previewName
-            ? `Cloned build to "${truncateText(previewName)}"`
-            : "Cloned preview build",
+            ? tr("preview.clonedBuildToast", {
+                  name: truncateText(getDisplayPresetName(previewName)),
+              })
+            : tr("preview.clonedPreviewBuildToast"),
     );
 }
 

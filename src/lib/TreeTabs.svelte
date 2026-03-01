@@ -33,6 +33,7 @@
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
+    import { t } from "svelte-whisper";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -347,7 +348,12 @@
         resetLevelsForTab(index);
         refundTreeSpent(index);
         const tabLabel = tabs[index].label;
-        showToast(`Reset ${tabLabel} tree`, { tone: "negative" });
+        showToast(
+            $t("tree.resetTreeToast", {
+                treeLabel: tabLabel,
+            }),
+            { tone: "negative" },
+        );
     }
 
     function resetTabTree(tabId: string) {
@@ -368,7 +374,7 @@
             refundTreeSpent(index);
         }
         resetAllTreeLevels(tabs);
-        showToast("Reset all trees", { tone: "negative" });
+        showToast($t("tree.resetAllTreesToast"), { tone: "negative" });
         treeRef?.triggerFade?.();
 
         closeTabMenu();
@@ -417,8 +423,8 @@
     </div>
     <Button
         class="menu-button"
-        aria-label="Menu"
-        tooltipText="Open menu"
+        aria-label={$t("tree.menuButtonAria")}
+        tooltipText={$t("tree.menuButtonTooltip")}
         on:click={() => onMenuClick?.()}
         icon={ListIcon}
         iconClass="menu-button-icon"

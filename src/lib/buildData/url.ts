@@ -18,6 +18,38 @@ import {
     previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
+import enLocale from "../../locales/en.json";
+import jpLocale from "../../locales/jp.json";
+import zhLocale from "../../locales/zh.json";
+
+const DEFAULT_PRESET_NAMES = Array.from(
+    new Set([
+        "Default",
+        enLocale.buildPresets.generated.default,
+        jpLocale.buildPresets.generated.default,
+        zhLocale.buildPresets.generated.default,
+    ]),
+);
+const NEW_PRESET_NAMES = Array.from(
+    new Set([
+        "New",
+        enLocale.buildPresets.generated.new,
+        jpLocale.buildPresets.generated.new,
+        zhLocale.buildPresets.generated.new,
+    ]),
+);
+const CLONE_PRESET_NAMES = Array.from(
+    new Set([
+        "Clone",
+        enLocale.buildPresets.generated.clone,
+        jpLocale.buildPresets.generated.clone,
+        zhLocale.buildPresets.generated.clone,
+    ]),
+);
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 /**
  * Cached base path from vite.config.ts
@@ -147,10 +179,21 @@ export function createShareUrl(buildData?: BuildData): string {
  */
 export function isDefaultPresetName(name?: string | null): boolean {
     if (!name) return false;
-    if (name === "Default") return true;
-    if (name === "New") return true;
-    if (name === "Clone") return true;
-    return /^(?:New|Clone)\s+\d+$/.test(name);
+    const trimmed = name.trim();
+
+    if (DEFAULT_PRESET_NAMES.includes(trimmed)) return true;
+    if (NEW_PRESET_NAMES.includes(trimmed)) return true;
+    if (CLONE_PRESET_NAMES.includes(trimmed)) return true;
+
+    const isGeneratedWithCount = (prefixes: string[]) =>
+        prefixes.some((prefix) =>
+            new RegExp(`^${escapeRegExp(prefix)}\\s+\\d+$`, "i").test(trimmed),
+        );
+
+    return (
+        isGeneratedWithCount(NEW_PRESET_NAMES) ||
+        isGeneratedWithCount(CLONE_PRESET_NAMES)
+    );
 }
 
 /**

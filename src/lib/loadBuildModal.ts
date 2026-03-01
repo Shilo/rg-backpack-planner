@@ -2,16 +2,16 @@
 // @ts-ignore - phosphor-svelte icons are valid Svelte components
 import { EyeIcon } from "phosphor-svelte";
 import { openModal } from "./modalStore";
+import { tr } from "./i18n";
 
 export function openLoadBuildModal(onLoaded?: () => void) {
     openModal({
         type: "loadBuild",
-        title: "PREVIEW SHAREABLE BUILD",
+        title: tr("preview.loadModalTitle"),
         titleIcon: EyeIcon,
-        message:
-            "Type link or build code. (Preview is temporary and won't affect your current build.)",
-        confirmLabel: "Preview build",
-        cancelLabel: "Cancel",
+        message: tr("preview.loadModalMessage"),
+        confirmLabel: tr("preview.loadModalConfirmLabel"),
+        cancelLabel: tr("common.cancel"),
         onConfirm: () => {
             onLoaded?.();
         },

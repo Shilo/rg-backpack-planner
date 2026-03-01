@@ -10,6 +10,7 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
 import { captureCombinedTreesImage } from "../buildImageExport/captureService";
 import { showToast } from "../toast";
+import { tr } from "../i18n";
 
 /**
  * Copies text to clipboard
@@ -75,8 +76,8 @@ export async function shareBuildAsImage(): Promise<void> {
     const showScreenshotToast = (success: boolean) => {
         showToast(
             success
-                ? "Share screenshot copied to clipboard"
-                : "Unable to copy screenshot",
+                ? tr("share.shareScreenshotCopiedToast")
+                : tr("share.unableToCopyScreenshotToast"),
             {
                 tone: success ? "positive" : "negative",
             },

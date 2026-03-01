@@ -27,6 +27,8 @@
     import { singleLevelUp } from "./singleLevelUpStore";
     import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
+    import { t } from "svelte-whisper";
+    import { getSkillLabel } from "./i18n";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -724,7 +726,7 @@
         offsetY = next.offsetY;
         scale = next.scale;
         if (announce) {
-            showToast("Focused tree in view");
+            showToast($t("tree.focusedInViewToast"));
         }
         return true;
     }
@@ -859,7 +861,7 @@
                         id={i}
                         x={node.x}
                         y={node.y}
-                        label={node.skillId}
+                        label={getSkillLabel(node.skillId)}
                         {level}
                         {state}
                         tier={tier}

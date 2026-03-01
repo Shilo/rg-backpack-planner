@@ -5,6 +5,7 @@
     import { openModal } from "../modalStore";
     import { sumLevels } from "../treeLevelsStore";
     import type { LevelsByIndex } from "../../types/tree";
+    import { t } from "svelte-whisper";
 
     export let onResetAll: (() => void) | null = null;
     export let levelsByTree: LevelsByIndex[] | null = null;
@@ -19,12 +20,11 @@
         if (!onResetAll) return;
         openModal({
             type: "confirm",
-            title: "RESET ALL TREES?",
+            title: $t("modal.resetTree.titleAllQuestion"),
             titleIcon: ArrowsCounterClockwiseIcon as unknown as Component,
-            message:
-                "Revert all nodes to level 0 and refund all Tech Crystals.",
-            confirmLabel: "Reset all",
-            cancelLabel: "Cancel",
+            message: $t("modal.resetTree.messageAll"),
+            confirmLabel: $t("modal.resetTree.buttonLabelAll"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 onResetAll();
@@ -35,10 +35,10 @@
 
 <Button
     on:click={handleResetAll}
-    tooltipText={"Revert all nodes to level 0 and refund all Tech Crystals"}
+    tooltipText={$t("modal.resetTree.messageAll")}
     icon={ArrowsCounterClockwiseIcon}
     negative
     {disabled}
 >
-    Reset all trees
+    {$t("modal.resetTree.buttonLabelAll")}
 </Button>

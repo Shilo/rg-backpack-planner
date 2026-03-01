@@ -7,6 +7,7 @@
     import { triggerHaptic } from "./haptics";
     import type { ThemeColor } from "./themeColorStore";
     import Button from "./Button.svelte";
+    import { t } from "svelte-whisper";
 
     export let isOpen = false;
     export let initialColor: ThemeColor = { h: 264, c: 0.19 };
@@ -20,6 +21,7 @@
     let isEditingHex = false;
     let wasOpen = false;
     let previewDark = true;
+    let translate = $t;
 
     // Pointer tracking
     let hueRowEl: HTMLDivElement | null = null;
@@ -34,27 +36,45 @@
     let gridSelectedCol = 0; // used for grayscale row only
     let selectedL = 0.70; // lightness of selected cell (for preview/hex)
 
-    const HUE_NAMES: { max: number; name: string }[] = [
-        { max: 15, name: "Red" },
-        { max: 40, name: "Orange" },
-        { max: 60, name: "Amber" },
-        { max: 85, name: "Yellow" },
-        { max: 110, name: "Lime" },
-        { max: 145, name: "Green" },
-        { max: 175, name: "Teal" },
-        { max: 200, name: "Cyan" },
-        { max: 240, name: "Blue" },
-        { max: 275, name: "Indigo" },
-        { max: 310, name: "Violet" },
-        { max: 340, name: "Pink" },
-        { max: 360, name: "Red" },
+    const HUE_NAMES: {
+        max: number;
+        key:
+            | "theme.colorNames.red"
+            | "theme.colorNames.orange"
+            | "theme.colorNames.amber"
+            | "theme.colorNames.yellow"
+            | "theme.colorNames.lime"
+            | "theme.colorNames.green"
+            | "theme.colorNames.teal"
+            | "theme.colorNames.cyan"
+            | "theme.colorNames.blue"
+            | "theme.colorNames.indigo"
+            | "theme.colorNames.violet"
+            | "theme.colorNames.pink";
+    }[] = [
+        { max: 15, key: "theme.colorNames.red" },
+        { max: 40, key: "theme.colorNames.orange" },
+        { max: 60, key: "theme.colorNames.amber" },
+        { max: 85, key: "theme.colorNames.yellow" },
+        { max: 110, key: "theme.colorNames.lime" },
+        { max: 145, key: "theme.colorNames.green" },
+        { max: 175, key: "theme.colorNames.teal" },
+        { max: 200, key: "theme.colorNames.cyan" },
+        { max: 240, key: "theme.colorNames.blue" },
+        { max: 275, key: "theme.colorNames.indigo" },
+        { max: 310, key: "theme.colorNames.violet" },
+        { max: 340, key: "theme.colorNames.pink" },
+        { max: 360, key: "theme.colorNames.red" },
     ];
 
-    function getColorName(hue: number): string {
+    function getColorName(
+        hue: number,
+        translate: (key: string, vars?: Record<string, unknown> | unknown[]) => string,
+    ): string {
         for (const entry of HUE_NAMES) {
-            if (hue <= entry.max) return entry.name;
+            if (hue <= entry.max) return translate(entry.key);
         }
-        return "Red";
+        return translate("theme.colorNames.red");
     }
 
     // ── Grid data ──
@@ -67,7 +87,11 @@
     // ── Accent lightness for current preview mode ──
     $: accentL = previewDark ? 0.70 : 0.45;
     $: previewHex = oklchToHex(selectedL, c, h);
-    $: colorName = c < 0.015 ? "Gray" : getColorName(h);
+    $: translate = $t;
+    $: colorName =
+        c < 0.015
+            ? translate("theme.colorNames.gray")
+            : getColorName(h, translate);
 
     // Sync hex input when h/c change (but not during manual editing)
     $: if (!isEditingHex) hexInput = oklchToHex(selectedL, c, h);
@@ -290,7 +314,7 @@
             class="color-picker-backdrop"
             role="dialog"
             aria-modal="true"
-            aria-label="Custom color picker"
+            aria-label={$t("theme.colorPicker.dialogAria")}
             on:pointerdown={handleBackdropPointerDown}
         >
             <div class="color-picker-card">
@@ -388,7 +412,7 @@
                             <button
                                 class="icon-button"
                                 type="button"
-                                aria-label="Random color"
+                                aria-label={$t("theme.colorPicker.randomColorAria")}
                                 on:click={handleRandom}
                             >
                                 <ShuffleIcon size={18} />
@@ -396,7 +420,11 @@
                             <button
                                 class="icon-button"
                                 type="button"
-                                aria-label="Toggle {previewDark ? 'light' : 'dark'} mode preview"
+                                aria-label={$t("theme.colorPicker.toggleModeAria", {
+                                    mode: previewDark
+                                        ? $t("theme.colorPicker.modeLight")
+                                        : $t("theme.colorPicker.modeDark"),
+                                })}
                                 on:click={handleModeToggle}
                             >
                                 {#if previewDark}
@@ -407,8 +435,12 @@
                             </button>
                         </div>
                         <div class="actions-right">
-                            <Button on:click={handleCancel}>Cancel</Button>
-                            <Button positive on:click={handleApply}>Apply</Button>
+                            <Button on:click={handleCancel}>
+                                {$t("theme.colorPicker.cancel")}
+                            </Button>
+                            <Button positive on:click={handleApply}>
+                                {$t("theme.colorPicker.apply")}
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -1,11 +1,11 @@
 <script lang="ts">
     import { showToast } from "./toast";
     import appPackage from "../../package.json";
+    import { t } from "svelte-whisper";
 
     export let rows: Array<[string, string]> = [];
-    export let emptyMessage = "No data";
+    export let emptyMessage = "";
 
-    const appName = (appPackage?.name ?? "Backpack Planner") as string;
     const appProductionUrl = (appPackage?.app?.productionUrl ?? undefined) as
         | string
         | undefined;
@@ -28,7 +28,8 @@
         return widths;
     };
 
-    $: displayRows = rows.length > 0 ? rows : [[emptyMessage, ""]];
+    $: resolvedEmptyMessage = emptyMessage || $t("statistics.noData");
+    $: displayRows = rows.length > 0 ? rows : [[resolvedEmptyMessage, ""]];
     $: normalizedRows = displayRows.map(([first, second]) => [
         normalizeCell(first),
         normalizeCell(second),
@@ -63,16 +64,17 @@
             ? [...markdownRows, dividerRow].join("\n")
             : dividerRow;
     const backpackIcon = "🎒";
+    $: localizedAppName = $t("app.name");
     $: codeblockTitle = appProductionUrl
-        ? `[${appName}](${appProductionUrl})`
-        : appName;
-    $: codeblockHeader = `### ${backpackIcon} ${codeblockTitle} Statistics`;
+        ? `[${localizedAppName}](${appProductionUrl})`
+        : localizedAppName;
+    $: codeblockHeader = `### ${backpackIcon} ${codeblockTitle} ${$t("statistics.header")}`;
     $: codeblockText = `${codeblockHeader}\n\`\`\`\n${markdownTable}\n\`\`\``;
 
     async function copyCodeblock() {
         try {
             await navigator.clipboard.writeText(codeblockText);
-            showToast("Copied");
+            showToast($t("toast.copied"));
         } catch (error) {
             const fallback = document.createElement("textarea");
             fallback.value = codeblockText;
@@ -84,9 +86,9 @@
             const copied = document.execCommand("copy");
             document.body.removeChild(fallback);
             if (copied) {
-                showToast("Copied");
+                showToast($t("toast.copied"));
             } else {
-                showToast("Unable to copy", { tone: "negative" });
+                showToast($t("toast.unableToCopy"), { tone: "negative" });
             }
         }
     }

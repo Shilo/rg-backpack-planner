@@ -17,25 +17,27 @@
         sideMenuActiveTab,
         type SideMenuTab,
     } from "./sideMenuActiveTabStore";
+    import { t } from "svelte-whisper";
 
-    const sideMenuTabs: TabBarItem[] = [
+    let sideMenuTabs: TabBarItem[] = [];
+    $: sideMenuTabs = [
         {
             id: "statistics",
-            label: "Statistics",
+            label: $t("sideMenu.tabs.statistics.label"),
             icon: ChartBarIcon,
-            tooltip: "View skills, levels, and tech crystal data",
+            tooltip: $t("sideMenu.tabs.statistics.tooltip"),
         },
         {
             id: "settings",
-            label: "Settings",
+            label: $t("sideMenu.tabs.settings.label"),
             icon: GearSixIcon,
-            tooltip: "View options",
+            tooltip: $t("sideMenu.tabs.settings.tooltip"),
         },
         {
             id: "controls",
-            label: "Controls",
+            label: $t("sideMenu.tabs.controls.label"),
             icon: GameControllerIcon,
-            tooltip: "View input mapping",
+            tooltip: $t("sideMenu.tabs.controls.tooltip"),
         },
     ];
 
@@ -80,7 +82,7 @@
 
 <button
     class={`menu-backdrop${isOpen ? " visible" : ""}${skipTransition ? " skip-transition" : ""}`}
-    aria-label="Close menu"
+    aria-label={$t("sideMenu.closeMenu")}
     tabindex={isOpen ? 0 : -1}
     inert={!isOpen}
     on:click={handleBackdropClick}
@@ -95,7 +97,7 @@
     <div class="side-menu__scroll-area">
         <nav
             class="side-menu__content"
-            aria-label="Primary"
+            aria-label={$t("sideMenu.primary")}
             bind:this={scrollContentElement}
         >
             <div class="side-menu__content-inner">

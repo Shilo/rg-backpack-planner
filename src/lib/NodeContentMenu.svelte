@@ -16,6 +16,9 @@
     import { formatNumber } from "./mathUtil";
     import { tierSize } from "./tierLeveling";
     import type { Node, NodeIndex } from "../types/tree";
+    import type { SkillId } from "../types/tree";
+    import { t } from "svelte-whisper";
+    import { getSkillLabel } from "./i18n";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -76,8 +79,8 @@
     {x}
     {y}
     {isOpen}
-    title={skillId ?? "Node"}
-    ariaLabel="Node actions"
+    title={skillId ? getSkillLabel(skillId as SkillId) : $t("contextMenu.nodeTitle")}
+    ariaLabel={$t("contextMenu.nodeActions")}
     {onClose}
 >
     <div class="node-stats">
@@ -86,17 +89,17 @@
         </div>
         <div class="node-stats-content">
             <div class="stat-row">
-                <span class="stat-label">Bonus</span>
-                <span class="stat-value">30,000%</span>
+                <span class="stat-label">{$t("nodeMenu.bonus")}</span>
+                <span class="stat-value">{$t("nodeMenu.bonusValue")}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Level</span>
+                <span class="stat-label">{$t("nodeMenu.level")}</span>
                 <span class="stat-value"
                     >{formatNumber(level)} / {formatNumber(maxLevel)}</span
                 >
             </div>
             <div class="stat-row">
-                <span class="stat-label">Tier</span>
+                <span class="stat-label">{$t("nodeMenu.tier")}</span>
                 <span class="stat-value">
                     {completedTiers}
                     /
@@ -127,7 +130,7 @@
             icon={isSingleLevel ? CaretLineUpIcon : CaretUpIcon}
             positive
         >
-            {isSingleLevel ? "Max" : "+1"}
+            {isSingleLevel ? $t("nodeMenu.max") : $t("nodeMenu.incrementOne")}
         </Button>
         {#if !isSingleLevel}
             <Button
@@ -139,7 +142,7 @@
                 icon={CaretDoubleUpIcon}
                 positive
             >
-                +10
+                {$t("nodeMenu.incrementTen")}
             </Button>
             <Button
                 on:click={() => {
@@ -150,7 +153,7 @@
                 icon={CaretLineUpIcon}
                 positive
             >
-                Max
+                {$t("nodeMenu.max")}
             </Button>
         {/if}
         <Button
@@ -162,7 +165,7 @@
             icon={isSingleLevel ? ArrowCounterClockwiseIcon : CaretDownIcon}
             negative
         >
-            {isSingleLevel ? "Reset" : "−1"}
+            {isSingleLevel ? $t("nodeMenu.reset") : $t("nodeMenu.decrementOne")}
         </Button>
         {#if !isSingleLevel}
             <Button
@@ -174,7 +177,7 @@
                 icon={CaretDoubleDownIcon}
                 negative
             >
-                −10
+                {$t("nodeMenu.decrementTen")}
             </Button>
             <Button
                 on:click={() => {
@@ -182,14 +185,14 @@
                     onReset(nodeIndex);
                 }}
                 toastMessage={nodeIndex !== null && onReset
-                    ? `Reset node`
+                    ? $t("nodeMenu.resetToast")
                     : undefined}
                 toastNegative
                 disabled={nodeIndex === null || level <= 0}
                 icon={ArrowCounterClockwiseIcon}
                 negative
             >
-                Reset
+                {$t("nodeMenu.reset")}
             </Button>
         {/if}
     </div>

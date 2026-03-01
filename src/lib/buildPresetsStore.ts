@@ -5,6 +5,7 @@
 
 import { writable, get, derived } from "svelte/store";
 import { encodeBuildData } from "./buildData/encoder";
+import { tr } from "./i18n";
 
 const STORAGE_KEY = "rg-backpack-planner-build-presets";
 
@@ -134,7 +135,11 @@ export function getActivePreset(): BuildPreset | null {
 
 export function addPreset(name: string, buildCode: string): BuildPreset {
     const id = generatePresetId();
-    const preset: BuildPreset = { id, name: name.trim() || "Build", buildCode };
+    const preset: BuildPreset = {
+        id,
+        name: name.trim() || tr("buildPresets.generated.build"),
+        buildCode,
+    };
     buildPresetsStore.update((data) => ({
         ...data,
         presets: [...data.presets, preset],
@@ -191,7 +196,10 @@ export function getUniquePresetName(
     desiredName: string,
     fallbackName: string,
 ): string {
-    const inputName = desiredName.trim() || fallbackName.trim() || "Preset";
+    const inputName =
+        desiredName.trim() ||
+        fallbackName.trim() ||
+        tr("buildPresets.generated.preset");
     const existingNames = get(buildPresetsStore).presets.map((preset) =>
         preset.name.toLowerCase(),
     );

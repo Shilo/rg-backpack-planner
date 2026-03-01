@@ -12,11 +12,12 @@
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
     import { truncateText } from "../stringUtil";
+    import { t } from "svelte-whisper";
 
     export let title: string | undefined;
     export let disabled: boolean | undefined = false;
-    export let tooltipSubject: string = "your";
-    export let menuTitle = "Share Build";
+    export let tooltipSubject = "";
+    export let menuTitle = "";
     export let buildName: string | null = null;
     export let buildData: BuildData | null = null;
     export let shareTitle: string | undefined = undefined;
@@ -29,6 +30,12 @@
     let shareMenuX = 0;
     let shareMenuY = 0;
     let shareButtonElement: HTMLButtonElement | null = null;
+    $: resolvedTooltipSubject = tooltipSubject || $t("techCrystals.subjectYour");
+    $: resolvedMenuTitle = menuTitle || $t("share.buildButton");
+    $: resolvedButtonTitle = title ?? $t("share.buildButton");
+    $: resolvedTooltip = $t("share.shareTooltip", {
+        subject: truncateText(resolvedTooltipSubject),
+    });
 
     // Use active preset name as default if buildName not provided
     $: effectiveBuildName = buildName ?? $activePresetName;
@@ -55,7 +62,7 @@
     async function handleShareToApp() {
         closeShareMenu();
         const effectiveTitle =
-            shareTitle ?? title ?? "Backpack tech tree build";
+            shareTitle ?? resolvedButtonTitle ?? $t("share.defaultShareTitle");
         const result = await shareBuildUrlNative({
             buildName: effectiveBuildName,
             title: effectiveTitle,
@@ -64,7 +71,7 @@
         });
 
         if (result === "failed") {
-            showToast("Unable to share link", { tone: "negative" });
+            showToast($t("share.unableToShareLinkToast"), { tone: "negative" });
         }
         // For "shared" and "cancelled", rely on native dialog UX and show no toast.
     }
@@ -76,9 +83,9 @@
             buildData ?? undefined,
         );
         if (success) {
-            showToast("Share link copied to clipboard");
+            showToast($t("share.shareLinkCopiedToast"));
         } else {
-            showToast("Unable to copy link", { tone: "negative" });
+            showToast($t("share.unableToCopyLinkToast"), { tone: "negative" });
         }
     }
 </script>
@@ -86,11 +93,11 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={`Share ${truncateText(tooltipSubject)} build`}
+    tooltipText={resolvedTooltip}
     icon={ShareIcon}
     {disabled}
 >
-    {title ?? "Share Build"}
+    {resolvedButtonTitle}
 </Button>
 
 <div use:portal class="share-menu-portal" class:menu-open={shareMenuOpen}>
@@ -98,34 +105,34 @@
         x={shareMenuX}
         y={shareMenuY}
         isOpen={shareMenuOpen}
-        title={menuTitle}
+        title={resolvedMenuTitle}
         onClose={closeShareMenu}
     >
         {#if showShareToApp}
             <Button
                 on:click={handleShareToApp}
-                tooltipText={"Share via installed apps"}
+                tooltipText={$t("share.shareViaAppsTooltip")}
                 icon={ShareIcon}
             >
-                Share to...
+                {$t("share.shareTo")}
             </Button>
         {/if}
         {#if showCopyLink}
             <Button
                 on:click={handleCopyLink}
-                tooltipText={"Copy shareable link with build data"}
+                tooltipText={$t("share.copyLinkTooltip")}
                 icon={LinkSimpleIcon}
             >
-                Copy Link
+                {$t("share.copyLink")}
             </Button>
         {/if}
         {#if showScreenshot}
             <Button
                 on:click={handleCopyScreenshot}
-                tooltipText={"Copy a snapshot of all trees"}
+                tooltipText={$t("share.copyScreenshotTooltip")}
                 icon={ImageIcon}
             >
-                Copy screenshot
+                {$t("share.copyScreenshot")}
             </Button>
         {/if}
     </ContextMenu>

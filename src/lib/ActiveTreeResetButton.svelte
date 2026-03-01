@@ -2,17 +2,21 @@
     import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import { openModal } from "./modalStore";
+    import { t } from "svelte-whisper";
+    import { getTreeName } from "./i18n";
 
     export let onReset: (() => void) | null = null;
     export let treeLabel = "";
     export let canReset = false;
 
     $: trimmedTreeLabel = treeLabel.trim();
-    $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
+    $: treeName = getTreeName(trimmedTreeLabel);
     $: modalTitle = trimmedTreeLabel
-        ? `RESET ${trimmedTreeLabel} TREE?`
-        : "RESET TREE?";
-    $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
+        ? $t("modal.resetTree.titleQuestion", { treeName })
+        : $t("modal.resetTree.titleDefaultQuestion");
+    $: confirmText = trimmedTreeLabel
+        ? $t("modal.resetTree.confirmLabel", { treeLabel: trimmedTreeLabel })
+        : $t("modal.resetTree.confirmLabelDefault");
     $: showReset = canReset && !!onReset;
 
     const handleReset = () => {
@@ -21,9 +25,9 @@
             type: "confirm",
             title: modalTitle,
             titleIcon: ArrowCounterClockwiseIcon,
-            message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
+            message: $t("modal.resetTree.message", { treeName }),
             confirmLabel: confirmText,
-            cancelLabel: "Cancel",
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 onReset();
@@ -36,8 +40,8 @@
     <Button
         class="active-tree-reset"
         type="button"
-        aria-label={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`}
-        tooltipText={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`}
+        aria-label={$t("modal.resetTree.message", { treeName })}
+        tooltipText={$t("modal.resetTree.message", { treeName })}
         icon={ArrowCounterClockwiseIcon}
         iconClass="active-tree-reset__icon"
         negative

@@ -15,33 +15,35 @@
         techCrystalsSpentVanguard,
         techCrystalsSpentCannon,
     } from "../techCrystalStore";
+    import { t } from "svelte-whisper";
+    import { getTreeLabel } from "../i18n";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<[string, string]> = [];
     $: {
         statsRows = [
-            ["Backpack Skill Boosts", ""],
-            ["TODO", "TODO"],
-            ["Attack Boost", "10,000%"],
-            ["Defense Boost", "30,000%"],
-            ["Critical Hit", "160%"],
-            ["Global ATK", "200%"],
-            ["Final Damage Boost", "20%"],
-            ["Backpack Node Levels", ""],
-            ["Total", formatNumber($treeLevelsTotal)],
-            ["Guardian", formatNumber($treeLevelsGuardian)],
-            ["Vanguard", formatNumber($treeLevelsVanguard)],
-            ["Cannon", formatNumber($treeLevelsCannon)],
-            ["Tech Crystals Spent", ""],
-            ["Total", formatNumber($techCrystalsSpent)],
-            ["Guardian", formatNumber($techCrystalsSpentGuardian)],
-            ["Vanguard", formatNumber($techCrystalsSpentVanguard)],
-            ["Cannon", formatNumber($techCrystalsSpentCannon)],
+            [$t("statistics.backpackSkillBoosts"), ""],
+            [$t("statistics.todo"), $t("statistics.todo")],
+            [$t("statistics.attackBoost"), $t("statistics.attackBoostValue")],
+            [$t("statistics.defenseBoost"), $t("statistics.defenseBoostValue")],
+            [$t("statistics.criticalHit"), $t("statistics.criticalHitValue")],
+            [$t("statistics.globalAtk"), $t("statistics.globalAtkValue")],
+            [$t("statistics.finalDamageBoost"), $t("statistics.finalDamageBoostValue")],
+            [$t("statistics.backpackNodeLevels"), ""],
+            [$t("statistics.total"), formatNumber($treeLevelsTotal)],
+            [getTreeLabel("guardian"), formatNumber($treeLevelsGuardian)],
+            [getTreeLabel("vanguard"), formatNumber($treeLevelsVanguard)],
+            [getTreeLabel("cannon"), formatNumber($treeLevelsCannon)],
+            [$t("statistics.techCrystalsSpent"), ""],
+            [$t("statistics.total"), formatNumber($techCrystalsSpent)],
+            [getTreeLabel("guardian"), formatNumber($techCrystalsSpentGuardian)],
+            [getTreeLabel("vanguard"), formatNumber($techCrystalsSpentVanguard)],
+            [getTreeLabel("cannon"), formatNumber($techCrystalsSpentCannon)],
         ];
     }
 </script>
 
-<SideMenuSection title="STATISTICS">
+<SideMenuSection title={$t("sideMenu.sections.statistics")}>
     <CopyStatsButton
         slot="action"
         class="side-menu__stats-copy"
