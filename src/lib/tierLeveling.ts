@@ -320,6 +320,11 @@ export function applyLevelChange(params: {
     const startingLevel = levels[index] ?? 0;
     const clampedTarget = clamp(targetLevel, 0, node.maxLevel);
     if (clampedTarget === startingLevel) {
+        // No-op changes intentionally preserve the input array reference.
+        // This is safe today because callers gate on `deltas.length` before using
+        // the returned `levels`. Revisit this if the API ever needs no-op results
+        // to normalize/pad arrays or to always return a fresh copy. Example:
+        // `return { levels: cloneLevels(levels, nodes.length), deltas: [] };`
         return { levels, deltas: [] };
     }
 
