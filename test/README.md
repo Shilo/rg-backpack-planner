@@ -1,24 +1,81 @@
 # Test Suite
 
-This folder contains the automated tests for the build-data encoder / decoder used by the share-link system.
+This folder contains the repo's hand-written test runners. The current entry
+point is `test/index.ts`, which imports both `test/tierLeveling.test.ts` and
+`test/encoder.test.ts`. Each file auto-runs when it is imported or executed.
 
-The current entry point is `test/index.ts`, which imports `test/encoder.test.ts`. The suite auto-runs when imported or executed.
+## Files
 
-## What Is Covered
+### `test/index.ts`
 
-`test/encoder.test.ts` currently exercises five areas:
+Loads the current CLI test suite in this order:
+
+1. `test/encoder.test.ts`
+2. `test/tierLeveling.test.ts`
+
+Use this when you want the same application-level test flow that `npm test`
+uses after type-checking.
+
+### `test/tierLeveling.test.ts`
+
+Exercises `applyLevelChange()` against the simulated yellow branch from
+`src/config/baseTree.ts`.
+
+Current coverage includes:
+
+1. Round-trip sweeps from level `0` to max level and back down for key yellow
+   branch nodes (root, early branch, split node, merged node, and final node)
+2. A silent boundary-contract layer that checks exact tier-threshold behavior
+   for split, root, merged, and final targets before the logged suite starts
+3. A silent cross-target two-step matrix that runs boundary-adjacent two-step
+   combinations across every yellow-branch target pairing and checks exact
+   rule-driven branch states without replaying the production algorithm
+4. Hand-authored multi-step regression scenarios that mix increments and
+   decrements across related nodes to catch ancestor, descendant, and
+   wrapped-node propagation while staying aligned to the current-target
+   contract
+5. Fixed-seed invariant scenarios that hit partial levels, mixed target order,
+   and same-tier decrements without generating full expected branch states
+   from helper code
+6. Per-step validation of every node in the branch, asserting both expected
+   level and derived tier state for sweep and explicit cases, then directional
+   invariants for the seeded cases
+7. Per-step output that prints the target node index, the level transition,
+   aligned `levels` and `tiers` arrays, and mirrors the same output to
+   `test/tierLeveling.output.log`
+
+The active CLI tier suite no longer uses generated scenario expectations as its
+primary correctness oracle. The earlier shadow-oracle approach duplicated the
+same tier-transition reasoning as `applyLevelChange()`, which could create
+false passes when the tests and implementation shared the same bad assumption.
+The boundary-contract layer and explicit scenario tables keep the oracle
+smaller and more independent. The cross-target two-step matrix expands that
+exact coverage across many more boundary-adjacent handoffs without
+reintroducing a shadow simulator. The seeded invariant layer is secondary
+coverage: it checks independent rules after each step, including the fact that
+a decrement can still rebase non-target nodes with `min(...)` even when the
+target remains in the same stable tier. All of these tests assume the same
+core runtime rule: the node you just changed is the sole reactive driver for
+that operation.
+
+### `test/encoder.test.ts`
+
+Exercises the share-link build-data encoder and decoder.
+
+Current coverage includes:
 
 1. Invalid-input handling for malformed share strings
 2. Encode/decode round-trip coverage for many build shapes
 3. Decoder compatibility cases for explicit serialized strings
-4. Build-name space encoding / decoding helpers
+4. Build-name space encoding and decoding helpers
 5. Build-name extraction from encoded share strings
 
-The tests focus on correctness first, but they also print compression stats so changes to the encoding format are easy to spot.
+The encoder tests also print compression stats so format changes are easy to
+spot while reviewing output.
 
-## Recommended Way To Run
+## Recommended Commands
 
-Run the full suite from the CLI:
+Run the full local verification path:
 
 ```bash
 npm test
@@ -29,21 +86,53 @@ That runs:
 1. `npm run check`
 2. `tsx test/index.ts`
 
-Use this path when you want the same result CI-style local verification should use.
-
-## Running Only The Test File
-
-If you have already run type checks and only want the test runner itself:
+Run the test files without `svelte-check`:
 
 ```bash
 npx tsx test/index.ts
 ```
 
-This skips the `svelte-check` / TypeScript validation done by `npm test`.
+Run a single suite directly:
+
+```bash
+npx tsx test/tierLeveling.test.ts
+npx tsx test/encoder.test.ts
+```
+
+When you run the tier suite directly, it also writes a full mirror of the tier
+output to `test/tierLeveling.output.log`.
+
+Run the headed production-UI verification path:
+
+```bash
+npm run test:ui:tier
+```
+
+That launches a visible Chromium window through Playwright, drives the real app
+under the existing `/rg-backpack-planner/` base path, applies each test step by
+calling `applyLevelChange()` directly with that operation's absolute target
+level for the sweep, explicit, and seeded cases, then compares the rendered
+yellow-branch runtime state against the same shared sweep cases, explicit
+scenario tables, and seeded invariant operations used by the CLI tier suite.
+The cross-target two-step matrix also runs by default so the headed UI suite
+stays aligned with the CLI suite's coverage shape, but that matrix preflight
+uses direct store sync of the already-derived expected states so it can finish
+in a reasonable time while still validating the rendered DOM output.
+
+If you need a faster headed smoke run, set `RG_TIER_UI_SKIP_MATRIX=1` before
+launching `npm run test:ui:tier`.
+
+While the Playwright run is active, the app also shows the current test label
+inside the preview indicator area. That indicator is loaded from a dev-only
+module path and is intentionally excluded from the production `npm run build`
+bundle.
+
+In VS Code, the `.vscode/launch.json` profile `Test UI: Node Level` runs the
+same command.
 
 ## Running In The Browser
 
-You can also run the suite from the browser console through Vite.
+You can also run the test entry from the browser console through Vite.
 
 1. Start the dev server:
 
@@ -55,7 +144,7 @@ You can also run the suite from the browser console through Vite.
 
     `http://localhost:5173/rg-backpack-planner/`
 
-3. In the browser console, import the test entry:
+3. Import the test entry in the browser console:
 
     ```js
     import("./test/index.ts");
@@ -69,31 +158,62 @@ import("/rg-backpack-planner/test/index.ts");
 
 ## Reading The Output
 
-The suite prints verbose logs by design:
+The tests are intentionally verbose:
 
-- each test group has its own header and summary
-- successful round-trip tests print original data, decoded data, and serialized output
-- encoding tests also print JSON length vs serialized length
-- the final section prints a combined total across all test groups
+- each suite prints its own header and summary
+- tier tests run a silent boundary-contract preflight before the logged cases
+- tier tests run a silent cross-target two-step matrix after the logged cases
+- tier tests report pass/fail counts across the two-step matrix, sweep,
+  explicit scenario, and seeded invariant cases
+- tier tests print each expected step as `step N expected [index X] (A -> B)`
+- tier tests print aligned `levels` and `tiers` arrays for each step
+- tier tests mirror their full output to `test/tierLeveling.output.log`
+- the Playwright tier UI run writes its output to `test/tierLeveling.ui.output.log`
+- the Playwright tier UI log reuses the same expected-step format as the CLI
+  tier log, then adds `actual levels` and `actual tiers`, so the two logs can
+  be compared directly
+- the Playwright tier UI run drives the production UI in a headed browser window
+- the Playwright tier UI run shows the active case label in the app while it is
+  running
+- the Playwright tier UI run compares DOM-derived `levels` and `tiers` against
+  the shared tier expectations after every step
+- by default, the Playwright tier UI run also executes the same silent
+  cross-target matrix preflight used by the CLI suite
+- when the matrix is running, the preview indicator shows live completed/total
+  progress even though the log file keeps the same compact start/end matrix
+  output as the CLI suite
+- set `RG_TIER_UI_SKIP_MATRIX=1` if you need to skip the matrix for a quicker
+  headed smoke run
+- on a Playwright tier UI failure, a screenshot is saved under
+  `test/artifacts/tier-leveling-ui/`
+- both tier log files are already ignored by git through the repo-wide `*.log`
+  rule in `.gitignore`
+- tier tests end by printing the absolute log-file path so it can be opened
+  directly from terminals that support clickable `path:line` output
+- encoder tests print round-trip details and serialized-size comparisons
+- the overall run completes only if both imported suites finish without
+  throwing
 
 ### Expected Error Logs
 
-Some tests intentionally feed invalid strings into the decoder. During those cases, `decodeBuildData()` logs parser errors such as:
+Some encoder tests intentionally feed invalid strings into `decodeBuildData()`.
+During those cases, parser errors such as `Failed to parse array format` or
+`Invalid RLE format` are expected and do not mean the suite failed by
+themselves.
 
-- `Failed to parse array format`
-- `Invalid RLE format`
-
-Those logs are expected. They do **not** mean the suite failed by themselves. The actual result is the per-section summary and the final combined summary.
-
-If the summaries show zero failed tests, the suite passed.
+Rely on the per-suite summaries and the final process exit status to determine
+whether the run passed.
 
 ## When To Update These Tests
 
-Update or extend this suite whenever you change:
+Update or extend this folder when you change:
 
+- tier propagation or level-clamping behavior
+- yellow-branch traversal or parent/merge handling
 - the serialized share format
-- the build-name encoding rules
+- build-name encoding rules
 - decoder compatibility behavior
 - accepted or rejected malformed input cases
 
-If you change the encoder format intentionally, keep compatibility cases explicit so regressions are easy to detect.
+When format or tier behavior changes intentionally, keep the expectations
+explicit so regressions are easy to identify.

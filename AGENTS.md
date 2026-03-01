@@ -23,4 +23,5 @@
 
 - GitHub Pages base path is `/rg-backpack-planner/`; keep routing SPA-safe.
 - If `public/icon.svg` changes, rerun `npm run pwa:assets`.
+- When I ask you to commit, use only `npm test` by default. Do not run `npm run test:ui:tier` unless I explicitly request it.
 - In Codex, cite sources as plain `path:line` text, not Markdown file links.

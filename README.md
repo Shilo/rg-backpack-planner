@@ -106,7 +106,11 @@ npm run pwa:assets  # regenerate PWA assets from public/icon.svg
 
 ## Testing
 
-The automated test suite is focused on the build-data encoder and decoder.
+The automated test suite covers both:
+
+- the build-data encoder and decoder
+- tier-level propagation and bulk-leveling behavior on the shared branch-shape
+  fixture used by the hand-written tier suite
 
 Run it with:
 
@@ -119,7 +123,54 @@ That command runs:
 1. `npm run check`
 2. `tsx test/index.ts`
 
-For more detail on the encoder test suite, see [test/README.md](test/README.md).
+For more detail on the hand-written CLI suites, see [test/README.md](test/README.md).
+
+## Tier Leveling Rules
+
+Tier leveling uses a stable-tier model with hysteresis:
+
+- the target node always moves to the exact requested level after clamping
+- if a level change drops the target to `0`, the target still lands at `0`, but
+  non-target propagation uses a virtual tier floor of `1` for that rebase
+- each operation is evaluated from the node you just changed; previously raised
+  neighbors do not become independent reactive drivers
+- reactive nodes are updated every time the target changes, not only when the
+  visible target tier label changes
+- ancestor nodes react to the target's propagation tier
+- all other connected nodes in the branch react as wrapped nodes and use
+  `target propagation tier - 1`
+
+Reactive thresholds depend on the node's `maxLevel`:
+
+- `100` cap nodes react upward when the target reaches `1`, `21`, `41`, `61`,
+  and `81`
+- `50` cap nodes react upward when the target reaches `1`, `11`, `21`, `31`,
+  and `41`
+- `1` cap nodes react upward when the target reaches `1`
+
+On the way down, the system uses hysteresis, so the reactive tier does not drop
+at the same number it rose:
+
+- a `100` cap node that already reached tier 2 at `21` keeps tier 2 support at
+  `20` and only drops to tier 1 when it reaches `19`
+- more generally, `100` cap nodes drop reactive support when they fall below
+  `20`, `40`, `60`, or `80`
+- `50` cap nodes drop reactive support when they fall below `10`, `20`, `30`,
+  or `40`
+- a `1` cap node drops its own stable tier when it returns to `0`
+- if a decrement lands on `0`, ancestors still rebase against tier `1`, while
+  wrapped nodes (including descendants) rebase against tier `0`
+
+Once the next stable tier is known, reactive nodes use directional clamping:
+
+- on an increment, each reactive node becomes `max(current, assigned tier upper
+  bound)`
+- on a decrement, each reactive node becomes `min(current, assigned tier upper
+  bound)`
+
+This means a same-tier decrement can still lower other nodes. If the target
+stays in the same stable tier but the assigned bound is lower than the current
+reactive level, the branch is rebased downward immediately.
 
 ## Project Structure
 
@@ -129,9 +180,15 @@ src/
   lib/               Components, stores, build-data logic, helpers
 public/              Static assets, icons, manifest inputs
 scripts/             Build helpers
-test/                Encoder test suite and docs
+test/                CLI test suites and docs
 dist/                Production output (generated)
 ```
+
+## Credits
+
+This project uses the following third-party assets:
+
+* **[250 Sci-fi Flat Icons](https://katgrabowska.itch.io/250-sci-fi-flat-icons)** by [KatGrabowska](https://katgrabowska.itch.io/) (Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)). Original icons were converted to SVG format and resized for this project.
 
 ## Deployment Notes
 

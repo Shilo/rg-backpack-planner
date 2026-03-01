@@ -289,6 +289,13 @@
         applyChange(index, level - 1);
     }
 
+    function levelDownBy10(index: NodeIndex) {
+        const level = getLevel(index);
+        if (level === 0) return;
+        const nextLevel = Math.max(level - 10, 0);
+        applyChange(index, nextLevel);
+    }
+
     function resetNode(index: NodeIndex) {
         const level = getLevel(index);
         if (level === 0) return;
@@ -878,6 +885,7 @@
                 onMax={maxNode}
                 onReset={resetNode}
                 onDecrement={levelDown}
+                onDecrementBy10={levelDownBy10}
                 onIncrement={levelUp}
                 onIncrementBy10={levelUpBy10}
                 level={contextMenu && contextMenu.index !== null
