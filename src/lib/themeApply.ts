@@ -3,12 +3,8 @@ import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
 import { applyTheme } from "./themeEngine";
 
-let cleanupThemeReactivity: (() => void) | null = null;
-
 /** Subscribe to both theme stores and reapply theme on any change. */
-export function initThemeReactivity(): void {
-    cleanupThemeReactivity?.();
-
+export function initThemeReactivity(): () => void {
     // Apply immediately with current values
     applyTheme(get(themeColor), get(darkMode) ? "dark" : "light");
 
@@ -20,13 +16,8 @@ export function initThemeReactivity(): void {
         applyTheme(get(themeColor), isDark ? "dark" : "light");
     });
 
-    cleanupThemeReactivity = () => {
+    return () => {
         unsubscribeThemeColor();
         unsubscribeDarkMode();
-        cleanupThemeReactivity = null;
     };
-}
-
-export function disposeThemeReactivity(): void {
-    cleanupThemeReactivity?.();
 }

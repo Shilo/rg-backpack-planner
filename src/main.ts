@@ -3,9 +3,9 @@ import "./theme.css";
 import "./app.css";
 import App from "./App.svelte";
 import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
-import { disposeThemeReactivity, initThemeReactivity } from "./lib/themeApply";
+import { initThemeReactivity } from "./lib/themeApply";
 
-initThemeReactivity();
+const cleanupThemeReactivity = initThemeReactivity();
 
 const app = mount(App, {
     target: document.getElementById("app")!,
@@ -40,7 +40,7 @@ const removeGlobalContextMenuListener = () => {
 
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
-        disposeThemeReactivity();
+        cleanupThemeReactivity();
         removeGlobalContextMenuListener();
     });
 }
