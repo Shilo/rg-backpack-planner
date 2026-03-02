@@ -6,14 +6,13 @@
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
     import { onMount, tick } from "svelte";
-    import { get } from "svelte/store";
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
     import {
         isCaptureInProgress,
         captureAction,
-    } from "./buildImageExport/captureService";
+    } from "./buildImageExport/captureBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -29,7 +28,6 @@
         setTreeLevels,
         treeLevels,
     } from "./treeLevelsStore";
-    import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
@@ -40,10 +38,6 @@
     export let activeIndex = 0;
     export let activeViewState: TreeViewState | null = null;
     export let activeFocusViewState: TreeViewState | null = null;
-    export let onNodeLevelChange:
-        | ((tabIndex: number, techCrystalDelta: number) => void)
-        | null = null;
-
     let bottomInset = 0;
     let tabsBarEl: HTMLDivElement | null = null;
     let treeRef: {
@@ -61,7 +55,7 @@
         x: number;
         y: number;
         index: number;
-        hideView0ptions: boolean;
+        hideViewOptions: boolean;
     } | null = null;
     let hasMounted = false;
     let lastActiveTabId = "";
@@ -186,7 +180,7 @@
                 x: point.x,
                 y: point.y,
                 index,
-                hideView0ptions: true,
+                hideViewOptions: true,
             };
             return true;
         });
@@ -247,7 +241,7 @@
                 x: point.x,
                 y: point.y,
                 index: activeIndex,
-                hideView0ptions: false,
+                hideViewOptions: false,
             };
             treeRef?.cancelGestures?.();
             return true;
@@ -273,7 +267,7 @@
             x: event.clientX,
             y: event.clientY,
             index: activeIndex,
-            hideView0ptions: false,
+            hideViewOptions: false,
         };
         treeRef?.cancelGestures?.();
     }
@@ -308,7 +302,7 @@
             x: event.clientX,
             y: event.clientY,
             index,
-            hideView0ptions: true,
+            hideViewOptions: true,
         };
     }
 
@@ -331,13 +325,6 @@
         treeRef.triggerFade?.();
     }
 
-    function refundTreeSpent(index: number) {
-        const spent = get(techCrystalsSpentByTree)[index] ?? 0;
-        if (spent !== 0) {
-            onNodeLevelChange?.(index, -spent);
-        }
-    }
-
     function resetLevelsForTab(index: number) {
         resetTreeLevels(index, tabs);
         treeRef?.triggerFade?.();
@@ -345,7 +332,6 @@
 
     function resetTreeByIndex(index: number) {
         resetLevelsForTab(index);
-        refundTreeSpent(index);
         const tabLabel = tabs[index].label;
         showToast(`Reset ${tabLabel} tree`, { tone: "negative" });
     }
@@ -364,9 +350,6 @@
 
     export function resetAllTrees() {
         if (tabs.length === 0) return;
-        for (let index = 0; index < tabs.length; index += 1) {
-            refundTreeSpent(index);
-        }
         resetAllTreeLevels(tabs);
         showToast("Reset all trees", { tone: "negative" });
         treeRef?.triggerFade?.();
@@ -380,11 +363,6 @@
             return;
         }
         setActive(index);
-    }
-
-    function handleNodeLevelChange(techCrystalDelta: number) {
-        if (!tabs[activeIndex]) return;
-        onNodeLevelChange?.(activeIndex, techCrystalDelta);
     }
 
     function handleLevelsChange(nextLevels: number[]) {
@@ -450,7 +428,6 @@
                     {bottomInset}
                     gesturesDisabled={!!tabContextMenu}
                     initialViewState={lastViewState}
-                    onNodeLevelChange={handleNodeLevelChange}
                     onViewStateChange={handleViewStateChange}
                     onFocusViewStateChange={handleFocusViewStateChange}
                     onOpenTreeContextMenu={(x, y) => {
@@ -462,7 +439,7 @@
                             x,
                             y,
                             index: activeIndex,
-                            hideView0ptions: false,
+                            hideViewOptions: false,
                         };
                         treeRef?.cancelGestures?.();
                     }}
@@ -488,7 +465,7 @@
         focusViewState={tabContextMenu?.index === activeIndex
             ? activeFocusViewState
             : null}
-        hideView0ptions={tabContextMenu?.hideView0ptions ?? false}
+        hideViewOptions={tabContextMenu?.hideViewOptions ?? false}
         onClose={closeTabMenu}
         onFocusInView={focusTabInView}
         onReset={resetTabTree}

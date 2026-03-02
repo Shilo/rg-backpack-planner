@@ -7,7 +7,6 @@ import type { BuildData } from "./encoder";
 import type { Node } from "../../types/tree";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
-import { recalculateTechCrystalsSpent } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";
 import { loadBuildFromUrl } from "./url";
 import { setIsApplyingBuildFromUrl } from "./url";
@@ -44,7 +43,6 @@ export function applyBuildData(
         }
 
         setTechCrystalsOwned(buildData.owned);
-        recalculateTechCrystalsSpent(expandedTrees);
         return true;
     } catch (error) {
         console.error("Failed to apply build data:", error);
@@ -73,21 +71,27 @@ export function applyBuildFromUrl(
     try {
         // Expand compressed tree data if trees are provided
         let expandedTrees = data.trees;
-        if (trees && data.trees.length === trees.length) {
+        if (trees) {
+            if (data.trees.length !== trees.length) {
+                console.warn(
+                    `Build data has ${data.trees.length} trees, but tree definitions contain ${trees.length}. Skipping apply.`,
+                );
+                return false;
+            }
             expandedTrees = expandTreeProgress(data.trees, trees);
         }
 
         // Apply tree levels
         const currentTrees = get(treeLevels);
-        if (expandedTrees.length === currentTrees.length) {
-            expandedTrees.forEach((tree, index) => {
-                setTreeLevels(index, tree);
-            });
-        } else {
+        if (expandedTrees.length !== currentTrees.length) {
             console.warn(
                 `Build data has ${expandedTrees.length} trees, but current app has ${currentTrees.length} trees. Skipping tree levels.`,
             );
+            return false;
         }
+        expandedTrees.forEach((tree, index) => {
+            setTreeLevels(index, tree);
+        });
 
         // Apply tech crystals owned
         setTechCrystalsOwned(data.owned);
@@ -104,9 +108,6 @@ export function applyBuildFromUrl(
         console.error("Failed to apply build from URL:", error);
         return false;
     } finally {
-        // Reset flag after a brief delay to allow store updates to settle
-        setTimeout(() => {
-            setIsApplyingBuildFromUrl(false);
-        }, 100);
+        setIsApplyingBuildFromUrl(false);
     }
 }

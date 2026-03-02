@@ -23,3 +23,4 @@
 
 - GitHub Pages base path is `/rg-backpack-planner/`; keep routing SPA-safe.
 - If `public/icon.svg` changes, rerun `npm run pwa:assets`.
+- `npm test` output is mirrored to `test/index.output.log`. It halts and exits 1 immediately upon the first test failure, only printing the success summary when all pass.
