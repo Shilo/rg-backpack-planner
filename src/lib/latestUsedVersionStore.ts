@@ -1,16 +1,23 @@
 import { readable } from "svelte/store";
 import packageInfo from "../../package.json";
-import { readLocalStorage, writeLocalStorage } from "./storage";
+import { getItem, setItem } from "./storage";
 
-const STORAGE_KEY = "rg-backpack-planner-latest-used-version";
 const currentVersion = packageInfo.version ?? "unknown";
 
 export function getStoredVersion(): string | null {
-    return readLocalStorage(STORAGE_KEY);
+    try {
+        return getItem("latest-used-version");
+    } catch {
+        return null;
+    }
 }
 
 function setStoredVersion(version: string): void {
-    writeLocalStorage(STORAGE_KEY, version);
+    try {
+        setItem("latest-used-version", version);
+    } catch {
+        // localStorage not available
+    }
 }
 
 export const latestUsedVersion = readable<string | null>(getStoredVersion());

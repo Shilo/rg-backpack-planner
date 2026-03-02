@@ -1,11 +1,5 @@
 import { writable } from "svelte/store";
-import {
-    readLocalStorage,
-    writeLocalStorage,
-    removeLocalStorage,
-} from "./storage";
-
-const STORAGE_KEY = "rg-backpack-planner-close-up-view";
+import { getItem, setItem, removeItem } from "./storage";
 
 /** Default when no stored preference: true on touch-primary devices, false on pointer devices */
 function getDefaultCloseUpView(): boolean {
@@ -14,7 +8,7 @@ function getDefaultCloseUpView(): boolean {
 }
 
 function getCloseUpView(): boolean {
-    const stored = readLocalStorage(STORAGE_KEY);
+    const stored = getItem("close-up-view");
     if (stored !== null) {
         return stored === "true";
     }
@@ -23,7 +17,7 @@ function getCloseUpView(): boolean {
 }
 
 function setCloseUpView(value: boolean) {
-    writeLocalStorage(STORAGE_KEY, value.toString());
+    setItem("close-up-view", value.toString());
 }
 
 function createCloseUpViewStore() {
@@ -47,7 +41,7 @@ function createCloseUpViewStore() {
             notifyChange();
         },
         resetToDefault: () => {
-            removeLocalStorage(STORAGE_KEY);
+            removeItem("close-up-view");
             const defaultValue = getDefaultCloseUpView();
             setCloseUpView(defaultValue);
             set(defaultValue);

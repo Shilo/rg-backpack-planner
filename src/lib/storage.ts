@@ -1,105 +1,91 @@
-export const APP_STORAGE_PREFIX = "rg-backpack-planner-";
+/**
+ * Centralized storage API for localStorage and sessionStorage.
+ * All keys are automatically prefixed with STORAGE_KEY_PREFIX to avoid collisions.
+ * Callers pass only the key suffix (e.g. "build-presets"); the prefix is applied internally.
+ */
 
-type StorageType = "localStorage" | "sessionStorage";
+export const STORAGE_KEY_PREFIX = "rg-backpack-planner-";
 
-function getStorage(type: StorageType): Storage | null {
+function prefixKey(key: string): string {
+    return `${STORAGE_KEY_PREFIX}${key}`;
+}
+
+/** localStorage.getItem with automatic key prefix */
+export function getItem(key: string): string | null {
     if (typeof window === "undefined") return null;
     try {
-        return window[type];
+        return localStorage.getItem(prefixKey(key));
     } catch {
         return null;
     }
 }
 
-function withStorage<T>(
-    type: StorageType,
-    fallback: T,
-    action: (storage: Storage) => T,
-): T {
-    const storage = getStorage(type);
-    if (!storage) return fallback;
+/** localStorage.setItem with automatic key prefix */
+export function setItem(key: string, value: string): void {
+    if (typeof window === "undefined") return;
     try {
-        return action(storage);
-    } catch {
-        return fallback;
+        localStorage.setItem(prefixKey(key), value);
+    } catch (error) {
+        if (
+            error instanceof DOMException &&
+            error.name === "QuotaExceededError"
+        ) {
+            console.warn("localStorage quota exceeded:", key);
+        } else {
+            console.error("Failed to save to localStorage:", key, error);
+        }
     }
 }
 
-export function readStorageItem(type: StorageType, key: string): string | null {
-    return withStorage(type, null, (storage) => storage.getItem(key));
+/** localStorage.removeItem with automatic key prefix */
+export function removeItem(key: string): void {
+    if (typeof window === "undefined") return;
+    try {
+        localStorage.removeItem(prefixKey(key));
+    } catch {
+        // ignore
+    }
 }
 
-export function writeStorageItem(
-    type: StorageType,
-    key: string,
-    value: string,
-): boolean {
-    return withStorage(type, false, (storage) => {
-        storage.setItem(key, value);
-        return true;
-    });
+/** sessionStorage.getItem with automatic key prefix */
+export function sessionGetItem(key: string): string | null {
+    if (typeof window === "undefined") return null;
+    try {
+        return sessionStorage.getItem(prefixKey(key));
+    } catch {
+        return null;
+    }
 }
 
-export function removeStorageItem(type: StorageType, key: string): boolean {
-    return withStorage(type, false, (storage) => {
-        storage.removeItem(key);
-        return true;
-    });
+/** sessionStorage.setItem with automatic key prefix */
+export function sessionSetItem(key: string, value: string): void {
+    if (typeof window === "undefined") return;
+    try {
+        sessionStorage.setItem(prefixKey(key), value);
+    } catch {
+        // ignore
+    }
 }
 
-export function clearStorageByPrefix(
-    type: StorageType,
-    prefix: string = APP_STORAGE_PREFIX,
-): number {
-    return withStorage(type, 0, (storage) => {
-        const keysToRemove: string[] = [];
-        for (let index = 0; index < storage.length; index += 1) {
-            const key = storage.key(index);
-            if (key?.startsWith(prefix)) {
-                keysToRemove.push(key);
-            }
-        }
-
-        let removed = 0;
-        for (const key of keysToRemove) {
-            try {
-                storage.removeItem(key);
-                removed += 1;
-            } catch {
-                // Continue clearing remaining keys if one remove fails
-            }
-        }
-        return removed;
-    });
+/** sessionStorage.removeItem with automatic key prefix */
+export function sessionRemoveItem(key: string): void {
+    if (typeof window === "undefined") return;
+    try {
+        sessionStorage.removeItem(prefixKey(key));
+    } catch {
+        // ignore
+    }
 }
 
-export function clearAppStorage(): number {
-    return (
-        clearStorageByPrefix("localStorage") +
-        clearStorageByPrefix("sessionStorage")
-    );
-}
-
-export function readLocalStorage(key: string): string | null {
-    return readStorageItem("localStorage", key);
-}
-
-export function writeLocalStorage(key: string, value: string): boolean {
-    return writeStorageItem("localStorage", key, value);
-}
-
-export function removeLocalStorage(key: string): boolean {
-    return removeStorageItem("localStorage", key);
-}
-
-export function readSessionStorage(key: string): string | null {
-    return readStorageItem("sessionStorage", key);
-}
-
-export function writeSessionStorage(key: string, value: string): boolean {
-    return writeStorageItem("sessionStorage", key, value);
-}
-
-export function removeSessionStorage(key: string): boolean {
-    return removeStorageItem("sessionStorage", key);
+/**
+ * Clears all localStorage for this origin.
+ * Use for "Clear all data". Kept as a function for future extensibility.
+ */
+export function clearAll(): void {
+    if (typeof window === "undefined") return;
+    try {
+        localStorage.clear();
+    } catch (error) {
+        console.error("Failed to clear storage:", error);
+    }
 }
