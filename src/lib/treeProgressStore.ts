@@ -2,9 +2,7 @@ import { get, type Unsubscriber } from "svelte/store";
 import { treeLevels } from "./treeLevelsStore";
 import { isPreviewMode } from "./previewModeStore";
 import type { Node, LevelsByIndex } from "../types/tree";
-import { readLocalStorage, writeLocalStorage } from "./storage";
-
-const STORAGE_KEY = "rg-backpack-planner-tree-progress";
+import { getItem, setItem } from "./storage";
 
 /**
  * Compresses tree progress data by trimming trailing zeros from each levels array.
@@ -60,7 +58,7 @@ export function loadTreeProgress(
     trees: { nodes: Node[] }[],
 ): LevelsByIndex[] | null {
     try {
-        const stored = readLocalStorage(STORAGE_KEY);
+        const stored = getItem("tree-progress");
         if (!stored) return null;
 
         const parsed = JSON.parse(stored) as unknown;
@@ -89,7 +87,7 @@ export function loadTreeProgress(
  */
 export function loadTreeProgressRaw(): LevelsByIndex[] | null {
     try {
-        const stored = readLocalStorage(STORAGE_KEY);
+        const stored = getItem("tree-progress");
         if (!stored) return null;
 
         const parsed = JSON.parse(stored) as unknown;
@@ -118,11 +116,22 @@ export function saveTreeProgress(levels: LevelsByIndex[]): void {
     try {
         const compressed = compressTreeProgress(levels);
         const serialized = JSON.stringify(compressed);
-        if (!writeLocalStorage(STORAGE_KEY, serialized)) {
-            console.warn("Unable to save tree progress to localStorage");
-        }
+        setItem("tree-progress", serialized);
     } catch (error) {
-        console.error("Failed to save tree progress to localStorage:", error);
+        // Handle quota exceeded or other storage errors gracefully
+        if (
+            error instanceof DOMException &&
+            error.name === "QuotaExceededError"
+        ) {
+            console.warn(
+                "localStorage quota exceeded, unable to save tree progress",
+            );
+        } else {
+            console.error(
+                "Failed to save tree progress to localStorage:",
+                error,
+            );
+        }
     }
 }
 

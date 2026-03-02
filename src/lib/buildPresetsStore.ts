@@ -4,10 +4,8 @@
  */
 
 import { writable, get, derived } from "svelte/store";
-import { decodeBuildData, encodeBuildData } from "./buildData/encoder";
-import { readLocalStorage, writeLocalStorage } from "./storage";
-
-const STORAGE_KEY = "rg-backpack-planner-build-presets";
+import { encodeBuildData, decodeBuildData } from "./buildData/encoder";
+import { getItem, setItem } from "./storage";
 
 export const DEFAULT_PRESET_NAME = "Default";
 
@@ -81,7 +79,7 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
 
 export function loadPresetsFromStorage(): BuildPresetsData {
     try {
-        const stored = readLocalStorage(STORAGE_KEY);
+        const stored = getItem("build-presets");
         if (stored === null) return defaultPresetsData();
         const parsed = JSON.parse(stored) as unknown;
         const validated = validatePresetsData(parsed);
@@ -92,9 +90,23 @@ export function loadPresetsFromStorage(): BuildPresetsData {
 }
 
 export function savePresetsToStorage(data: BuildPresetsData): void {
-    const serialized = JSON.stringify(data);
-    if (!writeLocalStorage(STORAGE_KEY, serialized)) {
-        console.warn("Unable to save build presets to localStorage");
+    if (typeof window === "undefined") return;
+    try {
+        setItem("build-presets", JSON.stringify(data));
+    } catch (error) {
+        if (
+            error instanceof DOMException &&
+            error.name === "QuotaExceededError"
+        ) {
+            console.warn(
+                "localStorage quota exceeded, unable to save build presets",
+            );
+        } else {
+            console.error(
+                "Failed to save build presets to localStorage:",
+                error,
+            );
+        }
     }
 }
 

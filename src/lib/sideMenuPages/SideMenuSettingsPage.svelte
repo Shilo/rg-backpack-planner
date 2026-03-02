@@ -32,7 +32,7 @@
     import SideMenuSection from "../SideMenuSection.svelte";
     import { singleLevelUp } from "../singleLevelUpStore";
     import { showToast } from "../toast";
-    import { clearAppStorage } from "../storage";
+    import { clearAll } from "../storage";
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
@@ -122,7 +122,10 @@
             cancelLabel: "Cancel",
             confirmNegative: true,
             onConfirm: () => {
-                clearAppStorage();
+                // Clear all app localStorage (prefixed keys only)
+                if (typeof window !== "undefined") {
+                    clearAll();
+                }
                 // Reload the page
                 window.location.reload();
             },
