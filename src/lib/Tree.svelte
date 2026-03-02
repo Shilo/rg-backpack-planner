@@ -684,18 +684,41 @@
         if (!viewportEl) return { x: nextOffsetX, y: nextOffsetY };
 
         const rect = viewportEl.getBoundingClientRect();
-        const usableHeight = Math.max(rect.height - bottomInset, 1);
+        const bounds = getWorldBounds();
 
-        // Scale bounds with zoom level - only expand when zoomed in (scale >= 1)
-        const effectiveScale = Math.max(nextScale, 1);
-        const minOffsetX = -rect.width * (effectiveScale - 1);
-        const maxOffsetX = rect.width * effectiveScale;
-        const minOffsetY = -usableHeight * (effectiveScale - 1);
-        const maxOffsetY = usableHeight * effectiveScale;
+        // Without content bounds fall back to a simple viewport-based clamp
+        if (!bounds) {
+            const effectiveScale = Math.max(nextScale, 1);
+            return {
+                x: clamp(
+                    nextOffsetX,
+                    -rect.width * (effectiveScale - 1),
+                    rect.width * effectiveScale,
+                ),
+                y: clamp(
+                    nextOffsetY,
+                    -rect.height * (effectiveScale - 1),
+                    rect.height * effectiveScale,
+                ),
+            };
+        }
 
+        // Content-aware clamp: keep at least `margin` px of the content
+        // bounding box visible. Nodes can freely scroll behind safe areas
+        // (status bar, nav bar) — initial positioning still respects them via
+        // computeFocusViewState which uses bottomInset.
+        const margin = 48;
         return {
-            x: clamp(nextOffsetX, minOffsetX, maxOffsetX),
-            y: clamp(nextOffsetY, minOffsetY, maxOffsetY),
+            x: clamp(
+                nextOffsetX,
+                margin - bounds.maxX * nextScale,
+                rect.width - margin - bounds.minX * nextScale,
+            ),
+            y: clamp(
+                nextOffsetY,
+                margin - bounds.maxY * nextScale,
+                rect.height - margin - bounds.minY * nextScale,
+            ),
         };
     }
 
