@@ -14,8 +14,6 @@ function getDefaultCloseUpView(): boolean {
 }
 
 function getCloseUpView(): boolean {
-    if (typeof window === "undefined") return false;
-
     const stored = readLocalStorage(STORAGE_KEY);
     if (stored !== null) {
         return stored === "true";
