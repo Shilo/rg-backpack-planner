@@ -19,31 +19,30 @@ import {
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
 import enLocale from "../../locales/en.json";
-import jpLocale from "../../locales/jp.json";
-import zhLocale from "../../locales/zh.json";
 
+// Keep these in sync with buildPresets.generated.* in src/locales/*.json
 const DEFAULT_PRESET_NAMES = Array.from(
     new Set([
         "Default",
         enLocale.buildPresets.generated.default,
-        jpLocale.buildPresets.generated.default,
-        zhLocale.buildPresets.generated.default,
+        "デフォルト", // jp
+        "默认",       // zh
     ]),
 );
 const NEW_PRESET_NAMES = Array.from(
     new Set([
         "New",
         enLocale.buildPresets.generated.new,
-        jpLocale.buildPresets.generated.new,
-        zhLocale.buildPresets.generated.new,
+        "新規", // jp
+        "新建", // zh
     ]),
 );
 const CLONE_PRESET_NAMES = Array.from(
     new Set([
         "Clone",
         enLocale.buildPresets.generated.clone,
-        jpLocale.buildPresets.generated.clone,
-        zhLocale.buildPresets.generated.clone,
+        "複製", // jp
+        "克隆", // zh
     ]),
 );
 
