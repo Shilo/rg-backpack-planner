@@ -11,7 +11,6 @@ export interface ThemeColor {
 const DEFAULT_THEME_COLOR: ThemeColor = { h: 264, c: 0.19 };
 
 function getThemeColor(): ThemeColor {
-    if (typeof window === "undefined") return DEFAULT_THEME_COLOR;
     const stored = getItem("theme-color");
     if (stored === null) return DEFAULT_THEME_COLOR;
     try {
@@ -37,7 +36,6 @@ function getThemeColor(): ThemeColor {
 }
 
 function setThemeColor(value: ThemeColor) {
-    if (typeof window === "undefined") return;
     setItem("theme-color", JSON.stringify(value));
 }
 
@@ -51,7 +49,6 @@ function createThemeColorStore() {
             set(value);
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
             removeItem("theme-color");
             setThemeColor(DEFAULT_THEME_COLOR);
             set(DEFAULT_THEME_COLOR);

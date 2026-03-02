@@ -90,7 +90,6 @@ export function loadPresetsFromStorage(): BuildPresetsData {
 }
 
 export function savePresetsToStorage(data: BuildPresetsData): void {
-    if (typeof window === "undefined") return;
     try {
         setItem("build-presets", JSON.stringify(data));
     } catch (error) {

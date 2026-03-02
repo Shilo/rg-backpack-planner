@@ -8,8 +8,6 @@ function getDefaultCloseUpView(): boolean {
 }
 
 function getCloseUpView(): boolean {
-    if (typeof window === "undefined") return false;
-
     const stored = getItem("close-up-view");
     if (stored !== null) {
         return stored === "true";
@@ -19,7 +17,6 @@ function getCloseUpView(): boolean {
 }
 
 function setCloseUpView(value: boolean) {
-    if (typeof window === "undefined") return;
     setItem("close-up-view", value.toString());
 }
 
@@ -44,7 +41,6 @@ function createCloseUpViewStore() {
             notifyChange();
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
             removeItem("close-up-view");
             const defaultValue = getDefaultCloseUpView();
             setCloseUpView(defaultValue);

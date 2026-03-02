@@ -122,10 +122,7 @@
             cancelLabel: "Cancel",
             confirmNegative: true,
             onConfirm: () => {
-                // Clear all app localStorage (prefixed keys only)
-                if (typeof window !== "undefined") {
-                    clearAll();
-                }
+                clearAll();
                 // Reload the page
                 window.location.reload();
             },
