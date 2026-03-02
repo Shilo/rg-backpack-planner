@@ -54,6 +54,18 @@ function getInitialLocale(): AppLocale {
     return getBrowserLocale();
 }
 
+function persistLocale(value: AppLocale): void {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, value);
+    } catch {
+        // ignore localStorage failures
+    }
+}
+
 export const currentLocale = writable<AppLocale>(FALLBACK_LOCALE);
 
 let isInitialized = false;
@@ -65,25 +77,36 @@ export async function initializeI18n(): Promise<void> {
     await init({ fallback: FALLBACK_LOCALE });
 
     const initial = getInitialLocale();
-    await locale.set(initial);
-    currentLocale.set(initial);
+    try {
+        await locale.set(initial);
+        currentLocale.set(initial);
+    } catch (error) {
+        console.error(
+            `Failed to load locale "${initial}". Falling back to "${FALLBACK_LOCALE}".`,
+            error,
+        );
+        await locale.set(FALLBACK_LOCALE);
+        currentLocale.set(FALLBACK_LOCALE);
+        persistLocale(FALLBACK_LOCALE);
+    }
 }
 
 export async function setAppLocale(nextLocale: AppLocale): Promise<void> {
     if (!isAppLocale(nextLocale)) return;
 
-    if (typeof window !== "undefined") {
-        try {
-            localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
-        } catch {
-            // ignore localStorage failures
-        }
+    try {
+        await locale.set(nextLocale);
+        currentLocale.set(nextLocale);
+        persistLocale(nextLocale);
+    } catch (error) {
+        console.error(`Failed to switch locale to "${nextLocale}".`, error);
     }
-
-    await locale.set(nextLocale);
-    currentLocale.set(nextLocale);
 }
 
+/**
+ * Sync translation helper for modules that are outside component reactivity.
+ * Prefer `$t(...)` in Svelte components whenever possible.
+ */
 export function tr(
     key: string,
     vars?: Record<string, unknown> | unknown[],
