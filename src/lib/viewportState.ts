@@ -11,6 +11,26 @@
  *   --keyboard-height  estimated on-screen keyboard height (px, 0 when closed)
  */
 
+/**
+ * Scroll the nearest `.modal-shell` ancestor so that `inputEl` is
+ * vertically centred within it.  Only scrolls when the input midpoint
+ * is more than 1/4 of the shell's height away from the shell midpoint,
+ * avoiding unnecessary jitter for inputs that are already in view.
+ */
+export function scrollInputVisible(inputEl: HTMLElement | null): void {
+    if (!inputEl) return;
+    const shell = inputEl.closest(".modal-shell");
+    if (!shell) return;
+    const shellRect = shell.getBoundingClientRect();
+    const inputRect = inputEl.getBoundingClientRect();
+    const inputMid = inputRect.top + inputRect.height / 2;
+    const shellMid = shellRect.top + shellRect.height / 2;
+    const offset = inputMid - shellMid;
+    if (Math.abs(offset) > shellRect.height / 4) {
+        shell.scrollBy({ top: offset, behavior: "smooth" });
+    }
+}
+
 let teardown: (() => void) | null = null;
 
 export function initViewportTracking(): void {
