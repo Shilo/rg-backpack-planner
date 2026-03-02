@@ -10,6 +10,7 @@
     } from "../buildData/url";
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
+    import { scrollInputVisible } from "../viewportState";
 
     export let title = "Preview shareable build";
     export let titleIcon: Component | null = null;
@@ -85,23 +86,8 @@
         }
     }
 
-    function scrollInputVisible() {
-        if (!inputEl) return;
-        const shell = inputEl.closest(".modal-shell");
-        if (shell) {
-            const shellRect = shell.getBoundingClientRect();
-            const inputRect = inputEl.getBoundingClientRect();
-            const inputMid = inputRect.top + inputRect.height / 2;
-            const shellMid = shellRect.top + shellRect.height / 2;
-            const offset = inputMid - shellMid;
-            if (Math.abs(offset) > shellRect.height / 4) {
-                shell.scrollBy({ top: offset, behavior: "smooth" });
-            }
-        }
-    }
-
     function handleFocus() {
-        setTimeout(scrollInputVisible, 300);
+        setTimeout(() => scrollInputVisible(inputEl), 300);
     }
 
     function handleKeydown(event: KeyboardEvent) {
