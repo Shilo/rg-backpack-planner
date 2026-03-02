@@ -521,7 +521,8 @@
         align-items: center;
         gap: var(--menu-gap);
         padding: 0 calc(var(--bar-pad) + var(--menu-width) + var(--menu-gap))
-            var(--bar-pad) var(--bar-pad);
+            calc(var(--bar-pad) + var(--safe-bottom, 0px))
+            calc(var(--bar-pad) + var(--safe-left, 0px));
         background: transparent;
         min-width: 0;
         z-index: var(--z-index-hud);
@@ -597,8 +598,8 @@
         align-items: center;
         justify-content: center;
         position: fixed;
-        right: var(--bar-pad);
-        bottom: var(--bar-pad);
+        right: calc(var(--bar-pad) + var(--safe-right, 0px));
+        bottom: calc(var(--bar-pad) + var(--safe-bottom, 0px));
         z-index: var(--z-index-hud);
     }
 

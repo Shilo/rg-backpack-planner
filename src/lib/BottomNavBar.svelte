@@ -35,6 +35,8 @@
         display: flex;
         align-items: stretch;
         position: relative;
+        padding-bottom: var(--safe-bottom, 0px);
+        padding-right: var(--safe-right, 0px);
     }
 
     .bottom-nav-bar__close-button {
