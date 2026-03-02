@@ -511,7 +511,7 @@
 
         .app-shell.menu-open .top-left-actions,
         .app-shell.menu-open .top-right-actions {
-            right: calc(var(--side-menu-width) + 10px);
+            right: calc(var(--side-menu-width) + 10px + env(safe-area-inset-right, 0px));
         }
     }
 
