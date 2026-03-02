@@ -21,7 +21,6 @@
     $: {
         statsRows = [
             ["Backpack Skill Boosts", ""],
-            ["TODO", "TODO"],
             ["Attack Boost", "10,000%"],
             ["Defense Boost", "30,000%"],
             ["Critical Hit", "160%"],

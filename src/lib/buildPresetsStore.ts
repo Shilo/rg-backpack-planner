@@ -4,7 +4,7 @@
  */
 
 import { writable, get, derived } from "svelte/store";
-import { encodeBuildData } from "./buildData/encoder";
+import { encodeBuildData, decodeBuildData } from "./buildData/encoder";
 import { getItem, setItem } from "./storage";
 
 export const DEFAULT_PRESET_NAME = "Default";
@@ -48,20 +48,33 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
     const presets = o.presets;
     if (typeof active !== "string" || !Array.isArray(presets)) return null;
     if (presets.length === 0) return null;
+
     const list: BuildPreset[] = [];
+    const ids = new Set<string>();
     for (const p of presets) {
-        if (!p || typeof p !== "object") return null;
+        if (!p || typeof p !== "object") continue;
         const q = p as Record<string, unknown>;
         if (
             typeof q.id !== "string" ||
             typeof q.name !== "string" ||
             typeof q.buildCode !== "string"
         )
-            return null;
-        list.push({ id: q.id, name: q.name, buildCode: q.buildCode });
+            continue;
+        if (ids.has(q.id)) continue;
+        if (!decodeBuildData(q.buildCode)) continue;
+
+        ids.add(q.id);
+        list.push({
+            id: q.id,
+            name: q.name.trim() || "Build",
+            buildCode: q.buildCode,
+        });
     }
-    if (!list.some((p) => p.id === active)) return null;
-    return { active, presets: list };
+    if (list.length === 0) return null;
+    const activeId = list.some((preset) => preset.id === active)
+        ? active
+        : list[0].id;
+    return { active: activeId, presets: list };
 }
 
 export function loadPresetsFromStorage(): BuildPresetsData {

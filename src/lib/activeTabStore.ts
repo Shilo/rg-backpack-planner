@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
+
 const DEFAULT_TAB_ID = "guardian";
 
 function getStoredActiveTabId(): string {

@@ -10,6 +10,10 @@ async function runAllTests() {
     await import("./appInfo.test.ts");
     console.log("✅ appInfo.test.ts passed\n");
 
+    console.log("Running buildDataApplier.test.ts...");
+    await import("./buildDataApplier.test.ts");
+    console.log("✅ buildDataApplier.test.ts passed\n");
+
     console.log("Running editableSurfaceStyles.test.ts...");
     await import("./editableSurfaceStyles.test.ts");
     console.log("✅ editableSurfaceStyles.test.ts passed\n");
@@ -25,6 +29,10 @@ async function runAllTests() {
     console.log("Running encoder.test.ts...");
     await import("./encoder.test.ts");
     console.log("✅ encoder.test.ts passed\n");
+
+    console.log("Running storage.test.ts...");
+    await import("./storage.test.ts");
+    console.log("✅ storage.test.ts passed\n");
 
     console.log("Running tierLeveling.test.ts...");
     await import("./tierLeveling.test.ts");

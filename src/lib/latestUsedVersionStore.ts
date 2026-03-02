@@ -1,6 +1,7 @@
 import { readable } from "svelte/store";
 import packageInfo from "../../package.json";
 import { getItem, setItem } from "./storage";
+
 const currentVersion = packageInfo.version ?? "unknown";
 
 export function getStoredVersion(): string | null {

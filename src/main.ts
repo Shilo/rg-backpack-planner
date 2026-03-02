@@ -5,7 +5,7 @@ import App from "./App.svelte";
 import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
 import { initThemeReactivity } from "./lib/themeApply";
 
-initThemeReactivity();
+const cleanupThemeReactivity = initThemeReactivity();
 
 const app = mount(App, {
     target: document.getElementById("app")!,
@@ -33,5 +33,16 @@ const handleGlobalContextMenu = (event: MouseEvent) => {
 document.addEventListener("contextmenu", handleGlobalContextMenu, {
     capture: true,
 });
+
+const removeGlobalContextMenuListener = () => {
+    document.removeEventListener("contextmenu", handleGlobalContextMenu, true);
+};
+
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+        cleanupThemeReactivity();
+        removeGlobalContextMenuListener();
+    });
+}
 
 export default app;

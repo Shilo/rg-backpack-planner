@@ -25,10 +25,9 @@ function createCloseUpViewStore() {
     let onChangeCallback: (() => void) | null = null;
 
     const notifyChange = () => {
-        // Use setTimeout to ensure store update has propagated before calling callback
-        setTimeout(() => {
+        queueMicrotask(() => {
             onChangeCallback?.();
-        }, 0);
+        });
     };
 
     return {

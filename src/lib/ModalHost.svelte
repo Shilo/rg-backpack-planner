@@ -3,7 +3,6 @@
     import ConfirmModal from "./modals/ConfirmModal.svelte";
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
-    // @ts-ignore - Svelte component import
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
