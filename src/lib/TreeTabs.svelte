@@ -13,7 +13,7 @@
     import {
         isCaptureInProgress,
         captureAction,
-    } from "./buildImageExport/captureService";
+    } from "./buildImageExport/captureBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
