@@ -346,16 +346,15 @@
 
         // Global hotkeys: F9 to share, Escape to toggle menu
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.repeat) return;
+
             if (e.key === "Escape" && !e.defaultPrevented && e.isTrusted) {
                 e.preventDefault();
                 toggleMenu();
-                return;
+            } else if (e.key === "F9") {
+                e.preventDefault();
+                shareBuildAsImage();
             }
-
-            if (e.repeat || e.key !== "F9") return;
-
-            e.preventDefault();
-            shareBuildAsImage();
         };
         window.addEventListener("keydown", handleKeyDown);
 
