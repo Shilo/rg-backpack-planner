@@ -220,6 +220,7 @@
     async function initializeFromUrl(): Promise<void> {
         const hashAtStart =
             typeof window !== "undefined" ? window.location.hash : "";
+        let didNormalizeShareUrl = false;
 
         // Ensure trees are initialized before applying any build data
         await tick();
@@ -252,6 +253,7 @@
                 if (typeof window !== "undefined") {
                     const basePath = getBasePath();
                     window.history.replaceState({}, "", basePath);
+                    didNormalizeShareUrl = true;
                     // Show toast to inform user
                     showToastDelayed("Invalid share link", {
                         tone: "negative",
@@ -262,20 +264,23 @@
             }
         }
 
+        let shouldUsePreviewMode = false;
         if (hasUrlBuild && buildData) {
             // Stale check: hash may have changed (e.g. user navigated) - don't overwrite
             if (
                 typeof window !== "undefined" &&
-                window.location.hash !== hashAtStart
+                window.location.hash !== hashAtStart &&
+                !didNormalizeShareUrl
             ) {
                 return;
             }
-            // Preview mode: Public build from URL
-            setPreviewMode(true);
 
             // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
             const buildLoaded = applyBuildFromUrl(tabs, buildData);
             if (buildLoaded) {
+                // Preview mode: Public build from URL
+                shouldUsePreviewMode = true;
+                setPreviewMode(true);
                 // Recalculate tech crystals spent after loading from URL
                 const currentTrees = get(treeLevels);
                 recalculateTechCrystalsSpent(currentTrees);
@@ -287,8 +292,20 @@
                 const title = getPreviewTitle(get(previewBuildName));
                 closeTransientUiForPreview();
                 showToastDelayed(`Viewing ${title.toLowerCase()} build`);
+            } else {
+                // Treat unapplicable shared builds as invalid preview links
+                setPreviewMode(false);
+                clearPreviewBuildName();
+                if (typeof window !== "undefined") {
+                    const basePath = getBasePath();
+                    window.history.replaceState({}, "", basePath);
+                    didNormalizeShareUrl = true;
+                }
+                showToastDelayed("Invalid share link", { tone: "negative" });
             }
+        }
 
+        if (shouldUsePreviewMode) {
             // Don't load from localStorage in preview mode
             // Don't initialize persistence in preview mode (changes update URL instead)
 
@@ -308,7 +325,8 @@
             // Stale check: hash may have changed (e.g. user navigated) - don't overwrite
             if (
                 typeof window !== "undefined" &&
-                window.location.hash !== hashAtStart
+                window.location.hash !== hashAtStart &&
+                !didNormalizeShareUrl
             ) {
                 return;
             }
@@ -334,9 +352,6 @@
                 const buildData = decodeBuildData(activePreset.buildCode);
                 if (!buildData) {
                     applyBuildData(tabs, fallbackBuildData);
-                    updateActivePresetBuildCode(
-                        encodeBuildData(fallbackBuildData),
-                    );
                 } else {
                     applyBuildData(tabs, buildData);
                 }
