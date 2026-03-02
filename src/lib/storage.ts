@@ -78,13 +78,23 @@ export function sessionRemoveItem(key: string): void {
 }
 
 /**
- * Clears all localStorage for this origin.
- * Use for "Clear all data". Kept as a function for future extensibility.
+ * Clears all app-scoped localStorage keys (those starting with STORAGE_KEY_PREFIX).
+ * Third-party keys on the same origin are preserved.
+ * Use for "Clear all data".
  */
 export function clearAll(): void {
     if (typeof window === "undefined") return;
     try {
-        localStorage.clear();
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key?.startsWith(STORAGE_KEY_PREFIX)) {
+                keysToRemove.push(key);
+            }
+        }
+        for (const key of keysToRemove) {
+            localStorage.removeItem(key);
+        }
     } catch (error) {
         console.error("Failed to clear storage:", error);
     }

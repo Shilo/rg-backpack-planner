@@ -118,20 +118,7 @@ export function saveTreeProgress(levels: LevelsByIndex[]): void {
         const serialized = JSON.stringify(compressed);
         setItem("tree-progress", serialized);
     } catch (error) {
-        // Handle quota exceeded or other storage errors gracefully
-        if (
-            error instanceof DOMException &&
-            error.name === "QuotaExceededError"
-        ) {
-            console.warn(
-                "localStorage quota exceeded, unable to save tree progress",
-            );
-        } else {
-            console.error(
-                "Failed to save tree progress to localStorage:",
-                error,
-            );
-        }
+        console.error("Failed to save tree progress to localStorage:", error);
     }
 }
 

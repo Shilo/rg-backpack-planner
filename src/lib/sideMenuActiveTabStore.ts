@@ -9,23 +9,15 @@ function isValidTab(tab: string): tab is SideMenuTab {
 }
 
 function getStoredActiveTab(): SideMenuTab {
-    try {
-        const stored = getItem("side-menu-active-tab");
-        if (stored && isValidTab(stored)) {
-            return stored;
-        }
-    } catch {
-        // localStorage not available, use default
+    const stored = getItem("side-menu-active-tab");
+    if (stored && isValidTab(stored)) {
+        return stored;
     }
     return DEFAULT_TAB;
 }
 
 function setStoredActiveTab(tab: SideMenuTab): void {
-    try {
-        setItem("side-menu-active-tab", tab);
-    } catch {
-        // localStorage not available
-    }
+    setItem("side-menu-active-tab", tab);
 }
 
 // Create writable store that syncs with localStorage

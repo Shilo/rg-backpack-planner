@@ -11,7 +11,9 @@ function syncThemeColorMeta(bgHex: string): void {
 
 /** Subscribe to both theme stores and reapply theme on any change. */
 export function initThemeReactivity(): () => void {
-    function apply(color: ThemeColor, isDark: boolean) {
+    function apply() {
+        const color = get(themeColor);
+        const isDark = get(darkMode);
         applyTheme(color, isDark ? "dark" : "light");
 
         const neutralC = color.c * (isDark ? 0.14 : 0.12);
@@ -20,15 +22,11 @@ export function initThemeReactivity(): () => void {
     }
 
     // Apply immediately with current values
-    apply(get(themeColor), get(darkMode));
+    apply();
 
     // Subscribe to future changes
-    const unsubscribeThemeColor = themeColor.subscribe((color) => {
-        apply(color, get(darkMode));
-    });
-    const unsubscribeDarkMode = darkMode.subscribe((isDark) => {
-        apply(get(themeColor), isDark);
-    });
+    const unsubscribeThemeColor = themeColor.subscribe(apply);
+    const unsubscribeDarkMode = darkMode.subscribe(apply);
 
     return () => {
         unsubscribeThemeColor();
