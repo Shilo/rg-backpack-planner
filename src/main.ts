@@ -4,8 +4,10 @@ import "./app.css";
 import App from "./App.svelte";
 import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
 import { initThemeReactivity } from "./lib/themeApply";
+import { initViewportTracking } from "./lib/viewportState";
 
 initThemeReactivity();
+initViewportTracking();
 
 const app = mount(App, {
     target: document.getElementById("app")!,

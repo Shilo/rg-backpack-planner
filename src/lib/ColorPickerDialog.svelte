@@ -424,17 +424,31 @@
 
     .color-picker-backdrop {
         position: fixed;
-        inset: 0;
+        left: 0;
+        top: var(--vv-offset-top, 0px);
+        width: 100%;
+        height: var(--vv-height, 100vh);
         background: var(--backdrop-overlay, rgba(0, 0, 0, 0.5));
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: var(--spacing-lg);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding:
+            calc(var(--spacing-lg) + var(--safe-top, 0px))
+            calc(var(--spacing-lg) + var(--safe-right, 0px))
+            calc(var(--spacing-lg) + var(--safe-bottom, 0px))
+            calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
     }
 
     .color-picker-card {
+        margin-top: auto;
+        margin-bottom: auto;
+        flex-shrink: 0;
         width: min(95vw, 400px);
+        max-height: 100%;
         background: var(--bg-panel);
         border: var(--border-width) solid
             color-mix(
@@ -445,6 +459,7 @@
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         overflow: hidden;
+        overflow-y: auto;
     }
 
     /* Grayscale row */

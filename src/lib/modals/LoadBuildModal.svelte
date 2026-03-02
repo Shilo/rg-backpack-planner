@@ -85,6 +85,25 @@
         }
     }
 
+    function scrollInputVisible() {
+        if (!inputEl) return;
+        const shell = inputEl.closest(".modal-shell");
+        if (shell) {
+            const shellRect = shell.getBoundingClientRect();
+            const inputRect = inputEl.getBoundingClientRect();
+            const inputMid = inputRect.top + inputRect.height / 2;
+            const shellMid = shellRect.top + shellRect.height / 2;
+            const offset = inputMid - shellMid;
+            if (Math.abs(offset) > shellRect.height / 4) {
+                shell.scrollBy({ top: offset, behavior: "smooth" });
+            }
+        }
+    }
+
+    function handleFocus() {
+        setTimeout(scrollInputVisible, 300);
+    }
+
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -139,6 +158,7 @@
             spellcheck="false"
             bind:value={inputText}
             on:keydown={handleKeydown}
+            on:focus={handleFocus}
         />
     </div>
 

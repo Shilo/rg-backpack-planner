@@ -27,7 +27,6 @@
 
     let valueText = `${Math.max(min, Math.floor(value))}`;
     let inputEl: HTMLInputElement | null = null;
-    let modalShellEl: HTMLElement | null = null;
 
     function parseValue() {
         const parsed = Number.parseInt(valueText, 10);
@@ -71,28 +70,23 @@
         action();
     }
 
-    function handleFocus() {
-        // Give the virtual keyboard a moment to open before scrolling.
-        setTimeout(() => {
-            inputEl?.scrollIntoView({ block: "center", behavior: "smooth" });
-        }, 50);
+    function scrollInputVisible() {
+        if (!inputEl) return;
+        const shell = inputEl.closest(".modal-shell");
+        if (shell) {
+            const shellRect = shell.getBoundingClientRect();
+            const inputRect = inputEl.getBoundingClientRect();
+            const inputMid = inputRect.top + inputRect.height / 2;
+            const shellMid = shellRect.top + shellRect.height / 2;
+            const offset = inputMid - shellMid;
+            if (Math.abs(offset) > shellRect.height / 4) {
+                shell.scrollBy({ top: offset, behavior: "smooth" });
+            }
+        }
     }
 
-    function updateKeyboardOffset() {
-        if (!modalShellEl) return;
-        const viewport = window.visualViewport;
-        if (!viewport) {
-            modalShellEl.style.removeProperty("--keyboard-offset");
-            return;
-        }
-        const keyboardOffset = Math.max(
-            0,
-            window.innerHeight - (viewport.height + viewport.offsetTop),
-        );
-        modalShellEl.style.setProperty(
-            "--keyboard-offset",
-            `${keyboardOffset}px`,
-        );
+    function handleFocus() {
+        setTimeout(scrollInputVisible, 300);
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -105,26 +99,6 @@
     onMount(() => {
         inputEl?.focus();
         inputEl?.select();
-        modalShellEl = inputEl
-            ? (inputEl.closest(".modal-shell") as HTMLElement | null)
-            : null;
-        updateKeyboardOffset();
-        const viewport = window.visualViewport;
-        const handleViewportChange = () => {
-            updateKeyboardOffset();
-        };
-        viewport?.addEventListener("resize", handleViewportChange);
-        viewport?.addEventListener("scroll", handleViewportChange);
-        window.addEventListener("orientationchange", handleViewportChange);
-        return () => {
-            viewport?.removeEventListener("resize", handleViewportChange);
-            viewport?.removeEventListener("scroll", handleViewportChange);
-            window.removeEventListener(
-                "orientationchange",
-                handleViewportChange,
-            );
-            modalShellEl?.style.removeProperty("--keyboard-offset");
-        };
     });
 </script>
 
@@ -216,11 +190,6 @@
         display: grid;
         gap: var(--spacing-lg);
         padding: var(--spacing-md);
-    }
-
-    :global(.modal-shell) {
-        transform: translateY(calc(-1 * var(--keyboard-offset, 0px) * 0.45));
-        transition: transform 150ms ease;
     }
 
     .modal-header {
