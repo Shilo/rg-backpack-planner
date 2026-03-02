@@ -31,8 +31,6 @@
 
     import {
         initTechCrystalTrees,
-        applyTechCrystalDeltaForTree,
-        recalculateTechCrystalsSpent,
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
@@ -176,7 +174,7 @@
     }
 
     function handleNodeLevelChange(tabIndex: number, techCrystalDelta: number) {
-        applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
+        // Tech crystals spent are now computed reactively in the store
     }
 
     function openControlsFromTitle() {
@@ -276,10 +274,6 @@
             // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
             const buildLoaded = applyBuildFromUrl(tabs, buildData);
             if (buildLoaded) {
-                // Recalculate tech crystals spent after loading from URL
-                const currentTrees = get(treeLevels);
-                recalculateTechCrystalsSpent(currentTrees);
-
                 // Select the first tab that has nodes leveled > 0
                 selectFirstTabWithLevels();
 
