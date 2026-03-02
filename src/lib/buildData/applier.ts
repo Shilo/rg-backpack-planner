@@ -7,7 +7,6 @@ import type { BuildData } from "./encoder";
 import type { Node } from "../../types/tree";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
-import { recalculateTechCrystalsSpent } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";
 import { loadBuildFromUrl } from "./url";
 import { setIsApplyingBuildFromUrl } from "./url";
@@ -44,7 +43,6 @@ export function applyBuildData(
         }
 
         setTechCrystalsOwned(buildData.owned);
-        recalculateTechCrystalsSpent(expandedTrees);
         return true;
     } catch (error) {
         console.error("Failed to apply build data:", error);

@@ -32,9 +32,6 @@
     export let bottomInset = 0;
     export let gesturesDisabled = false;
     export let initialViewState: TreeViewState | null = null;
-    export let onNodeLevelChange:
-        | ((delta: number, nodeIndex?: NodeIndex) => void)
-        | null = null;
     export let levelsById: LevelsByIndex | null = null;
     export let onLevelsChange: ((levels: LevelsByIndex) => void) | null = null;
     export let onViewStateChange: ((view: TreeViewState) => void) | null = null;
@@ -361,9 +358,6 @@
         });
         if (deltas.length === 0) return false;
         updateLevels(nextLevels);
-        deltas.forEach(({ index: idx, delta }) =>
-            onNodeLevelChange?.(delta, idx),
-        );
         return true;
     }
 
@@ -411,11 +405,7 @@
     }
 
     export function resetAllNodes() {
-        const totalSpent = levels.reduce((sum, value) => sum + value, 0);
         updateLevels(nodes.map(() => 0));
-        if (totalSpent > 0) {
-            onNodeLevelChange?.(-totalSpent);
-        }
     }
 
     export function getViewState() {

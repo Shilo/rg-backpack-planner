@@ -79,6 +79,7 @@
 
         if (event.key === "Escape") {
             event.preventDefault();
+            event.stopImmediatePropagation();
             if (!triggerModalAction("[data-modal-cancel]")) {
                 handleCancel();
             }
@@ -192,7 +193,12 @@
         width: min(92vw, 380px);
         border-radius: var(--radius);
         background: var(--bg-panel);
-        border: var(--border-width) solid color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 50%, transparent);
+        border: var(--border-width) solid
+            color-mix(
+                in srgb,
+                color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
+                transparent
+            );
         box-shadow: var(--shadow);
         padding: 0;
         overflow: hidden;
