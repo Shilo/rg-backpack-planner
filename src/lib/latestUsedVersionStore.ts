@@ -4,7 +4,6 @@ import { getItem, setItem } from "./storage";
 const currentVersion = packageInfo.version ?? "unknown";
 
 export function getStoredVersion(): string | null {
-    if (typeof window === "undefined") return null;
     try {
         return getItem("latest-used-version");
     } catch {
@@ -13,7 +12,6 @@ export function getStoredVersion(): string | null {
 }
 
 function setStoredVersion(version: string): void {
-    if (typeof window === "undefined") return;
     try {
         setItem("latest-used-version", version);
     } catch {

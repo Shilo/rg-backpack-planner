@@ -78,30 +78,14 @@ export function sessionRemoveItem(key: string): void {
 }
 
 /**
- * Removes all localStorage and sessionStorage keys that belong to this app (prefixed keys).
- * Use for "Clear all data" instead of localStorage.clear() to avoid wiping other apps.
+ * Clears all localStorage for this origin.
+ * Use for "Clear all data". Kept as a function for future extensibility.
  */
 export function clearAll(): void {
     if (typeof window === "undefined") return;
     try {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key?.startsWith(STORAGE_KEY_PREFIX)) {
-                keysToRemove.push(key);
-            }
-        }
-        keysToRemove.forEach((k) => localStorage.removeItem(k));
-
-        const sessionKeysToRemove: string[] = [];
-        for (let i = 0; i < sessionStorage.length; i++) {
-            const key = sessionStorage.key(i);
-            if (key?.startsWith(STORAGE_KEY_PREFIX)) {
-                sessionKeysToRemove.push(key);
-            }
-        }
-        sessionKeysToRemove.forEach((k) => sessionStorage.removeItem(k));
+        localStorage.clear();
     } catch (error) {
-        console.error("Failed to clear app storage:", error);
+        console.error("Failed to clear storage:", error);
     }
 }

@@ -5,14 +5,12 @@ import { getItem, setItem, removeItem } from "./storage";
 const DEFAULT_DARK_MODE = true;
 
 function getDarkMode(): boolean {
-    if (typeof window === "undefined") return DEFAULT_DARK_MODE;
     const stored = getItem("dark-mode");
     if (stored === null) return DEFAULT_DARK_MODE;
     return stored === "true";
 }
 
 function setDarkMode(value: boolean) {
-    if (typeof window === "undefined") return;
     setItem("dark-mode", value.toString());
 }
 
@@ -26,7 +24,6 @@ function createDarkModeStore() {
             set(value);
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
             removeItem("dark-mode");
             setDarkMode(DEFAULT_DARK_MODE);
             set(DEFAULT_DARK_MODE);

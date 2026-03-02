@@ -9,7 +9,6 @@ function isValidTab(tab: string): tab is SideMenuTab {
 }
 
 function getStoredActiveTab(): SideMenuTab {
-    if (typeof window === "undefined") return DEFAULT_TAB;
     try {
         const stored = getItem("side-menu-active-tab");
         if (stored && isValidTab(stored)) {
@@ -22,7 +21,6 @@ function getStoredActiveTab(): SideMenuTab {
 }
 
 function setStoredActiveTab(tab: SideMenuTab): void {
-    if (typeof window === "undefined") return;
     try {
         setItem("side-menu-active-tab", tab);
     } catch {

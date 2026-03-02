@@ -65,7 +65,6 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
 }
 
 export function loadPresetsFromStorage(): BuildPresetsData {
-    if (typeof window === "undefined") return defaultPresetsData();
     try {
         const stored = getItem("build-presets");
         if (stored === null) return defaultPresetsData();
@@ -78,7 +77,6 @@ export function loadPresetsFromStorage(): BuildPresetsData {
 }
 
 export function savePresetsToStorage(data: BuildPresetsData): void {
-    if (typeof window === "undefined") return;
     try {
         setItem("build-presets", JSON.stringify(data));
     } catch (error) {

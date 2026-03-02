@@ -5,13 +5,11 @@ import { getItem, setItem, removeItem } from "./storage";
 const DEFAULT_SINGLE_LEVEL_UP = false;
 
 function getSingleLevelUp(): boolean {
-    if (typeof window === "undefined") return DEFAULT_SINGLE_LEVEL_UP;
     const stored = getItem("single-level-up");
     return stored === "true" ? true : DEFAULT_SINGLE_LEVEL_UP;
 }
 
 function setSingleLevelUp(value: boolean) {
-    if (typeof window === "undefined") return;
     setItem("single-level-up", value.toString());
 }
 
@@ -25,7 +23,6 @@ function createSingleLevelUpStore() {
             set(value);
         },
         resetToDefault: () => {
-            if (typeof window === "undefined") return;
             removeItem("single-level-up");
             setSingleLevelUp(DEFAULT_SINGLE_LEVEL_UP);
             set(DEFAULT_SINGLE_LEVEL_UP);

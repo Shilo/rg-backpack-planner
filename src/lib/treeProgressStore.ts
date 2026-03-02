@@ -57,8 +57,6 @@ export function expandTreeProgress(
 export function loadTreeProgress(
     trees: { nodes: Node[] }[],
 ): LevelsByIndex[] | null {
-    if (typeof window === "undefined") return null;
-
     try {
         const stored = getItem("tree-progress");
         if (!stored) return null;
@@ -88,8 +86,6 @@ export function loadTreeProgress(
  * Use for summing spent etc. when trees are not available.
  */
 export function loadTreeProgressRaw(): LevelsByIndex[] | null {
-    if (typeof window === "undefined") return null;
-
     try {
         const stored = getItem("tree-progress");
         if (!stored) return null;
@@ -117,8 +113,6 @@ export function loadTreeProgressRaw(): LevelsByIndex[] | null {
  * @param levels The tree levels to save
  */
 export function saveTreeProgress(levels: LevelsByIndex[]): void {
-    if (typeof window === "undefined") return;
-
     try {
         const compressed = compressTreeProgress(levels);
         const serialized = JSON.stringify(compressed);

@@ -67,8 +67,6 @@ export function checkSessionStorageAndShowToast(
     storageKey: string,
     toastMessage: (value: string) => string,
 ): boolean {
-    if (typeof window === "undefined") return false;
-
     const value = sessionGetItem(storageKey);
     if (value === null) return false;
 
@@ -110,7 +108,6 @@ export function tryShowClonedBuildToast(): boolean {
  * Sets a flag in sessionStorage that will be checked after reload.
  */
 export function queueStoppedPreviewToast(): void {
-    if (typeof window === "undefined") return;
     sessionSetItem(STOPPED_PREVIEW_KEY, true.toString());
 }
 
@@ -120,6 +117,5 @@ export function queueStoppedPreviewToast(): void {
  * @param previewName The name of the preview build that was cloned (or empty string if not available)
  */
 export function queueClonedBuildToast(previewName: string = ""): void {
-    if (typeof window === "undefined") return;
     sessionSetItem(CLONED_BUILD_KEY, previewName);
 }
