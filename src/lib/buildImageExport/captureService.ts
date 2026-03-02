@@ -1,5 +1,12 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
+import {
+    tabsBridge,
+    captureInProgressCount,
+    incrementCapture,
+    decrementCapture,
+    type TabsCaptureBridge,
+} from "./captureBridge";
 
 const TREE_VISIBLE_BOUNDS = {
     centerNode: {
@@ -13,19 +20,6 @@ const TREE_VISIBLE_BOUNDS = {
     // height: 696
     // snapdom seems to add a 1px extra margin around the captured area
 };
-
-type TabsCaptureBridge = {
-    setActive: (index: number) => void;
-    getActive: () => number;
-    getTreeCanvas: () => HTMLDivElement | null | undefined;
-};
-
-let tabsBridge: TabsCaptureBridge | null = null;
-let captureInProgressCount = 0;
-
-export function isCaptureInProgress() {
-    return captureInProgressCount > 0;
-}
 
 function preserveTreeLinkStrokeStyles(root: HTMLElement) {
     // Ensure SVG link stroke styles survive capture (snapdom can miss CSS for SVG)
@@ -231,14 +225,14 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
     const rootEl =
         typeof document !== "undefined" ? document.documentElement : null;
     const isFirstCall = captureInProgressCount === 0;
-    captureInProgressCount++;
+    incrementCapture();
     if (isFirstCall) {
         rootEl?.classList.add("snapdom-capture");
     }
     try {
         return await callback();
     } finally {
-        captureInProgressCount--;
+        decrementCapture();
         if (captureInProgressCount === 0) {
             rootEl?.classList.remove("snapdom-capture");
         }
@@ -296,17 +290,3 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     });
 }
 
-/**
- * Svelte action for automatic capture bridge registration
- * Usage: use:captureAction={{ setActive, getActive, getTreeCanvas }}
- */
-export function captureAction(_node: HTMLElement, bridge: TabsCaptureBridge) {
-    tabsBridge = bridge;
-    return {
-        destroy: () => {
-            if (tabsBridge === bridge) {
-                tabsBridge = null;
-            }
-        },
-    };
-}

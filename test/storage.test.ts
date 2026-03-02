@@ -77,7 +77,9 @@ const originalWindow = globalWithWindow.window;
 const originalLocalStorage = globalWithWindow.localStorage;
 const originalSessionStorage = globalWithWindow.sessionStorage;
 
-function installWindow(windowValue?: TestWindow) {
+function installWindow(
+    windowValue?: { localStorage: Storage; sessionStorage: Storage },
+) {
     if (windowValue) {
         globalWithWindow.window = windowValue as unknown as NonNullable<
             typeof globalWithWindow.window

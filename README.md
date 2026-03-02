@@ -123,6 +123,12 @@ That command runs:
 1. `npm run check`
 2. `tsx test/index.ts`
 
+**Note on Test Execution:**
+- All tests run sequentially.
+- Console output for all tests is mirrored to a global log file at `test/index.output.log`.
+- If *any* test fails, the entire suite instantly aborts, prints a failure message, and exits with code 1.
+- You will only see the `🎉 All tests completed successfully!` message and the final log file link if every single test passes.
+
 For more detail on the hand-written CLI suites, see [test/README.md](test/README.md).
 
 ## Tier Leveling Rules

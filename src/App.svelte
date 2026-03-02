@@ -31,8 +31,6 @@
 
     import {
         initTechCrystalTrees,
-        applyTechCrystalDeltaForTree,
-        recalculateTechCrystalsSpent,
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
@@ -175,10 +173,6 @@
         resetSwipeState();
     }
 
-    function handleNodeLevelChange(tabIndex: number, techCrystalDelta: number) {
-        applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
-    }
-
     function openControlsFromTitle() {
         isMenuOpen = true;
         sideMenuRef?.openTab?.("controls");
@@ -281,9 +275,6 @@
                 // Preview mode: Public build from URL
                 shouldUsePreviewMode = true;
                 setPreviewMode(true);
-                // Recalculate tech crystals spent after loading from URL
-                const currentTrees = get(treeLevels);
-                recalculateTechCrystalsSpent(currentTrees);
 
                 // Select the first tab that has nodes leveled > 0
                 selectFirstTabWithLevels();
@@ -380,12 +371,17 @@
 
         document.title = APP_DISPLAY_NAME_FULL;
 
-        // Global hotkey: F9 to share build as image
+        // Global hotkeys: F9 to share, Escape to toggle menu
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.repeat || e.key !== "F9") return;
+            if (e.repeat) return;
 
-            e.preventDefault();
-            shareBuildAsImage();
+            if (e.key === "Escape" && !e.defaultPrevented && e.isTrusted) {
+                e.preventDefault();
+                toggleMenu();
+            } else if (e.key === "F9") {
+                e.preventDefault();
+                shareBuildAsImage();
+            }
         };
         window.addEventListener("keydown", handleKeyDown);
 
@@ -481,7 +477,6 @@
             bind:activeFocusViewState={activeTreeFocusViewState}
             {tabs}
             onMenuClick={toggleMenu}
-            onNodeLevelChange={handleNodeLevelChange}
         />
     </main>
     <Toasts />
