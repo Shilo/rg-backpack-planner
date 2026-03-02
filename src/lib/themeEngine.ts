@@ -347,4 +347,7 @@ export function applyTheme(
     for (const [key, value] of Object.entries(vars)) {
         root.style.setProperty(key, value);
     }
+    // Set background-color as an inline style so browsers use it for
+    // edge-to-edge rendering (Android nav bar, iOS status bar scrim).
+    root.style.backgroundColor = vars["--bg"];
 }
