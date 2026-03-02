@@ -344,8 +344,14 @@
 
         document.title = APP_DISPLAY_NAME_FULL;
 
-        // Global hotkey: F9 to share build as image
+        // Global hotkeys: F9 to share, Escape to toggle menu
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && !e.defaultPrevented && e.isTrusted) {
+                e.preventDefault();
+                toggleMenu();
+                return;
+            }
+
             if (e.repeat || e.key !== "F9") return;
 
             e.preventDefault();
