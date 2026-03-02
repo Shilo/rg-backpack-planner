@@ -1,8 +1,7 @@
 import { writable } from "svelte/store";
+import { getItem, setItem } from "./storage";
 
 export type SideMenuTab = "statistics" | "settings" | "controls";
-
-const STORAGE_KEY = "rg-backpack-planner-side-menu-active-tab";
 const DEFAULT_TAB: SideMenuTab = "statistics";
 
 function isValidTab(tab: string): tab is SideMenuTab {
@@ -10,9 +9,8 @@ function isValidTab(tab: string): tab is SideMenuTab {
 }
 
 function getStoredActiveTab(): SideMenuTab {
-    if (typeof window === "undefined") return DEFAULT_TAB;
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = getItem("side-menu-active-tab");
         if (stored && isValidTab(stored)) {
             return stored;
         }
@@ -23,9 +21,8 @@ function getStoredActiveTab(): SideMenuTab {
 }
 
 function setStoredActiveTab(tab: SideMenuTab): void {
-    if (typeof window === "undefined") return;
     try {
-        localStorage.setItem(STORAGE_KEY, tab);
+        setItem("side-menu-active-tab", tab);
     } catch {
         // localStorage not available
     }
