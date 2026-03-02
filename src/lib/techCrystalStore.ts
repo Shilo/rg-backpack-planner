@@ -1,5 +1,5 @@
 import { derived, writable } from "svelte/store";
-import type { TabConfig, LevelsByIndex } from "../types/tree";
+import type { TabConfig } from "../types/tree";
 import { buildPresetsStore } from "./buildPresetsStore";
 import { decodeBuildData } from "./buildData/encoder";
 import { getSkillLevelInfo } from "../config/skillMetadata";

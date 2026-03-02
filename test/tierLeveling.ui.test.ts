@@ -48,10 +48,6 @@ const TREE_LEVELS_STORE_MODULE_URL = new URL(
     "./src/lib/treeLevelsStore.ts",
     APP_URL,
 ).href;
-const TECH_CRYSTAL_STORE_MODULE_URL = new URL(
-    "./src/lib/techCrystalStore.ts",
-    APP_URL,
-).href;
 const DEV_SERVER_START_TIMEOUT_MS = 20_000;
 const DEV_SERVER_POLL_DELAY_MS = 250;
 const BROWSER_SLOW_MO_MS = 0;
@@ -319,18 +315,12 @@ async function syncYellowBranchLevels(
     await page.evaluate(
         async ({
             nextBranchLevels,
-            techCrystalStoreUrl,
             treeLevelsStoreUrl,
         }: {
             nextBranchLevels: number[];
-            techCrystalStoreUrl: string;
             treeLevelsStoreUrl: string;
         }) => {
-            const [{ treeLevels, setTreeLevels }, { recalculateTechCrystalsSpent }] =
-                await Promise.all([
-                    import(treeLevelsStoreUrl),
-                    import(techCrystalStoreUrl),
-                ]);
+            const { treeLevels, setTreeLevels } = await import(treeLevelsStoreUrl);
 
             let currentTrees: number[][] = [];
             const unsubscribe = treeLevels.subscribe((value: number[][]) => {
@@ -347,16 +337,10 @@ async function syncYellowBranchLevels(
                 nextActiveTree[index] = nextBranchLevels[index] ?? 0;
             }
 
-            const nextTrees = currentTrees.map((levels, index) =>
-                index === 0 ? nextActiveTree : [...levels],
-            );
-
             setTreeLevels(0, nextActiveTree);
-            recalculateTechCrystalsSpent(nextTrees);
         },
         {
             nextBranchLevels: branchLevels,
-            techCrystalStoreUrl: TECH_CRYSTAL_STORE_MODULE_URL,
             treeLevelsStoreUrl: TREE_LEVELS_STORE_MODULE_URL,
         },
     );

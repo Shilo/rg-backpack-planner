@@ -173,10 +173,6 @@
         resetSwipeState();
     }
 
-    function handleNodeLevelChange(tabIndex: number, techCrystalDelta: number) {
-        // Tech crystals spent are now computed reactively in the store
-    }
-
     function openControlsFromTitle() {
         isMenuOpen = true;
         sideMenuRef?.openTab?.("controls");
@@ -449,7 +445,6 @@
             bind:activeFocusViewState={activeTreeFocusViewState}
             {tabs}
             onMenuClick={toggleMenu}
-            onNodeLevelChange={handleNodeLevelChange}
         />
     </main>
     <Toasts />
