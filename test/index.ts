@@ -52,9 +52,9 @@ async function runAllTests() {
     console.log("===");
     console.log("Global Test Summary");
     console.log("===");
-    console.log(`Total:  ${TEST_FILES.length}`);
-    console.log(`Passed: ${passed}`);
-    console.log(`Failed: ${failed}`);
+    console.log(`📊 Total test files: ${TEST_FILES.length}`);
+    console.log(`✅ Passed: ${passed}`);
+    console.log(`❌ Failed: ${failed}`);
     console.log("===");
 
     if (failed === 0) {
