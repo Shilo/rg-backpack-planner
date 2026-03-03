@@ -100,23 +100,23 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
                     i === 10
                         ? 100
                         : i === 11
-                          ? 50
-                          : i === 12
-                            ? 25
-                            : i === 19
-                              ? 5
-                              : 0,
+                            ? 50
+                            : i === 12
+                                ? 25
+                                : i === 19
+                                    ? 5
+                                    : 0,
                 ),
                 Array.from({ length: 30 }, (_, i) =>
                     i === 20
                         ? 100
                         : i === 21
-                          ? 50
-                          : i === 22
-                            ? 25
-                            : i === 29
-                              ? 5
-                              : 0,
+                            ? 50
+                            : i === 22
+                                ? 25
+                                : i === 29
+                                    ? 5
+                                    : 0,
                 ),
             ],
             owned: 0,
@@ -147,19 +147,19 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
                 ),
                 Array.from({ length: 30 }, (_, i) =>
                     i === 20 ||
-                    i === 21 ||
-                    i === 22 ||
-                    i === 26 ||
-                    i === 27 ||
-                    i === 28
+                        i === 21 ||
+                        i === 22 ||
+                        i === 26 ||
+                        i === 27 ||
+                        i === 28
                         ? 1
                         : i === 23 || i === 24
-                          ? 100
-                          : i === 25
-                            ? 50
-                            : i === 29
-                              ? 5
-                              : 0,
+                            ? 100
+                            : i === 25
+                                ? 50
+                                : i === 29
+                                    ? 5
+                                    : 0,
                 ),
             ],
             owned: 0,
@@ -179,8 +179,8 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
                             i === 18 ||
                             i === 27 ||
                             i === 28
-                          ? 50
-                          : 100;
+                            ? 50
+                            : 100;
             }
             return { trees: [[...full], [...full], [...full]], owned: 0 };
         })(),
@@ -313,11 +313,11 @@ const testCases: Array<{ name: string; buildData: BuildData }> = [
             trees: [
                 Array.from({ length: 24 }, (_, i) =>
                     i === 0 ||
-                    i === 10 ||
-                    i === 20 ||
-                    i === 3 ||
-                    i === 13 ||
-                    i === 23
+                        i === 10 ||
+                        i === 20 ||
+                        i === 3 ||
+                        i === 13 ||
+                        i === 23
                         ? 50
                         : 0,
                 ),
@@ -656,220 +656,220 @@ const decodeCompatibilityCases: Array<{
     serialized: string;
     expected: BuildData | null;
 }> = [
-    {
-        name: "Tree-level RLE without owned: 3 identical simple trees",
-        serialized: "1:3",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-            owned: 0,
+        {
+            name: "Tree-level RLE without owned: 3 identical simple trees",
+            serialized: "1:3",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+                owned: 0,
+            },
         },
-    },
-    {
-        name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
-        serialized: "1:3;;;a",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-            owned: 10,
+        {
+            name: "Tree-level RLE with owned: 3 identical simple trees, owned 10",
+            serialized: "1:3;;;a",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+                owned: 10,
+            },
         },
-    },
-    {
-        name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
-        serialized: "1,,1:3;;;a",
-        expected: {
-            trees: fromObjectTrees([
-                { "0": 1, "20": 1 },
-                { "0": 1, "20": 1 },
-                { "0": 1, "20": 1 },
-            ]),
-            owned: 10,
+        {
+            name: "Tree-level RLE with branches and owned: 3 identical complex trees, owned 10",
+            serialized: "1,,1:3;;;a",
+            expected: {
+                trees: fromObjectTrees([
+                    { "0": 1, "20": 1 },
+                    { "0": 1, "20": 1 },
+                    { "0": 1, "20": 1 },
+                ]),
+                owned: 10,
+            },
         },
-    },
-    {
-        name: "Explicit three trees plus owned: 3 identical simple trees, owned 10",
-        serialized: "1;1;1;a",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-            owned: 10,
+        {
+            name: "Explicit three trees plus owned: 3 identical simple trees, owned 10",
+            serialized: "1;1;1;a",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+                owned: 10,
+            },
         },
-    },
-    {
-        name: "Invalid: bad owned value (not base62)",
-        serialized: "1;1;1;@",
-        expected: null,
-    },
-    // Build name compatibility tests (name at start)
-    {
-        name: "Build with name: simple name",
-        serialized: "My%20Build|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "My Build",
+        {
+            name: "Invalid: bad owned value (not base62)",
+            serialized: "1;1;1;@",
+            expected: null,
         },
-    },
-    {
-        name: "Build with name and owned: name at start",
-        serialized: "PVE%20Build|1;;;a",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 10,
-            name: "PVE Build",
+        // Build name compatibility tests (name at start)
+        {
+            name: "Build with name: simple name",
+            serialized: "My%20Build|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "My Build",
+            },
         },
-    },
-    {
-        name: "Build with name containing special characters",
-        serialized: "Build%20%231%20(PVE)|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "Build #1 (PVE)",
+        {
+            name: "Build with name and owned: name at start",
+            serialized: "PVE%20Build|1;;;a",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 10,
+                name: "PVE Build",
+            },
         },
-    },
-    {
-        name: "Build with name containing ampersand",
-        serialized: "Build%20%26%20Test|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "Build & Test",
+        {
+            name: "Build with name containing special characters",
+            serialized: "Build%20%231%20(PVE)|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "Build #1 (PVE)",
+            },
         },
-    },
-    {
-        name: "Build with name: complex build",
-        serialized: "Complex%20Build|1,1;1,1;1,1;a",
-        expected: {
-            trees: fromObjectTrees([
-                { "0": 1, "10": 1 },
-                { "0": 1, "10": 1 },
-                { "0": 1, "10": 1 },
-            ]),
-            owned: 10,
-            name: "Complex Build",
+        {
+            name: "Build with name containing ampersand",
+            serialized: "Build%20%26%20Test|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "Build & Test",
+            },
         },
-    },
-    {
-        name: "Build with name: empty build with name",
-        serialized: "Empty%20Build|_",
-        expected: {
-            trees: [[], [], []],
-            owned: 0,
-            name: "Empty Build",
+        {
+            name: "Build with name: complex build",
+            serialized: "Complex%20Build|1,1;1,1;1,1;a",
+            expected: {
+                trees: fromObjectTrees([
+                    { "0": 1, "10": 1 },
+                    { "0": 1, "10": 1 },
+                    { "0": 1, "10": 1 },
+                ]),
+                owned: 10,
+                name: "Complex Build",
+            },
         },
-    },
-    {
-        name: "Build with name: tree-level RLE with name",
-        serialized: "Three%20Trees|1:3",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-            owned: 0,
-            name: "Three Trees",
+        {
+            name: "Build with name: empty build with name",
+            serialized: "Empty%20Build|_",
+            expected: {
+                trees: [[], [], []],
+                owned: 0,
+                name: "Empty Build",
+            },
         },
-    },
-    {
-        name: "Build with name: tree-level RLE with owned and name",
-        serialized: "Named%20Build|1:3;;;a",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-            owned: 10,
-            name: "Named Build",
+        {
+            name: "Build with name: tree-level RLE with name",
+            serialized: "Three%20Trees|1:3",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+                owned: 0,
+                name: "Three Trees",
+            },
         },
-    },
-    // Underscore-encoded name tests (new URL-safe encoding)
-    {
-        name: "Build with underscore-encoded name: single space",
-        serialized: "My_Build|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "My Build",
+        {
+            name: "Build with name: tree-level RLE with owned and name",
+            serialized: "Named%20Build|1:3;;;a",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+                owned: 10,
+                name: "Named Build",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: multiple spaces",
-        serialized: "My_Cool_Build|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "My Cool Build",
+        // Underscore-encoded name tests (new URL-safe encoding)
+        {
+            name: "Build with underscore-encoded name: single space",
+            serialized: "My_Build|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "My Build",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: consecutive spaces",
-        serialized: "Build__Name|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "Build  Name",
+        {
+            name: "Build with underscore-encoded name: multiple spaces",
+            serialized: "My_Cool_Build|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "My Cool Build",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: leading and trailing spaces",
-        serialized: "_Build_|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: " Build ",
+        {
+            name: "Build with underscore-encoded name: consecutive spaces",
+            serialized: "Build__Name|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "Build  Name",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: only underscores",
-        serialized: "___|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "   ",
+        {
+            name: "Build with underscore-encoded name: leading and trailing spaces",
+            serialized: "_Build_|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: " Build ",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: no spaces",
-        serialized: "BuildName|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "BuildName",
+        {
+            name: "Build with underscore-encoded name: only underscores",
+            serialized: "___|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "   ",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: mixed with special chars",
-        serialized: "Build_1_(PVE)|1",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
-            owned: 0,
-            name: "Build 1 (PVE)",
+        {
+            name: "Build with underscore-encoded name: no spaces",
+            serialized: "BuildName|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "BuildName",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: complex build with owned",
-        serialized: "PVE_Guardian_Max|1,1;1,1;1,1;a",
-        expected: {
-            trees: fromObjectTrees([
-                { "0": 1, "10": 1 },
-                { "0": 1, "10": 1 },
-                { "0": 1, "10": 1 },
-            ]),
-            owned: 10,
-            name: "PVE Guardian Max",
+        {
+            name: "Build with underscore-encoded name: mixed with special chars",
+            serialized: "Build_1_(PVE)|1",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, {}, {}]),
+                owned: 0,
+                name: "Build 1 (PVE)",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: empty build",
-        serialized: "Empty_Test|_",
-        expected: {
-            trees: [[], [], []],
-            owned: 0,
-            name: "Empty Test",
+        {
+            name: "Build with underscore-encoded name: complex build with owned",
+            serialized: "PVE_Guardian_Max|1,1;1,1;1,1;a",
+            expected: {
+                trees: fromObjectTrees([
+                    { "0": 1, "10": 1 },
+                    { "0": 1, "10": 1 },
+                    { "0": 1, "10": 1 },
+                ]),
+                owned: 10,
+                name: "PVE Guardian Max",
+            },
         },
-    },
-    {
-        name: "Build with underscore-encoded name: tree-level RLE",
-        serialized: "Three_Identical_Trees|1:3",
-        expected: {
-            trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
-            owned: 0,
-            name: "Three Identical Trees",
+        {
+            name: "Build with underscore-encoded name: empty build",
+            serialized: "Empty_Test|_",
+            expected: {
+                trees: [[], [], []],
+                owned: 0,
+                name: "Empty Test",
+            },
         },
-    },
-];
+        {
+            name: "Build with underscore-encoded name: tree-level RLE",
+            serialized: "Three_Identical_Trees|1:3",
+            expected: {
+                trees: fromObjectTrees([{ "0": 1 }, { "0": 1 }, { "0": 1 }]),
+                owned: 0,
+                name: "Three Identical Trees",
+            },
+        },
+    ];
 
 /**
  * Run all tests
@@ -944,7 +944,8 @@ export function runTests() {
                 const originalTree = testCase.buildData.trees[i];
                 const decodedTree = decoded.trees[i];
 
-                for (const [nodeId, level] of Object.entries(originalTree)) {
+                for (const [nodeIdStr, level] of Object.entries(originalTree)) {
+                    const nodeId = Number(nodeIdStr);
                     const decodedLevel = decodedTree[nodeId] ?? 0;
                     if (decodedLevel !== level) {
                         treesMatch = false;
@@ -1100,8 +1101,7 @@ export function runDecoderCompatibilityTests() {
                 decoded = decodeBuildData(testCase.serialized);
             } catch (error) {
                 console.log(
-                    `❌ FAILED: Decoding threw error: ${
-                        error instanceof Error ? error.message : String(error)
+                    `❌ FAILED: Decoding threw error: ${error instanceof Error ? error.message : String(error)
                     }`,
                 );
                 failedTests++;
@@ -1138,9 +1138,10 @@ export function runDecoderCompatibilityTests() {
                     const expectedTree = testCase.expected.trees[i];
                     const decodedTree = decoded.trees[i];
 
-                    for (const [nodeId, level] of Object.entries(
+                    for (const [nodeIdStr, level] of Object.entries(
                         expectedTree,
                     )) {
+                        const nodeId = Number(nodeIdStr);
                         const decodedLevel = decodedTree[nodeId] ?? 0;
                         if (decodedLevel !== level) {
                             treesMatch = false;
@@ -1188,8 +1189,7 @@ export function runDecoderCompatibilityTests() {
             }
         } catch (error) {
             console.log(
-                `❌ FAILED: ${
-                    error instanceof Error ? error.message : String(error)
+                `❌ FAILED: ${error instanceof Error ? error.message : String(error)
                 }`,
             );
             failedTests++;
@@ -1222,51 +1222,51 @@ const errorTestCases: Array<{
     invalidString: string;
     expectedError?: string;
 }> = [
-    {
-        name: "Invalid format: empty string",
-        invalidString: "",
-    },
-    {
-        name: "Invalid format: invalid character",
-        invalidString: "1;1@1",
-    },
-    {
-        name: "Invalid format: malformed RLE (value' with no count)",
-        invalidString: "1'",
-    },
-    {
-        name: "Invalid format: invalid RLE count (zero)",
-        invalidString: "1'0",
-    },
-    {
-        name: "Invalid format: bad owned value",
-        invalidString: "1;1;1;@",
-    },
-    {
-        name: "Invalid format: five trees (invalid)",
-        invalidString: "1;1;1;1;1",
-    },
-    {
-        name: "Invalid format: invalid base62 in owned",
-        invalidString: "1;1;1;@@",
-    },
-    {
-        name: "Invalid format: malformed tree RLE",
-        invalidString: "1:",
-    },
-    {
-        name: "Invalid format: invalid RLE count in tree",
-        invalidString: "1:0",
-    },
-    {
-        name: "Invalid format: build name separator without build data",
-        invalidString: "Name|",
-    },
-    {
-        name: "Invalid format: multiple build name separators",
-        invalidString: "Name|Build|Extra",
-    },
-];
+        {
+            name: "Invalid format: empty string",
+            invalidString: "",
+        },
+        {
+            name: "Invalid format: invalid character",
+            invalidString: "1;1@1",
+        },
+        {
+            name: "Invalid format: malformed RLE (value' with no count)",
+            invalidString: "1'",
+        },
+        {
+            name: "Invalid format: invalid RLE count (zero)",
+            invalidString: "1'0",
+        },
+        {
+            name: "Invalid format: bad owned value",
+            invalidString: "1;1;1;@",
+        },
+        {
+            name: "Invalid format: five trees (invalid)",
+            invalidString: "1;1;1;1;1",
+        },
+        {
+            name: "Invalid format: invalid base62 in owned",
+            invalidString: "1;1;1;@@",
+        },
+        {
+            name: "Invalid format: malformed tree RLE",
+            invalidString: "1:",
+        },
+        {
+            name: "Invalid format: invalid RLE count in tree",
+            invalidString: "1:0",
+        },
+        {
+            name: "Invalid format: build name separator without build data",
+            invalidString: "Name|",
+        },
+        {
+            name: "Invalid format: multiple build name separators",
+            invalidString: "Name|Build|Extra",
+        },
+    ];
 
 /**
  * Run error handling tests (decode invalid strings → null).
@@ -1334,151 +1334,151 @@ const buildNameTestCases: Array<{
     encoded: string;
     expected: string | null;
 }> = [
-    // Valid cases
-    {
-        name: "Simple name with URL encoding",
-        encoded: "My%20Build|1",
-        expected: "My Build",
-    },
-    {
-        name: "Name with underscores converted to spaces",
-        encoded: "My_Build|1",
-        expected: "My Build",
-    },
-    {
-        name: "Name with both URL encoding and underscores",
-        encoded: "My%20Cool_Build|1;;;a",
-        expected: "My Cool Build",
-    },
-    {
-        name: "Name with special characters URL encoded",
-        encoded: "Build%20%231%20(PVE)|1",
-        expected: "Build #1 (PVE)",
-    },
-    {
-        name: "Name with multiple URL-encoded spaces",
-        encoded: "Complex%20PVE%20Build|1,,1",
-        expected: "Complex PVE Build",
-    },
-    {
-        name: "Name with mixed underscores and URL-encoded spaces",
-        encoded: "Best%20Guardian_Build|1",
-        expected: "Best Guardian Build",
-    },
-    {
-        name: "Simple single-word name",
-        encoded: "Guardian|1",
-        expected: "Guardian",
-    },
-    {
-        name: "Name with URL-encoded parentheses",
-        encoded: "Build%20%28v2%29|1",
-        expected: "Build (v2)",
-    },
-    {
-        name: "Long name with multiple words",
-        encoded: "This_is_a_very_long_build_name|1",
-        expected: "This is a very long build name",
-    },
-    {
-        name: "Name with numbers",
-        encoded: "Build_123|1",
-        expected: "Build 123",
-    },
-    {
-        name: "Name with URL-encoded apostrophe",
-        encoded: "Player%27s_Build|1",
-        expected: "Player's Build",
-    },
-    {
-        name: "Name with multiple consecutive underscores",
-        encoded: "My___Build|1",
-        expected: "My   Build",
-    },
-    // Edge cases - missing separator
-    {
-        name: "No separator (no pipe character)",
-        encoded: "My%20Build",
-        expected: null,
-    },
-    {
-        name: "No separator with underscores",
-        encoded: "My_Build",
-        expected: null,
-    },
-    {
-        name: "Empty string",
-        encoded: "",
-        expected: null,
-    },
-    {
-        name: "Only separator",
-        encoded: "|",
-        expected: null,
-    },
-    {
-        name: "Separator at start (empty name)",
-        encoded: "|1",
-        expected: null,
-    },
-    {
-        name: "Only whitespace before separator",
-        encoded: "   |1",
-        expected: null,
-    },
-    {
-        name: "Whitespace-only name after URL decode",
-        encoded: "%20%20%20|1",
-        expected: "   ",
-    },
-    // Edge cases - malformed input
-    {
-        name: "Invalid URL encoding (incomplete percent)",
-        encoded: "My%2Build|1",
-        expected: "My+uild",
-    },
-    {
-        name: "Invalid URL encoding (non-hex characters)",
-        encoded: "My%ZZBuild|1",
-        expected: "My%ZZBuild",
-    },
-    {
-        name: "Multiple separators (use first)",
-        encoded: "First|Second|1",
-        expected: "First",
-    },
-    {
-        name: "Name with trailing whitespace (URL encoded)",
-        encoded: "MyBuild%20%20%20|1",
-        expected: "MyBuild   ",
-    },
-    {
-        name: "Name with leading whitespace (URL encoded)",
-        encoded: "%20%20%20MyBuild|1",
-        expected: "   MyBuild",
-    },
-    // Type safety
-    {
-        name: "Non-string input (number)",
-        encoded: 123 as any,
-        expected: null,
-    },
-    {
-        name: "Non-string input (null)",
-        encoded: null as any,
-        expected: null,
-    },
-    {
-        name: "Non-string input (undefined)",
-        encoded: undefined as any,
-        expected: null,
-    },
-    {
-        name: "Non-string input (object)",
-        encoded: {} as any,
-        expected: null,
-    },
-];
+        // Valid cases
+        {
+            name: "Simple name with URL encoding",
+            encoded: "My%20Build|1",
+            expected: "My Build",
+        },
+        {
+            name: "Name with underscores converted to spaces",
+            encoded: "My_Build|1",
+            expected: "My Build",
+        },
+        {
+            name: "Name with both URL encoding and underscores",
+            encoded: "My%20Cool_Build|1;;;a",
+            expected: "My Cool Build",
+        },
+        {
+            name: "Name with special characters URL encoded",
+            encoded: "Build%20%231%20(PVE)|1",
+            expected: "Build #1 (PVE)",
+        },
+        {
+            name: "Name with multiple URL-encoded spaces",
+            encoded: "Complex%20PVE%20Build|1,,1",
+            expected: "Complex PVE Build",
+        },
+        {
+            name: "Name with mixed underscores and URL-encoded spaces",
+            encoded: "Best%20Guardian_Build|1",
+            expected: "Best Guardian Build",
+        },
+        {
+            name: "Simple single-word name",
+            encoded: "Guardian|1",
+            expected: "Guardian",
+        },
+        {
+            name: "Name with URL-encoded parentheses",
+            encoded: "Build%20%28v2%29|1",
+            expected: "Build (v2)",
+        },
+        {
+            name: "Long name with multiple words",
+            encoded: "This_is_a_very_long_build_name|1",
+            expected: "This is a very long build name",
+        },
+        {
+            name: "Name with numbers",
+            encoded: "Build_123|1",
+            expected: "Build 123",
+        },
+        {
+            name: "Name with URL-encoded apostrophe",
+            encoded: "Player%27s_Build|1",
+            expected: "Player's Build",
+        },
+        {
+            name: "Name with multiple consecutive underscores",
+            encoded: "My___Build|1",
+            expected: "My   Build",
+        },
+        // Edge cases - missing separator
+        {
+            name: "No separator (no pipe character)",
+            encoded: "My%20Build",
+            expected: null,
+        },
+        {
+            name: "No separator with underscores",
+            encoded: "My_Build",
+            expected: null,
+        },
+        {
+            name: "Empty string",
+            encoded: "",
+            expected: null,
+        },
+        {
+            name: "Only separator",
+            encoded: "|",
+            expected: null,
+        },
+        {
+            name: "Separator at start (empty name)",
+            encoded: "|1",
+            expected: null,
+        },
+        {
+            name: "Only whitespace before separator",
+            encoded: "   |1",
+            expected: null,
+        },
+        {
+            name: "Whitespace-only name after URL decode",
+            encoded: "%20%20%20|1",
+            expected: "   ",
+        },
+        // Edge cases - malformed input
+        {
+            name: "Invalid URL encoding (incomplete percent)",
+            encoded: "My%2Build|1",
+            expected: "My+uild",
+        },
+        {
+            name: "Invalid URL encoding (non-hex characters)",
+            encoded: "My%ZZBuild|1",
+            expected: "My%ZZBuild",
+        },
+        {
+            name: "Multiple separators (use first)",
+            encoded: "First|Second|1",
+            expected: "First",
+        },
+        {
+            name: "Name with trailing whitespace (URL encoded)",
+            encoded: "MyBuild%20%20%20|1",
+            expected: "MyBuild   ",
+        },
+        {
+            name: "Name with leading whitespace (URL encoded)",
+            encoded: "%20%20%20MyBuild|1",
+            expected: "   MyBuild",
+        },
+        // Type safety
+        {
+            name: "Non-string input (number)",
+            encoded: 123 as any,
+            expected: null,
+        },
+        {
+            name: "Non-string input (null)",
+            encoded: null as any,
+            expected: null,
+        },
+        {
+            name: "Non-string input (undefined)",
+            encoded: undefined as any,
+            expected: null,
+        },
+        {
+            name: "Non-string input (object)",
+            encoded: {} as any,
+            expected: null,
+        },
+    ];
 
 export function runBuildNameTests() {
     console.log("===");
@@ -1549,82 +1549,82 @@ export function runNameEncodingTests() {
         input: string;
         expected: string;
     }> = [
-        {
-            name: "Single underscore to space",
-            input: "My_Build",
-            expected: "My Build",
-        },
-        {
-            name: "Multiple underscores to spaces",
-            input: "My_Cool_Build_Name",
-            expected: "My Cool Build Name",
-        },
-        {
-            name: "Consecutive underscores to consecutive spaces",
-            input: "Build__Name",
-            expected: "Build  Name",
-        },
-        {
-            name: "Three consecutive underscores",
-            input: "A___B",
-            expected: "A   B",
-        },
-        {
-            name: "Leading underscore to leading space",
-            input: "_Build",
-            expected: " Build",
-        },
-        {
-            name: "Trailing underscore to trailing space",
-            input: "Build_",
-            expected: "Build ",
-        },
-        {
-            name: "Leading and trailing underscores",
-            input: "_Build_Name_",
-            expected: " Build Name ",
-        },
-        {
-            name: "Only underscores (single)",
-            input: "_",
-            expected: " ",
-        },
-        {
-            name: "Only underscores (multiple)",
-            input: "___",
-            expected: "   ",
-        },
-        {
-            name: "No underscores (no change)",
-            input: "BuildName",
-            expected: "BuildName",
-        },
-        {
-            name: "Empty string",
-            input: "",
-            expected: "",
-        },
-        {
-            name: "Mixed with numbers",
-            input: "Build_1_PVE",
-            expected: "Build 1 PVE",
-        },
-        {
-            name: "Mixed with special characters",
-            input: "Build_#1_(PVE)",
-            expected: "Build #1 (PVE)",
-        },
-        {
-            name: "Mixed with hyphens and underscores",
-            input: "PVE-Build_v2.0",
-            expected: "PVE-Build v2.0",
-        },
-        {
-            name: "Very long name with many underscores",
-            input: "This_is_a_very_long_build_name_for_testing",
-            expected: "This is a very long build name for testing",
-        },
-    ];
+            {
+                name: "Single underscore to space",
+                input: "My_Build",
+                expected: "My Build",
+            },
+            {
+                name: "Multiple underscores to spaces",
+                input: "My_Cool_Build_Name",
+                expected: "My Cool Build Name",
+            },
+            {
+                name: "Consecutive underscores to consecutive spaces",
+                input: "Build__Name",
+                expected: "Build  Name",
+            },
+            {
+                name: "Three consecutive underscores",
+                input: "A___B",
+                expected: "A   B",
+            },
+            {
+                name: "Leading underscore to leading space",
+                input: "_Build",
+                expected: " Build",
+            },
+            {
+                name: "Trailing underscore to trailing space",
+                input: "Build_",
+                expected: "Build ",
+            },
+            {
+                name: "Leading and trailing underscores",
+                input: "_Build_Name_",
+                expected: " Build Name ",
+            },
+            {
+                name: "Only underscores (single)",
+                input: "_",
+                expected: " ",
+            },
+            {
+                name: "Only underscores (multiple)",
+                input: "___",
+                expected: "   ",
+            },
+            {
+                name: "No underscores (no change)",
+                input: "BuildName",
+                expected: "BuildName",
+            },
+            {
+                name: "Empty string",
+                input: "",
+                expected: "",
+            },
+            {
+                name: "Mixed with numbers",
+                input: "Build_1_PVE",
+                expected: "Build 1 PVE",
+            },
+            {
+                name: "Mixed with special characters",
+                input: "Build_#1_(PVE)",
+                expected: "Build #1 (PVE)",
+            },
+            {
+                name: "Mixed with hyphens and underscores",
+                input: "PVE-Build_v2.0",
+                expected: "PVE-Build v2.0",
+            },
+            {
+                name: "Very long name with many underscores",
+                input: "This_is_a_very_long_build_name_for_testing",
+                expected: "This is a very long build name for testing",
+            },
+        ];
 
     nameEncodingTestCases.forEach((testCase, index) => {
         console.log(`Name Test ${index + 1}: ${testCase.name}`);
@@ -1683,7 +1683,7 @@ try {
 
     // Combined Final Summary
     console.log("===");
-    console.log("Final Combined Summary");
+    console.log("Encoder Test Suite Summary");
     console.log("===");
     const totalTests =
         errorSummary.total +
@@ -1740,6 +1740,10 @@ try {
         );
     }
     console.log("===");
+
+    if (totalFailed > 0) {
+        throw new Error(`${totalFailed} encoder test(s) failed`);
+    }
 } catch (error) {
     console.error(
         "❌ Test suite crashed:",

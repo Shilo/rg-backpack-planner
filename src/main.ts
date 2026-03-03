@@ -6,7 +6,7 @@ import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
 import { initThemeReactivity } from "./lib/themeApply";
 import { initViewportTracking } from "./lib/viewportState";
 
-initThemeReactivity();
+const cleanupThemeReactivity = initThemeReactivity();
 initViewportTracking();
 
 const app = mount(App, {
@@ -35,5 +35,16 @@ const handleGlobalContextMenu = (event: MouseEvent) => {
 document.addEventListener("contextmenu", handleGlobalContextMenu, {
     capture: true,
 });
+
+const removeGlobalContextMenuListener = () => {
+    document.removeEventListener("contextmenu", handleGlobalContextMenu, true);
+};
+
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+        cleanupThemeReactivity();
+        removeGlobalContextMenuListener();
+    });
+}
 
 export default app;

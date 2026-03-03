@@ -20,14 +20,9 @@ export default defineConfig({
                 description: "Plan and share Backpack Tech builds.",
                 start_url: ".",
                 display: "standalone",
-                background_color: "#0b1220",
-                theme_color: "#0b1220",
+                background_color: "#060b16",
+                theme_color: "#060b16",
                 icons: [
-                    {
-                        src: "pwa-64x64.png",
-                        sizes: "64x64",
-                        type: "image/png",
-                    },
                     {
                         src: "pwa-192x192.png",
                         sizes: "192x192",

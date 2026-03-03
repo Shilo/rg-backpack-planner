@@ -1,6 +1,6 @@
 {
     "name": "backpack-planner",
-    "version": "0.1.8",
+    "version": "0.2.1",
     "displayName": "Backpack Planner",
     "description": "Plan and share Backpack Tech builds.",
     "app": {
@@ -30,13 +30,13 @@
         "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
         "test:ui:tier": "tsx test/tierLeveling.ui.test.ts",
         "test": "npm run check && tsx test/index.ts",
-        "pwa:assets": "pwa-assets-generator --preset minimal-2023 public/icon.svg"
+        "pwa:assets": "node scripts/generate-pwa-icons.mjs"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.1",
         "@tsconfig/svelte": "^5.0.6",
         "@types/node": "^24.10.1",
-        "@vite-pwa/assets-generator": "^1.0.2",
+        "sharp": "^0.33.5",
         "phosphor-svelte": "^3.1.0",
         "playwright": "^1.58.2",
         "svelte": "^5.43.8",

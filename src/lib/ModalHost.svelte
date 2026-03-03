@@ -3,7 +3,6 @@
     import ConfirmModal from "./modals/ConfirmModal.svelte";
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
-    // @ts-ignore - Svelte component import
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
@@ -80,6 +79,7 @@
 
         if (event.key === "Escape") {
             event.preventDefault();
+            event.stopImmediatePropagation();
             if (!triggerModalAction("[data-modal-cancel]")) {
                 handleCancel();
             }
@@ -207,7 +207,12 @@
         max-height: 100%;
         border-radius: var(--radius);
         background: var(--bg-panel);
-        border: var(--border-width) solid color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 50%, transparent);
+        border: var(--border-width) solid
+            color-mix(
+                in srgb,
+                color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
+                transparent
+            );
         box-shadow: var(--shadow);
         padding: 0;
         overflow: hidden;

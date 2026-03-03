@@ -18,8 +18,6 @@
     } from "../buildData/url";
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - package.json import is valid
     import appPackage from "../../../package.json";
 
     export let x = 0;

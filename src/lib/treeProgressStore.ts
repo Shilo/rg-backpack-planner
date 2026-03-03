@@ -2,8 +2,7 @@ import { get, type Unsubscriber } from "svelte/store";
 import { treeLevels } from "./treeLevelsStore";
 import { isPreviewMode } from "./previewModeStore";
 import type { Node, LevelsByIndex } from "../types/tree";
-
-const STORAGE_KEY = "rg-backpack-planner-tree-progress";
+import { getItem, setItem } from "./storage";
 
 /**
  * Compresses tree progress data by trimming trailing zeros from each levels array.
@@ -58,10 +57,8 @@ export function expandTreeProgress(
 export function loadTreeProgress(
     trees: { nodes: Node[] }[],
 ): LevelsByIndex[] | null {
-    if (typeof window === "undefined") return null;
-
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = getItem("tree-progress");
         if (!stored) return null;
 
         const parsed = JSON.parse(stored) as unknown;
@@ -89,10 +86,8 @@ export function loadTreeProgress(
  * Use for summing spent etc. when trees are not available.
  */
 export function loadTreeProgressRaw(): LevelsByIndex[] | null {
-    if (typeof window === "undefined") return null;
-
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = getItem("tree-progress");
         if (!stored) return null;
 
         const parsed = JSON.parse(stored) as unknown;
@@ -118,27 +113,12 @@ export function loadTreeProgressRaw(): LevelsByIndex[] | null {
  * @param levels The tree levels to save
  */
 export function saveTreeProgress(levels: LevelsByIndex[]): void {
-    if (typeof window === "undefined") return;
-
     try {
         const compressed = compressTreeProgress(levels);
         const serialized = JSON.stringify(compressed);
-        localStorage.setItem(STORAGE_KEY, serialized);
+        setItem("tree-progress", serialized);
     } catch (error) {
-        // Handle quota exceeded or other storage errors gracefully
-        if (
-            error instanceof DOMException &&
-            error.name === "QuotaExceededError"
-        ) {
-            console.warn(
-                "localStorage quota exceeded, unable to save tree progress",
-            );
-        } else {
-            console.error(
-                "Failed to save tree progress to localStorage:",
-                error,
-            );
-        }
+        console.error("Failed to save tree progress to localStorage:", error);
     }
 }
 
