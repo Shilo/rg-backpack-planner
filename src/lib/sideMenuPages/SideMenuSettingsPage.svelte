@@ -102,10 +102,22 @@
 
     async function handleReloadWindow() {
         if ("serviceWorker" in navigator) {
-            const registration =
-                await navigator.serviceWorker.getRegistration();
-            if (registration) {
-                await registration.update();
+            try {
+                const registration =
+                    await navigator.serviceWorker.getRegistration();
+                if (registration && navigator.onLine) {
+                    await Promise.race([
+                        registration.update(),
+                        new Promise((_, reject) =>
+                            setTimeout(
+                                () => reject(new Error("Update timeout")),
+                                2000,
+                            ),
+                        ),
+                    ]);
+                }
+            } catch (error) {
+                console.warn("Service worker update failed/timed out:", error);
             }
         }
         window.location.reload();
