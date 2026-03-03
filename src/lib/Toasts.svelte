@@ -66,8 +66,9 @@
         position: fixed;
         left: calc(var(--bar-pad) + var(--safe-left, 0px));
         bottom: calc(
-            var(--bar-pad) + var(--tab-height) + 20px +
-            var(--keyboard-height, 0px) + var(--safe-bottom, 0px)
+            (var(--bar-pad, 0px) + var(--tab-height, 0px)) *
+                (1 - var(--is-keyboard-open, 0)) + 20px +
+                var(--keyboard-height, 0px) + var(--safe-bottom, 0px)
         );
         display: flex;
         flex-direction: column;

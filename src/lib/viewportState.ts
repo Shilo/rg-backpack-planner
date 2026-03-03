@@ -46,10 +46,12 @@ export function initViewportTracking(): void {
             0,
             window.innerHeight - (vv.height + vv.offsetTop),
         );
+        const isKeyboardOpen = keyboardHeight > 0 ? 1 : 0;
 
         root.style.setProperty("--vv-height", `${vv.height}px`);
         root.style.setProperty("--vv-offset-top", `${vv.offsetTop}px`);
         root.style.setProperty("--keyboard-height", `${keyboardHeight}px`);
+        root.style.setProperty("--is-keyboard-open", `${isKeyboardOpen}`);
     }
 
     if (vv) {
@@ -77,5 +79,6 @@ export function initViewportTracking(): void {
         root.style.removeProperty("--vv-height");
         root.style.removeProperty("--vv-offset-top");
         root.style.removeProperty("--keyboard-height");
+        root.style.removeProperty("--is-keyboard-open");
     };
 }
