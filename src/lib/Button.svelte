@@ -120,9 +120,6 @@
         text-align: left;
         line-height: var(--leading-none);
         transition:
-            border-color var(--ease),
-            color var(--ease),
-            background var(--ease),
             transform var(--ease),
             filter var(--ease);
     }
