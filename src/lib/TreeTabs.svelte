@@ -591,6 +591,8 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        position: relative;
+        z-index: var(--z-index-hud-over-side-menu-backdrop);
     }
 
     :global(.fullscreen-button .button-icon) {
