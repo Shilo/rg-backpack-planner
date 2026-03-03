@@ -454,19 +454,21 @@
         {activeTreeFocusViewState}
         {activeTreeName}
     />
-    <div class="top-left-actions">
-        {#key $isPreviewMode}
-            <PreviewBuildIndicator />
-        {/key}
-        <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
-    </div>
-    <div class="top-right-actions">
-        <TechCrystalDisplay />
-        <ActiveTreeResetButton
-            onReset={() => tabsRef?.resetActiveTree?.()}
-            treeLabel={activeTreeName}
-            canReset={canResetActiveTree}
-        />
+    <div class="hud-safe-area">
+        <div class="top-left-actions">
+            {#key $isPreviewMode}
+                <PreviewBuildIndicator />
+            {/key}
+            <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
+        </div>
+        <div class="top-right-actions">
+            <TechCrystalDisplay />
+            <ActiveTreeResetButton
+                onReset={() => tabsRef?.resetActiveTree?.()}
+                treeLabel={activeTreeName}
+                canReset={canResetActiveTree}
+            />
+        </div>
     </div>
     <main class="app-main">
         <TreeTabs
@@ -503,9 +505,8 @@
 
     .top-left-actions,
     .top-right-actions {
-        position: fixed;
-        top: calc(var(--spacing-lg) + var(--safe-top, 0px));
-        z-index: var(--z-index-hud);
+        position: absolute;
+        top: 0;
         display: inline-flex;
         flex-direction: column;
         gap: var(--spacing-lg);
@@ -513,13 +514,13 @@
     }
 
     .top-left-actions {
-        left: calc(var(--spacing-lg) + var(--safe-left, 0px));
+        left: 0;
         align-items: flex-start;
         transition: left 0.15s ease;
     }
 
     .top-right-actions {
-        right: calc(var(--spacing-lg) + var(--safe-right, 0px));
+        right: 0;
         align-items: flex-end;
         transition: right 0.15s ease;
     }
@@ -530,9 +531,8 @@
             z-index: var(--z-index-hud-over-side-menu-backdrop);
         }
 
-        .app-shell.menu-open .top-left-actions,
         .app-shell.menu-open .top-right-actions {
-            right: calc(var(--side-menu-width) + 10px + env(safe-area-inset-right, 0px));
+            right: calc(var(--side-menu-width) + 10px);
         }
     }
 

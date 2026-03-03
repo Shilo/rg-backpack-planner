@@ -371,37 +371,41 @@
 </script>
 
 <div class="tabs-root">
-    <div class="tabs-bar" bind:this={tabsBarEl}>
-        <FullscreenToggle iconButton={true} class="fullscreen-button" />
-        <div class="tab-buttons">
-            {#each tabs as tab, index}
-                <Button
-                    class={index === activeIndex ? "active" : ""}
-                    on:click={() => onTabClick(index)}
-                    on:contextmenu={(event: Event) =>
-                        openTabMenu(getMouseEvent(event), tab, index)}
-                    on:pointerdown={(event: Event) =>
-                        startTabPress(getPointerEvent(event), tab, index)}
-                    on:pointermove={(event: Event) =>
-                        moveTabPress(getPointerEvent(event))}
-                    on:pointerup={clearTabPress}
-                    on:pointercancel={clearTabPress}
-                    on:pointerleave={clearTabPress}
-                >
-                    <span class="tab-label">{tab.label}</span>
-                </Button>
-            {/each}
+    <div class="tabs-bar-spacer" bind:this={tabsBarEl} aria-hidden="true"></div>
+
+    <div class="hud-safe-area">
+        <div class="tabs-bar">
+            <FullscreenToggle iconButton={true} class="fullscreen-button" />
+            <div class="tab-buttons">
+                {#each tabs as tab, index}
+                    <Button
+                        class={index === activeIndex ? "active" : ""}
+                        on:click={() => onTabClick(index)}
+                        on:contextmenu={(event: Event) =>
+                            openTabMenu(getMouseEvent(event), tab, index)}
+                        on:pointerdown={(event: Event) =>
+                            startTabPress(getPointerEvent(event), tab, index)}
+                        on:pointermove={(event: Event) =>
+                            moveTabPress(getPointerEvent(event))}
+                        on:pointerup={clearTabPress}
+                        on:pointercancel={clearTabPress}
+                        on:pointerleave={clearTabPress}
+                    >
+                        <span class="tab-label">{tab.label}</span>
+                    </Button>
+                {/each}
+            </div>
         </div>
+        <Button
+            class="menu-button"
+            aria-label="Menu"
+            tooltipText="Open menu"
+            on:click={() => onMenuClick?.()}
+            icon={ListIcon}
+            iconClass="menu-button-icon"
+            iconSize={26}
+        ></Button>
     </div>
-    <Button
-        class="menu-button"
-        aria-label="Menu"
-        tooltipText="Open menu"
-        on:click={() => onMenuClick?.()}
-        icon={ListIcon}
-        iconClass="menu-button-icon"
-        iconSize={26}
-    ></Button>
 
     <div
         class="tabs-content"
@@ -489,6 +493,19 @@
         position: relative;
     }
 
+    .tabs-bar-spacer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: calc(
+            var(--tab-height) + max(var(--bar-pad), var(--safe-bottom, 0px))
+        );
+        pointer-events: none;
+        visibility: hidden;
+        z-index: -1;
+    }
+
     .tabs-bar {
         position: absolute;
         bottom: 0;
@@ -497,12 +514,9 @@
         display: flex;
         align-items: center;
         gap: var(--menu-gap);
-        padding: 0 calc(var(--bar-pad) + var(--menu-width) + var(--menu-gap))
-            calc(var(--bar-pad) + var(--safe-bottom, 0px))
-            calc(var(--bar-pad) + var(--safe-left, 0px));
+        padding: 0 calc(var(--menu-width) + var(--menu-gap)) 0 0;
         background: transparent;
         min-width: 0;
-        z-index: var(--z-index-hud);
     }
 
     .tab-buttons {
@@ -528,6 +542,18 @@
         overflow: hidden;
     }
 
+    :global(.tab-buttons button .button-text) {
+        display: contents;
+    }
+
+    @media (max-width: 360px) {
+        :global(.tab-buttons button) {
+            padding: 0 var(--spacing-sm);
+            gap: var(--spacing-sm);
+            letter-spacing: 0.04em;
+        }
+    }
+
     .tab-label {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -535,6 +561,8 @@
         min-width: 0;
         max-width: 100%;
         flex: 1 1 auto;
+        display: block;
+        text-align: center;
     }
 
     :global(.tab-buttons button.active) {
@@ -574,10 +602,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        position: fixed;
-        right: calc(var(--bar-pad) + var(--safe-right, 0px));
-        bottom: calc(var(--bar-pad) + var(--safe-bottom, 0px));
-        z-index: var(--z-index-hud);
+        position: absolute;
+        right: 0;
+        bottom: 0;
     }
 
     :global(.menu-button-icon) {
