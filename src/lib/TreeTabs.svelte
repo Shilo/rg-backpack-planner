@@ -529,7 +529,7 @@
 
     :global(.tab-buttons button) {
         color: var(--text-muted);
-        padding: 0 var(--spacing-md);
+        padding: 0;
         height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
@@ -548,7 +548,7 @@
 
     @media (max-width: 360px) {
         :global(.tab-buttons button) {
-            padding: 0 var(--spacing-sm);
+            padding: 0;
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
         }
