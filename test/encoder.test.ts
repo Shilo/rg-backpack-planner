@@ -944,7 +944,8 @@ export function runTests() {
                 const originalTree = testCase.buildData.trees[i];
                 const decodedTree = decoded.trees[i];
 
-                for (const [nodeId, level] of Object.entries(originalTree)) {
+                for (const [nodeIdStr, level] of Object.entries(originalTree)) {
+                    const nodeId = Number(nodeIdStr);
                     const decodedLevel = decodedTree[nodeId] ?? 0;
                     if (decodedLevel !== level) {
                         treesMatch = false;
@@ -1137,9 +1138,10 @@ export function runDecoderCompatibilityTests() {
                     const expectedTree = testCase.expected.trees[i];
                     const decodedTree = decoded.trees[i];
 
-                    for (const [nodeId, level] of Object.entries(
+                    for (const [nodeIdStr, level] of Object.entries(
                         expectedTree,
                     )) {
+                        const nodeId = Number(nodeIdStr);
                         const decodedLevel = decodedTree[nodeId] ?? 0;
                         if (decodedLevel !== level) {
                             treesMatch = false;
