@@ -46,6 +46,30 @@ async function runAllTests() {
     await import("./tierLeveling.test.ts");
     console.log("✅ tierLeveling.test.ts passed\n");
 
+    console.log("Running mathUtil.test.ts...");
+    await import("./mathUtil.test.ts");
+    console.log("✅ mathUtil.test.ts passed\n");
+
+    console.log("Running stringUtil.test.ts...");
+    await import("./stringUtil.test.ts");
+    console.log("✅ stringUtil.test.ts passed\n");
+
+    console.log("Running systemUtil.test.ts...");
+    await import("./systemUtil.test.ts");
+    console.log("✅ systemUtil.test.ts passed\n");
+
+    console.log("Running skillValueFns.test.ts...");
+    await import("./skillValueFns.test.ts");
+    console.log("✅ skillValueFns.test.ts passed\n");
+
+    console.log("Running treeLevelsStore.test.ts...");
+    await import("./treeLevelsStore.test.ts");
+    console.log("✅ treeLevelsStore.test.ts passed\n");
+
+    console.log("Running treeProgressStore.test.ts...");
+    await import("./treeProgressStore.test.ts");
+    console.log("✅ treeProgressStore.test.ts passed\n");
+
     console.log("===");
     console.log("Global Test Summary");
     console.log("===");
