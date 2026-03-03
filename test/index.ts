@@ -18,6 +18,14 @@ async function runAllTests() {
     await import("./editableSurfaceStyles.test.ts");
     console.log("✅ editableSurfaceStyles.test.ts passed\n");
 
+    console.log("Running shareUrl.test.ts...");
+    await import("./shareUrl.test.ts");
+    console.log("✅ shareUrl.test.ts passed\n");
+
+    console.log("Running buildPresets.test.ts...");
+    await import("./buildPresets.test.ts");
+    console.log("✅ buildPresets.test.ts passed\n");
+
     console.log("Running shareBuild.lazy.test.ts...");
     await import("./shareBuild.lazy.test.ts");
     console.log("✅ shareBuild.lazy.test.ts passed\n");

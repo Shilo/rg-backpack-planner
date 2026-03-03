@@ -30,3 +30,6 @@ test/**/*.png
 test/**/*.jpg
 test/**/*.jpeg
 test/**/*.webp
+
+# Ignore Antigravity generated root text files
+/*.txt
