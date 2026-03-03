@@ -10,6 +10,7 @@
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
+    import { fade } from "svelte/transition";
     import type { Component } from "svelte";
     import { tooltip } from "../tooltip";
     import { triggerHaptic } from "../haptics";
@@ -241,9 +242,13 @@
             }}
         >
             {#if $darkMode}
-                <MoonIcon size={26} />
+                <span transition:fade={{ duration: 150 }}
+                    ><MoonIcon size={26} /></span
+                >
             {:else}
-                <SunIcon size={26} />
+                <span transition:fade={{ duration: 150 }}
+                    ><SunIcon size={26} /></span
+                >
             {/if}
         </button>
     </div>
@@ -302,6 +307,7 @@
         height: 40px;
         display: grid;
         place-items: center;
+        position: relative;
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
@@ -312,6 +318,12 @@
             filter var(--ease),
             transform var(--ease);
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .icon-button span {
+        position: absolute;
+        display: grid;
+        place-items: center;
     }
 
     @media (hover: hover) {

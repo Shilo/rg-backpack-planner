@@ -529,11 +529,12 @@
 
     :global(.tab-buttons button) {
         color: var(--text-muted);
-        padding: 0;
+        padding: 0 !important;
         height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        font-size: var(--font-sm) !important;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -548,9 +549,16 @@
 
     @media (max-width: 360px) {
         :global(.tab-buttons button) {
-            padding: 0;
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
+            font-size: var(--font-xs) !important;
+        }
+    }
+
+    @media (max-width: 320px) {
+        :global(.tab-buttons button) {
+            font-size: var(--font-xxs) !important;
+            letter-spacing: 0.02em;
         }
     }
 
