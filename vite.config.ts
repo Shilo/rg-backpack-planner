@@ -16,7 +16,7 @@ export default defineConfig({
             ],
             manifest: {
                 name: "Backpack Planner",
-                short_name: "Backpack",
+                short_name: "BP Planner",
                 description: "Plan and share Backpack Tech builds.",
                 start_url: ".",
                 display: "standalone",
