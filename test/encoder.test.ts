@@ -1681,7 +1681,7 @@ try {
 
     // Combined Final Summary
     console.log("===");
-    console.log("Final Combined Summary");
+    console.log("Encoder Test Suite Summary");
     console.log("===");
     const totalTests =
         errorSummary.total +
