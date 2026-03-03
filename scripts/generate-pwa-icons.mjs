@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(__dirname, "..", "public");
 
-const BG_COLOR = "#ffffff";
+const BG_COLOR = "#060b16";
 const STROKE_COLOR = "#6a8dff";
 
 const ICON_PATHS = `
@@ -38,7 +38,7 @@ function makeSvg(viewBox, nativeSize, bgColor) {
 }
 
 // ~12 % padding per side → icon fills 76 % of canvas (survives rounded-corner clipping)
-const REGULAR_VB = "-465 -470 2000 2000";
+const REGULAR_VB = "-202 -207 1474 1474";
 // ~20 % padding per side → icon fills 60 % (fits maskable safe-zone circle)
 const MASKABLE_VB = "-399 -404 1867 1867";
 // Tight fit for small favicon
