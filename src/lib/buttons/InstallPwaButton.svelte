@@ -8,7 +8,6 @@
         deferredInstallPrompt: BeforeInstallPromptEvent | null;
         canInstall: boolean;
         isInstalled: boolean;
-        hasDismissedPrompt: boolean;
     };
 
     const listeners = new Set<(state: InstallState) => void>();
@@ -16,7 +15,6 @@
         deferredInstallPrompt: null,
         canInstall: false,
         isInstalled: false,
-        hasDismissedPrompt: false,
     };
     let hasInitialized = false;
 
@@ -56,7 +54,6 @@
             sharedState.isInstalled = true;
             sharedState.canInstall = false;
             sharedState.deferredInstallPrompt = null;
-            sharedState.hasDismissedPrompt = false;
             emitState();
         };
         window.addEventListener(
@@ -80,21 +77,8 @@
         if (!sharedState.deferredInstallPrompt) {
             return false;
         }
-        try {
-            await sharedState.deferredInstallPrompt.prompt();
-            const { outcome } =
-                await sharedState.deferredInstallPrompt.userChoice;
-            if (outcome === "dismissed") {
-                sharedState.hasDismissedPrompt = true;
-                emitState();
-                return false;
-            }
-        } catch (e) {
-            sharedState.hasDismissedPrompt = true;
-            emitState();
-            return false;
-        }
-
+        await sharedState.deferredInstallPrompt.prompt();
+        await sharedState.deferredInstallPrompt.userChoice;
         sharedState.deferredInstallPrompt = null;
         sharedState.canInstall = false;
         emitState();
@@ -109,7 +93,6 @@
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../haptics";
     import { getOSName } from "../systemUtil";
-    import { showToast } from "../toast";
 
     const appName = packageInfo.name ?? "app";
 
@@ -119,13 +102,11 @@
     let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
     let canInstall = false;
     let isInstalled = false;
-    let hasDismissedPrompt = false;
 
     function updateLocalState(state: InstallState) {
         deferredInstallPrompt = state.deferredInstallPrompt;
         canInstall = state.canInstall;
         isInstalled = state.isInstalled;
-        hasDismissedPrompt = state.hasDismissedPrompt;
     }
 
     async function handleInstallClick() {
@@ -133,12 +114,6 @@
             return;
         }
         triggerHaptic();
-        if (hasDismissedPrompt) {
-            showToast(
-                "To install, open the browser menu and select 'Install app'.",
-            );
-            // return;
-        }
         await promptInstall();
     }
 
