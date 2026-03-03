@@ -33,20 +33,6 @@ export function scrollInputVisible(inputEl: HTMLElement | null): void {
 
 let teardown: (() => void) | null = null;
 
-/**
- * Returns true when the app controls its own safe-area (fullscreen API
- * or standalone PWA).  In regular windowed-browser mode the browser
- * already insets the viewport for the notch/home-indicator, so the app
- * must NOT double-apply left/right safe-area values.
- */
-function isAppControlledSafeArea(): boolean {
-    // Fullscreen API active?
-    if (document.fullscreenElement) return true;
-    // Standalone PWA (installed to home-screen)?
-    if (window.matchMedia("(display-mode: standalone)").matches) return true;
-    if ((window.navigator as { standalone?: boolean }).standalone) return true;
-    return false;
-}
 
 export function initViewportTracking(): void {
     if (teardown) return;
@@ -73,11 +59,11 @@ export function initViewportTracking(): void {
      * In windowed-browser mode the browser already accounts for left/right
      * safe-area insets, but env(safe-area-inset-*) still returns non-zero
      * values.  Override --safe-left/--safe-right to 0px to prevent
-     * double-spacing.  In fullscreen or standalone PWA mode, remove the
-     * overrides so the CSS :root env() values take effect.
+     * double-spacing.  In fullscreen mode, remove the overrides so the
+     * CSS :root env() values take effect.
      */
     function updateSafeArea() {
-        if (isAppControlledSafeArea()) {
+        if (document.fullscreenElement) {
             root.style.removeProperty("--safe-left");
             root.style.removeProperty("--safe-right");
         } else {
@@ -93,10 +79,6 @@ export function initViewportTracking(): void {
 
     // React to fullscreen changes
     document.addEventListener("fullscreenchange", updateSafeArea);
-
-    // React to display-mode changes (e.g. PWA install/uninstall)
-    const standaloneMql = window.matchMedia("(display-mode: standalone)");
-    standaloneMql.addEventListener("change", updateSafeArea);
 
     let orientationTimer: ReturnType<typeof setTimeout> | undefined;
     const handleOrientation = () => {
@@ -115,7 +97,6 @@ export function initViewportTracking(): void {
         vv?.removeEventListener("resize", update);
         vv?.removeEventListener("scroll", update);
         document.removeEventListener("fullscreenchange", updateSafeArea);
-        standaloneMql.removeEventListener("change", updateSafeArea);
         window.removeEventListener("orientationchange", handleOrientation);
         clearTimeout(orientationTimer);
         root.style.removeProperty("--vv-height");
