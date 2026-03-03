@@ -3,79 +3,72 @@ import "./utils.ts";
 
 const GLOBAL_LOG_FILE_PATH = fileURLToPath(new URL("./index.output.log", import.meta.url));
 
+const TEST_FILES = [
+    // 1. Fundamentals & Utilities
+    "mathUtil.test.ts",
+    "stringUtil.test.ts",
+    "systemUtil.test.ts",
+    "appInfo.test.ts",
+    "skillValueFns.test.ts",
+
+    // 2. Core State & Logic
+    "treeLevelsStore.test.ts",
+    "treeProgressStore.test.ts",
+    "tierLeveling.test.ts",
+    "buildDataApplier.test.ts",
+
+    // 3. Serialization & Storage
+    "storage.test.ts",
+    "encoder.test.ts",
+
+    // 4. Features (Presets & Sharing)
+    "buildPresets.test.ts",
+    "shareUrl.test.ts",
+    "shareBuild.lazy.test.ts",
+
+    // 5. UI & Interaction
+    "editableSurfaceStyles.test.ts",
+    "globalContextMenu.test.ts",
+];
+
 async function runAllTests() {
     console.log("Starting tests...\n");
 
-    console.log("Running appInfo.test.ts...");
-    await import("./appInfo.test.ts");
-    console.log("✅ appInfo.test.ts passed\n");
+    let passed = 0;
+    let failed = 0;
 
-    console.log("Running buildDataApplier.test.ts...");
-    await import("./buildDataApplier.test.ts");
-    console.log("✅ buildDataApplier.test.ts passed\n");
-
-    console.log("Running editableSurfaceStyles.test.ts...");
-    await import("./editableSurfaceStyles.test.ts");
-    console.log("✅ editableSurfaceStyles.test.ts passed\n");
-
-    console.log("Running shareUrl.test.ts...");
-    await import("./shareUrl.test.ts");
-    console.log("✅ shareUrl.test.ts passed\n");
-
-    console.log("Running buildPresets.test.ts...");
-    await import("./buildPresets.test.ts");
-    console.log("✅ buildPresets.test.ts passed\n");
-
-    console.log("Running shareBuild.lazy.test.ts...");
-    await import("./shareBuild.lazy.test.ts");
-    console.log("✅ shareBuild.lazy.test.ts passed\n");
-
-    console.log("Running globalContextMenu.test.ts...");
-    await import("./globalContextMenu.test.ts");
-    console.log("✅ globalContextMenu.test.ts passed\n");
-
-    console.log("Running encoder.test.ts...");
-    await import("./encoder.test.ts");
-    console.log("✅ encoder.test.ts passed\n");
-
-    console.log("Running storage.test.ts...");
-    await import("./storage.test.ts");
-    console.log("✅ storage.test.ts passed\n");
-
-    console.log("Running tierLeveling.test.ts...");
-    await import("./tierLeveling.test.ts");
-    console.log("✅ tierLeveling.test.ts passed\n");
-
-    console.log("Running mathUtil.test.ts...");
-    await import("./mathUtil.test.ts");
-    console.log("✅ mathUtil.test.ts passed\n");
-
-    console.log("Running stringUtil.test.ts...");
-    await import("./stringUtil.test.ts");
-    console.log("✅ stringUtil.test.ts passed\n");
-
-    console.log("Running systemUtil.test.ts...");
-    await import("./systemUtil.test.ts");
-    console.log("✅ systemUtil.test.ts passed\n");
-
-    console.log("Running skillValueFns.test.ts...");
-    await import("./skillValueFns.test.ts");
-    console.log("✅ skillValueFns.test.ts passed\n");
-
-    console.log("Running treeLevelsStore.test.ts...");
-    await import("./treeLevelsStore.test.ts");
-    console.log("✅ treeLevelsStore.test.ts passed\n");
-
-    console.log("Running treeProgressStore.test.ts...");
-    await import("./treeProgressStore.test.ts");
-    console.log("✅ treeProgressStore.test.ts passed\n");
+    for (const file of TEST_FILES) {
+        console.log(`Running ${file}...`);
+        try {
+            await import(`./${file}`);
+            console.log(`✅ ${file} passed\n`);
+            passed++;
+        } catch (err) {
+            console.error(`❌ ${file} failed:\n`, err, "\n");
+            failed++;
+        }
+    }
 
     console.log("===");
     console.log("Global Test Summary");
     console.log("===");
-    console.log("🎉 All tests completed successfully!");
+    console.log(`Total:  ${TEST_FILES.length}`);
+    console.log(`Passed: ${passed}`);
+    console.log(`Failed: ${failed}`);
+    console.log("===");
+
+    if (failed === 0) {
+        console.log("🎉 All tests completed successfully!");
+    } else {
+        console.log("⚠️ Some tests failed. Check the logs above.");
+    }
+
     console.log(`Log file: ${GLOBAL_LOG_FILE_PATH}:1`);
     console.log("===");
+
+    if (failed > 0) {
+        process.exit(1);
+    }
 }
 
 runAllTests().catch((err) => {
