@@ -6,7 +6,7 @@
 import { writable, get, derived } from "svelte/store";
 import { encodeBuildData, decodeBuildData } from "./buildData/encoder";
 import { getItem, setItem } from "./storage";
-import { tr } from "svelte-whisper";
+
 
 export const DEFAULT_PRESET_NAME = "Default";
 
@@ -147,7 +147,7 @@ export function addPreset(name: string, buildCode: string): BuildPreset {
     const id = generatePresetId();
     const preset: BuildPreset = {
         id,
-        name: name.trim() || tr("buildPresets.generated.build"),
+        name: name.trim() || "Build",
         buildCode,
     };
     buildPresetsStore.update((data) => ({
@@ -209,7 +209,7 @@ export function getUniquePresetName(
     const inputName =
         desiredName.trim() ||
         fallbackName.trim() ||
-        tr("buildPresets.generated.preset");
+        "Preset";
     const existingNames = get(buildPresetsStore).presets.map((preset) =>
         preset.name.toLowerCase(),
     );

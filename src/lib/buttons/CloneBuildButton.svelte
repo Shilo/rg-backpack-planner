@@ -23,7 +23,7 @@
         const previewName = get(previewBuildName) ?? "";
         const uniqueName = getUniquePresetName(
             previewName,
-            $t("buildPresets.generated.clone"),
+            "Clone",
         );
         openModal({
             type: "confirm",

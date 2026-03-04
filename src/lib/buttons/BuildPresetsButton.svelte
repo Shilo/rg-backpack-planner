@@ -238,15 +238,12 @@
         });
 
         if (skipPrompt) {
-            const preset = addPreset($t("buildPresets.generated.default"), buildCode);
+            const preset = addPreset("Default", buildCode);
             setActivePresetId(preset.id);
             applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
             closePresetsMenu();
         } else {
-            const defaultName = getUniquePresetName(
-                $t("buildPresets.generated.new"),
-                $t("buildPresets.generated.new"),
-            );
+            const defaultName = getUniquePresetName("New", "New");
             openModal({
                 type: "textInput",
                 title: $t("buildPresets.newModalTitle"),

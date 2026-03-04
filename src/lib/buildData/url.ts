@@ -18,12 +18,6 @@ import {
     previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
-import { tr } from "svelte-whisper";
-
-function escapeRegExp(value: string): string {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 /**
  * Cached base path from vite.config.ts
  * Normalized to have leading slash and trailing slash
@@ -147,55 +141,21 @@ export function createShareUrl(buildData?: BuildData): string {
 }
 
 /**
- * Canonical English preset names — always checked regardless of locale.
- */
-const CANONICAL_NAMES = ["Default", "New", "Clone"];
-
-/**
  * Determines whether a preset name is a default/generated value that should
  * not be encoded into share URLs.
  *
- * Checks both canonical English names and the current locale's translations
- * so adding new locale JSON files requires no code changes.
+ * Only checks canonical English names since all preset names are stored
+ * in canonical English internally. Display translation happens at the UI layer.
  */
 export function isDefaultPresetName(name?: string | null): boolean {
     if (!name) return false;
     const trimmed = name.trim();
 
-    // Check canonical English names
-    if (CANONICAL_NAMES.includes(trimmed)) return true;
-
-    // Check current locale translations
-    const localDefault = tr("buildPresets.generated.default");
-    const localNew = tr("buildPresets.generated.new");
-    const localClone = tr("buildPresets.generated.clone");
-
-    if (trimmed === localDefault || trimmed === localNew || trimmed === localClone) {
+    if (trimmed === "Default" || trimmed === "New" || trimmed === "Clone") {
         return true;
     }
 
-    // Check "New N" / "Clone N" patterns (canonical English)
-    if (/^New\s+\d+$/i.test(trimmed) || /^Clone\s+\d+$/i.test(trimmed)) {
-        return true;
-    }
-
-    // Check localized "New N" / "Clone N" patterns
-    if (
-        matchesCountPattern(trimmed, localNew) ||
-        matchesCountPattern(trimmed, localClone)
-    ) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Tests if a name matches a "{prefix} {number}" pattern for a given localized prefix.
- */
-function matchesCountPattern(name: string, prefix: string): boolean {
-    if (!prefix) return false;
-    return new RegExp(`^${escapeRegExp(prefix)}\\s+\\d+$`, "i").test(name);
+    return /^(New|Clone)\s+\d+$/i.test(trimmed);
 }
 
 /**
