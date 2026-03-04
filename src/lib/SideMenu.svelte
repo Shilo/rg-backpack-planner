@@ -159,9 +159,12 @@
         right: 0;
         height: 100%;
         max-width: 100%;
-        width: calc(
-            3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
-                var(--spacing-lg)
+        width: max(
+            calc(
+                3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
+                    var(--spacing-lg)
+            ),
+            280px
         );
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
