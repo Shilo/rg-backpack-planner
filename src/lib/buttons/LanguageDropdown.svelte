@@ -132,6 +132,7 @@
     .language-dropdown-container {
         display: flex;
         width: 100%;
+        overflow: hidden;
     }
 
     :global(.language-button) {
@@ -186,6 +187,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         text-align: right;
+        min-width: 0;
     }
 
     :global(.language-button .caret-icon) {
