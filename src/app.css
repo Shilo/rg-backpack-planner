@@ -29,11 +29,10 @@
 }
 
 .hud-safe-area {
-    position: fixed;
+    position: absolute;
     inset:
         max(var(--bar-pad), var(--safe-top)) max(var(--bar-pad), var(--safe-right)) max(var(--bar-pad), var(--safe-bottom)) max(var(--bar-pad), var(--safe-left));
     pointer-events: none;
-    z-index: var(--z-index-hud);
 }
 
 .hud-safe-area>* {

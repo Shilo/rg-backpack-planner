@@ -13,10 +13,7 @@
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
     import { t } from "svelte-whisper";
-    import {
-        treeLevels,
-        sumLevels,
-    } from "./lib/treeLevelsStore";
+    import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
         isNewVersion,
         markVersionAsSeen,
@@ -101,7 +98,10 @@
         return isNew;
     })();
 
-    const baseTabs: Array<{ id: "guardian" | "vanguard" | "cannon"; nodes: TabConfig["nodes"] }> = [
+    const baseTabs: Array<{
+        id: "guardian" | "vanguard" | "cannon";
+        nodes: TabConfig["nodes"];
+    }> = [
         { id: "guardian", nodes: guardianTree },
         { id: "vanguard", nodes: vanguardTree },
         { id: "cannon", nodes: cannonTree },
@@ -326,7 +326,9 @@
                     window.history.replaceState({}, "", basePath);
                     didNormalizeShareUrl = true;
                 }
-                showToastDelayed($t("preview.invalidShareLinkToast"), { tone: "negative" });
+                showToastDelayed($t("preview.invalidShareLinkToast"), {
+                    tone: "negative",
+                });
             }
         }
 
@@ -547,6 +549,7 @@
         flex-direction: column;
         gap: var(--spacing-lg);
         pointer-events: none;
+        z-index: var(--z-index-hud);
     }
 
     .top-left-actions {

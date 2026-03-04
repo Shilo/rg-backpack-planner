@@ -531,6 +531,8 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: var(--menu-gap);
         min-width: 0;
+        position: relative;
+        z-index: var(--z-index-hud);
     }
 
     :global(.tab-buttons button) {
@@ -621,6 +623,7 @@
         position: absolute;
         right: 0;
         bottom: 0;
+        z-index: var(--z-index-hud);
     }
 
     :global(.menu-button-icon) {
