@@ -28,20 +28,6 @@ function syncThemeColorMeta(bgHex: string): void {
     meta.name = "theme-color";
     meta.content = bgHex;
     document.head.appendChild(meta);
-
-    // DEBUG: show status bar color simulator
-    let dbg = document.getElementById("__dbg-statusbar");
-    if (!dbg) {
-        dbg = document.createElement("div");
-        dbg.id = "__dbg-statusbar";
-        dbg.style.cssText =
-            "position:fixed;top:0;left:0;right:0;height:32px;z-index:99999;" +
-            "display:flex;align-items:center;justify-content:center;" +
-            "font:bold 11px/1 monospace;color:#888;pointer-events:none;";
-        document.body.prepend(dbg);
-    }
-    dbg.style.backgroundColor = bgHex;
-    dbg.textContent = `theme-color: ${bgHex}`;
 }
 
 const TRANSITION_CLASS = "theme-transitioning";
