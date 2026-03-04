@@ -16,17 +16,24 @@
     import { openModal } from "../modalStore";
     import { previewBuildName } from "../previewBuildNameStore";
     import { truncateText } from "../stringUtil";
+    import { t } from "svelte-whisper";
+    import { getDisplayPresetName } from "../i18n";
 
     function handleCloneBuild() {
         const previewName = get(previewBuildName) ?? "";
-        const uniqueName = getUniquePresetName(previewName, "Clone");
+        const uniqueName = getUniquePresetName(
+            previewName,
+            "Clone",
+        );
         openModal({
             type: "confirm",
-            title: "CLONE PREVIEW BUILD",
+            title: $t("preview.cloneModalTitle"),
             titleIcon: CopySimpleIcon as unknown as Component,
-            message: `create a new preset named "${truncateText(uniqueName)}" from the preview build.`,
-            confirmLabel: "Clone",
-            cancelLabel: "Cancel",
+            message: $t("preview.cloneModalMessage", {
+                name: truncateText(getDisplayPresetName(uniqueName)),
+            }),
+            confirmLabel: $t("preview.cloneConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmPositive: true,
             onConfirm: () => {
                 try {
@@ -46,7 +53,9 @@
                     }
                 } catch (error) {
                     console.error("Failed to clone build:", error);
-                    showToast("Failed to clone build", { tone: "negative" });
+                    showToast($t("preview.failedCloneToast"), {
+                        tone: "negative",
+                    });
                 }
             },
         });
@@ -55,8 +64,8 @@
 
 <Button
     on:click={handleCloneBuild}
-    tooltipText={"Copy preview build to personal build"}
+    tooltipText={$t("preview.clonePreviewBuildTooltip")}
     icon={CopySimpleIcon}
 >
-    Clone Preview Build
+    {$t("preview.clonePreviewBuild")}
 </Button>

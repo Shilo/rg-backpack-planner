@@ -19,6 +19,7 @@
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
     import appPackage from "../../../package.json";
+    import { t } from "svelte-whisper";
 
     export let x = 0;
     export let y = 0;
@@ -33,9 +34,15 @@
         "Late PvE": ShieldIcon,
         "Late PvP": SwordIcon,
     };
+    const premadeBuildLabelKeys: Record<string, string> = {
+        Starter: "preview.premade.starter",
+        "Early Stun": "preview.premade.earlyStun",
+        "Late PvE": "preview.premade.latePve",
+        "Late PvP": "preview.premade.latePvp",
+    };
 
     // Dynamically get all premade builds from package.json
-    const premadeBuilds = (() => {
+    $: premadeBuilds = (() => {
         const builds = appPackage?.premadeBuilds;
         if (!Array.isArray(builds)) return [];
 
@@ -45,9 +52,13 @@
                     typeof value === "string" && value.trim() !== "",
             )
             .map((value) => {
-                const name = getBuildNameFromEncoded(value) ?? "Preview";
+                const rawName = getBuildNameFromEncoded(value) ?? $t("preview.title");
+                const localizedName = premadeBuildLabelKeys[rawName]
+                    ? $t(premadeBuildLabelKeys[rawName])
+                    : rawName;
                 return {
-                    name,
+                    rawName,
+                    name: localizedName,
                     code: value,
                 };
             });
@@ -60,7 +71,7 @@
             navigateToEncodedBuild(encoded);
             onPreview?.();
         } else {
-            showToast("Invalid build data", { tone: "negative" });
+            showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
         }
     }
 
@@ -75,22 +86,24 @@
         {x}
         {y}
         {isOpen}
-        title="Preview Builds"
+        title={$t("preview.previewBuildsTitle")}
         onClose={() => onClose?.()}
     >
         <Button
             icon={LinkIcon}
-            tooltipText="Preview build from shareable link or code"
+            tooltipText={$t("preview.previewFromLinkTooltip")}
             on:click={handleOpenLoadModal}
         >
-            From Link/Code
+            {$t("preview.fromLinkOrCode")}
         </Button>
-        <div class="section-title">Recommended</div>
+        <div class="section-title">{$t("preview.recommended")}</div>
         <div class="premade-builds-list">
             {#each premadeBuilds as build}
                 <Button
-                    icon={premadeBuildIcons[build.name] ?? ShareNetworkIcon}
-                    tooltipText={`Preview ${build.name} build`}
+                    icon={premadeBuildIcons[build.rawName] ?? ShareNetworkIcon}
+                    tooltipText={$t("preview.previewBuildTooltip", {
+                        name: build.name,
+                    })}
                     on:click={() => handlePremadeClick(build.code)}
                 >
                     {build.name}

@@ -7,14 +7,29 @@
     import { portal } from "./portal";
     import ContextMenu from "./ContextMenu.svelte";
     import ColorPickerDialog from "./ColorPickerDialog.svelte";
+    import { t } from "svelte-whisper";
 
-    const PRESETS: { h: number; c: number; label: string; hex: string }[] = [
-        { h: 264, c: 0.19, label: "Blue", hex: oklchToHex(0.65, 0.19, 264) },
-        { h: 0, c: 0.18, label: "Rose", hex: oklchToHex(0.65, 0.18, 0) },
-        { h: 70, c: 0.16, label: "Amber", hex: oklchToHex(0.65, 0.16, 70) },
-        { h: 155, c: 0.17, label: "Green", hex: oklchToHex(0.65, 0.17, 155) },
-        { h: 305, c: 0.17, label: "Violet", hex: oklchToHex(0.65, 0.17, 305) },
+    const PRESETS: {
+        h: number;
+        c: number;
+        labelKey:
+            | "theme.preset.blue"
+            | "theme.preset.rose"
+            | "theme.preset.amber"
+            | "theme.preset.green"
+            | "theme.preset.violet";
+    }[] = [
+        { h: 264, c: 0.19, labelKey: "theme.preset.blue" },
+        { h: 0, c: 0.18, labelKey: "theme.preset.rose" },
+        { h: 70, c: 0.16, labelKey: "theme.preset.amber" },
+        { h: 155, c: 0.17, labelKey: "theme.preset.green" },
+        { h: 305, c: 0.17, labelKey: "theme.preset.violet" },
     ];
+    $: presetOptions = PRESETS.map((preset) => ({
+        ...preset,
+        label: $t(preset.labelKey),
+        hex: oklchToHex(0.65, preset.c, preset.h),
+    }));
 
     let buttonEl: HTMLButtonElement | null = null;
     let dropdownOpen = false;
@@ -25,12 +40,13 @@
 
     $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
 
-    $: currentLabel = (() => {
-        const match = PRESETS.find(
-            (p) => p.h === $themeColor.h && p.c === $themeColor.c,
-        );
-        return match ? match.label : "Custom";
-    })();
+    $: selectedPreset = presetOptions.find(
+        (p) => p.h === $themeColor.h && p.c === $themeColor.c,
+    );
+    $: currentLabel = selectedPreset
+        ? selectedPreset.label
+        : $t("theme.custom");
+    $: isCustom = !selectedPreset;
 
     function openDropdown() {
         if (!buttonEl) return;
@@ -76,14 +92,14 @@
     class="theme-color-button"
     type="button"
     bind:this={buttonEl}
-    aria-label="Theme: {currentLabel}"
-    use:tooltip={"Change theme"}
+    aria-label={$t("theme.aria", { label: currentLabel })}
+    use:tooltip={$t("theme.changeTooltip")}
     on:click={openDropdown}
 >
     <span class="theme-button-icon">
         <PaletteIcon size={26} />
     </span>
-    <span class="theme-button-label">Theme</span>
+    <span class="theme-button-label">{$t("theme.label")}</span>
     <span
         class="theme-button-swatch"
         style="background: {currentHex}"
@@ -95,10 +111,10 @@
         x={dropdownX}
         y={dropdownY}
         isOpen={dropdownOpen}
-        title="Theme"
+        title={$t("theme.menuTitle")}
         onClose={closeDropdown}
     >
-        {#each PRESETS as preset}
+        {#each presetOptions as preset}
             <button
                 class="preset-item"
                 class:preset-selected={isSelected(preset, $themeColor)}
@@ -117,16 +133,16 @@
         {/each}
         <button
             class="preset-item"
-            class:preset-selected={currentLabel === "Custom"}
+            class:preset-selected={isCustom}
             type="button"
             on:click={openCustomPicker}
         >
             <span
                 class="preset-swatch preset-swatch-custom"
-                style="background: {currentLabel === 'Custom' ? currentHex : 'var(--border)'}"
+                style="background: {isCustom ? currentHex : 'var(--border)'}"
             ></span>
-            <span class="preset-label">Custom...</span>
-            {#if currentLabel === "Custom"}
+            <span class="preset-label">{$t("theme.customEllipsis")}</span>
+            {#if isCustom}
                 <span class="preset-check" aria-hidden="true"></span>
             {/if}
         </button>

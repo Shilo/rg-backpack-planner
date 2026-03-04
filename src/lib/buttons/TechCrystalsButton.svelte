@@ -8,11 +8,10 @@
         techCrystalsOwned,
         techCrystalsFromActivePreset,
     } from "../techCrystalStore";
-
-    const DEFAULT_TOOLTIP_SUBJECT = "your";
+    import { t } from "svelte-whisper";
 
     export let disabled: boolean | undefined = false;
-    export let tooltipSubject: string = DEFAULT_TOOLTIP_SUBJECT;
+    export let tooltipSubject = "";
 
     // When disabled (preview mode), read from active preset's stored buildCode
     // When enabled (personal mode), use reactive stores
@@ -23,24 +22,22 @@
         ? $techCrystalsFromActivePreset.spent
         : $techCrystalsSpent;
     $: hasOwned = owned > 0;
+    $: resolvedTooltipSubject = tooltipSubject || $t("techCrystals.subjectYour");
 </script>
 
 <Button
     on:click={() => {
-        openTechCrystalsOwnedModal(
-            owned,
-            tooltipSubject !== DEFAULT_TOOLTIP_SUBJECT
-                ? tooltipSubject
-                : undefined,
-        );
+        openTechCrystalsOwnedModal(owned, resolvedTooltipSubject);
     }}
-    tooltipText={`Change ${tooltipSubject} Tech Crystal owned (budget)`}
+    tooltipText={$t("techCrystals.changeOwnedTooltip", {
+        subject: resolvedTooltipSubject,
+    })}
     icon={HexagonIcon}
     iconClass="button-icon button-icon-filled"
     iconWeight="fill"
     {disabled}
 >
-    Tech Crystals spent:<br />
+    {$t("techCrystals.spentLabel")}<br />
     <span
         class="tech-crystals-spent"
         class:is-negative={spent > owned && hasOwned}

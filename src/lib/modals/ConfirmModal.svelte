@@ -2,6 +2,7 @@
     import type { Component } from "svelte";
     import type { IconWeight } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import { t } from "svelte-whisper";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -9,12 +10,14 @@
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
-    export let confirmLabel = "Confirm";
-    export let cancelLabel = "Cancel";
+    export let confirmLabel = "";
+    export let cancelLabel = "";
     export let confirmNegative = false;
     export let confirmPositive = false;
     export let onConfirm: (() => void) | null = null;
     export let onCancel: (() => void) | null = null;
+    $: resolvedConfirmLabel = confirmLabel || $t("modal.confirmLabel");
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 </script>
 
 <div class="modal-content">
@@ -36,7 +39,7 @@
     {/if}
     <div class="modal-actions">
         <Button data-modal-cancel on:click={() => onCancel?.()}>
-            {cancelLabel}
+            {resolvedCancelLabel}
         </Button>
         <Button
             data-modal-confirm
@@ -44,7 +47,7 @@
             negative={confirmNegative}
             positive={confirmPositive}
         >
-            {confirmLabel}
+            {resolvedConfirmLabel}
         </Button>
     </div>
 </div>

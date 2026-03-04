@@ -15,32 +15,33 @@
         techCrystalsSpentVanguard,
         techCrystalsSpentCannon,
     } from "../techCrystalStore";
+    import { t } from "svelte-whisper";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<[string, string]> = [];
     $: {
         statsRows = [
-            ["Backpack Skill Boosts", ""],
-            ["Attack Boost", "10,000%"],
-            ["Defense Boost", "30,000%"],
-            ["Critical Hit", "160%"],
-            ["Global ATK", "200%"],
-            ["Final Damage Boost", "20%"],
-            ["Backpack Node Levels", ""],
-            ["Total", formatNumber($treeLevelsTotal)],
-            ["Guardian", formatNumber($treeLevelsGuardian)],
-            ["Vanguard", formatNumber($treeLevelsVanguard)],
-            ["Cannon", formatNumber($treeLevelsCannon)],
-            ["Tech Crystals Spent", ""],
-            ["Total", formatNumber($techCrystalsSpent)],
-            ["Guardian", formatNumber($techCrystalsSpentGuardian)],
-            ["Vanguard", formatNumber($techCrystalsSpentVanguard)],
-            ["Cannon", formatNumber($techCrystalsSpentCannon)],
+            [$t("statistics.backpackSkillBoosts"), ""],
+            [$t("statistics.attackBoost"), "10,000%"],
+            [$t("statistics.defenseBoost"), "30,000%"],
+            [$t("statistics.criticalHit"), "160%"],
+            [$t("statistics.globalAtk"), "200%"],
+            [$t("statistics.finalDamageBoost"), "20%"],
+            [$t("statistics.backpackNodeLevels"), ""],
+            [$t("statistics.total"), formatNumber($treeLevelsTotal)],
+            [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],
+            [$t("trees.vanguard"), formatNumber($treeLevelsVanguard)],
+            [$t("trees.cannon"), formatNumber($treeLevelsCannon)],
+            [$t("statistics.techCrystalsSpent"), ""],
+            [$t("statistics.total"), formatNumber($techCrystalsSpent)],
+            [$t("trees.guardian"), formatNumber($techCrystalsSpentGuardian)],
+            [$t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard)],
+            [$t("trees.cannon"), formatNumber($techCrystalsSpentCannon)],
         ];
     }
 </script>
 
-<SideMenuSection title="STATISTICS">
+<SideMenuSection title={$t("sideMenu.sections.statistics")}>
     <CopyStatsButton
         slot="action"
         class="side-menu__stats-copy"

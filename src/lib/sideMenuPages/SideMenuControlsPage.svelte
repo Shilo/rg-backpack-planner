@@ -28,9 +28,11 @@
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { getOSName } from "../systemUtil";
-    import { APP_DISPLAY_NAME } from "../appInfo";
+    import { t } from "svelte-whisper";
+    import { getCurrentVersion } from "../latestUsedVersionStore";
 
-    const appDescription = packageInfo.description ?? "";
+    const version = getCurrentVersion();
+    const osName = getOSName();
     const appGithubUrl = (packageInfo?.app?.sourceUrl ?? undefined) as
         | string
         | undefined;
@@ -47,8 +49,17 @@
         gameUrl && gameName
             ? `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${gameName}</a>`
             : gameName || "";
-    const helpMessage =
-        gameName && ownerName ? `By ${ownerLink}<br>For ${gameLink}` : "";
+    $: appDescription = $t("app.description");
+    $: helpMessage =
+        gameName && ownerName
+            ? $t("app.byForHtml", { ownerLink, gameLink })
+            : "";
+    $: appName = $t("app.name");
+    $: versionLabel = version === "unknown" ? "" : `v${version}`;
+    $: appSectionTitle =
+        versionLabel.length > 0
+            ? $t("app.titleWithVersion", { appName, version: versionLabel })
+            : appName;
 
     type ControlDevice = "pointer" | "touch" | "both";
     type ControlItem = {
@@ -59,81 +70,82 @@
         device: ControlDevice;
     };
 
-    const controls: ControlItem[] = [
+    let controls: ControlItem[] = [];
+    $: controls = [
         {
             id: "pointer-node",
-            label: "Left click a node",
-            description: "Add a node level and spend Tech Crystals",
+            label: $t("controls.pointerNodeLabel"),
+            description: $t("controls.pointerNodeDescription"),
             icon: MouseLeftClickIcon,
             device: "pointer",
         },
         {
             id: "pointer-node-menu",
-            label: "Right click a node",
-            description: "Show node options",
+            label: $t("controls.pointerNodeMenuLabel"),
+            description: $t("controls.pointerNodeMenuDescription"),
             icon: MouseRightClickIcon,
             device: "pointer",
         },
         {
             id: "pointer-tree-menu",
-            label: "Right click empty space or tab",
-            description: "Show tree options",
+            label: $t("controls.pointerTreeMenuLabel"),
+            description: $t("controls.pointerTreeMenuDescription"),
             icon: MouseRightClickIcon,
             device: "pointer",
         },
         {
             id: "pointer-pan",
-            label: "Click and drag",
-            description: "Pan around tree",
+            label: $t("controls.pointerPanLabel"),
+            description: $t("controls.pointerPanDescription"),
             icon: ArrowsOutCardinalIcon,
             device: "pointer",
         },
         {
             id: "pointer-zoom",
-            label: "Scroll wheel or trackpad",
-            description: "Zoom in and out on tree",
+            label: $t("controls.pointerZoomLabel"),
+            description: $t("controls.pointerZoomDescription"),
             icon: MouseScrollIcon,
             device: "pointer",
         },
         {
             id: "touch-node",
-            label: "Tap a node",
-            description: "Add a node level and spend Tech Crystals",
+            label: $t("controls.touchNodeLabel"),
+            description: $t("controls.touchNodeDescription"),
             icon: HandTapIcon,
             device: "touch",
         },
         {
             id: "touch-node-menu",
-            label: "long press a node",
-            description: "Show node options",
+            label: $t("controls.touchNodeMenuLabel"),
+            description: $t("controls.touchNodeMenuDescription"),
             icon: LongPressIcon,
             device: "touch",
         },
         {
             id: "touch-tree-menu",
-            label: "long press empty space or tab",
-            description: "Show tree options",
+            label: $t("controls.touchTreeMenuLabel"),
+            description: $t("controls.touchTreeMenuDescription"),
             icon: LongPressIcon,
             device: "touch",
         },
         {
             id: "touch-pan",
-            label: "Drag with one finger",
-            description: "Pan around tree",
+            label: $t("controls.touchPanLabel"),
+            description: $t("controls.touchPanDescription"),
             icon: HandGrabbingIcon,
             device: "touch",
         },
         {
             id: "touch-zoom",
-            label: "Pinch with two fingers",
-            description: "Zoom in and out on tree",
+            label: $t("controls.touchZoomLabel"),
+            description: $t("controls.touchZoomDescription"),
             icon: PinchIcon,
             device: "touch",
         },
         {
             id: "touch-menu-swipe",
-            label: "Swipe right on side menu",
-            description: "Close side menu",
+            label: $t("controls.touchMenuSwipeLabel"),
+            description: $t("controls.touchMenuSwipeDescription"),
             icon: HandSwipeRightIcon,
             device: "touch",
         },
@@ -187,7 +199,7 @@
 
 <div class="controls-page">
     <div class="controls-sections">
-        <SideMenuSection title={APP_DISPLAY_NAME}>
+        <SideMenuSection title={appSectionTitle}>
             <div class="app-info-actions">
                 <div class="control-row">
                     <span class="control-icon" aria-hidden="true">
@@ -205,8 +217,8 @@
                 <div class="controls-actions">
                     <Button
                         icon={GithubLogoIcon}
-                        aria-label="View source code on GitHub"
-                        tooltipText="View source code on GitHub"
+                        aria-label={$t("app.sourceCodeGithub")}
+                        tooltipText={$t("app.sourceCodeGithub")}
                         on:click={() => {
                             window.open(
                                 appGithubUrl ?? "https://github.com/shilo",
@@ -220,7 +232,7 @@
             </div>
         </SideMenuSection>
         {#if showTouch}
-            <SideMenuSection title="Touch">
+            <SideMenuSection title={$t("sideMenu.sections.touch")}>
                 <ul class="control-list">
                     {#each touchControls as control (control.id)}
                         <li class="control-row">
@@ -239,7 +251,7 @@
             </SideMenuSection>
         {/if}
         {#if showMouse}
-            <SideMenuSection title="Mouse">
+            <SideMenuSection title={$t("sideMenu.sections.mouse")}>
                 <ul class="control-list">
                     {#each pointerControls as control (control.id)}
                         <li class="control-row">
@@ -258,23 +270,25 @@
             </SideMenuSection>
         {/if}
         {#if showKeyboard}
-            <SideMenuSection title="Keyboard">
+            <SideMenuSection title={$t("sideMenu.sections.keyboard")}>
                 <ul class="control-list">
                     <li class="control-row">
                         <span class="control-icon" aria-hidden="true">
                             <ImageIcon />
                         </span>
                         <div class="control-text">
-                            <p class="control-label">F9 - Screenshot</p>
+                            <p class="control-label">
+                                {$t("controls.keyboardScreenshotLabel")}
+                            </p>
                             <p class="control-desc">
-                                Copy screenshot of all trees to clipboard
+                                {$t("controls.keyboardScreenshotDescription")}
                             </p>
                         </div>
                     </li>
                 </ul>
             </SideMenuSection>
         {/if}
-        <SideMenuSection title="HUD (Heads-Up Display)">
+        <SideMenuSection title={$t("sideMenu.sections.hud")}>
             <ul class="control-list">
                 <li class="control-row">
                     <span
@@ -284,9 +298,11 @@
                         <HexagonIcon weight="fill" />
                     </span>
                     <div class="control-text">
-                        <p class="control-label">Tech Crystals (Currency)</p>
+                        <p class="control-label">
+                            {$t("controls.hudTechCrystalsLabel")}
+                        </p>
                         <p class="control-desc">
-                            View spent and set owned amount
+                            {$t("controls.hudTechCrystalsDescription")}
                         </p>
                     </div>
                 </li>
@@ -295,9 +311,11 @@
                         ><ArrowCounterClockwiseIcon /></span
                     >
                     <div class="control-text">
-                        <p class="control-label">Reset active tree</p>
+                        <p class="control-label">
+                            {$t("controls.hudResetTreeLabel")}
+                        </p>
                         <p class="control-desc">
-                            Refund Tech Crystals for tree
+                            {$t("controls.hudResetTreeDescription")}
                         </p>
                     </div>
                 </li>
@@ -306,9 +324,11 @@
                         ><ListIcon /></span
                     >
                     <div class="control-text">
-                        <p class="control-label">Side menu button</p>
+                        <p class="control-label">
+                            {$t("controls.hudSideMenuLabel")}
+                        </p>
                         <p class="control-desc">
-                            Show or hide additional options
+                            {$t("controls.hudSideMenuDescription")}
                         </p>
                     </div>
                 </li>
@@ -317,9 +337,11 @@
                         ><CornersOutIcon /></span
                     >
                     <div class="control-text">
-                        <p class="control-label">Fullscreen</p>
+                        <p class="control-label">
+                            {$t("controls.hudFullscreenLabel")}
+                        </p>
                         <p class="control-desc">
-                            Toggle fullscreen mode (where supported)
+                            {$t("controls.hudFullscreenDescription")}
                         </p>
                     </div>
                 </li>
@@ -328,25 +350,28 @@
                         ><EyeIcon /></span
                     >
                     <div class="control-text">
-                        <p class="control-label">Preview build indicator</p>
+                        <p class="control-label">
+                            {$t("controls.hudPreviewIndicatorLabel")}
+                        </p>
                         <p class="control-desc">
-                            View and edit a shared build. Access preview build
-                            options.
+                            {$t("controls.hudPreviewIndicatorDescription")}
                         </p>
                     </div>
                 </li>
             </ul>
         </SideMenuSection>
-        <SideMenuSection title="Side menu Controls Tab">
+        <SideMenuSection title={$t("sideMenu.sections.controlsTab")}>
             <ul class="control-list">
                 <li class="control-row">
                     <span class="control-icon" aria-hidden="true"
                         ><GithubLogoIcon /></span
                     >
                     <div class="control-text">
-                        <p class="control-label">GitHub button</p>
+                        <p class="control-label">
+                            {$t("controls.controlsTabGithubLabel")}
+                        </p>
                         <p class="control-desc">
-                            View the source code on GitHub
+                            {$t("controls.controlsTabGithubDescription")}
                         </p>
                     </div>
                 </li>
@@ -356,9 +381,13 @@
                             ><DownloadSimpleIcon /></span
                         >
                         <div class="control-text">
-                            <p class="control-label">Install app</p>
+                            <p class="control-label">
+                                {$t("controls.controlsTabInstallLabel")}
+                            </p>
                             <p class="control-desc">
-                                Install the Progressive Web App (PWA) on {getOSName()}
+                                {$t("controls.controlsTabInstallDescription", {
+                                    osName,
+                                })}
                             </p>
                         </div>
                     </li>

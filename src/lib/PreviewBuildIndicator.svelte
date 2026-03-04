@@ -8,6 +8,7 @@
     import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
     import { portal } from "./portal";
     import { truncateText } from "./stringUtil";
+    import { t } from "svelte-whisper";
 
     let buttonElement: HTMLButtonElement | null = null;
     let menuOpen = false;
@@ -31,16 +32,18 @@
         menuOpen = false;
     }
 
-    $: menuTitle = `${getPreviewTitle($previewBuildName)} Build`;
+    $: menuTitle = $t("preview.buildTitle", {
+        name: getPreviewTitle($previewBuildName),
+    });
     $: showIndicator = $isPreviewMode || (!$isPreviewMode && !!devIndicatorState);
     $: indicatorTitle = $isPreviewMode
-        ? "Preview"
+        ? $t("preview.title")
         : (devIndicatorState?.title ?? "");
     $: indicatorDetail = $isPreviewMode
         ? $previewBuildName
         : (devIndicatorState?.detail ?? null);
     $: indicatorTooltip = $isPreviewMode
-        ? "Preview build options"
+        ? $t("contextMenu.previewBuildOptions")
         : (devIndicatorState?.tooltip ?? "");
 
     onMount(() => {
@@ -95,7 +98,7 @@
                 y={menuY}
                 isOpen={menuOpen}
                 title={menuTitle}
-                ariaLabel="Preview build options"
+                ariaLabel={$t("contextMenu.previewBuildOptions")}
                 onClose={closeMenu}
             >
                 <PreviewContextMenuList />

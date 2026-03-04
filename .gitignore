@@ -31,7 +31,12 @@ test/**/*.jpg
 test/**/*.jpeg
 test/**/*.webp
 
-# Ignore Antigravity generated root text files
+# Antigravity generated root text files
 /*.txt
+/*.cjs
 
+# Cursor generated files
+docs/plans/
+
+# Claude generated files
 .claude/worktrees/

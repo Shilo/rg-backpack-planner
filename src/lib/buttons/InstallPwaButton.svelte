@@ -89,12 +89,10 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { DownloadSimpleIcon } from "phosphor-svelte";
-    import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../haptics";
     import { getOSName } from "../systemUtil";
-
-    const appName = packageInfo.name ?? "app";
+    import { t } from "svelte-whisper";
 
     export let className = "";
     export let title = false;
@@ -102,6 +100,8 @@
     let deferredInstallPrompt: BeforeInstallPromptEvent | null = null;
     let canInstall = false;
     let isInstalled = false;
+    const osName = getOSName();
+    $: appName = $t("app.name");
 
     function updateLocalState(state: InstallState) {
         deferredInstallPrompt = state.deferredInstallPrompt;
@@ -127,16 +127,15 @@
 </script>
 
 {#if canInstall && !isInstalled}
-    {@const osName = getOSName()}
     <Button
         class={className}
         on:click={handleInstallClick}
         icon={DownloadSimpleIcon}
-        aria-label={`Install ${appName} app on ${osName}`}
-        tooltipText={`Install ${appName} app on ${osName}`}
+        aria-label={$t("install.ariaTooltip", { appName, osName })}
+        tooltipText={$t("install.ariaTooltip", { appName, osName })}
     >
         {#if title}
-            Install app on {osName}
+            {$t("install.buttonLabel", { osName })}
         {/if}
     </Button>
 {/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { HexagonIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
+    import { t } from "svelte-whisper";
 
     const ROOT_SIZE = 32;
 
@@ -28,7 +29,7 @@
     on:keydown={handleKeydown}
     role="button"
     tabindex="0"
-    aria-label="Tree actions"
+    aria-label={$t("contextMenu.treeActions")}
 >
     <Button
         class="root-node"

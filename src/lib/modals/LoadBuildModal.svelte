@@ -10,23 +10,27 @@
     } from "../buildData/url";
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
+    import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
 
-    export let title = "Preview shareable build";
+    export let title = "";
     export let titleIcon: Component | null = null;
     export let titleIconClass = "";
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
-    export let message: string | undefined =
-        "Type a Backpack Planner link or just the build code.";
-    export let confirmLabel = "Preview build";
-    export let cancelLabel = "Cancel";
+    export let message: string | undefined = undefined;
+    export let confirmLabel = "";
+    export let cancelLabel = "";
     export let onLoaded: (() => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
     let inputText = "";
     let isLoading = false;
     let inputEl: HTMLInputElement | null = null;
+    $: resolvedTitle = title || $t("modal.loadBuild.title");
+    $: resolvedMessage = message ?? $t("modal.loadBuild.message");
+    $: resolvedConfirmLabel = confirmLabel || $t("modal.previewBuildLabel");
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function handleCancel() {
         onCancel?.();
@@ -38,7 +42,9 @@
             !navigator.clipboard ||
             typeof navigator.clipboard.readText !== "function"
         ) {
-            showToast("Clipboard not available", { tone: "negative" });
+            showToast($t("modal.loadBuild.clipboardUnavailableToast"), {
+                tone: "negative",
+            });
             return;
         }
 
@@ -46,7 +52,9 @@
             const text = await navigator.clipboard.readText();
             const trimmed = text.trim();
             if (!trimmed) {
-                showToast("Clipboard is empty", { tone: "negative" });
+                showToast($t("modal.loadBuild.clipboardEmptyToast"), {
+                    tone: "negative",
+                });
                 return;
             }
             inputText = trimmed;
@@ -56,7 +64,9 @@
                 inputEl?.setSelectionRange(inputText.length, inputText.length);
             });
         } catch {
-            showToast("Unable to read from clipboard", { tone: "negative" });
+            showToast($t("modal.loadBuild.clipboardReadFailedToast"), {
+                tone: "negative",
+            });
         }
     }
 
@@ -65,7 +75,9 @@
 
         const raw = inputText.trim();
         if (!raw) {
-            showToast("Type link or build code", { tone: "negative" });
+            showToast($t("modal.loadBuild.typeLinkOrCodeToast"), {
+                tone: "negative",
+            });
             inputEl?.focus();
             return;
         }
@@ -74,7 +86,9 @@
         try {
             const encoded = parseEncodedFromUserInput(raw);
             if (!encoded) {
-                showToast("Invalid link or build data", { tone: "negative" });
+                showToast($t("modal.loadBuild.invalidLinkOrDataToast"), {
+                    tone: "negative",
+                });
                 inputEl?.focus();
                 return;
             }
@@ -120,24 +134,26 @@
                     weight={titleIconWeight}
                 />
             {/if}
-            <h2>{title}</h2>
+            <h2>{resolvedTitle}</h2>
         </div>
     </header>
-    {#if message}
-        <p class="modal-message">{message}</p>
+    {#if resolvedMessage}
+        <p class="modal-message">{resolvedMessage}</p>
     {/if}
 
     <label class="modal-label" for="load-build-input">
-        Shareable link or build code
+        {$t("modal.loadBuild.inputLabel")}
     </label>
     <div class="modal-input-row">
-        <Button on:click={handlePasteClick} icon={ClipboardIcon}>Paste</Button>
+        <Button on:click={handlePasteClick} icon={ClipboardIcon}>
+            {$t("common.paste")}
+        </Button>
         <input
             id="load-build-input"
             class="modal-input"
             bind:this={inputEl}
             type="text"
-            placeholder="https://.../#1;2;3"
+            placeholder={$t("modal.loadBuild.placeholder")}
             inputmode="url"
             autocomplete="off"
             autocapitalize="off"
@@ -151,7 +167,7 @@
     <div class="modal-actions">
         <div class="modal-actions__row modal-actions__row--right">
             <Button data-modal-cancel on:click={handleCancel}>
-                {cancelLabel}
+                {resolvedCancelLabel}
             </Button>
             <Button
                 data-modal-confirm
@@ -159,7 +175,7 @@
                 disabled={isLoading}
                 positive
             >
-                {confirmLabel}
+                {resolvedConfirmLabel}
             </Button>
         </div>
     </div>

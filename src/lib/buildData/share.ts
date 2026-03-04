@@ -9,6 +9,7 @@ import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
 import { showToast } from "../toast";
+import { tr } from "svelte-whisper";
 
 /**
  * Copies text to clipboard
@@ -74,8 +75,8 @@ export async function shareBuildAsImage(): Promise<void> {
     const showScreenshotToast = (success: boolean) => {
         showToast(
             success
-                ? "Share screenshot copied to clipboard"
-                : "Unable to copy screenshot",
+                ? tr("share.shareScreenshotCopiedToast")
+                : tr("share.unableToCopyScreenshotToast"),
             {
                 tone: success ? "positive" : "negative",
             },

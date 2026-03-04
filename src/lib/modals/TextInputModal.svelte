@@ -3,6 +3,7 @@
     import type { IconWeight } from "phosphor-svelte";
     import { onMount } from "svelte";
     import Button from "../Button.svelte";
+    import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
 
     export let title = "";
@@ -11,17 +12,20 @@
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
-    export let label = "Value";
+    export let label = "";
     export let value = "";
     export let maxLength = 25;
     export let placeholder = "";
-    export let confirmLabel = "Save";
-    export let cancelLabel = "Cancel";
+    export let confirmLabel = "";
+    export let cancelLabel = "";
     export let onConfirm: ((value: string) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
     let inputValue = value;
     let inputEl: HTMLInputElement | null = null;
+    $: resolvedLabel = label || $t("modal.valueLabel");
+    $: resolvedConfirmLabel = confirmLabel || $t("modal.saveLabel");
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     $: isConfirmDisabled = inputValue.trim() === "";
 
@@ -66,7 +70,7 @@
     {#if message}
         <p class="modal-message">{message}</p>
     {/if}
-    <label class="modal-label" for="modal-text-input">{label}</label>
+    <label class="modal-label" for="modal-text-input">{resolvedLabel}</label>
     <input
         id="modal-text-input"
         class="modal-input"
@@ -81,7 +85,7 @@
     />
     <div class="modal-actions">
         <Button data-modal-cancel on:click={() => onCancel?.()}>
-            {cancelLabel}
+            {resolvedCancelLabel}
         </Button>
         <Button
             data-modal-confirm
@@ -89,7 +93,7 @@
             disabled={isConfirmDisabled}
             positive
         >
-            {confirmLabel}
+            {resolvedConfirmLabel}
         </Button>
     </div>
 </div>

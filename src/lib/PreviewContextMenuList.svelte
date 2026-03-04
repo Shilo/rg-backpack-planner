@@ -7,6 +7,7 @@
     import CloneBuildButton from "./buttons/CloneBuildButton.svelte";
     import { queueStoppedPreviewToast } from "./toast";
     import { previewBuildName } from "./previewBuildNameStore";
+    import { t } from "svelte-whisper";
 
     function handleStopPreview() {
         // Remove build data from URL and reload to switch to personal mode
@@ -25,18 +26,18 @@
     }
 </script>
 
-<TechCrystalsButton tooltipSubject="preview" />
+<TechCrystalsButton tooltipSubject={$t("techCrystals.subjectPreview")} />
 <ShareBuildButton
-    title="Share preview build"
-    tooltipSubject="preview"
+    title={$t("preview.sharePreviewBuild")}
+    tooltipSubject={$t("techCrystals.subjectPreview")}
     buildName={$previewBuildName}
 />
 <CloneBuildButton />
 <Button
     on:click={handleStopPreview}
-    tooltipText={"Exit preview mode and switch to personal build"}
+    tooltipText={$t("preview.stopPreviewTooltip")}
     icon={EyeSlashIcon}
     negative
 >
-    Stop Preview
+    {$t("preview.stopPreview")}
 </Button>

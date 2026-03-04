@@ -17,6 +17,7 @@
     import { tierSize } from "./tierLeveling";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
     import { getSkillLevelInfo, getSkillDescKey } from "../config/skillMetadata";
+    import { t } from "svelte-whisper";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -89,8 +90,8 @@
     {x}
     {y}
     {isOpen}
-    title={skillId ?? "Node"}
-    ariaLabel="Node actions"
+    title={skillId ? $t(`skills.${skillId}`) : $t("contextMenu.nodeTitle")}
+    ariaLabel={$t("contextMenu.nodeActions")}
     {onClose}
 >
     <div class="node-stats">
@@ -103,32 +104,32 @@
             {/if}
             {#if levelInfo}
                 <div class="stat-row">
-                    <span class="stat-label">Bonus</span>
+                    <span class="stat-label">{$t("nodeMenu.bonus")}</span>
                     <span class="stat-value">
                         {formatBonusValue(levelInfo.totalValue * 100)}%{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(levelInfo.nextTotalValue * 100)}%{/if}
                     </span>
                 </div>
                 <div class="stat-row">
-                    <span class="stat-label">Next Level Cost</span>
+                    <span class="stat-label">{$t("nodeMenu.nextLevelCost")}</span>
                     <span class="stat-value">
                         {levelInfo.costToNextLevel !== null
                             ? formatNumber(levelInfo.costToNextLevel)
-                            : "MAX"}
+                            : $t("nodeMenu.max")}
                     </span>
                 </div>
                 <div class="stat-row">
-                    <span class="stat-label">Total Spent</span>
+                    <span class="stat-label">{$t("nodeMenu.totalSpent")}</span>
                     <span class="stat-value">{formatNumber(levelInfo.totalCostSpent)}</span>
                 </div>
             {/if}
             <div class="stat-row">
-                <span class="stat-label">Level</span>
+                <span class="stat-label">{$t("nodeMenu.level")}</span>
                 <span class="stat-value"
                     >{formatNumber(level)} / {formatNumber(maxLevel)}</span
                 >
             </div>
             <div class="stat-row">
-                <span class="stat-label">Tier</span>
+                <span class="stat-label">{$t("nodeMenu.tier")}</span>
                 <span class="stat-value">
                     {completedTiers}
                     /
@@ -159,7 +160,7 @@
             icon={isSingleLevel ? CaretLineUpIcon : CaretUpIcon}
             positive
         >
-            {isSingleLevel ? "Max" : "+1"}
+            {isSingleLevel ? $t("nodeMenu.max") : $t("nodeMenu.incrementOne")}
         </Button>
         {#if !isSingleLevel}
             <Button
@@ -171,7 +172,7 @@
                 icon={CaretDoubleUpIcon}
                 positive
             >
-                +10
+                {$t("nodeMenu.incrementTen")}
             </Button>
             <Button
                 on:click={() => {
@@ -182,7 +183,7 @@
                 icon={CaretLineUpIcon}
                 positive
             >
-                Max
+                {$t("nodeMenu.max")}
             </Button>
         {/if}
         <Button
@@ -194,7 +195,7 @@
             icon={isSingleLevel ? ArrowCounterClockwiseIcon : CaretDownIcon}
             negative
         >
-            {isSingleLevel ? "Reset" : "−1"}
+            {isSingleLevel ? $t("nodeMenu.reset") : $t("nodeMenu.decrementOne")}
         </Button>
         {#if !isSingleLevel}
             <Button
@@ -206,7 +207,7 @@
                 icon={CaretDoubleDownIcon}
                 negative
             >
-                −10
+                {$t("nodeMenu.decrementTen")}
             </Button>
             <Button
                 on:click={() => {
@@ -214,14 +215,14 @@
                     onReset(nodeIndex);
                 }}
                 toastMessage={nodeIndex !== null && onReset
-                    ? `Reset node`
+                    ? $t("nodeMenu.resetToast")
                     : undefined}
                 toastNegative
                 disabled={nodeIndex === null || level <= 0}
                 icon={ArrowCounterClockwiseIcon}
                 negative
             >
-                Reset
+                {$t("nodeMenu.reset")}
             </Button>
         {/if}
     </div>

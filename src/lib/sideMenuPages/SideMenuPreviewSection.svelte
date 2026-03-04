@@ -6,8 +6,11 @@
         getPreviewTitle,
     } from "../previewBuildNameStore";
     import SideMenuSection from "../SideMenuSection.svelte";
+    import { t } from "svelte-whisper";
 
-    $: sectionTitle = `${getPreviewTitle($previewBuildName)} Build`;
+    $: sectionTitle = $t("preview.buildTitle", {
+        name: getPreviewTitle($previewBuildName),
+    });
 </script>
 
 {#if $isPreviewMode}

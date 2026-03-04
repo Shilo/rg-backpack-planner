@@ -108,6 +108,9 @@ export function applyBuildFromUrl(
         console.error("Failed to apply build from URL:", error);
         return false;
     } finally {
-        setIsApplyingBuildFromUrl(false);
+        // Defer to end-of-turn so synchronous store subscriptions settle first.
+        queueMicrotask(() => {
+            setIsApplyingBuildFromUrl(false);
+        });
     }
 }

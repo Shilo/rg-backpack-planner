@@ -7,6 +7,7 @@ import { writable, get, derived } from "svelte/store";
 import { encodeBuildData, decodeBuildData } from "./buildData/encoder";
 import { getItem, setItem } from "./storage";
 
+
 export const DEFAULT_PRESET_NAME = "Default";
 
 export interface BuildPreset {
@@ -144,7 +145,11 @@ export function getActivePreset(): BuildPreset | null {
 
 export function addPreset(name: string, buildCode: string): BuildPreset {
     const id = generatePresetId();
-    const preset: BuildPreset = { id, name: name.trim() || "Build", buildCode };
+    const preset: BuildPreset = {
+        id,
+        name: name.trim() || "Build",
+        buildCode,
+    };
     buildPresetsStore.update((data) => ({
         ...data,
         presets: [...data.presets, preset],
@@ -201,7 +206,10 @@ export function getUniquePresetName(
     desiredName: string,
     fallbackName: string,
 ): string {
-    const inputName = desiredName.trim() || fallbackName.trim() || "Preset";
+    const inputName =
+        desiredName.trim() ||
+        fallbackName.trim() ||
+        "Preset";
     const existingNames = get(buildPresetsStore).presets.map((preset) =>
         preset.name.toLowerCase(),
     );

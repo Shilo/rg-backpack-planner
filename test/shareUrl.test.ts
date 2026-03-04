@@ -14,7 +14,8 @@ function assertEqual(actual: unknown, expected: unknown, message: string): void 
     }
 }
 
-// isDefaultPresetName tests
+// isDefaultPresetName tests — canonical English names only
+// (preset names are always stored in canonical English internally)
 assertEqual(isDefaultPresetName("Default"), true, "Should identify 'Default'");
 assertEqual(isDefaultPresetName("New"), true, "Should identify 'New'");
 assertEqual(isDefaultPresetName("Clone"), true, "Should identify 'Clone'");
@@ -25,6 +26,7 @@ assertEqual(isDefaultPresetName("CloneBuild"), false, "Should not identify parti
 assertEqual(isDefaultPresetName(""), false, "Should handle empty string");
 assertEqual(isDefaultPresetName(undefined), false, "Should handle undefined");
 assertEqual(isDefaultPresetName(null), false, "Should handle null");
+assertEqual(isDefaultPresetName("デフォルト"), false, "Should not identify localized names (stored canonically)");
 
 // Valid payload for parse tests
 // This is a minimal valid encoded payload representing an empty build

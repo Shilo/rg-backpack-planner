@@ -31,6 +31,7 @@
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
+    import { t } from "svelte-whisper";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -333,7 +334,12 @@
     function resetTreeByIndex(index: number) {
         resetLevelsForTab(index);
         const tabLabel = tabs[index].label;
-        showToast(`Reset ${tabLabel} tree`, { tone: "negative" });
+        showToast(
+            $t("tree.resetTreeToast", {
+                treeLabel: tabLabel,
+            }),
+            { tone: "negative" },
+        );
     }
 
     function resetTabTree(tabId: string) {
@@ -351,7 +357,7 @@
     export function resetAllTrees() {
         if (tabs.length === 0) return;
         resetAllTreeLevels(tabs);
-        showToast("Reset all trees", { tone: "negative" });
+        showToast($t("tree.resetAllTreesToast"), { tone: "negative" });
         treeRef?.triggerFade?.();
 
         closeTabMenu();
@@ -398,8 +404,8 @@
         </div>
         <Button
             class="menu-button"
-            aria-label="Menu"
-            tooltipText="Open menu"
+            aria-label={$t("tree.menuButtonAria")}
+            tooltipText={$t("tree.menuButtonTooltip")}
             on:click={() => onMenuClick?.()}
             icon={ListIcon}
             iconClass="menu-button-icon"
@@ -547,7 +553,7 @@
         display: contents;
     }
 
-    @media (max-width: 360px) {
+    @media (max-width: 400px) {
         :global(.tab-buttons button) {
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
@@ -555,7 +561,7 @@
         }
     }
 
-    @media (max-width: 320px) {
+    @media (max-width: 360px) {
         :global(.tab-buttons button) {
             font-size: var(--font-xxs) !important;
             letter-spacing: 0.02em;

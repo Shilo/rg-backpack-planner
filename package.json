@@ -36,9 +36,9 @@
         "@sveltejs/vite-plugin-svelte": "^6.2.1",
         "@tsconfig/svelte": "^5.0.6",
         "@types/node": "^24.10.1",
-        "sharp": "^0.33.5",
         "phosphor-svelte": "^3.1.0",
         "playwright": "^1.58.2",
+        "sharp": "^0.33.5",
         "svelte": "^5.43.8",
         "svelte-check": "^4.3.4",
         "tsx": "^4.21.0",
@@ -47,6 +47,7 @@
         "vite-plugin-pwa": "^1.2.0"
     },
     "dependencies": {
-        "@zumer/snapdom": "^2.0.2"
+        "@zumer/snapdom": "^2.0.2",
+        "svelte-whisper": "github:Shilo/svelte-whisper"
     }
 }

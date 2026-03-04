@@ -43,7 +43,8 @@
 
 <style>
     .tab-bar {
-        width: 100%;
+        flex: 1;
+        min-width: 0;
         height: var(--side-menu-tab-height);
     }
 
@@ -60,7 +61,7 @@
 
     .tab-bar__tab-button {
         flex: 1;
-        min-width: var(--side-menu-tab-min-width, 72px);
+        min-width: 0;
         border: var(--border-width) solid var(--border);
         background: transparent;
         color: var(--text-muted);

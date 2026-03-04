@@ -3,6 +3,7 @@
     import TabBar from "./TabBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
     import { tooltip } from "./tooltip";
+    import { t } from "svelte-whisper";
 
     export let tabs: TabBarItem[];
     export let activeTab: string;
@@ -14,8 +15,8 @@
     <TabBar {tabs} {activeTab} {onTabChange} />
     <button
         class="bottom-nav-bar__close-button"
-        aria-label="Close"
-        use:tooltip={"Close"}
+        aria-label={$t("sideMenu.close")}
+        use:tooltip={$t("sideMenu.close")}
         on:click={() => onClose?.()}
         type="button"
     >
