@@ -1,7 +1,6 @@
-import { addDictionary, init, locale, registerLoader, t } from "svelte-whisper";
+import { init, locale, registerLoader, t } from "svelte-whisper";
 import { get, writable } from "svelte/store";
 import type { SkillId } from "../types/tree";
-import enDictionary from "../locales/en.json";
 
 export const SUPPORTED_LOCALES = ["en", "jp", "zh"] as const;
 export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -15,7 +14,7 @@ export const CANONICAL_PRESET_NAMES = {
     clone: "Clone",
 } as const;
 
-addDictionary(FALLBACK_LOCALE, enDictionary);
+registerLoader("en", () => import("../locales/en.json"));
 registerLoader("jp", () => import("../locales/jp.json"));
 registerLoader("zh", () => import("../locales/zh.json"));
 
