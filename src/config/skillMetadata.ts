@@ -154,6 +154,29 @@ export const SKILL_METADATA: Record<SkillId, SkillMetadata> = {
 };
 
 // ---------------------------------------------------------------------------
+// Cost-range utility
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the total crystal cost to move from one level to another.
+ * Works for both upgrades (fromLevel < toLevel) and downgrades.
+ */
+export function getCostRange(
+    skillId: SkillId,
+    fromLevel: number,
+    toLevel: number,
+): number {
+    const { costs } = SKILL_METADATA[skillId];
+    let total = 0;
+    const low = Math.min(fromLevel, toLevel);
+    const high = Math.max(fromLevel, toLevel);
+    for (let i = low; i < high && i < costs.length; i++) {
+        total += costs[i]!;
+    }
+    return total;
+}
+
+// ---------------------------------------------------------------------------
 // Localization key helpers
 // ---------------------------------------------------------------------------
 
