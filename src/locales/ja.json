@@ -1,8 +1,8 @@
 {
     "languageNames": {
-        "en": "英語",
+        "en": "英語 (English)",
         "ja": "日本語",
-        "zh": "中国語"
+        "zh": "中国語 (中文)"
     },
     "app": {
         "name": "Backpack Planner",
