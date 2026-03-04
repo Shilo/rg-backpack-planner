@@ -159,13 +159,7 @@
         right: 0;
         height: 100%;
         max-width: 100%;
-        width: max(
-            calc(
-                3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) +
-                    var(--spacing-lg)
-            ),
-            280px
-        );
+        width: var(--side-menu-width, 280px);
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
         transform: translateX(100%);
@@ -196,14 +190,31 @@
         scrollbar-width: thin;
     }
 
-    @media (hover: hover) {
+    @media (pointer: fine) and (hover: hover) {
+        /* 
+           Note: Polypane and other desktop-based simulators may still report pointer: fine 
+           even for mobile views, which can cause these styles to trigger unexpectedly 
+           in simulation. On real devices (Windows/Android/iOS) this detection is robust.
+        */
         .side-menu__content {
+            --scrollbar-visual-width: 6px;
             scrollbar-gutter: stable both-edges;
-            padding: 0 var(--safe-right, 0px) 0 0;
+
+            /* 
+               On desktop with classic scrollbars, the visual gap is:
+               Base Padding + Scrollbar Gutter. 
+               We subtract the scrollbar width from the padding to keep the total gap exactly --spacing-md.
+            */
+            padding: 0
+                calc(
+                    max(0px, var(--spacing-md) - var(--scrollbar-visual-width)) +
+                        var(--safe-right, 0px)
+                )
+                0 max(0px, var(--spacing-md) - var(--scrollbar-visual-width));
         }
 
         .side-menu__content::-webkit-scrollbar {
-            width: 6px;
+            width: var(--scrollbar-visual-width);
         }
     }
 
