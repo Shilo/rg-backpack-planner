@@ -553,7 +553,7 @@
         display: contents;
     }
 
-    @media (max-width: 360px) {
+    @media (max-width: 400px) {
         :global(.tab-buttons button) {
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
@@ -561,7 +561,7 @@
         }
     }
 
-    @media (max-width: 320px) {
+    @media (max-width: 360px) {
         :global(.tab-buttons button) {
             font-size: var(--font-xxs) !important;
             letter-spacing: 0.02em;
