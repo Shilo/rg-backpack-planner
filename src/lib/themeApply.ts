@@ -1,5 +1,4 @@
 import { get } from "svelte/store";
-import type { ThemeColor } from "./themeColorStore";
 import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
 import { applyTheme, oklchToHex, BG_L, SURFACE_L } from "./themeEngine";
