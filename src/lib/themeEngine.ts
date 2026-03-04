@@ -109,7 +109,7 @@ export const SURFACE_L = { dark: 0.24, light: 0.9 } as const;
 // ── Theme Application ───────────────────────────────────────
 
 export function applyTheme(
-    source: ThemeSource = { h: 264, c: 0.24 },
+    source: ThemeSource,
     mode: "dark" | "light" = "dark",
 ): void {
     const isDark = mode === "dark";

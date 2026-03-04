@@ -3,11 +3,13 @@ import { writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
+import { THEME_BG, THEME_ACCENT } from "./theme-defaults.ts";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(__dirname, "..", "public");
 
-const BG_COLOR = "#060b16";
-const STROKE_COLOR = "#6a8dff";
+const BG_COLOR = THEME_BG;
+const STROKE_COLOR = THEME_ACCENT;
 
 const ICON_PATHS = `
     <path d="M 885.0,138.0 L 557.0,45.0 L 237.0,112.0 L 61.0,373.0 L 15.0,644.0 L 191.0,914.0 L 454.0,1015.0 L 785.0,971.0 L 1007.0,684.0 L 1055.0,473.0 Z"/>

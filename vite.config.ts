@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { VitePWA } from "vite-plugin-pwa";
+import { THEME_BG } from "./scripts/theme-defaults.ts";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -20,8 +21,8 @@ export default defineConfig({
                 description: "Plan and share Backpack Tech builds.",
                 start_url: ".",
                 display: "standalone",
-                background_color: "#060b16",
-                theme_color: "#060b16",
+                background_color: THEME_BG,
+                theme_color: THEME_BG,
                 icons: [
                     {
                         src: "pwa-192x192.png",

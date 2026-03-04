@@ -5,12 +5,12 @@
     import { oklchToHex, hexToOklch, applyTheme } from "./themeEngine";
     import { darkMode } from "./darkModeStore";
     import { triggerHaptic } from "./haptics";
-    import type { ThemeColor } from "./themeColorStore";
+    import { DEFAULT_THEME_COLOR, type ThemeColor } from "./themeColorStore";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
 
     export let isOpen = false;
-    export let initialColor: ThemeColor = { h: 264, c: 0.19 };
+    export let initialColor: ThemeColor = DEFAULT_THEME_COLOR;
     export let onApply: ((color: ThemeColor) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 

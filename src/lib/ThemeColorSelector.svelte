@@ -4,7 +4,7 @@
         CaretRightIcon,
         PaletteIcon,
     } from "phosphor-svelte";
-    import { themeColor, type ThemeColor } from "./themeColorStore";
+    import { themeColor, DEFAULT_THEME_COLOR, type ThemeColor } from "./themeColorStore";
     import { oklchToHex } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
     import { tooltip } from "./tooltip";
@@ -23,7 +23,7 @@
             | "theme.preset.green"
             | "theme.preset.neutral";
     }[] = [
-        { h: 260, c: 0.26, labelKey: "theme.preset.blue" },
+        { ...DEFAULT_THEME_COLOR, labelKey: "theme.preset.blue" },
         { h: 145, c: 0.25, labelKey: "theme.preset.green" },
         { h: 350, c: 0.26, labelKey: "theme.preset.rose" },
         { h: 55, c: 0.24, labelKey: "theme.preset.amber" },
@@ -40,7 +40,7 @@
     let dropdownX = 0;
     let dropdownY = 0;
     let pickerOpen = false;
-    let pickerInitialColor: ThemeColor = { h: 264, c: 0.24 };
+    let pickerInitialColor: ThemeColor = { ...DEFAULT_THEME_COLOR };
 
     $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
 
