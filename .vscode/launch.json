@@ -6,7 +6,12 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "dev", "--", "--host"],
+            "runtimeArgs": [
+                "run",
+                "dev",
+                "--",
+                "--host"
+            ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -15,7 +20,12 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "preview", "--", "--host"],
+            "runtimeArgs": [
+                "run",
+                "preview",
+                "--",
+                "--host"
+            ],
             "preLaunchTask": "npm: build",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
@@ -25,7 +35,10 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "test"],
+            "runtimeArgs": [
+                "run",
+                "test"
+            ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -34,16 +47,22 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "test:ui:tier"],
+            "runtimeArgs": [
+                "run",
+                "test:ui:tier"
+            ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
         {
-            "name": "PWA Assets",
+            "name": "Generate PWA Assets",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "pwa:assets"],
+            "runtimeArgs": [
+                "run",
+                "pwa:assets"
+            ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         }
