@@ -34,7 +34,7 @@
     // Selection state (set by grid/gray clicks)
     let gridSelectedRow = 1; // 0 = grayscale, 1-5 = gradient rows
     let gridSelectedCol = 0; // used for grayscale row only
-    let selectedL = 0.70; // lightness of selected cell (for preview/hex)
+    let selectedL = 0.7; // lightness of selected cell (for preview/hex)
 
     const HUE_NAMES: {
         max: number;
@@ -79,13 +79,17 @@
 
     // ── Grid data ──
     const GRID_COLS = 10;
-    const ROW_LIGHTNESS = [0.85, 0.72, 0.60, 0.48, 0.36];
-    const COL_CHROMA = [0.00, 0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24, 0.27];
-    const GRAY_LIGHTNESS = [0.95, 0.86, 0.77, 0.68, 0.59, 0.50, 0.41, 0.32, 0.23, 0.15];
+    const ROW_LIGHTNESS = [0.85, 0.72, 0.6, 0.48, 0.36];
+    const COL_CHROMA = [
+        0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24, 0.27,
+    ];
+    const GRAY_LIGHTNESS = [
+        0.95, 0.86, 0.77, 0.68, 0.59, 0.5, 0.41, 0.32, 0.23, 0.15,
+    ];
     const HUE_STEPS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324];
 
     // ── Accent lightness for current preview mode ──
-    $: accentL = previewDark ? 0.70 : 0.45;
+    $: accentL = previewDark ? 0.7 : 0.45;
     $: previewHex = oklchToHex(selectedL, c, h);
     $: translate = $t;
     $: colorName =
@@ -102,7 +106,10 @@
         let bestD = Math.abs(COL_CHROMA[0] - c);
         for (let i = 1; i < COL_CHROMA.length; i++) {
             const d = Math.abs(COL_CHROMA[i] - c);
-            if (d < bestD) { bestD = d; best = i; }
+            if (d < bestD) {
+                bestD = d;
+                best = i;
+            }
         }
         return best;
     })();
@@ -113,8 +120,14 @@
         let bestD = Math.abs(HUE_STEPS[0] - h);
         for (let i = 1; i < HUE_STEPS.length; i++) {
             // Handle wrap-around (e.g., h=350 is closer to 0 than to 324)
-            const d = Math.min(Math.abs(HUE_STEPS[i] - h), 360 - Math.abs(HUE_STEPS[i] - h));
-            if (d < bestD) { bestD = d; best = i; }
+            const d = Math.min(
+                Math.abs(HUE_STEPS[i] - h),
+                360 - Math.abs(HUE_STEPS[i] - h),
+            );
+            if (d < bestD) {
+                bestD = d;
+                best = i;
+            }
         }
         return best;
     })();
@@ -128,7 +141,7 @@
             previewDark = get(darkMode);
 
             // Initialize grid selection (compute accentL inline to avoid cycle)
-            const initL = initialColor.l ?? (previewDark ? 0.70 : 0.45);
+            const initL = initialColor.l ?? (previewDark ? 0.7 : 0.45);
             selectedL = initL;
             if (c < 0.015) {
                 gridSelectedRow = 0;
@@ -136,7 +149,10 @@
                 let bestDist = Math.abs(GRAY_LIGHTNESS[0] - initL);
                 for (let i = 1; i < GRAY_LIGHTNESS.length; i++) {
                     const dist = Math.abs(GRAY_LIGHTNESS[i] - initL);
-                    if (dist < bestDist) { bestDist = dist; bestCol = i; }
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        bestCol = i;
+                    }
                 }
                 gridSelectedCol = bestCol;
             } else {
@@ -144,7 +160,10 @@
                 let bestDist = Math.abs(ROW_LIGHTNESS[0] - initL);
                 for (let i = 1; i < ROW_LIGHTNESS.length; i++) {
                     const dist = Math.abs(ROW_LIGHTNESS[i] - initL);
-                    if (dist < bestDist) { bestDist = dist; bestRow = i; }
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        bestRow = i;
+                    }
                 }
                 gridSelectedRow = bestRow + 1;
             }
@@ -161,7 +180,13 @@
     function updateGrayFromPointer(clientX: number) {
         if (!grayRowEl) return;
         const rect = grayRowEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(GRID_COLS - 1, Math.floor((clientX - rect.left) / (rect.width / GRID_COLS))));
+        const col = Math.max(
+            0,
+            Math.min(
+                GRID_COLS - 1,
+                Math.floor((clientX - rect.left) / (rect.width / GRID_COLS)),
+            ),
+        );
         h = 0;
         c = 0;
         selectedL = GRAY_LIGHTNESS[col];
@@ -191,8 +216,22 @@
     function updateColorFromGrid(clientX: number, clientY: number) {
         if (!gridEl) return;
         const rect = gridEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(GRID_COLS - 1, Math.floor((clientX - rect.left) / (rect.width / GRID_COLS))));
-        const row = Math.max(0, Math.min(ROW_LIGHTNESS.length - 1, Math.floor((clientY - rect.top) / (rect.height / ROW_LIGHTNESS.length))));
+        const col = Math.max(
+            0,
+            Math.min(
+                GRID_COLS - 1,
+                Math.floor((clientX - rect.left) / (rect.width / GRID_COLS)),
+            ),
+        );
+        const row = Math.max(
+            0,
+            Math.min(
+                ROW_LIGHTNESS.length - 1,
+                Math.floor(
+                    (clientY - rect.top) / (rect.height / ROW_LIGHTNESS.length),
+                ),
+            ),
+        );
         c = COL_CHROMA[col];
         selectedL = ROW_LIGHTNESS[row];
         gridSelectedRow = row + 1; // +1 because row 0 = grayscale
@@ -220,7 +259,15 @@
     function updateHueFromPointer(clientX: number) {
         if (!hueRowEl) return;
         const rect = hueRowEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(HUE_STEPS.length - 1, Math.floor((clientX - rect.left) / (rect.width / HUE_STEPS.length))));
+        const col = Math.max(
+            0,
+            Math.min(
+                HUE_STEPS.length - 1,
+                Math.floor(
+                    (clientX - rect.left) / (rect.width / HUE_STEPS.length),
+                ),
+            ),
+        );
         h = HUE_STEPS[col];
     }
 
@@ -265,7 +312,8 @@
     function handleRandom() {
         triggerHaptic();
         h = HUE_STEPS[Math.floor(Math.random() * HUE_STEPS.length)];
-        const chromaIdx = 4 + Math.floor(Math.random() * (COL_CHROMA.length - 4));
+        const chromaIdx =
+            4 + Math.floor(Math.random() * (COL_CHROMA.length - 4));
         c = COL_CHROMA[chromaIdx];
     }
 
@@ -301,6 +349,7 @@
         if (!isOpen) return;
         if (event.key === "Escape") {
             event.preventDefault();
+            event.stopImmediatePropagation();
             handleCancel();
         }
     }
@@ -330,7 +379,8 @@
                     {#each GRAY_LIGHTNESS as L, col}
                         <div
                             class="grid-cell"
-                            class:grid-cell-selected={gridSelectedRow === 0 && col === gridSelectedCol}
+                            class:grid-cell-selected={gridSelectedRow === 0 &&
+                                col === gridSelectedCol}
                             style="background: oklch({L} 0 0)"
                         ></div>
                     {/each}
@@ -349,7 +399,8 @@
                         {#each COL_CHROMA as C, col}
                             <div
                                 class="grid-cell"
-                                class:grid-cell-selected={gridSelectedRow === row + 1 && col === chromaCol}
+                                class:grid-cell-selected={gridSelectedRow ===
+                                    row + 1 && col === chromaCol}
                                 style="background: oklch({L} {C} {h})"
                             ></div>
                         {/each}
@@ -456,17 +507,31 @@
 
     .color-picker-backdrop {
         position: fixed;
-        inset: 0;
+        left: 0;
+        top: var(--vv-offset-top, 0px);
+        width: 100%;
+        height: var(--vv-height, 100vh);
         background: var(--backdrop-overlay, rgba(0, 0, 0, 0.5));
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: var(--spacing-lg);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding:
+            calc(var(--spacing-lg) + var(--safe-top, 0px))
+            calc(var(--spacing-lg) + var(--safe-right, 0px))
+            calc(var(--spacing-lg) + var(--safe-bottom, 0px))
+            calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
     }
 
     .color-picker-card {
+        margin-top: auto;
+        margin-bottom: auto;
+        flex-shrink: 0;
         width: min(95vw, 400px);
+        max-height: 100%;
         background: var(--bg-panel);
         border: var(--border-width) solid
             color-mix(
@@ -477,6 +542,7 @@
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         overflow: hidden;
+        overflow-y: auto;
     }
 
     /* Grayscale row */

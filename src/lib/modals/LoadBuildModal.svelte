@@ -11,6 +11,7 @@
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
     import { t } from "svelte-whisper";
+    import { scrollInputVisible } from "../viewportState";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -99,6 +100,10 @@
         }
     }
 
+    function handleFocus() {
+        setTimeout(() => scrollInputVisible(inputEl), 300);
+    }
+
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -155,6 +160,7 @@
             spellcheck="false"
             bind:value={inputText}
             on:keydown={handleKeydown}
+            on:focus={handleFocus}
         />
     </div>
 

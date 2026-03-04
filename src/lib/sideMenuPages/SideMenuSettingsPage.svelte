@@ -10,6 +10,7 @@
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
+    import { fade } from "svelte/transition";
     import type { Component } from "svelte";
     import { tooltip } from "../tooltip";
     import { triggerHaptic } from "../haptics";
@@ -32,6 +33,7 @@
     import SideMenuSection from "../SideMenuSection.svelte";
     import { singleLevelUp } from "../singleLevelUpStore";
     import { showToast } from "../toast";
+    import { clearAll } from "../storage";
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
@@ -109,10 +111,22 @@
 
     async function handleReloadWindow() {
         if ("serviceWorker" in navigator) {
-            const registration =
-                await navigator.serviceWorker.getRegistration();
-            if (registration) {
-                await registration.update();
+            try {
+                const registration =
+                    await navigator.serviceWorker.getRegistration();
+                if (registration && navigator.onLine) {
+                    await Promise.race([
+                        registration.update(),
+                        new Promise((_, reject) =>
+                            setTimeout(
+                                () => reject(new Error("Update timeout")),
+                                2000,
+                            ),
+                        ),
+                    ]);
+                }
+            } catch (error) {
+                console.warn("Service worker update failed/timed out:", error);
             }
         }
         window.location.reload();
@@ -128,10 +142,7 @@
             cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
-                // Clear all localStorage
-                if (typeof window !== "undefined") {
-                    localStorage.clear();
-                }
+                clearAll();
                 // Reload the page
                 window.location.reload();
             },
@@ -262,9 +273,13 @@
             }}
         >
             {#if $darkMode}
-                <MoonIcon size={26} />
+                <span transition:fade={{ duration: 150 }}
+                    ><MoonIcon size={26} /></span
+                >
             {:else}
-                <SunIcon size={26} />
+                <span transition:fade={{ duration: 150 }}
+                    ><SunIcon size={26} /></span
+                >
             {/if}
         </button>
     </div>
@@ -350,6 +365,7 @@
         height: 40px;
         display: grid;
         place-items: center;
+        position: relative;
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
@@ -360,6 +376,12 @@
             filter var(--ease),
             transform var(--ease);
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .icon-button span {
+        position: absolute;
+        display: grid;
+        place-items: center;
     }
 
     @media (hover: hover) {

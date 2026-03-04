@@ -131,6 +131,8 @@
     "nodeMenu": {
         "bonus": "Bonus",
         "bonusValue": "30,000%",
+        "nextLevelCost": "Next Level Cost",
+        "totalSpent": "Total Spent",
         "level": "Level",
         "tier": "Tier",
         "max": "Max",

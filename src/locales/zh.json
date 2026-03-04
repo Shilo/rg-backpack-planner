@@ -131,6 +131,8 @@
     "nodeMenu": {
         "bonus": "加成",
         "bonusValue": "30,000%",
+        "nextLevelCost": "下一级费用",
+        "totalSpent": "总消耗",
         "level": "等级",
         "tier": "层级",
         "max": "最大",

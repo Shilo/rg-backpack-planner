@@ -22,12 +22,11 @@
     $: {
         statsRows = [
             [$t("statistics.backpackSkillBoosts"), ""],
-            [$t("statistics.todo"), $t("statistics.todo")],
-            [$t("statistics.attackBoost"), $t("statistics.attackBoostValue")],
-            [$t("statistics.defenseBoost"), $t("statistics.defenseBoostValue")],
-            [$t("statistics.criticalHit"), $t("statistics.criticalHitValue")],
-            [$t("statistics.globalAtk"), $t("statistics.globalAtkValue")],
-            [$t("statistics.finalDamageBoost"), $t("statistics.finalDamageBoostValue")],
+            [$t("statistics.attackBoost"), "10,000%"],
+            [$t("statistics.defenseBoost"), "30,000%"],
+            [$t("statistics.criticalHit"), "160%"],
+            [$t("statistics.globalAtk"), "200%"],
+            [$t("statistics.finalDamageBoost"), "20%"],
             [$t("statistics.backpackNodeLevels"), ""],
             [$t("statistics.total"), formatNumber($treeLevelsTotal)],
             [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],

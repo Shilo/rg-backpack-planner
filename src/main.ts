@@ -5,8 +5,10 @@ import App from "./App.svelte";
 import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
 import { initThemeReactivity } from "./lib/themeApply";
 import { initializeI18n } from "./lib/i18n";
+import { initViewportTracking } from "./lib/viewportState";
 
 const cleanupThemeReactivity = initThemeReactivity();
+initViewportTracking();
 try {
     await initializeI18n();
 } catch (error) {
@@ -42,12 +44,14 @@ document.addEventListener("contextmenu", handleGlobalContextMenu, {
     capture: true,
 });
 
+const removeGlobalContextMenuListener = () => {
+    document.removeEventListener("contextmenu", handleGlobalContextMenu, true);
+};
+
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
         cleanupThemeReactivity();
-        document.removeEventListener("contextmenu", handleGlobalContextMenu, {
-            capture: true,
-        });
+        removeGlobalContextMenuListener();
         if (handleControllerChange && "serviceWorker" in navigator) {
             navigator.serviceWorker.removeEventListener(
                 "controllerchange",

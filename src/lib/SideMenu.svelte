@@ -187,7 +187,7 @@
         display: block;
         height: 100%;
         overflow-y: auto;
-        padding: 0 var(--spacing-md);
+        padding: 0 calc(var(--spacing-md) + var(--safe-right, 0px)) 0 var(--spacing-md);
         scrollbar-gutter: stable;
     }
 
@@ -197,7 +197,7 @@
     }
 
     .side-menu__content-inner > :global(:first-child) {
-        margin-top: var(--spacing-md);
+        margin-top: calc(var(--spacing-md) + var(--safe-top, 0px));
     }
 
     .side-menu__content-inner > :global(:last-child) {

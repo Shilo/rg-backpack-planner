@@ -81,7 +81,10 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
+        if (!isOpen) return;
         if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
             onClose?.();
         }
     }

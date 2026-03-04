@@ -8,7 +8,6 @@ import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
-import { captureCombinedTreesImage } from "../buildImageExport/captureService";
 import { showToast } from "../toast";
 import { tr } from "../i18n";
 
@@ -86,6 +85,7 @@ export async function shareBuildAsImage(): Promise<void> {
 
     try {
         // Capture all three trees (0=Guardian, 1=Vanguard, 2=Cannon)
+        const { captureCombinedTreesImage } = await import("../buildImageExport/captureService");
         const combinedBlob = await captureCombinedTreesImage();
 
         if (!combinedBlob) {

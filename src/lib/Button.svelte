@@ -120,9 +120,8 @@
         text-align: left;
         line-height: var(--leading-none);
         transition:
-            border-color var(--ease),
-            color var(--ease),
-            background var(--ease);
+            transform var(--ease),
+            filter var(--ease);
     }
 
     .button:not(:disabled) {
@@ -165,12 +164,6 @@
     .button:focus-visible {
         outline: 2px solid var(--border-focus);
         outline-offset: 2px;
-    }
-
-    .button {
-        transition:
-            transform var(--ease),
-            filter var(--ease);
     }
 
     @media (hover: hover) {

@@ -3,7 +3,6 @@
     import ConfirmModal from "./modals/ConfirmModal.svelte";
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
-    // @ts-ignore - Svelte component import
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
@@ -81,6 +80,7 @@
 
         if (event.key === "Escape") {
             event.preventDefault();
+            event.stopImmediatePropagation();
             if (!triggerModalAction("[data-modal-cancel]")) {
                 handleCancel();
             }
@@ -183,23 +183,43 @@
 <style>
     .modal-backdrop {
         position: fixed;
-        inset: 0;
+        left: 0;
+        top: var(--vv-offset-top, 0px);
+        width: 100%;
+        height: var(--vv-height, 100vh);
         background: var(--bg-panel);
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: var(--spacing-lg);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding:
+            calc(var(--spacing-lg) + var(--safe-top, 0px))
+            calc(var(--spacing-lg) + var(--safe-right, 0px))
+            calc(var(--spacing-lg) + var(--safe-bottom, 0px))
+            calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
     }
 
     .modal-shell {
+        margin-top: auto;
+        margin-bottom: auto;
+        flex-shrink: 0;
         width: min(92vw, 380px);
+        max-height: 100%;
         border-radius: var(--radius);
         background: var(--bg-panel);
-        border: var(--border-width) solid color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 50%, transparent);
+        border: var(--border-width) solid
+            color-mix(
+                in srgb,
+                color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
+                transparent
+            );
         box-shadow: var(--shadow);
         padding: 0;
         overflow: hidden;
+        overflow-y: auto;
         display: grid;
         gap: var(--spacing-lg);
     }

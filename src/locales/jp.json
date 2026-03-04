@@ -131,6 +131,8 @@
     "nodeMenu": {
         "bonus": "ボーナス",
         "bonusValue": "30,000%",
+        "nextLevelCost": "次のレベルコスト",
+        "totalSpent": "合計消費",
         "level": "レベル",
         "tier": "ティア",
         "max": "最大",

@@ -13,7 +13,7 @@
     export let viewState: TreeViewState | null = null;
     export let focusViewState: TreeViewState | null = null;
     export let levelsById: LevelsByIndex | null = null;
-    export let hideView0ptions = false;
+    export let hideViewOptions = false;
     export let hideStats = false;
     export let tabLabel = "";
     export let tabIndex = -1;
@@ -59,7 +59,7 @@
     treeLabel={tabLabel}
     onPress={onButtonPress}
 />
-{#if !hideView0ptions}
+{#if !hideViewOptions}
     <FocusInViewButton
         {onFocusInView}
         onPress={onButtonPress}

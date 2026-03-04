@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import Button from "../Button.svelte";
     import { t } from "svelte-whisper";
+    import { scrollInputVisible } from "../viewportState";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -33,6 +34,10 @@
         if (trimmed) {
             onConfirm?.(trimmed);
         }
+    }
+
+    function handleFocus() {
+        setTimeout(() => scrollInputVisible(inputEl), 300);
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -76,6 +81,7 @@
         {placeholder}
         autocomplete="off"
         on:keydown={handleKeydown}
+        on:focus={handleFocus}
     />
     <div class="modal-actions">
         <Button data-modal-cancel on:click={() => onCancel?.()}>
