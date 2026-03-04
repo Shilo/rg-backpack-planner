@@ -1,12 +1,11 @@
 import { writable } from "svelte/store";
+import { getItem, setItem } from "./storage";
 
-const STORAGE_KEY = "rg-backpack-planner-active-tab-id";
 const DEFAULT_TAB_ID = "guardian";
 
 function getStoredActiveTabId(): string {
-    if (typeof window === "undefined") return DEFAULT_TAB_ID;
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = getItem("active-tab-id");
         if (stored) {
             return stored;
         }
@@ -17,9 +16,8 @@ function getStoredActiveTabId(): string {
 }
 
 function setStoredActiveTabId(tabId: string): void {
-    if (typeof window === "undefined") return;
     try {
-        localStorage.setItem(STORAGE_KEY, tabId);
+        setItem("active-tab-id", tabId);
     } catch {
         // localStorage not available
     }

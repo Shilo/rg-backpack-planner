@@ -8,7 +8,7 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -34,6 +34,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run tests
+        run: npm run test
+
+      - name: Bump version
+        run: node scripts/bump-version.cjs
+        env:
+          MAX_REVISION: "19"
+          MAX_MINOR: "9"
+
       - name: Build
         run: npm run build
 
@@ -44,6 +53,21 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
+
+      - name: Commit and push version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No version changes to commit."
+            exit 0
+          fi
+
+          git add package.json package-lock.json
+          git commit -m "ci: bump app version"
+          git pull --rebase
+          git push
 
   deploy:
     needs: build

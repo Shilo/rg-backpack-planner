@@ -10,6 +10,7 @@
         TrashSimpleIcon,
         EyeIcon,
     } from "phosphor-svelte";
+    import { fade } from "svelte/transition";
     import type { Component } from "svelte";
     import { tooltip } from "../tooltip";
     import { triggerHaptic } from "../haptics";
@@ -26,15 +27,18 @@
     import { darkMode } from "../darkModeStore";
     import { themeColor } from "../themeColorStore";
     import ThemeColorSelector from "../ThemeColorSelector.svelte";
+    import LanguageDropdown from "../buttons/LanguageDropdown.svelte";
     import { openModal } from "../modalStore";
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
     import { isPreviewMode } from "../previewModeStore";
     import SideMenuSection from "../SideMenuSection.svelte";
     import { singleLevelUp } from "../singleLevelUpStore";
     import { showToast } from "../toast";
+    import { clearAll } from "../storage";
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
+    import { t } from "svelte-whisper";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -80,12 +84,11 @@
     function handleResetSettings() {
         openModal({
             type: "confirm",
-            title: "RESET SETTINGS",
+            title: $t("modal.resetSettings.title"),
             titleIcon: ClockCounterClockwiseIcon as unknown as Component,
-            message:
-                "Restore all settings to their default values. This will not affect your backpack tree progress.",
-            confirmLabel: "Reset settings",
-            cancelLabel: "Cancel",
+            message: $t("modal.resetSettings.message"),
+            confirmLabel: $t("modal.resetSettings.confirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 singleLevelUp.resetToDefault();
@@ -93,19 +96,31 @@
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
 
-                showToast("Settings reset to defaults");
+                showToast($t("modal.resetSettings.toast"));
                 onClose?.();
             },
         });
     }
 
     async function handleReloadWindow() {
-        if (typeof window === "undefined") return;
-        // Unregister service workers so reload fetches fresh assets (fixes stale PWA cache)
         if ("serviceWorker" in navigator) {
-            const registrations =
-                await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map((reg) => reg.unregister()));
+            try {
+                const registration =
+                    await navigator.serviceWorker.getRegistration();
+                if (registration && navigator.onLine) {
+                    await Promise.race([
+                        registration.update(),
+                        new Promise((_, reject) =>
+                            setTimeout(
+                                () => reject(new Error("Update timeout")),
+                                2000,
+                            ),
+                        ),
+                    ]);
+                }
+            } catch (error) {
+                console.warn("Service worker update failed/timed out:", error);
+            }
         }
         window.location.reload();
     }
@@ -113,18 +128,14 @@
     function handleClearAllData() {
         openModal({
             type: "confirm",
-            title: "CLEAR ALL DATA",
+            title: $t("modal.clearAllData.title"),
             titleIcon: TrashSimpleIcon as unknown as Component,
-            message:
-                "Delete all data and reload the application. This will reset all trees, settings, and progress.",
-            confirmLabel: "Clear all data",
-            cancelLabel: "Cancel",
+            message: $t("modal.clearAllData.message"),
+            confirmLabel: $t("modal.clearAllData.confirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
-                // Clear all localStorage
-                if (typeof window !== "undefined") {
-                    localStorage.clear();
-                }
+                clearAll();
                 // Reload the page
                 window.location.reload();
             },
@@ -146,40 +157,44 @@
 
 <SideMenuPreviewSection />
 
-<SideMenuSection title="Build">
+<SideMenuSection title={$t("sideMenu.sections.build")}>
     <BuildPresetsButton disabled={$isPreviewMode} />
     <TechCrystalsButton disabled={$isPreviewMode} />
     <div class="button-group build-share-row">
-        <ShareBuildButton title="Share" disabled={$isPreviewMode} />
+        <ShareBuildButton
+            title={$t("settings.shareButton")}
+            disabled={$isPreviewMode}
+        />
         <Button
             class="dropdown-button"
             bind:element={previewButtonElement}
             on:click={handlePreviewDropdownClick}
-            tooltipText={"Preview shareable link/code or premade build"}
+            tooltipText={$t("settings.previewButtonTooltip")}
             icon={EyeIcon}
+            arrow="down"
         >
-            Preview
+            {$t("settings.previewButton")}
         </Button>
     </div>
 </SideMenuSection>
 
-<SideMenuSection title="Node">
+<SideMenuSection title={$t("sideMenu.sections.node")}>
     <ToggleSwitch
         checked={$singleLevelUp}
-        label="Single Level Up"
-        ariaLabel="Single level up mode"
-        tooltipText="When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10"
+        label={$t("settings.singleLevelUp")}
+        ariaLabel={$t("settings.singleLevelUpAria")}
+        tooltipText={$t("settings.singleLevelUpTooltip")}
         icon={ArrowUpIcon as unknown as Component}
         onToggle={() => singleLevelUp.toggle()}
     />
 </SideMenuSection>
 
-<SideMenuSection title="View">
+<SideMenuSection title={$t("sideMenu.sections.view")}>
     <ToggleSwitch
         checked={$closeUpView}
-        label="Close-up View"
-        ariaLabel="Close-up view (150% zoom)"
-        tooltipText="Increase the initial zoom scale by 1.5x"
+        label={$t("settings.closeUpView")}
+        ariaLabel={$t("settings.closeUpViewAria")}
+        tooltipText={$t("settings.closeUpViewTooltip")}
         icon={MagnifyingGlassPlusIcon as unknown as Component}
         onToggle={() => closeUpView.toggle()}
     />
@@ -189,15 +204,15 @@
             onFocusInView();
             onClose?.();
         }}
-        tooltipText={"Fit nodes in view by resetting zoom and pan"}
+        tooltipText={$t("settings.focusTreeInViewTooltip")}
         icon={CubeFocusIcon}
         disabled={isFocusDisabled}
     >
-        Focus Tree in View
+        {$t("settings.focusTreeInView")}
     </Button>
 </SideMenuSection>
 
-<SideMenuSection title="Tree">
+<SideMenuSection title={$t("sideMenu.sections.tree")}>
     <ResetTreeButton
         onReset={() => {
             onResetTree?.();
@@ -215,25 +230,30 @@
     />
 </SideMenuSection>
 
-<SideMenuSection title="Application">
+<SideMenuSection title={$t("sideMenu.sections.application")}>
+    <LanguageDropdown />
     <div class="button-group theme-row">
         <ThemeColorSelector />
         <button
             class="icon-button"
             type="button"
             aria-label={$darkMode
-                ? "Switch to light mode"
-                : "Switch to dark mode"}
-            use:tooltip={"Switch between dark and light color scheme"}
+                ? $t("settings.switchToLight")
+                : $t("settings.switchToDark")}
+            use:tooltip={$t("settings.themeModeTooltip")}
             on:click={() => {
                 triggerHaptic();
                 darkMode.toggle();
             }}
         >
             {#if $darkMode}
-                <MoonIcon size={26} />
+                <span transition:fade={{ duration: 150 }}
+                    ><MoonIcon size={26} /></span
+                >
             {:else}
-                <SunIcon size={26} />
+                <span transition:fade={{ duration: 150 }}
+                    ><SunIcon size={26} /></span
+                >
             {/if}
         </button>
     </div>
@@ -241,27 +261,29 @@
     <InstallPwaButton title={true} />
     <Button
         on:click={handleReloadWindow}
-        tooltipText={"Refresh page and load latest version"}
+        tooltipText={$t("settings.reloadWindowTooltip")}
         icon={ArrowClockwiseIcon}
     >
-        Reload Window
+        {$t("settings.reloadWindow")}
     </Button>
     <Button
         on:click={handleResetSettings}
-        tooltipText={"Restore all settings to their default values"}
+        tooltipText={$t("settings.resetSettingsTooltip")}
         icon={ClockCounterClockwiseIcon}
+        arrow="right"
         negative
     >
-        Reset Settings
+        {$t("settings.resetSettings")}
     </Button>
     <div class="spacer"></div>
     <Button
         on:click={handleClearAllData}
-        tooltipText={"Delete all data and reload the application"}
+        tooltipText={$t("settings.clearAllDataTooltip")}
         icon={TrashSimpleIcon}
+        arrow="right"
         negative
     >
-        Clear All Data
+        {$t("settings.clearAllData")}
     </Button>
 </SideMenuSection>
 
@@ -278,8 +300,23 @@
         height: var(--spacing-md);
     }
 
-    .build-share-row :global(button) {
-        flex: 1;
+    :global(
+            .side-menu-section .button:has(.button-text:not(:empty)),
+            .side-menu-section .button-group
+        ) {
+        min-width: 0;
+    }
+
+    .build-share-row :global(.button) {
+        flex: 1 1 auto;
+    }
+
+    .build-share-row > :global(:first-child) {
+        border-right: none;
+    }
+
+    .build-share-row > :global(.dropdown-button) {
+        border-left: var(--border-width) solid var(--border);
     }
 
     .theme-row > :global(:first-child) {
@@ -292,6 +329,7 @@
         height: 40px;
         display: grid;
         place-items: center;
+        position: relative;
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
@@ -302,6 +340,12 @@
             filter var(--ease),
             transform var(--ease);
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .icon-button span {
+        position: absolute;
+        display: grid;
+        place-items: center;
     }
 
     @media (hover: hover) {

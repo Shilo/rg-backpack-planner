@@ -9,6 +9,8 @@
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../haptics";
     import type { IconWeight } from "phosphor-svelte";
+    import { t } from "svelte-whisper";
+    import { scrollInputVisible } from "../viewportState";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -16,18 +18,20 @@
     export let titleIconAriaHidden = true;
     export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
-    export let label = "Value";
+    export let label = "";
     export let value = 0;
     export let min = 0;
     export let step = 1;
-    export let confirmLabel = "Save";
-    export let cancelLabel = "Cancel";
+    export let confirmLabel = "";
+    export let cancelLabel = "";
     export let onConfirm: ((value: number) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
     let valueText = `${Math.max(min, Math.floor(value))}`;
     let inputEl: HTMLInputElement | null = null;
-    let modalShellEl: HTMLElement | null = null;
+    $: resolvedLabel = label || $t("modal.valueLabel");
+    $: resolvedConfirmLabel = confirmLabel || $t("modal.saveLabel");
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function parseValue() {
         const parsed = Number.parseInt(valueText, 10);
@@ -72,27 +76,7 @@
     }
 
     function handleFocus() {
-        // Give the virtual keyboard a moment to open before scrolling.
-        setTimeout(() => {
-            inputEl?.scrollIntoView({ block: "center", behavior: "smooth" });
-        }, 50);
-    }
-
-    function updateKeyboardOffset() {
-        if (!modalShellEl) return;
-        const viewport = window.visualViewport;
-        if (!viewport) {
-            modalShellEl.style.removeProperty("--keyboard-offset");
-            return;
-        }
-        const keyboardOffset = Math.max(
-            0,
-            window.innerHeight - (viewport.height + viewport.offsetTop),
-        );
-        modalShellEl.style.setProperty(
-            "--keyboard-offset",
-            `${keyboardOffset}px`,
-        );
+        setTimeout(() => scrollInputVisible(inputEl), 300);
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -105,26 +89,6 @@
     onMount(() => {
         inputEl?.focus();
         inputEl?.select();
-        modalShellEl = inputEl
-            ? (inputEl.closest(".modal-shell") as HTMLElement | null)
-            : null;
-        updateKeyboardOffset();
-        const viewport = window.visualViewport;
-        const handleViewportChange = () => {
-            updateKeyboardOffset();
-        };
-        viewport?.addEventListener("resize", handleViewportChange);
-        viewport?.addEventListener("scroll", handleViewportChange);
-        window.addEventListener("orientationchange", handleViewportChange);
-        return () => {
-            viewport?.removeEventListener("resize", handleViewportChange);
-            viewport?.removeEventListener("scroll", handleViewportChange);
-            window.removeEventListener(
-                "orientationchange",
-                handleViewportChange,
-            );
-            modalShellEl?.style.removeProperty("--keyboard-offset");
-        };
     });
 </script>
 
@@ -145,12 +109,12 @@
     {#if message}
         <p class="modal-message">{message}</p>
     {/if}
-    <label class="modal-label" for="modal-input">{label}</label>
+    <label class="modal-label" for="modal-input">{resolvedLabel}</label>
     <div class="modal-input-row">
         <button
             class="stepper stepper-icon reset-button"
             type="button"
-            aria-label="Reset value"
+            aria-label={$t("modal.input.resetValueAria")}
             disabled={isResetDisabled}
             on:click={() => handleStepperClick(handleReset)}
         >
@@ -162,7 +126,7 @@
         <button
             class="stepper stepper-icon"
             type="button"
-            aria-label="Decrease value"
+            aria-label={$t("modal.input.decreaseValueAria")}
             disabled={isDecreaseDisabled}
             on:click={() => handleStepperClick(() => stepValue(-step))}
         >
@@ -185,7 +149,7 @@
         <button
             class="stepper stepper-icon"
             type="button"
-            aria-label="Increase value"
+            aria-label={$t("modal.input.increaseValueAria")}
             on:click={() => handleStepperClick(() => stepValue(step))}
         >
             <PlusIcon class="stepper-icon__svg" aria-hidden="true" />
@@ -193,19 +157,19 @@
         <button
             class="stepper stepper-wide"
             type="button"
-            aria-label="Increase value by 100"
+            aria-label={$t("modal.input.increaseByHundredAria")}
             on:click={() => handleStepperClick(() => stepValue(100))}
         >
-            +100
+            {$t("modal.input.plusHundred")}
         </button>
     </div>
     <div class="modal-actions">
         <div class="modal-actions__right">
             <Button data-modal-cancel on:click={() => onCancel?.()}>
-                {cancelLabel}
+                {resolvedCancelLabel}
             </Button>
             <Button data-modal-confirm on:click={handleConfirm} positive>
-                {confirmLabel}
+                {resolvedConfirmLabel}
             </Button>
         </div>
     </div>
@@ -216,11 +180,6 @@
         display: grid;
         gap: var(--spacing-lg);
         padding: var(--spacing-md);
-    }
-
-    :global(.modal-shell) {
-        transform: translateY(calc(-1 * var(--keyboard-offset, 0px) * 0.45));
-        transition: transform 150ms ease;
     }
 
     .modal-header {

@@ -3,6 +3,7 @@
     import TreeContextMenuList from "./TreeContextMenuList.svelte";
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node, LevelsByIndex } from "../types/tree";
+    import { t } from "svelte-whisper";
 
     export let tabId = "";
     export let tabLabel = "";
@@ -17,7 +18,7 @@
     export let onClose: (() => void) | null = null;
     export let onFocusInView: ((tabId: string) => void) | null = null;
     export let onReset: ((tabId: string) => void) | null = null;
-    export let hideView0ptions = false;
+    export let hideViewOptions = false;
 
     // Capture the tab id when the menu opens so closing it won't clear callbacks.
     let menuTabId = "";
@@ -30,17 +31,21 @@
     {x}
     {y}
     {isOpen}
-    title={tabLabel || "Tab actions"}
-    ariaLabel={`Tab actions${tabLabel ? `: ${tabLabel}` : ""}`}
+    title={tabLabel
+        ? $t("contextMenu.tabActionsWithLabel", { tabLabel })
+        : $t("contextMenu.tabActions")}
+    ariaLabel={tabLabel
+        ? $t("contextMenu.tabActionsWithLabel", { tabLabel })
+        : $t("contextMenu.tabActions")}
     {onClose}
-    ignoreCloseTargetSelector={hideView0ptions ? ".tabs-bar" : null}
+    ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
 >
     <TreeContextMenuList
         onFocusInView={() => onFocusInView?.(menuTabId)}
         onReset={() => onReset?.(menuTabId)}
         onButtonPress={onClose}
         {tabLabel}
-        {hideView0ptions}
+        {hideViewOptions}
         {levelsById}
         {viewState}
         {focusViewState}

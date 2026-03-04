@@ -1,17 +1,24 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import packageInfo from "../../package.json";
     import Button from "./Button.svelte";
+    import { t } from "svelte-whisper";
+    import { getCurrentVersion } from "./latestUsedVersionStore";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
 
     let hideForever = false;
     $: if (isMenuOpen) hideForever = true;
-
-    const title = packageInfo.name;
-    const version = packageInfo.version ?? "";
-    const titleWithVersion = version ? `${title} v${version}` : title;
+    const version = getCurrentVersion();
+    $: appName = $t("app.name");
+    $: versionLabel = version === "unknown" ? "" : `v${version}`;
+    $: appDisplayName =
+        versionLabel.length > 0
+            ? $t("app.titleWithVersion", {
+                  appName,
+                  version: versionLabel,
+              })
+            : appName;
 
     let wrapperElement: HTMLDivElement;
 
@@ -36,10 +43,11 @@
         <Button
             class="app-title-display"
             type="button"
-            aria-label={titleWithVersion}
+            aria-label={appDisplayName}
             on:click={() => onClick?.()}
+            arrow="right"
         >
-            {titleWithVersion}
+            {appDisplayName}
         </Button>
     </div>
 {/if}

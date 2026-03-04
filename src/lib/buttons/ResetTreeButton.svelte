@@ -5,6 +5,7 @@
     import { openModal } from "../modalStore";
     import { sumLevels } from "../treeLevelsStore";
     import type { LevelsByIndex } from "../../types/tree";
+    import { t } from "svelte-whisper";
 
     export let onReset: (() => void) | null = null;
     export let onPress: (() => void) | null = null;
@@ -14,14 +15,18 @@
     $: totalLevels = levelsById ? sumLevels(levelsById) : null;
     $: disabled = !onReset || (totalLevels !== null && totalLevels === 0);
     $: trimmedTreeLabel = treeLabel.trim();
-    $: treeName = trimmedTreeLabel ? `${trimmedTreeLabel} tree` : "tree";
+    $: treeName = trimmedTreeLabel
+        ? $t("trees.named", { label: trimmedTreeLabel })
+        : $t("trees.generic");
     $: modalTitle = trimmedTreeLabel
-        ? `RESET ${trimmedTreeLabel} TREE`
-        : "RESET TREE";
-    $: confirmText = trimmedTreeLabel ? `Reset ${trimmedTreeLabel}` : "Reset";
+        ? $t("modal.resetTree.title", { treeName })
+        : $t("modal.resetTree.titleDefault");
+    $: confirmText = trimmedTreeLabel
+        ? $t("modal.resetTree.confirmLabel", { treeLabel: trimmedTreeLabel })
+        : $t("modal.resetTree.confirmLabelDefault");
     $: buttonText = trimmedTreeLabel
-        ? `Reset ${trimmedTreeLabel} tree`
-        : "Reset tree";
+        ? $t("modal.resetTree.buttonLabel", { treeName })
+        : $t("modal.resetTree.buttonLabelDefault");
 
     const handleReset = () => {
         if (!onReset) return;
@@ -29,9 +34,9 @@
             type: "confirm",
             title: modalTitle,
             titleIcon: ArrowCounterClockwiseIcon as unknown as Component,
-            message: `Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree.`,
+            message: $t("modal.resetTree.message", { treeName }),
             confirmLabel: confirmText,
-            cancelLabel: "Cancel",
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 onReset();
@@ -45,8 +50,9 @@
 
 <Button
     on:click={handleReset}
-    tooltipText={`Revert ${treeName} nodes to level 0 and refund Tech Crystals in tree`}
+    tooltipText={$t("modal.resetTree.message", { treeName })}
     icon={ArrowCounterClockwiseIcon}
+    arrow="right"
     negative
     {disabled}
 >

@@ -1,3 +1,77 @@
-import "./encoder.test.ts";
+import { fileURLToPath } from "node:url";
+import "./utils.ts";
 
-// Add future tierLeveling tests here when that suite is reintroduced.
+const GLOBAL_LOG_FILE_PATH = fileURLToPath(new URL("./index.output.log", import.meta.url));
+
+const TEST_FILES = [
+    // 1. Fundamentals & Utilities
+    "mathUtil.test.ts",
+    "stringUtil.test.ts",
+    "systemUtil.test.ts",
+    "appInfo.test.ts",
+    "skillValueFns.test.ts",
+
+    // 2. Core State & Logic
+    "treeLevelsStore.test.ts",
+    "treeProgressStore.test.ts",
+    "tierLeveling.test.ts",
+    "buildDataApplier.test.ts",
+
+    // 3. Serialization & Storage
+    "storage.test.ts",
+    "encoder.test.ts",
+
+    // 4. Features (Presets & Sharing)
+    "buildPresets.test.ts",
+    "shareUrl.test.ts",
+    "shareBuild.lazy.test.ts",
+
+    // 5. UI & Interaction
+    "editableSurfaceStyles.test.ts",
+    "globalContextMenu.test.ts",
+];
+
+async function runAllTests() {
+    console.log("Starting tests...\n");
+
+    let passed = 0;
+    let failed = 0;
+
+    for (const file of TEST_FILES) {
+        console.log(`Running ${file}...`);
+        try {
+            await import(`./${file}`);
+            console.log(`✅ ${file} passed\n`);
+            passed++;
+        } catch (err) {
+            console.error(`❌ ${file} failed:\n`, err, "\n");
+            failed++;
+        }
+    }
+
+    console.log("===");
+    console.log("Global Test Summary");
+    console.log("===");
+    console.log(`📊 Total test files: ${TEST_FILES.length}`);
+    console.log(`✅ Passed: ${passed}`);
+    console.log(`❌ Failed: ${failed}`);
+    console.log("===");
+
+    if (failed === 0) {
+        console.log("🎉 All tests completed successfully!");
+    } else {
+        console.log("⚠️ Some tests failed. Check the logs above.");
+    }
+
+    console.log(`Log file: ${GLOBAL_LOG_FILE_PATH}:1`);
+    console.log("===");
+
+    if (failed > 0) {
+        process.exit(1);
+    }
+}
+
+runAllTests().catch((err) => {
+    console.error("❌ Test suite failed:", err);
+    process.exit(1);
+});

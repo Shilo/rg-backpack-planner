@@ -12,14 +12,13 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import {
-        treeLevels,
-        sumLevels,
-        setTreeLevels,
-    } from "./lib/treeLevelsStore";
+    import { t } from "svelte-whisper";
+    import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
         isNewVersion,
         markVersionAsSeen,
+        getStoredVersion,
+        getCurrentVersion,
     } from "./lib/latestUsedVersionStore";
     import {
         getActiveTab,
@@ -28,8 +27,6 @@
 
     import {
         initTechCrystalTrees,
-        applyTechCrystalDeltaForTree,
-        recalculateTechCrystalsSpent,
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
@@ -61,6 +58,7 @@
     } from "./lib/toast";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
+    import { tr } from "svelte-whisper";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -90,6 +88,7 @@
     }
 
     // Check if we should show controls tab on initial load
+    const previousVersion = getStoredVersion();
     const shouldShowControls = (() => {
         const isNew = isNewVersion();
         if (isNew) {
@@ -99,15 +98,48 @@
         return isNew;
     })();
 
-    const tabs: TabConfig[] = [
-        { id: "guardian", label: "Guardian", nodes: guardianTree },
-        { id: "vanguard", label: "Vanguard", nodes: vanguardTree },
-        { id: "cannon", label: "Cannon", nodes: cannonTree },
+    const baseTabs: Array<{
+        id: "guardian" | "vanguard" | "cannon";
+        nodes: TabConfig["nodes"];
+    }> = [
+        { id: "guardian", nodes: guardianTree },
+        { id: "vanguard", nodes: vanguardTree },
+        { id: "cannon", nodes: cannonTree },
     ];
 
-    initTechCrystalTrees(tabs);
+    const tabsForInit: TabConfig[] = baseTabs.map((tab) => ({
+        ...tab,
+        label: tr(`trees.${tab.id}`),
+    }));
+    initTechCrystalTrees(tabsForInit);
 
-    activeTreeName = tabs[0]?.label ?? "";
+    let tabs: TabConfig[] = tabsForInit;
+    $: tabs = baseTabs.map((tab) => ({
+        ...tab,
+        label: $t(`trees.${tab.id}`),
+    }));
+    $: if (!activeTreeName && tabs.length > 0) {
+        activeTreeName = tabs[0].label;
+    }
+
+    $: appName = $t("app.name");
+    $: gameName = $t("app.gameName");
+    $: appVersion = getCurrentVersion();
+    $: appVersionLabel = appVersion === "unknown" ? "" : `v${appVersion}`;
+    $: appTitle =
+        appVersionLabel.length > 0
+            ? $t("app.titleFullWithVersion", {
+                  appName,
+                  gameName,
+                  version: appVersionLabel,
+              })
+            : $t("app.titleFull", {
+                  appName,
+                  gameName,
+              });
+    $: if (typeof document !== "undefined") {
+        document.title = appTitle;
+    }
 
     function toggleMenu() {
         isMenuOpen = !isMenuOpen;
@@ -171,10 +203,6 @@
         resetSwipeState();
     }
 
-    function handleNodeLevelChange(tabIndex: number, techCrystalDelta: number) {
-        applyTechCrystalDeltaForTree(tabIndex, techCrystalDelta);
-    }
-
     function openControlsFromTitle() {
         isMenuOpen = true;
         sideMenuRef?.openTab?.("controls");
@@ -216,6 +244,7 @@
     async function initializeFromUrl(): Promise<void> {
         const hashAtStart =
             typeof window !== "undefined" ? window.location.hash : "";
+        let didNormalizeShareUrl = false;
 
         // Ensure trees are initialized before applying any build data
         await tick();
@@ -248,8 +277,9 @@
                 if (typeof window !== "undefined") {
                     const basePath = getBasePath();
                     window.history.replaceState({}, "", basePath);
+                    didNormalizeShareUrl = true;
                     // Show toast to inform user
-                    showToastDelayed("Invalid share link", {
+                    showToastDelayed($t("preview.invalidShareLinkToast"), {
                         tone: "negative",
                     });
                 }
@@ -258,23 +288,23 @@
             }
         }
 
+        let shouldUsePreviewMode = false;
         if (hasUrlBuild && buildData) {
             // Stale check: hash may have changed (e.g. user navigated) - don't overwrite
             if (
                 typeof window !== "undefined" &&
-                window.location.hash !== hashAtStart
+                window.location.hash !== hashAtStart &&
+                !didNormalizeShareUrl
             ) {
                 return;
             }
-            // Preview mode: Public build from URL
-            setPreviewMode(true);
 
             // Apply build from URL (pass already-loaded buildData to avoid duplicate loading)
             const buildLoaded = applyBuildFromUrl(tabs, buildData);
             if (buildLoaded) {
-                // Recalculate tech crystals spent after loading from URL
-                const currentTrees = get(treeLevels);
-                recalculateTechCrystalsSpent(currentTrees);
+                // Preview mode: Public build from URL
+                shouldUsePreviewMode = true;
+                setPreviewMode(true);
 
                 // Select the first tab that has nodes leveled > 0
                 selectFirstTabWithLevels();
@@ -282,9 +312,27 @@
                 // Show toast about preview mode
                 const title = getPreviewTitle(get(previewBuildName));
                 closeTransientUiForPreview();
-                showToastDelayed(`Viewing ${title.toLowerCase()} build`);
+                showToastDelayed(
+                    $t("preview.viewingBuildToast", {
+                        name: title,
+                    }),
+                );
+            } else {
+                // Treat unapplicable shared builds as invalid preview links
+                setPreviewMode(false);
+                clearPreviewBuildName();
+                if (typeof window !== "undefined") {
+                    const basePath = getBasePath();
+                    window.history.replaceState({}, "", basePath);
+                    didNormalizeShareUrl = true;
+                }
+                showToastDelayed($t("preview.invalidShareLinkToast"), {
+                    tone: "negative",
+                });
             }
+        }
 
+        if (shouldUsePreviewMode) {
             // Don't load from localStorage in preview mode
             // Don't initialize persistence in preview mode (changes update URL instead)
 
@@ -304,7 +352,8 @@
             // Stale check: hash may have changed (e.g. user navigated) - don't overwrite
             if (
                 typeof window !== "undefined" &&
-                window.location.hash !== hashAtStart
+                window.location.hash !== hashAtStart &&
+                !didNormalizeShareUrl
             ) {
                 return;
             }
@@ -322,11 +371,19 @@
             tryShowStoppedPreviewToast(activePreset?.name);
             tryShowClonedBuildToast();
 
+            const fallbackBuildData: BuildData = {
+                trees: tabs.map(() => []),
+                owned: 0,
+            };
             if (activePreset) {
                 const buildData = decodeBuildData(activePreset.buildCode);
-                if (buildData) {
+                if (!buildData) {
+                    applyBuildData(tabs, fallbackBuildData);
+                } else {
                     applyBuildData(tabs, buildData);
                 }
+            } else {
+                applyBuildData(tabs, fallbackBuildData);
             }
 
             // Persist personal mode changes to active preset (subscribe to treeLevels and techCrystalsOwned)
@@ -348,21 +405,36 @@
     onMount(() => {
         ensureInstallListeners();
 
-        // Global hotkey: F9 to share build as image
+        // Global hotkeys: F9 to share, Escape to toggle menu
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.repeat || e.key !== "F9") return;
+            if (e.repeat) return;
 
-            e.preventDefault();
-            shareBuildAsImage();
+            if (e.key === "Escape" && !e.defaultPrevented && e.isTrusted) {
+                e.preventDefault();
+                toggleMenu();
+            } else if (e.key === "F9") {
+                e.preventDefault();
+                shareBuildAsImage();
+            }
         };
         window.addEventListener("keydown", handleKeyDown);
+
+        let hasRunVersionCheck = false;
 
         async function runInitialization() {
             await initializeFromUrl();
 
             // New-version controls behavior is tied to initial load, not history navigation
-            if (shouldShowControls) {
+            if (shouldShowControls && !hasRunVersionCheck) {
+                hasRunVersionCheck = true;
                 markVersionAsSeen();
+                if (previousVersion) {
+                    showToastDelayed(
+                        $t("toast.updatedVersionToast", {
+                            version: getCurrentVersion(),
+                        }),
+                    );
+                }
                 await tick();
                 // Ensure controls tab is active (backup in case component initialized before localStorage was set)
                 // Don't persist this change since it's for new version notification
@@ -420,19 +492,21 @@
         {activeTreeFocusViewState}
         {activeTreeName}
     />
-    <div class="top-left-actions">
-        {#key $isPreviewMode}
-            <PreviewBuildIndicator />
-        {/key}
-        <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
-    </div>
-    <div class="top-right-actions">
-        <TechCrystalDisplay />
-        <ActiveTreeResetButton
-            onReset={() => tabsRef?.resetActiveTree?.()}
-            treeLabel={activeTreeName}
-            canReset={canResetActiveTree}
-        />
+    <div class="hud-safe-area">
+        <div class="top-left-actions">
+            {#key $isPreviewMode}
+                <PreviewBuildIndicator />
+            {/key}
+            <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
+        </div>
+        <div class="top-right-actions">
+            <TechCrystalDisplay />
+            <ActiveTreeResetButton
+                onReset={() => tabsRef?.resetActiveTree?.()}
+                treeLabel={activeTreeName}
+                canReset={canResetActiveTree}
+            />
+        </div>
     </div>
     <main class="app-main">
         <TreeTabs
@@ -443,7 +517,6 @@
             bind:activeFocusViewState={activeTreeFocusViewState}
             {tabs}
             onMenuClick={toggleMenu}
-            onNodeLevelChange={handleNodeLevelChange}
         />
     </main>
     <Toasts />
@@ -470,23 +543,23 @@
 
     .top-left-actions,
     .top-right-actions {
-        position: fixed;
-        top: var(--spacing-lg);
-        z-index: var(--z-index-hud);
+        position: absolute;
+        top: 0;
         display: inline-flex;
         flex-direction: column;
         gap: var(--spacing-lg);
         pointer-events: none;
+        z-index: var(--z-index-hud);
     }
 
     .top-left-actions {
-        left: var(--spacing-lg);
+        left: 0;
         align-items: flex-start;
         transition: left 0.15s ease;
     }
 
     .top-right-actions {
-        right: var(--spacing-lg);
+        right: 0;
         align-items: flex-end;
         transition: right 0.15s ease;
     }
@@ -497,7 +570,6 @@
             z-index: var(--z-index-hud-over-side-menu-backdrop);
         }
 
-        .app-shell.menu-open .top-left-actions,
         .app-shell.menu-open .top-right-actions {
             right: calc(var(--side-menu-width) + 10px);
         }

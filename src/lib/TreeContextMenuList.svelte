@@ -5,6 +5,7 @@
     import type { Node, LevelsByIndex } from "../types/tree";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { formatNumber } from "./mathUtil";
+    import { t } from "svelte-whisper";
 
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
@@ -12,7 +13,7 @@
     export let viewState: TreeViewState | null = null;
     export let focusViewState: TreeViewState | null = null;
     export let levelsById: LevelsByIndex | null = null;
-    export let hideView0ptions = false;
+    export let hideViewOptions = false;
     export let hideStats = false;
     export let tabLabel = "";
     export let tabIndex = -1;
@@ -34,11 +35,11 @@
 {#if !hideStats}
     <div class="tree-stats">
         <div class="stat-row">
-            <span class="stat-label">Tech Crystals:</span>
+            <span class="stat-label">{$t("contextMenu.techCrystalsLabel")}</span>
             <span class="stat-value">{formatNumber(techCrystalsSpent)}</span>
         </div>
         <div class="stat-row">
-            <span class="stat-label">Levels:</span>
+            <span class="stat-label">{$t("contextMenu.levelsLabel")}</span>
             <span class="stat-value"
                 >{formatNumber(currentLevel)} / {formatNumber(maxLevel)}</span
             >
@@ -58,7 +59,7 @@
     treeLabel={tabLabel}
     onPress={onButtonPress}
 />
-{#if !hideView0ptions}
+{#if !hideViewOptions}
     <FocusInViewButton
         {onFocusInView}
         onPress={onButtonPress}

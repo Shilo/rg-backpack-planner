@@ -1,6 +1,9 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
 import { DEFAULT_PRESET_NAME } from "./buildPresetsStore";
+import { tr } from "svelte-whisper";
+import { getDisplayPresetName } from "./i18n";
+import { sessionGetItem, sessionRemoveItem, sessionSetItem } from "./storage";
 
 export type ToastTone = "positive" | "negative";
 
@@ -58,26 +61,24 @@ export function showToastDelayed(
 /**
  * Checks sessionStorage for a key, and if it exists, removes it and shows a toast.
  * Useful for showing toasts after page reloads (e.g., after cloning a build or stopping preview).
- * @param sessionStorageKey The sessionStorage key to check
+ * @param storageKey The storage key suffix (e.g. "stopped-preview-toast")
  * @param toastMessage Arrow function that receives the stored value and returns the toast message
  * @returns true if the key was found and processed, false otherwise
  */
 export function checkSessionStorageAndShowToast(
-    sessionStorageKey: string,
+    storageKey: string,
     toastMessage: (value: string) => string,
 ): boolean {
-    if (typeof window === "undefined") return false;
-
-    const value = sessionStorage.getItem(sessionStorageKey);
+    const value = sessionGetItem(storageKey);
     if (value === null) return false;
 
-    sessionStorage.removeItem(sessionStorageKey);
+    sessionRemoveItem(storageKey);
     showToastDelayed(toastMessage(value));
     return true;
 }
 
-const STOPPED_PREVIEW_KEY = "rg-backpack-planner-stopped-preview-toast";
-const CLONED_BUILD_KEY = "rg-backpack-planner-cloned-build-toast";
+const STOPPED_PREVIEW_KEY = "stopped-preview-toast";
+const CLONED_BUILD_KEY = "cloned-build-toast";
 
 /**
  * Checks sessionStorage for stopped preview flag and shows toast.
@@ -88,7 +89,10 @@ export function tryShowStoppedPreviewToast(
 ): boolean {
     return checkSessionStorageAndShowToast(
         STOPPED_PREVIEW_KEY,
-        () => `Back to ${truncateText(presetName)} build`,
+        () =>
+            tr("preview.backToBuildToast", {
+                name: truncateText(getDisplayPresetName(presetName)),
+            }),
     );
 }
 
@@ -99,8 +103,10 @@ export function tryShowStoppedPreviewToast(
 export function tryShowClonedBuildToast(): boolean {
     return checkSessionStorageAndShowToast(CLONED_BUILD_KEY, (previewName) =>
         previewName
-            ? `Cloned build to "${truncateText(previewName)}"`
-            : "Cloned preview build",
+            ? tr("preview.clonedBuildToast", {
+                  name: truncateText(getDisplayPresetName(previewName)),
+              })
+            : tr("preview.clonedPreviewBuildToast"),
     );
 }
 
@@ -109,8 +115,7 @@ export function tryShowClonedBuildToast(): boolean {
  * Sets a flag in sessionStorage that will be checked after reload.
  */
 export function queueStoppedPreviewToast(): void {
-    if (typeof window === "undefined") return;
-    sessionStorage.setItem(STOPPED_PREVIEW_KEY, true.toString());
+    sessionSetItem(STOPPED_PREVIEW_KEY, true.toString());
 }
 
 /**
@@ -119,6 +124,5 @@ export function queueStoppedPreviewToast(): void {
  * @param previewName The name of the preview build that was cloned (or empty string if not available)
  */
 export function queueClonedBuildToast(previewName: string = ""): void {
-    if (typeof window === "undefined") return;
-    sessionStorage.setItem(CLONED_BUILD_KEY, previewName);
+    sessionSetItem(CLONED_BUILD_KEY, previewName);
 }

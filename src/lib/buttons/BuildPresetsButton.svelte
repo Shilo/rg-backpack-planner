@@ -35,6 +35,8 @@
     import { guardianTree } from "../../config/guardianTree";
     import { vanguardTree } from "../../config/vanguardTree";
     import { cannonTree } from "../../config/cannonTree";
+    import { t } from "svelte-whisper";
+    import { getDisplayPresetName } from "../i18n";
 
     export let disabled: boolean | undefined = false;
 
@@ -64,9 +66,13 @@
         ? decodeBuildData(editPreset.buildCode)
         : null;
     $: editPresetShareTitle = editPreset?.name
-        ? `${editPreset.name} build`
-        : "Backpack tech tree build";
-    $: editPresetTooltipSubject = editPreset?.name ?? "your";
+        ? $t("preview.buildTitle", {
+              name: getDisplayPresetName(editPreset.name),
+          })
+        : $t("share.defaultShareTitle");
+    $: editPresetTooltipSubject = editPreset?.name
+        ? getDisplayPresetName(editPreset.name)
+        : $t("techCrystals.subjectYour");
 
     $: {
         const index = editMenuPresetId
@@ -77,15 +83,23 @@
         const total = $buildPresetsStore.presets.length;
         editMenuTitle =
             editPreset?.name && index >= 0 && total > 1
-                ? `Edit: ${truncateText(editPreset.name)} (${index + 1}/${total})`
+                ? $t("buildPresets.editMenuTitleWithNameIndex", {
+                      name: truncateText(getDisplayPresetName(editPreset.name)),
+                      index: index + 1,
+                      total,
+                  })
                 : editPreset?.name
-                  ? `Edit: ${truncateText(editPreset.name)}`
-                  : "Edit";
+                  ? $t("buildPresets.editMenuTitleWithName", {
+                        name: truncateText(
+                            getDisplayPresetName(editPreset.name),
+                        ),
+                    })
+                  : $t("buildPresets.editMenuTitle");
         canMoveUp = total > 1 && index > 0;
         canMoveDown = total > 1 && index >= 0 && index < total - 1;
     }
 
-    let editMenuTitle = "Edit";
+    let editMenuTitle = "";
     let canMoveUp = false;
     let canMoveDown = false;
 
@@ -130,7 +144,11 @@
         if (!buildData) return;
         setActivePresetId(presetId);
         applyBuildData(tabs, buildData);
-        showToast(`Viewing ${truncateText(preset.name)} preset`);
+        showToast(
+            $t("buildPresets.viewingPresetToast", {
+                name: truncateText(getDisplayPresetName(preset.name)),
+            }),
+        );
         closePresetsMenu();
     }
 
@@ -162,21 +180,23 @@
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
         closeEditMenu();
+        const displayName = getDisplayPresetName(preset.name);
         openModal({
             type: "textInput",
-            title: "Rename Build Preset",
+            title: $t("buildPresets.renameModalTitle"),
             titleIcon: PencilSimpleIcon,
-            message: "Type a new name for this build preset",
+            message: $t("buildPresets.renameModalMessage"),
             textInput: {
-                label: "Preset name",
-                value: preset.name,
+                label: $t("buildPresets.presetNameLabel"),
+                value: displayName,
                 maxLength: 25,
             },
-            confirmLabel: "Rename",
-            cancelLabel: "Cancel",
+            confirmLabel: $t("buildPresets.renameConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             onConfirm: (value) => {
                 if (typeof value === "string") {
-                    updatePreset(presetId, { name: value });
+                    const name = value === displayName ? preset.name : value;
+                    updatePreset(presetId, { name });
                     setTimeout(() => presetsContextMenu?.updatePosition(), 0);
                 }
             },
@@ -190,10 +210,12 @@
         closeEditMenu();
         openModal({
             type: "confirm",
-            title: "Delete build preset",
-            message: `Are you sure you want to remove "${preset.name}" preset?`,
-            confirmLabel: "Delete preset",
-            cancelLabel: "Cancel",
+            title: $t("buildPresets.deleteModalTitle"),
+            message: $t("buildPresets.deleteModalMessage", {
+                name: getDisplayPresetName(preset.name),
+            }),
+            confirmLabel: $t("buildPresets.deleteConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             titleIcon: TrashSimpleIcon,
             onConfirm: () => {
@@ -228,21 +250,24 @@
             closePresetsMenu();
         } else {
             const defaultName = getUniquePresetName("New", "New");
+            const displayName = getDisplayPresetName(defaultName);
             openModal({
                 type: "textInput",
-                title: "New Build Preset",
+                title: $t("buildPresets.newModalTitle"),
                 titleIcon: PlusIcon,
-                message: "Type a name for this build preset",
+                message: $t("buildPresets.newModalMessage"),
                 textInput: {
-                    label: "Preset name",
-                    value: defaultName,
+                    label: $t("buildPresets.presetNameLabel"),
+                    value: displayName,
                     maxLength: 25,
                 },
-                confirmLabel: "Create",
-                cancelLabel: "Cancel",
+                confirmLabel: $t("buildPresets.createConfirmLabel"),
+                cancelLabel: $t("common.cancel"),
                 onConfirm: (value) => {
                     if (typeof value === "string") {
-                        const preset = addPreset(value, buildCode);
+                        const name =
+                            value === displayName ? defaultName : value;
+                        const preset = addPreset(name, buildCode);
                         setActivePresetId(preset.id);
                         applyBuildData(tabs, {
                             trees: emptyTrees,
@@ -263,11 +288,10 @@
         }
         openModal({
             type: "confirm",
-            title: "Delete all presets",
-            message:
-                "Are you sure you want to delete all build presets? A new default preset will be created.",
-            confirmLabel: "Delete all",
-            cancelLabel: "Cancel",
+            title: $t("buildPresets.deleteAllModalTitle"),
+            message: $t("buildPresets.deleteAllModalMessage"),
+            confirmLabel: $t("buildPresets.deleteAllConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             titleIcon: TrashSimpleIcon,
             onConfirm: () => {
@@ -293,11 +317,14 @@
 <Button
     bind:element={presetsButtonElement}
     on:click={openPresetsMenu}
-    tooltipText="Change build preset"
+    tooltipText={$t("buildPresets.changeTooltip")}
     icon={ShareNetworkIcon}
+    arrow="down"
     {disabled}
 >
-    Preset: {truncateText($activePresetName)}
+    {$t("buildPresets.buttonLabel", {
+        name: truncateText(getDisplayPresetName($activePresetName)),
+    })}
 </Button>
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
@@ -306,28 +333,39 @@
         x={presetsMenuX}
         y={presetsMenuY}
         isOpen={presetsMenuOpen}
-        title="Build Presets"
+        title={$t("buildPresets.menuTitle")}
         onClose={closePresetsMenu}
     >
         <div class="premade-builds-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
                 {@const isActive = preset.id === $buildPresetsStore.active}
+                {@const presetDisplayName = getDisplayPresetName(preset.name)}
                 <div class="preset-row button-group" data-preset-id={preset.id}>
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}
                         tooltipText={isActive
-                            ? `Active preset: ${truncateText(preset.name)}`
-                            : `Switch to preset: ${truncateText(preset.name)}`}
-                        aria-label={`Switch to preset: ${truncateText(preset.name)}`}
+                            ? $t("buildPresets.activePresetTooltip", {
+                                  name: truncateText(presetDisplayName),
+                              })
+                            : $t("buildPresets.switchToPresetTooltip", {
+                                  name: truncateText(presetDisplayName),
+                              })}
+                        aria-label={$t("buildPresets.switchToPresetAria", {
+                            name: truncateText(presetDisplayName),
+                        })}
                         icon={isActive ? CheckIcon : null}
                         on:click={() => switchToPreset(preset.id)}
                     >
-                        {truncateText(preset.name)}
+                        {truncateText(presetDisplayName)}
                     </Button>
                     <Button
                         class="preset-edit-btn dropdown-button"
-                        tooltipText={`Edit preset: ${truncateText(preset.name)}`}
-                        aria-label={`Edit preset: ${truncateText(preset.name)}`}
+                        tooltipText={$t("buildPresets.editPresetTooltip", {
+                            name: truncateText(presetDisplayName),
+                        })}
+                        aria-label={$t("buildPresets.editPresetAria", {
+                            name: truncateText(presetDisplayName),
+                        })}
                         icon={DotsThreeVerticalIcon}
                         on:click={(e) => openEditMenu(e, preset.id)}
                     />
@@ -338,15 +376,16 @@
             <Button
                 class="add-new-build-btn"
                 on:click={() => handleAddBuild()}
-                tooltipText="Create an empty build preset"
+                tooltipText={$t("buildPresets.createEmptyTooltip")}
                 icon={PlusIcon}
+                arrow="right"
             >
-                Add new
+                {$t("buildPresets.addNew")}
             </Button>
             <Button
                 class="dropdown-button"
                 on:click={handleDeleteAllAndAddNew}
-                tooltipText="Delete all presets and create a new one"
+                tooltipText={$t("buildPresets.deleteAllAndCreateTooltip")}
                 icon={TrashSimpleIcon}
                 negative
             />
@@ -373,31 +412,36 @@
             >
                 <Button
                     on:click={handleMoveUp}
-                    tooltipText="Move preset up"
+                    tooltipText={$t("buildPresets.movePresetUpTooltip")}
                     icon={CaretUpIcon}
                     disabled={!canMoveUp}
                 />
                 <Button
                     on:click={handleMoveDown}
                     class="dropdown-button"
-                    tooltipText="Move preset down"
+                    tooltipText={$t("buildPresets.movePresetDownTooltip")}
                     icon={CaretDownIcon}
                     disabled={!canMoveDown}
                 />
             </div>
             <Button
                 on:click={() => handleRename(editMenuPresetId!)}
-                tooltipText="Edit preset name"
+                tooltipText={$t("buildPresets.editPresetNameTooltip")}
                 icon={PencilSimpleIcon}
+                arrow="right"
             >
-                Rename
+                {$t("buildPresets.renameButton")}
             </Button>
             <ShareBuildButton
-                title="Share"
+                title={$t("common.share")}
                 tooltipSubject={editPresetTooltipSubject}
                 menuTitle={editPreset?.name
-                    ? `Share: ${truncateText(editPreset.name)}`
-                    : "Share Preset"}
+                    ? $t("buildPresets.shareMenuTitleWithName", {
+                          name: truncateText(
+                              getDisplayPresetName(editPreset.name),
+                          ),
+                      })
+                    : $t("buildPresets.shareMenuTitleFallback")}
                 buildName={editPreset?.name}
                 buildData={editPresetBuildData}
                 shareTitle={editPresetShareTitle}
@@ -406,11 +450,12 @@
             />
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
-                tooltipText="Remove build preset"
+                tooltipText={$t("buildPresets.removePresetTooltip")}
                 icon={TrashSimpleIcon}
+                arrow="right"
                 negative
             >
-                Delete
+                {$t("buildPresets.deleteButton")}
             </Button>
         </ContextMenu>
     </div>
@@ -450,8 +495,16 @@
     }
 
     :global(.preset-name-btn.active) {
-        background: color-mix(in srgb, var(--surface) 78%, var(--accent)) !important;
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
+        background: color-mix(
+            in srgb,
+            var(--surface) 78%,
+            var(--accent)
+        ) !important;
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 55%,
+            var(--border)
+        ) !important;
     }
 
     :global(.preset-name-btn .button-text) {

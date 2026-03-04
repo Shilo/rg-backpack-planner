@@ -1,5 +1,9 @@
 <script lang="ts">
-    import { PaletteIcon } from "phosphor-svelte";
+    import {
+        CaretDownIcon,
+        CaretRightIcon,
+        PaletteIcon,
+    } from "phosphor-svelte";
     import { themeColor, type ThemeColor } from "./themeColorStore";
     import { oklchToHex } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
@@ -7,14 +11,29 @@
     import { portal } from "./portal";
     import ContextMenu from "./ContextMenu.svelte";
     import ColorPickerDialog from "./ColorPickerDialog.svelte";
+    import { t } from "svelte-whisper";
 
-    const PRESETS: { h: number; c: number; label: string; hex: string }[] = [
-        { h: 264, c: 0.24, label: "Blue",   hex: oklchToHex(0.65, 0.24, 264) },
-        { h: 10,  c: 0.26, label: "Rose",   hex: oklchToHex(0.65, 0.26, 10)  },
-        { h: 52,  c: 0.22, label: "Amber",  hex: oklchToHex(0.65, 0.22, 52)  },
-        { h: 148, c: 0.23, label: "Green",  hex: oklchToHex(0.65, 0.23, 148) },
-        { h: 300, c: 0.24, label: "Violet", hex: oklchToHex(0.65, 0.24, 300) },
+    const PRESETS: {
+        h: number;
+        c: number;
+        labelKey:
+            | "theme.preset.blue"
+            | "theme.preset.rose"
+            | "theme.preset.amber"
+            | "theme.preset.green"
+            | "theme.preset.violet";
+    }[] = [
+        { h: 264, c: 0.24, labelKey: "theme.preset.blue" },
+        { h: 10, c: 0.26, labelKey: "theme.preset.rose" },
+        { h: 52, c: 0.22, labelKey: "theme.preset.amber" },
+        { h: 148, c: 0.23, labelKey: "theme.preset.green" },
+        { h: 300, c: 0.24, labelKey: "theme.preset.violet" },
     ];
+    $: presetOptions = PRESETS.map((preset) => ({
+        ...preset,
+        label: $t(preset.labelKey),
+        hex: oklchToHex(0.65, preset.c, preset.h),
+    }));
 
     let buttonEl: HTMLButtonElement | null = null;
     let dropdownOpen = false;
@@ -25,12 +44,13 @@
 
     $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
 
-    $: currentLabel = (() => {
-        const match = PRESETS.find(
-            (p) => p.h === $themeColor.h && p.c === $themeColor.c,
-        );
-        return match ? match.label : "Custom";
-    })();
+    $: selectedPreset = presetOptions.find(
+        (p) => p.h === $themeColor.h && p.c === $themeColor.c,
+    );
+    $: currentLabel = selectedPreset
+        ? selectedPreset.label
+        : $t("theme.custom");
+    $: isCustom = !selectedPreset;
 
     function openDropdown() {
         if (!buttonEl) return;
@@ -51,7 +71,10 @@
         closeDropdown();
     }
 
-    function isSelected(preset: { h: number; c: number }, current: ThemeColor): boolean {
+    function isSelected(
+        preset: { h: number; c: number },
+        current: ThemeColor,
+    ): boolean {
         return preset.h === current.h && preset.c === current.c;
     }
 
@@ -76,18 +99,16 @@
     class="theme-color-button"
     type="button"
     bind:this={buttonEl}
-    aria-label="Theme: {currentLabel}"
-    use:tooltip={"Change theme"}
+    aria-label={$t("theme.aria", { label: currentLabel })}
+    use:tooltip={$t("theme.changeTooltip")}
     on:click={openDropdown}
 >
     <span class="theme-button-icon">
         <PaletteIcon size={26} />
     </span>
-    <span class="theme-button-label">Theme</span>
-    <span
-        class="theme-button-swatch"
-        style="background: {currentHex}"
-    ></span>
+    <span class="theme-button-label">{$t("theme.label")}</span>
+    <span class="theme-button-swatch" style="background: {currentHex}"></span>
+    <CaretDownIcon class="caret-icon" size={12} />
 </button>
 
 <div use:portal class="theme-dropdown-portal" class:menu-open={dropdownOpen}>
@@ -95,19 +116,17 @@
         x={dropdownX}
         y={dropdownY}
         isOpen={dropdownOpen}
-        title="Theme"
+        title={$t("theme.menuTitle")}
         onClose={closeDropdown}
     >
-        {#each PRESETS as preset}
+        {#each presetOptions as preset}
             <button
                 class="preset-item"
                 class:preset-selected={isSelected(preset, $themeColor)}
                 type="button"
                 on:click={() => selectPreset(preset)}
             >
-                <span
-                    class="preset-swatch"
-                    style="background: {preset.hex}"
+                <span class="preset-swatch" style="background: {preset.hex}"
                 ></span>
                 <span class="preset-label">{preset.label}</span>
                 {#if isSelected(preset, $themeColor)}
@@ -116,19 +135,20 @@
             </button>
         {/each}
         <button
-            class="preset-item"
-            class:preset-selected={currentLabel === "Custom"}
+            class="preset-item custom-item"
+            class:preset-selected={isCustom}
             type="button"
             on:click={openCustomPicker}
         >
             <span
                 class="preset-swatch preset-swatch-custom"
-                style="background: {currentLabel === 'Custom' ? currentHex : 'var(--border)'}"
+                style="background: {isCustom ? currentHex : 'var(--border)'}"
             ></span>
-            <span class="preset-label">Custom...</span>
-            {#if currentLabel === "Custom"}
+            <span class="preset-label">{$t("theme.customEllipsis")}</span>
+            {#if isCustom}
                 <span class="preset-check" aria-hidden="true"></span>
             {/if}
+            <CaretRightIcon class="caret-icon" size={12} />
         </button>
     </ContextMenu>
 </div>
@@ -145,9 +165,10 @@
     .theme-color-button {
         display: flex;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
         height: 40px;
-        padding: var(--spacing-md) var(--spacing-lg);
+        padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md)
+            var(--spacing-lg);
         border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius);
@@ -234,7 +255,7 @@
     .preset-item {
         display: flex;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
         width: 100%;
         min-width: 160px;
         padding: var(--spacing-sm) var(--spacing-lg);
@@ -250,6 +271,10 @@
             filter var(--ease),
             transform var(--ease);
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .custom-item {
+        padding-right: var(--spacing-sm) !important;
     }
 
     @media (hover: hover) {

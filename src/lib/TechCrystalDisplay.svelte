@@ -4,19 +4,21 @@
     import { openTechCrystalsOwnedModal } from "./techCrystalModal";
     import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
     import { formatNumber } from "./mathUtil";
+    import { t } from "svelte-whisper";
 
     $: hasOwned = $techCrystalsOwned > 0;
-
-    const tooltipPrefix = "Tech Crystals\n";
-    $: tooltipText = `${tooltipPrefix} spent` + (hasOwned ? ` / owned` : "");
+    $: tooltipText = hasOwned
+        ? $t("techCrystals.displayTooltipSpentOwned")
+        : $t("techCrystals.displayTooltipSpentOnly");
 </script>
 
 <Button
     class="currency-display"
     type="button"
-    aria-label="Tech Crystals"
+    aria-label={$t("techCrystals.label")}
     {tooltipText}
     on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
+    arrow="right"
 >
     <span
         class="currency-spent"
@@ -41,8 +43,9 @@
         border-radius: var(--radius-full) !important;
         display: inline-flex;
         align-items: center;
-        gap: 2px;
-        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-lg);
+        gap: 2px !important;
+        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm)
+            var(--spacing-lg);
         font-weight: var(--weight-bold);
         font-size: var(--font-lg) !important;
         letter-spacing: var(--tracking);

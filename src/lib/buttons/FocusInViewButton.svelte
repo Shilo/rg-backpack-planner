@@ -2,6 +2,7 @@
     import { CubeFocusIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import type { TreeViewState } from "../Tree.svelte";
+    import { t } from "svelte-whisper";
 
     export let onFocusInView: (() => void) | null = null;
     export let onPress: (() => void) | null = null;
@@ -29,9 +30,9 @@
         onPress?.();
         onFocusInView();
     }}
-    tooltipText={"Fit nodes in view by resetting zoom and pan"}
+    tooltipText={$t("settings.focusTreeInViewTooltip")}
     icon={CubeFocusIcon}
     {disabled}
 >
-    Focus tree in view
+    {$t("settings.focusTreeInViewLower")}
 </Button>

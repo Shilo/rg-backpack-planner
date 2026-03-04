@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { EyeIcon } from "phosphor-svelte";
     import { isPreviewMode } from "./previewModeStore";
     import { previewBuildName, getPreviewTitle } from "./previewBuildNameStore";
@@ -7,14 +8,20 @@
     import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
     import { portal } from "./portal";
     import { truncateText } from "./stringUtil";
+    import { t } from "svelte-whisper";
 
     let buttonElement: HTMLButtonElement | null = null;
     let menuOpen = false;
     let menuX = 0;
     let menuY = 0;
+    let devIndicatorState: {
+        title: string;
+        detail: string | null;
+        tooltip: string;
+    } | null = null;
 
     function handleButtonClick() {
-        if (!buttonElement) return;
+        if (!buttonElement || !$isPreviewMode) return;
         const rect = buttonElement.getBoundingClientRect();
         menuX = rect.left + rect.width / 2;
         menuY = rect.bottom + 8;
@@ -25,40 +32,83 @@
         menuOpen = false;
     }
 
-    $: menuTitle = `${getPreviewTitle($previewBuildName)} Build`;
+    $: menuTitle = $t("preview.buildTitle", {
+        name: getPreviewTitle($previewBuildName),
+    });
+    $: showIndicator =
+        $isPreviewMode || (!$isPreviewMode && !!devIndicatorState);
+    $: indicatorTitle = $isPreviewMode
+        ? $t("preview.title")
+        : (devIndicatorState?.title ?? "");
+    $: indicatorDetail = $isPreviewMode
+        ? $previewBuildName
+        : (devIndicatorState?.detail ?? null);
+    $: indicatorTooltip = $isPreviewMode
+        ? $t("contextMenu.previewBuildOptions")
+        : (devIndicatorState?.tooltip ?? "");
+
+    onMount(() => {
+        if (import.meta.env.DEV) {
+            // Keep the Playwright indicator store out of production by only importing it in dev builds.
+            let cancelled = false;
+            let unsubscribe: (() => void) | null = null;
+
+            void import("./dev/playwrightIndicatorStore.dev").then(
+                ({ playwrightIndicatorState }) => {
+                    if (cancelled) {
+                        return;
+                    }
+
+                    unsubscribe = playwrightIndicatorState.subscribe(
+                        (value) => {
+                            devIndicatorState = value;
+                        },
+                    );
+                },
+            );
+
+            return () => {
+                cancelled = true;
+                unsubscribe?.();
+            };
+        }
+    });
 </script>
 
-{#if $isPreviewMode}
+{#if showIndicator}
     <Button
         bind:element={buttonElement}
         on:click={handleButtonClick}
-        tooltipText={"Preview build options"}
+        tooltipText={indicatorTooltip}
         class="preview-indicator-button"
         icon={EyeIcon}
+        arrow="down"
     >
-        Preview
-        {#if $previewBuildName}
+        <span class="indicator-title">{indicatorTitle}</span>
+        {#if indicatorDetail}
             <br />
-            <span class="build-name">{truncateText($previewBuildName)}</span>
+            <span class="build-name">{truncateText(indicatorDetail)}</span>
         {/if}
     </Button>
 
-    <div
-        use:portal
-        class="preview-build-indicator-menu-portal"
-        class:menu-open={menuOpen}
-    >
-        <ContextMenu
-            x={menuX}
-            y={menuY}
-            isOpen={menuOpen}
-            title={menuTitle}
-            ariaLabel="Preview build options"
-            onClose={closeMenu}
+    {#if $isPreviewMode}
+        <div
+            use:portal
+            class="preview-build-indicator-menu-portal"
+            class:menu-open={menuOpen}
         >
-            <PreviewContextMenuList />
-        </ContextMenu>
-    </div>
+            <ContextMenu
+                x={menuX}
+                y={menuY}
+                isOpen={menuOpen}
+                title={menuTitle}
+                ariaLabel={$t("contextMenu.previewBuildOptions")}
+                onClose={closeMenu}
+            >
+                <PreviewContextMenuList />
+            </ContextMenu>
+        </div>
+    {/if}
 {/if}
 
 <style>

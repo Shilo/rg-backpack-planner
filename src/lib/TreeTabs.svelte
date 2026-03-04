@@ -6,14 +6,13 @@
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
     import { onMount, tick } from "svelte";
-    import { get } from "svelte/store";
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
     import {
         isCaptureInProgress,
         captureAction,
-    } from "./buildImageExport/captureService";
+    } from "./buildImageExport/captureBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -29,10 +28,10 @@
         setTreeLevels,
         treeLevels,
     } from "./treeLevelsStore";
-    import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
+    import { t } from "svelte-whisper";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -40,10 +39,6 @@
     export let activeIndex = 0;
     export let activeViewState: TreeViewState | null = null;
     export let activeFocusViewState: TreeViewState | null = null;
-    export let onNodeLevelChange:
-        | ((tabIndex: number, techCrystalDelta: number) => void)
-        | null = null;
-
     let bottomInset = 0;
     let tabsBarEl: HTMLDivElement | null = null;
     let treeRef: {
@@ -61,7 +56,7 @@
         x: number;
         y: number;
         index: number;
-        hideView0ptions: boolean;
+        hideViewOptions: boolean;
     } | null = null;
     let hasMounted = false;
     let lastActiveTabId = "";
@@ -186,7 +181,7 @@
                 x: point.x,
                 y: point.y,
                 index,
-                hideView0ptions: true,
+                hideViewOptions: true,
             };
             return true;
         });
@@ -247,7 +242,7 @@
                 x: point.x,
                 y: point.y,
                 index: activeIndex,
-                hideView0ptions: false,
+                hideViewOptions: false,
             };
             treeRef?.cancelGestures?.();
             return true;
@@ -273,7 +268,7 @@
             x: event.clientX,
             y: event.clientY,
             index: activeIndex,
-            hideView0ptions: false,
+            hideViewOptions: false,
         };
         treeRef?.cancelGestures?.();
     }
@@ -308,7 +303,7 @@
             x: event.clientX,
             y: event.clientY,
             index,
-            hideView0ptions: true,
+            hideViewOptions: true,
         };
     }
 
@@ -331,13 +326,6 @@
         treeRef.triggerFade?.();
     }
 
-    function refundTreeSpent(index: number) {
-        const spent = get(techCrystalsSpentByTree)[index] ?? 0;
-        if (spent !== 0) {
-            onNodeLevelChange?.(index, -spent);
-        }
-    }
-
     function resetLevelsForTab(index: number) {
         resetTreeLevels(index, tabs);
         treeRef?.triggerFade?.();
@@ -345,9 +333,13 @@
 
     function resetTreeByIndex(index: number) {
         resetLevelsForTab(index);
-        refundTreeSpent(index);
         const tabLabel = tabs[index].label;
-        showToast(`Reset ${tabLabel} tree`, { tone: "negative" });
+        showToast(
+            $t("tree.resetTreeToast", {
+                treeLabel: tabLabel,
+            }),
+            { tone: "negative" },
+        );
     }
 
     function resetTabTree(tabId: string) {
@@ -364,11 +356,8 @@
 
     export function resetAllTrees() {
         if (tabs.length === 0) return;
-        for (let index = 0; index < tabs.length; index += 1) {
-            refundTreeSpent(index);
-        }
         resetAllTreeLevels(tabs);
-        showToast("Reset all trees", { tone: "negative" });
+        showToast($t("tree.resetAllTreesToast"), { tone: "negative" });
         treeRef?.triggerFade?.();
 
         closeTabMenu();
@@ -382,48 +371,47 @@
         setActive(index);
     }
 
-    function handleNodeLevelChange(techCrystalDelta: number) {
-        if (!tabs[activeIndex]) return;
-        onNodeLevelChange?.(activeIndex, techCrystalDelta);
-    }
-
     function handleLevelsChange(nextLevels: number[]) {
         setTreeLevels(activeIndex, [...nextLevels]);
     }
 </script>
 
 <div class="tabs-root">
-    <div class="tabs-bar" bind:this={tabsBarEl}>
-        <FullscreenToggle iconButton={true} class="fullscreen-button" />
-        <div class="tab-buttons">
-            {#each tabs as tab, index}
-                <Button
-                    class={index === activeIndex ? "active" : ""}
-                    on:click={() => onTabClick(index)}
-                    on:contextmenu={(event: Event) =>
-                        openTabMenu(getMouseEvent(event), tab, index)}
-                    on:pointerdown={(event: Event) =>
-                        startTabPress(getPointerEvent(event), tab, index)}
-                    on:pointermove={(event: Event) =>
-                        moveTabPress(getPointerEvent(event))}
-                    on:pointerup={clearTabPress}
-                    on:pointercancel={clearTabPress}
-                    on:pointerleave={clearTabPress}
-                >
-                    <span class="tab-label">{tab.label}</span>
-                </Button>
-            {/each}
+    <div class="tabs-bar-spacer" bind:this={tabsBarEl} aria-hidden="true"></div>
+
+    <div class="hud-safe-area">
+        <div class="tabs-bar">
+            <FullscreenToggle iconButton={true} class="fullscreen-button" />
+            <div class="tab-buttons">
+                {#each tabs as tab, index}
+                    <Button
+                        class={index === activeIndex ? "active" : ""}
+                        on:click={() => onTabClick(index)}
+                        on:contextmenu={(event: Event) =>
+                            openTabMenu(getMouseEvent(event), tab, index)}
+                        on:pointerdown={(event: Event) =>
+                            startTabPress(getPointerEvent(event), tab, index)}
+                        on:pointermove={(event: Event) =>
+                            moveTabPress(getPointerEvent(event))}
+                        on:pointerup={clearTabPress}
+                        on:pointercancel={clearTabPress}
+                        on:pointerleave={clearTabPress}
+                    >
+                        <span class="tab-label">{tab.label}</span>
+                    </Button>
+                {/each}
+            </div>
         </div>
+        <Button
+            class="menu-button"
+            aria-label={$t("tree.menuButtonAria")}
+            tooltipText={$t("tree.menuButtonTooltip")}
+            on:click={() => onMenuClick?.()}
+            icon={ListIcon}
+            iconClass="menu-button-icon"
+            iconSize={26}
+        ></Button>
     </div>
-    <Button
-        class="menu-button"
-        aria-label="Menu"
-        tooltipText="Open menu"
-        on:click={() => onMenuClick?.()}
-        icon={ListIcon}
-        iconClass="menu-button-icon"
-        iconSize={26}
-    ></Button>
 
     <div
         class="tabs-content"
@@ -450,7 +438,6 @@
                     {bottomInset}
                     gesturesDisabled={!!tabContextMenu}
                     initialViewState={lastViewState}
-                    onNodeLevelChange={handleNodeLevelChange}
                     onViewStateChange={handleViewStateChange}
                     onFocusViewStateChange={handleFocusViewStateChange}
                     onOpenTreeContextMenu={(x, y) => {
@@ -462,7 +449,7 @@
                             x,
                             y,
                             index: activeIndex,
-                            hideView0ptions: false,
+                            hideViewOptions: false,
                         };
                         treeRef?.cancelGestures?.();
                     }}
@@ -488,7 +475,7 @@
         focusViewState={tabContextMenu?.index === activeIndex
             ? activeFocusViewState
             : null}
-        hideView0ptions={tabContextMenu?.hideView0ptions ?? false}
+        hideViewOptions={tabContextMenu?.hideViewOptions ?? false}
         onClose={closeTabMenu}
         onFocusInView={focusTabInView}
         onReset={resetTabTree}
@@ -507,9 +494,22 @@
         background: radial-gradient(
             circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
             color-mix(in srgb, var(--bg) 40%, var(--surface)),
-            var(--bg) 75%
+            var(--bg) 100%
         );
         position: relative;
+    }
+
+    .tabs-bar-spacer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: calc(
+            var(--tab-height) + max(var(--bar-pad), var(--safe-bottom, 0px))
+        );
+        pointer-events: none;
+        visibility: hidden;
+        z-index: -1;
     }
 
     .tabs-bar {
@@ -520,11 +520,9 @@
         display: flex;
         align-items: center;
         gap: var(--menu-gap);
-        padding: 0 calc(var(--bar-pad) + var(--menu-width) + var(--menu-gap))
-            var(--bar-pad) var(--bar-pad);
+        padding: 0 calc(var(--menu-width) + var(--menu-gap)) 0 0;
         background: transparent;
         min-width: 0;
-        z-index: var(--z-index-hud);
     }
 
     .tab-buttons {
@@ -533,21 +531,43 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: var(--menu-gap);
         min-width: 0;
+        position: relative;
+        z-index: var(--z-index-hud);
     }
 
     :global(.tab-buttons button) {
         color: var(--text-muted);
-        padding: 0 var(--spacing-md);
+        padding: 0 !important;
         height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        font-size: var(--font-sm) !important;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: var(--spacing-md);
         min-width: 0;
         overflow: hidden;
+    }
+
+    :global(.tab-buttons button .button-text) {
+        display: contents;
+    }
+
+    @media (max-width: 400px) {
+        :global(.tab-buttons button) {
+            gap: var(--spacing-sm);
+            letter-spacing: 0.04em;
+            font-size: var(--font-xs) !important;
+        }
+    }
+
+    @media (max-width: 360px) {
+        :global(.tab-buttons button) {
+            font-size: var(--font-xxs) !important;
+            letter-spacing: 0.02em;
+        }
     }
 
     .tab-label {
@@ -557,6 +577,8 @@
         min-width: 0;
         max-width: 100%;
         flex: 1 1 auto;
+        display: block;
+        text-align: center;
     }
 
     :global(.tab-buttons button.active) {
@@ -577,6 +599,8 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        position: relative;
+        z-index: var(--z-index-hud-over-side-menu-backdrop);
     }
 
     :global(.fullscreen-button .button-icon) {
@@ -596,9 +620,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        position: fixed;
-        right: var(--bar-pad);
-        bottom: var(--bar-pad);
+        position: absolute;
+        right: 0;
+        bottom: 0;
         z-index: var(--z-index-hud);
     }
 

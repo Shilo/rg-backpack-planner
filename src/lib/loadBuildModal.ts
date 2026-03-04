@@ -1,17 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - phosphor-svelte icons are valid Svelte components
 import { EyeIcon } from "phosphor-svelte";
+import type { Component } from "svelte";
 import { openModal } from "./modalStore";
+import { tr } from "svelte-whisper";
 
 export function openLoadBuildModal(onLoaded?: () => void) {
     openModal({
         type: "loadBuild",
-        title: "PREVIEW SHAREABLE BUILD",
-        titleIcon: EyeIcon,
-        message:
-            "Type link or build code. (Preview is temporary and won't affect your current build.)",
-        confirmLabel: "Preview build",
-        cancelLabel: "Cancel",
+        title: tr("preview.loadModalTitle"),
+        titleIcon: EyeIcon as unknown as Component,
+        message: tr("preview.loadModalMessage"),
+        confirmLabel: tr("preview.loadModalConfirmLabel"),
+        cancelLabel: tr("common.cancel"),
         onConfirm: () => {
             onLoaded?.();
         },

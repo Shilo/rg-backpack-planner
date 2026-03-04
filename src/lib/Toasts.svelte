@@ -64,14 +64,19 @@
 <style>
     .toast-region {
         position: fixed;
-        left: var(--bar-pad);
-        bottom: calc(var(--bar-pad) + var(--tab-height) + 20px);
+        left: calc(var(--bar-pad) + var(--safe-left, 0px));
+        bottom: calc(
+            (var(--bar-pad, 0px) + var(--tab-height, 0px)) *
+                (1 - var(--is-keyboard-open, 0)) + 20px +
+                var(--keyboard-height, 0px) + var(--safe-bottom, 0px)
+        );
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         gap: var(--spacing-lg);
         z-index: var(--z-index-toast);
         pointer-events: none;
+        transition: bottom 0.2s ease;
     }
 
     .toast {

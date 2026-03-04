@@ -1,12 +1,13 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
     import { triggerHaptic } from "./haptics";
+    import { t } from "svelte-whisper";
 
     export let x = 0;
     export let y = 0;
     export let isOpen = false;
-    export let title = "Menu";
-    export let ariaLabel = "Context menu";
+    export let title = "";
+    export let ariaLabel = "";
     export let onClose: (() => void) | null = null;
     /** When set, don't close on pointerup if target matches (e.g. tab bar for tab context menu) */
     export let ignoreCloseTargetSelector: string | null = null;
@@ -36,6 +37,8 @@
     let lastX = 0;
     let lastY = 0;
     let backdropEl: HTMLButtonElement | null = null;
+    $: resolvedTitle = title || $t("contextMenu.defaultTitle");
+    $: resolvedAriaLabel = ariaLabel || $t("contextMenu.defaultAria");
 
     function handleDocumentPointerUp(event: PointerEvent) {
         if (!isOpen) return;
@@ -78,7 +81,10 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
+        if (!isOpen) return;
         if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
             onClose?.();
         }
     }
@@ -296,7 +302,7 @@
         class="context-menu-backdrop"
         type="button"
         tabindex="0"
-        aria-label="Close context menu"
+        aria-label={$t("contextMenu.closeAria")}
         bind:this={backdropEl}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
@@ -308,13 +314,13 @@
         bind:this={menuEl}
         style={`left: ${displayX}px; top: ${displayY}px;`}
         role="menu"
-        aria-label={ariaLabel}
+        aria-label={resolvedAriaLabel}
         on:pointerdown={handlePointerDown}
         on:pointermove={handlePointerMove}
         on:pointerup={handlePointerUp}
         on:pointercancel={handlePointerUp}
     >
-        <div class="context-menu__title">{title}</div>
+        <div class="context-menu__title">{resolvedTitle}</div>
         <slot />
     </div>
 {/if}

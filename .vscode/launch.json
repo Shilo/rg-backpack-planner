@@ -11,11 +11,30 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Preview",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "preview", "--", "--host"],
+            "preLaunchTask": "npm: build",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Test",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
             "runtimeArgs": ["run", "test"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test UI: Node Level",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "test:ui:tier"],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         }

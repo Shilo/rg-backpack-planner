@@ -18,7 +18,6 @@ import {
     previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
-
 /**
  * Cached base path from vite.config.ts
  * Normalized to have leading slash and trailing slash
@@ -144,13 +143,19 @@ export function createShareUrl(buildData?: BuildData): string {
 /**
  * Determines whether a preset name is a default/generated value that should
  * not be encoded into share URLs.
+ *
+ * Only checks canonical English names since all preset names are stored
+ * in canonical English internally. Display translation happens at the UI layer.
  */
 export function isDefaultPresetName(name?: string | null): boolean {
     if (!name) return false;
-    if (name === "Default") return true;
-    if (name === "New") return true;
-    if (name === "Clone") return true;
-    return /^(?:New|Clone)\s+\d+$/.test(name);
+    const trimmed = name.trim();
+
+    if (trimmed === "Default" || trimmed === "New" || trimmed === "Clone") {
+        return true;
+    }
+
+    return /^(New|Clone)\s+\d+$/i.test(trimmed);
 }
 
 /**

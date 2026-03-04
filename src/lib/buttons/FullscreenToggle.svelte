@@ -10,6 +10,7 @@
     } from "../fullscreen";
     import { showToast } from "../toast";
     import ToggleSwitch from "../ToggleSwitch.svelte";
+    import { t } from "svelte-whisper";
 
     export let iconButton = false;
 
@@ -22,14 +23,14 @@
 
     async function handleToggleFullscreen() {
         if (!fullscreenSupported) {
-            showToast("Fullscreen is not supported by your browser");
+            showToast($t("fullscreen.unsupportedToast"));
             return;
         }
 
         const success = await toggleFullscreen();
 
         if (!success) {
-            showToast("Could not change fullscreen state", {
+            showToast($t("fullscreen.failedToast"), {
                 tone: "negative",
             });
         }
@@ -65,15 +66,17 @@
         icon={(isFullscreen
             ? CornersInIcon
             : CornersOutIcon) as unknown as Component}
-        tooltipText={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        tooltipText={isFullscreen
+            ? $t("fullscreen.exitTooltip")
+            : $t("fullscreen.enterTooltip")}
         on:click={handleToggleFullscreen}
     />
 {:else}
     <ToggleSwitch
         checked={isFullscreen}
-        label="Fullscreen"
-        ariaLabel="Toggle fullscreen mode"
-        tooltipText="Use fullscreen where your browser supports it"
+        label={$t("fullscreen.label")}
+        ariaLabel={$t("fullscreen.toggleAria")}
+        tooltipText={$t("fullscreen.tooltip")}
         icon={CornersOutIcon as unknown as Component}
         onToggle={handleToggleFullscreen}
     />

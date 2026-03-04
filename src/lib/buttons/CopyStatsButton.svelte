@@ -4,10 +4,11 @@
     import { onDestroy } from "svelte";
     import Button from "../Button.svelte";
     import CheckboxIcon from "../icons/CheckboxIcon.svelte";
+    import { t } from "svelte-whisper";
 
     export let onCopy: (() => void) | null = null;
-    const label = "Copy";
-    const copiedLabel = "Copied";
+    let label = "";
+    let copiedLabel = "";
     export let confirmDurationMs = 2000;
     export let small = true;
 
@@ -16,6 +17,8 @@
     let restClass: string | undefined;
     let buttonProps: Record<string, unknown> = {};
     let icon: Component | null = null;
+    $: label = $t("common.copy");
+    $: copiedLabel = $t("common.copied");
 
     $: ({ class: restClass, ...buttonProps } = $$restProps);
     $: icon = copied

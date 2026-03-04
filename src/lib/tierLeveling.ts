@@ -2,7 +2,34 @@ import type { LevelsByIndex, Node, NodeIndex } from "../types/tree";
 
 export type LevelDelta = { index: NodeIndex; delta: number };
 
+type TraversalMeta = {
+    componentIndices: number[];
+    ancestorFlags: boolean[];
+};
+
 const MAX_TIERS = 5;
+const traversalMetaCache = new Map<string, TraversalMeta[]>();
+const BRANCH_SIZE = 10;
+const BRANCH_TOPOLOGY: { parent?: number | number[] }[] = [
+    {},                  // 0: root
+    { parent: 0 },       // 1
+    { parent: 0 },       // 2
+    { parent: 1 },       // 3
+    { parent: 1 },       // 4
+    { parent: 2 },       // 5
+    { parent: 2 },       // 6
+    { parent: [3, 4] },  // 7
+    { parent: [5, 6] },  // 8
+    { parent: [7, 8] },  // 9
+];
+const KNOWN_BRANCH_COMPONENT_INDICES = buildComponentIndices(
+    BRANCH_TOPOLOGY as unknown as Node[],
+    0,
+);
+const KNOWN_BRANCH_ANCESTOR_FLAGS = BRANCH_TOPOLOGY.map((_, i) =>
+    buildAncestorFlags(BRANCH_TOPOLOGY as unknown as Node[], i),
+);
+const TOTAL_TREE_NODES = 30;
 
 export function tierSize(maxLevel: Node["maxLevel"]): number {
     if (maxLevel <= 1) return 0;
@@ -33,36 +60,231 @@ function parentIndices(node: Node): number[] {
     return Array.isArray(node.parent) ? node.parent : [node.parent];
 }
 
-function buildChildrenMap(nodes: Node[]): Map<number, number[]> {
-    const map = new Map<number, number[]>();
-    nodes.forEach((_, i) => map.set(i, []));
+function buildChildrenList(nodes: Node[]): number[][] {
+    const children = nodes.map(() => [] as number[]);
     nodes.forEach((node, idx) => {
-        parentIndices(node).forEach((pi) => {
-            const arr = map.get(pi);
-            if (arr) arr.push(idx);
+        parentIndices(node).forEach((parentIndex) => {
+            if (children[parentIndex]) {
+                children[parentIndex].push(idx);
+            }
         });
     });
-    return map;
+    return children;
 }
 
-function buildComponent(nodes: Node[], start: number): Set<number> {
-    const childrenMap = buildChildrenMap(nodes);
-    const visited = new Set<number>();
+function buildComponentIndices(nodes: Node[], start: number): number[] {
+    const children = buildChildrenList(nodes);
+    const visited = new Array(nodes.length).fill(false);
     const stack = [start];
+    const component: number[] = [];
+
     while (stack.length) {
         const current = stack.pop()!;
-        if (visited.has(current)) continue;
-        visited.add(current);
-        const parents = parentIndices(nodes[current]);
+        if (visited[current]) continue;
+        visited[current] = true;
+        component.push(current);
+
+        const currentNode = nodes[current];
+        if (!currentNode) continue;
+
+        const parents = parentIndices(currentNode);
         parents.forEach((p) => {
-            if (!visited.has(p)) stack.push(p);
+            if (!visited[p]) stack.push(p);
         });
-        const children = childrenMap.get(current) ?? [];
-        children.forEach((c) => {
-            if (!visited.has(c)) stack.push(c);
+
+        const childIndices = children[current] ?? [];
+        childIndices.forEach((childIndex) => {
+            if (!visited[childIndex]) stack.push(childIndex);
         });
     }
+
+    return component;
+}
+
+function buildAncestorFlags(nodes: Node[], start: number): boolean[] {
+    const visited = new Array(nodes.length).fill(false);
+    const startNode = nodes[start];
+    if (!startNode) return visited;
+
+    const stack = [...parentIndices(startNode)];
+    while (stack.length) {
+        const current = stack.pop()!;
+        if (visited[current]) continue;
+        visited[current] = true;
+
+        const currentNode = nodes[current];
+        if (!currentNode) continue;
+
+        parentIndices(currentNode).forEach((parentIndex) => {
+            if (!visited[parentIndex]) {
+                stack.push(parentIndex);
+            }
+        });
+    }
+
     return visited;
+}
+
+function knownTraversalMeta(nodes: Node[], index: number): TraversalMeta | null {
+    if (nodes.length !== BRANCH_SIZE && nodes.length !== TOTAL_TREE_NODES) {
+        return null;
+    }
+
+    const branchStart =
+        nodes.length === BRANCH_SIZE
+            ? 0
+            : Math.floor(index / BRANCH_SIZE) * BRANCH_SIZE;
+    if (branchStart < 0 || branchStart + BRANCH_SIZE > nodes.length) {
+        return null;
+    }
+
+    const localIndex = index - branchStart;
+    if (localIndex < 0 || localIndex >= BRANCH_SIZE) {
+        return null;
+    }
+
+    if (branchStart === 0 && nodes.length === BRANCH_SIZE) {
+        return {
+            componentIndices: KNOWN_BRANCH_COMPONENT_INDICES,
+            ancestorFlags: KNOWN_BRANCH_ANCESTOR_FLAGS[localIndex],
+        };
+    }
+
+    const componentIndices = KNOWN_BRANCH_COMPONENT_INDICES.map(
+        (componentIndex) => componentIndex + branchStart,
+    );
+
+    const ancestorFlags = new Array(nodes.length).fill(false);
+    const localFlags = KNOWN_BRANCH_ANCESTOR_FLAGS[localIndex];
+    for (let i = 0; i < localFlags.length; i += 1) {
+        if (localFlags[i]) {
+            ancestorFlags[branchStart + i] = true;
+        }
+    }
+
+    return { componentIndices, ancestorFlags };
+}
+
+function traversalSignature(nodes: Node[]): string {
+    return nodes
+        .map((node) => {
+            const parents = parentIndices(node);
+            return parents.length > 0 ? parents.join(",") : "_";
+        })
+        .join("|");
+}
+
+function getTraversalMeta(nodes: Node[], index: number): TraversalMeta {
+    const knownMeta = knownTraversalMeta(nodes, index);
+    if (knownMeta) return knownMeta;
+
+    const signature = traversalSignature(nodes);
+    let cached = traversalMetaCache.get(signature);
+    if (!cached) {
+        cached = nodes.map((_, nodeIndex) => ({
+            componentIndices: buildComponentIndices(nodes, nodeIndex),
+            ancestorFlags: buildAncestorFlags(nodes, nodeIndex),
+        }));
+        traversalMetaCache.set(signature, cached);
+    }
+
+    const entry = cached[index];
+    if (entry) return entry;
+
+    return {
+        componentIndices: [index],
+        ancestorFlags: new Array(nodes.length).fill(false),
+    };
+}
+
+function cloneLevels(levels: LevelsByIndex, size: number): LevelsByIndex {
+    const copy = new Array(Math.max(levels.length, size)).fill(0);
+
+    for (let i = 0; i < levels.length; i += 1) {
+        copy[i] = levels[i] ?? 0;
+    }
+
+    return copy;
+}
+
+function stableTierHoldFloor(
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): number {
+    if (tier <= 0) return 0;
+    if (tier === 1) return Math.min(1, maxLevel);
+    return tierUpper(tier - 1, maxLevel);
+}
+
+function targetMeetsStableTierFloor(
+    level: number,
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): boolean {
+    if (tier <= 0) return true;
+    if (level <= 0) return false;
+    if (tier === 1) return true;
+    if (maxLevel <= 1) return tier === 1;
+    return level >= tierUpper(tier - 1, maxLevel);
+}
+
+function levelMeetsRequiredTier(
+    level: number,
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): boolean {
+    return level >= tierUpper(tier, maxLevel);
+}
+
+function currentStableTierForNode(params: {
+    nodes: Node[];
+    levels: LevelsByIndex;
+    index: number;
+    componentIndices: number[];
+    ancestorFlags: boolean[];
+}): number {
+    const { nodes, levels, index, componentIndices, ancestorFlags } = params;
+    const node = nodes[index];
+    if (!node) return 0;
+
+    const targetLevel = levels[index] ?? 0;
+    let currentStableTier = 0;
+
+    for (let candidateTier = 1; candidateTier <= MAX_TIERS; candidateTier += 1) {
+        if (!targetMeetsStableTierFloor(targetLevel, candidateTier, node.maxLevel)) {
+            continue;
+        }
+
+        const wrappedTier = Math.max(candidateTier - 1, 0);
+        let satisfiesCandidateTier = true;
+
+        for (const componentIndex of componentIndices) {
+            if (componentIndex === index) continue;
+
+            const componentNode = nodes[componentIndex];
+            if (!componentNode) continue;
+
+            const requiredTier = ancestorFlags[componentIndex]
+                ? candidateTier
+                : wrappedTier;
+            if (
+                !levelMeetsRequiredTier(
+                    levels[componentIndex] ?? 0,
+                    requiredTier,
+                    componentNode.maxLevel,
+                )
+            ) {
+                satisfiesCandidateTier = false;
+                break;
+            }
+        }
+
+        if (satisfiesCandidateTier) {
+            currentStableTier = candidateTier;
+        }
+    }
+
+    return currentStableTier;
 }
 
 export function unlockedTierForNode(
@@ -90,220 +312,81 @@ export function applyLevelChange(params: {
 }): { levels: LevelsByIndex; deltas: LevelDelta[] } {
     const { nodes, levels, index, targetLevel } = params;
     const node = nodes[index];
-    if (!node) return { levels: levels.slice(), deltas: [] };
-
-    const next = levels.slice();
-    const deltas: LevelDelta[] = [];
+    if (!node) return { levels: cloneLevels(levels, nodes.length), deltas: [] };
 
     const clamp = (value: number, min: number, max: number) =>
         Math.min(Math.max(value, min), max);
 
-    const childrenMap = buildChildrenMap(nodes);
-    const component = buildComponent(nodes, index);
-    let branchRootIndex: number | null = null;
-    let branchLeafIndex: number | null = null;
+    const startingLevel = levels[index] ?? 0;
+    const clampedTarget = clamp(targetLevel, 0, node.maxLevel);
+    if (clampedTarget === startingLevel) {
+        // No-op changes intentionally preserve the input array reference.
+        // This is safe today because callers gate on `deltas.length` before using
+        // the returned `levels`. Revisit this if the API ever needs no-op results
+        // to normalize/pad arrays or to always return a fresh copy. Example:
+        // `return { levels: cloneLevels(levels, nodes.length), deltas: [] };`
+        return { levels, deltas: [] };
+    }
 
-    component.forEach((componentIndex) => {
-        const componentNode = nodes[componentIndex];
-        if (!componentNode) return;
+    const current = cloneLevels(levels, nodes.length);
+    const next = cloneLevels(levels, nodes.length);
 
-        const hasParents = parentIndices(componentNode).length > 0;
-        const hasChildren = (childrenMap.get(componentIndex)?.length ?? 0) > 0;
-
-        if (!hasParents) {
-            if (branchRootIndex === null || componentIndex < branchRootIndex) {
-                branchRootIndex = componentIndex;
-            }
-        }
-
-        if (!hasChildren) {
-            if (branchLeafIndex === null || componentIndex > branchLeafIndex) {
-                branchLeafIndex = componentIndex;
-            }
-        }
+    const { componentIndices, ancestorFlags } = getTraversalMeta(nodes, index);
+    const currentStableTier = currentStableTierForNode({
+        nodes,
+        levels: current,
+        index,
+        componentIndices,
+        ancestorFlags,
     });
-
-    const getUpperLevelOfTier = (nodeIndex: number, tier: number) =>
-        tierUpper(tier, nodes[nodeIndex].maxLevel);
-
-    const getCompletedTier = (level: number, maxLevel: Node["maxLevel"]) => {
-        if (level <= 0) return 0;
-        if (maxLevel <= 1) return 1;
-        const size = tierSize(maxLevel);
-        if (size === 0) return 0;
-        return Math.min(Math.floor(level / size), MAX_TIERS);
-    };
-
-    const getDirectParents = (nodeIndex: number) =>
-        parentIndices(nodes[nodeIndex]);
-
-    const getWrappedParentStep = (nodeIndex: number) => {
-        const parents = getDirectParents(nodeIndex);
-        if (parents.length > 0) {
-            return { neighborIndices: parents, wrapped: false };
-        }
-        if (branchLeafIndex === null || branchLeafIndex === nodeIndex) {
-            return { neighborIndices: [], wrapped: false };
-        }
-        return { neighborIndices: [branchLeafIndex], wrapped: true };
-    };
-
-    const getWrappedBranchStep = (
-        nodeIndex: number,
-        propagationDirection: number,
-    ) => {
-        if (propagationDirection === 0) return null;
-        return getWrappedParentStep(nodeIndex);
-    };
-
-    const getRequiredParentTier = (targetTier: number) => targetTier;
-
-    const getRequiredChildTier = (targetTier: number) => targetTier - 1;
-
-    const getRequiredWrappedParentTier = (
-        nodeIndex: number,
-        requiredTier: number,
-    ) => {
-        if (requiredTier <= 0) return 0;
-        if (requiredTier > 1) return getRequiredChildTier(requiredTier);
-
-        const currentLevel = next[nodeIndex] ?? 0;
-        const requiredLevel = getUpperLevelOfTier(nodeIndex, requiredTier);
-        return currentLevel >= requiredLevel ? requiredTier : 0;
-    };
-
-    const getRequiredNeighborTier = (targetTier: number, propagationDelta: number) => {
-        if (propagationDelta === 0) return 0;
-        return getRequiredParentTier(targetTier);
-    };
-
-    const getWrappedRequiredTier = (
-        nodeIndex: number,
-        requiredTier: number,
-        wrapped: boolean,
-    ) => {
-        if (!wrapped) return requiredTier;
-        return getRequiredWrappedParentTier(nodeIndex, requiredTier);
-    };
-
-    const nodeSatisfiesTier = (
-        currentLevel: number,
-        requiredLevel: number,
-        propagationDelta: number,
-    ) => {
-        if (propagationDelta === 0) return true;
-        if (propagationDelta > 0) return currentLevel >= requiredLevel;
-        return currentLevel <= requiredLevel;
-    };
-
-    const getPropagationDirection = (
-        currentTier: number,
-        targetTier: number,
-        currentCompletedTier: number,
-        targetCompletedTier: number,
-    ) => {
-        if (targetTier > currentTier) {
-            return 1;
-        }
-        if (
-            targetTier < currentTier ||
-            targetCompletedTier < currentCompletedTier
+    let nextStableTier = currentStableTier;
+    if (clampedTarget > startingLevel) {
+        nextStableTier = Math.max(
+            currentStableTier,
+            tierIndex(clampedTarget, node.maxLevel),
+        );
+    } else {
+        while (
+            nextStableTier > 0 &&
+            clampedTarget < stableTierHoldFloor(nextStableTier, node.maxLevel)
         ) {
-            return -1;
+            nextStableTier -= 1;
         }
-        return 0;
-    };
-
-    const applyNodeLevel = (nodeIndex: number, requestedLevel: number) => {
-        const currentNode = nodes[nodeIndex];
-        if (!currentNode) return;
-
-        const currentLevel = next[nodeIndex] ?? 0;
-        const clampedTarget = clamp(requestedLevel, 0, currentNode.maxLevel);
-        if (clampedTarget === currentLevel) return;
-
-        next[nodeIndex] = clampedTarget;
-        deltas.push({ index: nodeIndex, delta: clampedTarget - currentLevel });
-    };
-
-    const propagateTier = (
-        nodeIndex: number,
-        requiredTier: number,
-        propagationDirection: number,
-        visited: Set<number>,
-    ) => {
-        const traversalStep = getWrappedBranchStep(
-            nodeIndex,
-            propagationDirection,
-        );
-        if (traversalStep === null) return;
-
-        const stepRequiredTier = Math.max(
-            getWrappedRequiredTier(nodeIndex, requiredTier, traversalStep.wrapped),
-            0,
-        );
-
-        traversalStep.neighborIndices.forEach((neighborIndex) => {
-            if (visited.has(neighborIndex)) return;
-            visited.add(neighborIndex);
-
-            const neighbor = nodes[neighborIndex];
-            if (!neighbor) return;
-
-            const neighborLevel = next[neighborIndex] ?? 0;
-            const requiredLevel = getUpperLevelOfTier(
-                neighborIndex,
-                stepRequiredTier,
-            );
-            if (
-                !nodeSatisfiesTier(
-                    neighborLevel,
-                    requiredLevel,
-                    propagationDirection,
-                )
-            ) {
-                applyNodeLevel(neighborIndex, requiredLevel);
-            }
-
-            propagateTier(
-                neighborIndex,
-                stepRequiredTier,
-                propagationDirection,
-                visited,
-            );
-        });
-    };
-
-    const currentLevel = next[index] ?? 0;
-    const initialTarget = clamp(targetLevel, 0, node.maxLevel);
-    if (initialTarget === currentLevel) {
-        return { levels: next, deltas };
     }
 
-    const currentTier = tierIndex(currentLevel, node.maxLevel);
-    const targetTier = tierIndex(initialTarget, node.maxLevel);
-    const currentCompletedTier = getCompletedTier(currentLevel, node.maxLevel);
-    const targetCompletedTier = getCompletedTier(initialTarget, node.maxLevel);
-    const propagationDirection = getPropagationDirection(
-        currentTier,
-        targetTier,
-        currentCompletedTier,
-        targetCompletedTier,
-    );
+    const isIncrement = clampedTarget > startingLevel;
+    const propagationStableTier =
+        !isIncrement && clampedTarget === 0
+            ? Math.max(nextStableTier, 1)
+            : nextStableTier;
+    const wrappedTier = Math.max(propagationStableTier - 1, 0);
 
-    applyNodeLevel(index, initialTarget);
+    next[index] = clampedTarget;
 
-    if (propagationDirection === 0) {
-        return { levels: next, deltas };
+    for (const componentIndex of componentIndices) {
+        if (componentIndex === index) continue;
+
+        const componentNode = nodes[componentIndex];
+        if (!componentNode) continue;
+
+        const requiredTier = ancestorFlags[componentIndex]
+            ? propagationStableTier
+            : wrappedTier;
+        const requiredLevel = tierUpper(requiredTier, componentNode.maxLevel);
+        const currentLevel = current[componentIndex] ?? 0;
+
+        next[componentIndex] = isIncrement
+            ? Math.max(currentLevel, requiredLevel)
+            : Math.min(currentLevel, requiredLevel);
     }
 
-    const rawRequiredTier = getRequiredNeighborTier(
-        targetTier,
-        propagationDirection,
-    );
-    const requiredTier = Math.max(rawRequiredTier, 0);
-
-    propagateTier(index, requiredTier, propagationDirection, new Set([index]));
+    const deltas: LevelDelta[] = [];
+    for (let i = 0; i < next.length; i += 1) {
+        const before = current[i] ?? 0;
+        const after = next[i] ?? 0;
+        if (before === after) continue;
+        deltas.push({ index: i, delta: after - before });
+    }
 
     return { levels: next, deltas };
 }

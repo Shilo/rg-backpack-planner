@@ -3,10 +3,10 @@
     import ConfirmModal from "./modals/ConfirmModal.svelte";
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
-    // @ts-ignore - Svelte component import
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
+    import { t } from "svelte-whisper";
 
     let lastActiveElement: HTMLElement | null = null;
     let isMouseDownOnBackdrop = false;
@@ -80,6 +80,7 @@
 
         if (event.key === "Escape") {
             event.preventDefault();
+            event.stopImmediatePropagation();
             if (!triggerModalAction("[data-modal-cancel]")) {
                 handleCancel();
             }
@@ -103,7 +104,7 @@
         class="modal-backdrop"
         role="button"
         tabindex="0"
-        aria-label="Close modal"
+        aria-label={$t("modal.closeAria")}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
@@ -121,8 +122,9 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    confirmLabel={$modalStore.confirmLabel ?? "Confirm"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ??
+                        $t("modal.confirmLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     confirmNegative={$modalStore.confirmNegative ?? false}
                     confirmPositive={$modalStore.confirmPositive ?? false}
                     onConfirm={handleConfirm}
@@ -135,12 +137,12 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    label={$modalStore.input?.label ?? "Value"}
+                    label={$modalStore.input?.label ?? $t("modal.valueLabel")}
                     value={$modalStore.input?.value ?? 0}
                     min={$modalStore.input?.min ?? 0}
                     step={$modalStore.input?.step ?? 1}
-                    confirmLabel={$modalStore.confirmLabel ?? "Save"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ?? $t("modal.saveLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -151,12 +153,12 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    label={$modalStore.textInput?.label ?? "Value"}
+                    label={$modalStore.textInput?.label ?? $t("modal.valueLabel")}
                     value={$modalStore.textInput?.value ?? ""}
                     maxLength={$modalStore.textInput?.maxLength ?? 25}
                     placeholder={$modalStore.textInput?.placeholder ?? ""}
-                    confirmLabel={$modalStore.confirmLabel ?? "Save"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ?? $t("modal.saveLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -167,8 +169,9 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    confirmLabel={$modalStore.confirmLabel ?? "Preview build"}
-                    cancelLabel={$modalStore.cancelLabel ?? "Cancel"}
+                    confirmLabel={$modalStore.confirmLabel ??
+                        $t("modal.previewBuildLabel")}
+                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
                 />
@@ -180,23 +183,43 @@
 <style>
     .modal-backdrop {
         position: fixed;
-        inset: 0;
+        left: 0;
+        top: var(--vv-offset-top, 0px);
+        width: 100%;
+        height: var(--vv-height, 100vh);
         background: var(--bg-panel);
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: var(--spacing-lg);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding:
+            calc(var(--spacing-lg) + var(--safe-top, 0px))
+            calc(var(--spacing-lg) + var(--safe-right, 0px))
+            calc(var(--spacing-lg) + var(--safe-bottom, 0px))
+            calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
     }
 
     .modal-shell {
+        margin-top: auto;
+        margin-bottom: auto;
+        flex-shrink: 0;
         width: min(92vw, 380px);
+        max-height: 100%;
         border-radius: var(--radius);
         background: var(--bg-panel);
-        border: var(--border-width) solid color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 50%, transparent);
+        border: var(--border-width) solid
+            color-mix(
+                in srgb,
+                color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
+                transparent
+            );
         box-shadow: var(--shadow);
         padding: 0;
         overflow: hidden;
+        overflow-y: auto;
         display: grid;
         gap: var(--spacing-lg);
     }

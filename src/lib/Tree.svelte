@@ -27,14 +27,12 @@
     import { singleLevelUp } from "./singleLevelUpStore";
     import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
+    import { t } from "svelte-whisper";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
     export let gesturesDisabled = false;
     export let initialViewState: TreeViewState | null = null;
-    export let onNodeLevelChange:
-        | ((delta: number, nodeIndex?: NodeIndex) => void)
-        | null = null;
     export let levelsById: LevelsByIndex | null = null;
     export let onLevelsChange: ((levels: LevelsByIndex) => void) | null = null;
     export let onViewStateChange: ((view: TreeViewState) => void) | null = null;
@@ -160,28 +158,43 @@
         return Array.isArray(p) ? p : [p];
     }
 
-    /** Links: parent→child. Parentless nodes link to (0,0); from omitted. */
-    const links = (): Link[] => {
-        const out: Link[] = [];
-        nodes.forEach((node, i) => {
-            const parents = parentIndices(node);
-            const to = i;
-            if (parents.length === 0) {
-                out.push({ to });
-            } else {
-                parents.forEach((pi) => out.push({ from: pi, to }));
-            }
-        });
-        return out;
-    };
+    let parentIndicesByNode: number[][] = [];
+    let linkList: Link[] = [];
+    let hasChildByIndex: boolean[] = [];
 
-    function hasChildren(index: NodeIndex): boolean {
-        return nodes.some((node) => parentIndices(node).includes(index));
+    function parentsFor(index: NodeIndex): number[] {
+        return parentIndicesByNode[index] ?? [];
     }
 
-    function isLeafNode(node: NodeType, index: number): boolean {
-        const parents = parentIndices(node);
-        return parents.length > 0 && !hasChildren(index);
+    $: {
+        parentIndicesByNode = nodes.map((node) => parentIndices(node));
+        const nextLinks: Link[] = [];
+        const nextHasChildByIndex = nodes.map(() => false);
+
+        parentIndicesByNode.forEach((parents, to) => {
+            if (parents.length === 0) {
+                nextLinks.push({ to });
+                return;
+            }
+
+            parents.forEach((parentIndex) => {
+                nextLinks.push({ from: parentIndex, to });
+                if (
+                    parentIndex >= 0 &&
+                    parentIndex < nextHasChildByIndex.length
+                ) {
+                    nextHasChildByIndex[parentIndex] = true;
+                }
+            });
+        });
+
+        linkList = nextLinks;
+        hasChildByIndex = nextHasChildByIndex;
+    }
+
+    function isLeafNode(index: number): boolean {
+        const parents = parentsFor(index);
+        return parents.length > 0 && !hasChildByIndex[index];
     }
 
     function getLevelFrom(levelsSnapshot: LevelsByIndex, index: NodeIndex) {
@@ -192,12 +205,8 @@
         return getLevelFrom(levels, index);
     }
 
-    function isAvailable(
-        node: NodeType,
-        index: number,
-        levelsSnapshot: LevelsByIndex,
-    ): boolean {
-        const parents = parentIndices(node);
+    function isAvailable(index: number, levelsSnapshot: LevelsByIndex): boolean {
+        const parents = parentsFor(index);
         if (parents.length === 0) return true;
         return parents.every((pi) => {
             const parent = getNodeAt(pi);
@@ -216,7 +225,7 @@
         const level = getLevelFrom(levelsSnapshot, index);
         if (level >= node.maxLevel) return "maxed";
         if (level > 0) return "active";
-        if (isAvailable(node, index, levelsSnapshot)) return "available";
+        if (isAvailable(index, levelsSnapshot)) return "available";
         return "locked";
     }
 
@@ -235,7 +244,7 @@
             return regionCache.get(index)!;
         }
 
-        const parents = parentIndices(node);
+        const parents = parentsFor(index);
         if (parents.length === 0) {
             const region = getBaseRegionFromPosition(node);
             regionCache.set(index, region);
@@ -260,6 +269,87 @@
         nodes.forEach((node, i) => getNodeRegion(node, i));
     }
 
+    type RenderNode = {
+        node: NodeType;
+        index: NodeIndex;
+        level: number;
+        state: NodeState;
+        tier: number;
+        region: NodeRegion;
+        isLeaf: boolean;
+    };
+
+    type RenderLink = {
+        fromNode: NodeType | null;
+        toNode: NodeType;
+        state: NodeState;
+        region: NodeRegion;
+    };
+
+    let renderNodes: RenderNode[] = [];
+    let renderLinks: RenderLink[] = [];
+    let contextMenuNode: NodeType | null = null;
+    let contextMenuLevel = 0;
+    let contextMenuMaxLevel = 0;
+    let contextMenuState: NodeState = "locked";
+
+    $: {
+        renderNodes = nodes.map((node, index) => {
+            const level = getLevelFrom(levels, index);
+            const state = getState(node, index, levels);
+            return {
+                node,
+                index,
+                level,
+                state,
+                tier: tierIndex(level, node.maxLevel),
+                region: getNodeRegion(node, index),
+                isLeaf: isLeafNode(index),
+            };
+        });
+    }
+
+    $: {
+        renderLinks = linkList
+            .map((link) => {
+                const to = renderNodes[link.to];
+                if (!to) return null;
+                return {
+                    fromNode:
+                        link.from === undefined
+                            ? null
+                            : (getNodeAt(link.from) ?? null),
+                    toNode: to.node,
+                    state: to.state,
+                    region: to.region,
+                };
+            })
+            .filter((link): link is RenderLink => link !== null);
+    }
+
+    $: {
+        const contextIndex = contextMenu?.index;
+        if (contextIndex === null || contextIndex === undefined) {
+            contextMenuNode = null;
+            contextMenuLevel = 0;
+            contextMenuMaxLevel = 0;
+            contextMenuState = "locked";
+        } else {
+            const node = getNodeAt(contextIndex);
+            if (!node) {
+                contextMenuNode = null;
+                contextMenuLevel = 0;
+                contextMenuMaxLevel = 0;
+                contextMenuState = "locked";
+            } else {
+                contextMenuNode = node;
+                contextMenuLevel = getLevelFrom(levels, contextIndex);
+                contextMenuMaxLevel = node.maxLevel;
+                contextMenuState = getState(node, contextIndex, levels);
+            }
+        }
+    }
+
     function applyChange(index: NodeIndex, targetLevel: number) {
         const { levels: nextLevels, deltas } = applyLevelChange({
             nodes,
@@ -269,9 +359,6 @@
         });
         if (deltas.length === 0) return false;
         updateLevels(nextLevels);
-        deltas.forEach(({ index: idx, delta }) =>
-            onNodeLevelChange?.(delta, idx),
-        );
         return true;
     }
 
@@ -287,6 +374,13 @@
         const level = getLevel(index);
         if (level === 0) return;
         applyChange(index, level - 1);
+    }
+
+    function levelDownBy10(index: NodeIndex) {
+        const level = getLevel(index);
+        if (level === 0) return;
+        const nextLevel = Math.max(level - 10, 0);
+        applyChange(index, nextLevel);
     }
 
     function resetNode(index: NodeIndex) {
@@ -312,11 +406,7 @@
     }
 
     export function resetAllNodes() {
-        const totalSpent = levels.reduce((sum, value) => sum + value, 0);
         updateLevels(nodes.map(() => 0));
-        if (totalSpent > 0) {
-            onNodeLevelChange?.(-totalSpent);
-        }
     }
 
     export function getViewState() {
@@ -677,18 +767,41 @@
         if (!viewportEl) return { x: nextOffsetX, y: nextOffsetY };
 
         const rect = viewportEl.getBoundingClientRect();
-        const usableHeight = Math.max(rect.height - bottomInset, 1);
+        const bounds = getWorldBounds();
 
-        // Scale bounds with zoom level - only expand when zoomed in (scale >= 1)
-        const effectiveScale = Math.max(nextScale, 1);
-        const minOffsetX = -rect.width * (effectiveScale - 1);
-        const maxOffsetX = rect.width * effectiveScale;
-        const minOffsetY = -usableHeight * (effectiveScale - 1);
-        const maxOffsetY = usableHeight * effectiveScale;
+        // Without content bounds fall back to a simple viewport-based clamp
+        if (!bounds) {
+            const effectiveScale = Math.max(nextScale, 1);
+            return {
+                x: clamp(
+                    nextOffsetX,
+                    -rect.width * (effectiveScale - 1),
+                    rect.width * effectiveScale,
+                ),
+                y: clamp(
+                    nextOffsetY,
+                    -rect.height * (effectiveScale - 1),
+                    rect.height * effectiveScale,
+                ),
+            };
+        }
 
+        // Content-aware clamp: keep at least `margin` px of the content
+        // bounding box visible. Nodes can freely scroll behind safe areas
+        // (status bar, nav bar) — initial positioning still respects them via
+        // computeFocusViewState which uses bottomInset.
+        const margin = 48;
         return {
-            x: clamp(nextOffsetX, minOffsetX, maxOffsetX),
-            y: clamp(nextOffsetY, minOffsetY, maxOffsetY),
+            x: clamp(
+                nextOffsetX,
+                margin - bounds.maxX * nextScale,
+                rect.width - margin - bounds.minX * nextScale,
+            ),
+            y: clamp(
+                nextOffsetY,
+                margin - bounds.maxY * nextScale,
+                rect.height - margin - bounds.minY * nextScale,
+            ),
         };
     }
 
@@ -717,7 +830,7 @@
         offsetY = next.offsetY;
         scale = next.scale;
         if (announce) {
-            showToast("Focused tree in view");
+            showToast($t("tree.focusedInViewToast"));
         }
         return true;
     }
@@ -816,24 +929,14 @@
                 style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
             >
                 <svg class="tree-links" overflow="visible">
-                    {#each links() as link}
-                        {@const fromNode =
-                            link.from === undefined
-                                ? null
-                                : getNodeAt(link.from)}
-                        {@const toNode = getNodeAt(link.to)}
-                        {#if toNode}
-                            {@const toIndex = link.to}
-                            {@const toState = getState(toNode, toIndex, levels)}
-                            {@const toRegion = getNodeRegion(toNode, toIndex)}
-                            <line
-                                class={`tree-link ${toState} region-${toRegion}`}
-                                x1={fromNode ? fromNode.x : 0}
-                                y1={fromNode ? fromNode.y : 0}
-                                x2={toNode.x}
-                                y2={toNode.y}
-                            />
-                        {/if}
+                    {#each renderLinks as link}
+                        <line
+                            class={`tree-link ${link.state} region-${link.region}`}
+                            x1={link.fromNode ? link.fromNode.x : 0}
+                            y1={link.fromNode ? link.fromNode.y : 0}
+                            x2={link.toNode.x}
+                            y2={link.toNode.y}
+                        />
                     {/each}
                 </svg>
 
@@ -842,24 +945,19 @@
                     onFocusView={() => focusTreeInView(true)}
                 />
 
-                {#each nodes as node, i}
-                    {@const level = getLevelFrom(levels, i)}
-                    {@const state = getState(node, i, levels)}
-                    {@const tier = tierIndex(level, node.maxLevel)}
-                    {@const region = getNodeRegion(node, i)}
-                    {@const isLeaf = isLeafNode(node, i)}
+                {#each renderNodes as nodeView (nodeView.index)}
                     <Node
-                        id={i}
-                        x={node.x}
-                        y={node.y}
-                        label={node.skillId}
-                        {level}
-                        {state}
-                        tier={tier}
-                        radius={node.radius ?? 1}
+                        id={nodeView.index}
+                        x={nodeView.node.x}
+                        y={nodeView.node.y}
+                        label={$t(`skills.${nodeView.node.skillId}`)}
+                        level={nodeView.level}
+                        state={nodeView.state}
+                        tier={nodeView.tier}
+                        radius={nodeView.node.radius ?? 1}
                         {scale}
-                        {region}
-                        {isLeaf}
+                        region={nodeView.region}
+                        isLeaf={nodeView.isLeaf}
                     />
                 {/each}
             </div>
@@ -869,34 +967,17 @@
                 x={contextMenu?.x ?? 0}
                 y={contextMenu?.y ?? 0}
                 isOpen={!!contextMenu}
-                skillId={contextMenu &&
-                contextMenu.index !== null &&
-                getNodeAt(contextMenu.index)
-                    ? getNodeAt(contextMenu.index)!.skillId
-                    : null}
+                skillId={contextMenuNode?.skillId ?? null}
                 onClose={closeContextMenu}
                 onMax={maxNode}
                 onReset={resetNode}
                 onDecrement={levelDown}
+                onDecrementBy10={levelDownBy10}
                 onIncrement={levelUp}
                 onIncrementBy10={levelUpBy10}
-                level={contextMenu && contextMenu.index !== null
-                    ? getLevelFrom(levels, contextMenu.index)
-                    : 0}
-                maxLevel={contextMenu &&
-                contextMenu.index !== null &&
-                getNodeAt(contextMenu.index)
-                    ? getNodeAt(contextMenu.index)!.maxLevel
-                    : 0}
-                state={contextMenu &&
-                contextMenu.index !== null &&
-                getNodeAt(contextMenu.index)
-                    ? getState(
-                          getNodeAt(contextMenu.index)!,
-                          contextMenu.index,
-                          levels,
-                      )
-                    : "locked"}
+                level={contextMenuLevel}
+                maxLevel={contextMenuMaxLevel}
+                state={contextMenuState}
             />
         </div>
     </div>
