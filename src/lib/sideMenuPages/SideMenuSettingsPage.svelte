@@ -311,6 +311,14 @@
         flex: 1 1 auto;
     }
 
+    .build-share-row > :global(:first-child) {
+        border-right: none;
+    }
+
+    .build-share-row > :global(.dropdown-button) {
+        border-left: var(--border-width) solid var(--border);
+    }
+
     .theme-row > :global(:first-child) {
         flex: 1;
         min-width: 0;
