@@ -38,9 +38,13 @@
             }
         }
 
+        const bonusDisplay: Array<[string, string]> = bonusRows.length > 0
+            ? bonusRows
+            : [[$t("common.none"), "0"]];
+
         statsRows = [
             [$t("statistics.backpackBonus"), ""],
-            ...bonusRows,
+            ...bonusDisplay,
             [$t("statistics.backpackNodeLevels"), ""],
             [$t("statistics.total"), formatNumber($treeLevelsTotal)],
             [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],

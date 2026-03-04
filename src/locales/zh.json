@@ -19,7 +19,8 @@
         "save": "保存",
         "paste": "粘贴",
         "share": "分享",
-        "close": "关闭"
+        "close": "关闭",
+        "none": "无"
     },
     "sideMenu": {
         "tabs": {

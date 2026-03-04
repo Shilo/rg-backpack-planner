@@ -19,7 +19,8 @@
         "save": "Save",
         "paste": "Paste",
         "share": "Share",
-        "close": "Close"
+        "close": "Close",
+        "none": "None"
     },
     "sideMenu": {
         "tabs": {
