@@ -76,10 +76,11 @@ export function initThemeReactivity(): () => void {
         const neutralC = color.c * (isDark ? 0.14 : 0.12);
         const bgL = isDark ? BG_L.dark : BG_L.light;
         const surfaceL = isDark ? SURFACE_L.dark : SURFACE_L.light;
-        // Approximate the radial gradient color near the status bar.
-        // The gradient center (~50% viewport height) blends --surface into
-        // --bg; at the top edge the color is roughly 85% --bg / 15% --surface.
-        const themeL = bgL * 0.85 + surfaceL * 0.15;
+        // Match the perceived tint of the radial gradient background.
+        // The gradient blends --surface into --bg; mathematically the top
+        // edge is ~90% --bg, but the eye averages a larger area so the
+        // status bar needs a stronger tint to look seamless.
+        const themeL = bgL * 0.5 + surfaceL * 0.5;
 
         const doApply = () => {
             applyTheme(color, isDark ? "dark" : "light");
