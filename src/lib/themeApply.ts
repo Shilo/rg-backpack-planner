@@ -4,9 +4,31 @@ import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
 import { applyTheme, oklchToHex } from "./themeEngine";
 
+/**
+ * Update the browser theme-color meta tag.
+ *
+ * Uses remove-then-create instead of setAttribute because Chrome Android's
+ * standalone PWA mode does not reliably repaint the status bar when only the
+ * content attribute is mutated on an existing element.
+ *
+ * Platform caveats:
+ * - Android Chrome (dark mode): forces black status bar regardless of
+ *   theme-color. Chromium bug https://issues.chromium.org/issues/40634649
+ *   (filed 2019, still open). No web-platform workaround exists.
+ * - iOS Safari 26+: ignores theme-color meta; derives bar color from the
+ *   page's background-color. With black-translucent this is a non-issue
+ *   since the bar is transparent and the body bg shows through.
+ * - Samsung Internet: fully supports dynamic theme-color updates with no
+ *   known dark-mode override.
+ */
 function syncThemeColorMeta(bgHex: string): void {
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", bgHex);
+    const existing = document.querySelector('meta[name="theme-color"]');
+    if (existing) existing.remove();
+
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.content = bgHex;
+    document.head.appendChild(meta);
 }
 
 const TRANSITION_CLASS = "theme-transitioning";

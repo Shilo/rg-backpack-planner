@@ -55,7 +55,7 @@ body {
         system-ui,
         -apple-system,
         sans-serif;
-    background: var(--bg);
+    background-color: var(--bg);
     color: var(--text);
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
