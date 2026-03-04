@@ -43,7 +43,7 @@
             "view": "View",
             "tree": "Tree",
             "application": "Application",
-            "statistics": "STATISTICS",
+            "statistics": "Statistics",
             "touch": "Touch",
             "mouse": "Mouse",
             "keyboard": "Keyboard",
@@ -318,9 +318,9 @@
     },
     "statistics": {
         "noData": "No data",
-        "header": "Statistics",
-        "backpackBonus": "Backpack Bonus",
-        "backpackNodeLevels": "Backpack Node Levels",
+        "header": "Backpack Statistics",
+        "backpackBonus": "Skill Bonus",
+        "backpackNodeLevels": "Node Levels",
         "techCrystalsSpent": "Tech Crystals Spent",
         "total": "Total",
         "copyStatistics": "Copy Statistics"

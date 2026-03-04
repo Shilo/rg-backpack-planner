@@ -3,7 +3,13 @@
     import SideMenuSection from "../SideMenuSection.svelte";
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
-    import { ShareIcon, CopySimpleIcon } from "phosphor-svelte";
+    import {
+        ShareIcon,
+        CopySimpleIcon,
+        TrendUpIcon,
+        ArrowFatUpIcon,
+        HexagonIcon,
+    } from "phosphor-svelte";
     import { formatNumber, formatPercent } from "../mathUtil";
     import {
         treeLevelsTotal,
@@ -22,7 +28,9 @@
     import { t } from "svelte-whisper";
 
     let statsTable: CodeBlockTable | null = null;
-    let statsRows: Array<[string, string]> = [];
+    let statsRows: Array<
+        [string | { text: string; icon?: any; iconWeight?: string }, string]
+    > = [];
 
     let shareMenuOpen = false;
     let shareMenuX = 0;
@@ -38,19 +46,32 @@
             }
         }
 
-        const bonusDisplay: Array<[string, string]> = bonusRows.length > 0
-            ? bonusRows
-            : [[$t("common.none"), "0"]];
+        const bonusDisplay: Array<
+            [string | { text: string; icon?: any; iconWeight?: string }, string]
+        > = bonusRows.length > 0 ? bonusRows : [[$t("common.none"), "0"]];
 
         statsRows = [
-            [$t("statistics.backpackBonus"), ""],
+            [{ text: $t("statistics.backpackBonus"), icon: TrendUpIcon }, ""],
             ...bonusDisplay,
-            [$t("statistics.backpackNodeLevels"), ""],
+            [
+                {
+                    text: $t("statistics.backpackNodeLevels"),
+                    icon: ArrowFatUpIcon,
+                },
+                "",
+            ],
             [$t("statistics.total"), formatNumber($treeLevelsTotal)],
             [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],
             [$t("trees.vanguard"), formatNumber($treeLevelsVanguard)],
             [$t("trees.cannon"), formatNumber($treeLevelsCannon)],
-            [$t("statistics.techCrystalsSpent"), ""],
+            [
+                {
+                    text: $t("statistics.techCrystalsSpent"),
+                    icon: HexagonIcon,
+                    iconWeight: "fill",
+                },
+                "",
+            ],
             [$t("statistics.total"), formatNumber($techCrystalsSpent)],
             [$t("trees.guardian"), formatNumber($techCrystalsSpentGuardian)],
             [$t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard)],
@@ -105,17 +126,10 @@
         title={$t("common.share")}
         onClose={closeShareMenu}
     >
-        <Button
-            on:click={handleShareToApp}
-            icon={ShareIcon}
-            arrow="right"
-        >
+        <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
             {$t("share.shareTo")}
         </Button>
-        <Button
-            on:click={handleCopyStatistics}
-            icon={CopySimpleIcon}
-        >
+        <Button on:click={handleCopyStatistics} icon={CopySimpleIcon}>
             {$t("statistics.copyStatistics")}
         </Button>
     </ContextMenu>

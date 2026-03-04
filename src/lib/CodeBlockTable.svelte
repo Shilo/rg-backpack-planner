@@ -3,7 +3,9 @@
     import appPackage from "../../package.json";
     import { t } from "svelte-whisper";
 
-    export let rows: Array<[string, string]> = [];
+    export let rows: Array<
+        [string | { text: string; icon?: any; iconWeight?: string }, string]
+    > = [];
     export let emptyMessage = "";
 
     const appProductionUrl = (appPackage?.app?.productionUrl ?? undefined) as
@@ -31,7 +33,7 @@
     $: resolvedEmptyMessage = emptyMessage || $t("statistics.noData");
     $: displayRows = rows.length > 0 ? rows : [[resolvedEmptyMessage, ""]];
     $: normalizedRows = displayRows.map(([first, second]) => [
-        normalizeCell(first),
+        normalizeCell(typeof first === "string" ? first : first.text),
         normalizeCell(second),
     ]) as Array<[string, string]>;
     $: dataRows = normalizedRows.filter(([, second]) => second !== "");
@@ -98,7 +100,10 @@
     }
 
     export async function share() {
-        if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        if (
+            typeof navigator !== "undefined" &&
+            typeof navigator.share === "function"
+        ) {
             try {
                 await navigator.share({ text: codeblockText });
                 return;
@@ -117,11 +122,28 @@
             {#each displayRows as row}
                 <tr>
                     {#if row[1] === ""}
-                        <td class="codeblock-table__section" colspan="2"
-                            >{row[0]}</td
-                        >
+                        <td class="codeblock-table__section" colspan="2">
+                            {#if typeof row[0] === "object" && row[0].icon}
+                                <div class="codeblock-table__section-inner">
+                                    <svelte:component
+                                        this={row[0].icon}
+                                        weight={row[0].iconWeight || "regular"}
+                                        size="1.2em"
+                                    />
+                                    <span>{row[0].text}</span>
+                                </div>
+                            {:else}
+                                {typeof row[0] === "string"
+                                    ? row[0]
+                                    : row[0].text}
+                            {/if}
+                        </td>
                     {:else}
-                        <td>{row[0]}</td>
+                        <td
+                            >{typeof row[0] === "string"
+                                ? row[0]
+                                : row[0].text}</td
+                        >
                         <td>{row[1]}</td>
                     {/if}
                 </tr>
@@ -167,5 +189,11 @@
         color: var(--text-muted);
         font-weight: var(--weight-bold);
         letter-spacing: var(--tracking);
+    }
+
+    .codeblock-table__section-inner {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
     }
 </style>
