@@ -177,7 +177,6 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
-        flex: 1;
         min-width: 0;
         color: var(--text);
     }
