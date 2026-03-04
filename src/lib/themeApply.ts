@@ -28,8 +28,6 @@ function syncThemeColorMeta(bgHex: string): void {
     meta.name = "theme-color";
     meta.content = bgHex;
     document.head.appendChild(meta);
-
-    console.log(document.querySelector('meta[name="theme-color"]')?.getAttribute("content"));
 }
 
 const TRANSITION_CLASS = "theme-transitioning";
@@ -71,9 +69,7 @@ export function initThemeReactivity(): () => void {
 
         const doApply = () => {
             applyTheme(color, isDark ? "dark" : "light");
-            // syncThemeColorMeta(oklchToHex(themeL, neutralC, color.h));
-
-            syncThemeColorMeta(isDark ? "#ff00000" : "#0000ff")
+            syncThemeColorMeta(oklchToHex(themeL, neutralC, color.h));
         };
 
         if (ready) {
