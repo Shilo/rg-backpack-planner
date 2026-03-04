@@ -348,12 +348,7 @@
     "statistics": {
         "noData": "データなし",
         "header": "統計",
-        "backpackSkillBoosts": "バックパックスキルブースト",
-        "attackBoost": "攻撃力アップ",
-        "defenseBoost": "防御力アップ",
-        "criticalHit": "クリティカル",
-        "globalAtk": "グローバル攻撃力",
-        "finalDamageBoost": "最終ダメージアップ",
+        "backpackBonus": "バックパックボーナス",
         "backpackNodeLevels": "バックパックノードレベル",
         "techCrystalsSpent": "消費したテッククリスタル",
         "total": "合計"

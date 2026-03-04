@@ -348,12 +348,7 @@
     "statistics": {
         "noData": "No data",
         "header": "Statistics",
-        "backpackSkillBoosts": "Backpack Skill Boosts",
-        "attackBoost": "Attack Boost",
-        "defenseBoost": "Defense Boost",
-        "criticalHit": "Critical Hit",
-        "globalAtk": "Global ATK",
-        "finalDamageBoost": "Final Damage Boost",
+        "backpackBonus": "Backpack Bonus",
         "backpackNodeLevels": "Backpack Node Levels",
         "techCrystalsSpent": "Tech Crystals Spent",
         "total": "Total"

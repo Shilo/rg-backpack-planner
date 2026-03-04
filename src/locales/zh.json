@@ -348,12 +348,7 @@
     "statistics": {
         "noData": "暂无数据",
         "header": "统计",
-        "backpackSkillBoosts": "背包技能提升",
-        "attackBoost": "攻击提升",
-        "defenseBoost": "防御提升",
-        "criticalHit": "暴击",
-        "globalAtk": "全局攻击",
-        "finalDamageBoost": "最终伤害提升",
+        "backpackBonus": "背包加成",
         "backpackNodeLevels": "背包节点等级",
         "techCrystalsSpent": "已消耗科技水晶",
         "total": "总计"
