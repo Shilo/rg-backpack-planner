@@ -22,6 +22,7 @@
     export let small = false;
     export let negative = false;
     export let positive = false;
+    export let accent = false;
     export let disabled: boolean | undefined = undefined;
     export let tooltipText: string | undefined = undefined;
     export let element: HTMLButtonElement | null = null;
@@ -37,7 +38,7 @@
     $: computedClass = [
         "button",
         small ? "button-sm" : "button-md",
-        negative ? "button-negative" : positive ? "button-positive" : "",
+        negative ? "button-negative" : positive ? "button-positive" : accent ? "button-accent" : "",
         restClass,
         icon || arrow ? "with-icon" : "",
         arrow ? "with-arrow" : "",
@@ -231,6 +232,12 @@
         border-color: var(--success-border);
         background: var(--success-bg);
         color: var(--success-text);
+    }
+
+    .button-accent {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: var(--bg);
     }
 
     :global(.button-group) {

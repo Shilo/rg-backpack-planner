@@ -69,7 +69,10 @@
 
     function getColorName(
         hue: number,
-        translate: (key: string, vars?: Record<string, unknown> | unknown[]) => string,
+        translate: (
+            key: string,
+            vars?: Record<string, unknown> | unknown[],
+        ) => string,
     ): string {
         for (const entry of HUE_NAMES) {
             if (hue <= entry.max) return translate(entry.key);
@@ -463,7 +466,9 @@
                             <button
                                 class="icon-button"
                                 type="button"
-                                aria-label={$t("theme.colorPicker.randomColorAria")}
+                                aria-label={$t(
+                                    "theme.colorPicker.randomColorAria",
+                                )}
                                 on:click={handleRandom}
                             >
                                 <ShuffleIcon size={18} />
@@ -471,11 +476,14 @@
                             <button
                                 class="icon-button"
                                 type="button"
-                                aria-label={$t("theme.colorPicker.toggleModeAria", {
-                                    mode: previewDark
-                                        ? $t("theme.colorPicker.modeLight")
-                                        : $t("theme.colorPicker.modeDark"),
-                                })}
+                                aria-label={$t(
+                                    "theme.colorPicker.toggleModeAria",
+                                    {
+                                        mode: previewDark
+                                            ? $t("theme.colorPicker.modeLight")
+                                            : $t("theme.colorPicker.modeDark"),
+                                    },
+                                )}
                                 on:click={handleModeToggle}
                             >
                                 {#if previewDark}
@@ -511,15 +519,14 @@
         top: var(--vv-offset-top, 0px);
         width: 100%;
         height: var(--vv-height, 100vh);
-        background: var(--backdrop-overlay, rgba(0, 0, 0, 0.5));
+        background: transparent;
         display: flex;
         flex-direction: column;
         align-items: center;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
-        padding:
-            calc(var(--spacing-lg) + var(--safe-top, 0px))
+        padding: calc(var(--spacing-lg) + var(--safe-top, 0px))
             calc(var(--spacing-lg) + var(--safe-right, 0px))
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));

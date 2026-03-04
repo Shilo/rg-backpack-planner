@@ -8,7 +8,7 @@ export interface ThemeColor {
 }
 
 /** Default source color: vibrant blue */
-const DEFAULT_THEME_COLOR: ThemeColor = { h: 264, c: 0.19 };
+const DEFAULT_THEME_COLOR: ThemeColor = { h: 264, c: 0.24 };
 
 function getThemeColor(): ThemeColor {
     const stored = getItem("theme-color");

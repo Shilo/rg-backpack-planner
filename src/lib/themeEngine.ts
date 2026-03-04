@@ -109,36 +109,36 @@ export const SURFACE_L = { dark: 0.24, light: 0.9 } as const;
 // ── Theme Application ───────────────────────────────────────
 
 export function applyTheme(
-    source: ThemeSource = { h: 264, c: 0.19 },
+    source: ThemeSource = { h: 264, c: 0.24 },
     mode: "dark" | "light" = "dark",
 ): void {
     const isDark = mode === "dark";
     const vars: Record<string, string> = {};
 
     // ── Mode-dependent parameters ──
-    const neutralChroma = source.c * (isDark ? 0.14 : 0.12);
-    const textChroma = source.c * (isDark ? 0.1 : 0.08);
+    const neutralChroma = Math.max(source.c * (isDark ? 0.22 : 0.18), 0.03);
+    const textChroma = source.c * (isDark ? 0.15 : 0.12);
     const harmonizeAmount = 0.25;
 
     // ── Neutral surfaces ──
     const bgL = isDark ? BG_L.dark : BG_L.light;
     const surfL = isDark ? SURFACE_L.dark : SURFACE_L.light;
     if (isDark) {
-        vars["--bg"] = oklchToHex(bgL, neutralChroma, source.h);
-        vars["--bg-panel"] = oklchToHex(0.18, neutralChroma, source.h);
-        vars["--bg-input"] = oklchToHex(0.21, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(surfL, neutralChroma, source.h);
-        vars["--bg-raised"] = oklchToHex(0.27, neutralChroma, source.h);
-        vars["--border"] = oklchToHex(0.35, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.3, neutralChroma, source.h);
+        vars["--bg"] = oklchToHex(0.10, neutralChroma, source.h);
+        vars["--bg-panel"] = oklchToHex(0.14, neutralChroma, source.h);
+        vars["--bg-input"] = oklchToHex(0.18, neutralChroma, source.h);
+        vars["--surface"] = oklchToHex(0.22, neutralChroma, source.h);
+        vars["--bg-raised"] = oklchToHex(0.28, neutralChroma, source.h);
+        vars["--border"] = oklchToHex(0.42, neutralChroma, source.h);
+        vars["--border-subtle"] = oklchToHex(0.34, neutralChroma, source.h);
     } else {
-        vars["--bg"] = oklchToHex(bgL, neutralChroma, source.h);
+        vars["--bg"] = oklchToHex(0.97, neutralChroma, source.h);
         vars["--bg-panel"] = oklchToHex(0.94, neutralChroma, source.h);
-        vars["--bg-input"] = oklchToHex(0.92, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(surfL, neutralChroma, source.h);
-        vars["--bg-raised"] = oklchToHex(0.95, neutralChroma, source.h);
-        vars["--border"] = oklchToHex(0.72, neutralChroma, source.h);
-        vars["--border-subtle"] = oklchToHex(0.8, neutralChroma, source.h);
+        vars["--bg-input"] = oklchToHex(0.91, neutralChroma, source.h);
+        vars["--surface"] = oklchToHex(0.88, neutralChroma, source.h);
+        vars["--bg-raised"] = oklchToHex(0.84, neutralChroma, source.h);
+        vars["--border"] = oklchToHex(0.68, neutralChroma, source.h);
+        vars["--border-subtle"] = oklchToHex(0.78, neutralChroma, source.h);
     }
 
     // ── Text ──
@@ -181,50 +181,47 @@ export function applyTheme(
         );
     }
 
-    // ── Error/Danger ──
-    const dangerHue = 29;
-    const dangerChroma = 0.16;
+    // ── Tinted accent container ──
     if (isDark) {
-        vars["--accent-danger"] = oklchToHex(0.7, dangerChroma, dangerHue);
-        vars["--danger-bg"] = oklchToHex(0.22, dangerChroma * 0.4, dangerHue);
-        vars["--danger-border"] = oklchToHex(0.45, dangerChroma, dangerHue);
-        vars["--danger-text"] = oklchToHex(0.85, dangerChroma * 0.6, dangerHue);
+        vars["--bg-tinted"] = oklchToHex(0.22, source.c * 0.35, source.h);
+        vars["--text-on-tinted"] = oklchToHex(0.88, source.c * 0.55, source.h);
     } else {
-        vars["--accent-danger"] = oklchToHex(0.5, dangerChroma, dangerHue);
-        vars["--danger-bg"] = oklchToHex(0.94, dangerChroma * 0.3, dangerHue);
-        vars["--danger-border"] = oklchToHex(0.65, dangerChroma, dangerHue);
-        vars["--danger-text"] = oklchToHex(0.35, dangerChroma * 0.6, dangerHue);
+        vars["--bg-tinted"] = oklchToHex(0.88, source.c * 0.25, source.h);
+        vars["--text-on-tinted"] = oklchToHex(0.25, source.c * 0.45, source.h);
     }
 
-    // ── Success ──
-    const successHue = 220;
-    const successChroma = 0.12;
+    // ── Error/Danger (Negative) — Warm red harmonized toward theme ──
+    const dangerBaseHue = 20; // Warm red/orange
+    const isNeutralTheme = source.c < 0.05;
+    const dangerHue = isNeutralTheme ? dangerBaseHue : harmonize(dangerBaseHue, source.h, 0.35);
+    const dangerChroma = isNeutralTheme ? 0.03 : Math.max(source.c * 0.9, 0.20);
+
     if (isDark) {
-        vars["--accent-success"] = oklchToHex(0.72, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(
-            0.22,
-            successChroma * 0.4,
-            successHue,
-        );
-        vars["--success-border"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(
-            0.85,
-            successChroma * 0.6,
-            successHue,
-        );
+        vars["--accent-danger"] = oklchToHex(0.62, dangerChroma, dangerHue);
+        vars["--danger-bg"] = oklchToHex(0.25, dangerChroma * 0.35, dangerHue);
+        vars["--danger-border"] = oklchToHex(0.42, dangerChroma * 0.8, dangerHue);
+        vars["--danger-text"] = oklchToHex(0.85, dangerChroma * 0.5, dangerHue);
     } else {
-        vars["--accent-success"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(
-            0.94,
-            successChroma * 0.3,
-            successHue,
-        );
-        vars["--success-border"] = oklchToHex(0.65, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(
-            0.35,
-            successChroma * 0.6,
-            successHue,
-        );
+        vars["--accent-danger"] = oklchToHex(0.38, dangerChroma, dangerHue);
+        vars["--danger-bg"] = oklchToHex(0.78, dangerChroma * 0.55, dangerHue);
+        vars["--danger-border"] = oklchToHex(0.45, dangerChroma * 0.9, dangerHue);
+        vars["--danger-text"] = oklchToHex(0.20, dangerChroma * 0.8, dangerHue);
+    }
+
+    // ── Success (Positive) — Theme hue, boosted ──
+    const successHue = isNeutralTheme ? 240 : source.h; // Neutral gets a clean blue
+    const successChroma = isNeutralTheme ? 0.30 : Math.max(source.c * 1.3, 0.26);
+
+    if (isDark) {
+        vars["--accent-success"] = oklchToHex(0.70, successChroma, successHue);
+        vars["--success-bg"] = oklchToHex(0.25, successChroma * 0.4, successHue);
+        vars["--success-border"] = oklchToHex(0.48, successChroma, successHue);
+        vars["--success-text"] = oklchToHex(0.88, successChroma * 0.6, successHue);
+    } else {
+        vars["--accent-success"] = oklchToHex(0.38, successChroma, successHue);
+        vars["--success-bg"] = oklchToHex(0.78, successChroma * 0.55, successHue);
+        vars["--success-border"] = oklchToHex(0.45, successChroma * 0.9, successHue);
+        vars["--success-text"] = oklchToHex(0.20, successChroma * 0.8, successHue);
     }
 
     // ── Node locked ──

@@ -21,13 +21,13 @@
             | "theme.preset.rose"
             | "theme.preset.amber"
             | "theme.preset.green"
-            | "theme.preset.violet";
+            | "theme.preset.neutral";
     }[] = [
-        { h: 264, c: 0.19, labelKey: "theme.preset.blue" },
-        { h: 0, c: 0.18, labelKey: "theme.preset.rose" },
-        { h: 70, c: 0.16, labelKey: "theme.preset.amber" },
-        { h: 155, c: 0.17, labelKey: "theme.preset.green" },
-        { h: 305, c: 0.17, labelKey: "theme.preset.violet" },
+        { h: 260, c: 0.26, labelKey: "theme.preset.blue" },
+        { h: 145, c: 0.25, labelKey: "theme.preset.green" },
+        { h: 350, c: 0.26, labelKey: "theme.preset.rose" },
+        { h: 55, c: 0.24, labelKey: "theme.preset.amber" },
+        { h: 260, c: 0.02, labelKey: "theme.preset.neutral" },
     ];
     $: presetOptions = PRESETS.map((preset) => ({
         ...preset,
@@ -40,7 +40,7 @@
     let dropdownX = 0;
     let dropdownY = 0;
     let pickerOpen = false;
-    let pickerInitialColor: ThemeColor = { h: 264, c: 0.19 };
+    let pickerInitialColor: ThemeColor = { h: 264, c: 0.24 };
 
     $: currentHex = oklchToHex(0.65, $themeColor.c, $themeColor.h);
 
