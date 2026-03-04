@@ -48,6 +48,6 @@
     },
     "dependencies": {
         "@zumer/snapdom": "^2.0.2",
-        "svelte-whisper": "file:../svelte-whisper"
+        "svelte-whisper": "github:Shilo/svelte-whisper"
     }
 }
