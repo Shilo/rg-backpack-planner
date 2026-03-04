@@ -9,6 +9,7 @@ const TEST_FILES = [
     "stringUtil.test.ts",
     "systemUtil.test.ts",
     "appInfo.test.ts",
+    "themeEngine.test.ts",
     "skillValueFns.test.ts",
 
     // 2. Core State & Logic

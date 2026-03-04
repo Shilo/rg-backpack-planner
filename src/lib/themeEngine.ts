@@ -73,11 +73,11 @@ export function oklchToHex(L: number, C: number, H: number): string {
     return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
-/** Convert hex to OKLCH {h, c} (convenience for color picker). */
-export function hexToOklch(hex: string): { h: number; c: number } {
+/** Convert hex to OKLCH {h, c, l} (convenience for color picker). */
+export function hexToOklch(hex: string): { h: number; c: number; l: number } {
     const [r, g, b] = hexToRgb(hex);
-    const { c, h } = rgbToOklch(r, g, b);
-    return { h, c };
+    const { c, h, l } = rgbToOklch(r, g, b);
+    return { h, c, l };
 }
 
 // ── Hue Harmonization ───────────────────────────────────────
