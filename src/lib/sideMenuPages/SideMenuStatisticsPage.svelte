@@ -2,7 +2,7 @@
     import CodeBlockTable from "../CodeBlockTable.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
     import CopyStatsButton from "../buttons/CopyStatsButton.svelte";
-    import { formatNumber } from "../mathUtil";
+    import { formatNumber, formatPercent } from "../mathUtil";
     import {
         treeLevelsTotal,
         treeLevelsGuardian,
@@ -15,18 +15,26 @@
         techCrystalsSpentVanguard,
         techCrystalsSpentCannon,
     } from "../techCrystalStore";
+    import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
     import { t } from "svelte-whisper";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<[string, string]> = [];
     $: {
+        const bonusRows: Array<[string, string]> = [];
+        for (const skillId of SKILL_DISPLAY_ORDER) {
+            const value = $skillBonuses.get(skillId);
+            if (value !== undefined && value > 0) {
+                bonusRows.push([
+                    $t(`skills.${skillId}`),
+                    formatPercent(value),
+                ]);
+            }
+        }
+
         statsRows = [
-            [$t("statistics.backpackSkillBoosts"), ""],
-            [$t("statistics.attackBoost"), "10,000%"],
-            [$t("statistics.defenseBoost"), "30,000%"],
-            [$t("statistics.criticalHit"), "160%"],
-            [$t("statistics.globalAtk"), "200%"],
-            [$t("statistics.finalDamageBoost"), "20%"],
+            [$t("statistics.backpackBonus"), ""],
+            ...bonusRows,
             [$t("statistics.backpackNodeLevels"), ""],
             [$t("statistics.total"), formatNumber($treeLevelsTotal)],
             [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],
