@@ -7,6 +7,8 @@ declare module "svelte-whisper" {
     export function init(options?: {
         fallback?: string;
         initial?: string;
+        persist?: string;
+        detect?: Record<string, string>;
     }): Promise<void>;
 
     export function addDictionary(
@@ -22,6 +24,13 @@ declare module "svelte-whisper" {
     ): void;
 
     export function setLocale(locale: string): Promise<void>;
+
+    export function tr(
+        key: string,
+        vars?: WhisperVars,
+    ): string;
+
+    export function getLocales(): string[];
 
     export const locale: {
         subscribe: Readable<string>["subscribe"];

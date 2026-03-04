@@ -37,13 +37,7 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
-    import { t } from "svelte-whisper";
-    import {
-        SUPPORTED_LOCALES,
-        currentLocale,
-        setAppLocale,
-        type AppLocale,
-    } from "../i18n";
+    import { t, locale, getLocales } from "svelte-whisper";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -61,8 +55,8 @@
     let dropdownMenuOpen = false;
     let dropdownMenuX = 0;
     let dropdownMenuY = 0;
-    let selectedLocale: AppLocale = "en";
-    $: selectedLocale = $currentLocale;
+    let selectedLocale: string = "en";
+    $: selectedLocale = $locale;
 
     const isClose = (a: number, b: number, epsilon: number) =>
         Math.abs(a - b) <= epsilon;
@@ -162,8 +156,7 @@
     }
 
     function handleLanguageChange() {
-        if (!SUPPORTED_LOCALES.includes(selectedLocale)) return;
-        void setAppLocale(selectedLocale);
+        void locale.set(selectedLocale);
     }
 </script>
 
@@ -251,7 +244,7 @@
             bind:value={selectedLocale}
             on:change={handleLanguageChange}
         >
-            {#each SUPPORTED_LOCALES as localeCode}
+            {#each getLocales() as localeCode}
                 <option value={localeCode}>
                     {$t(`languageNames.${localeCode}`)}
                 </option>
