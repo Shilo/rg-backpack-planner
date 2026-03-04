@@ -174,6 +174,7 @@
 
     .button:not(:disabled):active {
         filter: var(--brightness-hover);
+        transform: scale(0.96);
     }
 
     .button-sm {

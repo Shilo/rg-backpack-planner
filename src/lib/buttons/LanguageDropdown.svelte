@@ -240,4 +240,19 @@
         ) !important;
         color: var(--text);
     }
+
+    @media (hover: hover) {
+        :global(.selected-language:not(:disabled):hover) {
+            filter: var(--brightness-hover);
+        }
+    }
+
+    :global(.selected-language:not(:disabled):active) {
+        filter: var(--brightness-hover);
+    }
+
+    :global(.selected-language:focus-visible) {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
 </style>
