@@ -18,6 +18,7 @@
     aria-label={$t("techCrystals.label")}
     {tooltipText}
     on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
+    arrow="right"
 >
     <span
         class="currency-spent"
@@ -42,8 +43,9 @@
         border-radius: var(--radius-full) !important;
         display: inline-flex;
         align-items: center;
-        gap: 2px;
-        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-lg);
+        gap: 2px !important;
+        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm)
+            var(--spacing-lg);
         font-weight: var(--weight-bold);
         font-size: var(--font-lg) !important;
         letter-spacing: var(--tracking);

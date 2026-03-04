@@ -21,10 +21,7 @@
 
     function handleCloneBuild() {
         const previewName = get(previewBuildName) ?? "";
-        const uniqueName = getUniquePresetName(
-            previewName,
-            "Clone",
-        );
+        const uniqueName = getUniquePresetName(previewName, "Clone");
         openModal({
             type: "confirm",
             title: $t("preview.cloneModalTitle"),
@@ -66,6 +63,7 @@
     on:click={handleCloneBuild}
     tooltipText={$t("preview.clonePreviewBuildTooltip")}
     icon={CopySimpleIcon}
+    arrow="right"
 >
     {$t("preview.clonePreviewBuild")}
 </Button>

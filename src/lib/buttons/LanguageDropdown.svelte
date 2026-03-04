@@ -65,6 +65,7 @@
         icon={TranslateIcon}
         class="language-button"
         tooltipText={$t("settings.languageTooltip")}
+        arrow="down"
     >
         <div class="button-content">
             <span class="label">{$t("settings.languageLabel")}</span>
@@ -73,7 +74,6 @@
                 <span class="language-value"
                     >{$t(`languageNames.${selectedLocale}`)}</span
                 >
-                <CaretDownIcon class="caret-icon" size={16} />
             </div>
         </div>
     </Button>

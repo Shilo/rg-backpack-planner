@@ -4,6 +4,7 @@
     import { showToast } from "./toast";
     import { tooltip } from "./tooltip";
     import { triggerHaptic } from "./haptics";
+    import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
     export let icon: Component | null = null;
     export let iconClass = "button-icon";
@@ -27,6 +28,7 @@
     export let toastMessage: string | undefined = undefined;
     export let toastNegative = false;
     export let toastDurationMs: number | undefined = undefined;
+    export let arrow: "right" | "down" | undefined = undefined;
 
     let restClass: string | undefined;
     let buttonProps: Record<string, unknown> = {};
@@ -37,7 +39,8 @@
         small ? "button-sm" : "button-md",
         negative ? "button-negative" : positive ? "button-positive" : "",
         restClass,
-        icon ? "with-icon" : "",
+        icon || arrow ? "with-icon" : "",
+        arrow ? "with-arrow" : "",
     ]
         .filter(Boolean)
         .join(" ");
@@ -109,6 +112,11 @@
     <span class="button-text">
         <slot />
     </span>
+    {#if arrow === "right"}
+        <CaretRightIcon class="button-arrow" size={12} aria-hidden={true} />
+    {:else if arrow === "down"}
+        <CaretDownIcon class="button-arrow" size={12} aria-hidden={true} />
+    {/if}
 </button>
 
 <style>
@@ -131,7 +139,17 @@
     .button.with-icon {
         display: flex;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
+    }
+
+    .button.with-icon:has(.button-text:not(:empty)) {
+        min-width: 0;
+    }
+
+    .button.with-arrow {
+        overflow: hidden;
+        max-width: 100%;
+        padding-right: var(--spacing-sm);
     }
 
     .button:has(.button-text:empty) {
@@ -143,6 +161,19 @@
 
     .button-text {
         line-height: var(--leading);
+    }
+
+    .button.with-arrow .button-text {
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    :global(.button-arrow) {
+        flex: 0 0 auto;
+        opacity: 0.5;
     }
 
     .button-icon {

@@ -35,7 +35,8 @@
     $: menuTitle = $t("preview.buildTitle", {
         name: getPreviewTitle($previewBuildName),
     });
-    $: showIndicator = $isPreviewMode || (!$isPreviewMode && !!devIndicatorState);
+    $: showIndicator =
+        $isPreviewMode || (!$isPreviewMode && !!devIndicatorState);
     $: indicatorTitle = $isPreviewMode
         ? $t("preview.title")
         : (devIndicatorState?.title ?? "");
@@ -58,9 +59,11 @@
                         return;
                     }
 
-                    unsubscribe = playwrightIndicatorState.subscribe((value) => {
-                        devIndicatorState = value;
-                    });
+                    unsubscribe = playwrightIndicatorState.subscribe(
+                        (value) => {
+                            devIndicatorState = value;
+                        },
+                    );
                 },
             );
 
@@ -79,6 +82,7 @@
         tooltipText={indicatorTooltip}
         class="preview-indicator-button"
         icon={EyeIcon}
+        arrow="down"
     >
         <span class="indicator-title">{indicatorTitle}</span>
         {#if indicatorDetail}

@@ -52,7 +52,8 @@
                     typeof value === "string" && value.trim() !== "",
             )
             .map((value) => {
-                const rawName = getBuildNameFromEncoded(value) ?? $t("preview.title");
+                const rawName =
+                    getBuildNameFromEncoded(value) ?? $t("preview.title");
                 const localizedName = premadeBuildLabelKeys[rawName]
                     ? $t(premadeBuildLabelKeys[rawName])
                     : rawName;
@@ -71,7 +72,9 @@
             navigateToEncodedBuild(encoded);
             onPreview?.();
         } else {
-            showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
+            showToast($t("preview.invalidBuildDataToast"), {
+                tone: "negative",
+            });
         }
     }
 
@@ -93,6 +96,7 @@
             icon={LinkIcon}
             tooltipText={$t("preview.previewFromLinkTooltip")}
             on:click={handleOpenLoadModal}
+            arrow="right"
         >
             {$t("preview.fromLinkOrCode")}
         </Button>

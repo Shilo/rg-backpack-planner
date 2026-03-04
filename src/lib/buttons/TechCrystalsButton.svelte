@@ -22,7 +22,8 @@
         ? $techCrystalsFromActivePreset.spent
         : $techCrystalsSpent;
     $: hasOwned = owned > 0;
-    $: resolvedTooltipSubject = tooltipSubject || $t("techCrystals.subjectYour");
+    $: resolvedTooltipSubject =
+        tooltipSubject || $t("techCrystals.subjectYour");
 </script>
 
 <Button
@@ -35,6 +36,7 @@
     icon={HexagonIcon}
     iconClass="button-icon button-icon-filled"
     iconWeight="fill"
+    arrow="right"
     {disabled}
 >
     {$t("techCrystals.spentLabel")}<br />

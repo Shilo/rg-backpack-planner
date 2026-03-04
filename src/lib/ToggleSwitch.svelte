@@ -46,7 +46,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
         width: 100%;
         height: 40px;
         padding: var(--spacing-md) var(--spacing-lg);
@@ -109,7 +109,8 @@
         height: 30px;
         border-radius: var(--radius);
         background: color-mix(in srgb, var(--border) 80%, transparent);
-        border: var(--border-width) solid color-mix(in srgb, var(--border) 90%, transparent);
+        border: var(--border-width) solid
+            color-mix(in srgb, var(--border) 90%, transparent);
         transition:
             background var(--ease),
             border-color var(--ease);

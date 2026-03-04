@@ -66,7 +66,9 @@
         ? decodeBuildData(editPreset.buildCode)
         : null;
     $: editPresetShareTitle = editPreset?.name
-        ? $t("preview.buildTitle", { name: getDisplayPresetName(editPreset.name) })
+        ? $t("preview.buildTitle", {
+              name: getDisplayPresetName(editPreset.name),
+          })
         : $t("share.defaultShareTitle");
     $: editPresetTooltipSubject = editPreset?.name
         ? getDisplayPresetName(editPreset.name)
@@ -88,7 +90,9 @@
                   })
                 : editPreset?.name
                   ? $t("buildPresets.editMenuTitleWithName", {
-                        name: truncateText(getDisplayPresetName(editPreset.name)),
+                        name: truncateText(
+                            getDisplayPresetName(editPreset.name),
+                        ),
                     })
                   : $t("buildPresets.editMenuTitle");
         canMoveUp = total > 1 && index > 0;
@@ -261,7 +265,8 @@
                 cancelLabel: $t("common.cancel"),
                 onConfirm: (value) => {
                     if (typeof value === "string") {
-                        const name = value === displayName ? defaultName : value;
+                        const name =
+                            value === displayName ? defaultName : value;
                         const preset = addPreset(name, buildCode);
                         setActivePresetId(preset.id);
                         applyBuildData(tabs, {
@@ -314,6 +319,7 @@
     on:click={openPresetsMenu}
     tooltipText={$t("buildPresets.changeTooltip")}
     icon={ShareNetworkIcon}
+    arrow="down"
     {disabled}
 >
     {$t("buildPresets.buttonLabel", {
@@ -372,6 +378,7 @@
                 on:click={() => handleAddBuild()}
                 tooltipText={$t("buildPresets.createEmptyTooltip")}
                 icon={PlusIcon}
+                arrow="right"
             >
                 {$t("buildPresets.addNew")}
             </Button>
@@ -421,6 +428,7 @@
                 on:click={() => handleRename(editMenuPresetId!)}
                 tooltipText={$t("buildPresets.editPresetNameTooltip")}
                 icon={PencilSimpleIcon}
+                arrow="right"
             >
                 {$t("buildPresets.renameButton")}
             </Button>
@@ -429,7 +437,9 @@
                 tooltipSubject={editPresetTooltipSubject}
                 menuTitle={editPreset?.name
                     ? $t("buildPresets.shareMenuTitleWithName", {
-                          name: truncateText(getDisplayPresetName(editPreset.name)),
+                          name: truncateText(
+                              getDisplayPresetName(editPreset.name),
+                          ),
                       })
                     : $t("buildPresets.shareMenuTitleFallback")}
                 buildName={editPreset?.name}
@@ -442,6 +452,7 @@
                 on:click={() => handleDelete(editMenuPresetId!)}
                 tooltipText={$t("buildPresets.removePresetTooltip")}
                 icon={TrashSimpleIcon}
+                arrow="right"
                 negative
             >
                 {$t("buildPresets.deleteButton")}
@@ -484,8 +495,16 @@
     }
 
     :global(.preset-name-btn.active) {
-        background: color-mix(in srgb, var(--surface) 78%, var(--accent)) !important;
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border)) !important;
+        background: color-mix(
+            in srgb,
+            var(--surface) 78%,
+            var(--accent)
+        ) !important;
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 55%,
+            var(--border)
+        ) !important;
     }
 
     :global(.preset-name-btn .button-text) {

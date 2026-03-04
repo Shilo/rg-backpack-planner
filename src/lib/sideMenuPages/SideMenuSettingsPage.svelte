@@ -171,6 +171,7 @@
             on:click={handlePreviewDropdownClick}
             tooltipText={$t("settings.previewButtonTooltip")}
             icon={EyeIcon}
+            arrow="down"
         >
             {$t("settings.previewButton")}
         </Button>
@@ -269,6 +270,7 @@
         on:click={handleResetSettings}
         tooltipText={$t("settings.resetSettingsTooltip")}
         icon={ClockCounterClockwiseIcon}
+        arrow="right"
         negative
     >
         {$t("settings.resetSettings")}
@@ -278,6 +280,7 @@
         on:click={handleClearAllData}
         tooltipText={$t("settings.clearAllDataTooltip")}
         icon={TrashSimpleIcon}
+        arrow="right"
         negative
     >
         {$t("settings.clearAllData")}
@@ -297,9 +300,19 @@
         height: var(--spacing-md);
     }
 
-    .build-share-row :global(button) {
+    :global(
+            .side-menu-section .button:has(.button-text:not(:empty)),
+            .side-menu-section .button-group
+        ) {
+        min-width: 0;
+    }
+
+    .build-share-row :global(.button:first-child) {
+        flex: 0 1 auto;
+    }
+
+    .build-share-row :global(.button:last-child) {
         flex: 1 1 auto;
-        white-space: nowrap;
     }
 
     .theme-row > :global(:first-child) {

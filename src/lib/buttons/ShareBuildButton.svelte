@@ -30,7 +30,8 @@
     let shareMenuX = 0;
     let shareMenuY = 0;
     let shareButtonElement: HTMLButtonElement | null = null;
-    $: resolvedTooltipSubject = tooltipSubject || $t("techCrystals.subjectYour");
+    $: resolvedTooltipSubject =
+        tooltipSubject || $t("techCrystals.subjectYour");
     $: resolvedMenuTitle = menuTitle || $t("share.buildButton");
     $: resolvedButtonTitle = title ?? $t("share.buildButton");
     $: resolvedTooltip = $t("share.shareTooltip", {
@@ -95,6 +96,7 @@
     on:click={handleShareBuildClick}
     tooltipText={resolvedTooltip}
     icon={ShareIcon}
+    arrow="down"
     {disabled}
 >
     {resolvedButtonTitle}
@@ -113,6 +115,7 @@
                 on:click={handleShareToApp}
                 tooltipText={$t("share.shareViaAppsTooltip")}
                 icon={ShareIcon}
+                arrow="right"
             >
                 {$t("share.shareTo")}
             </Button>
@@ -131,6 +134,7 @@
                 on:click={handleCopyScreenshot}
                 tooltipText={$t("share.copyScreenshotTooltip")}
                 icon={ImageIcon}
+                arrow="right"
             >
                 {$t("share.copyScreenshot")}
             </Button>

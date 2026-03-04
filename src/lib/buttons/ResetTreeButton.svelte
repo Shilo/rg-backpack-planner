@@ -52,6 +52,7 @@
     on:click={handleReset}
     tooltipText={$t("modal.resetTree.message", { treeName })}
     icon={ArrowCounterClockwiseIcon}
+    arrow="right"
     negative
     {disabled}
 >

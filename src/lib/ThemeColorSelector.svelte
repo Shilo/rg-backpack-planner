@@ -1,5 +1,9 @@
 <script lang="ts">
-    import { PaletteIcon } from "phosphor-svelte";
+    import {
+        CaretDownIcon,
+        CaretRightIcon,
+        PaletteIcon,
+    } from "phosphor-svelte";
     import { themeColor, type ThemeColor } from "./themeColorStore";
     import { oklchToHex } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
@@ -67,7 +71,10 @@
         closeDropdown();
     }
 
-    function isSelected(preset: { h: number; c: number }, current: ThemeColor): boolean {
+    function isSelected(
+        preset: { h: number; c: number },
+        current: ThemeColor,
+    ): boolean {
         return preset.h === current.h && preset.c === current.c;
     }
 
@@ -100,10 +107,8 @@
         <PaletteIcon size={26} />
     </span>
     <span class="theme-button-label">{$t("theme.label")}</span>
-    <span
-        class="theme-button-swatch"
-        style="background: {currentHex}"
-    ></span>
+    <span class="theme-button-swatch" style="background: {currentHex}"></span>
+    <CaretDownIcon class="caret-icon" size={12} />
 </button>
 
 <div use:portal class="theme-dropdown-portal" class:menu-open={dropdownOpen}>
@@ -121,9 +126,7 @@
                 type="button"
                 on:click={() => selectPreset(preset)}
             >
-                <span
-                    class="preset-swatch"
-                    style="background: {preset.hex}"
+                <span class="preset-swatch" style="background: {preset.hex}"
                 ></span>
                 <span class="preset-label">{preset.label}</span>
                 {#if isSelected(preset, $themeColor)}
@@ -132,7 +135,7 @@
             </button>
         {/each}
         <button
-            class="preset-item"
+            class="preset-item custom-item"
             class:preset-selected={isCustom}
             type="button"
             on:click={openCustomPicker}
@@ -145,6 +148,7 @@
             {#if isCustom}
                 <span class="preset-check" aria-hidden="true"></span>
             {/if}
+            <CaretRightIcon class="caret-icon" size={12} />
         </button>
     </ContextMenu>
 </div>
@@ -161,9 +165,10 @@
     .theme-color-button {
         display: flex;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
         height: 40px;
-        padding: var(--spacing-md) var(--spacing-lg);
+        padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md)
+            var(--spacing-lg);
         border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius);
@@ -250,7 +255,7 @@
     .preset-item {
         display: flex;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
         width: 100%;
         min-width: 160px;
         padding: var(--spacing-sm) var(--spacing-lg);
@@ -266,6 +271,10 @@
             filter var(--ease),
             transform var(--ease);
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .custom-item {
+        padding-right: var(--spacing-sm) !important;
     }
 
     @media (hover: hover) {

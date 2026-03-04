@@ -45,6 +45,7 @@
             type="button"
             aria-label={appDisplayName}
             on:click={() => onClick?.()}
+            arrow="right"
         >
             {appDisplayName}
         </Button>
