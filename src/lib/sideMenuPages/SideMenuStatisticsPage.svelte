@@ -1,7 +1,9 @@
 <script lang="ts">
     import CodeBlockTable from "../CodeBlockTable.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
-    import CopyStatsButton from "../buttons/CopyStatsButton.svelte";
+    import Button from "../Button.svelte";
+    import ContextMenu from "../ContextMenu.svelte";
+    import { ShareIcon, CopySimpleIcon } from "phosphor-svelte";
     import { formatNumber, formatPercent } from "../mathUtil";
     import {
         treeLevelsTotal,
@@ -16,19 +18,23 @@
         techCrystalsSpentCannon,
     } from "../techCrystalStore";
     import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
+    import { portal } from "../portal";
     import { t } from "svelte-whisper";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<[string, string]> = [];
+
+    let shareMenuOpen = false;
+    let shareMenuX = 0;
+    let shareMenuY = 0;
+    let shareButtonElement: HTMLButtonElement | null = null;
+
     $: {
         const bonusRows: Array<[string, string]> = [];
         for (const skillId of SKILL_DISPLAY_ORDER) {
             const value = $skillBonuses.get(skillId);
             if (value !== undefined && value > 0) {
-                bonusRows.push([
-                    $t(`skills.${skillId}`),
-                    formatPercent(value),
-                ]);
+                bonusRows.push([$t(`skills.${skillId}`), formatPercent(value)]);
             }
         }
 
@@ -47,18 +53,69 @@
             [$t("trees.cannon"), formatNumber($techCrystalsSpentCannon)],
         ];
     }
+
+    function handleShareClick() {
+        if (!shareButtonElement) return;
+        const rect = shareButtonElement.getBoundingClientRect();
+        shareMenuX = rect.left + rect.width / 2;
+        shareMenuY = rect.bottom + 8;
+        shareMenuOpen = true;
+    }
+
+    function closeShareMenu() {
+        shareMenuOpen = false;
+    }
+
+    async function handleShareToApp() {
+        closeShareMenu();
+        await statsTable?.share();
+    }
+
+    async function handleCopyStatistics() {
+        closeShareMenu();
+        await statsTable?.copy();
+    }
 </script>
 
 <SideMenuSection title={$t("sideMenu.sections.statistics")}>
-    <CopyStatsButton
+    <Button
         slot="action"
-        class="side-menu__stats-copy"
-        onCopy={() => statsTable?.copy()}
+        bind:element={shareButtonElement}
+        class="side-menu__stats-share"
+        small
+        icon={ShareIcon}
+        tooltipText={$t("common.share")}
+        aria-label={$t("common.share")}
+        on:click={handleShareClick}
     />
     <div class="side-menu__stats-card">
         <CodeBlockTable bind:this={statsTable} rows={statsRows} />
     </div>
 </SideMenuSection>
+
+<div use:portal class="stats-share-menu-portal" class:menu-open={shareMenuOpen}>
+    <ContextMenu
+        x={shareMenuX}
+        y={shareMenuY}
+        isOpen={shareMenuOpen}
+        title={$t("common.share")}
+        onClose={closeShareMenu}
+    >
+        <Button
+            on:click={handleShareToApp}
+            icon={ShareIcon}
+            arrow="right"
+        >
+            {$t("share.shareTo")}
+        </Button>
+        <Button
+            on:click={handleCopyStatistics}
+            icon={CopySimpleIcon}
+        >
+            {$t("statistics.copyStatistics")}
+        </Button>
+    </ContextMenu>
+</div>
 
 <style>
     .side-menu__stats-card {
@@ -69,7 +126,7 @@
         overflow: hidden;
     }
 
-    :global(.side-menu__stats-copy) {
+    :global(.side-menu__stats-share) {
         justify-self: end;
         padding: 0px !important;
         min-height: 0px !important;
@@ -77,12 +134,26 @@
         background: transparent !important;
         border: none !important;
         color: var(--text-muted) !important;
-        width: 18px !important;
-        height: 18px !important;
+        width: 20px !important;
+        height: 20px !important;
 
         :global(.button-icon) {
             width: 100% !important;
             height: 100% !important;
         }
+    }
+
+    .stats-share-menu-portal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+        z-index: var(--z-index-context-menu-share);
+    }
+
+    .stats-share-menu-portal.menu-open {
+        pointer-events: auto;
     }
 </style>

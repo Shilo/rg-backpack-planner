@@ -17,8 +17,6 @@
     "common": {
         "cancel": "取消",
         "save": "保存",
-        "copy": "复制",
-        "copied": "已复制",
         "paste": "粘贴",
         "share": "分享"
     },
@@ -351,7 +349,8 @@
         "backpackBonus": "背包加成",
         "backpackNodeLevels": "背包节点等级",
         "techCrystalsSpent": "已消耗科技水晶",
-        "total": "总计"
+        "total": "总计",
+        "copyStatistics": "复制统计"
     },
     "controls": {
         "pointerNodeLabel": "左键点击节点",

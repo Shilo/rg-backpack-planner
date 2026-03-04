@@ -96,6 +96,19 @@
     export async function copy() {
         await copyCodeblock();
     }
+
+    export async function share() {
+        if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+            try {
+                await navigator.share({ text: codeblockText });
+                return;
+            } catch (error: unknown) {
+                const err = error as { name?: string };
+                if (err?.name === "AbortError") return;
+            }
+        }
+        await copyCodeblock();
+    }
 </script>
 
 <div class="codeblock-table">

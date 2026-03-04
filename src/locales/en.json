@@ -17,8 +17,6 @@
     "common": {
         "cancel": "Cancel",
         "save": "Save",
-        "copy": "Copy",
-        "copied": "Copied",
         "paste": "Paste",
         "share": "Share"
     },
@@ -351,7 +349,8 @@
         "backpackBonus": "Backpack Bonus",
         "backpackNodeLevels": "Backpack Node Levels",
         "techCrystalsSpent": "Tech Crystals Spent",
-        "total": "Total"
+        "total": "Total",
+        "copyStatistics": "Copy Statistics"
     },
     "controls": {
         "pointerNodeLabel": "Left click a node",
