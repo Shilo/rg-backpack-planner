@@ -187,8 +187,21 @@
         display: block;
         height: 100%;
         overflow-y: auto;
-        padding: 0 calc(var(--spacing-md) + var(--safe-right, 0px)) 0 var(--spacing-md);
+        padding: 0 calc(var(--spacing-md) + var(--safe-right, 0px)) 0
+            var(--spacing-md);
         scrollbar-gutter: stable;
+        scrollbar-width: thin;
+    }
+
+    @media (hover: hover) {
+        .side-menu__content {
+            scrollbar-gutter: stable both-edges;
+            padding: 0 var(--safe-right, 0px) 0 0;
+        }
+
+        .side-menu__content::-webkit-scrollbar {
+            width: 6px;
+        }
     }
 
     .side-menu__content-inner {
