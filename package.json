@@ -30,7 +30,8 @@
         "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
         "test:ui:tier": "tsx test/tierLeveling.ui.test.ts",
         "test": "npm run check && tsx test/index.ts",
-        "pwa:assets": "node scripts/generate-pwa-icons.mjs"
+        "pwa:assets": "node scripts/generate-pwa-icons.mjs",
+        "update": "npx npm-check-updates -u && npm install svelte-whisper@github:Shilo/svelte-whisper && npm install"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.4",

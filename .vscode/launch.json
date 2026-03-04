@@ -70,10 +70,10 @@
             "name": "Update NPM Packages",
             "type": "node",
             "request": "launch",
-            "runtimeExecutable": "npx",
+            "runtimeExecutable": "npm",
             "runtimeArgs": [
-                "npm-check-updates",
-                "-u"
+                "run",
+                "update"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

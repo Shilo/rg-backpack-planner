@@ -38,7 +38,7 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
-    import { t } from "svelte-whisper";
+    import { t, resetLocale } from "svelte-whisper";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -95,6 +95,9 @@
                 closeUpView.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
+
+                // Reset locale using the new library helper
+                void resetLocale();
 
                 showToast($t("modal.resetSettings.toast"));
                 onClose?.();
