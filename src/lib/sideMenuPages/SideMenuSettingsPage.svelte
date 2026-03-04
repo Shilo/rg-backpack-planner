@@ -298,7 +298,8 @@
     }
 
     .build-share-row :global(button) {
-        flex: 1;
+        flex: 1 1 auto;
+        white-space: nowrap;
     }
 
     .theme-row > :global(:first-child) {

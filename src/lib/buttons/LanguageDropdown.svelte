@@ -32,9 +32,13 @@
     $: hasFallback = getLocales().includes(fallbackLocale);
     $: showFallback = hasFallback && !isFallbackPreferred;
 
-    $: otherLocales = getLocales().filter(
-        (l) => l !== preferredLocale && l !== fallbackLocale,
-    );
+    $: otherLocales = Array.from(new Set(getLocales()))
+        .filter((l) => l !== preferredLocale && l !== fallbackLocale)
+        .sort((a, b) => {
+            const nameA = $t(`languageNames.${a}`) || a;
+            const nameB = $t(`languageNames.${b}`) || b;
+            return nameA.localeCompare(nameB);
+        });
 
     function handleDropdownClick() {
         if (!dropdownButtonElement) return;
