@@ -18,33 +18,7 @@ import {
     previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
-import enLocale from "../../locales/en.json";
-
-// Keep these in sync with buildPresets.generated.* in src/locales/*.json
-const DEFAULT_PRESET_NAMES = Array.from(
-    new Set([
-        "Default",
-        enLocale.buildPresets.generated.default,
-        "デフォルト", // jp
-        "默认",       // zh
-    ]),
-);
-const NEW_PRESET_NAMES = Array.from(
-    new Set([
-        "New",
-        enLocale.buildPresets.generated.new,
-        "新規", // jp
-        "新建", // zh
-    ]),
-);
-const CLONE_PRESET_NAMES = Array.from(
-    new Set([
-        "Clone",
-        enLocale.buildPresets.generated.clone,
-        "複製", // jp
-        "克隆", // zh
-    ]),
-);
+import { tr } from "svelte-whisper";
 
 function escapeRegExp(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -173,26 +147,55 @@ export function createShareUrl(buildData?: BuildData): string {
 }
 
 /**
+ * Canonical English preset names — always checked regardless of locale.
+ */
+const CANONICAL_NAMES = ["Default", "New", "Clone"];
+
+/**
  * Determines whether a preset name is a default/generated value that should
  * not be encoded into share URLs.
+ *
+ * Checks both canonical English names and the current locale's translations
+ * so adding new locale JSON files requires no code changes.
  */
 export function isDefaultPresetName(name?: string | null): boolean {
     if (!name) return false;
     const trimmed = name.trim();
 
-    if (DEFAULT_PRESET_NAMES.includes(trimmed)) return true;
-    if (NEW_PRESET_NAMES.includes(trimmed)) return true;
-    if (CLONE_PRESET_NAMES.includes(trimmed)) return true;
+    // Check canonical English names
+    if (CANONICAL_NAMES.includes(trimmed)) return true;
 
-    const isGeneratedWithCount = (prefixes: string[]) =>
-        prefixes.some((prefix) =>
-            new RegExp(`^${escapeRegExp(prefix)}\\s+\\d+$`, "i").test(trimmed),
-        );
+    // Check current locale translations
+    const localDefault = tr("buildPresets.generated.default");
+    const localNew = tr("buildPresets.generated.new");
+    const localClone = tr("buildPresets.generated.clone");
 
-    return (
-        isGeneratedWithCount(NEW_PRESET_NAMES) ||
-        isGeneratedWithCount(CLONE_PRESET_NAMES)
-    );
+    if (trimmed === localDefault || trimmed === localNew || trimmed === localClone) {
+        return true;
+    }
+
+    // Check "New N" / "Clone N" patterns (canonical English)
+    if (/^New\s+\d+$/i.test(trimmed) || /^Clone\s+\d+$/i.test(trimmed)) {
+        return true;
+    }
+
+    // Check localized "New N" / "Clone N" patterns
+    if (
+        matchesCountPattern(trimmed, localNew) ||
+        matchesCountPattern(trimmed, localClone)
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Tests if a name matches a "{prefix} {number}" pattern for a given localized prefix.
+ */
+function matchesCountPattern(name: string, prefix: string): boolean {
+    if (!prefix) return false;
+    return new RegExp(`^${escapeRegExp(prefix)}\\s+\\d+$`, "i").test(name);
 }
 
 /**

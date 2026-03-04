@@ -3,6 +3,7 @@ import {
     parseEncodedFromUserInput,
     getBuildNameFromEncoded,
 } from "../src/lib/buildData/url.ts";
+import { addDictionary, locale } from "svelte-whisper";
 
 function assertEqual(actual: unknown, expected: unknown, message: string): void {
     const actualJson = JSON.stringify(actual);
@@ -14,7 +15,7 @@ function assertEqual(actual: unknown, expected: unknown, message: string): void 
     }
 }
 
-// isDefaultPresetName tests
+// isDefaultPresetName tests — canonical English names
 assertEqual(isDefaultPresetName("Default"), true, "Should identify 'Default'");
 assertEqual(isDefaultPresetName("New"), true, "Should identify 'New'");
 assertEqual(isDefaultPresetName("Clone"), true, "Should identify 'Clone'");
@@ -25,6 +26,25 @@ assertEqual(isDefaultPresetName("CloneBuild"), false, "Should not identify parti
 assertEqual(isDefaultPresetName(""), false, "Should handle empty string");
 assertEqual(isDefaultPresetName(undefined), false, "Should handle undefined");
 assertEqual(isDefaultPresetName(null), false, "Should handle null");
+
+// isDefaultPresetName tests — localized names via tr()
+addDictionary("ja", {
+    buildPresets: {
+        generated: {
+            default: "デフォルト",
+            new: "新規",
+            clone: "複製",
+        },
+    },
+});
+locale.set("ja");
+assertEqual(isDefaultPresetName("デフォルト"), true, "Should identify Japanese 'Default'");
+assertEqual(isDefaultPresetName("新規"), true, "Should identify Japanese 'New'");
+assertEqual(isDefaultPresetName("複製"), true, "Should identify Japanese 'Clone'");
+assertEqual(isDefaultPresetName("新規 5"), true, "Should identify Japanese 'New X'");
+assertEqual(isDefaultPresetName("複製 10"), true, "Should identify Japanese 'Clone X'");
+assertEqual(isDefaultPresetName("Default"), true, "Should still identify canonical English 'Default' in Japanese locale");
+assertEqual(isDefaultPresetName("カスタム"), false, "Should not identify custom Japanese name");
 
 // Valid payload for parse tests
 // This is a minimal valid encoded payload representing an empty build
