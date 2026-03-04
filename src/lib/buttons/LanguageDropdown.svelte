@@ -3,7 +3,6 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    // @ts-ignore - Temporary until svelte-whisper typings are updated
     import { t, locale, getLocales, getFallbackLocale } from "svelte-whisper";
 
     const fallbackLocale = getFallbackLocale();
