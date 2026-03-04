@@ -176,6 +176,7 @@
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
         closeEditMenu();
+        const displayName = getDisplayPresetName(preset.name);
         openModal({
             type: "textInput",
             title: $t("buildPresets.renameModalTitle"),
@@ -183,14 +184,15 @@
             message: $t("buildPresets.renameModalMessage"),
             textInput: {
                 label: $t("buildPresets.presetNameLabel"),
-                value: preset.name,
+                value: displayName,
                 maxLength: 25,
             },
             confirmLabel: $t("buildPresets.renameConfirmLabel"),
             cancelLabel: $t("common.cancel"),
             onConfirm: (value) => {
                 if (typeof value === "string") {
-                    updatePreset(presetId, { name: value });
+                    const name = value === displayName ? preset.name : value;
+                    updatePreset(presetId, { name });
                     setTimeout(() => presetsContextMenu?.updatePosition(), 0);
                 }
             },
@@ -244,6 +246,7 @@
             closePresetsMenu();
         } else {
             const defaultName = getUniquePresetName("New", "New");
+            const displayName = getDisplayPresetName(defaultName);
             openModal({
                 type: "textInput",
                 title: $t("buildPresets.newModalTitle"),
@@ -251,14 +254,15 @@
                 message: $t("buildPresets.newModalMessage"),
                 textInput: {
                     label: $t("buildPresets.presetNameLabel"),
-                    value: defaultName,
+                    value: displayName,
                     maxLength: 25,
                 },
                 confirmLabel: $t("buildPresets.createConfirmLabel"),
                 cancelLabel: $t("common.cancel"),
                 onConfirm: (value) => {
                     if (typeof value === "string") {
-                        const preset = addPreset(value, buildCode);
+                        const name = value === displayName ? defaultName : value;
+                        const preset = addPreset(name, buildCode);
                         setActivePresetId(preset.id);
                         applyBuildData(tabs, {
                             trees: emptyTrees,
