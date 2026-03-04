@@ -191,8 +191,10 @@ export function applyTheme(
     }
 
     // ── Error/Danger ──
-    const dangerHue = 29;
-    const dangerChroma = 0.22;
+    const dangerBaseHue = 20; // Warm red/orange base
+    const dangerHue = harmonize(dangerBaseHue, source.h, 0.4);
+    const dangerChroma = Math.max(source.c, 0.20);
+
     if (isDark) {
         vars["--accent-danger"] = oklchToHex(0.7, dangerChroma, dangerHue);
         vars["--danger-bg"] = oklchToHex(0.22, dangerChroma * 0.4, dangerHue);
@@ -206,34 +208,19 @@ export function applyTheme(
     }
 
     // ── Success ──
-    const successHue = 148;
-    const successChroma = 0.20;
+    const successHue = source.h;
+    const successChroma = Math.min(source.c * 1.2, 0.35); // Boosted saturation of main theme
+
     if (isDark) {
         vars["--accent-success"] = oklchToHex(0.72, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(
-            0.22,
-            successChroma * 0.4,
-            successHue,
-        );
+        vars["--success-bg"] = oklchToHex(0.22, successChroma * 0.4, successHue);
         vars["--success-border"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(
-            0.85,
-            successChroma * 0.6,
-            successHue,
-        );
+        vars["--success-text"] = oklchToHex(0.85, successChroma * 0.6, successHue);
     } else {
         vars["--accent-success"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(
-            0.94,
-            successChroma * 0.3,
-            successHue,
-        );
+        vars["--success-bg"] = oklchToHex(0.94, successChroma * 0.3, successHue);
         vars["--success-border"] = oklchToHex(0.65, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(
-            0.35,
-            successChroma * 0.6,
-            successHue,
-        );
+        vars["--success-text"] = oklchToHex(0.35, successChroma * 0.6, successHue);
     }
 
     // ── Node locked ──
