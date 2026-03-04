@@ -102,6 +102,10 @@ export interface ThemeSource {
     l?: number; // optional accent lightness 0–1
 }
 
+// ── Surface lightness constants (shared with themeApply) ────
+export const BG_L = { dark: 0.15, light: 0.96 } as const;
+export const SURFACE_L = { dark: 0.24, light: 0.9 } as const;
+
 // ── Theme Application ───────────────────────────────────────
 
 export function applyTheme(
@@ -117,19 +121,21 @@ export function applyTheme(
     const harmonizeAmount = 0.25;
 
     // ── Neutral surfaces ──
+    const bgL = isDark ? BG_L.dark : BG_L.light;
+    const surfL = isDark ? SURFACE_L.dark : SURFACE_L.light;
     if (isDark) {
-        vars["--bg"] = oklchToHex(0.15, neutralChroma, source.h);
+        vars["--bg"] = oklchToHex(bgL, neutralChroma, source.h);
         vars["--bg-panel"] = oklchToHex(0.18, neutralChroma, source.h);
         vars["--bg-input"] = oklchToHex(0.21, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(0.24, neutralChroma, source.h);
+        vars["--surface"] = oklchToHex(surfL, neutralChroma, source.h);
         vars["--bg-raised"] = oklchToHex(0.27, neutralChroma, source.h);
         vars["--border"] = oklchToHex(0.35, neutralChroma, source.h);
         vars["--border-subtle"] = oklchToHex(0.3, neutralChroma, source.h);
     } else {
-        vars["--bg"] = oklchToHex(0.96, neutralChroma, source.h);
+        vars["--bg"] = oklchToHex(bgL, neutralChroma, source.h);
         vars["--bg-panel"] = oklchToHex(0.94, neutralChroma, source.h);
         vars["--bg-input"] = oklchToHex(0.92, neutralChroma, source.h);
-        vars["--surface"] = oklchToHex(0.9, neutralChroma, source.h);
+        vars["--surface"] = oklchToHex(surfL, neutralChroma, source.h);
         vars["--bg-raised"] = oklchToHex(0.95, neutralChroma, source.h);
         vars["--border"] = oklchToHex(0.72, neutralChroma, source.h);
         vars["--border-subtle"] = oklchToHex(0.8, neutralChroma, source.h);

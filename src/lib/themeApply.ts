@@ -1,8 +1,7 @@
 import { get } from "svelte/store";
-import type { ThemeColor } from "./themeColorStore";
 import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
-import { applyTheme, oklchToHex } from "./themeEngine";
+import { applyTheme, oklchToHex, BG_L, SURFACE_L } from "./themeEngine";
 
 /**
  * Update the browser theme-color meta tag.
@@ -61,11 +60,17 @@ export function initThemeReactivity(): () => void {
         const isDark = get(darkMode);
 
         const neutralC = color.c * (isDark ? 0.14 : 0.12);
-        const bgL = isDark ? 0.15 : 0.96;
+        const bgL = isDark ? BG_L.dark : BG_L.light;
+        const surfaceL = isDark ? SURFACE_L.dark : SURFACE_L.light;
+        // Match the perceived tint of the radial gradient background.
+        // The gradient blends --surface into --bg; mathematically the top
+        // edge is ~90% --bg, but the eye averages a larger area so the
+        // status bar needs a stronger tint to look seamless.
+        const themeL = bgL * 0.5 + surfaceL * 0.5;
 
         const doApply = () => {
             applyTheme(color, isDark ? "dark" : "light");
-            syncThemeColorMeta(oklchToHex(bgL, neutralC, color.h));
+            syncThemeColorMeta(oklchToHex(themeL, neutralC, color.h));
         };
 
         if (ready) {
