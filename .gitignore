@@ -34,4 +34,5 @@ test/**/*.webp
 # Ignore Antigravity generated root text files
 /*.txt
 
+docs/plans/
 .claude/worktrees/
