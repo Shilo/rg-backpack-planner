@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TranslateIcon, CaretDownIcon } from "phosphor-svelte";
+    import { TranslateIcon, CaretDownIcon, CheckIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
@@ -11,6 +11,21 @@
     let y = 0;
 
     $: selectedLocale = $locale;
+
+    // Determine preferred locale based on browser settings
+    $: preferredLocale = (() => {
+        const available = getLocales();
+        if (typeof navigator === "undefined" || available.length === 0)
+            return available[0] || "en";
+        for (const lang of navigator.languages || [navigator.language]) {
+            const base = lang.split("-")[0];
+            if (available.includes(lang)) return lang;
+            if (available.includes(base)) return base;
+        }
+        return available[0] || "en";
+    })();
+
+    $: otherLocales = getLocales().filter((l) => l !== preferredLocale);
 
     function handleDropdownClick() {
         if (!dropdownButtonElement) return;
@@ -60,15 +75,31 @@
         onClose={closeDropdown}
     >
         <div class="language-list">
-            {#each getLocales() as localeCode}
-                {@const isSelected = selectedLocale === localeCode}
+            {#if preferredLocale}
                 <Button
-                    on:click={() => handleLanguageSelect(localeCode)}
-                    class={isSelected ? "selected-language" : ""}
+                    on:click={() => handleLanguageSelect(preferredLocale)}
+                    class={selectedLocale === preferredLocale
+                        ? "selected-language"
+                        : ""}
+                    icon={selectedLocale === preferredLocale ? CheckIcon : null}
                 >
-                    {$t(`languageNames.${localeCode}`)}
+                    {$t(`languageNames.${preferredLocale}`)}
                 </Button>
-            {/each}
+            {/if}
+
+            {#if otherLocales.length > 0}
+                <div class="list-separator"></div>
+                {#each otherLocales as localeCode}
+                    {@const isSelected = selectedLocale === localeCode}
+                    <Button
+                        on:click={() => handleLanguageSelect(localeCode)}
+                        class={isSelected ? "selected-language" : ""}
+                        icon={isSelected ? CheckIcon : null}
+                    >
+                        {$t(`languageNames.${localeCode}`)}
+                    </Button>
+                {/each}
+            {/if}
         </div>
     </ContextMenu>
 </div>
@@ -152,9 +183,24 @@
         min-width: 160px;
     }
 
+    .list-separator {
+        height: var(--border-width);
+        background: var(--border);
+        margin: calc(var(--spacing-sm) * -1) 0;
+        flex-shrink: 0;
+    }
+
     :global(.selected-language) {
-        border-color: var(--border-focus);
-        background: var(--bg-hover);
+        background: color-mix(
+            in srgb,
+            var(--surface) 78%,
+            var(--accent)
+        ) !important;
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 55%,
+            var(--border)
+        ) !important;
         color: var(--text);
     }
 </style>
