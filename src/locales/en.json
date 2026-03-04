@@ -315,10 +315,10 @@
         "customEllipsis": "Custom...",
         "preset": {
             "blue": "Blue",
+            "green": "Green",
             "rose": "Rose",
             "amber": "Amber",
-            "green": "Green",
-            "violet": "Violet"
+            "neutral": "Neutral"
         },
         "colorNames": {
             "red": "Red",

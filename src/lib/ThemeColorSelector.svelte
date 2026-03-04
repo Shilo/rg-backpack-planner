@@ -21,13 +21,13 @@
             | "theme.preset.rose"
             | "theme.preset.amber"
             | "theme.preset.green"
-            | "theme.preset.violet";
+            | "theme.preset.neutral";
     }[] = [
-        { h: 264, c: 0.24, labelKey: "theme.preset.blue" },
-        { h: 10, c: 0.26, labelKey: "theme.preset.rose" },
-        { h: 52, c: 0.22, labelKey: "theme.preset.amber" },
-        { h: 148, c: 0.23, labelKey: "theme.preset.green" },
-        { h: 300, c: 0.24, labelKey: "theme.preset.violet" },
+        { h: 260, c: 0.26, labelKey: "theme.preset.blue" },
+        { h: 145, c: 0.25, labelKey: "theme.preset.green" },
+        { h: 350, c: 0.26, labelKey: "theme.preset.rose" },
+        { h: 55, c: 0.24, labelKey: "theme.preset.amber" },
+        { h: 260, c: 0.02, labelKey: "theme.preset.neutral" },
     ];
     $: presetOptions = PRESETS.map((preset) => ({
         ...preset,

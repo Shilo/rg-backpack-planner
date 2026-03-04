@@ -315,10 +315,10 @@
         "customEllipsis": "自定义...",
         "preset": {
             "blue": "蓝色",
+            "green": "绿色",
             "rose": "玫瑰色",
             "amber": "琥珀色",
-            "green": "绿色",
-            "violet": "紫色"
+            "neutral": "中性"
         },
         "colorNames": {
             "red": "红色",

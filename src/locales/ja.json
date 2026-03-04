@@ -315,10 +315,10 @@
         "customEllipsis": "カスタム...",
         "preset": {
             "blue": "ブルー",
+            "green": "グリーン",
             "rose": "ローズ",
             "amber": "アンバー",
-            "green": "グリーン",
-            "violet": "バイオレット"
+            "neutral": "ニュートラル"
         },
         "colorNames": {
             "red": "レッド",
