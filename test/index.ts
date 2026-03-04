@@ -17,6 +17,7 @@ const TEST_FILES = [
     "treeProgressStore.test.ts",
     "tierLeveling.test.ts",
     "buildDataApplier.test.ts",
+    "skillBonusStore.test.ts",
 
     // 3. Serialization & Storage
     "storage.test.ts",
