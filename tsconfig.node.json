@@ -9,10 +9,12 @@
 
         /* Bundler mode */
         "moduleResolution": "bundler",
+        "composite": true,
+        "declarationDir": "./node_modules/.tmp/declarations/node",
         "allowImportingTsExtensions": true,
         "verbatimModuleSyntax": true,
         "moduleDetection": "force",
-        "noEmit": true,
+        "emitDeclarationOnly": true,
 
         /* Linting */
         "strict": true,
