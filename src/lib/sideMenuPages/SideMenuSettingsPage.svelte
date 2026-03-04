@@ -307,11 +307,7 @@
         min-width: 0;
     }
 
-    .build-share-row :global(.button:first-child) {
-        flex: 0 1 auto;
-    }
-
-    .build-share-row :global(.button:last-child) {
+    .build-share-row :global(.button) {
         flex: 1 1 auto;
     }
 
