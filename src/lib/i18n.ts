@@ -1,6 +1,8 @@
 import { init, registerLoader, tr } from "svelte-whisper";
 import { prefixKey } from "./storage";
 
+export const fallbackLocale = "en";
+
 export async function initializeI18n(): Promise<void> {
     const localeModules = import.meta.glob("../locales/*.json");
     for (const [path, loader] of Object.entries(localeModules)) {
@@ -9,6 +11,7 @@ export async function initializeI18n(): Promise<void> {
     }
 
     await init({
+        fallback: fallbackLocale,
         persistKey: prefixKey("locale"),
     });
 }

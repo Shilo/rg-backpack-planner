@@ -3,7 +3,8 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { t, locale, getLocales } from "svelte-whisper";
+    import { fallbackLocale } from "../i18n";
+    import { t, locale, getLocales, getFallbackLocale } from "svelte-whisper";
 
     let dropdownButtonElement: HTMLButtonElement | null = null;
     let isOpen = false;
@@ -16,16 +17,23 @@
     $: preferredLocale = (() => {
         const available = getLocales();
         if (typeof navigator === "undefined" || available.length === 0)
-            return available[0] || "en";
+            return available[0] || fallbackLocale;
         for (const lang of navigator.languages || [navigator.language]) {
             const base = lang.split("-")[0];
             if (available.includes(lang)) return lang;
             if (available.includes(base)) return base;
         }
-        return available[0] || "en";
+        return available[0] || fallbackLocale;
     })();
 
-    $: otherLocales = getLocales().filter((l) => l !== preferredLocale);
+    // Always sort the fallbackLocale to the top after preferredLocale
+    $: isFallbackPreferred = preferredLocale === fallbackLocale;
+    $: hasFallback = getLocales().includes(fallbackLocale);
+    $: showFallback = hasFallback && !isFallbackPreferred;
+
+    $: otherLocales = getLocales().filter(
+        (l) => l !== preferredLocale && l !== fallbackLocale,
+    );
 
     function handleDropdownClick() {
         if (!dropdownButtonElement) return;
@@ -87,8 +95,23 @@
                 </Button>
             {/if}
 
-            {#if otherLocales.length > 0}
+            {#if showFallback || otherLocales.length > 0}
                 <div class="list-separator"></div>
+
+                {#if showFallback}
+                    <Button
+                        on:click={() => handleLanguageSelect(fallbackLocale)}
+                        class={selectedLocale === fallbackLocale
+                            ? "selected-language"
+                            : ""}
+                        icon={selectedLocale === fallbackLocale
+                            ? CheckIcon
+                            : null}
+                    >
+                        {$t(`languageNames.${fallbackLocale}`)}
+                    </Button>
+                {/if}
+
                 {#each otherLocales as localeCode}
                     {@const isSelected = selectedLocale === localeCode}
                     <Button
@@ -152,8 +175,16 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
-        flex-shrink: 0;
+        flex: 1;
+        min-width: 0;
         color: var(--text);
+    }
+
+    .language-value {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: right;
     }
 
     :global(.language-button .caret-icon) {
