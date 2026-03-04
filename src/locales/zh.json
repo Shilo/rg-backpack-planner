@@ -323,7 +323,6 @@
         "colorNames": {
             "red": "红色",
             "orange": "橙色",
-            "amber": "琥珀色",
             "yellow": "黄色",
             "lime": "酸橙色",
             "green": "绿色",
@@ -341,6 +340,7 @@
             "toggleModeAria": "切换{mode}模式预览",
             "modeLight": "浅色",
             "modeDark": "深色",
+            "hexLabel": "HEX",
             "cancel": "取消",
             "apply": "应用"
         }

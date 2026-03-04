@@ -35,7 +35,6 @@
         key:
             | "theme.colorNames.red"
             | "theme.colorNames.orange"
-            | "theme.colorNames.amber"
             | "theme.colorNames.yellow"
             | "theme.colorNames.lime"
             | "theme.colorNames.green"
@@ -47,8 +46,7 @@
             | "theme.colorNames.pink";
     }[] = [
         { max: 15, key: "theme.colorNames.red" },
-        { max: 40, key: "theme.colorNames.orange" },
-        { max: 60, key: "theme.colorNames.amber" },
+        { max: 50, key: "theme.colorNames.orange" },
         { max: 85, key: "theme.colorNames.yellow" },
         { max: 110, key: "theme.colorNames.lime" },
         { max: 145, key: "theme.colorNames.green" },
@@ -77,9 +75,9 @@
     // ── Grid data ──
     const GRID_COLS = 12;
     const GRID_ROWS = 6;
-    const ROW_LIGHTNESS = [0.28, 0.40, 0.52, 0.65, 0.78, 0.90];
+    const ROW_LIGHTNESS = [0.28, 0.4, 0.52, 0.65, 0.78, 0.9];
     // Chroma per lightness tier — perceptually optimized for in-gamut colors
-    const ROW_CHROMA = [0.14, 0.18, 0.22, 0.24, 0.20, 0.14];
+    const ROW_CHROMA = [0.14, 0.18, 0.22, 0.24, 0.2, 0.14];
     // Column 0 = gray (hue irrelevant, c=0), columns 1-11 = hue steps
     const COL_HUES = [-1, 0, 33, 66, 99, 132, 165, 198, 231, 264, 297, 330];
 
@@ -93,7 +91,9 @@
             : getColorName(h, translate);
 
     // Sync hex input when h/c change (but not during manual editing)
-    $: if (!isEditingHex) hexInput = oklchToHex(selectedL, c, h);
+    // Strip '#' prefix — display only the 6-char hex value
+    $: if (!isEditingHex)
+        hexInput = oklchToHex(selectedL, c, h).replace("#", "");
 
     // Find nearest cell for current h, c, selectedL
     $: selectedCell = (() => {
@@ -102,7 +102,10 @@
         let bestRowD = Math.abs(ROW_LIGHTNESS[0] - selectedL);
         for (let i = 1; i < GRID_ROWS; i++) {
             const d = Math.abs(ROW_LIGHTNESS[i] - selectedL);
-            if (d < bestRowD) { bestRowD = d; bestRow = i; }
+            if (d < bestRowD) {
+                bestRowD = d;
+                bestRow = i;
+            }
         }
         // Find nearest column (gray or hue)
         let bestCol = 0;
@@ -110,10 +113,19 @@
             bestCol = 0; // gray column
         } else {
             bestCol = 1;
-            let bestColD = Math.min(Math.abs(COL_HUES[1] - h), 360 - Math.abs(COL_HUES[1] - h));
+            let bestColD = Math.min(
+                Math.abs(COL_HUES[1] - h),
+                360 - Math.abs(COL_HUES[1] - h),
+            );
             for (let i = 2; i < GRID_COLS; i++) {
-                const d = Math.min(Math.abs(COL_HUES[i] - h), 360 - Math.abs(COL_HUES[i] - h));
-                if (d < bestColD) { bestColD = d; bestCol = i; }
+                const d = Math.min(
+                    Math.abs(COL_HUES[i] - h),
+                    360 - Math.abs(COL_HUES[i] - h),
+                );
+                if (d < bestColD) {
+                    bestColD = d;
+                    bestCol = i;
+                }
             }
         }
         return { row: bestRow, col: bestCol };
@@ -140,12 +152,20 @@
     function updateColorFromGrid(clientX: number, clientY: number) {
         if (!gridEl) return;
         const rect = gridEl.getBoundingClientRect();
-        const col = Math.max(0, Math.min(GRID_COLS - 1,
-            Math.floor((clientX - rect.left) / (rect.width / GRID_COLS))
-        ));
-        const row = Math.max(0, Math.min(GRID_ROWS - 1,
-            Math.floor((clientY - rect.top) / (rect.height / GRID_ROWS))
-        ));
+        const col = Math.max(
+            0,
+            Math.min(
+                GRID_COLS - 1,
+                Math.floor((clientX - rect.left) / (rect.width / GRID_COLS)),
+            ),
+        );
+        const row = Math.max(
+            0,
+            Math.min(
+                GRID_ROWS - 1,
+                Math.floor((clientY - rect.top) / (rect.height / GRID_ROWS)),
+            ),
+        );
         selectedL = ROW_LIGHTNESS[row];
         if (col === 0) {
             h = 0;
@@ -175,12 +195,33 @@
     }
 
     // ── Hex input ──
+    function expandHex(value: string): string {
+        if (value.length === 3) {
+            // CSS shorthand: #rgb → #rrggbb
+            return value[0] + value[0] + value[1] + value[1] + value[2] + value[2];
+        }
+        // Right-pad with zeros: #0 → #000000, #ff → #ff0000
+        return value.padEnd(6, "0");
+    }
+
     function handleHexInput(event: Event) {
-        const value = (event.target as HTMLInputElement).value.trim();
+        const input = event.target as HTMLInputElement;
+        const rawValue = input.value;
+        const cursorPos = input.selectionStart ?? rawValue.length;
+        // Count valid hex chars before cursor to preserve position
+        const validBeforeCursor = rawValue
+            .slice(0, cursorPos)
+            .replace(/[^0-9a-fA-F]/g, "").length;
+        // Strip '#' and non-hex chars, limit to 6 characters
+        let value = rawValue.replace(/[^0-9a-fA-F]/g, "").slice(0, 6);
         hexInput = value;
-        if (/^#?[0-9a-fA-F]{6}$/.test(value)) {
-            const hex = value.startsWith("#") ? value : `#${value}`;
-            const oklch = hexToOklch(hex);
+        input.value = value;
+        // Restore cursor position
+        const newCursor = Math.min(validBeforeCursor, 6);
+        input.setSelectionRange(newCursor, newCursor);
+        if (value.length > 0) {
+            const expanded = expandHex(value);
+            const oklch = hexToOklch(`#${expanded}`);
             h = Math.round(oklch.h);
             c = Math.round(oklch.c * 1000) / 1000;
             selectedL = Math.round(oklch.l * 100) / 100;
@@ -196,7 +237,6 @@
 
     // ── Random color ──
     function handleRandom() {
-        triggerHaptic();
         const col = 1 + Math.floor(Math.random() * (GRID_COLS - 1));
         h = COL_HUES[col];
         const row = Math.floor(Math.random() * GRID_ROWS);
@@ -206,7 +246,6 @@
 
     // ── Mode toggle ──
     function handleModeToggle() {
-        triggerHaptic();
         previewDark = !previewDark;
     }
 
@@ -267,9 +306,13 @@
                         {#each COL_HUES as hueVal, col}
                             <div
                                 class="grid-cell"
-                                class:grid-cell-selected={selectedCell.row === row && selectedCell.col === col}
-                                class:grid-cell-gray-border={col === 0}
-                                style="background: oklch({L} {col === 0 ? 0 : ROW_CHROMA[row]} {col === 0 ? 0 : hueVal})"
+                                class:grid-cell-selected={selectedCell.row ===
+                                    row && selectedCell.col === col}
+                                style="background: oklch({L} {col === 0
+                                    ? 0
+                                    : ROW_CHROMA[row]} {col === 0
+                                    ? 0
+                                    : hueVal})"
                             ></div>
                         {/each}
                     {/each}
@@ -286,43 +329,52 @@
                             ></div>
                             <span class="color-name">{colorName}</span>
                         </div>
-                        <input
-                            id="picker-hex-input"
-                            class="hex-input"
-                            type="text"
-                            bind:value={hexInput}
-                            maxlength="7"
-                            autocomplete="off"
-                            autocapitalize="none"
-                            autocorrect="off"
-                            spellcheck="false"
-                            bind:this={hexInputEl}
-                            on:input={handleHexInput}
-                            on:keydown={handleHexKeydown}
-                            on:focus={() => (isEditingHex = true)}
-                            on:blur={() => {
-                                isEditingHex = false;
-                                hexInput = oklchToHex(selectedL, c, h);
-                            }}
-                        />
+                        <div class="hex-group">
+                            <span class="hex-label"
+                                >{$t("theme.colorPicker.hexLabel")}</span
+                            >
+                            <input
+                                id="picker-hex-input"
+                                class="hex-input"
+                                type="text"
+                                bind:value={hexInput}
+                                autocomplete="off"
+                                autocapitalize="none"
+                                autocorrect="off"
+                                spellcheck="false"
+                                bind:this={hexInputEl}
+                                on:input={handleHexInput}
+                                on:keydown={handleHexKeydown}
+                                on:focus={() => (isEditingHex = true)}
+                                on:blur={() => {
+                                    isEditingHex = false;
+                                    hexInput = oklchToHex(
+                                        selectedL,
+                                        c,
+                                        h,
+                                    ).replace("#", "");
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <!-- Actions row -->
                     <div class="actions-row">
                         <div class="actions-left">
-                            <button
-                                class="icon-button icon-button-negative"
-                                type="button"
+                            <Button
+                                small
+                                icon={ShuffleIcon}
+                                iconSize={18}
                                 aria-label={$t(
                                     "theme.colorPicker.randomColorAria",
                                 )}
                                 on:click={handleRandom}
-                            >
-                                <ShuffleIcon size={18} />
-                            </button>
-                            <button
-                                class="icon-button"
-                                type="button"
+                                negative
+                            />
+                            <Button
+                                small
+                                icon={previewDark ? MoonIcon : SunIcon}
+                                iconSize={18}
                                 aria-label={$t(
                                     "theme.colorPicker.toggleModeAria",
                                     {
@@ -332,13 +384,7 @@
                                     },
                                 )}
                                 on:click={handleModeToggle}
-                            >
-                                {#if previewDark}
-                                    <MoonIcon size={18} />
-                                {:else}
-                                    <SunIcon size={18} />
-                                {/if}
-                            </button>
+                            />
                         </div>
                         <div class="actions-right">
                             <Button on:click={handleCancel}>
@@ -422,10 +468,6 @@
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
     }
 
-    .grid-cell-gray-border {
-        border-right: 2px solid var(--bg-panel);
-    }
-
     /* Controls below grid */
     .picker-controls {
         padding: var(--spacing-lg);
@@ -466,8 +508,24 @@
         white-space: nowrap;
     }
 
+    .hex-group {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        flex-shrink: 0;
+    }
+
+    .hex-label {
+        font-size: var(--font-sm);
+        font-weight: 500;
+        color: var(--text-disabled);
+        letter-spacing: var(--tracking);
+        text-transform: uppercase;
+        user-select: none;
+    }
+
     .hex-input {
-        width: 96px;
+        width: 80px;
         height: 28px;
         padding: 0 var(--spacing-sm);
         background: var(--bg-input);
@@ -501,43 +559,6 @@
     .actions-right {
         display: flex;
         gap: var(--spacing-lg);
-    }
-
-    .icon-button {
-        width: 36px;
-        height: 36px;
-        display: grid;
-        place-items: center;
-        background: var(--bg-raised);
-        border: var(--border-width) solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text-muted);
-        cursor: pointer;
-        transition:
-            filter var(--ease),
-            transform var(--ease);
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    @media (hover: hover) {
-        .icon-button:hover {
-            filter: var(--brightness-hover);
-        }
-    }
-
-    .icon-button:active {
-        transform: scale(0.92);
-    }
-
-    .icon-button:focus-visible {
-        outline: 2px solid var(--border-focus);
-        outline-offset: 2px;
-    }
-
-    .icon-button-negative {
-        background: transparent;
-        border-color: var(--text-muted);
-        color: var(--text);
     }
 
     @media (max-width: 480px) {

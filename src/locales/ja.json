@@ -323,7 +323,6 @@
         "colorNames": {
             "red": "レッド",
             "orange": "オレンジ",
-            "amber": "アンバー",
             "yellow": "イエロー",
             "lime": "ライム",
             "green": "グリーン",
@@ -341,6 +340,7 @@
             "toggleModeAria": "{mode}モードプレビューを切り替え",
             "modeLight": "ライト",
             "modeDark": "ダーク",
+            "hexLabel": "HEX",
             "cancel": "キャンセル",
             "apply": "適用"
         }

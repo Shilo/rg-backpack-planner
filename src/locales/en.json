@@ -323,7 +323,6 @@
         "colorNames": {
             "red": "Red",
             "orange": "Orange",
-            "amber": "Amber",
             "yellow": "Yellow",
             "lime": "Lime",
             "green": "Green",
@@ -341,6 +340,7 @@
             "toggleModeAria": "Toggle {mode} mode preview",
             "modeLight": "light",
             "modeDark": "dark",
+            "hexLabel": "HEX",
             "cancel": "Cancel",
             "apply": "Apply"
         }
