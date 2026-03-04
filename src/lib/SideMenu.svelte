@@ -184,14 +184,8 @@
         display: block;
         height: 100%;
         overflow-y: auto;
-
-        --side-menu-padding-left: var(--spacing-md);
-        --side-menu-padding-right: calc(
-            var(--spacing-md) + var(--safe-right, 0px)
-        );
-
-        padding: 0 var(--side-menu-padding-right) 0
-            var(--side-menu-padding-left);
+        padding: 0 calc(var(--spacing-md) + var(--safe-right, 0px)) 0
+            var(--spacing-md);
         scrollbar-gutter: stable;
         scrollbar-width: thin;
     }
@@ -209,24 +203,14 @@
             /* 
                On desktop with classic scrollbars, the visual gap is:
                Base Padding + Scrollbar Gutter. 
-               We subtract the scrollbar width from the padding to keep the total gap exactly the same as the variable.
+               We subtract the scrollbar width from the padding to keep the total gap exactly --spacing-md.
             */
             padding: 0
-                max(
-                    0px,
-                    calc(
-                        var(--side-menu-padding-right) -
-                            var(--scrollbar-visual-width)
-                    )
+                calc(
+                    max(0px, var(--spacing-md) - var(--scrollbar-visual-width)) +
+                        var(--safe-right, 0px)
                 )
-                0
-                max(
-                    0px,
-                    calc(
-                        var(--side-menu-padding-left) -
-                            var(--scrollbar-visual-width)
-                    )
-                );
+                0 max(0px, var(--spacing-md) - var(--scrollbar-visual-width));
         }
 
         .side-menu__content::-webkit-scrollbar {

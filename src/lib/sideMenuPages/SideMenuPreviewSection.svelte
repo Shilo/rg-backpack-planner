@@ -23,24 +23,16 @@
 
 <style>
     .preview-section {
-        background: color-mix(
-            in srgb,
-            color-mix(in srgb, var(--accent) 55%, var(--border)) 20%,
-            transparent
-        );
+        background: color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--border)) 20%, transparent);
         border-bottom-left-radius: var(--radius);
         border-bottom-right-radius: var(--radius);
         padding-top: var(--spacing-md);
         margin-top: 0px !important;
         padding-bottom: var(--spacing-md) !important;
         margin-bottom: -7px;
-        padding-left: var(--side-menu-padding-left, var(--spacing-md));
-        margin-left: calc(
-            -1 * var(--side-menu-padding-left, var(--spacing-md))
-        );
-        padding-right: var(--side-menu-padding-right, var(--spacing-md));
-        margin-right: calc(
-            -1 * var(--side-menu-padding-right, var(--spacing-md))
-        );
+        padding-left: var(--spacing-md);
+        margin-left: calc(-1 * var(--spacing-md));
+        padding-right: var(--spacing-md);
+        margin-right: calc(-1 * var(--spacing-md));
     }
 </style>
