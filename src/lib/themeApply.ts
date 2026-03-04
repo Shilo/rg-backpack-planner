@@ -73,7 +73,7 @@ export function initThemeReactivity(): () => void {
             applyTheme(color, isDark ? "dark" : "light");
             // syncThemeColorMeta(oklchToHex(themeL, neutralC, color.h));
 
-            syncThemeColorMeta(isDark ? "#ff0000" : "#0000ff")
+            syncThemeColorMeta(isDark ? "#ff00000" : "#0000ff")
         };
 
         if (ready) {
