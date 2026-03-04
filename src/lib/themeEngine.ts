@@ -190,45 +190,38 @@ export function applyTheme(
         vars["--text-on-tinted"] = oklchToHex(0.25, source.c * 0.45, source.h);
     }
 
-    // ── Error/Danger ──
-    const dangerBaseHue = 20; // Warm red/orange base
-    // If the base theme is neutral (e.g., chroma very close to 0), we don't want to neutralize the danger chroma.
-    // If the theme is Amber (~55), hue 20 is too close, push it further towards rose/red (e.g. 0 or 350).
-    let dangerHue = harmonize(dangerBaseHue, source.h, 0.4);
-    if (Math.abs(source.h - 55) < 20) {
-        dangerHue = 350; // Force a distinct red if the theme is yellow/amber
-    }
-    const dangerChroma = Math.max(source.c, 0.22); // Guarantee minimum chroma so it doesn't wash out on neutral themes.
+    // ── Error/Danger (Negative) — Warm red harmonized toward theme ──
+    const dangerBaseHue = 20; // Warm red/orange
+    const isNeutralTheme = source.c < 0.05;
+    const dangerHue = isNeutralTheme ? dangerBaseHue : harmonize(dangerBaseHue, source.h, 0.35);
+    const dangerChroma = isNeutralTheme ? 0.18 : Math.max(source.c * 1.2, 0.26);
 
     if (isDark) {
-        vars["--accent-danger"] = oklchToHex(0.7, dangerChroma, dangerHue);
-        vars["--danger-bg"] = oklchToHex(0.22, dangerChroma * 0.4, dangerHue);
-        vars["--danger-border"] = oklchToHex(0.45, dangerChroma, dangerHue);
-        vars["--danger-text"] = oklchToHex(0.85, dangerChroma * 0.6, dangerHue);
+        vars["--accent-danger"] = oklchToHex(0.68, dangerChroma, dangerHue);
+        vars["--danger-bg"] = oklchToHex(0.25, dangerChroma * 0.4, dangerHue);
+        vars["--danger-border"] = oklchToHex(0.48, dangerChroma, dangerHue);
+        vars["--danger-text"] = oklchToHex(0.88, dangerChroma * 0.6, dangerHue);
     } else {
-        // Critical Fix: Light mode needed much lower Lightness values to contrast against the 0.96+ white background
-        vars["--accent-danger"] = oklchToHex(0.45, dangerChroma, dangerHue); // Deepen for contrast
-        vars["--danger-bg"] = oklchToHex(0.92, dangerChroma * 0.25, dangerHue); // Clearer tint
-        vars["--danger-border"] = oklchToHex(0.55, dangerChroma, dangerHue);
-        vars["--danger-text"] = oklchToHex(0.25, dangerChroma * 0.8, dangerHue); // Much deeper text
+        vars["--accent-danger"] = oklchToHex(0.38, dangerChroma, dangerHue);
+        vars["--danger-bg"] = oklchToHex(0.78, dangerChroma * 0.55, dangerHue);
+        vars["--danger-border"] = oklchToHex(0.45, dangerChroma * 0.9, dangerHue);
+        vars["--danger-text"] = oklchToHex(0.20, dangerChroma * 0.8, dangerHue);
     }
 
-    // ── Success ──
-    // Shift the success hue slightly towards a "fresh" direction from the theme, or use pure theme hue.
-    const successHue = (source.h + 15) % 360;
-    const successChroma = Math.max(Math.min(source.c * 1.5, 0.35), 0.22); // Guarantee minimum chroma for neutral themes
+    // ── Success (Positive) — Theme hue, boosted ──
+    const successHue = isNeutralTheme ? 240 : source.h; // Neutral gets a clean blue
+    const successChroma = isNeutralTheme ? 0.18 : Math.max(source.c * 1.3, 0.26);
 
     if (isDark) {
-        vars["--accent-success"] = oklchToHex(0.72, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(0.22, successChroma * 0.4, successHue);
-        vars["--success-border"] = oklchToHex(0.45, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(0.85, successChroma * 0.6, successHue);
+        vars["--accent-success"] = oklchToHex(0.70, successChroma, successHue);
+        vars["--success-bg"] = oklchToHex(0.25, successChroma * 0.4, successHue);
+        vars["--success-border"] = oklchToHex(0.48, successChroma, successHue);
+        vars["--success-text"] = oklchToHex(0.88, successChroma * 0.6, successHue);
     } else {
-        // Critical Fix: Light mode contrast deeply darkened
-        vars["--accent-success"] = oklchToHex(0.40, successChroma, successHue);
-        vars["--success-bg"] = oklchToHex(0.92, successChroma * 0.25, successHue);
-        vars["--success-border"] = oklchToHex(0.55, successChroma, successHue);
-        vars["--success-text"] = oklchToHex(0.25, successChroma * 0.8, successHue);
+        vars["--accent-success"] = oklchToHex(0.38, successChroma, successHue);
+        vars["--success-bg"] = oklchToHex(0.78, successChroma * 0.55, successHue);
+        vars["--success-border"] = oklchToHex(0.45, successChroma * 0.9, successHue);
+        vars["--success-text"] = oklchToHex(0.20, successChroma * 0.8, successHue);
     }
 
     // ── Node locked ──
