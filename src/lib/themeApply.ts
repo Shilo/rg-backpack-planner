@@ -2,7 +2,7 @@ import { get } from "svelte/store";
 import type { ThemeColor } from "./themeColorStore";
 import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
-import { applyTheme, oklchToHex } from "./themeEngine";
+import { applyTheme, oklchToHex, BG_L, SURFACE_L } from "./themeEngine";
 
 /**
  * Update the browser theme-color meta tag.
@@ -61,11 +61,16 @@ export function initThemeReactivity(): () => void {
         const isDark = get(darkMode);
 
         const neutralC = color.c * (isDark ? 0.14 : 0.12);
-        const bgL = isDark ? 0.15 : 0.96;
+        const bgL = isDark ? BG_L.dark : BG_L.light;
+        const surfaceL = isDark ? SURFACE_L.dark : SURFACE_L.light;
+        // Approximate the radial gradient color near the status bar.
+        // The gradient center (~50% viewport height) blends --surface into
+        // --bg; at the top edge the color is roughly 85% --bg / 15% --surface.
+        const themeL = bgL * 0.85 + surfaceL * 0.15;
 
         const doApply = () => {
             applyTheme(color, isDark ? "dark" : "light");
-            syncThemeColorMeta(oklchToHex(bgL, neutralC, color.h));
+            syncThemeColorMeta(oklchToHex(themeL, neutralC, color.h));
         };
 
         if (ready) {
