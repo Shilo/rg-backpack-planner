@@ -350,7 +350,7 @@
                             : $t("buildPresets.switchToPresetTooltip", {
                                   name: truncateText(presetDisplayName),
                               })}
-                        aria-label={$t("buildPresets.switchToPresetAria", {
+                        aria-label={$t("buildPresets.switchToPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
                         icon={isActive ? CheckIcon : null}
@@ -363,7 +363,7 @@
                         tooltipText={$t("buildPresets.editPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
-                        aria-label={$t("buildPresets.editPresetAria", {
+                        aria-label={$t("buildPresets.editPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
                         icon={DotsThreeVerticalIcon}

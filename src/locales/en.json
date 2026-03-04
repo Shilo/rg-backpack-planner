@@ -18,7 +18,8 @@
         "cancel": "Cancel",
         "save": "Save",
         "paste": "Paste",
-        "share": "Share"
+        "share": "Share",
+        "close": "Close"
     },
     "sideMenu": {
         "tabs": {
@@ -35,9 +36,6 @@
                 "tooltip": "View input mapping"
             }
         },
-        "closeMenu": "Close menu",
-        "primary": "Primary",
-        "close": "Close",
         "sections": {
             "build": "Build",
             "node": "Node",
@@ -83,16 +81,12 @@
         "languageLabel": "Language",
         "languageTooltip": "Choose application language",
         "singleLevelUp": "Single Level Up",
-        "singleLevelUpAria": "Single level up mode",
         "singleLevelUpTooltip": "When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10",
         "closeUpView": "Close-up View",
-        "closeUpViewAria": "Close-up view (150% zoom)",
         "closeUpViewTooltip": "Increase the initial zoom scale by 1.5x",
         "focusTreeInView": "Focus Tree in View",
         "focusTreeInViewLower": "Focus tree in view",
         "focusTreeInViewTooltip": "Fit nodes in view by resetting zoom and pan",
-        "switchToLight": "Switch to light mode",
-        "switchToDark": "Switch to dark mode",
         "themeModeTooltip": "Switch between dark and light color scheme",
         "reloadWindow": "Reload Window",
         "reloadWindowTooltip": "Refresh page and load latest version",
@@ -106,13 +100,7 @@
     },
     "contextMenu": {
         "defaultTitle": "Menu",
-        "defaultAria": "Context menu",
-        "closeAria": "Close context menu",
-        "tabActions": "Tab actions",
-        "tabActionsWithLabel": "Tab actions: {tabLabel}",
-        "nodeTitle": "Node",
-        "nodeActions": "Node actions",
-        "treeActions": "Tree actions",
+        "tabActions": "Tab",
         "previewBuildOptions": "Preview build options",
         "techCrystalsLabel": "Tech Crystals:",
         "levelsLabel": "Levels:"
@@ -126,8 +114,8 @@
         "max": "Max",
         "incrementOne": "+1",
         "incrementTen": "+10",
-        "decrementOne": "−1",
-        "decrementTen": "−10",
+        "decrementOne": "-1",
+        "decrementTen": "-10",
         "reset": "Reset",
         "resetToast": "Reset node"
     },
@@ -135,11 +123,9 @@
         "focusedInViewToast": "Focused tree in view",
         "resetTreeToast": "Reset {treeLabel} tree",
         "resetAllTreesToast": "Reset all trees",
-        "menuButtonAria": "Menu",
         "menuButtonTooltip": "Open menu"
     },
     "techCrystals": {
-        "label": "Tech Crystals",
         "displayTooltipSpentOnly": "Tech Crystals\nspent",
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
         "spentLabel": "Tech Crystals spent:",
@@ -156,9 +142,7 @@
         "menuTitle": "Build Presets",
         "activePresetTooltip": "Active preset: {name}",
         "switchToPresetTooltip": "Switch to preset: {name}",
-        "switchToPresetAria": "Switch to preset: {name}",
         "editPresetTooltip": "Edit preset: {name}",
-        "editPresetAria": "Edit preset: {name}",
         "createEmptyTooltip": "Create an empty build preset",
         "addNew": "Add new",
         "deleteAllAndCreateTooltip": "Delete all presets and create a new one",
@@ -245,7 +229,6 @@
         "loadModalConfirmLabel": "Preview build"
     },
     "modal": {
-        "closeAria": "Close modal",
         "confirmLabel": "Confirm",
         "cancelLabel": "Cancel",
         "saveLabel": "Save",
@@ -263,10 +246,6 @@
             "invalidLinkOrDataToast": "Invalid link or build data"
         },
         "input": {
-            "resetValueAria": "Reset value",
-            "decreaseValueAria": "Decrease value",
-            "increaseValueAria": "Increase value",
-            "increaseByHundredAria": "Increase value by 100",
             "plusHundred": "+100"
         },
         "resetTree": {
@@ -297,7 +276,6 @@
     },
     "fullscreen": {
         "label": "Fullscreen",
-        "toggleAria": "Toggle fullscreen mode",
         "tooltip": "Use fullscreen where your browser supports it",
         "enterTooltip": "Enter fullscreen",
         "exitTooltip": "Exit fullscreen",
@@ -308,7 +286,6 @@
         "label": "Theme",
         "menuTitle": "Theme",
         "changeTooltip": "Change theme",
-        "aria": "Theme: {label}",
         "custom": "Custom",
         "customEllipsis": "Custom...",
         "preset": {
@@ -333,11 +310,6 @@
             "gray": "Gray"
         },
         "colorPicker": {
-            "dialogAria": "Custom color picker",
-            "randomColorAria": "Random color",
-            "toggleModeAria": "Toggle {mode} mode preview",
-            "modeLight": "light",
-            "modeDark": "dark",
             "hexLabel": "HEX",
             "cancel": "Cancel",
             "apply": "Apply"
@@ -393,7 +365,7 @@
         "controlsTabInstallDescription": "Install the Progressive Web App (PWA) on {osName}"
     },
     "install": {
-        "ariaTooltip": "Install {appName} app on {osName}",
+        "tooltip": "Install {appName} app on {osName}",
         "buttonLabel": "Install app on {osName}"
     },
     "toast": {

@@ -18,7 +18,8 @@
         "cancel": "取消",
         "save": "保存",
         "paste": "粘贴",
-        "share": "分享"
+        "share": "分享",
+        "close": "关闭"
     },
     "sideMenu": {
         "tabs": {
@@ -35,9 +36,6 @@
                 "tooltip": "查看输入映射"
             }
         },
-        "closeMenu": "关闭菜单",
-        "primary": "主要",
-        "close": "关闭",
         "sections": {
             "build": "流派",
             "node": "节点",
@@ -83,16 +81,12 @@
         "languageLabel": "语言",
         "languageTooltip": "选择应用程序语言",
         "singleLevelUp": "单级提升",
-        "singleLevelUpAria": "单级提升模式",
         "singleLevelUpTooltip": "启用时，点击节点可将其等级提升1。未启用时，点击节点增加10。",
         "closeUpView": "特写视图",
-        "closeUpViewAria": "特写视图 (150%缩放)",
         "closeUpViewTooltip": "将初始缩放比例增加 1.5 倍",
         "focusTreeInView": "使树适应视图",
         "focusTreeInViewLower": "使树适应视图",
         "focusTreeInViewTooltip": "通过重置缩放和平移使节点适应视图",
-        "switchToLight": "切换到浅色模式",
-        "switchToDark": "切换到深色模式",
         "themeModeTooltip": "在深色和浅色主题之间切换",
         "reloadWindow": "重新加载窗口",
         "reloadWindowTooltip": "刷新页面并加载最新版本",
@@ -106,13 +100,7 @@
     },
     "contextMenu": {
         "defaultTitle": "菜单",
-        "defaultAria": "上下文菜单",
-        "closeAria": "关闭上下文菜单",
-        "tabActions": "标签操作",
-        "tabActionsWithLabel": "标签操作：{tabLabel}",
-        "nodeTitle": "节点",
-        "nodeActions": "节点操作",
-        "treeActions": "树操作",
+        "tabActions": "标签",
         "previewBuildOptions": "预览流派选项",
         "techCrystalsLabel": "科技水晶：",
         "levelsLabel": "等级："
@@ -135,11 +123,9 @@
         "focusedInViewToast": "已使树适应视图",
         "resetTreeToast": "重置{treeLabel}树",
         "resetAllTreesToast": "重置所有树",
-        "menuButtonAria": "菜单",
         "menuButtonTooltip": "打开菜单"
     },
     "techCrystals": {
-        "label": "科技水晶",
         "displayTooltipSpentOnly": "已消耗的\n科技水晶",
         "displayTooltipSpentOwned": "已消耗 / 拥有的\n科技水晶",
         "spentLabel": "已消耗的科技水晶：",
@@ -156,9 +142,7 @@
         "menuTitle": "流派预设",
         "activePresetTooltip": "当前预设：{name}",
         "switchToPresetTooltip": "切换到预设：{name}",
-        "switchToPresetAria": "切换到预设：{name}",
         "editPresetTooltip": "编辑预设：{name}",
-        "editPresetAria": "编辑预设：{name}",
         "createEmptyTooltip": "创建一个空的流派预设",
         "addNew": "新增",
         "deleteAllAndCreateTooltip": "删除所有预设并创建一个新的",
@@ -245,7 +229,6 @@
         "loadModalConfirmLabel": "预览流派"
     },
     "modal": {
-        "closeAria": "关闭模态框",
         "confirmLabel": "确认",
         "cancelLabel": "取消",
         "saveLabel": "保存",
@@ -263,10 +246,6 @@
             "invalidLinkOrDataToast": "无效的链接或流派数据"
         },
         "input": {
-            "resetValueAria": "重置值",
-            "decreaseValueAria": "减少值",
-            "increaseValueAria": "增加值",
-            "increaseByHundredAria": "数值增加100",
             "plusHundred": "+100"
         },
         "resetTree": {
@@ -297,7 +276,6 @@
     },
     "fullscreen": {
         "label": "全屏",
-        "toggleAria": "切换全屏模式",
         "tooltip": "在支持的浏览器中使用全屏",
         "enterTooltip": "进入全屏",
         "exitTooltip": "退出全屏",
@@ -308,7 +286,6 @@
         "label": "主题",
         "menuTitle": "主题",
         "changeTooltip": "更改主题",
-        "aria": "主题：{label}",
         "custom": "自定义",
         "customEllipsis": "自定义...",
         "preset": {
@@ -333,11 +310,6 @@
             "gray": "灰色"
         },
         "colorPicker": {
-            "dialogAria": "自定义颜色选择器",
-            "randomColorAria": "随机颜色",
-            "toggleModeAria": "切换{mode}模式预览",
-            "modeLight": "浅色",
-            "modeDark": "深色",
             "hexLabel": "HEX",
             "cancel": "取消",
             "apply": "应用"
@@ -393,7 +365,7 @@
         "controlsTabInstallDescription": "在 {osName} 上安装渐进式 Web 应用 (PWA)"
     },
     "install": {
-        "ariaTooltip": "在 {osName} 上安装 {appName} 应用",
+        "tooltip": "在 {osName} 上安装 {appName} 应用",
         "buttonLabel": "在 {osName} 上安装应用"
     },
     "toast": {

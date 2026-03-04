@@ -15,8 +15,8 @@
     <TabBar {tabs} {activeTab} {onTabChange} />
     <button
         class="bottom-nav-bar__close-button"
-        aria-label={$t("sideMenu.close")}
-        use:tooltip={$t("sideMenu.close")}
+        aria-label={$t("common.close")}
+        use:tooltip={$t("common.close")}
         on:click={() => onClose?.()}
         type="button"
     >

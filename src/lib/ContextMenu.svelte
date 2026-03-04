@@ -38,7 +38,7 @@
     let lastY = 0;
     let backdropEl: HTMLButtonElement | null = null;
     $: resolvedTitle = title || $t("contextMenu.defaultTitle");
-    $: resolvedAriaLabel = ariaLabel || $t("contextMenu.defaultAria");
+    $: resolvedAriaLabel = ariaLabel || "Context menu";
 
     function handleDocumentPointerUp(event: PointerEvent) {
         if (!isOpen) return;
@@ -302,7 +302,7 @@
         class="context-menu-backdrop"
         type="button"
         tabindex="0"
-        aria-label={$t("contextMenu.closeAria")}
+        aria-label={$t("common.close")}
         bind:this={backdropEl}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}

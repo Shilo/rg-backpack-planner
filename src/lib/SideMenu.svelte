@@ -82,7 +82,7 @@
 
 <button
     class={`menu-backdrop${isOpen ? " visible" : ""}${skipTransition ? " skip-transition" : ""}`}
-    aria-label={$t("sideMenu.closeMenu")}
+    aria-label={$t("common.close")}
     tabindex={isOpen ? 0 : -1}
     inert={!isOpen}
     on:click={handleBackdropClick}
@@ -95,11 +95,7 @@
     inert={!isOpen}
 >
     <div class="side-menu__scroll-area">
-        <nav
-            class="side-menu__content"
-            aria-label={$t("sideMenu.primary")}
-            bind:this={scrollContentElement}
-        >
+        <nav class="side-menu__content" bind:this={scrollContentElement}>
             <div class="side-menu__content-inner">
                 {#if activeTab === "settings"}
                     <SideMenuSettingsPage

@@ -15,7 +15,7 @@
 <Button
     class="currency-display"
     type="button"
-    aria-label={$t("techCrystals.label")}
+    aria-label={$t("techCrystals.displayTooltipSpentOwned")}
     {tooltipText}
     on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
     arrow="right"

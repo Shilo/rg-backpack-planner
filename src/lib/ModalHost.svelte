@@ -104,7 +104,7 @@
         class="modal-backdrop"
         role="button"
         tabindex="0"
-        aria-label={$t("modal.closeAria")}
+        aria-label={$t("common.close")}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
@@ -124,7 +124,8 @@
                     message={$modalStore.message}
                     confirmLabel={$modalStore.confirmLabel ??
                         $t("modal.confirmLabel")}
-                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
+                    cancelLabel={$modalStore.cancelLabel ??
+                        $t("modal.cancelLabel")}
                     confirmNegative={$modalStore.confirmNegative ?? false}
                     confirmPositive={$modalStore.confirmPositive ?? false}
                     onConfirm={handleConfirm}
@@ -141,8 +142,10 @@
                     value={$modalStore.input?.value ?? 0}
                     min={$modalStore.input?.min ?? 0}
                     step={$modalStore.input?.step ?? 1}
-                    confirmLabel={$modalStore.confirmLabel ?? $t("modal.saveLabel")}
-                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
+                    confirmLabel={$modalStore.confirmLabel ??
+                        $t("modal.saveLabel")}
+                    cancelLabel={$modalStore.cancelLabel ??
+                        $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -153,12 +156,15 @@
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
-                    label={$modalStore.textInput?.label ?? $t("modal.valueLabel")}
+                    label={$modalStore.textInput?.label ??
+                        $t("modal.valueLabel")}
                     value={$modalStore.textInput?.value ?? ""}
                     maxLength={$modalStore.textInput?.maxLength ?? 25}
                     placeholder={$modalStore.textInput?.placeholder ?? ""}
-                    confirmLabel={$modalStore.confirmLabel ?? $t("modal.saveLabel")}
-                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
+                    confirmLabel={$modalStore.confirmLabel ??
+                        $t("modal.saveLabel")}
+                    cancelLabel={$modalStore.cancelLabel ??
+                        $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -171,7 +177,8 @@
                     message={$modalStore.message}
                     confirmLabel={$modalStore.confirmLabel ??
                         $t("modal.previewBuildLabel")}
-                    cancelLabel={$modalStore.cancelLabel ?? $t("modal.cancelLabel")}
+                    cancelLabel={$modalStore.cancelLabel ??
+                        $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
                 />
@@ -194,8 +201,7 @@
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
-        padding:
-            calc(var(--spacing-lg) + var(--safe-top, 0px))
+        padding: calc(var(--spacing-lg) + var(--safe-top, 0px))
             calc(var(--spacing-lg) + var(--safe-right, 0px))
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));

@@ -404,7 +404,7 @@
         </div>
         <Button
             class="menu-button"
-            aria-label={$t("tree.menuButtonAria")}
+            aria-label="Menu"
             tooltipText={$t("tree.menuButtonTooltip")}
             on:click={() => onMenuClick?.()}
             icon={ListIcon}

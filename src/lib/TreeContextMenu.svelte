@@ -31,12 +31,8 @@
     {x}
     {y}
     {isOpen}
-    title={tabLabel
-        ? $t("contextMenu.tabActionsWithLabel", { tabLabel })
-        : $t("contextMenu.tabActions")}
-    ariaLabel={tabLabel
-        ? $t("contextMenu.tabActionsWithLabel", { tabLabel })
-        : $t("contextMenu.tabActions")}
+    title={$t("contextMenu.tabActions")}
+    ariaLabel={$t("contextMenu.tabActions")}
     {onClose}
     ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
 >

@@ -131,8 +131,8 @@
         class={className}
         on:click={handleInstallClick}
         icon={DownloadSimpleIcon}
-        aria-label={$t("install.ariaTooltip", { appName, osName })}
-        tooltipText={$t("install.ariaTooltip", { appName, osName })}
+        aria-label={$t("install.tooltip", { appName, osName })}
+        tooltipText={$t("install.tooltip", { appName, osName })}
     >
         {#if title}
             {$t("install.buttonLabel", { osName })}

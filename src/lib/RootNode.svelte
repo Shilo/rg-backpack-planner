@@ -29,7 +29,7 @@
     on:keydown={handleKeydown}
     role="button"
     tabindex="0"
-    aria-label={$t("contextMenu.treeActions")}
+    aria-label="Tree actions"
 >
     <Button
         class="root-node"

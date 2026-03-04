@@ -198,7 +198,9 @@
     function expandHex(value: string): string {
         if (value.length === 3) {
             // CSS shorthand: #rgb → #rrggbb
-            return value[0] + value[0] + value[1] + value[1] + value[2] + value[2];
+            return (
+                value[0] + value[0] + value[1] + value[1] + value[2] + value[2]
+            );
         }
         // Right-pad with zeros: #0 → #000000, #ff → #ff0000
         return value.padEnd(6, "0");
@@ -288,8 +290,7 @@
         <div
             class="color-picker-backdrop"
             role="dialog"
-            aria-modal="true"
-            aria-label={$t("theme.colorPicker.dialogAria")}
+            aria-label="Custom color picker"
             on:pointerdown={handleBackdropPointerDown}
         >
             <div class="color-picker-card">
@@ -365,9 +366,7 @@
                                 small
                                 icon={ShuffleIcon}
                                 iconSize={18}
-                                aria-label={$t(
-                                    "theme.colorPicker.randomColorAria",
-                                )}
+                                aria-label="Random color"
                                 on:click={handleRandom}
                                 negative
                             />
@@ -375,14 +374,9 @@
                                 small
                                 icon={previewDark ? MoonIcon : SunIcon}
                                 iconSize={18}
-                                aria-label={$t(
-                                    "theme.colorPicker.toggleModeAria",
-                                    {
-                                        mode: previewDark
-                                            ? $t("theme.colorPicker.modeLight")
-                                            : $t("theme.colorPicker.modeDark"),
-                                    },
-                                )}
+                                aria-label="Toggle {previewDark
+                                    ? 'light'
+                                    : 'dark'} mode preview"
                                 on:click={handleModeToggle}
                             />
                         </div>

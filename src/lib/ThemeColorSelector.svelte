@@ -4,7 +4,11 @@
         CaretRightIcon,
         PaletteIcon,
     } from "phosphor-svelte";
-    import { themeColor, DEFAULT_THEME_COLOR, type ThemeColor } from "./themeColorStore";
+    import {
+        themeColor,
+        DEFAULT_THEME_COLOR,
+        type ThemeColor,
+    } from "./themeColorStore";
     import { oklchToHex } from "./themeEngine";
     import { triggerHaptic } from "./haptics";
     import { tooltip } from "./tooltip";
@@ -99,7 +103,7 @@
     class="theme-color-button"
     type="button"
     bind:this={buttonEl}
-    aria-label={$t("theme.aria", { label: currentLabel })}
+    aria-label="Theme: {currentLabel}"
     use:tooltip={$t("theme.changeTooltip")}
     on:click={openDropdown}
 >

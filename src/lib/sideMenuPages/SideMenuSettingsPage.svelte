@@ -185,7 +185,7 @@
     <ToggleSwitch
         checked={$singleLevelUp}
         label={$t("settings.singleLevelUp")}
-        ariaLabel={$t("settings.singleLevelUpAria")}
+        ariaLabel="Single level up mode"
         tooltipText={$t("settings.singleLevelUpTooltip")}
         icon={ArrowUpIcon as unknown as Component}
         onToggle={() => singleLevelUp.toggle()}
@@ -196,7 +196,7 @@
     <ToggleSwitch
         checked={$closeUpView}
         label={$t("settings.closeUpView")}
-        ariaLabel={$t("settings.closeUpViewAria")}
+        ariaLabel="Close-up view (150% zoom)"
         tooltipText={$t("settings.closeUpViewTooltip")}
         icon={MagnifyingGlassPlusIcon as unknown as Component}
         onToggle={() => closeUpView.toggle()}
@@ -240,9 +240,6 @@
         <button
             class="icon-button"
             type="button"
-            aria-label={$darkMode
-                ? $t("settings.switchToLight")
-                : $t("settings.switchToDark")}
             use:tooltip={$t("settings.themeModeTooltip")}
             on:click={() => {
                 triggerHaptic();

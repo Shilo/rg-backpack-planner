@@ -18,7 +18,8 @@
         "cancel": "キャンセル",
         "save": "保存",
         "paste": "貼り付け",
-        "share": "共有"
+        "share": "共有",
+        "close": "閉じる"
     },
     "sideMenu": {
         "tabs": {
@@ -35,9 +36,6 @@
                 "tooltip": "入力マッピングを表示します"
             }
         },
-        "closeMenu": "メニューを閉じる",
-        "primary": "プライマリ",
-        "close": "閉じる",
         "sections": {
             "build": "ビルド",
             "node": "ノード",
@@ -83,16 +81,12 @@
         "languageLabel": "言語",
         "languageTooltip": "アプリケーションの言語を選択します",
         "singleLevelUp": "1レベルアップ",
-        "singleLevelUpAria": "1レベルアップモード",
         "singleLevelUpTooltip": "有効な場合、ノードをタップするとレベルが1上がります。無効な場合は10上がります。",
         "closeUpView": "拡大表示",
-        "closeUpViewAria": "拡大表示 (150%ズーム)",
         "closeUpViewTooltip": "初期ズーム倍率を1.5倍にします",
         "focusTreeInView": "ツリーを画面に収める",
         "focusTreeInViewLower": "ツリーを画面に収める",
         "focusTreeInViewTooltip": "ズームとパンをリセットしてノードを画面に収めます",
-        "switchToLight": "ライトモードに切り替える",
-        "switchToDark": "ダークモードに切り替える",
         "themeModeTooltip": "ダークとライトのカラースキームを切り替えます",
         "reloadWindow": "ウィンドウを再読み込み",
         "reloadWindowTooltip": "ページを更新して最新バージョンを読み込みます",
@@ -106,13 +100,7 @@
     },
     "contextMenu": {
         "defaultTitle": "メニュー",
-        "defaultAria": "コンテキストメニュー",
-        "closeAria": "コンテキストメニューを閉じる",
-        "tabActions": "タブアクション",
-        "tabActionsWithLabel": "タブアクション: {tabLabel}",
-        "nodeTitle": "ノード",
-        "nodeActions": "ノードアクション",
-        "treeActions": "ツリーアクション",
+        "tabActions": "タブ",
         "previewBuildOptions": "プレビュービルドのオプション",
         "techCrystalsLabel": "テッククリスタル:",
         "levelsLabel": "レベル:"
@@ -135,11 +123,9 @@
         "focusedInViewToast": "ツリーを画面に収めました",
         "resetTreeToast": "{treeLabel}ツリーをリセットしました",
         "resetAllTreesToast": "すべてのツリーをリセットしました",
-        "menuButtonAria": "メニュー",
         "menuButtonTooltip": "メニューを開く"
     },
     "techCrystals": {
-        "label": "テッククリスタル",
         "displayTooltipSpentOnly": "消費した\nテッククリスタル",
         "displayTooltipSpentOwned": "消費した / 所持している\nテッククリスタル",
         "spentLabel": "消費したテッククリスタル:",
@@ -156,9 +142,7 @@
         "menuTitle": "ビルドプリセット",
         "activePresetTooltip": "アクティブなプリセット: {name}",
         "switchToPresetTooltip": "プリセットに切り替える: {name}",
-        "switchToPresetAria": "プリセットに切り替える: {name}",
         "editPresetTooltip": "プリセットを編集する: {name}",
-        "editPresetAria": "プリセットを編集する: {name}",
         "createEmptyTooltip": "空のビルドプリセットを作成します",
         "addNew": "新しく追加",
         "deleteAllAndCreateTooltip": "すべてのプリセットを削除して新しく作成します",
@@ -245,7 +229,6 @@
         "loadModalConfirmLabel": "ビルドをプレビュー"
     },
     "modal": {
-        "closeAria": "モーダルを閉じる",
         "confirmLabel": "確認",
         "cancelLabel": "キャンセル",
         "saveLabel": "保存",
@@ -263,10 +246,6 @@
             "invalidLinkOrDataToast": "無効なリンクまたはビルドデータです"
         },
         "input": {
-            "resetValueAria": "値をリセット",
-            "decreaseValueAria": "値を減らす",
-            "increaseValueAria": "値を増やす",
-            "increaseByHundredAria": "値を100増やす",
             "plusHundred": "+100"
         },
         "resetTree": {
@@ -297,7 +276,6 @@
     },
     "fullscreen": {
         "label": "全画面表示",
-        "toggleAria": "全画面モードを切り替え",
         "tooltip": "ブラウザがサポートしている場合は全画面表示を利用します",
         "enterTooltip": "全画面表示にする",
         "exitTooltip": "全画面表示を終了",
@@ -308,7 +286,6 @@
         "label": "テーマ",
         "menuTitle": "テーマ",
         "changeTooltip": "テーマを変更",
-        "aria": "テーマ: {label}",
         "custom": "カスタム",
         "customEllipsis": "カスタム...",
         "preset": {
@@ -333,11 +310,6 @@
             "gray": "グレー"
         },
         "colorPicker": {
-            "dialogAria": "カスタムカラーピッカー",
-            "randomColorAria": "ランダムな色",
-            "toggleModeAria": "{mode}モードプレビューを切り替え",
-            "modeLight": "ライト",
-            "modeDark": "ダーク",
             "hexLabel": "HEX",
             "cancel": "キャンセル",
             "apply": "適用"
@@ -393,7 +365,7 @@
         "controlsTabInstallDescription": "{osName} にプログレッシブWebアプリ (PWA) をインストールします"
     },
     "install": {
-        "ariaTooltip": "{appName} アプリを {osName} にインストールします",
+        "tooltip": "{appName} アプリを {osName} にインストールします",
         "buttonLabel": "{osName} にアプリをインストール"
     },
     "toast": {

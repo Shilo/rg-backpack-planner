@@ -16,7 +16,10 @@
     import { formatNumber } from "./mathUtil";
     import { tierSize } from "./tierLeveling";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
-    import { getSkillLevelInfo, getSkillDescKey } from "../config/skillMetadata";
+    import {
+        getSkillLevelInfo,
+        getSkillDescKey,
+    } from "../config/skillMetadata";
     import { t } from "svelte-whisper";
 
     export let nodeIndex: NodeIndex | null = null;
@@ -42,9 +45,7 @@
     }
 
     $: levelInfo =
-        skillId !== null
-            ? getSkillLevelInfo(skillId, level, maxLevel)
-            : null;
+        skillId !== null ? getSkillLevelInfo(skillId, level, maxLevel) : null;
     $: descKey = skillId !== null ? getSkillDescKey(skillId) : null;
 
     $: isSingleLevel = maxLevel <= 1;
@@ -90,8 +91,8 @@
     {x}
     {y}
     {isOpen}
-    title={skillId ? $t(`skills.${skillId}`) : $t("contextMenu.nodeTitle")}
-    ariaLabel={$t("contextMenu.nodeActions")}
+    title={skillId ? $t(`skills.${skillId}`) : "Node"}
+    ariaLabel="Node actions"
     {onClose}
 >
     <div class="node-stats">
@@ -106,11 +107,17 @@
                 <div class="stat-row">
                     <span class="stat-label">{$t("nodeMenu.bonus")}</span>
                     <span class="stat-value">
-                        {formatBonusValue(levelInfo.totalValue * 100)}%{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(levelInfo.nextTotalValue * 100)}%{/if}
+                        {formatBonusValue(
+                            levelInfo.totalValue * 100,
+                        )}%{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(
+                                levelInfo.nextTotalValue * 100,
+                            )}%{/if}
                     </span>
                 </div>
                 <div class="stat-row">
-                    <span class="stat-label">{$t("nodeMenu.nextLevelCost")}</span>
+                    <span class="stat-label"
+                        >{$t("nodeMenu.nextLevelCost")}</span
+                    >
                     <span class="stat-value">
                         {levelInfo.costToNextLevel !== null
                             ? formatNumber(levelInfo.costToNextLevel)
@@ -119,7 +126,9 @@
                 </div>
                 <div class="stat-row">
                     <span class="stat-label">{$t("nodeMenu.totalSpent")}</span>
-                    <span class="stat-value">{formatNumber(levelInfo.totalCostSpent)}</span>
+                    <span class="stat-value"
+                        >{formatNumber(levelInfo.totalCostSpent)}</span
+                    >
                 </div>
             {/if}
             <div class="stat-row">
