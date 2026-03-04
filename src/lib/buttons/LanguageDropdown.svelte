@@ -39,10 +39,14 @@
         tooltipText={$t("settings.languageTooltip")}
     >
         <div class="button-content">
-            <span class="language-name"
-                >{$t(`languageNames.${selectedLocale}`)}</span
-            >
-            <CaretDownIcon class="caret-icon" size={16} />
+            <span class="label">{$t("settings.languageLabel")}</span>
+            <div class="divider"></div>
+            <div class="value-container">
+                <span class="language-value"
+                    >{$t(`languageNames.${selectedLocale}`)}</span
+                >
+                <CaretDownIcon class="caret-icon" size={16} />
+            </div>
         </div>
     </Button>
 </div>
@@ -83,23 +87,45 @@
     :global(.language-button .button-text) {
         flex: 1;
         display: flex;
+        min-width: 0;
+        align-self: stretch;
     }
 
     .button-content {
         display: flex;
-        align-items: center;
+        align-items: stretch;
         justify-content: space-between;
         width: 100%;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-md);
+        min-width: 0;
     }
 
-    .language-name {
+    .label {
         flex: 1;
         text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .divider {
+        width: var(--border-width);
+        background: var(--border);
+        margin: calc(var(--spacing-sm) * -1) 0;
+    }
+
+    .value-container {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        flex-shrink: 0;
+        color: var(--text);
     }
 
     :global(.language-button .caret-icon) {
-        color: var(--text-muted);
         flex-shrink: 0;
     }
 
