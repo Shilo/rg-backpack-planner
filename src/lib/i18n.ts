@@ -13,6 +13,10 @@ export async function initializeI18n(): Promise<void> {
     });
 }
 
+/**
+ * Sync translation helper for modules outside Svelte component reactivity.
+ * Prefer `$t(...)` in Svelte components whenever possible.
+ */
 export { tr };
 
 export const CANONICAL_PRESET_NAMES = {
