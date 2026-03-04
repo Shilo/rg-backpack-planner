@@ -15,19 +15,11 @@
         "titleFullWithVersion": "{appName} - {gameName} {version}"
     },
     "common": {
-        "close": "关闭",
         "cancel": "取消",
-        "confirm": "确认",
         "save": "保存",
-        "create": "创建",
-        "delete": "删除",
-        "rename": "重命名",
         "copy": "复制",
         "copied": "已复制",
-        "value": "数值",
         "paste": "粘贴",
-        "menu": "菜单",
-        "preview": "预览",
         "share": "分享"
     },
     "sideMenu": {
@@ -54,7 +46,6 @@
             "view": "视图",
             "tree": "天赋树",
             "application": "应用",
-            "language": "语言",
             "statistics": "统计",
             "touch": "触控",
             "mouse": "鼠标",
@@ -130,7 +121,6 @@
     },
     "nodeMenu": {
         "bonus": "加成",
-        "bonusValue": "30,000%",
         "nextLevelCost": "下一级费用",
         "totalSpent": "总消耗",
         "level": "等级",
@@ -204,9 +194,7 @@
             "new": "新建",
             "clone": "克隆",
             "newCount": "新建 {count}",
-            "cloneCount": "克隆 {count}",
-            "build": "构筑",
-            "preset": "预设"
+            "cloneCount": "克隆 {count}"
         }
     },
     "share": {
@@ -361,17 +349,11 @@
         "noData": "无数据",
         "header": "统计",
         "backpackSkillBoosts": "背包技能增益",
-        "todo": "待定",
         "attackBoost": "攻击提升",
-        "attackBoostValue": "10,000%",
         "defenseBoost": "防御提升",
-        "defenseBoostValue": "30,000%",
         "criticalHit": "暴击",
-        "criticalHitValue": "160%",
         "globalAtk": "全局攻击",
-        "globalAtkValue": "200%",
         "finalDamageBoost": "最终伤害提升",
-        "finalDamageBoostValue": "20%",
         "backpackNodeLevels": "背包节点等级",
         "techCrystalsSpent": "科技水晶消耗",
         "total": "总计"

@@ -27,6 +27,7 @@
     import { darkMode } from "../darkModeStore";
     import { themeColor } from "../themeColorStore";
     import ThemeColorSelector from "../ThemeColorSelector.svelte";
+    import LanguageDropdown from "../buttons/LanguageDropdown.svelte";
     import { openModal } from "../modalStore";
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
     import { isPreviewMode } from "../previewModeStore";
@@ -37,7 +38,7 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
-    import { t, locale, getLocales } from "svelte-whisper";
+    import { t } from "svelte-whisper";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -55,8 +56,6 @@
     let dropdownMenuOpen = false;
     let dropdownMenuX = 0;
     let dropdownMenuY = 0;
-    let selectedLocale: string = "en";
-    $: selectedLocale = $locale;
 
     const isClose = (a: number, b: number, epsilon: number) =>
         Math.abs(a - b) <= epsilon;
@@ -154,10 +153,6 @@
     function closeDropdownMenu() {
         dropdownMenuOpen = false;
     }
-
-    function handleLanguageChange() {
-        void locale.set(selectedLocale);
-    }
 </script>
 
 <SideMenuPreviewSection />
@@ -166,7 +161,10 @@
     <BuildPresetsButton disabled={$isPreviewMode} />
     <TechCrystalsButton disabled={$isPreviewMode} />
     <div class="button-group build-share-row">
-        <ShareBuildButton title={$t("settings.shareButton")} disabled={$isPreviewMode} />
+        <ShareBuildButton
+            title={$t("settings.shareButton")}
+            disabled={$isPreviewMode}
+        />
         <Button
             class="dropdown-button"
             bind:element={previewButtonElement}
@@ -232,25 +230,7 @@
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.application")}>
-    <div class="language-row">
-        <label for="language-select" class="language-label">
-            {$t("settings.languageLabel")}
-        </label>
-        <select
-            id="language-select"
-            class="language-select"
-            aria-label={$t("settings.languageLabel")}
-            use:tooltip={$t("settings.languageTooltip")}
-            bind:value={selectedLocale}
-            on:change={handleLanguageChange}
-        >
-            {#each getLocales() as localeCode}
-                <option value={localeCode}>
-                    {$t(`languageNames.${localeCode}`)}
-                </option>
-            {/each}
-        </select>
-    </div>
+    <LanguageDropdown />
     <div class="button-group theme-row">
         <ThemeColorSelector />
         <button
@@ -324,33 +304,6 @@
     .theme-row > :global(:first-child) {
         flex: 1;
         min-width: 0;
-    }
-
-    .language-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(130px, auto);
-        gap: var(--spacing-md);
-        align-items: center;
-    }
-
-    .language-label {
-        color: var(--text-muted);
-        font-size: var(--font-base);
-    }
-
-    .language-select {
-        min-height: 38px;
-        border-radius: var(--radius);
-        border: var(--border-width) solid var(--border);
-        background: var(--bg-raised);
-        color: var(--text);
-        font-size: var(--font-base);
-        padding: 0 var(--spacing-md);
-    }
-
-    .language-select:focus-visible {
-        outline: 2px solid var(--border-focus);
-        outline-offset: 2px;
     }
 
     .icon-button {
