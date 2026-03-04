@@ -1,7 +1,7 @@
 import { EyeIcon } from "phosphor-svelte";
 import type { Component } from "svelte";
 import { openModal } from "./modalStore";
-import { tr } from "./i18n";
+import { tr } from "svelte-whisper";
 
 export function openLoadBuildModal(onLoaded?: () => void) {
     openModal({

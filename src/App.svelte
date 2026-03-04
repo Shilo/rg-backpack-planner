@@ -61,7 +61,7 @@
     } from "./lib/toast";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
-    import { tr } from "./lib/i18n";
+    import { tr } from "svelte-whisper";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;

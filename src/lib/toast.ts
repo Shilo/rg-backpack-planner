@@ -1,7 +1,8 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
 import { DEFAULT_PRESET_NAME } from "./buildPresetsStore";
-import { tr, getDisplayPresetName } from "./i18n";
+import { tr } from "svelte-whisper";
+import { getDisplayPresetName } from "./i18n";
 import { sessionGetItem, sessionRemoveItem, sessionSetItem } from "./storage";
 
 export type ToastTone = "positive" | "negative";

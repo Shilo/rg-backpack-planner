@@ -9,7 +9,7 @@ import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { get } from "svelte/store";
 import { showToast } from "../toast";
-import { tr } from "../i18n";
+import { tr } from "svelte-whisper";
 
 /**
  * Copies text to clipboard

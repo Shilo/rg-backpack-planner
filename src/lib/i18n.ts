@@ -1,55 +1,28 @@
 import { init, registerLoader, tr } from "svelte-whisper";
-import type { SkillId } from "../types/tree";
-
-registerLoader("en", () => import("../locales/en.json"));
-registerLoader("jp", () => import("../locales/jp.json"));
-registerLoader("zh", () => import("../locales/zh.json"));
+import { prefixKey } from "./storage";
 
 export async function initializeI18n(): Promise<void> {
+    const localeModules = import.meta.glob("../locales/*.json");
+    for (const [path, loader] of Object.entries(localeModules)) {
+        const locale = path.match(/\/(\w+)\.json$/)?.[1];
+        if (locale) registerLoader(locale, loader as () => Promise<Record<string, unknown>>);
+    }
+
     await init({
-        fallback: "en",
-        persist: "rg-backpack-planner-locale",
-        detect: { ja: "jp", zh: "zh" },
+        persistKey: prefixKey("locale"),
     });
-}
-
-/**
- * Sync translation helper for modules outside Svelte component reactivity.
- * Prefer `$t(...)` in Svelte components whenever possible.
- */
-export { tr };
-
-export const CANONICAL_PRESET_NAMES = {
-    default: "Default",
-    new: "New",
-    clone: "Clone",
-} as const;
-
-export function getSkillLabel(skillId: SkillId): string {
-    return tr(`skills.${skillId}`);
-}
-
-export function getTreeLabel(treeId: "guardian" | "vanguard" | "cannon"): string {
-    return tr(`trees.${treeId}`);
-}
-
-export function getTreeName(treeLabel: string): string {
-    const trimmed = treeLabel.trim();
-    return trimmed
-        ? tr("trees.named", { label: trimmed })
-        : tr("trees.generic");
 }
 
 export function getDisplayPresetName(name: string): string {
     const trimmed = name.trim();
 
-    if (trimmed === CANONICAL_PRESET_NAMES.default) {
+    if (trimmed === "Default") {
         return tr("buildPresets.generated.default");
     }
-    if (trimmed === CANONICAL_PRESET_NAMES.new) {
+    if (trimmed === "New") {
         return tr("buildPresets.generated.new");
     }
-    if (trimmed === CANONICAL_PRESET_NAMES.clone) {
+    if (trimmed === "Clone") {
         return tr("buildPresets.generated.clone");
     }
 

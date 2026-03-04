@@ -6,7 +6,7 @@
 
 export const STORAGE_KEY_PREFIX = "rg-backpack-planner-";
 
-function prefixKey(key: string): string {
+export function prefixKey(key: string): string {
     return `${STORAGE_KEY_PREFIX}${key}`;
 }
 

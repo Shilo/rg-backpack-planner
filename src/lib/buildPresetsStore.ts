@@ -6,7 +6,7 @@
 import { writable, get, derived } from "svelte/store";
 import { encodeBuildData, decodeBuildData } from "./buildData/encoder";
 import { getItem, setItem } from "./storage";
-import { tr } from "./i18n";
+import { tr } from "svelte-whisper";
 
 export const DEFAULT_PRESET_NAME = "Default";
 

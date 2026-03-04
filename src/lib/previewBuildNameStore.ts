@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
-import { tr } from "./i18n";
+import { tr } from "svelte-whisper";
 
 /**
  * Store that tracks the name of the currently previewed build (if any)

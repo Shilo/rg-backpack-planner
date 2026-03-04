@@ -7,8 +7,8 @@ declare module "svelte-whisper" {
     export function init(options?: {
         fallback?: string;
         initial?: string;
-        persist?: string;
-        detect?: Record<string, string>;
+        persistKey?: string;
+        detect?: boolean | Record<string, string>;
     }): Promise<void>;
 
     export function addDictionary(

@@ -1,7 +1,7 @@
 import { HexagonIcon } from "phosphor-svelte";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned } from "./techCrystalStore";
-import { tr } from "./i18n";
+import { tr } from "svelte-whisper";
 
 export function openTechCrystalsOwnedModal(
     currentOwned: number,
