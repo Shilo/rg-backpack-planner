@@ -4,11 +4,11 @@
     import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
     import {
-        shareBuildAsImage,
         saveBuildToUrl,
         shareBuildUrlNative,
     } from "../buildData/share";
     import { portal } from "../portal";
+    import ComposeScreenshot from "../ComposeScreenshot.svelte";
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
     import { truncateText } from "../stringUtil";
@@ -27,6 +27,7 @@
     export let showScreenshot = true;
 
     let shareMenuOpen = false;
+    let composeOpen = false;
     let shareMenuX = 0;
     let shareMenuY = 0;
     let shareButtonElement: HTMLButtonElement | null = null;
@@ -55,9 +56,9 @@
         // The context menu is portaled outside, so we need to ensure clicks don't propagate
     }
 
-    async function handleCopyScreenshot() {
+    function handleComposeScreenshot() {
         closeShareMenu();
-        await shareBuildAsImage();
+        composeOpen = true;
     }
 
     async function handleShareToApp() {
@@ -131,7 +132,7 @@
         {/if}
         {#if showScreenshot}
             <Button
-                on:click={handleCopyScreenshot}
+                on:click={handleComposeScreenshot}
                 tooltipText={$t("share.copyScreenshotTooltip")}
                 icon={ImageIcon}
                 arrow="right"
@@ -141,6 +142,17 @@
         {/if}
     </ContextMenu>
 </div>
+
+{#if composeOpen}
+    <div use:portal>
+        <ComposeScreenshot
+            isOpen={composeOpen}
+            onClose={() => {
+                composeOpen = false;
+            }}
+        />
+    </div>
+{/if}
 
 <style>
     .share-menu-portal {
