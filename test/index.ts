@@ -33,6 +33,9 @@ const TEST_FILES = [
     "globalContextMenu.test.ts",
     "nodeBadge.test.ts",
     "appHotkeys.test.ts",
+    "shareBuildButtonComposeOpen.test.ts",
+    "composeScreenshotHost.test.ts",
+    "sideMenuComposeScreenshotClose.test.ts",
 ];
 
 async function runAllTests() {

@@ -8,7 +8,7 @@
         shareBuildUrlNative,
     } from "../buildData/share";
     import { portal } from "../portal";
-    import ComposeScreenshot from "../ComposeScreenshot.svelte";
+    import { openComposeScreenshot } from "../ComposeScreenshot.svelte";
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
     import { truncateText } from "../stringUtil";
@@ -25,9 +25,9 @@
     export let showShareToApp = true;
     export let showCopyLink = true;
     export let showScreenshot = true;
+    export let onComposeScreenshot: (() => void) | null = null;
 
     let shareMenuOpen = false;
-    let composeOpen = false;
     let shareMenuX = 0;
     let shareMenuY = 0;
     let shareButtonElement: HTMLButtonElement | null = null;
@@ -58,7 +58,8 @@
 
     function handleComposeScreenshot() {
         closeShareMenu();
-        composeOpen = true;
+        onComposeScreenshot?.();
+        openComposeScreenshot();
     }
 
     async function handleShareToApp() {
@@ -142,17 +143,6 @@
         {/if}
     </ContextMenu>
 </div>
-
-{#if composeOpen}
-    <div use:portal>
-        <ComposeScreenshot
-            isOpen={composeOpen}
-            onClose={() => {
-                composeOpen = false;
-            }}
-        />
-    </div>
-{/if}
 
 <style>
     .share-menu-portal {

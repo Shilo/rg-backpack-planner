@@ -10,20 +10,38 @@ if (appSource.includes('import { shareBuildAsImage } from "./lib/buildData/share
     );
 }
 
-if (!appSource.includes('import ComposeScreenshot from "./lib/ComposeScreenshot.svelte";')) {
+if (!/import ComposeScreenshot[\s\S]*from "\.\/lib\/ComposeScreenshot\.svelte";/.test(appSource)) {
     throw new Error(
         "App.svelte should import ComposeScreenshot for the F9 hotkey flow",
     );
 }
 
-if (!/else if \(e\.key === "F9"\)\s*\{\s*e\.preventDefault\(\);\s*composeScreenshotOpen = true;\s*\}/s.test(appSource)) {
+if (!/import ComposeScreenshot,\s*\{\s*openComposeScreenshot\s*,?\s*\}\s*from "\.\/lib\/ComposeScreenshot\.svelte";/s.test(appSource)) {
     throw new Error(
-        "Expected F9 hotkey branch to set composeScreenshotOpen = true",
+        "App.svelte should import openComposeScreenshot from ComposeScreenshot.svelte",
     );
 }
 
-if (!/\{#if composeScreenshotOpen\}[\s\S]*<ComposeScreenshot[\s\S]*isOpen=\{composeScreenshotOpen\}/s.test(appSource)) {
+if (appSource.includes("let composeScreenshotOpen = false;")) {
     throw new Error(
-        "Expected App.svelte to render ComposeScreenshot when composeScreenshotOpen is true",
+        "App.svelte should not use a local compose screenshot flag anymore",
+    );
+}
+
+if (!/else if \(e\.key === "F9"\)\s*\{\s*e\.preventDefault\(\);\s*openComposeScreenshot\(\);\s*\}/s.test(appSource)) {
+    throw new Error(
+        "Expected F9 hotkey branch to call openComposeScreenshot()",
+    );
+}
+
+if (!/<ComposeScreenshot\s*\/>/.test(appSource)) {
+    throw new Error(
+        "Expected App.svelte to render ComposeScreenshot host directly",
+    );
+}
+
+if (appSource.includes("{#if $isComposeScreenshotOpen}")) {
+    throw new Error(
+        "App.svelte should not gate ComposeScreenshot with an if-block; host should own that logic",
     );
 }

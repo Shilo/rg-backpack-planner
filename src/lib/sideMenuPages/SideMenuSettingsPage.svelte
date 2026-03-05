@@ -167,6 +167,7 @@
         <ShareBuildButton
             title={$t("settings.shareButton")}
             disabled={$isPreviewMode}
+            onComposeScreenshot={() => onClose?.()}
         />
         <Button
             class="dropdown-button"

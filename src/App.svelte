@@ -30,7 +30,9 @@
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
-    import ComposeScreenshot from "./lib/ComposeScreenshot.svelte";
+    import ComposeScreenshot, {
+        openComposeScreenshot,
+    } from "./lib/ComposeScreenshot.svelte";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
     import {
         decodeBuildData,
@@ -73,7 +75,6 @@
     let swipeStartY: number | null = null;
     let swipeLastX: number | null = null;
     let isSwiping = false;
-    let composeScreenshotOpen = false;
     const swipeCloseThreshold = 70;
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
@@ -415,7 +416,7 @@
                 toggleMenu();
             } else if (e.key === "F9") {
                 e.preventDefault();
-                composeScreenshotOpen = true;
+                openComposeScreenshot();
             }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -520,14 +521,7 @@
             onMenuClick={toggleMenu}
         />
     </main>
-    {#if composeScreenshotOpen}
-        <ComposeScreenshot
-            isOpen={composeScreenshotOpen}
-            onClose={() => {
-                composeScreenshotOpen = false;
-            }}
-        />
-    {/if}
+    <ComposeScreenshot />
     <Toasts />
     <ModalHost />
     <Tooltip />
