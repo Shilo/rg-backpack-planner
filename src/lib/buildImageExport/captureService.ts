@@ -290,3 +290,46 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     });
 }
 
+export type CaptureAllResult = {
+    combined: Blob | null;
+    trees: [Blob | null, Blob | null, Blob | null];
+};
+
+export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
+    const bridge = tabsBridge;
+    if (!bridge) {
+        return null;
+    }
+
+    return withCaptureState(async () => {
+        const parent = createAndAttachOffscreenParent();
+        const currentIndex = bridge.getActive();
+
+        try {
+            const blob0 = await captureTreeImageByIndex(0, bridge, parent);
+            const blob1 = await captureTreeImageByIndex(1, bridge, parent);
+            const blob2 = await captureTreeImageByIndex(2, bridge, parent);
+
+            let combined: Blob | null = null;
+            if (blob0 && blob1 && blob2) {
+                combined = await combineTreeImagesHorizontally(
+                    blob0,
+                    blob1,
+                    blob2,
+                );
+            }
+
+            return {
+                combined,
+                trees: [blob0, blob1, blob2] as [Blob | null, Blob | null, Blob | null],
+            };
+        } finally {
+            bridge.setActive(currentIndex);
+
+            try {
+                document.body.removeChild(parent);
+            } catch (_) {}
+        }
+    });
+}
+

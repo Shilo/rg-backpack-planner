@@ -110,7 +110,7 @@ export async function shareBuildAsImage(): Promise<void> {
  * @param blob Image blob to copy
  * @returns Promise<boolean> true if successful
  */
-async function copyImageBlobToClipboard(blob: Blob): Promise<boolean> {
+export async function copyImageBlobToClipboard(blob: Blob): Promise<boolean> {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
         console.error("Clipboard API not available");
         return false;
@@ -192,4 +192,43 @@ export async function shareBuildUrlNative(options?: {
     // Clipboard fallback
     const clipboardSuccess = await copyToClipboard(shareUrl);
     return clipboardSuccess ? "copied" : "failed";
+}
+
+/**
+ * Downloads an image blob as a file
+ */
+export function downloadImageBlob(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Shares an image blob via the native Web Share API
+ * @returns true if shared successfully, false if cancelled or unavailable
+ */
+export async function shareImageBlobNative(
+    blob: Blob,
+    filename: string,
+): Promise<boolean> {
+    if (
+        typeof navigator === "undefined" ||
+        typeof navigator.share !== "function"
+    ) {
+        return false;
+    }
+
+    try {
+        const file = new File([blob], filename, { type: "image/png" });
+        await navigator.share({ files: [file] });
+        return true;
+    } catch (error: unknown) {
+        const err = error as { name?: string };
+        if (err?.name === "AbortError") return false;
+        console.error("Failed to share image:", error);
+        return false;
+    }
 }
