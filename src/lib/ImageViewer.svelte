@@ -1,6 +1,9 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
-    import { syncImageViewerFit } from "./imageViewerLayout";
+    import {
+        computeImageViewerFitTransform,
+        syncImageViewerFit,
+    } from "./imageViewerLayout";
 
     export let blob: Blob | null = null;
 
@@ -44,6 +47,10 @@
     } | null = null;
 
     const PAN_THRESHOLD = 8;
+    const DOUBLE_TAP_MAX_DELAY_MS = 300;
+    const DOUBLE_TAP_MAX_DISTANCE_PX = 24;
+    let touchGestureActive = false;
+    let lastTouchTap: { time: number; x: number; y: number } | null = null;
 
     // Blob -> objectURL (reactive)
     $: if (blob) {
@@ -109,6 +116,23 @@
         syncFitState();
     }
 
+    function resetToFit() {
+        const fitTransform = computeImageViewerFitTransform({
+            viewportWidth,
+            viewportHeight,
+            naturalWidth,
+            naturalHeight,
+        });
+        if (!fitTransform) return;
+
+        fitScale = fitTransform.scale;
+        minScale = Math.max(fitScale * 0.5, 0.1);
+        scale = fitTransform.scale;
+        offsetX = fitTransform.offsetX;
+        offsetY = fitTransform.offsetY;
+        hasInitialFit = true;
+    }
+
     function clampOffsets(nextX: number, nextY: number, s: number) {
         if (!viewportWidth || !viewportHeight)
             return { x: nextX, y: nextY };
@@ -138,11 +162,20 @@
 
     // Pointer handlers
     function onPointerDown(event: PointerEvent) {
+        if (event.pointerType === "mouse" && event.button === 1) {
+            event.preventDefault();
+            resetToFit();
+            return;
+        }
+
         viewportEl?.setPointerCapture(event.pointerId);
         pointers.set(event.pointerId, {
             x: event.clientX,
             y: event.clientY,
         });
+        if (event.pointerType === "touch" && pointers.size > 1) {
+            touchGestureActive = true;
+        }
 
         if (pointers.size === 1) {
             primaryPointerId = event.pointerId;
@@ -191,6 +224,9 @@
             const distance = Math.hypot(dx, dy);
             if (!panActive && distance > PAN_THRESHOLD) {
                 panActive = true;
+                if (event.pointerType === "touch") {
+                    touchGestureActive = true;
+                }
             }
             if (panActive) {
                 const nextX = panStart.offsetX + dx;
@@ -200,6 +236,7 @@
                 offsetY = clamped.y;
             }
         } else if (pointers.size === 2 && pinchStart) {
+            touchGestureActive = true;
             const [p1, p2] = Array.from(pointers.values());
             const centerX = (p1.x + p2.x) / 2;
             const centerY = (p1.y + p2.y) / 2;
@@ -224,18 +261,51 @@
     function onPointerUp(event: PointerEvent) {
         pointers.delete(event.pointerId);
         viewportEl?.releasePointerCapture(event.pointerId);
+        const shouldHandleTouchTap =
+            event.pointerType === "touch" &&
+            pointers.size === 0 &&
+            !panActive &&
+            !touchGestureActive;
 
         if (pointers.size === 0) {
             panStart = null;
             panActive = false;
             pinchStart = null;
             primaryPointerId = null;
+            touchGestureActive = false;
         } else if (pointers.size === 1) {
             pinchStart = null;
             const [id, pos] = Array.from(pointers.entries())[0];
             primaryPointerId = id;
             panStart = { x: pos.x, y: pos.y, offsetX, offsetY };
             panActive = false;
+        }
+
+        if (shouldHandleTouchTap) {
+            const now = event.timeStamp;
+            if (lastTouchTap) {
+                const elapsed = now - lastTouchTap.time;
+                const distance = Math.hypot(
+                    event.clientX - lastTouchTap.x,
+                    event.clientY - lastTouchTap.y,
+                );
+                if (
+                    elapsed <= DOUBLE_TAP_MAX_DELAY_MS &&
+                    distance <= DOUBLE_TAP_MAX_DISTANCE_PX
+                ) {
+                    resetToFit();
+                    lastTouchTap = null;
+                    return;
+                }
+            }
+
+            lastTouchTap = {
+                time: now,
+                x: event.clientX,
+                y: event.clientY,
+            };
+        } else if (pointers.size === 0) {
+            lastTouchTap = null;
         }
     }
 
@@ -255,6 +325,12 @@
         offsetX = clamped.x;
         offsetY = clamped.y;
     }
+
+    function onDoubleClick(event: MouseEvent) {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        resetToFit();
+    }
 </script>
 
 <div
@@ -268,6 +344,7 @@
     on:pointercancel={onPointerUp}
     on:pointerleave={onPointerUp}
     on:wheel|preventDefault={onWheel}
+    on:dblclick={onDoubleClick}
 >
     {#if objectUrl}
         <img

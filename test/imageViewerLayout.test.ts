@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import {
+    computeImageViewerFitTransform,
     syncImageViewerFit,
     type ImageViewerFitState,
 } from "../src/lib/imageViewerLayout.ts";
@@ -26,6 +27,32 @@ function almostEqual(actual: number, expected: number, epsilon = 1e-6): void {
         `Expected ${actual} to be within ${epsilon} of ${expected}`,
     );
 }
+
+const fitTransform = computeImageViewerFitTransform({
+    viewportWidth: 1800,
+    viewportHeight: 900,
+    naturalWidth: 2167,
+    naturalHeight: 694,
+});
+assert.ok(
+    fitTransform,
+    "Expected computeImageViewerFitTransform to return transform for valid dimensions",
+);
+almostEqual(fitTransform.scale, 1800 / 2167);
+almostEqual(fitTransform.offsetX, 0);
+almostEqual(fitTransform.offsetY, (900 - 694 * fitTransform.scale) / 2);
+
+const invalidFitTransform = computeImageViewerFitTransform({
+    viewportWidth: 0,
+    viewportHeight: 900,
+    naturalWidth: 2167,
+    naturalHeight: 694,
+});
+assert.strictEqual(
+    invalidFitTransform,
+    null,
+    "Expected null transform when viewport dimensions are invalid",
+);
 
 // Regression: if image metadata arrives before viewport sizing, the first
 // ResizeObserver measurement must still apply the initial fit transform.

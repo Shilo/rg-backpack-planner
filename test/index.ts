@@ -37,6 +37,7 @@ const TEST_FILES = [
     "composeScreenshotHost.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "imageViewerLayout.test.ts",
+    "imageViewerInteractions.test.ts",
 ];
 
 async function runAllTests() {

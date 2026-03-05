@@ -11,6 +11,12 @@ export type ImageViewerFitState = {
     hasInitialFit: boolean;
 };
 
+export type ImageViewerFitTransform = {
+    scale: number;
+    offsetX: number;
+    offsetY: number;
+};
+
 function computeFitScale(params: {
     viewportWidth: number;
     viewportHeight: number;
@@ -23,23 +29,40 @@ function computeFitScale(params: {
     return Math.min(viewportWidth / naturalWidth, viewportHeight / naturalHeight);
 }
 
+export function computeImageViewerFitTransform(params: {
+    viewportWidth: number;
+    viewportHeight: number;
+    naturalWidth: number;
+    naturalHeight: number;
+}): ImageViewerFitTransform | null {
+    const fitScale = computeFitScale(params);
+    if (fitScale === null) {
+        return null;
+    }
+
+    return {
+        scale: fitScale,
+        offsetX: (params.viewportWidth - params.naturalWidth * fitScale) / 2,
+        offsetY: (params.viewportHeight - params.naturalHeight * fitScale) / 2,
+    };
+}
+
 export function syncImageViewerFit(
     state: ImageViewerFitState,
 ): ImageViewerFitState {
-    const nextFitScale = computeFitScale(state);
-    if (nextFitScale === null) {
+    const fitTransform = computeImageViewerFitTransform(state);
+    if (fitTransform === null) {
         return state;
     }
 
+    const nextFitScale = fitTransform.scale;
     const nextMinScale = Math.max(nextFitScale * 0.5, 0.1);
     if (!state.hasInitialFit) {
         return {
             ...state,
             fitScale: nextFitScale,
             minScale: nextMinScale,
-            scale: nextFitScale,
-            offsetX: (state.viewportWidth - state.naturalWidth * nextFitScale) / 2,
-            offsetY: (state.viewportHeight - state.naturalHeight * nextFitScale) / 2,
+            ...fitTransform,
             hasInitialFit: true,
         };
     }
