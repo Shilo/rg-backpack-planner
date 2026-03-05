@@ -187,14 +187,28 @@
         "shareTo": "Share to...",
         "copyLinkTooltip": "Copy shareable link with build data",
         "copyLink": "Copy Link",
-        "copyScreenshotTooltip": "Copy a snapshot of all trees",
-        "copyScreenshot": "Copy screenshot",
+        "copyScreenshotTooltip": "Preview and share tree screenshots",
+        "copyScreenshot": "Compose screenshot",
         "shareLinkCopiedToast": "Share link copied to clipboard",
         "unableToShareLinkToast": "Unable to share link",
         "unableToCopyLinkToast": "Unable to copy link",
         "shareScreenshotCopiedToast": "Share screenshot copied to clipboard",
         "unableToCopyScreenshotToast": "Unable to copy screenshot",
         "defaultShareTitle": "Backpack tech tree build"
+    },
+    "compose": {
+        "tabs": {
+            "all": "All"
+        },
+        "loading": "Generating screenshots...",
+        "captureErrorToast": "Unable to generate screenshots",
+        "copiedToast": "Screenshot copied to clipboard",
+        "copyErrorToast": "Unable to copy screenshot",
+        "downloadedToast": "Screenshot downloaded",
+        "shareErrorToast": "Unable to share screenshot",
+        "copyTooltip": "Copy to clipboard",
+        "downloadTooltip": "Download as PNG",
+        "shareTooltip": "Share via app"
     },
     "preview": {
         "title": "Preview",
