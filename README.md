@@ -211,3 +211,12 @@ The workflow bumps the app version, builds, deploys to Pages, and commits the ve
 - The deployed base path is `/rg-backpack-planner/`.
 - `npm run build` copies `index.html` to `404.html` so GitHub Pages can route SPA URLs correctly.
 - If `public/icon.svg` changes, run `npm run pwa:assets` to refresh generated PWA icons.
+
+### Troubleshooting Missed Deploys
+
+GitHub occasionally drops workflow triggers — a push to `main` is registered but no Actions run is created. If a push doesn't deploy:
+
+1. Check the [Actions tab](https://github.com/Shilo/rg-backpack-planner/actions) for a run matching your commit.
+2. If no run exists, click **Actions** in the repo's top navigation bar, then click **Deploy Vite app to Pages** in the sidebar, then click **Run workflow** (select `main`) to manually trigger a deploy. Direct link: [Deploy Vite app to Pages workflow](https://github.com/Shilo/rg-backpack-planner/actions/workflows/static.yml). Alternatively, run `gh workflow run "Deploy Vite app to Pages"` from the CLI or push another commit.
+
+**Note:** The CI version-bump commit uses `GITHUB_TOKEN`, which [does not trigger new workflow runs by design](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow). Only user pushes trigger deploys.
