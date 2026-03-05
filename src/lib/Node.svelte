@@ -54,12 +54,18 @@
             class="node-badge-anchor"
             data-node-id={String(id)}
             style={`transform: scale(${Math.max(1 / scale, 1)});`}
-        >{#if isLeaf}<span class="node-badge node-badge-star"><StarIcon size={12} weight="fill" /></span>{:else}<span class="node-badge">{formatNumber(level)}</span>{/if}</span>
+            >{#if isLeaf}<span class="node-badge node-badge-star"
+                    ><StarIcon size={12} weight="fill" /></span
+                >{:else}<span class="node-badge">{formatNumber(level)}</span
+                >{/if}</span
+        >
     {/if}
 </div>
 
 <style>
     .node-wrapper {
+        --z-index-badge: 4;
+
         position: absolute;
         transform: translate(-50%, -50%);
     }
@@ -232,7 +238,7 @@
         left: 50%;
         width: 0;
         height: 0;
-        z-index: 2;
+        z-index: var(--z-index-badge);
         cursor: pointer;
         touch-action: none;
     }
@@ -252,7 +258,7 @@
         font-weight: 700;
         line-height: 1;
         letter-spacing: 0.01em;
-        color: white;
+        color: rgba(0, 0, 0, 0.8);
 
         padding: 1px 4px 2px;
         border-radius: var(--radius-full);
