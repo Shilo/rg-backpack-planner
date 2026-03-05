@@ -11,6 +11,7 @@
     import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
     import { triggerHaptic } from "./haptics";
     import type { TreeViewState } from "./Tree.svelte";
+    import { get } from "svelte/store";
     import {
         setActiveTab,
         setActiveTabWithoutPersist,
@@ -51,7 +52,11 @@
     export let activeTreeIndex = 0;
     export let activeTreeViewState: TreeViewState | null = null;
     export let activeTreeFocusViewState: TreeViewState | null = null;
-    let activeTab: SideMenuTab = $sideMenuActiveTab;
+    // Use get() instead of $sideMenuActiveTab to avoid creating a store auto-subscription.
+    // The $ prefix causes Svelte to re-assign activeTab whenever the store updates, which
+    // can race with the direct assignment in handleSideMenuTabChange and corrupt the {#if}
+    // block rendering, resulting in blank tab content.
+    let activeTab: SideMenuTab = get(sideMenuActiveTab);
     let scrollContentElement: HTMLElement | null = null;
 
     export function openTab(tab: SideMenuTab, persist: boolean = true) {
