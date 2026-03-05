@@ -31,6 +31,7 @@ const TEST_FILES = [
     // 5. UI & Interaction
     "editableSurfaceStyles.test.ts",
     "globalContextMenu.test.ts",
+    "nodeBadge.test.ts",
 ];
 
 async function runAllTests() {

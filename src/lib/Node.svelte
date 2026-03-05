@@ -54,7 +54,7 @@
             class="node-badge-anchor"
             data-node-id={String(id)}
             style={`transform: scale(${Math.max(1 / scale, 1)});`}
-            >{#if isLeaf}<span class="node-badge node-badge-star"
+            >{#if state === "maxed"}<span class="node-badge node-badge-star"
                     ><StarIcon size={12} weight="fill" /></span
                 >{:else}<span class="node-badge">{formatNumber(level)}</span
                 >{/if}</span
@@ -95,6 +95,7 @@
         --text-color: var(--region-blue-text);
         --text-color-active: var(--region-blue-text);
         --text-color-maxed: var(--region-blue-text-maxed);
+        --node-badge-text-color: #1f2937;
         --hex-clip: polygon(
             25% 0%,
             75% 0%,
@@ -258,7 +259,7 @@
         font-weight: 700;
         line-height: 1;
         letter-spacing: 0.01em;
-        color: rgba(0, 0, 0, 0.8);
+        color: var(--node-badge-text-color);
 
         padding: 1px 4px 2px;
         border-radius: var(--radius-full);
@@ -277,7 +278,6 @@
 
     .badge-bottom-left .node-badge {
         background: var(--region-yellow-accent);
-        color: rgba(0, 0, 0, 0.8);
     }
 
     .badge-right .node-badge {
