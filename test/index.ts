@@ -36,6 +36,7 @@ const TEST_FILES = [
     "shareBuildButtonComposeOpen.test.ts",
     "composeScreenshotHost.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
+    "imageViewerLayout.test.ts",
 ];
 
 async function runAllTests() {

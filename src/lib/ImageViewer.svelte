@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
+    import { syncImageViewerFit } from "./imageViewerLayout";
 
     export let blob: Blob | null = null;
 
@@ -7,6 +8,7 @@
     let imgEl: HTMLImageElement | null = null;
     let objectUrl: string | null = null;
     let imageLoaded = false;
+    let hasInitialFit = false;
     let naturalWidth = 0;
     let naturalHeight = 0;
 
@@ -48,10 +50,16 @@
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         objectUrl = URL.createObjectURL(blob);
         imageLoaded = false;
+        hasInitialFit = false;
+        naturalWidth = 0;
+        naturalHeight = 0;
     } else {
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         objectUrl = null;
         imageLoaded = false;
+        hasInitialFit = false;
+        naturalWidth = 0;
+        naturalHeight = 0;
     }
 
     onDestroy(() => {
@@ -67,21 +75,30 @@
         return { x: (x - offsetX) / scale, y: (y - offsetY) / scale };
     }
 
-    function computeFitScale() {
-        if (!viewportWidth || !viewportHeight || !naturalWidth || !naturalHeight)
-            return;
-        fitScale = Math.min(
-            viewportWidth / naturalWidth,
-            viewportHeight / naturalHeight,
-        );
-        minScale = Math.max(fitScale * 0.5, 0.1);
-    }
-
-    function fitToView() {
-        computeFitScale();
-        scale = fitScale;
-        offsetX = (viewportWidth - naturalWidth * scale) / 2;
-        offsetY = (viewportHeight - naturalHeight * scale) / 2;
+    function syncFitState() {
+        // Race-condition guard:
+        // `img.onload` can fire before ResizeObserver reports viewport dimensions when
+        // the compose modal first mounts. We centralize fit updates here so initial
+        // centering happens only once *after* both image + viewport sizes are known,
+        // and later resizes only refresh fit/min bounds without resetting user pan/zoom.
+        const next = syncImageViewerFit({
+            viewportWidth,
+            viewportHeight,
+            naturalWidth,
+            naturalHeight,
+            scale,
+            offsetX,
+            offsetY,
+            fitScale,
+            minScale,
+            hasInitialFit,
+        });
+        fitScale = next.fitScale;
+        minScale = next.minScale;
+        scale = next.scale;
+        offsetX = next.offsetX;
+        offsetY = next.offsetY;
+        hasInitialFit = next.hasInitialFit;
     }
 
     function handleImageLoad() {
@@ -89,7 +106,7 @@
         naturalWidth = imgEl.naturalWidth;
         naturalHeight = imgEl.naturalHeight;
         imageLoaded = true;
-        fitToView();
+        syncFitState();
     }
 
     function clampOffsets(nextX: number, nextY: number, s: number) {
@@ -113,7 +130,7 @@
                 const rect = viewportEl.getBoundingClientRect();
                 viewportWidth = rect.width;
                 viewportHeight = rect.height;
-                if (imageLoaded) computeFitScale();
+                if (imageLoaded) syncFitState();
             }
         });
         resizeObserver.observe(viewportEl);
