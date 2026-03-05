@@ -39,7 +39,7 @@
         position: fixed;
         inset: 0;
         z-index: var(--z-index-modal);
-        background: var(--bg-panel);
+        background: var(--bg-modal, var(--surface));
         display: flex;
         flex-direction: column;
         overflow: hidden;

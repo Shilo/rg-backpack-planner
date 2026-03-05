@@ -126,6 +126,7 @@ export function applyTheme(
     if (isDark) {
         vars["--bg"] = oklchToHex(0.10, neutralChroma, source.h);
         vars["--bg-panel"] = oklchToHex(0.14, neutralChroma, source.h);
+        vars["--bg-modal"] = oklchToHex(0.24, neutralChroma, source.h);
         vars["--bg-input"] = oklchToHex(0.18, neutralChroma, source.h);
         vars["--surface"] = oklchToHex(0.22, neutralChroma, source.h);
         vars["--bg-raised"] = oklchToHex(0.28, neutralChroma, source.h);
@@ -134,6 +135,7 @@ export function applyTheme(
     } else {
         vars["--bg"] = oklchToHex(0.97, neutralChroma, source.h);
         vars["--bg-panel"] = oklchToHex(0.94, neutralChroma, source.h);
+        vars["--bg-modal"] = oklchToHex(0.86, neutralChroma, source.h);
         vars["--bg-input"] = oklchToHex(0.91, neutralChroma, source.h);
         vars["--surface"] = oklchToHex(0.88, neutralChroma, source.h);
         vars["--bg-raised"] = oklchToHex(0.84, neutralChroma, source.h);
