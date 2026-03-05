@@ -95,7 +95,6 @@
         --text-color: var(--region-blue-text);
         --text-color-active: var(--region-blue-text);
         --text-color-maxed: var(--region-blue-text-maxed);
-        --node-badge-text-color: #1f2937;
         --hex-clip: polygon(
             25% 0%,
             75% 0%,
@@ -259,7 +258,7 @@
         font-weight: 700;
         line-height: 1;
         letter-spacing: 0.01em;
-        color: var(--node-badge-text-color);
+        color: var(--node-badge-text);
 
         padding: 1px 4px 2px;
         border-radius: var(--radius-full);
