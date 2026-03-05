@@ -242,6 +242,8 @@
 
 <div
     class="image-viewer"
+    role="group"
+    aria-label="Image viewer"
     bind:this={viewportEl}
     on:pointerdown={onPointerDown}
     on:pointermove={onPointerMove}

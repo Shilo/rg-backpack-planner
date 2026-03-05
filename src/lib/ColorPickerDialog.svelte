@@ -290,6 +290,7 @@
         <div
             class="color-picker-backdrop"
             role="dialog"
+            tabindex="-1"
             aria-label="Custom color picker"
             on:pointerdown={handleBackdropPointerDown}
         >
@@ -297,6 +298,8 @@
                 <!-- Full-spectrum color grid (col 0 = gray, cols 1-11 = hues) -->
                 <div
                     class="color-grid"
+                    role="application"
+                    aria-label="Color selection grid"
                     bind:this={gridEl}
                     on:pointerdown={handleGridPointerDown}
                     on:pointermove={handleGridPointerMove}

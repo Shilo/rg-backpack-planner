@@ -314,6 +314,7 @@
         bind:this={menuEl}
         style={`left: ${displayX}px; top: ${displayY}px;`}
         role="menu"
+        tabindex="-1"
         aria-label={resolvedAriaLabel}
         on:pointerdown={handlePointerDown}
         on:pointermove={handlePointerMove}
