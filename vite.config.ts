@@ -5,7 +5,7 @@ import { THEME_BG } from "./scripts/theme-defaults.ts";
 
 // https://vite.dev/config/
 export default defineConfig({
-    base: "/rg-backpack-planner/",
+    base: "/",
     plugins: [
         svelte(),
         VitePWA({
