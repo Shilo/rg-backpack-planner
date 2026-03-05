@@ -32,6 +32,7 @@ const TEST_FILES = [
     "editableSurfaceStyles.test.ts",
     "globalContextMenu.test.ts",
     "nodeBadge.test.ts",
+    "appHotkeys.test.ts",
 ];
 
 async function runAllTests() {

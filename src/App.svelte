@@ -30,7 +30,7 @@
         techCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
-    import { shareBuildAsImage } from "./lib/buildData/share";
+    import ComposeScreenshot from "./lib/ComposeScreenshot.svelte";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
     import {
         decodeBuildData,
@@ -73,6 +73,7 @@
     let swipeStartY: number | null = null;
     let swipeLastX: number | null = null;
     let isSwiping = false;
+    let composeScreenshotOpen = false;
     const swipeCloseThreshold = 70;
     $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
     $: canResetActiveTree = activeTreeLevelsTotal > 0;
@@ -405,7 +406,7 @@
     onMount(() => {
         ensureInstallListeners();
 
-        // Global hotkeys: F9 to share, Escape to toggle menu
+        // Global hotkeys: F9 to open screenshot composer, Escape to toggle menu
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat) return;
 
@@ -414,7 +415,7 @@
                 toggleMenu();
             } else if (e.key === "F9") {
                 e.preventDefault();
-                shareBuildAsImage();
+                composeScreenshotOpen = true;
             }
         };
         window.addEventListener("keydown", handleKeyDown);
@@ -519,6 +520,14 @@
             onMenuClick={toggleMenu}
         />
     </main>
+    {#if composeScreenshotOpen}
+        <ComposeScreenshot
+            isOpen={composeScreenshotOpen}
+            onClose={() => {
+                composeScreenshotOpen = false;
+            }}
+        />
+    {/if}
     <Toasts />
     <ModalHost />
     <Tooltip />
