@@ -52,10 +52,8 @@
     export let activeTreeIndex = 0;
     export let activeTreeViewState: TreeViewState | null = null;
     export let activeTreeFocusViewState: TreeViewState | null = null;
-    // Use get() instead of $sideMenuActiveTab to avoid creating a store auto-subscription.
-    // The $ prefix causes Svelte to re-assign activeTab whenever the store updates, which
-    // can race with the direct assignment in handleSideMenuTabChange and corrupt the {#if}
-    // block rendering, resulting in blank tab content.
+    // Use get() for one-time init instead of $sideMenuActiveTab auto-subscription.
+    // Tab changes are driven by direct assignment in handleSideMenuTabChange/openTab.
     let activeTab: SideMenuTab = get(sideMenuActiveTab);
     let scrollContentElement: HTMLElement | null = null;
 
@@ -229,6 +227,12 @@
     }
 
     .side-menu__content-inner > :global(:last-child) {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    /* When the last child is hidden (e.g. a portal wrapper), apply the bottom
+       margin to the preceding visible sibling instead. */
+    .side-menu__content-inner > :global(:has(+ [hidden]:last-child)) {
         margin-bottom: var(--spacing-lg);
     }
 

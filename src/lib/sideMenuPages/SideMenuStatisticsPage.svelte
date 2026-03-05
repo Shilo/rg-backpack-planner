@@ -118,21 +118,29 @@
     </div>
 </SideMenuSection>
 
-<div use:portal class="stats-share-menu-portal" class:menu-open={shareMenuOpen}>
-    <ContextMenu
-        x={shareMenuX}
-        y={shareMenuY}
-        isOpen={shareMenuOpen}
-        title={$t("common.share")}
-        onClose={closeShareMenu}
-    >
-        <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
-            {$t("share.shareTo")}
-        </Button>
-        <Button on:click={handleCopyStatistics} icon={CopySimpleIcon}>
-            {$t("statistics.copyStatistics")}
-        </Button>
-    </ContextMenu>
+<!-- Wrapper prevents the portaled div from being the component's last top-level DOM node.
+     Svelte 5 tracks effect boundaries via nodes.start/nodes.end and traverses siblings
+     between them during cleanup. The portal action moves its node to #app, breaking the
+     sibling chain. If the portaled node is nodes.end, cleanup walks past the component
+     boundary and removes the {#if} block anchor, causing blank content on tab switch.
+     This wrapper (hidden, so nodes.end stays in the DOM) keeps the sibling chain intact. -->
+<div hidden>
+    <div use:portal class="stats-share-menu-portal" class:menu-open={shareMenuOpen}>
+        <ContextMenu
+            x={shareMenuX}
+            y={shareMenuY}
+            isOpen={shareMenuOpen}
+            title={$t("common.share")}
+            onClose={closeShareMenu}
+        >
+            <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
+                {$t("share.shareTo")}
+            </Button>
+            <Button on:click={handleCopyStatistics} icon={CopySimpleIcon}>
+                {$t("statistics.copyStatistics")}
+            </Button>
+        </ContextMenu>
+    </div>
 </div>
 
 <style>
