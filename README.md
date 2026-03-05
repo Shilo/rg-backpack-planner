@@ -217,6 +217,7 @@ The workflow bumps the app version, builds, deploys to Pages, and commits the ve
 GitHub occasionally drops workflow triggers — a push to `main` is registered but no Actions run is created. If a push doesn't deploy:
 
 1. Check the [Actions tab](https://github.com/Shilo/rg-backpack-planner/actions) for a run matching your commit.
-2. If no run exists, click **Actions** in the repo's top navigation bar, then click **Deploy Vite app to Pages** in the sidebar, then click **Run workflow** (select `main`) to manually trigger a deploy. Direct link: [Deploy Vite app to Pages workflow](https://github.com/Shilo/rg-backpack-planner/actions/workflows/static.yml). Alternatively, run `gh workflow run "Deploy Vite app to Pages"` from the CLI or push another commit.
+2. If a run exists but failed with "Service Unavailable" or "Internal server error" during **Set up job**, GitHub's infrastructure was temporarily down. Re-run the failed workflow or push another commit.
+3. If no run exists at all, click **Actions** in the repo's top navigation bar, then click **Deploy Vite app to Pages** in the sidebar, then click **Run workflow** (select `main`) to manually trigger a deploy. Direct link: [Deploy Vite app to Pages workflow](https://github.com/Shilo/rg-backpack-planner/actions/workflows/static.yml). Alternatively, run `gh workflow run "Deploy Vite app to Pages"` from the CLI or push another commit.
 
 **Note:** The CI version-bump commit uses `GITHUB_TOKEN`, which [does not trigger new workflow runs by design](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow). Only user pushes trigger deploys.
