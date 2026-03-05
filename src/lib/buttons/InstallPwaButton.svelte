@@ -44,6 +44,11 @@
         hasInitialized = true;
         sharedState.isInstalled = detectStandalone();
         const handleBeforeInstallPrompt = (event: Event) => {
+            // We intentionally defer the browser banner to show our own install button.
+            // Chromium logs this warning if this event is prevented but `prompt()` is
+            // never called during the session (for example, when the user does not click
+            // install): "Banner not shown: beforeinstallpromptevent.preventDefault() called.
+            // The page must call beforeinstallpromptevent.prompt() to show the banner."
             event.preventDefault();
             sharedState.deferredInstallPrompt =
                 event as BeforeInstallPromptEvent;
