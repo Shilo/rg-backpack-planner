@@ -101,7 +101,7 @@
     },
     "contextMenu": {
         "defaultTitle": "Menu",
-        "tabActions": "Tab",
+        "tabActions": "{tabLabel} Tree",
         "previewBuildOptions": "Preview build options",
         "techCrystalsLabel": "Tech Crystals:",
         "levelsLabel": "Levels:"

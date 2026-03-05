@@ -215,7 +215,11 @@
     </Button>
 </SideMenuSection>
 
-<SideMenuSection title={$t("sideMenu.sections.tree")}>
+<SideMenuSection
+    title={activeTreeName
+        ? $t("trees.named", { label: activeTreeName })
+        : $t("trees.generic")}
+>
     <ResetTreeButton
         onReset={() => {
             onResetTree?.();
