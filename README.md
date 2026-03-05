@@ -4,7 +4,7 @@
 
 Backpack Planner is a Svelte 5 + TypeScript PWA for planning and sharing Backpack Tech builds for *Run! Goddess*.
 
-Live app: https://rgbp.app/  
+Live app: https://rgbp.app  
 Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
 ## Overview
