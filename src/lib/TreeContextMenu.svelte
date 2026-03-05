@@ -25,14 +25,18 @@
     $: if (isOpen) {
         menuTabId = tabId;
     }
+
+    $: title = tabLabel
+        ? $t("trees.named", { label: tabLabel })
+        : $t("trees.generic");
 </script>
 
 <ContextMenu
     {x}
     {y}
     {isOpen}
-    title={$t("contextMenu.tabActions")}
-    ariaLabel={$t("contextMenu.tabActions")}
+    {title}
+    ariaLabel={title}
     {onClose}
     ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
 >
