@@ -953,7 +953,6 @@
                         label={$t(`skills.${nodeView.node.skillId}`)}
                         level={nodeView.level}
                         state={nodeView.state}
-                        tier={nodeView.tier}
                         radius={nodeView.node.radius ?? 1}
                         {scale}
                         region={nodeView.region}

@@ -37,7 +37,7 @@
     let lastX = 0;
     let lastY = 0;
     let backdropEl: HTMLButtonElement | null = null;
-    $: resolvedTitle = title || $t("contextMenu.defaultTitle");
+    $: resolvedTitle = title || "";
     $: resolvedAriaLabel = ariaLabel || "Context menu";
 
     function handleDocumentPointerUp(event: PointerEvent) {
@@ -320,7 +320,9 @@
         on:pointerup={handlePointerUp}
         on:pointercancel={handlePointerUp}
     >
-        <div class="context-menu__title">{resolvedTitle}</div>
+        {#if resolvedTitle}
+            <div class="context-menu__title">{resolvedTitle}</div>
+        {/if}
         <slot />
     </div>
 {/if}

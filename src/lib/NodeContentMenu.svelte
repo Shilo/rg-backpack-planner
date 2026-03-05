@@ -114,72 +114,63 @@
     {x}
     {y}
     {isOpen}
-    title={skillId ? $t(`skills.${skillId}`) : "Node"}
-    ariaLabel="Node actions"
+    title=""
+    ariaLabel={skillId ? $t(`skills.${skillId}`) : "Node"}
     {onClose}
 >
-    <div class="node-stats">
-        <div class="node-icon-wrapper">
-            <svelte:component this={NodeIcon} />
-        </div>
-        <div class="node-stats-content">
+    <div class="node-info">
+        <div class="info-header">
+            <span class="state-icon">
+                <svelte:component this={NodeIcon} />
+            </span>
+            <span class="skill-name">{skillId ? $t(`skills.${skillId}`) : "Node"}</span>
             {#if descKey}
-                <p class="skill-description">{descKey}</p>
+                <p class="skill-desc">{descKey}</p>
             {/if}
-            {#if levelInfo}
-                <div class="stat-row">
-                    <span class="stat-label">{$t("nodeMenu.bonus")}</span>
-                    <span class="stat-value">
-                        {formatBonusValue(
-                            levelInfo.totalValue * 100,
-                        )}%{#if levelInfo.nextTotalValue !== null}&nbsp;→&nbsp;{formatBonusValue(
-                                levelInfo.nextTotalValue * 100,
-                            )}%{/if}
-                    </span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label"
-                        >{$t("nodeMenu.nextLevelCost")}</span
-                    >
-                    <span class="stat-value">
-                        {levelInfo.costToNextLevel !== null
-                            ? formatNumber(levelInfo.costToNextLevel)
-                            : $t("nodeMenu.max")}
-                    </span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">{$t("nodeMenu.totalSpent")}</span>
-                    <span class="stat-value"
-                        >{formatNumber(levelInfo.totalCostSpent)}</span
-                    >
-                </div>
-            {/if}
-            <div class="stat-row">
-                <span class="stat-label">{$t("nodeMenu.level")}</span>
-                <span class="stat-value"
-                    >{formatNumber(level)} / {formatNumber(maxLevel)}</span
+        </div>
+
+        {#if levelInfo}
+            <div class="bonus-display">
+                <span class="bonus-current"
+                    >{formatBonusValue(levelInfo.totalValue * 100)}%</span
                 >
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">{$t("nodeMenu.tier")}</span>
-                <span class="stat-value">
-                    {completedTiers}
-                    /
-                    {totalTiers}
-                </span>
-            </div>
-            <div
-                class="level-progress"
-                style={`--tick-gradient:${tickImage}; --tick-thickness: 3px;`}
-            >
-                <div
-                    class="level-progress-bar"
-                    style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
-                ></div>
-                {#if tickImage}
-                    <div class="level-progress-ticks"></div>
+                {#if levelInfo.nextTotalValue !== null}
+                    <span class="bonus-arrow">→</span>
+                    <span class="bonus-next"
+                        >{formatBonusValue(levelInfo.nextTotalValue * 100)}%</span
+                    >
                 {/if}
             </div>
+        {/if}
+
+        <div class="meta-row">
+            <div class="meta-item">
+                <span class="meta-label">{$t("nodeMenu.level")}</span>
+                <span class="meta-value"
+                    >{formatNumber(level)}<span class="meta-sep">/</span
+                    >{formatNumber(maxLevel)}</span
+                >
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">{$t("nodeMenu.tier")}</span>
+                <span class="meta-value"
+                    >{completedTiers}<span class="meta-sep">/</span
+                    >{totalTiers}</span
+                >
+            </div>
+        </div>
+
+        <div
+            class="progress"
+            style={`--tick-gradient:${tickImage}; --tick-thickness: 3px;`}
+        >
+            <div
+                class="progress-fill"
+                style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
+            ></div>
+            {#if tickImage}
+                <div class="progress-ticks"></div>
+            {/if}
         </div>
     </div>
     <div class="button-grid" class:stacked={isSingleLevel}>
@@ -259,80 +250,128 @@
 </ContextMenu>
 
 <style>
-    .node-stats {
-        padding: var(--spacing-md) var(--spacing-lg);
+    .node-info {
+        padding: var(--spacing-lg);
         border-bottom: var(--border-width) solid var(--border-subtle);
-        display: flex;
-        align-items: flex-start;
-        gap: var(--spacing-lg);
-    }
-
-    .node-icon-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        flex-shrink: 0;
-    }
-
-    .node-icon-wrapper :global(svg) {
-        width: 24px;
-        height: 24px;
-        opacity: var(--opacity-disabled);
-    }
-
-    .node-stats-content {
-        flex: 1;
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
     }
 
-    .skill-description {
-        margin: 0;
-        font-size: var(--font-sm);
-        color: var(--text-muted);
-        line-height: 1.4;
+    .info-header {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        gap: 0 var(--spacing-md);
+        align-items: end;
     }
 
-    .stat-row {
+    .state-icon {
+        grid-row: 1 / 3;
+        grid-column: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: stretch;
+    }
+
+    .state-icon :global(svg) {
+        width: 100%;
+        height: 100%;
+        opacity: var(--opacity-disabled);
+    }
+
+    .skill-name {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: var(--font-base);
+        font-weight: var(--weight-bold);
+        color: var(--text);
+        letter-spacing: var(--tracking);
+        align-self: end;
+    }
+
+    .skill-desc {
+        grid-column: 2;
+        grid-row: 2;
+        margin: 0;
+        font-size: var(--font-xs);
+        color: var(--text-muted);
+        line-height: var(--leading);
+        align-self: start;
+    }
+
+    .bonus-display {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md) 0;
+    }
+
+    .bonus-current {
+        font-size: var(--font-lg);
+        font-weight: var(--weight-bold);
+        color: var(--text);
+    }
+
+    .bonus-arrow {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+    }
+
+    .bonus-next {
+        font-size: var(--font-lg);
+        font-weight: var(--weight-bold);
+        color: var(--accent-light);
+    }
+
+    .meta-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: var(--spacing-md);
-        font-size: var(--font-base);
+        gap: var(--spacing-lg);
     }
 
-    .stat-label {
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .meta-label {
+        font-size: var(--font-sm);
         color: var(--text-muted);
     }
 
-    .stat-value {
-        color: var(--text);
+    .meta-value {
+        font-size: var(--font-sm);
         font-weight: var(--weight-bold);
+        color: var(--text);
     }
 
-    .level-progress {
+    .meta-sep {
+        opacity: var(--opacity-disabled);
+        margin: 0 1px;
+    }
+
+    .progress {
         width: 100%;
-        height: 10px;
+        height: 8px;
         background: var(--bg-raised);
         border-radius: 4px;
         overflow: hidden;
-        margin-top: 2px;
         position: relative;
         clip-path: inset(0 round 4px);
     }
 
-    .level-progress-bar {
+    .progress-fill {
         height: 100%;
         background: linear-gradient(90deg, var(--accent), var(--accent-light));
         transition: width var(--ease);
-        position: relative;
         border-radius: 0;
     }
 
-    .level-progress-ticks {
+    .progress-ticks {
         position: absolute;
         inset: 0;
         background-image: var(--tick-gradient, none);

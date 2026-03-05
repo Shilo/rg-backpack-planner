@@ -8,6 +8,7 @@
         CrownIcon,
         LockIcon,
         PlusIcon,
+        StarIcon,
     } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
@@ -19,7 +20,6 @@
     export let label: string = "";
     export let level: number = 0;
     export let state: NodeState = "locked";
-    export let tier: number = 0;
     export let radius: number = 1;
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
@@ -36,7 +36,7 @@
 </script>
 
 <div
-    class={`node-wrapper ${isLeaf ? "node-wrapper-hex" : ""}`}
+    class={`node-wrapper ${isLeaf ? "node-wrapper-hex" : ""} badge-${region}`}
     style="left: {x}px; top: {y}px;"
 >
     <Button
@@ -47,20 +47,15 @@
         iconClass="node-icon"
         style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
     >
-        {#if level > 0}
-            <span
-                class="node-level"
-                style={`transform: translate(-50%, 50%) scale(${1 / scale});`}
-                >{formatNumber(level)}</span
-            >
-            <span
-                class="node-tier"
-                style={`transform: translate(-50%, -120%) scale(${1 / scale});`}
-                >{tier}</span
-            >
-        {/if}
         <NodeFlash {level} {isLeaf} />
     </Button>
+    {#if level > 0}
+        <span
+            class="node-badge-anchor"
+            data-node-id={String(id)}
+            style={`transform: scale(${Math.max(1 / scale, 1)});`}
+        >{#if isLeaf}<span class="node-badge node-badge-star"><StarIcon size={12} weight="fill" /></span>{:else}<span class="node-badge">{formatNumber(level)}</span>{/if}</span>
+    {/if}
 </div>
 
 <style>
@@ -203,7 +198,7 @@
         z-index: 1;
     }
 
-    :global(.button.node.node-hexagon) .node-level {
+    :global(.button.node.node-hexagon) .node-badge {
         z-index: 1;
     }
 
@@ -231,40 +226,88 @@
         display: contents;
     }
 
-    .node-level {
+    .node-badge-anchor {
         position: absolute;
-        bottom: 10px;
+        bottom: 0;
         left: 50%;
-        pointer-events: none;
-        white-space: nowrap;
-        line-height: 1.2;
-        font-size: var(--font-sm);
-        font-weight: var(--weight-bold);
-        color: white;
-        text-shadow: var(--shadow-text);
-        background: rgba(0, 0, 0, 0.4);
-        padding: var(--spacing-sm);
-        border-radius: var(--radius);
-        transform-origin: center bottom;
+        width: 0;
+        height: 0;
         z-index: 2;
+        cursor: pointer;
+        touch-action: none;
     }
 
-    .node-tier {
+    .node-badge {
         position: absolute;
-        top: 25px;
-        left: 50%;
-        pointer-events: none;
+        left: 0;
+        top: 0;
+        transform: translate(-50%, -50%);
         white-space: nowrap;
-        line-height: 1.2;
-        font-size: var(--font-sm);
-        font-weight: var(--weight-bold);
+        transition:
+            filter var(--ease),
+            transform var(--ease),
+            box-shadow var(--ease);
+
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.01em;
         color: white;
-        text-shadow: var(--shadow-text);
-        background: rgba(0, 0, 0, 0.5);
-        padding: 2px 6px;
-        border-radius: var(--radius);
-        transform-origin: center top;
-        z-index: 2;
+
+        padding: 1px 4px 2px;
+        border-radius: var(--radius-full);
+        min-width: 18px;
+        text-align: center;
+
+        background: var(--region-blue-accent);
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.3),
+            0 2px 6px 2px rgba(0, 0, 0, 0.15);
+    }
+
+    .badge-top-left .node-badge {
+        background: var(--region-orange-accent);
+    }
+
+    .badge-bottom-left .node-badge {
+        background: var(--region-yellow-accent);
+        color: rgba(0, 0, 0, 0.8);
+    }
+
+    .badge-right .node-badge {
+        background: var(--region-blue-accent);
+    }
+
+    @media (hover: hover) {
+        .node-wrapper:hover .node-badge {
+            filter: var(--brightness-hover);
+        }
+
+        .node-wrapper:hover :global(.button.node:not(:disabled)) {
+            filter: var(--brightness-hover);
+        }
+    }
+
+    .node-wrapper:active .node-badge {
+        filter: var(--brightness-hover);
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+
+    .node-wrapper:active :global(.button.node:not(:disabled)) {
+        filter: var(--brightness-hover);
+        transform: scale(0.96);
+    }
+
+    .node-badge-star {
+        min-width: 0;
+        padding: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .node-badge-star :global(svg) {
+        display: block;
     }
 
     /* Node state styles */
