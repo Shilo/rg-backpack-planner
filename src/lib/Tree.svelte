@@ -44,6 +44,7 @@
         isGlobalLeafNodeIncrementLocked,
         shouldBlockIncrementForGlobalLeafCap,
     } from "./globalLeafCap";
+    import { getTreeViewportPadding, getTreeWorldBounds } from "./treeLayout";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { t } from "svelte-whisper";
 
@@ -86,22 +87,24 @@
             return { minScale: 0.1, maxScale: 2.2 };
         }
 
-        const xs = nodes.map((node) => node.x);
-        const ys = nodes.map((node) => node.y);
-        const minX = Math.min(...xs);
-        const maxX = Math.max(...xs);
-        const minY = Math.min(...ys);
-        const maxY = Math.max(...ys);
-        const width = maxX - minX + 64;
-        const height = maxY - minY + 64;
+        const bounds = getTreeWorldBounds(nodes);
+        if (!bounds) {
+            return { minScale: 0.1, maxScale: 2.2 };
+        }
 
         const rect = viewportEl.getBoundingClientRect();
-        const padding = 10;
-        const availableW = Math.max(rect.width - padding * 2, 1);
-        const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
+        const padding = getTreeViewportPadding();
+        const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
+        const availableH = Math.max(
+            rect.height - bottomInset - padding.vertical * 2,
+            1,
+        );
 
         // Minimum scale: fit all nodes in viewport with some extra zoom out capability
-        const minScaleToFit = Math.min(availableW / width, availableH / height);
+        const minScaleToFit = Math.min(
+            availableW / bounds.width,
+            availableH / bounds.height,
+        );
         const minScale = Math.max(minScaleToFit * 0.5, 0.1); // Allow zooming out to 50% of fit scale, but not below 0.1
 
         // Maximum scale: allow zooming in reasonably
@@ -879,27 +882,19 @@
         const rect = viewportEl.getBoundingClientRect();
         // Ensure viewport has valid dimensions
         if (rect.width <= 0 || rect.height <= 0) return null;
-        // Since nodes are centered, we need to account for radius on all sides
-        const nodeBounds = nodes.map((node) => {
-            const radius = (node.radius ?? 1) * 32; // Half the node size
-            return {
-                minX: node.x - radius,
-                maxX: node.x + radius,
-                minY: node.y - radius,
-                maxY: node.y + radius,
-            };
-        });
-        const minX = Math.min(...nodeBounds.map((b) => b.minX));
-        const maxX = Math.max(...nodeBounds.map((b) => b.maxX));
-        const minY = Math.min(...nodeBounds.map((b) => b.minY));
-        const maxY = Math.max(...nodeBounds.map((b) => b.maxY));
-        const width = maxX - minX;
-        const height = maxY - minY;
-        const padding = 10;
-        const availableW = Math.max(rect.width - padding * 2, 1);
-        const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
-        const paddedCenterX = padding + availableW / 2;
-        const paddedCenterY = padding + availableH / 2;
+        // Include node radius plus badge overhang in world bounds.
+        const bounds = getTreeWorldBounds(nodes);
+        if (!bounds) return null;
+        const { minX, maxX, minY, maxY, width, height } = bounds;
+
+        const padding = getTreeViewportPadding();
+        const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
+        const availableH = Math.max(
+            rect.height - bottomInset - padding.vertical * 2,
+            1,
+        );
+        const paddedCenterX = padding.horizontal + availableW / 2;
+        const paddedCenterY = padding.vertical + availableH / 2;
         // Calculate scale needed to fit all nodes in viewport (100% base)
         const fitScale = Math.min(availableW / width, availableH / height);
         const isCloseUpZoom = $treeZoomScale === TreeZoomLevel.CloseUp;
@@ -920,22 +915,7 @@
     }
 
     function getWorldBounds() {
-        if (nodes.length === 0) return null;
-        // Since nodes are centered, we need to account for radius on all sides
-        const nodeBounds = nodes.map((node) => {
-            const radius = (node.radius ?? 1) * 32; // Half the node size
-            return {
-                minX: node.x - radius,
-                maxX: node.x + radius,
-                minY: node.y - radius,
-                maxY: node.y + radius,
-            };
-        });
-        const minX = Math.min(...nodeBounds.map((b) => b.minX));
-        const maxX = Math.max(...nodeBounds.map((b) => b.maxX));
-        const minY = Math.min(...nodeBounds.map((b) => b.minY));
-        const maxY = Math.max(...nodeBounds.map((b) => b.maxY));
-        return { minX, maxX, minY, maxY };
+        return getTreeWorldBounds(nodes);
     }
 
     function clampOffsets(

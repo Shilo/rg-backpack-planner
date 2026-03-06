@@ -15,6 +15,7 @@ const TEST_FILES = [
     // 2. Core State & Logic
     "treeLevelsStore.test.ts",
     "treeProgressStore.test.ts",
+    "treeLayout.test.ts",
     "globalLeafCap.test.ts",
     "tierLeveling.test.ts",
     "tierTargetLevelFns.test.ts",

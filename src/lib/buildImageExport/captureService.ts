@@ -21,6 +21,34 @@ const TREE_VISIBLE_BOUNDS = {
     // snapdom seems to add a 1px extra margin around the captured area
 };
 
+function setInlineStyleFromComputed(
+    element: HTMLElement,
+    computed: CSSStyleDeclaration,
+    property: string,
+) {
+    const value = computed.getPropertyValue(property);
+    if (!value) return;
+    element.style.setProperty(property, value);
+}
+
+function syncCaptureBackground(parent: HTMLElement, sourceElement: HTMLElement) {
+    const sourceBackgroundEl =
+        sourceElement.closest<HTMLElement>(".tabs-root") ??
+        sourceElement.closest<HTMLElement>(".tabs-content") ??
+        sourceElement.parentElement;
+
+    if (!sourceBackgroundEl) return;
+
+    const computed = getComputedStyle(sourceBackgroundEl);
+
+    parent.style.backgroundColor = computed.backgroundColor;
+    parent.style.backgroundImage = computed.backgroundImage;
+    parent.style.backgroundPosition = computed.backgroundPosition;
+    parent.style.backgroundSize = computed.backgroundSize;
+    parent.style.backgroundRepeat = computed.backgroundRepeat;
+    parent.style.backgroundAttachment = computed.backgroundAttachment;
+}
+
 function preserveTreeLinkStrokeStyles(root: HTMLElement) {
     // Ensure SVG link stroke styles survive capture (snapdom can miss CSS for SVG)
     root.querySelectorAll<SVGLineElement>(".tree-link").forEach((line) => {
@@ -47,6 +75,57 @@ function preserveTreeLinkStrokeStyles(root: HTMLElement) {
     });
 }
 
+function preserveNodeVisualStyles(root: HTMLElement) {
+    const nodeStyleProperties = [
+        "background-color",
+        "border-color",
+        "border-width",
+        "border-style",
+        "box-shadow",
+        "clip-path",
+        "color",
+        "filter",
+        "opacity",
+    ];
+    const nodeVariableProperties = [
+        "--hex-border-color",
+        "--hex-border-width",
+        "--hex-fill",
+        "--icon-scale",
+    ];
+    const badgeStyleProperties = [
+        "background-color",
+        "border-color",
+        "border-width",
+        "border-style",
+        "box-shadow",
+        "color",
+        "filter",
+    ];
+
+    root.querySelectorAll<HTMLElement>(".node-wrapper").forEach((wrapper) => {
+        const computed = getComputedStyle(wrapper);
+        setInlineStyleFromComputed(wrapper, computed, "filter");
+    });
+
+    root.querySelectorAll<HTMLElement>(".button.node").forEach((node) => {
+        const computed = getComputedStyle(node);
+        nodeStyleProperties.forEach((property) =>
+            setInlineStyleFromComputed(node, computed, property),
+        );
+        nodeVariableProperties.forEach((property) =>
+            setInlineStyleFromComputed(node, computed, property),
+        );
+    });
+
+    root.querySelectorAll<HTMLElement>(".node-badge").forEach((badge) => {
+        const computed = getComputedStyle(badge);
+        badgeStyleProperties.forEach((property) =>
+            setInlineStyleFromComputed(badge, computed, property),
+        );
+    });
+}
+
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
     parent: HTMLElement,
@@ -64,9 +143,6 @@ async function captureElementAsPng(
         clone.style.transform = "none";
         clone.style.transition = "none";
         clone.style.animation = "none";
-        clone.style.filter = "none";
-        clone.style.opacity = "1";
-        clone.style.boxShadow = "none";
 
         // Offset clone by center node position
         clone.style.position = "absolute";
@@ -83,7 +159,9 @@ async function captureElementAsPng(
             parent.appendChild(clone);
         }
 
+        syncCaptureBackground(parent, element);
         preserveTreeLinkStrokeStyles(clone);
+        preserveNodeVisualStyles(clone);
 
         try {
             return await snapdom.toBlob(parent, {
