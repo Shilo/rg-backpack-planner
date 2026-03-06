@@ -310,6 +310,7 @@
         "custom": "Custom",
         "customEllipsis": "Custom...",
         "preset": {
+            "cyan": "Cyan",
             "blue": "Blue",
             "green": "Green",
             "rose": "Rose",
