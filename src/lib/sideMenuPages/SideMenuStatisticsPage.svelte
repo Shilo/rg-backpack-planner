@@ -55,17 +55,6 @@
             ...bonusDisplay,
             [
                 {
-                    text: $t("statistics.backpackNodeLevels"),
-                    icon: ArrowFatUpIcon,
-                },
-                "",
-            ],
-            [$t("statistics.total"), formatNumber($treeLevelsTotal)],
-            [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],
-            [$t("trees.vanguard"), formatNumber($treeLevelsVanguard)],
-            [$t("trees.cannon"), formatNumber($treeLevelsCannon)],
-            [
-                {
                     text: $t("statistics.techCrystalsSpent"),
                     icon: HexagonIcon,
                     iconWeight: "fill",
@@ -76,6 +65,17 @@
             [$t("trees.guardian"), formatNumber($techCrystalsSpentGuardian)],
             [$t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard)],
             [$t("trees.cannon"), formatNumber($techCrystalsSpentCannon)],
+            [
+                {
+                    text: $t("statistics.backpackNodeLevels"),
+                    icon: ArrowFatUpIcon,
+                },
+                "",
+            ],
+            [$t("statistics.total"), formatNumber($treeLevelsTotal)],
+            [$t("trees.guardian"), formatNumber($treeLevelsGuardian)],
+            [$t("trees.vanguard"), formatNumber($treeLevelsVanguard)],
+            [$t("trees.cannon"), formatNumber($treeLevelsCannon)],
         ];
     }
 

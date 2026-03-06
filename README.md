@@ -23,6 +23,7 @@ It is built for quick iteration while playing: you can level nodes, track Tech C
 
 - Interactive tree planner with tap, click, right-click, and long-press support
 - Per-node controls to increase, decrease, max, or reset levels
+- Global leaf-node cap: only 3 leaf nodes can be leveled (`level > 0`) across all trees combined
 - Tree-level actions to focus the active tree in view or reset it
 - Pan and zoom support for desktop and touch devices
 - Optional "Single Level Up" mode for one-step increments
@@ -177,6 +178,14 @@ Once the next stable tier is known, reactive nodes use directional clamping:
 This means a same-tier decrement can still lower other nodes. If the target
 stays in the same stable tier but the assigned bound is lower than the current
 reactive level, the branch is rebased downward immediately.
+
+## Global Leaf Node Cap
+
+Leaf leveling has a global constraint across the full build (Guardian + Vanguard + Cannon):
+
+- A maximum of 3 leaf nodes can have `level > 0` at once
+- Once the cap is reached, all remaining `level = 0` leaf nodes are visually locked and cannot be incremented
+- Already leveled leaf nodes remain editable, so decrementing/resetting one frees a slot for another leaf node
 
 ## Project Structure
 
