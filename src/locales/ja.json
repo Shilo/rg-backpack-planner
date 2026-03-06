@@ -328,6 +328,9 @@
     "controls": {
         "pointerNodeLabel": "ノードを左クリック",
         "pointerNodeDescription": "ノードレベルを上げ、テッククリスタルを消費します",
+        "pointerNodeDecrementLabel": "Shift + 左クリックでノードを減少",
+        "pointerNodeMiddleDecrementLabel": "ノードを中クリック",
+        "pointerNodeDecrementDescription": "ノードレベルを下げ、テッククリスタルを払い戻します",
         "pointerNodeMenuLabel": "ノードを右クリック",
         "pointerNodeMenuDescription": "ノードのオプションを表示します",
         "pointerTreeMenuLabel": "空白またはタブを右クリック",

@@ -342,6 +342,9 @@
     "controls": {
         "pointerNodeLabel": "Left click a node",
         "pointerNodeDescription": "Add a node level and spend Tech Crystals",
+        "pointerNodeDecrementLabel": "Shift + left click a node",
+        "pointerNodeMiddleDecrementLabel": "Middle click a node",
+        "pointerNodeDecrementDescription": "Remove node level(s) and refund Tech Crystals",
         "pointerNodeMenuLabel": "Right click a node",
         "pointerNodeMenuDescription": "Show node options",
         "pointerTreeMenuLabel": "Right click empty space or tab",

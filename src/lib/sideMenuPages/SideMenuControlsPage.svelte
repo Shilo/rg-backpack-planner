@@ -2,6 +2,7 @@
     import type { Component } from "svelte";
     import { onMount } from "svelte";
     import {
+        ArrowFatUpIcon,
         ArrowCounterClockwiseIcon,
         ArrowsOutCardinalIcon,
         CornersOutIcon,
@@ -15,6 +16,7 @@
         ImageIcon,
         ListIcon,
         MouseLeftClickIcon,
+        MouseMiddleClickIcon,
         MouseRightClickIcon,
         MouseScrollIcon,
     } from "phosphor-svelte";
@@ -67,6 +69,9 @@
         label: string;
         description: string;
         icon: Component;
+        iconSecondary?: Component;
+        iconSeparator?: string;
+        iconKeycap?: boolean;
         device: ControlDevice;
     };
 
@@ -77,6 +82,23 @@
             label: $t("controls.pointerNodeLabel"),
             description: $t("controls.pointerNodeDescription"),
             icon: MouseLeftClickIcon,
+            device: "pointer",
+        },
+        {
+            id: "pointer-node-decrement",
+            label: $t("controls.pointerNodeDecrementLabel"),
+            description: $t("controls.pointerNodeDecrementDescription"),
+            icon: ArrowFatUpIcon,
+            iconSecondary: MouseLeftClickIcon,
+            iconSeparator: "+",
+            iconKeycap: true,
+            device: "pointer",
+        },
+        {
+            id: "pointer-node-decrement-middle",
+            label: $t("controls.pointerNodeMiddleDecrementLabel"),
+            description: $t("controls.pointerNodeDecrementDescription"),
+            icon: MouseMiddleClickIcon,
             device: "pointer",
         },
         {
@@ -236,8 +258,26 @@
                 <ul class="control-list">
                     {#each touchControls as control (control.id)}
                         <li class="control-row">
-                            <span class="control-icon" aria-hidden="true">
-                                <svelte:component this={control.icon} />
+                            <span
+                                class="control-icon"
+                                class:control-icon-combo={!!control.iconSecondary}
+                                aria-hidden="true"
+                            >
+                                {#if control.iconKeycap}
+                                    <span class="control-keycap">
+                                        <svelte:component this={control.icon} />
+                                    </span>
+                                {:else}
+                                    <svelte:component this={control.icon} />
+                                {/if}
+                                {#if control.iconSecondary}
+                                    <span class="control-icon-joiner">
+                                        {control.iconSeparator ?? "+"}
+                                    </span>
+                                    <svelte:component
+                                        this={control.iconSecondary}
+                                    />
+                                {/if}
                             </span>
                             <div class="control-text">
                                 <p class="control-label">{control.label}</p>
@@ -255,8 +295,26 @@
                 <ul class="control-list">
                     {#each pointerControls as control (control.id)}
                         <li class="control-row">
-                            <span class="control-icon" aria-hidden="true">
-                                <svelte:component this={control.icon} />
+                            <span
+                                class="control-icon"
+                                class:control-icon-combo={!!control.iconSecondary}
+                                aria-hidden="true"
+                            >
+                                {#if control.iconKeycap}
+                                    <span class="control-keycap">
+                                        <svelte:component this={control.icon} />
+                                    </span>
+                                {:else}
+                                    <svelte:component this={control.icon} />
+                                {/if}
+                                {#if control.iconSecondary}
+                                    <span class="control-icon-joiner">
+                                        {control.iconSeparator ?? "+"}
+                                    </span>
+                                    <svelte:component
+                                        this={control.iconSecondary}
+                                    />
+                                {/if}
                             </span>
                             <div class="control-text">
                                 <p class="control-label">{control.label}</p>
@@ -436,6 +494,45 @@
         width: 100%;
         height: 100%;
         display: block;
+    }
+
+    .control-icon-combo {
+        width: 20px;
+        height: auto;
+        min-height: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+    }
+
+    .control-icon-combo :global(svg) {
+        width: 20px;
+        height: 20px;
+    }
+
+    .control-keycap {
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid var(--text-muted);
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .control-keycap :global(svg) {
+        width: 12px;
+        height: 12px;
+    }
+
+    .control-icon-joiner {
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--text-muted);
     }
 
     .control-icon-filled {

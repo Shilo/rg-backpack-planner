@@ -328,6 +328,9 @@
     "controls": {
         "pointerNodeLabel": "左键点击节点",
         "pointerNodeDescription": "增加节点等级并消耗科技水晶",
+        "pointerNodeDecrementLabel": "按住 Shift 并左键点击节点",
+        "pointerNodeMiddleDecrementLabel": "中键点击节点",
+        "pointerNodeDecrementDescription": "降低节点等级并返还科技水晶",
         "pointerNodeMenuLabel": "右键点击节点",
         "pointerNodeMenuDescription": "显示节点选项",
         "pointerTreeMenuLabel": "右键点击空白处或标签",

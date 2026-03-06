@@ -102,6 +102,10 @@
         isRoot: boolean;
     };
     const pointers = new Map<number, PointerState>();
+    const middleClickCandidates = new Map<
+        number,
+        { startX: number; startY: number; nodeIndex: NodeIndex }
+    >();
 
     let panStart: {
         x: number;
@@ -448,6 +452,7 @@
             }
         }
         pointers.clear();
+        middleClickCandidates.clear();
         panStart = null;
         pinchStart = null;
         primaryPointerId = null;
@@ -518,13 +523,28 @@
     function onPointerDown(event: PointerEvent) {
         if (!viewportEl) return;
         if (gesturesDisabled) return;
+        const info = getNodeInfoFromTarget(event.target);
+
         if (event.pointerType === "mouse" && event.button === 1) {
-            const info = getNodeInfoFromTarget(event.target);
-            if (!info || info.index === null) {
+            if (contextMenu) {
+                if (isInContextMenu(event.target)) return;
+                closeContextMenu();
+                cancelActiveGestures();
+                return;
+            }
+            if (!info || info.index === null || info.isRoot) {
                 event.preventDefault();
                 focusTreeInView();
                 return;
             }
+            event.preventDefault();
+            viewportEl.setPointerCapture(event.pointerId);
+            middleClickCandidates.set(event.pointerId, {
+                startX: event.clientX,
+                startY: event.clientY,
+                nodeIndex: info.index,
+            });
+            return;
         }
         if (!isPrimaryPointer(event)) return;
         if (contextMenu) {
@@ -534,7 +554,6 @@
             return;
         }
         viewportEl.setPointerCapture(event.pointerId);
-        const info = getNodeInfoFromTarget(event.target);
         pointers.set(event.pointerId, {
             x: event.clientX,
             y: event.clientY,
@@ -560,7 +579,12 @@
                 offsetX,
                 offsetY,
             };
-            if (info && !info.isRoot && info.index !== null) {
+            if (
+                info &&
+                !info.isRoot &&
+                info.index !== null &&
+                !(event.pointerType === "mouse" && event.shiftKey)
+            ) {
                 startNodeLongPress(event.pointerId);
             }
         } else if (pointers.size === 2) {
@@ -578,6 +602,24 @@
 
     function onPointerMove(event: PointerEvent) {
         if (gesturesDisabled) return;
+        const middleClick = middleClickCandidates.get(event.pointerId);
+        if (middleClick) {
+            const distance = Math.hypot(
+                event.clientX - middleClick.startX,
+                event.clientY - middleClick.startY,
+            );
+            if (distance > LONG_PRESS_MOVE_THRESHOLD) {
+                middleClickCandidates.delete(event.pointerId);
+                if (viewportEl) {
+                    try {
+                        viewportEl.releasePointerCapture(event.pointerId);
+                    } catch {
+                        // Pointer may already be released.
+                    }
+                }
+            }
+            return;
+        }
         if (!pointers.has(event.pointerId)) return;
         const pointer = pointers.get(event.pointerId)!;
         pointers.set(event.pointerId, {
@@ -633,6 +675,31 @@
     }
 
     function onPointerUp(event: PointerEvent) {
+        const middleClick = middleClickCandidates.get(event.pointerId);
+        if (middleClick) {
+            middleClickCandidates.delete(event.pointerId);
+            if (viewportEl) {
+                try {
+                    viewportEl.releasePointerCapture(event.pointerId);
+                } catch {
+                    // Pointer may already be released.
+                }
+            }
+            const movedDistance = Math.hypot(
+                event.clientX - middleClick.startX,
+                event.clientY - middleClick.startY,
+            );
+            if (
+                event.type === "pointerup" &&
+                movedDistance <= LONG_PRESS_MOVE_THRESHOLD
+            ) {
+                $singleLevelUp
+                    ? levelDown(middleClick.nodeIndex)
+                    : levelDownBy10(middleClick.nodeIndex);
+            }
+            return;
+        }
+
         if (!isPrimaryPointer(event)) return;
         if (viewportEl) {
             viewportEl.releasePointerCapture(event.pointerId);
@@ -655,10 +722,18 @@
                     focusTreeInView(true);
                 }
             } else if (pointer.nodeIndex !== null) {
-                // Check single level-up setting: if enabled, increment by 1; if disabled, increment by 10
-                $singleLevelUp
-                    ? levelUp(pointer.nodeIndex)
-                    : levelUpBy10(pointer.nodeIndex);
+                const shouldDecrement =
+                    event.pointerType === "mouse" && event.shiftKey;
+                if (shouldDecrement) {
+                    $singleLevelUp
+                        ? levelDown(pointer.nodeIndex)
+                        : levelDownBy10(pointer.nodeIndex);
+                } else {
+                    // Check single level-up setting: if enabled, increment by 1; if disabled, increment by 10
+                    $singleLevelUp
+                        ? levelUp(pointer.nodeIndex)
+                        : levelUpBy10(pointer.nodeIndex);
+                }
             }
         }
 
