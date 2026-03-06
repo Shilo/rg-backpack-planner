@@ -1,41 +1,50 @@
 import { writable } from "svelte/store";
-import { getItem, setItem, removeItem } from "./storage";
+import { getItem, setItem } from "./storage";
 
-export const TREE_ZOOM_FIT = 100;
-export const TREE_ZOOM_CLOSE_UP = 150;
+export const TREE_ZOOM_SCALES = [100, 150] as const;
 
-const VALID_TREE_ZOOM_SCALES = new Set([TREE_ZOOM_FIT, TREE_ZOOM_CLOSE_UP]);
+export enum TreeZoomLevel {
+    Fit = 0,
+    CloseUp = 1,
+}
 
 /** Default when no stored preference: close-up on touch-primary devices, fit on pointer devices */
-function getDefaultTreeZoomScale(): number {
-    if (typeof window === "undefined") return TREE_ZOOM_FIT;
+function getDefaultTreeZoomLevel(): TreeZoomLevel {
+    if (typeof window === "undefined") return TreeZoomLevel.Fit;
     return window.matchMedia("(pointer: coarse)").matches
-        ? TREE_ZOOM_CLOSE_UP
-        : TREE_ZOOM_FIT;
+        ? TreeZoomLevel.CloseUp
+        : TreeZoomLevel.Fit;
 }
 
-function parseTreeZoomScale(storedValue: string | null): number | null {
+export function isTreeZoomLevel(value: number): value is TreeZoomLevel {
+    return Number.isInteger(value) && value in TreeZoomLevel;
+}
+
+export function getTreeZoomScaleValue(level: TreeZoomLevel): number {
+    return TREE_ZOOM_SCALES[level] ?? TREE_ZOOM_SCALES[getDefaultTreeZoomLevel()];
+}
+
+function parseTreeZoomLevel(storedValue: string | null): TreeZoomLevel | null {
     if (storedValue === null) return null;
     const parsed = Number.parseInt(storedValue, 10);
-    if (!Number.isInteger(parsed)) return null;
-    return VALID_TREE_ZOOM_SCALES.has(parsed) ? parsed : null;
+    return isTreeZoomLevel(parsed) ? parsed : null;
 }
 
-function getTreeZoomScale(): number {
-    const stored = parseTreeZoomScale(getItem("tree-zoom-scale"));
+function getTreeZoomLevel(): TreeZoomLevel {
+    const stored = parseTreeZoomLevel(getItem("tree-zoom-scale"));
     if (stored !== null) {
         return stored;
     }
 
-    return getDefaultTreeZoomScale();
+    return getDefaultTreeZoomLevel();
 }
 
-function setTreeZoomScale(value: number) {
-    setItem("tree-zoom-scale", value.toString());
+function setTreeZoomLevel(value: TreeZoomLevel) {
+    setItem("tree-zoom-scale", String(value));
 }
 
 function createTreeZoomScaleStore() {
-    const { subscribe, set } = writable(getTreeZoomScale());
+    const { subscribe, set } = writable(getTreeZoomLevel());
     let onChangeCallback: (() => void) | null = null;
 
     const notifyChange = () => {
@@ -49,16 +58,15 @@ function createTreeZoomScaleStore() {
         setOnChange: (callback: (() => void) | null) => {
             onChangeCallback = callback;
         },
-        set: (value: number) => {
-            if (!VALID_TREE_ZOOM_SCALES.has(value)) return;
-            setTreeZoomScale(value);
+        set: (value: TreeZoomLevel) => {
+            if (!isTreeZoomLevel(value)) return;
+            setTreeZoomLevel(value);
             set(value);
             notifyChange();
         },
         resetToDefault: () => {
-            removeItem("tree-zoom-scale");
-            const defaultValue = getDefaultTreeZoomScale();
-            setTreeZoomScale(defaultValue);
+            const defaultValue = getDefaultTreeZoomLevel();
+            setTreeZoomLevel(defaultValue);
             set(defaultValue);
             notifyChange();
         },

@@ -25,8 +25,9 @@
     import PreviewBuildsDropdown from "../buttons/PreviewBuildsDropdown.svelte";
     import {
         treeZoomScale,
-        TREE_ZOOM_CLOSE_UP,
-        TREE_ZOOM_FIT,
+        TreeZoomLevel,
+        isTreeZoomLevel,
+        getTreeZoomScaleValue,
     } from "../treeZoomStore";
     import { darkMode } from "../darkModeStore";
     import { themeColor } from "../themeColorStore";
@@ -92,13 +93,19 @@
 
     $: isFocusDisabled = !onFocusInView || isFocused;
     $: currentLocale = $locale || undefined;
-    $: treeZoomSelectedIndex = $treeZoomScale === TREE_ZOOM_CLOSE_UP ? 1 : 0;
+    $: treeZoomSelectedIndex = $treeZoomScale;
     $: treeZoomOptions = [
         $t("settings.treeZoomFitOption", {
-            scale: formatZoomMultiplier(TREE_ZOOM_FIT, currentLocale),
+            scale: formatZoomMultiplier(
+                getTreeZoomScaleValue(TreeZoomLevel.Fit),
+                currentLocale,
+            ),
         }),
         $t("settings.treeZoomCloseUpOption", {
-            scale: formatZoomMultiplier(TREE_ZOOM_CLOSE_UP, currentLocale),
+            scale: formatZoomMultiplier(
+                getTreeZoomScaleValue(TreeZoomLevel.CloseUp),
+                currentLocale,
+            ),
         }),
     ];
     let isTouchPrimaryPlatform = false;
@@ -133,7 +140,7 @@
     $: nodePrimaryActionSelectedIndex = $nodePrimaryAction;
 
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
-        const multiplier = zoomScale / TREE_ZOOM_FIT;
+        const multiplier = zoomScale / getTreeZoomScaleValue(TreeZoomLevel.Fit);
         const minimumFractionDigits = Number.isInteger(multiplier) ? 0 : 1;
         const localizedMultiplier = new Intl.NumberFormat(localeCode, {
             minimumFractionDigits,
@@ -143,7 +150,8 @@
     }
 
     function handleTreeZoomChange(index: number) {
-        treeZoomScale.set(index === 1 ? TREE_ZOOM_CLOSE_UP : TREE_ZOOM_FIT);
+        if (!isTreeZoomLevel(index)) return;
+        treeZoomScale.set(index);
     }
 
     function handleNodePrimaryActionChange(index: number) {

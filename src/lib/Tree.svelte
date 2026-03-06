@@ -25,8 +25,8 @@
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import {
         treeZoomScale,
-        TREE_ZOOM_CLOSE_UP,
-        TREE_ZOOM_FIT,
+        TreeZoomLevel,
+        getTreeZoomScaleValue,
     } from "./treeZoomStore";
     import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
     import {
@@ -884,8 +884,10 @@
         const paddedCenterY = padding + availableH / 2;
         // Calculate scale needed to fit all nodes in viewport (100% base)
         const fitScale = Math.min(availableW / width, availableH / height);
-        const isCloseUpZoom = $treeZoomScale === TREE_ZOOM_CLOSE_UP;
-        const zoomMultiplier = $treeZoomScale / TREE_ZOOM_FIT;
+        const isCloseUpZoom = $treeZoomScale === TreeZoomLevel.CloseUp;
+        const zoomMultiplier =
+            getTreeZoomScaleValue($treeZoomScale) /
+            getTreeZoomScaleValue(TreeZoomLevel.Fit);
         const nextScale = clamp(
             fitScale * zoomMultiplier,
             minScale,
