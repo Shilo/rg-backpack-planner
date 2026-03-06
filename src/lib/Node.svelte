@@ -219,8 +219,8 @@
         grid-template-areas: "stack";
     }
 
-    .node-wrapper :global(.button.node:focus),
-    .node-wrapper :global(.button.node:focus-visible) {
+    :global(.button.node:focus),
+    :global(.button.node:focus-visible) {
         outline: none;
         outline-offset: 0;
     }
