@@ -1,27 +1,28 @@
 import { writable } from "svelte/store";
 import { getItem, removeItem, setItem } from "./storage";
 
-export const NODE_PRIMARY_ACTION_INCREMENT_ONE = 0;
-export const NODE_PRIMARY_ACTION_INCREMENT_TEN = 1;
-export const NODE_PRIMARY_ACTION_INCREMENT_TIER = 2;
+export enum NodePrimaryAction {
+    IncrementOne = 0,
+    IncrementTen = 1,
+    IncrementTier = 2,
+}
 
-export type NodePrimaryAction = 0 | 1 | 2;
+const DEFAULT_NODE_PRIMARY_ACTION = NodePrimaryAction.IncrementOne;
+const NODE_PRIMARY_ACTION_MIN = NodePrimaryAction.IncrementOne;
+const NODE_PRIMARY_ACTION_MAX = NodePrimaryAction.IncrementTier;
 
-const VALID_NODE_PRIMARY_ACTIONS = new Set<NodePrimaryAction>([
-    NODE_PRIMARY_ACTION_INCREMENT_ONE,
-    NODE_PRIMARY_ACTION_INCREMENT_TEN,
-    NODE_PRIMARY_ACTION_INCREMENT_TIER,
-]);
-
-const DEFAULT_NODE_PRIMARY_ACTION = NODE_PRIMARY_ACTION_INCREMENT_ONE;
+export function isNodePrimaryAction(value: number): value is NodePrimaryAction {
+    return (
+        Number.isInteger(value) &&
+        value >= NODE_PRIMARY_ACTION_MIN &&
+        value <= NODE_PRIMARY_ACTION_MAX
+    );
+}
 
 function parseNodePrimaryAction(storedValue: string | null): NodePrimaryAction | null {
     if (storedValue === null) return null;
     const parsed = Number.parseInt(storedValue, 10);
-    if (!Number.isInteger(parsed)) return null;
-    return VALID_NODE_PRIMARY_ACTIONS.has(parsed as NodePrimaryAction)
-        ? (parsed as NodePrimaryAction)
-        : null;
+    return isNodePrimaryAction(parsed) ? parsed : null;
 }
 
 function getNodePrimaryAction(): NodePrimaryAction {
@@ -39,7 +40,7 @@ function createNodePrimaryActionStore() {
     return {
         subscribe,
         set: (value: NodePrimaryAction) => {
-            if (!VALID_NODE_PRIMARY_ACTIONS.has(value)) return;
+            if (!isNodePrimaryAction(value)) return;
             setNodePrimaryAction(value);
             set(value);
         },

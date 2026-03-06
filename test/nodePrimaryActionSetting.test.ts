@@ -25,9 +25,9 @@ if (!/Number\.parseInt\(storedValue,\s*10\)/.test(nodeActionStoreSource)) {
 }
 
 if (
-    !/NODE_PRIMARY_ACTION_INCREMENT_ONE\s*=\s*0/.test(nodeActionStoreSource) ||
-    !/NODE_PRIMARY_ACTION_INCREMENT_TEN\s*=\s*1/.test(nodeActionStoreSource) ||
-    !/NODE_PRIMARY_ACTION_INCREMENT_TIER\s*=\s*2/.test(nodeActionStoreSource)
+    !/IncrementOne\s*=\s*0/.test(nodeActionStoreSource) ||
+    !/IncrementTen\s*=\s*1/.test(nodeActionStoreSource) ||
+    !/IncrementTier\s*=\s*2/.test(nodeActionStoreSource)
 ) {
     throw new Error(
         "nodePrimaryActionStore should use direct selected-index values 0, 1, and 2.",
@@ -46,13 +46,13 @@ if (!/setItem\("node-touch-action",\s*String\(value\)\)/.test(nodeActionStoreSou
     );
 }
 
-if (!/export type NodePrimaryAction = 0 \| 1 \| 2;/.test(nodeActionStoreSource)) {
+if (!/export enum NodePrimaryAction/.test(nodeActionStoreSource)) {
     throw new Error(
-        "nodePrimaryActionStore should model node actions as selected-index integers.",
+        "nodePrimaryActionStore should model node actions with a numeric enum.",
     );
 }
 
-if (!/DEFAULT_NODE_PRIMARY_ACTION\s*=\s*NODE_PRIMARY_ACTION_INCREMENT_ONE/.test(nodeActionStoreSource)) {
+if (!/DEFAULT_NODE_PRIMARY_ACTION\s*=\s*NodePrimaryAction\.IncrementOne/.test(nodeActionStoreSource)) {
     throw new Error(
         "nodePrimaryActionStore default should be increment-one (+1).",
     );

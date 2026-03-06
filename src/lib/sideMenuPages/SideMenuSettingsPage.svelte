@@ -39,10 +39,7 @@
     import SegmentedControl from "../SegmentedControl.svelte";
     import {
         nodePrimaryAction,
-        NODE_PRIMARY_ACTION_INCREMENT_ONE,
-        NODE_PRIMARY_ACTION_INCREMENT_TEN,
-        NODE_PRIMARY_ACTION_INCREMENT_TIER,
-        type NodePrimaryAction,
+        isNodePrimaryAction,
     } from "../nodePrimaryActionStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -150,14 +147,8 @@
     }
 
     function handleNodePrimaryActionChange(index: number) {
-        if (
-            index !== NODE_PRIMARY_ACTION_INCREMENT_ONE &&
-            index !== NODE_PRIMARY_ACTION_INCREMENT_TEN &&
-            index !== NODE_PRIMARY_ACTION_INCREMENT_TIER
-        ) {
-            return;
-        }
-        nodePrimaryAction.set(index as NodePrimaryAction);
+        if (!isNodePrimaryAction(index)) return;
+        nodePrimaryAction.set(index);
     }
 
     function handleResetSettings() {

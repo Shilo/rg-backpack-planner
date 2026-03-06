@@ -28,12 +28,7 @@
         TREE_ZOOM_CLOSE_UP,
         TREE_ZOOM_FIT,
     } from "./treeZoomStore";
-    import {
-        nodePrimaryAction,
-        NODE_PRIMARY_ACTION_INCREMENT_ONE,
-        NODE_PRIMARY_ACTION_INCREMENT_TEN,
-        NODE_PRIMARY_ACTION_INCREMENT_TIER,
-    } from "./nodePrimaryActionStore";
+    import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
     import {
         applyLevelChange,
         nextTierTargetLevel,
@@ -481,11 +476,11 @@
     }
 
     function applyPrimaryNodeAction(index: NodeIndex) {
-        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_ONE) {
+        if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) {
             levelUp(index);
             return;
         }
-        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TEN) {
+        if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) {
             levelUpBy10(index);
             return;
         }
@@ -493,11 +488,11 @@
     }
 
     function applyOppositeNodeAction(index: NodeIndex) {
-        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_ONE) {
+        if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) {
             levelDown(index);
             return;
         }
-        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TEN) {
+        if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) {
             levelDownBy10(index);
             return;
         }
