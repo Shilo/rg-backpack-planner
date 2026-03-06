@@ -32,6 +32,7 @@
     import SideMenuPreviewSection from "./SideMenuPreviewSection.svelte";
     import { isPreviewMode } from "../previewModeStore";
     import SideMenuSection from "../SideMenuSection.svelte";
+    import SegmentedControl from "../SegmentedControl.svelte";
     import { singleLevelUp } from "../singleLevelUpStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -56,6 +57,8 @@
     let dropdownMenuOpen = false;
     let dropdownMenuX = 0;
     let dropdownMenuY = 0;
+    let demoLabeledSelectedIndex = 0;
+    let demoUnlabeledSelectedIndex = 1;
 
     const isClose = (a: number, b: number, epsilon: number) =>
         Math.abs(a - b) <= epsilon;
@@ -239,6 +242,29 @@
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.application")}>
+    <SegmentedControl
+        label="Demo segmented control"
+        ariaLabel="Demo segmented control with top label"
+        icon={EyeIcon as unknown as Component}
+        options={[
+            "Overview",
+            "Longer selection label",
+            "Very long option text that should truncate",
+        ]}
+        selectedIndex={demoLabeledSelectedIndex}
+        onChange={(index: number) => (demoLabeledSelectedIndex = index)}
+    />
+    <SegmentedControl
+        ariaLabel="Demo segmented control without label"
+        icon={MagnifyingGlassPlusIcon as unknown as Component}
+        options={[
+            "Short",
+            "Japanese 日本語 option",
+            "Traditional Chinese 超長文字選項",
+        ]}
+        selectedIndex={demoUnlabeledSelectedIndex}
+        onChange={(index: number) => (demoUnlabeledSelectedIndex = index)}
+    />
     <LanguageDropdown />
     <div class="button-group theme-row">
         <ThemeColorSelector />

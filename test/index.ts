@@ -15,6 +15,7 @@ const TEST_FILES = [
     // 2. Core State & Logic
     "treeLevelsStore.test.ts",
     "treeProgressStore.test.ts",
+    "globalLeafCap.test.ts",
     "tierLeveling.test.ts",
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
@@ -30,8 +31,10 @@ const TEST_FILES = [
 
     // 5. UI & Interaction
     "editableSurfaceStyles.test.ts",
+    "controlFocusPolicy.test.ts",
     "globalContextMenu.test.ts",
     "nodeBadge.test.ts",
+    "nodeFocusStyle.test.ts",
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
     "composeScreenshotHost.test.ts",
