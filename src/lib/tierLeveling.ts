@@ -55,6 +55,24 @@ export function tierUpper(tier: number, maxLevel: Node["maxLevel"]): number {
     return Math.min(Math.ceil(size * tier), maxLevel);
 }
 
+export function nextTierTargetLevel(
+    level: number,
+    maxLevel: Node["maxLevel"],
+): number {
+    if (maxLevel <= 1) return maxLevel;
+    if (level <= 0) return tierUpper(1, maxLevel);
+    if (level >= maxLevel) return maxLevel;
+
+    const currentTier = tierIndex(level, maxLevel);
+    const currentTierUpper = tierUpper(currentTier, maxLevel);
+    const nextTier = Math.min(
+        level >= currentTierUpper ? currentTier + 1 : currentTier,
+        MAX_TIERS,
+    );
+
+    return Math.min(tierUpper(nextTier, maxLevel), maxLevel);
+}
+
 function parentIndices(node: Node): number[] {
     if (node.parent === undefined) return [];
     return Array.isArray(node.parent) ? node.parent : [node.parent];

@@ -1,0 +1,70 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const nodeMenuPath = resolve("src/lib/NodeContentMenu.svelte");
+const nodeMenuSource = readFileSync(nodeMenuPath, "utf8");
+const nodeMenuNormalized = nodeMenuSource.replace(/\s+/g, " ");
+
+if (!/export let onIncrementTier: \(\(index: NodeIndex\) => void\) \| null = null;/.test(nodeMenuNormalized)) {
+    throw new Error(
+        "NodeContentMenu should expose onIncrementTier callback prop.",
+    );
+}
+
+if (!/incrementTier: canUp \? getCostRange\(skillId, level, tierTargetLevel\) : null,/.test(nodeMenuNormalized)) {
+    throw new Error(
+        "NodeContentMenu should compute tier action cost to the tier target level.",
+    );
+}
+
+if (!/label=\{tierTargetLevel >= maxLevel \? \$t\("nodeMenu.max"\) : \$t\("nodeMenu.incrementTier"\)\}/.test(nodeMenuNormalized)) {
+    throw new Error(
+        "Tier action label should switch between +Tier and Max based on target.",
+    );
+}
+
+if (!/\{#if !isSingleLevel\}[\s\S]*nodeMenu\.incrementOne[\s\S]*nodeMenu\.incrementTen[\s\S]*nodeMenu\.decrementOne[\s\S]*nodeMenu\.decrementTen[\s\S]*\{\/if\}/m.test(nodeMenuSource)) {
+    throw new Error(
+        "Single-level nodes should hide +1/+10/-1/-10 actions.",
+    );
+}
+
+const treePath = resolve("src/lib/Tree.svelte");
+const treeSource = readFileSync(treePath, "utf8");
+const treeNormalized = treeSource.replace(/\s+/g, " ");
+
+if (!/function levelUpTier\(index: NodeIndex\)/.test(treeSource)) {
+    throw new Error("Tree should define a levelUpTier handler.");
+}
+
+if (!/const nextLevel = nextTierTargetLevel\(level, node.maxLevel\);/.test(treeNormalized)) {
+    throw new Error(
+        "Tree levelUpTier handler should compute next level via nextTierTargetLevel.",
+    );
+}
+
+if (!/onIncrementTier=\{levelUpTier\}/.test(treeNormalized)) {
+    throw new Error(
+        "Tree should pass levelUpTier to NodeContentMenu as onIncrementTier.",
+    );
+}
+
+const enLocalePath = resolve("src/locales/en.json");
+const enLocaleSource = readFileSync(enLocalePath, "utf8");
+if (!/"incrementTier"\s*:\s*"\+Tier"/.test(enLocaleSource)) {
+    throw new Error(
+        "English locale should define nodeMenu.incrementTier as +Tier.",
+    );
+}
+
+const jaLocalePath = resolve("src/locales/ja.json");
+const jaLocaleSource = readFileSync(jaLocalePath, "utf8");
+if (!/"incrementTier"\s*:/.test(jaLocaleSource)) {
+    throw new Error("Japanese locale should define nodeMenu.incrementTier.");
+}
+
+const zhLocalePath = resolve("src/locales/zh.json");
+const zhLocaleSource = readFileSync(zhLocalePath, "utf8");
+if (!/"incrementTier"\s*:/.test(zhLocaleSource)) {
+    throw new Error("Chinese locale should define nodeMenu.incrementTier.");
+}

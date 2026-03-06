@@ -29,7 +29,12 @@
         TREE_ZOOM_FIT,
     } from "./treeZoomStore";
     import { singleLevelUp } from "./singleLevelUpStore";
-    import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
+    import {
+        applyLevelChange,
+        nextTierTargetLevel,
+        tierUpper,
+        tierIndex,
+    } from "./tierLeveling";
     import {
         GLOBAL_LEVELED_LEAF_NODE_CAP,
         countGlobalLeveledLeafNodesInTree,
@@ -451,12 +456,13 @@
         applyChange(index, nextLevel);
     }
 
-    function maxNode(index: NodeIndex) {
+    function levelUpTier(index: NodeIndex) {
         const node = getNodeAt(index);
         if (!node) return;
         const level = getLevel(index);
         if (level >= node.maxLevel) return;
-        applyChange(index, node.maxLevel);
+        const nextLevel = nextTierTargetLevel(level, node.maxLevel);
+        applyChange(index, nextLevel);
     }
 
     export function resetAllNodes() {
@@ -1094,7 +1100,7 @@
                 isOpen={!!contextMenu}
                 skillId={contextMenuNode?.skillId ?? null}
                 onClose={closeContextMenu}
-                onMax={maxNode}
+                onIncrementTier={levelUpTier}
                 onReset={resetNode}
                 onDecrement={levelDown}
                 onDecrementBy10={levelDownBy10}

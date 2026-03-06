@@ -1,6 +1,9 @@
 import { appendFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { applyLevelChange } from "../src/lib/tierLeveling.ts";
+import {
+    applyLevelChange,
+    nextTierTargetLevel,
+} from "../src/lib/tierLeveling.ts";
 import type { LevelsByIndex, Node } from "../src/types/tree.ts";
 import {
     applyExpectedTargetTransition,
@@ -155,6 +158,59 @@ function assertExtendedBoundaryContracts() {
         ],
         caseName: "Final node boundary contract",
         targetIndex: 9,
+    });
+}
+
+function assertNextTierTargetBoundaries() {
+    const hundredCases: ReadonlyArray<{ level: number; expected: number }> = [
+        { level: 0, expected: 20 },
+        { level: 1, expected: 20 },
+        { level: 19, expected: 20 },
+        { level: 20, expected: 40 },
+        { level: 39, expected: 40 },
+        { level: 40, expected: 60 },
+        { level: 99, expected: 100 },
+        { level: 100, expected: 100 },
+    ];
+
+    hundredCases.forEach(({ level, expected }) => {
+        const actual = nextTierTargetLevel(level, 100);
+        if (actual !== expected) {
+            throw new Error(
+                `nextTierTargetLevel(100) expected ${expected} for level ${level}, got ${actual}`,
+            );
+        }
+    });
+
+    const fiftyCases: ReadonlyArray<{ level: number; expected: number }> = [
+        { level: 0, expected: 10 },
+        { level: 9, expected: 10 },
+        { level: 10, expected: 20 },
+        { level: 49, expected: 50 },
+        { level: 50, expected: 50 },
+    ];
+
+    fiftyCases.forEach(({ level, expected }) => {
+        const actual = nextTierTargetLevel(level, 50);
+        if (actual !== expected) {
+            throw new Error(
+                `nextTierTargetLevel(50) expected ${expected} for level ${level}, got ${actual}`,
+            );
+        }
+    });
+
+    const singleCases: ReadonlyArray<{ level: number; expected: number }> = [
+        { level: 0, expected: 1 },
+        { level: 1, expected: 1 },
+    ];
+
+    singleCases.forEach(({ level, expected }) => {
+        const actual = nextTierTargetLevel(level, 1);
+        if (actual !== expected) {
+            throw new Error(
+                `nextTierTargetLevel(1) expected ${expected} for level ${level}, got ${actual}`,
+            );
+        }
     });
 }
 
@@ -675,6 +731,7 @@ function runExplicitScenarioCase(testCase: ExplicitScenarioCase) {
 }
 
 export function runTierLevelingTests() {
+    assertNextTierTargetBoundaries();
     assertYellowBranchRolePartitioning();
     assertSplitNodeBoundaryContracts();
     assertExtendedBoundaryContracts();

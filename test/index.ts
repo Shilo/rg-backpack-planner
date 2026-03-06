@@ -34,6 +34,7 @@ const TEST_FILES = [
     "controlFocusPolicy.test.ts",
     "globalContextMenu.test.ts",
     "nodeBadge.test.ts",
+    "nodeContentMenuTierAction.test.ts",
     "nodeFocusStyle.test.ts",
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",

@@ -14,7 +14,7 @@
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
     import { formatNumber } from "./mathUtil";
-    import { tierSize } from "./tierLeveling";
+    import { tierSize, nextTierTargetLevel } from "./tierLeveling";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
     import {
         getSkillLevelInfo,
@@ -28,7 +28,7 @@
     export let y = 0;
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
-    export let onMax: ((index: NodeIndex) => void) | null = null;
+    export let onIncrementTier: ((index: NodeIndex) => void) | null = null;
     export let onReset: ((index: NodeIndex) => void) | null = null;
     export let onDecrement: ((index: NodeIndex) => void) | null = null;
     export let onDecrementBy10: ((index: NodeIndex) => void) | null = null;
@@ -49,6 +49,10 @@
     $: levelInfo =
         skillId !== null ? getSkillLevelInfo(skillId, level, maxLevel) : null;
     $: descKey = skillId !== null ? getSkillDescKey(skillId) : null;
+    $: tierTargetLevel =
+        maxLevel > 0
+            ? nextTierTargetLevel(level, maxLevel as Node["maxLevel"])
+            : 0;
 
     $: actionCosts = (() => {
         if (!skillId) return null;
@@ -61,7 +65,9 @@
             increment10: canUp
                 ? getCostRange(skillId, level, Math.min(level + 10, maxLevel))
                 : null,
-            max: canUp ? getCostRange(skillId, level, maxLevel) : null,
+            incrementTier: canUp
+                ? getCostRange(skillId, level, tierTargetLevel)
+                : null,
             decrement1: canDown
                 ? getCostRange(skillId, Math.max(level - 1, 0), level)
                 : null,
@@ -175,19 +181,19 @@
         </div>
     </div>
     <div class="button-grid" class:stacked={isSingleLevel}>
-        <NodeContextButton
-            icon={isSingleLevel ? CaretLineUpIcon : CaretUpIcon}
-            label={isSingleLevel ? $t("nodeMenu.max") : $t("nodeMenu.incrementOne")}
-            crystalValue={actionCosts?.increment1 ?? null}
-            positive
-            disabled={nodeIndex === null ||
-                level >= maxLevel ||
-                isGlobalIncrementLocked}
-            onClick={() => {
-                if (nodeIndex !== null && onIncrement) onIncrement(nodeIndex);
-            }}
-        />
         {#if !isSingleLevel}
+            <NodeContextButton
+                icon={CaretUpIcon}
+                label={$t("nodeMenu.incrementOne")}
+                crystalValue={actionCosts?.increment1 ?? null}
+                positive
+                disabled={nodeIndex === null ||
+                    level >= maxLevel ||
+                    isGlobalIncrementLocked}
+                onClick={() => {
+                    if (nodeIndex !== null && onIncrement) onIncrement(nodeIndex);
+                }}
+            />
             <NodeContextButton
                 icon={CaretDoubleUpIcon}
                 label={$t("nodeMenu.incrementTen")}
@@ -201,32 +207,32 @@
                         onIncrementBy10(nodeIndex);
                 }}
             />
-            <NodeContextButton
-                icon={CaretLineUpIcon}
-                label={$t("nodeMenu.max")}
-                crystalValue={actionCosts?.max ?? null}
-                positive
-                disabled={nodeIndex === null ||
-                    level >= maxLevel ||
-                    isGlobalIncrementLocked}
-                onClick={() => {
-                    if (nodeIndex !== null && onMax) onMax(nodeIndex);
-                }}
-            />
         {/if}
         <NodeContextButton
-            icon={isSingleLevel ? ArrowCounterClockwiseIcon : CaretDownIcon}
-            label={isSingleLevel
-                ? $t("nodeMenu.reset")
-                : $t("nodeMenu.decrementOne")}
-            crystalValue={actionCosts?.decrement1 ?? null}
-            negative
-            disabled={nodeIndex === null || level <= 0}
+            icon={CaretLineUpIcon}
+            label={tierTargetLevel >= maxLevel
+                ? $t("nodeMenu.max")
+                : $t("nodeMenu.incrementTier")}
+            crystalValue={actionCosts?.incrementTier ?? null}
+            positive
+            disabled={nodeIndex === null ||
+                level >= maxLevel ||
+                isGlobalIncrementLocked}
             onClick={() => {
-                if (nodeIndex !== null && onDecrement) onDecrement(nodeIndex);
+                if (nodeIndex !== null && onIncrementTier) onIncrementTier(nodeIndex);
             }}
         />
         {#if !isSingleLevel}
+            <NodeContextButton
+                icon={CaretDownIcon}
+                label={$t("nodeMenu.decrementOne")}
+                crystalValue={actionCosts?.decrement1 ?? null}
+                negative
+                disabled={nodeIndex === null || level <= 0}
+                onClick={() => {
+                    if (nodeIndex !== null && onDecrement) onDecrement(nodeIndex);
+                }}
+            />
             <NodeContextButton
                 icon={CaretDoubleDownIcon}
                 label={$t("nodeMenu.decrementTen")}
@@ -238,21 +244,21 @@
                         onDecrementBy10(nodeIndex);
                 }}
             />
-            <NodeContextButton
-                icon={ArrowCounterClockwiseIcon}
-                label={$t("nodeMenu.reset")}
-                crystalValue={actionCosts?.reset ?? null}
-                negative
-                disabled={nodeIndex === null || level <= 0}
-                toastMessage={nodeIndex !== null && onReset
-                    ? $t("nodeMenu.resetToast")
-                    : undefined}
-                toastNegative
-                onClick={() => {
-                    if (nodeIndex !== null && onReset) onReset(nodeIndex);
-                }}
-            />
         {/if}
+        <NodeContextButton
+            icon={ArrowCounterClockwiseIcon}
+            label={$t("nodeMenu.reset")}
+            crystalValue={actionCosts?.reset ?? null}
+            negative
+            disabled={nodeIndex === null || level <= 0}
+            toastMessage={nodeIndex !== null && onReset
+                ? $t("nodeMenu.resetToast")
+                : undefined}
+            toastNegative
+            onClick={() => {
+                if (nodeIndex !== null && onReset) onReset(nodeIndex);
+            }}
+        />
     </div>
 </ContextMenu>
 
