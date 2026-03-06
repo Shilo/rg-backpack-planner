@@ -373,7 +373,7 @@
     .context-menu-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.3);
+        background: var(--backdrop-overlay-context);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);

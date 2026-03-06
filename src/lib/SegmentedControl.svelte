@@ -5,12 +5,7 @@
     type SegmentOption = {
         index: number;
         label: string;
-        weight: number;
     };
-
-    const BASE_SEGMENT_WEIGHT = 1;
-    const MAX_WEIGHTED_LENGTH = 20;
-    const WEIGHT_FACTOR = 0.12;
 
     export let options: string[] = [];
     export let selectedIndex = 0;
@@ -20,23 +15,16 @@
     export let iconClass = "segmented-control__icon";
     export let onChange: ((index: number) => void) | null = null;
 
-    const countGlyphs = (text: string) => Array.from(text).length;
-
     const normalizeLabel = (value: string, index: number) => {
         const trimmed = value.trim();
         return trimmed.length > 0 ? trimmed : `Option ${index + 1}`;
     };
-
-    const optionWeight = (value: string) =>
-        BASE_SEGMENT_WEIGHT +
-        Math.min(countGlyphs(value), MAX_WEIGHTED_LENGTH) * WEIGHT_FACTOR;
 
     $: segmentOptions = options.map<SegmentOption>((value, index) => {
         const normalizedLabel = normalizeLabel(value, index);
         return {
             index,
             label: normalizedLabel,
-            weight: optionWeight(normalizedLabel),
         };
     });
 
@@ -90,7 +78,6 @@
                 <button
                     class="segmented-control__segment"
                     class:segment-selected={option.index === normalizedSelectedIndex}
-                    style="--segment-weight: {option.weight};"
                     type="button"
                     role="radio"
                     aria-checked={option.index === normalizedSelectedIndex}
@@ -176,7 +163,7 @@
         align-items: stretch;
         gap: 8px;
         min-width: 0;
-        min-height: 40px;
+        min-height: 38px;
     }
 
     .segmented-control__content.with-header {
@@ -208,7 +195,7 @@
         border: none;
         border-radius: 0;
         overflow: hidden;
-        min-height: 40px;
+        min-height: 38px;
         background: transparent;
     }
 
@@ -216,7 +203,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        flex: var(--segment-weight) 1 0;
+        flex: 1 1 0;
         min-width: 0;
         border: none;
         border-right: var(--border-width) solid
@@ -224,7 +211,7 @@
         background: transparent;
         color: var(--text-muted);
         cursor: pointer;
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
         line-height: var(--leading);
         padding: 0 var(--spacing-sm);
         transition:

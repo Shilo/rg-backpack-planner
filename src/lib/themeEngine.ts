@@ -325,13 +325,13 @@ export function applyTheme(
         vars["--shadow"] = `0 8px 20px ${bgHex}80`;
         vars["--shadow-node"] = `0 4px 10px ${bgHex}80`;
         vars["--shadow-node-hex"] = `0 4px 5px ${bgHex}`;
-        vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.5)";
     } else {
         vars["--shadow"] = "0 8px 20px rgba(0,0,0,0.08)";
         vars["--shadow-node"] = "0 4px 10px rgba(0,0,0,0.10)";
         vars["--shadow-node-hex"] = "0 2px 4px rgba(0,0,0,0.12)";
-        vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.6)";
     }
+    vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.5)";
+    vars["--backdrop-overlay-context"] = "rgba(0, 0, 0, 0.25)";
 
     // ── Dynamic filter variables (mode-dependent) ──
     if (isDark) {

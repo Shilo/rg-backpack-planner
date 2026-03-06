@@ -194,7 +194,7 @@
         top: var(--vv-offset-top, 0px);
         width: 100%;
         height: var(--vv-height, 100vh);
-        background: var(--bg-panel);
+        background: var(--backdrop-overlay);
         display: flex;
         flex-direction: column;
         align-items: center;

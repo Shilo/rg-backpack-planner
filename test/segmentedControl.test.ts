@@ -16,9 +16,9 @@ if (!/role="radio"/.test(segmentedControlSource)) {
     );
 }
 
-if (!/--segment-weight/.test(segmentedControlSource)) {
+if (/--segment-weight/.test(segmentedControlSource)) {
     throw new Error(
-        "SegmentedControl should provide weighted segment sizing for mixed label lengths.",
+        "SegmentedControl should prefer equal segment sizing instead of weighted per-label sizing.",
     );
 }
 
@@ -71,6 +71,16 @@ if (
 }
 
 if (
+    !/\.segmented-control__content\s*\{[\s\S]*?min-height:\s*38px;/.test(
+        segmentedControlSource,
+    )
+) {
+    throw new Error(
+        "SegmentedControl bottom row should be 38px tall.",
+    );
+}
+
+if (
     !/\.segmented-control__header-label\s*\{[\s\S]*?white-space:\s*normal;/.test(
         segmentedControlSource,
     )
@@ -87,6 +97,34 @@ if (
 ) {
     throw new Error(
         "SegmentedControl should add a vertical divider between icon and segments for icon-only single-row layout.",
+    );
+}
+
+if (
+    !/\.segmented-control__segments\s*\{[\s\S]*?min-height:\s*38px;/.test(
+        segmentedControlSource,
+    )
+) {
+    throw new Error("SegmentedControl segment row should be 38px tall.");
+}
+
+if (
+    !/\.segmented-control__segment\s*\{[\s\S]*?flex:\s*1\s+1\s+0;/.test(
+        segmentedControlSource,
+    )
+) {
+    throw new Error(
+        "SegmentedControl segment buttons should prefer equal sizing with zero-basis flex.",
+    );
+}
+
+if (
+    !/\.segmented-control__segment\s*\{[\s\S]*?font-size:\s*var\(--font-sm\);/.test(
+        segmentedControlSource,
+    )
+) {
+    throw new Error(
+        "SegmentedControl segment button text should use font-sm sizing.",
     );
 }
 
