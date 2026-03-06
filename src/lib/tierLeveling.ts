@@ -304,6 +304,37 @@ export function unlockedTierForNode(
     return Math.min(...parentTiers);
 }
 
+function wrappedNodeFloor(
+    nodes: Node[],
+    levels: LevelsByIndex,
+    componentIndex: number,
+): number {
+    const node = nodes[componentIndex];
+    if (!node) return 0;
+    const level = levels[componentIndex] ?? 0;
+    if (level <= 0) return 0;
+
+    const nodeTier = tierIndex(level, node.maxLevel);
+    if (nodeTier <= 0) return 0;
+
+    const knownFlags = KNOWN_BRANCH_ANCESTOR_FLAGS[componentIndex];
+    const ancestors =
+        knownFlags && nodes.length === BRANCH_SIZE
+            ? knownFlags
+            : buildAncestorFlags(nodes, componentIndex);
+
+    let maxSupportedTier = nodeTier;
+    for (let i = 0; i < nodes.length; i += 1) {
+        if (!ancestors[i]) continue;
+        const ancestorNode = nodes[i];
+        if (!ancestorNode) continue;
+        const ancestorTier = tierIndex(levels[i] ?? 0, ancestorNode.maxLevel);
+        maxSupportedTier = Math.min(maxSupportedTier, ancestorTier);
+    }
+
+    return tierUpper(maxSupportedTier, node.maxLevel);
+}
+
 export function applyLevelChange(params: {
     nodes: Node[];
     levels: LevelsByIndex;
@@ -363,7 +394,11 @@ export function applyLevelChange(params: {
 
     next[index] = clampedTarget;
 
-    for (const componentIndex of componentIndices) {
+    const sortedIndices = isIncrement
+        ? componentIndices
+        : [...componentIndices].sort((a, b) => a - b);
+
+    for (const componentIndex of sortedIndices) {
         if (componentIndex === index) continue;
 
         const componentNode = nodes[componentIndex];
@@ -375,9 +410,15 @@ export function applyLevelChange(params: {
         const requiredLevel = tierUpper(requiredTier, componentNode.maxLevel);
         const currentLevel = current[componentIndex] ?? 0;
 
-        next[componentIndex] = isIncrement
-            ? Math.max(currentLevel, requiredLevel)
-            : Math.min(currentLevel, requiredLevel);
+        if (isIncrement) {
+            next[componentIndex] = Math.max(currentLevel, requiredLevel);
+        } else {
+            const candidate = Math.min(currentLevel, requiredLevel);
+            const floor = ancestorFlags[componentIndex]
+                ? 0
+                : wrappedNodeFloor(nodes, next, componentIndex);
+            next[componentIndex] = Math.max(candidate, floor);
+        }
     }
 
     const deltas: LevelDelta[] = [];
