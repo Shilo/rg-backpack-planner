@@ -22,6 +22,9 @@ const TREE_VISIBLE_BOUNDS = {
     // snapdom seems to add a 1px extra margin around the captured area
 };
 
+const CAPTURE_READY_MAX_FRAMES = 12;
+const CAPTURE_STABLE_FRAME_COUNT = 2;
+
 function setInlineStyleFromComputed(
     element: HTMLElement,
     computed: CSSStyleDeclaration,
@@ -109,6 +112,76 @@ function preserveNodeVisualStyles(root: HTMLElement) {
     });
 }
 
+function normalizeBadgeAnchorScale(root: HTMLElement) {
+    root.querySelectorAll<HTMLElement>(
+        ".node-badge-anchor, .node-tier-badge-anchor",
+    ).forEach((anchor) => {
+        anchor.style.transform = "scale(1)";
+    });
+}
+
+function waitForAnimationFrame(): Promise<void> {
+    if (
+        typeof window === "undefined" ||
+        typeof window.requestAnimationFrame !== "function"
+    ) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+    });
+}
+
+function getTreeCanvasSignature(element: HTMLElement): string {
+    return [
+        element.style.transform,
+        element.childElementCount,
+        element.querySelectorAll(".node-wrapper").length,
+        element.querySelectorAll(".tree-link").length,
+    ].join("|");
+}
+
+async function waitForStableTreeCanvas(
+    bridge: TabsCaptureBridge,
+    tabIndex: number,
+): Promise<HTMLElement | null> {
+    let stableFrames = 0;
+    let previousSignature = "";
+
+    for (let frame = 0; frame < CAPTURE_READY_MAX_FRAMES; frame++) {
+        await tick();
+        await waitForAnimationFrame();
+
+        const element = bridge.getTreeCanvas();
+        const isReady =
+            !!element &&
+            element.isConnected &&
+            bridge.getActive() === tabIndex &&
+            !!element.querySelector(".button.node");
+
+        if (!isReady || !element) {
+            stableFrames = 0;
+            previousSignature = "";
+            continue;
+        }
+
+        const signature = getTreeCanvasSignature(element);
+        if (signature === previousSignature) {
+            stableFrames += 1;
+        } else {
+            stableFrames = 1;
+            previousSignature = signature;
+        }
+
+        if (stableFrames >= CAPTURE_STABLE_FRAME_COUNT) {
+            return element;
+        }
+    }
+
+    const fallback = bridge.getTreeCanvas();
+    return fallback && fallback.isConnected ? fallback : null;
+}
+
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
     parent: HTMLElement,
@@ -126,6 +199,13 @@ async function captureElementAsPng(
         clone.style.transform = "none";
         clone.style.transition = "none";
         clone.style.animation = "none";
+        clone.style.inset = "auto";
+        clone.style.right = "auto";
+        clone.style.bottom = "auto";
+        clone.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
+        clone.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
+        clone.style.pointerEvents = "none";
+        clone.style.overflow = "visible";
 
         // Offset clone by center node position
         clone.style.position = "absolute";
@@ -144,6 +224,7 @@ async function captureElementAsPng(
 
         preserveTreeLinkStrokeStyles(clone);
         preserveNodeVisualStyles(clone);
+        normalizeBadgeAnchorScale(clone);
 
         try {
             return await snapdom.toBlob(parent, {
@@ -184,6 +265,10 @@ function createAndAttachOffscreenParent() {
     parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
     parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
     parent.style.overflow = "visible";
+    parent.style.background = "transparent";
+    parent.style.backgroundColor = "transparent";
+    parent.style.pointerEvents = "none";
+    parent.style.isolation = "isolate";
 
     document.body.appendChild(parent);
     return parent;
@@ -227,7 +312,7 @@ async function combineTreeImagesHorizontally(
         canvas.width = totalWidth;
         canvas.height = totalHeight;
 
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) {
             console.error("Failed to get 2D context from canvas");
             return null;
@@ -310,7 +395,7 @@ export async function captureTreeImageByIndex(
             await tick();
         }
 
-        const element = bridge.getTreeCanvas();
+        const element = await waitForStableTreeCanvas(bridge, tabIndex);
         return await captureElementAsPng(element, parent);
     });
 }

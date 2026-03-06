@@ -42,6 +42,7 @@ const TEST_FILES = [
     "shareBuildButtonComposeOpen.test.ts",
     "composeScreenshotHost.test.ts",
     "captureServiceBadgeBounds.test.ts",
+    "captureServiceRenderStability.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "treeZoomSetting.test.ts",
     "nodePrimaryActionSetting.test.ts",
