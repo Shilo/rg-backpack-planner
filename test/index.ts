@@ -43,6 +43,7 @@ const TEST_FILES = [
     "sideMenuComposeScreenshotClose.test.ts",
     "treeZoomSetting.test.ts",
     "nodePrimaryActionSetting.test.ts",
+    "nodeLevelBehaviorSetting.test.ts",
     "fullscreenModalBackground.test.ts",
     "imageViewerLayout.test.ts",
     "imageViewerInteractions.test.ts",

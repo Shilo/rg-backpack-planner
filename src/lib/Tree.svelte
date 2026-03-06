@@ -29,6 +29,7 @@
         getTreeZoomScaleValue,
     } from "./treeZoomStore";
     import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
+    import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import {
         applyLevelChange,
         nextTierTargetLevel,
@@ -409,6 +410,7 @@
             levels,
             index,
             targetLevel,
+            nodeLevelBehavior: $nodeLevelBehavior,
         });
         if (deltas.length === 0) return false;
         const isGlobalIncrement = targetLevel > currentLevel;

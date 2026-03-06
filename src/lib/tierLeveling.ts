@@ -3,7 +3,7 @@ import type { LevelsByIndex, Node, NodeIndex } from "../types/tree";
 export type LevelDelta = { index: NodeIndex; delta: number };
 
 const MAX_TIERS = 5;
-const LEVEL_SYNC_LINKED = true;
+const SYNC_NODE_LEVEL_BEHAVIOR = 1;
 
 export function tierSize(maxLevel: Node["maxLevel"]): number {
     if (maxLevel <= 1) return 0;
@@ -224,8 +224,9 @@ export function applyLevelChange(params: {
     levels: LevelsByIndex;
     index: NodeIndex;
     targetLevel: number;
+    nodeLevelBehavior?: number;
 }): { levels: LevelsByIndex; deltas: LevelDelta[] } {
-    const { nodes, levels, index, targetLevel } = params;
+    const { nodes, levels, index, targetLevel, nodeLevelBehavior } = params;
     const node = nodes[index];
     if (!node) return { levels: cloneLevels(levels, nodes.length), deltas: [] };
 
@@ -242,7 +243,11 @@ export function applyLevelChange(params: {
     const next = cloneLevels(levels, nodes.length);
     next[index] = clampedTarget;
 
-    if (!LEVEL_SYNC_LINKED) {
+    const isSyncNodeLevelBehavior =
+        (nodeLevelBehavior ?? SYNC_NODE_LEVEL_BEHAVIOR) ===
+        SYNC_NODE_LEVEL_BEHAVIOR;
+
+    if (!isSyncNodeLevelBehavior) {
         const deltas: LevelDelta[] = [{ index, delta: clampedTarget - startingLevel }];
         return { levels: next, deltas };
     }

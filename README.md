@@ -21,7 +21,10 @@ It is built for quick iteration while playing: you can level nodes, track Tech C
 
 ### Tier Leveling (Level Sync)
 
-Current implementation uses linked level syncing (effectively ON for connected nodes).
+Node Level Behavior setting:
+
+- `Sync Lineage` (default): applies the full linked propagation contract below.
+- `Solo Only`: applies level changes only to the target node.
 
 #### 1. Target Rule
 

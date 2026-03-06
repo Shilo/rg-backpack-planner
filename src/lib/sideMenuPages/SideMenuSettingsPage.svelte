@@ -9,6 +9,7 @@
         SunIcon,
         TrashSimpleIcon,
         EyeIcon,
+        LinkSimpleIcon,
     } from "phosphor-svelte";
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
@@ -42,6 +43,10 @@
         nodePrimaryAction,
         isNodePrimaryAction,
     } from "../nodePrimaryActionStore";
+    import {
+        nodeLevelBehavior,
+        isNodeLevelBehavior,
+    } from "../nodeLevelBehaviorStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import type { TreeViewState } from "../Tree.svelte";
@@ -136,6 +141,12 @@
         $t("nodeMenu.incrementTier"),
     ];
     $: nodePrimaryActionSelectedIndex = $nodePrimaryAction;
+    $: nodeLevelBehaviorLabel = $t("settings.nodeLevelBehavior");
+    $: nodeLevelBehaviorOptions = [
+        $t("settings.nodeLevelBehaviorSolo"),
+        $t("settings.nodeLevelBehaviorSync"),
+    ];
+    $: nodeLevelBehaviorSelectedIndex = $nodeLevelBehavior;
 
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
         const multiplier = zoomScale / getTreeZoomScaleValue(TreeZoomLevel.Fit);
@@ -157,6 +168,11 @@
         nodePrimaryAction.set(index);
     }
 
+    function handleNodeLevelBehaviorChange(index: number) {
+        if (!isNodeLevelBehavior(index)) return;
+        nodeLevelBehavior.set(index);
+    }
+
     function handleResetSettings() {
         openModal({
             type: "confirm",
@@ -168,6 +184,7 @@
             confirmNegative: true,
             onConfirm: () => {
                 nodePrimaryAction.resetToDefault();
+                nodeLevelBehavior.resetToDefault();
                 treeZoomScale.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
@@ -266,6 +283,14 @@
         options={nodePrimaryActionOptions}
         selectedIndex={nodePrimaryActionSelectedIndex}
         onChange={handleNodePrimaryActionChange}
+    />
+    <SegmentedControl
+        label={nodeLevelBehaviorLabel}
+        ariaLabel={nodeLevelBehaviorLabel}
+        icon={LinkSimpleIcon as unknown as Component}
+        options={nodeLevelBehaviorOptions}
+        selectedIndex={nodeLevelBehaviorSelectedIndex}
+        onChange={handleNodeLevelBehaviorChange}
     />
 </SideMenuSection>
 

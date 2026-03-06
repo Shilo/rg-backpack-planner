@@ -214,6 +214,24 @@ function assertSameTierDecrementRebase(nodes: Node[]) {
     ]);
 }
 
+function assertIndividualNodeLevelingNoSync(nodes: Node[]) {
+    const levels = new Array(nodes.length).fill(0);
+    levels[0] = 20;
+    levels[1] = 20;
+    levels[3] = 20;
+
+    const result = applyLevelChange({
+        nodes,
+        levels,
+        index: 3,
+        targetLevel: 21,
+        nodeLevelBehavior: 0,
+    });
+
+    assert.deepStrictEqual(result.levels, [20, 20, 0, 21, 0, 0, 0, 0, 0, 0]);
+    assert.deepStrictEqual(result.deltas, [{ index: 3, delta: 1 }]);
+}
+
 function assertCrossBranchIsolation() {
     const levels = new Array(baseTree.length).fill(0);
     levels[10] = 55;
@@ -350,6 +368,7 @@ export function runTierLevelingTests() {
     assertInvalidIndexChange(nodes);
     assertUnlockedTierContracts(nodes);
     assertSameTierDecrementRebase(nodes);
+    assertIndividualNodeLevelingNoSync(nodes);
     assertCrossBranchIsolation();
 
     let passed = 0;
