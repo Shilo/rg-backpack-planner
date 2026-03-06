@@ -43,6 +43,8 @@ function makeSvg(viewBox, nativeSize, bgColor) {
 const REGULAR_VB = "-202 -207 1474 1474";
 // ~20 % padding per side → icon fills 60 % (fits maskable safe-zone circle)
 const MASKABLE_VB = "-399 -404 1867 1867";
+// Tight fit for desktop (no background, full size)
+const PURE_VB = "-25 -30 1120 1120";
 // Tight fit for small favicon
 const FAVICON_VB = "-87 -92 1244 1244";
 
@@ -70,7 +72,7 @@ async function renderIco(svg, filename) {
     entry.writeUInt32LE(22, 12);
 
     writeFileSync(join(publicDir, filename), Buffer.concat([header, entry, pngBuf]));
-    console.log(`  ${filename}  (48×48 ICO)`);
+    console.log(`  ${filename}  (48x48 ICO)`);
 }
 
 async function main() {
@@ -78,12 +80,14 @@ async function main() {
 
     const regular = makeSvg(REGULAR_VB, 1024, BG_COLOR);
     const maskable = makeSvg(MASKABLE_VB, 1024, BG_COLOR);
+    const pure = makeSvg(PURE_VB, 1024, null);
     const favicon = makeSvg(FAVICON_VB, 256, null);
 
     await Promise.all([
         renderPng(regular, 180, "apple-touch-icon-180x180.png"),
-        renderPng(regular, 192, "pwa-192x192.png"),
-        renderPng(regular, 512, "pwa-512x512.png"),
+        renderPng(regular, 512, "og-512x512.png"),
+        renderPng(pure, 192, "pwa-192x192.png"),
+        renderPng(pure, 512, "pwa-512x512.png"),
         renderPng(maskable, 512, "maskable-icon-512x512.png"),
         renderIco(favicon, "favicon.ico"),
     ]);

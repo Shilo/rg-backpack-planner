@@ -7,8 +7,8 @@ export interface ThemeColor {
     l?: number;
 }
 
-/** Default source color: matches the first preset (Blue) */
-export const DEFAULT_THEME_COLOR: ThemeColor = { h: 260, c: 0.26 };
+/** Default source color: matches the first preset (Cyan) */
+export const DEFAULT_THEME_COLOR: ThemeColor = { h: 201.4, c: 0.156 };
 
 function getThemeColor(): ThemeColor {
     const stored = getItem("theme-color");
