@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import {
         SquaresFourIcon,
         CopySimpleIcon,
@@ -53,8 +53,28 @@
         if (isOpen) captureAll();
     });
 
+    function waitForAnimationFrame(): Promise<void> {
+        if (
+            typeof window === "undefined" ||
+            typeof window.requestAnimationFrame !== "function"
+        ) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            window.requestAnimationFrame(() => resolve());
+        });
+    }
+
+    async function waitForNextPaint(): Promise<void> {
+        await tick();
+        await waitForAnimationFrame();
+    }
+
     async function captureAll() {
         isLoading = true;
+        await waitForNextPaint();
+
         try {
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
