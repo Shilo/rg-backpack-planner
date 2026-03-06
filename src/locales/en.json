@@ -396,6 +396,7 @@
     "toast": {
         "copied": "Copied",
         "unableToCopy": "Unable to copy",
+        "updatingToast": "Updating...",
         "updatedVersionToast": "Updated to v{version}"
     }
 }

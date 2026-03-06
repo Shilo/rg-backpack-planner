@@ -382,6 +382,7 @@
     "toast": {
         "copied": "コピーしました",
         "unableToCopy": "コピーできませんでした",
+        "updatingToast": "更新中...",
         "updatedVersionToast": "v{version}に更新されました"
     }
 }

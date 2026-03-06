@@ -382,6 +382,7 @@
     "toast": {
         "copied": "已复制",
         "unableToCopy": "无法复制",
+        "updatingToast": "正在更新...",
         "updatedVersionToast": "已更新到 v{version}"
     }
 }
