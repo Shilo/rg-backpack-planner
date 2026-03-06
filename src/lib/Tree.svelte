@@ -363,13 +363,19 @@
             .map((link) => {
                 const to = renderNodes[link.to];
                 if (!to) return null;
+                const parentLevel =
+                    link.from === undefined ? 0 : getLevelFrom(levels, link.from);
+                const state =
+                    link.from === undefined || parentLevel > 0
+                        ? to.state
+                        : "locked";
                 return {
                     fromNode:
                         link.from === undefined
                             ? null
                             : (getNodeAt(link.from) ?? null),
                     toNode: to.node,
-                    state: to.state,
+                    state,
                     region: to.region,
                 };
             })

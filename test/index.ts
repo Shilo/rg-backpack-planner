@@ -44,6 +44,7 @@ const TEST_FILES = [
     "treeZoomSetting.test.ts",
     "nodePrimaryActionSetting.test.ts",
     "nodeLevelBehaviorSetting.test.ts",
+    "treeLinkParentLevelColor.test.ts",
     "fullscreenModalBackground.test.ts",
     "imageViewerLayout.test.ts",
     "imageViewerInteractions.test.ts",
