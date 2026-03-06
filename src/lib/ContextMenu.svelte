@@ -106,6 +106,8 @@
 
     function handleBackdropContextMenu(event: MouseEvent) {
         if (event.target !== event.currentTarget) return;
+        // Only close if there was a pointerdown on backdrop first (avoids close from touch release after long-press)
+        if (!backdropHadPointerDown) return;
         event.preventDefault();
         event.stopPropagation();
         onClose?.();
