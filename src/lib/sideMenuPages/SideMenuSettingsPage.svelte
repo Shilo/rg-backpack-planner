@@ -265,6 +265,16 @@
         selectedIndex={demoUnlabeledSelectedIndex}
         onChange={(index: number) => (demoUnlabeledSelectedIndex = index)}
     />
+    <SegmentedControl
+        ariaLabel="Demo segmented control without label"
+        options={[
+            "Short",
+            "Japanese 日本語 option",
+            "Traditional Chinese 超長文字選項",
+        ]}
+        selectedIndex={demoUnlabeledSelectedIndex}
+        onChange={(index: number) => (demoUnlabeledSelectedIndex = index)}
+    />
     <LanguageDropdown />
     <div class="button-group theme-row">
         <ThemeColorSelector />

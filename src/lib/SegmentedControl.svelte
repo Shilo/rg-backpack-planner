@@ -67,7 +67,7 @@
         <div class="segmented-control__header">
             {#if icon}
                 <span class="segmented-control__header-icon" aria-hidden="true">
-                    <svelte:component this={icon} class={iconClass} size={20} />
+                    <svelte:component this={icon} class={iconClass} size={26} />
                 </span>
             {/if}
             <span class="segmented-control__header-label">{label}</span>
@@ -81,7 +81,7 @@
     >
         {#if !label && icon}
             <span class="segmented-control__leading-icon" aria-hidden="true">
-                <svelte:component this={icon} class={iconClass} size={20} />
+                <svelte:component this={icon} class={iconClass} size={26} />
             </span>
         {/if}
 
@@ -134,12 +134,6 @@
         outline-offset: 2px;
     }
 
-    @media (hover: hover) {
-        .segmented-control:hover {
-            filter: var(--brightness-hover);
-        }
-    }
-
     .segmented-control__header {
         display: flex;
         align-items: center;
@@ -147,6 +141,7 @@
         min-width: 0;
         min-height: 32px;
         padding: 0 8px 0 12px;
+        background: var(--bg-input);
     }
 
     .segmented-control__header-icon,
@@ -154,8 +149,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 20px;
-        height: 20px;
+        width: 26px;
+        height: 26px;
         flex: 0 0 auto;
         color: currentColor;
     }
@@ -169,6 +164,7 @@
     .segmented-control__header-label {
         flex: 1;
         min-width: 0;
+        font-size: var(--font-base);
         white-space: normal;
         overflow-wrap: anywhere;
         line-height: var(--leading);
@@ -189,11 +185,15 @@
 
     .segmented-control__content.with-leading-icon {
         padding-left: 12px;
+        background: var(--bg-input);
     }
 
     .segmented-control__content.with-leading-icon .segmented-control__segments {
         flex: 1;
         min-width: 0;
+        background: var(--bg-raised);
+        border-left: var(--border-width) solid
+            color-mix(in srgb, var(--border) 80%, transparent);
     }
 
     .segmented-control__leading-icon {
@@ -224,7 +224,7 @@
         background: transparent;
         color: var(--text-muted);
         cursor: pointer;
-        font-size: var(--font-base);
+        font-size: var(--font-xs);
         line-height: var(--leading);
         padding: 0 var(--spacing-sm);
         transition:
@@ -249,10 +249,18 @@
         .segmented-control__segment:hover {
             filter: var(--brightness-hover);
         }
+
+        .segmented-control__segment:not(.segment-selected):hover {
+            background: color-mix(in srgb, var(--bg-raised) 80%, var(--text) 20%);
+        }
     }
 
     .segmented-control__segment:active {
         filter: var(--brightness-hover);
+    }
+
+    .segmented-control__segment:active .segmented-control__segment-text {
+        transform: scale(0.96);
     }
 
     .segmented-control__segment.segment-selected {
@@ -268,5 +276,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
         text-align: center;
+        transition: transform var(--ease);
     }
 </style>

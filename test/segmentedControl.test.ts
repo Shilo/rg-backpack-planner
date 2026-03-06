@@ -80,6 +80,28 @@ if (
     );
 }
 
+if (
+    !/\.segmented-control__content\.with-leading-icon\s+\.segmented-control__segments\s*\{[\s\S]*?border-left:\s*var\(--border-width\)\s*solid/.test(
+        segmentedControlSource,
+    )
+) {
+    throw new Error(
+        "SegmentedControl should add a vertical divider between icon and segments for icon-only single-row layout.",
+    );
+}
+
+if (!/size=\{26\}/.test(segmentedControlSource)) {
+    throw new Error("SegmentedControl icons should use 26x26 sizing.");
+}
+
+if (
+    !/\.segmented-control__header-icon,\s*\.segmented-control__leading-icon[\s\S]*?width:\s*26px;[\s\S]*?height:\s*26px;/.test(
+        segmentedControlSource,
+    )
+) {
+    throw new Error("SegmentedControl icon wrappers should be 26x26.");
+}
+
 const settingsPagePath = resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte");
 const settingsPageSource = readFileSync(settingsPagePath, "utf8");
 
