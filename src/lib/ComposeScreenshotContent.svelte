@@ -5,10 +5,10 @@
         CopySimpleIcon,
         DownloadSimpleIcon,
         ShareNetworkIcon,
+        ImageIcon,
     } from "phosphor-svelte";
     import FullscreenModal from "./FullscreenModal.svelte";
     import ImageViewer from "./ImageViewer.svelte";
-    import Spinner from "./Spinner.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
     import { showToast } from "./toast";
     import {
@@ -124,7 +124,12 @@
     onClose={handleClose}
 >
     {#if isLoading}
-        <Spinner />
+        <div class="compose-loading" role="status" aria-live="polite">
+            <div class="compose-loading-icon">
+                <ImageIcon size={42} weight="duotone" />
+            </div>
+            <p class="compose-loading-text">{$t("compose.loading")}</p>
+        </div>
     {:else}
         <ImageViewer blob={currentBlob} />
     {/if}
@@ -160,6 +165,28 @@
 </FullscreenModal>
 
 <style>
+    .compose-loading {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+    }
+
+    .compose-loading-icon {
+        color: var(--text-muted);
+    }
+
+    .compose-loading-text {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
     .compose-fabs {
         position: absolute;
         bottom: var(--spacing-lg);

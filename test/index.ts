@@ -41,6 +41,7 @@ const TEST_FILES = [
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
     "composeScreenshotHost.test.ts",
+    "composeScreenshotStaticLoadingIndicator.test.ts",
     "captureServiceBadgeBounds.test.ts",
     "captureServiceRenderStability.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",

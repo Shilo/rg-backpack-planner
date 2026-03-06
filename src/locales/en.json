@@ -207,7 +207,7 @@
         "tabs": {
             "all": "All"
         },
-        "loading": "Generating screenshots...",
+        "loading": "Loading...",
         "captureErrorToast": "Unable to generate screenshots",
         "copiedToast": "Screenshot copied to clipboard",
         "copyErrorToast": "Unable to copy screenshot",
