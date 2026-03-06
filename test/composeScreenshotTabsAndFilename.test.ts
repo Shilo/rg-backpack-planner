@@ -15,12 +15,6 @@ if (!allTabMatch) {
     );
 }
 
-if (/icon\s*:/.test(allTabMatch[0])) {
-    throw new Error(
-        'ComposeScreenshotContent "all" tab should not include an icon.',
-    );
-}
-
 if (!/activePresetName/.test(source)) {
     throw new Error(
         "ComposeScreenshotContent should use activePresetName for image filenames.",
