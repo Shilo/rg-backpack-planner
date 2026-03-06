@@ -278,13 +278,19 @@
             transform var(--ease),
             box-shadow var(--ease);
 
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
         line-height: 1;
         letter-spacing: 0.01em;
+        font-variant-numeric: tabular-nums;
         color: var(--node-badge-text);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
-        padding: 1px 4px 2px;
+        min-height: 15px;
+        padding: 0 4px;
         border-radius: var(--radius-full);
         min-width: 18px;
         text-align: center;

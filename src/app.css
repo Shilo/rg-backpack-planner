@@ -57,6 +57,8 @@ body {
         system-ui,
         -apple-system,
         sans-serif;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
     background-color: var(--bg);
     color: var(--text);
     overscroll-behavior: none;

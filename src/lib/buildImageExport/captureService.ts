@@ -87,6 +87,12 @@ function preserveNodeVisualStyles(root: HTMLElement) {
         "box-shadow",
         "color",
         "filter",
+        "font-family",
+        "font-size",
+        "font-weight",
+        "line-height",
+        "letter-spacing",
+        "font-variant-numeric",
     ];
 
     root.querySelectorAll<HTMLElement>(".node-wrapper").forEach((wrapper) => {
