@@ -143,9 +143,13 @@ Tier leveling uses a stable-tier model with hysteresis:
   neighbors do not become independent reactive drivers
 - reactive nodes are updated every time the target changes, not only when the
   visible target tier label changes
-- ancestor nodes react to the target's propagation tier
-- all other connected nodes in the branch react as wrapped nodes and use
+- on an increment, only connected ancestor nodes react
+- descendant levels do not gate or cap increment tier progression
+- on a decrement, connected ancestor nodes react to the target's propagation
+  tier, and connected descendant nodes react using
   `target propagation tier - 1`
+- descendant reachability is strict child-direction traversal from the target
+- unrelated nodes are not adjusted
 
 Reactive thresholds depend on the node's `maxLevel`:
 
@@ -154,6 +158,18 @@ Reactive thresholds depend on the node's `maxLevel`:
 - `50` cap nodes react upward when the target reaches `1`, `11`, `21`, `31`,
   and `41`
 - `1` cap nodes react upward when the target reaches `1`
+
+At each tier boundary `X0`, the directional trigger points are:
+
+- increment reacts at `X1` (one above the boundary)
+- decrement reacts at `X9` (one below the boundary)
+
+Example (`100` cap, tier-2 boundary):
+
+- `19 -> 20`: no reactive change
+- `20 -> 21`: reactive change
+- `21 -> 20`: no reactive change
+- `20 -> 19`: reactive change
 
 On the way down, the system uses hysteresis, so the reactive tier does not drop
 at the same number it rose:
@@ -165,8 +181,10 @@ at the same number it rose:
 - `50` cap nodes drop reactive support when they fall below `10`, `20`, `30`,
   or `40`
 - a `1` cap node drops its own stable tier when it returns to `0`
+- on decrements, propagation never resolves below the target's own current tier
+  (prevents same-tier ancestor collapse such as `100 -> 99`)
 - if a decrement lands on `0`, ancestors still rebase against tier `1`, while
-  wrapped nodes (including descendants) rebase against tier `0`
+  descendants rebase against tier `0`
 
 Once the next stable tier is known, reactive nodes use directional clamping:
 
@@ -177,7 +195,8 @@ Once the next stable tier is known, reactive nodes use directional clamping:
 
 This means a same-tier decrement can still lower other nodes. If the target
 stays in the same stable tier but the assigned bound is lower than the current
-reactive level, the branch is rebased downward immediately.
+reactive level (commonly descendants), the branch is rebased downward
+immediately.
 
 ## Global Leaf Node Cap
 
@@ -185,6 +204,7 @@ Leaf leveling has a global constraint across the full build (Guardian + Vanguard
 
 - A maximum of 3 leaf nodes can have `level > 0` at once
 - Once the cap is reached, all remaining `level = 0` leaf nodes are visually locked and cannot be incremented
+- Increment actions that do not increase leveled leaf count are still allowed
 - Already leveled leaf nodes remain editable, so decrementing/resetting one frees a slot for another leaf node
 
 ## Project Structure

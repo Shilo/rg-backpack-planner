@@ -78,3 +78,22 @@ export function isGlobalLeafNodeIncrementLocked(params: {
     if (currentLevel > 0) return false;
     return globalLeveledLeafNodeCount >= globalLeveledLeafNodeCap;
 }
+
+export function shouldBlockIncrementForGlobalLeafCap(params: {
+    currentGlobalLeveledLeafNodeCount: number;
+    nextGlobalLeveledLeafNodeCount: number;
+    globalLeveledLeafNodeCap?: number;
+}): boolean {
+    const {
+        currentGlobalLeveledLeafNodeCount,
+        nextGlobalLeveledLeafNodeCount,
+        globalLeveledLeafNodeCap = GLOBAL_LEVELED_LEAF_NODE_CAP,
+    } = params;
+
+    if (nextGlobalLeveledLeafNodeCount <= globalLeveledLeafNodeCap) return false;
+
+    return (
+        nextGlobalLeveledLeafNodeCount >
+        currentGlobalLeveledLeafNodeCount
+    );
+}

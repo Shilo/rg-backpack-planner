@@ -2,164 +2,26 @@ import { baseTree } from "../src/config/baseTree.ts";
 import type { LevelsByIndex, Node } from "../src/types/tree.ts";
 
 const MAX_TIERS = 5;
+
 export const YELLOW_BRANCH_LENGTH = 10;
 
-export type SweepCase = {
-    name: string;
-    targetIndex: number;
+export type DirectionalRolePartition = {
+    ancestors: Set<number>;
+    descendants: Set<number>;
+    unrelated: Set<number>;
 };
 
-export type ScenarioOperation = {
+export type DirectionalScenarioStep = {
     index: number;
     targetLevel: number;
+    expectedLevels: number[];
 };
 
-export type ScenarioCase = {
+export type DirectionalScenarioCase = {
     name: string;
-    operations: ScenarioOperation[];
+    initialLevels?: number[];
+    steps: DirectionalScenarioStep[];
 };
-
-export type ScenarioExpectedStates = number[][];
-
-export type SeededScenarioCase = {
-    name: string;
-    seed: number;
-    steps: number;
-};
-
-export type ExplicitScenarioCase = {
-    expectedStates: ScenarioExpectedStates;
-    name: string;
-    operations: ScenarioOperation[];
-};
-
-export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
-    {
-        expectedStates: [[40, 40, 20, 21, 20, 20, 20, 10, 10, 1]],
-        name: "Split node explicit tier-2 unlock",
-        operations: [{ index: 3, targetLevel: 21 }],
-    },
-    {
-        expectedStates: [
-            [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
-            [40, 40, 20, 20, 20, 20, 20, 10, 10, 1],
-            [20, 20, 0, 19, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Split node explicit hysteresis",
-        operations: [
-            { index: 3, targetLevel: 21 },
-            { index: 3, targetLevel: 20 },
-            { index: 3, targetLevel: 19 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 20, 0, 1, 0, 0, 0, 0, 0, 0],
-            [20, 20, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Split tier-1 decrement to zero keeps ancestor support",
-        operations: [
-            { index: 3, targetLevel: 1 },
-            { index: 3, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 20, 0, 20, 20, 0, 0, 10, 0, 0],
-            [40, 40, 20, 40, 40, 20, 20, 20, 10, 1],
-        ],
-        name: "Merged node explicit step-up",
-        operations: [
-            { index: 7, targetLevel: 10 },
-            { index: 7, targetLevel: 20 },
-        ],
-    },
-    {
-        expectedStates: [
-            [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
-            [100, 100, 100, 100, 100, 80, 100, 50, 40, 1],
-            [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
-            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Cross-branch explicit unwind clears after the root reset",
-        operations: [
-            { index: 7, targetLevel: 50 },
-            { index: 6, targetLevel: 100 },
-            { index: 8, targetLevel: 50 },
-            { index: 1, targetLevel: 0 },
-            { index: 5, targetLevel: 0 },
-            { index: 0, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
-            [20, 20, 20, 0, 10, 0, 10, 0, 0, 0],
-        ],
-        name: "Sibling tier-1 unlock preserves existing wrapped progress",
-        operations: [
-            { index: 6, targetLevel: 10 },
-            { index: 4, targetLevel: 10 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 20, 20, 0, 10, 0],
-            [20, 0, 20, 0, 0, 0, 19, 0, 0, 0],
-        ],
-        name: "Wrapped tier-1 decrement rebases inherited support",
-        operations: [
-            { index: 8, targetLevel: 10 },
-            { index: 6, targetLevel: 19 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 0, 10, 0, 0, 0],
-            [20, 20, 20, 0, 19, 0, 10, 0, 0, 0],
-            [20, 0, 20, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Sibling support reset preserves target ancestors",
-        operations: [
-            { index: 6, targetLevel: 10 },
-            { index: 4, targetLevel: 19 },
-            { index: 6, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [40, 40, 20, 20, 21, 20, 20, 10, 10, 1],
-            [40, 40, 20, 39, 21, 20, 20, 10, 10, 1],
-            [20, 20, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Split tier-2 reset preserves target ancestors",
-        operations: [
-            { index: 4, targetLevel: 21 },
-            { index: 3, targetLevel: 39 },
-            { index: 4, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [80, 60, 80, 60, 60, 60, 61, 30, 30, 1],
-            [40, 40, 20, 21, 20, 20, 20, 10, 10, 1],
-        ],
-        name: "Split node decrement from inherited tier-3 state uses min",
-        operations: [
-            { index: 6, targetLevel: 61 },
-            { index: 3, targetLevel: 21 },
-        ],
-    },
-];
-
-export const tierSeededInvariantCases: SeededScenarioCase[] = [
-    { name: "Yellow seeded invariants", seed: 11, steps: 8 },
-    { name: "Yellow seeded invariants", seed: 23, steps: 8 },
-    { name: "Yellow seeded invariants", seed: 37, steps: 8 },
-    { name: "Yellow seeded invariants", seed: 53, steps: 8 },
-];
 
 export function createYellowBranchFixture(): {
     nodes: Node[];
@@ -179,19 +41,33 @@ function parentIndices(node: Node): number[] {
     return Array.isArray(node.parent) ? [...node.parent] : [node.parent];
 }
 
+function buildChildrenList(nodes: Node[]): number[][] {
+    const children = nodes.map(() => [] as number[]);
+    nodes.forEach((node, index) => {
+        parentIndices(node).forEach((parentIndex) => {
+            if (children[parentIndex]) {
+                children[parentIndex].push(index);
+            }
+        });
+    });
+    return children;
+}
+
 export function collectAncestors(nodes: Node[], start: number): Set<number> {
     const ancestors = new Set<number>();
     const startNode = nodes[start];
-    if (!startNode) {
-        return ancestors;
-    }
-    const stack = parentIndices(startNode);
+    if (!startNode) return ancestors;
 
+    const stack = parentIndices(startNode);
     while (stack.length > 0) {
         const current = stack.pop()!;
         if (ancestors.has(current)) continue;
         ancestors.add(current);
-        parentIndices(nodes[current]).forEach((parentIndex) => {
+
+        const currentNode = nodes[current];
+        if (!currentNode) continue;
+
+        parentIndices(currentNode).forEach((parentIndex) => {
             if (!ancestors.has(parentIndex)) {
                 stack.push(parentIndex);
             }
@@ -201,25 +77,59 @@ export function collectAncestors(nodes: Node[], start: number): Set<number> {
     return ancestors;
 }
 
-export function partitionYellowBranchRoles(nodes: Node[], targetIndex: number): {
-    ancestors: Set<number>;
-    wrapped: Set<number>;
-} {
+export function collectDescendants(nodes: Node[], start: number): Set<number> {
+    const descendants = new Set<number>();
+    const children = buildChildrenList(nodes);
+    const stack = [...(children[start] ?? [])];
+
+    while (stack.length > 0) {
+        const current = stack.pop()!;
+        if (descendants.has(current)) continue;
+        descendants.add(current);
+
+        const childIndices = children[current] ?? [];
+        childIndices.forEach((childIndex) => {
+            if (!descendants.has(childIndex)) {
+                stack.push(childIndex);
+            }
+        });
+    }
+
+    return descendants;
+}
+
+export function partitionDirectionalRoles(
+    nodes: Node[],
+    targetIndex: number,
+): DirectionalRolePartition {
     const ancestors = collectAncestors(nodes, targetIndex);
-    const wrapped = new Set<number>();
+    const descendants = collectDescendants(nodes, targetIndex);
+    const unrelated = new Set<number>();
 
     nodes.forEach((_, index) => {
         if (index === targetIndex) return;
         if (ancestors.has(index)) return;
-        wrapped.add(index);
+        if (descendants.has(index)) return;
+        unrelated.add(index);
     });
 
-    return { ancestors, wrapped };
+    return { ancestors, descendants, unrelated };
 }
 
 function expectedTierSize(maxLevel: Node["maxLevel"]): number {
     if (maxLevel <= 1) return 0;
     return maxLevel / MAX_TIERS;
+}
+
+export function expectedTierUpper(
+    tier: number,
+    maxLevel: Node["maxLevel"],
+): number {
+    if (tier <= 0) return 0;
+    if (maxLevel <= 1) return maxLevel;
+    const size = expectedTierSize(maxLevel);
+    if (size === 0) return 0;
+    return Math.min(Math.ceil(size * tier), maxLevel);
 }
 
 export function expectedTierIndex(
@@ -242,47 +152,6 @@ function stableTierHoldFloor(
     return expectedTierUpper(tier - 1, maxLevel);
 }
 
-export function expectedTierUpper(
-    tier: number,
-    maxLevel: Node["maxLevel"],
-): number {
-    if (tier <= 0) return 0;
-    if (maxLevel <= 1) return maxLevel;
-    const size = expectedTierSize(maxLevel);
-    if (size === 0) return 0;
-    return Math.min(Math.ceil(size * tier), maxLevel);
-}
-
-export function buildRoundTripSequence(maxLevel: Node["maxLevel"]): number[] {
-    const ascending =
-        maxLevel <= MAX_TIERS
-            ? Array.from({ length: maxLevel + 1 }, (_, level) => level)
-            : (() => {
-                  const checkpoints = new Set<number>([0, 1, maxLevel]);
-                  const tierSize = expectedTierSize(maxLevel);
-
-                  for (let tier = 1; tier <= MAX_TIERS; tier += 1) {
-                      const boundary = Math.min(tier * tierSize, maxLevel);
-
-                      [boundary - 1, boundary, boundary + 1].forEach((level) => {
-                          if (level >= 0 && level <= maxLevel) {
-                              checkpoints.add(level);
-                          }
-                      });
-                  }
-
-                  return [...checkpoints].sort((left, right) => left - right);
-              })();
-    const forward = ascending.length > 1 ? ascending.slice(1) : ascending;
-    const descending = ascending.slice(0, -1).reverse();
-
-    return [...forward, ...descending];
-}
-
-export function uniqueBoundaryLevels(maxLevel: Node["maxLevel"]): number[] {
-    return [...new Set(buildRoundTripSequence(maxLevel))];
-}
-
 export function nextStableTier(params: {
     previousLevel: number;
     nextLevel: number;
@@ -290,26 +159,18 @@ export function nextStableTier(params: {
     maxLevel: Node["maxLevel"];
 }): number {
     const { previousLevel, nextLevel, currentStableTier, maxLevel } = params;
-
     if (nextLevel > previousLevel) {
-        const previousTier = expectedTierIndex(previousLevel, maxLevel);
-        const nextTier = expectedTierIndex(nextLevel, maxLevel);
-        if (nextTier > previousTier) {
-            return nextTier;
-        }
-        return currentStableTier;
+        return Math.max(currentStableTier, expectedTierIndex(nextLevel, maxLevel));
     }
 
     if (nextLevel < previousLevel) {
         let nextStable = currentStableTier;
-
         while (
             nextStable > 0 &&
             nextLevel < stableTierHoldFloor(nextStable, maxLevel)
         ) {
             nextStable -= 1;
         }
-
         return nextStable;
     }
 
@@ -322,269 +183,293 @@ export function propagationStableTier(params: {
     stableTier: number;
 }): number {
     const { previousLevel, nextLevel, stableTier } = params;
-
     if (nextLevel < previousLevel && nextLevel === 0) {
         return Math.max(stableTier, 1);
     }
-
     return stableTier;
 }
 
-export function buildExpectedBranchLevels(params: {
-    nodes: Node[];
-    targetIndex: number;
-    targetLevel: number;
-    stableTier: number;
-    ancestors: Set<number>;
-}): number[] {
-    const { nodes, targetIndex, targetLevel, stableTier, ancestors } = params;
-    const wrappedTier = Math.max(stableTier - 1, 0);
-
-    return nodes.map((node, index) => {
-        if (index === targetIndex) return targetLevel;
-        const requiredTier = ancestors.has(index) ? stableTier : wrappedTier;
-        return expectedTierUpper(requiredTier, node.maxLevel);
-    });
-}
-
-export function applyExpectedTargetTransition(params: {
-    currentLevels: number[];
-    nodes: Node[];
-    previousLevel: number;
-    nextLevel: number;
-    stableTier: number;
-    targetIndex: number;
-}): number[] {
-    const {
-        currentLevels,
-        nodes,
-        previousLevel,
-        nextLevel,
-        stableTier,
-        targetIndex,
-    } = params;
-    const nextLevels = [...currentLevels];
-    const roles = partitionYellowBranchRoles(nodes, targetIndex);
-    const reactiveTier = propagationStableTier({
-        previousLevel,
-        nextLevel,
-        stableTier,
-    });
-    const wrappedTier = Math.max(reactiveTier - 1, 0);
-
-    nextLevels[targetIndex] = nextLevel;
-    if (nextLevel === previousLevel) {
-        return nextLevels;
-    }
-
-    nodes.forEach((node, index) => {
-        if (index === targetIndex) return;
-
-        const assignedTier = roles.ancestors.has(index)
-            ? reactiveTier
-            : wrappedTier;
-        const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
-        const currentLevel = currentLevels[index] ?? 0;
-
-        nextLevels[index] =
-            nextLevel > previousLevel
-                ? Math.max(currentLevel, assignedLevel)
-                : Math.min(currentLevel, assignedLevel);
-    });
-
-    return nextLevels;
-}
-
-export function formatTierStateGroup(params: {
-    groupLabel: string;
-    levels: number[];
-    tiers: number[];
-}): string[] {
-    const { groupLabel, levels, tiers } = params;
-    const levelTokens = levels.map((level) => String(level));
-    const tierTokens = tiers.map((tier, index) =>
-        String(tier).padStart(levelTokens[index]?.length ?? 1, " "),
+export function expectedTiersForLevels(
+    nodes: Node[],
+    levels: number[],
+): number[] {
+    return nodes.map((node, index) =>
+        expectedTierIndex(levels[index] ?? 0, node.maxLevel),
     );
-
-    return [
-        `- ${groupLabel}:`,
-        `  - levels: [${levelTokens.join(", ")}]`,
-        `  - tiers:  [${tierTokens.join(", ")}]`,
-    ];
 }
 
-export function formatTierStepState(params: {
-    nodes: Node[];
-    expectedLevels: number[];
-    previousLevel: number;
-    nextLevel: number;
-    stepIndex: number;
-    targetIndex: number;
-}): string[] {
-    const {
-        nodes,
-        expectedLevels,
-        previousLevel,
-        nextLevel,
-        stepIndex,
-        targetIndex,
-    } = params;
-    const expectedTiers = nodes.map((node, index) =>
-        expectedTierIndex(expectedLevels[index] ?? 0, node.maxLevel),
-    );
-
-    return [
-        `step ${stepIndex + 1} [index ${targetIndex}] (${previousLevel} -> ${nextLevel})`,
-        ...formatTierStateGroup({
-            groupLabel: "expected",
-            levels: expectedLevels,
-            tiers: expectedTiers,
-        }),
-        "",
-    ];
-}
-
-function collectDescendants(nodes: Node[], start: number): Set<number> {
-    const descendants = new Set<number>();
-    const stack = [start];
-
-    while (stack.length > 0) {
-        const current = stack.pop()!;
-
-        nodes.forEach((node, index) => {
-            if (index === start || descendants.has(index)) return;
-            if (!parentIndices(node).includes(current)) return;
-
-            descendants.add(index);
-            stack.push(index);
-        });
-    }
-
-    return descendants;
-}
-
-function edgeBiasedLevelsForNode(node: Node): number[] {
-    if (node.maxLevel <= 1) {
-        return [0, 1];
-    }
-
-    if (node.maxLevel === 50) {
-        return [0, 1, 9, 10, 11, 19, 20, 21, 29, 30, 31, 39, 40, 41, 49, 50];
-    }
-
-    return [0, 1, 19, 20, 21, 39, 40, 41, 59, 60, 61, 79, 80, 81, 99, 100];
-}
-
-function createSeededRandom(seed: number): () => number {
-    let state = seed >>> 0;
-
-    return () => {
-        state = (state * 1664525 + 1013904223) >>> 0;
-        return state / 0x100000000;
-    };
-}
-
-function relatedIndicesForScenarioNode(nodes: Node[], start: number): number[] {
-    const related = new Set<number>([start]);
-    const ancestors = collectAncestors(nodes, start);
-    const descendants = collectDescendants(nodes, start);
-
-    ancestors.forEach((index) => {
-        related.add(index);
-        collectDescendants(nodes, index).forEach((descendantIndex) => {
-            related.add(descendantIndex);
-        });
-    });
-
-    descendants.forEach((index) => {
-        related.add(index);
-    });
-
-    return [...related];
-}
-
-export function buildSeededScenarioCase(
-    testCase: SeededScenarioCase,
-): ScenarioCase {
-    const { nodes, levels } = createYellowBranchFixture();
-    const random = createSeededRandom(testCase.seed);
-    const preferredIndices = [0, 1, 2, 3, 5, 6, 7, 8, 9];
-    const operations: ScenarioOperation[] = [];
-    let trackedLevels = [...levels];
-    let previousIndex =
-        preferredIndices[
-            Math.floor(random() * preferredIndices.length) %
-                preferredIndices.length
-        ] ?? 0;
-
-    for (let stepIndex = 0; stepIndex < testCase.steps; stepIndex += 1) {
-        let candidateIndices = preferredIndices;
-        if (stepIndex > 0 && random() < 0.75) {
-            const relatedIndices = relatedIndicesForScenarioNode(
-                nodes,
-                previousIndex,
-            ).filter((index) => preferredIndices.includes(index));
-
-            if (relatedIndices.length > 0) {
-                candidateIndices = relatedIndices;
-            }
-        }
-
-        const index =
-            candidateIndices[
-                Math.floor(random() * candidateIndices.length) %
-                    candidateIndices.length
-            ] ?? 0;
-        const candidateLevels = edgeBiasedLevelsForNode(nodes[index]);
-        const currentLevel = trackedLevels[index] ?? 0;
-
-        let levelPool = candidateLevels.filter(
-            (level) => level !== currentLevel,
-        );
-        if (currentLevel > 0 && random() < 0.65) {
-            const decreasing = levelPool.filter(
-                (level) => level < currentLevel,
-            );
-            if (decreasing.length > 0) {
-                levelPool = decreasing;
-            }
-        } else {
-            const increasing = levelPool.filter(
-                (level) => level > currentLevel,
-            );
-            if (increasing.length > 0) {
-                levelPool = increasing;
-            }
-        }
-
-        if (levelPool.length === 0) {
-            levelPool = candidateLevels;
-        }
-
-        const targetLevel =
-            levelPool[
-                Math.floor(random() * levelPool.length) % levelPool.length
-            ] ?? currentLevel;
-        const operation = { index, targetLevel };
-
-        operations.push(operation);
-        trackedLevels[index] = Math.min(
-            Math.max(targetLevel, 0),
-            nodes[index]?.maxLevel ?? 0,
-        );
-        previousIndex = index;
-    }
-
-    return {
-        name: `${testCase.name} (seed ${testCase.seed})`,
-        operations,
-    };
-}
-
-export const tierSweepCases: SweepCase[] = [
-    { name: "Yellow root node round trip", targetIndex: 0 },
-    { name: "Yellow second node round trip", targetIndex: 1 },
-    { name: "Yellow tier-3 split node round trip", targetIndex: 3 },
-    { name: "Yellow tier-4 merged node round trip", targetIndex: 7 },
-    { name: "Yellow final node round trip", targetIndex: 9 },
+export const directionalScenarioCases: DirectionalScenarioCase[] = [
+    {
+        name: "Split node boundary hysteresis (19/20/21) with zero rebase",
+        steps: [
+            {
+                index: 3,
+                targetLevel: 19,
+                expectedLevels: [20, 20, 0, 19, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: 20,
+                expectedLevels: [20, 20, 0, 20, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: 21,
+                expectedLevels: [40, 40, 0, 21, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: 20,
+                expectedLevels: [40, 40, 0, 20, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: 19,
+                expectedLevels: [20, 20, 0, 19, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: 0,
+                expectedLevels: [20, 20, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Merged node boundary hysteresis (9/10/11) with zero rebase",
+        steps: [
+            {
+                index: 7,
+                targetLevel: 9,
+                expectedLevels: [20, 20, 0, 20, 20, 0, 0, 9, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 10,
+                expectedLevels: [20, 20, 0, 20, 20, 0, 0, 10, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 11,
+                expectedLevels: [40, 40, 0, 40, 40, 0, 0, 11, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 10,
+                expectedLevels: [40, 40, 0, 40, 40, 0, 0, 10, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 9,
+                expectedLevels: [20, 20, 0, 20, 20, 0, 0, 9, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 0,
+                expectedLevels: [20, 20, 0, 20, 20, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Root node boundary hysteresis (19/20/21) affects only target on level-up",
+        steps: [
+            {
+                index: 0,
+                targetLevel: 19,
+                expectedLevels: [19, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 0,
+                targetLevel: 20,
+                expectedLevels: [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 0,
+                targetLevel: 21,
+                expectedLevels: [21, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 0,
+                targetLevel: 20,
+                expectedLevels: [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 0,
+                targetLevel: 19,
+                expectedLevels: [19, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 0,
+                targetLevel: 0,
+                expectedLevels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Index 2 level-up affects ancestors only (no descendant propagation)",
+        steps: [
+            {
+                index: 2,
+                targetLevel: 20,
+                expectedLevels: [20, 0, 20, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 2,
+                targetLevel: 21,
+                expectedLevels: [40, 0, 21, 0, 0, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Index 1 same-tier decrement keeps ancestor upper bound",
+        steps: [
+            {
+                index: 1,
+                targetLevel: 100,
+                expectedLevels: [100, 100, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 1,
+                targetLevel: 99,
+                expectedLevels: [100, 99, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 1,
+                targetLevel: 50,
+                expectedLevels: [60, 50, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 1,
+                targetLevel: 49,
+                expectedLevels: [60, 49, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Leaf-at-zero does not cap ancestor-side increments through higher tiers",
+        steps: [
+            {
+                index: 7,
+                targetLevel: 20,
+                expectedLevels: [40, 40, 0, 40, 40, 0, 0, 20, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 21,
+                expectedLevels: [60, 60, 0, 60, 60, 0, 0, 21, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 31,
+                expectedLevels: [80, 80, 0, 80, 80, 0, 0, 31, 0, 0],
+            },
+            {
+                index: 7,
+                targetLevel: 41,
+                expectedLevels: [100, 100, 0, 100, 100, 0, 0, 41, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Leaf node boundary toggle (0/1) preserves ancestor support at zero",
+        steps: [
+            {
+                index: 9,
+                targetLevel: 1,
+                expectedLevels: [20, 20, 20, 20, 20, 20, 20, 10, 10, 1],
+            },
+            {
+                index: 9,
+                targetLevel: 0,
+                expectedLevels: [20, 20, 20, 20, 20, 20, 20, 10, 10, 0],
+            },
+        ],
+    },
+    {
+        name: "Last node decrement rebases pre-leveled ancestors to tier-1 support",
+        initialLevels: [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
+        steps: [
+            {
+                index: 9,
+                targetLevel: 0,
+                expectedLevels: [20, 20, 20, 20, 20, 20, 20, 10, 10, 0],
+            },
+        ],
+    },
+    {
+        name: "Both branch sides active stay isolated except shared ancestors",
+        steps: [
+            {
+                index: 3,
+                targetLevel: 21,
+                expectedLevels: [40, 40, 0, 21, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 5,
+                targetLevel: 21,
+                expectedLevels: [40, 40, 40, 21, 0, 21, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: 19,
+                expectedLevels: [20, 20, 40, 19, 0, 21, 0, 0, 0, 0],
+            },
+            {
+                index: 5,
+                targetLevel: 19,
+                expectedLevels: [20, 20, 20, 19, 0, 19, 0, 0, 0, 0],
+            },
+            {
+                index: 5,
+                targetLevel: 21,
+                expectedLevels: [40, 20, 40, 19, 0, 21, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Target level clamps before applying propagation rules",
+        steps: [
+            {
+                index: 3,
+                targetLevel: 999,
+                expectedLevels: [100, 100, 0, 100, 0, 0, 0, 0, 0, 0],
+            },
+            {
+                index: 3,
+                targetLevel: -5,
+                expectedLevels: [20, 20, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Same-tier decrement rebases elevated reactive nodes downward",
+        initialLevels: [100, 100, 0, 21, 0, 0, 0, 50, 0, 1],
+        steps: [
+            {
+                index: 3,
+                targetLevel: 20,
+                expectedLevels: [40, 40, 0, 20, 0, 0, 0, 10, 0, 1],
+            },
+        ],
+    },
+    {
+        name: "High-tier decrement (81/80/79) affects descendants and keeps hysteresis",
+        initialLevels: [81, 80, 80, 80, 80, 80, 80, 40, 40, 1],
+        steps: [
+            {
+                index: 0,
+                targetLevel: 80,
+                expectedLevels: [80, 80, 80, 80, 80, 80, 80, 40, 40, 1],
+            },
+            {
+                index: 0,
+                targetLevel: 79,
+                expectedLevels: [79, 60, 60, 60, 60, 60, 60, 30, 30, 1],
+            },
+            {
+                index: 0,
+                targetLevel: 0,
+                expectedLevels: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            },
+        ],
+    },
 ];

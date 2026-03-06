@@ -40,6 +40,7 @@
         GLOBAL_LEVELED_LEAF_NODE_CAP,
         countGlobalLeveledLeafNodesInTree,
         isGlobalLeafNodeIncrementLocked,
+        shouldBlockIncrementForGlobalLeafCap,
     } from "./globalLeafCap";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { t } from "svelte-whisper";
@@ -411,12 +412,20 @@
         });
         if (deltas.length === 0) return false;
         const isGlobalIncrement = targetLevel > currentLevel;
-        if (
-            isGlobalIncrement &&
-            getGlobalLeveledLeafNodeCount(nextLevels) >
-                GLOBAL_LEVELED_LEAF_NODE_CAP
-        ) {
-            return false;
+        if (isGlobalIncrement) {
+            const currentGlobalLeveledLeafNodeCount =
+                getGlobalLeveledLeafNodeCount(levels);
+            const nextGlobalLeveledLeafNodeCount =
+                getGlobalLeveledLeafNodeCount(nextLevels);
+            if (
+                shouldBlockIncrementForGlobalLeafCap({
+                    currentGlobalLeveledLeafNodeCount,
+                    nextGlobalLeveledLeafNodeCount,
+                    globalLeveledLeafNodeCap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                })
+            ) {
+                return false;
+            }
         }
         updateLevels(nextLevels);
         return true;

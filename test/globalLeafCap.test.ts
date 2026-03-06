@@ -5,6 +5,7 @@ import {
     countGlobalLeveledLeafNodesInTree,
     countGlobalLeveledLeafNodesOutsideActiveTree,
     isGlobalLeafNodeIncrementLocked,
+    shouldBlockIncrementForGlobalLeafCap,
 } from "../src/lib/globalLeafCap.ts";
 
 const SHARED_TREE_TOPOLOGY = [
@@ -115,4 +116,40 @@ assert.strictEqual(
         globalLeveledLeafNodeCap: 1,
     }),
     true,
+);
+
+assert.strictEqual(
+    shouldBlockIncrementForGlobalLeafCap({
+        currentGlobalLeveledLeafNodeCount: 3,
+        nextGlobalLeveledLeafNodeCount: 4,
+    }),
+    true,
+);
+assert.strictEqual(
+    shouldBlockIncrementForGlobalLeafCap({
+        currentGlobalLeveledLeafNodeCount: 4,
+        nextGlobalLeveledLeafNodeCount: 5,
+    }),
+    true,
+);
+assert.strictEqual(
+    shouldBlockIncrementForGlobalLeafCap({
+        currentGlobalLeveledLeafNodeCount: 4,
+        nextGlobalLeveledLeafNodeCount: 4,
+    }),
+    false,
+);
+assert.strictEqual(
+    shouldBlockIncrementForGlobalLeafCap({
+        currentGlobalLeveledLeafNodeCount: 4,
+        nextGlobalLeveledLeafNodeCount: 3,
+    }),
+    false,
+);
+assert.strictEqual(
+    shouldBlockIncrementForGlobalLeafCap({
+        currentGlobalLeveledLeafNodeCount: 2,
+        nextGlobalLeveledLeafNodeCount: 3,
+    }),
+    false,
 );

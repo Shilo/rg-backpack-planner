@@ -1,37 +1,24 @@
+import assert from "node:assert/strict";
 import { appendFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import {
-    applyLevelChange,
-    nextTierTargetLevel,
-} from "../src/lib/tierLeveling.ts";
+import { baseTree } from "../src/config/baseTree.ts";
+import { applyLevelChange, unlockedTierForNode } from "../src/lib/tierLeveling.ts";
 import type { LevelsByIndex, Node } from "../src/types/tree.ts";
 import {
-    applyExpectedTargetTransition,
-    buildSeededScenarioCase,
-    buildExpectedBranchLevels,
-    buildRoundTripSequence,
     collectAncestors,
+    collectDescendants,
     createYellowBranchFixture,
-    expectedTierIndex,
-    expectedTierUpper,
-    formatTierStateGroup,
-    formatTierStepState,
-    nextStableTier,
-    partitionYellowBranchRoles,
-    propagationStableTier,
-    tierExplicitScenarioCases,
-    tierSeededInvariantCases,
-    tierSweepCases,
-    uniqueBoundaryLevels,
-    type ExplicitScenarioCase,
-    type ScenarioCase,
-    type ScenarioExpectedStates,
-    type SweepCase,
+    directionalScenarioCases,
+    expectedTiersForLevels,
+    partitionDirectionalRoles,
+    YELLOW_BRANCH_LENGTH,
+    type DirectionalScenarioCase,
 } from "./tierLeveling.shared.ts";
 
 const TIER_LOG_FILE_LABEL = "test/tierLeveling.output.log";
 const TIER_LOG_FILE_URL = new URL("./tierLeveling.output.log", import.meta.url);
 const TIER_LOG_FILE_PATH = fileURLToPath(TIER_LOG_FILE_URL);
+
 function resetTierLogFile() {
     writeFileSync(TIER_LOG_FILE_URL, "", "utf8");
 }
@@ -41,700 +28,312 @@ function logTierLine(line = "") {
     appendFileSync(TIER_LOG_FILE_URL, `${line}\n`, "utf8");
 }
 
-function assertYellowBranchState(params: {
-    caseName: string;
-    nodes: Node[];
-    actualLevels: LevelsByIndex;
-    expectedLevels: number[];
-    previousLevel: number;
-    nextLevel: number;
-    stepIndex: number;
-}) {
-    const {
-        caseName,
-        nodes,
-        actualLevels,
-        expectedLevels,
-        previousLevel,
-        nextLevel,
-        stepIndex,
-    } = params;
-    const direction = Math.sign(nextLevel - previousLevel);
+function sorted(values: Iterable<number>): number[] {
+    return [...values].sort((left, right) => left - right);
+}
 
-    nodes.forEach((node, index) => {
-        const actualLevel = actualLevels[index] ?? 0;
-        const expectedLevel = expectedLevels[index] ?? 0;
+function expectedDeltas(before: number[], after: number[]) {
+    const deltas: Array<{ index: number; delta: number }> = [];
+    const length = Math.max(before.length, after.length);
 
-        if (actualLevel !== expectedLevel) {
-            throw new Error(
-                `${caseName} step ${stepIndex} (${previousLevel} -> ${nextLevel}, direction ${direction}) node ${index} level expected ${expectedLevel}, got ${actualLevel}`,
+    for (let index = 0; index < length; index += 1) {
+        const previous = before[index] ?? 0;
+        const next = after[index] ?? 0;
+        if (previous === next) continue;
+        deltas.push({ index, delta: next - previous });
+    }
+
+    return deltas;
+}
+
+function assertRolePartitioning(nodes: Node[]) {
+    const splitRoles = partitionDirectionalRoles(nodes, 3);
+    assert.deepStrictEqual(sorted(splitRoles.ancestors), [0, 1]);
+    assert.deepStrictEqual(sorted(splitRoles.descendants), [7, 9]);
+    assert.deepStrictEqual(sorted(splitRoles.unrelated), [2, 4, 5, 6, 8]);
+
+    const rootRoles = partitionDirectionalRoles(nodes, 0);
+    assert.deepStrictEqual(sorted(rootRoles.ancestors), []);
+    assert.deepStrictEqual(sorted(rootRoles.descendants), [
+        1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
+    assert.deepStrictEqual(sorted(rootRoles.unrelated), []);
+
+    const leafRoles = partitionDirectionalRoles(nodes, 9);
+    assert.deepStrictEqual(sorted(leafRoles.ancestors), [
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+    ]);
+    assert.deepStrictEqual(sorted(leafRoles.descendants), []);
+    assert.deepStrictEqual(sorted(leafRoles.unrelated), []);
+}
+
+function assertRolePartitionCoverage(nodes: Node[]) {
+    nodes.forEach((_, targetIndex) => {
+        const roles = partitionDirectionalRoles(nodes, targetIndex);
+        const ancestorList = sorted(roles.ancestors);
+        const descendantList = sorted(roles.descendants);
+        const unrelatedList = sorted(roles.unrelated);
+
+        ancestorList.forEach((index) => {
+            assert.ok(
+                !roles.descendants.has(index),
+                `target ${targetIndex}: node ${index} is both ancestor and descendant`,
             );
-        }
-
-        const actualTier = expectedTierIndex(actualLevel, node.maxLevel);
-        const expectedTier = expectedTierIndex(expectedLevel, node.maxLevel);
-        if (actualTier !== expectedTier) {
-            throw new Error(
-                `${caseName} step ${stepIndex} (${previousLevel} -> ${nextLevel}, direction ${direction}) node ${index} tier expected ${expectedTier}, got ${actualTier}`,
+            assert.ok(
+                !roles.unrelated.has(index),
+                `target ${targetIndex}: node ${index} is both ancestor and unrelated`,
             );
-        }
+        });
+
+        descendantList.forEach((index) => {
+            assert.ok(
+                !roles.unrelated.has(index),
+                `target ${targetIndex}: node ${index} is both descendant and unrelated`,
+            );
+        });
+
+        const covered = new Set<number>([
+            ...ancestorList,
+            ...descendantList,
+            ...unrelatedList,
+            targetIndex,
+        ]);
+        assert.equal(
+            covered.size,
+            nodes.length,
+            `target ${targetIndex}: role partition does not cover every node`,
+        );
     });
 }
 
-function logActualTierStepState(nodes: Node[], actualLevels: LevelsByIndex): void {
-    const levels = nodes.map((_, index) => actualLevels[index] ?? 0);
-    const tiers = nodes.map((node, index) =>
-        expectedTierIndex(levels[index] ?? 0, node.maxLevel),
-    );
+function assertRootLeafTopology(nodes: Node[]) {
+    assert.equal(nodes[0]?.parent, undefined);
+    assert.deepStrictEqual(sorted(collectAncestors(nodes, 0)), []);
+    assert.deepStrictEqual(sorted(collectDescendants(nodes, 9)), []);
+}
 
-    formatTierStateGroup({
-        groupLabel: "actual",
+function assertNoopChange(nodes: Node[], levels: LevelsByIndex) {
+    const result = applyLevelChange({
+        nodes,
         levels,
-        tiers,
-    }).forEach((line) => {
-        logTierLine(line);
+        index: 3,
+        targetLevel: 0,
     });
-    logTierLine();
+
+    assert.strictEqual(result.levels, levels);
+    assert.deepStrictEqual(result.deltas, []);
 }
 
-function assertYellowBranchRolePartitioning() {
-    const { nodes } = createYellowBranchFixture();
-    const roles = partitionYellowBranchRoles(nodes, 3);
+function assertClampedNoopChange(nodes: Node[]) {
+    const maxedLevels = new Array(nodes.length).fill(0);
+    maxedLevels[3] = 100;
 
-    if (!roles.ancestors.has(0) || !roles.ancestors.has(1)) {
-        throw new Error("Expected node 3 ancestors to include 0 and 1");
-    }
-
-    if (!roles.wrapped.has(2) || !roles.wrapped.has(9)) {
-        throw new Error(
-            "Expected wrapped nodes to include non-ancestors in the branch",
-        );
-    }
-}
-
-function assertSplitNodeBoundaryContracts() {
-    assertTargetBoundaryContracts({
-        boundaryCases: [
-            { from: 0, to: 1, event: "up", stableTier: 1 },
-            { from: 1, to: 20, event: "none", stableTier: 1 },
-            { from: 20, to: 21, event: "up", stableTier: 2 },
-            { from: 21, to: 20, event: "none", stableTier: 2 },
-            { from: 20, to: 19, event: "down", stableTier: 1 },
-        ],
-        caseName: "Split node boundary contract",
-        targetIndex: 3,
-    });
-}
-
-function assertExtendedBoundaryContracts() {
-    assertTargetBoundaryContracts({
-        boundaryCases: [
-            { from: 0, to: 1, event: "up", stableTier: 1 },
-            { from: 1, to: 20, event: "none", stableTier: 1 },
-            { from: 20, to: 21, event: "up", stableTier: 2 },
-            { from: 21, to: 20, event: "none", stableTier: 2 },
-            { from: 20, to: 19, event: "down", stableTier: 1 },
-        ],
-        caseName: "Root node boundary contract",
-        targetIndex: 0,
-    });
-
-    assertTargetBoundaryContracts({
-        boundaryCases: [
-            { from: 0, to: 1, event: "up", stableTier: 1 },
-            { from: 1, to: 10, event: "none", stableTier: 1 },
-            { from: 10, to: 11, event: "up", stableTier: 2 },
-            { from: 11, to: 10, event: "none", stableTier: 2 },
-            { from: 10, to: 9, event: "down", stableTier: 1 },
-        ],
-        caseName: "Merged node boundary contract",
-        targetIndex: 7,
-    });
-
-    assertTargetBoundaryContracts({
-        boundaryCases: [
-            { from: 0, to: 1, event: "up", stableTier: 1 },
-            { from: 1, to: 0, event: "down", stableTier: 0 },
-        ],
-        caseName: "Final node boundary contract",
-        targetIndex: 9,
-    });
-}
-
-function assertNextTierTargetBoundaries() {
-    const hundredCases: ReadonlyArray<{ level: number; expected: number }> = [
-        { level: 0, expected: 20 },
-        { level: 1, expected: 20 },
-        { level: 19, expected: 20 },
-        { level: 20, expected: 40 },
-        { level: 39, expected: 40 },
-        { level: 40, expected: 60 },
-        { level: 99, expected: 100 },
-        { level: 100, expected: 100 },
-    ];
-
-    hundredCases.forEach(({ level, expected }) => {
-        const actual = nextTierTargetLevel(level, 100);
-        if (actual !== expected) {
-            throw new Error(
-                `nextTierTargetLevel(100) expected ${expected} for level ${level}, got ${actual}`,
-            );
-        }
-    });
-
-    const fiftyCases: ReadonlyArray<{ level: number; expected: number }> = [
-        { level: 0, expected: 10 },
-        { level: 9, expected: 10 },
-        { level: 10, expected: 20 },
-        { level: 49, expected: 50 },
-        { level: 50, expected: 50 },
-    ];
-
-    fiftyCases.forEach(({ level, expected }) => {
-        const actual = nextTierTargetLevel(level, 50);
-        if (actual !== expected) {
-            throw new Error(
-                `nextTierTargetLevel(50) expected ${expected} for level ${level}, got ${actual}`,
-            );
-        }
-    });
-
-    const singleCases: ReadonlyArray<{ level: number; expected: number }> = [
-        { level: 0, expected: 1 },
-        { level: 1, expected: 1 },
-    ];
-
-    singleCases.forEach(({ level, expected }) => {
-        const actual = nextTierTargetLevel(level, 1);
-        if (actual !== expected) {
-            throw new Error(
-                `nextTierTargetLevel(1) expected ${expected} for level ${level}, got ${actual}`,
-            );
-        }
-    });
-}
-
-function assertBoundaryContract(params: {
-    caseName: string;
-    currentLevels: LevelsByIndex;
-    event: "up" | "down" | "none";
-    from: number;
-    nodes: Node[];
-    stableTier: number;
-    stepIndex: number;
-    targetIndex: number;
-    to: number;
-}): LevelsByIndex {
-    const {
-        caseName,
-        currentLevels,
-        event,
-        from,
+    const aboveMax = applyLevelChange({
         nodes,
-        stableTier,
-        stepIndex,
-        targetIndex,
-        to,
-    } = params;
-    const currentLevel = currentLevels[targetIndex] ?? 0;
-    if (currentLevel !== from) {
-        throw new Error(
-            `${caseName} step ${stepIndex} expected target ${targetIndex} to start at ${from}, got ${currentLevel}`,
-        );
-    }
+        levels: maxedLevels,
+        index: 3,
+        targetLevel: 999,
+    });
+    assert.strictEqual(aboveMax.levels, maxedLevels);
+    assert.deepStrictEqual(aboveMax.deltas, []);
+
+    const zeroLevels = new Array(nodes.length).fill(0);
+    const belowZero = applyLevelChange({
+        nodes,
+        levels: zeroLevels,
+        index: 3,
+        targetLevel: -25,
+    });
+    assert.strictEqual(belowZero.levels, zeroLevels);
+    assert.deepStrictEqual(belowZero.deltas, []);
+}
+
+function assertInvalidIndexChange(nodes: Node[]) {
+    const levels = new Array(nodes.length).fill(0);
+    levels[1] = 32;
+    levels[9] = 1;
+
+    const invalidPositive = applyLevelChange({
+        nodes,
+        levels,
+        index: 999,
+        targetLevel: 21,
+    });
+    assert.deepStrictEqual(invalidPositive.levels, levels);
+    assert.notStrictEqual(invalidPositive.levels, levels);
+    assert.deepStrictEqual(invalidPositive.deltas, []);
+
+    const invalidNegative = applyLevelChange({
+        nodes,
+        levels,
+        index: -1,
+        targetLevel: 21,
+    });
+    assert.deepStrictEqual(invalidNegative.levels, levels);
+    assert.notStrictEqual(invalidNegative.levels, levels);
+    assert.deepStrictEqual(invalidNegative.deltas, []);
+}
+
+function assertUnlockedTierContracts(nodes: Node[]) {
+    const levels = new Array(nodes.length).fill(0);
+
+    assert.equal(unlockedTierForNode(nodes, levels, 0), Infinity);
+    assert.equal(unlockedTierForNode(nodes, levels, 3), 0);
+    assert.equal(unlockedTierForNode(nodes, levels, 999), 0);
+
+    levels[3] = 40;
+    levels[4] = 20;
+    assert.equal(unlockedTierForNode(nodes, levels, 7), 1);
+
+    levels[4] = 40;
+    assert.equal(unlockedTierForNode(nodes, levels, 7), 2);
+
+    levels[7] = 20;
+    levels[8] = 10;
+    assert.equal(unlockedTierForNode(nodes, levels, 9), 1);
+
+    levels[8] = 20;
+    assert.equal(unlockedTierForNode(nodes, levels, 9), 2);
+}
+
+function assertSameTierDecrementRebase(nodes: Node[]) {
+    const levels = [100, 100, 0, 21, 0, 0, 0, 50, 0, 1];
+    const result = applyLevelChange({
+        nodes,
+        levels,
+        index: 3,
+        targetLevel: 20,
+    });
+
+    assert.deepStrictEqual(result.levels, [40, 40, 0, 20, 0, 0, 0, 10, 0, 1]);
+    assert.deepStrictEqual(result.deltas, [
+        { index: 0, delta: -60 },
+        { index: 1, delta: -60 },
+        { index: 3, delta: -1 },
+        { index: 7, delta: -40 },
+    ]);
+}
+
+function assertCrossBranchIsolation() {
+    const levels = new Array(baseTree.length).fill(0);
+    levels[10] = 55;
+    levels[11] = 20;
+    levels[17] = 15;
+    levels[20] = 41;
+    levels[29] = 1;
 
     const result = applyLevelChange({
-        index: targetIndex,
-        levels: currentLevels,
-        nodes,
-        targetLevel: to,
+        nodes: baseTree,
+        levels,
+        index: 3,
+        targetLevel: 21,
     });
 
-    const roles = partitionYellowBranchRoles(nodes, targetIndex);
-    const reactiveTier = propagationStableTier({
-        previousLevel: from,
-        nextLevel: to,
-        stableTier,
-    });
-    const wrappedTier = Math.max(reactiveTier - 1, 0);
+    assert.deepStrictEqual(result.levels.slice(0, YELLOW_BRANCH_LENGTH), [
+        40, 40, 0, 21, 0, 0, 0, 0, 0, 0,
+    ]);
 
-    if ((result.levels[targetIndex] ?? 0) !== to) {
-        throw new Error(
-            `${caseName} step ${stepIndex} target ${targetIndex} expected level ${to}, got ${
-                result.levels[targetIndex] ?? 0
-            }`,
+    [10, 11, 17, 20, 29].forEach((index) => {
+        assert.equal(
+            result.levels[index] ?? 0,
+            levels[index] ?? 0,
+            `cross-branch index ${index} changed unexpectedly`,
         );
-    }
-
-    nodes.forEach((node, index) => {
-        if (index === targetIndex) return;
-
-        const previousLevel = currentLevels[index] ?? 0;
-        const assignedTier = roles.ancestors.has(index)
-            ? reactiveTier
-            : wrappedTier;
-        const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
-
-        let expectedLevel = previousLevel;
-        if (event === "up") {
-            expectedLevel = Math.max(previousLevel, assignedLevel);
-        } else if (event === "down") {
-            expectedLevel = Math.min(previousLevel, assignedLevel);
-        }
-
-        const actualLevel = result.levels[index] ?? 0;
-        if (actualLevel !== expectedLevel) {
-            throw new Error(
-                `${caseName} step ${stepIndex} node ${index} expected level ${expectedLevel}, got ${actualLevel}`,
-            );
-        }
     });
 
-    return result.levels;
+    result.deltas.forEach(({ index }) => {
+        assert.ok(index < YELLOW_BRANCH_LENGTH, `delta leaked to branch index ${index}`);
+    });
 }
 
-function assertTargetBoundaryContracts(params: {
-    boundaryCases: ReadonlyArray<{
-        from: number;
-        to: number;
-        event: "up" | "down" | "none";
-        stableTier: number;
-    }>;
-    caseName: string;
-    targetIndex: number;
-}) {
-    const { boundaryCases, caseName, targetIndex } = params;
+function runScenarioCase(testCase: DirectionalScenarioCase): number {
     const { nodes, levels } = createYellowBranchFixture();
-    let currentLevels = levels;
-
-    boundaryCases.forEach((testCase, stepIndex) => {
-        currentLevels = assertBoundaryContract({
-            caseName,
-            currentLevels,
-            event: testCase.event,
-            from: testCase.from,
-            nodes,
-            stableTier: testCase.stableTier,
-            stepIndex,
-            targetIndex,
-            to: testCase.to,
-        });
-    });
-}
-
-function runTwoStepSequenceMatrix() {
-    const { nodes, levels: startingLevels } = createYellowBranchFixture();
-    let sequenceCount = 0;
-
-    nodes.forEach((firstTargetNode, firstTargetIndex) => {
-        const firstCandidateLevels = uniqueBoundaryLevels(firstTargetNode.maxLevel);
-
-        firstCandidateLevels.forEach((firstTargetLevel) => {
-            const firstStableTier = nextStableTier({
-                previousLevel: 0,
-                nextLevel: firstTargetLevel,
-                currentStableTier: 0,
-                maxLevel: firstTargetNode.maxLevel,
-            });
-            const firstExpectedLevels = applyExpectedTargetTransition({
-                currentLevels: startingLevels,
-                nodes,
-                previousLevel: 0,
-                nextLevel: firstTargetLevel,
-                stableTier: firstStableTier,
-                targetIndex: firstTargetIndex,
-            });
-            const firstResult = applyLevelChange({
-                nodes,
-                levels: startingLevels,
-                index: firstTargetIndex,
-                targetLevel: firstTargetLevel,
-            });
-
-            assertYellowBranchState({
-                caseName: `Two-step matrix first target ${firstTargetIndex}`,
-                nodes,
-                actualLevels: firstResult.levels,
-                expectedLevels: firstExpectedLevels,
-                previousLevel: 0,
-                nextLevel: firstTargetLevel,
-                stepIndex: 0,
-            });
-
-            nodes.forEach((secondTargetNode, secondTargetIndex) => {
-                const secondCandidateLevels = uniqueBoundaryLevels(
-                    secondTargetNode.maxLevel,
-                );
-                const secondStartingLevel =
-                    firstExpectedLevels[secondTargetIndex] ?? 0;
-                const secondCurrentStableTier = inferStableTierFromObservedState({
-                    levels: firstExpectedLevels,
-                    nodes,
-                    targetIndex: secondTargetIndex,
-                });
-
-                secondCandidateLevels.forEach((secondTargetLevel) => {
-                    const secondStableTier = nextStableTier({
-                        previousLevel: secondStartingLevel,
-                        nextLevel: secondTargetLevel,
-                        currentStableTier: secondCurrentStableTier,
-                        maxLevel: secondTargetNode.maxLevel,
-                    });
-                    const secondExpectedLevels = applyExpectedTargetTransition({
-                        currentLevels: firstExpectedLevels,
-                        nodes,
-                        previousLevel: secondStartingLevel,
-                        nextLevel: secondTargetLevel,
-                        stableTier: secondStableTier,
-                        targetIndex: secondTargetIndex,
-                    });
-                    const secondResult = applyLevelChange({
-                        nodes,
-                        levels: firstResult.levels,
-                        index: secondTargetIndex,
-                        targetLevel: secondTargetLevel,
-                    });
-
-                    assertYellowBranchState({
-                        caseName: `Two-step matrix ${firstTargetIndex} -> ${secondTargetIndex}`,
-                        nodes,
-                        actualLevels: secondResult.levels,
-                        expectedLevels: secondExpectedLevels,
-                        previousLevel: secondStartingLevel,
-                        nextLevel: secondTargetLevel,
-                        stepIndex: 1,
-                    });
-
-                    sequenceCount += 1;
-                });
-            });
-        });
-    });
-
-    return sequenceCount;
-}
-
-function meetsStableTierHoldFloor(params: {
-    level: number;
-    maxLevel: number;
-    tier: number;
-}): boolean {
-    const { level, maxLevel, tier } = params;
-
-    if (tier <= 0) return true;
-    if (level <= 0) return false;
-    if (maxLevel <= 1) return true;
-    if (tier === 1) return true;
-
-    return level >= expectedTierUpper(tier - 1, maxLevel);
-}
-
-function inferStableTierFromObservedState(params: {
-    levels: LevelsByIndex;
-    nodes: Node[];
-    targetIndex: number;
-}): number {
-    const { levels, nodes, targetIndex } = params;
-    const targetNode = nodes[targetIndex];
-    if (!targetNode) return 0;
-
-    const roles = partitionYellowBranchRoles(nodes, targetIndex);
-    const targetLevel = levels[targetIndex] ?? 0;
-
-    for (let candidateTier = 5; candidateTier > 0; candidateTier -= 1) {
-        if (
-            !meetsStableTierHoldFloor({
-                level: targetLevel,
-                maxLevel: targetNode.maxLevel,
-                tier: candidateTier,
-            })
-        ) {
-            continue;
-        }
-
-        const wrappedTier = Math.max(candidateTier - 1, 0);
-        let satisfiesContract = true;
-
-        nodes.forEach((node, index) => {
-            if (!satisfiesContract || index === targetIndex) return;
-
-            const requiredTier = roles.ancestors.has(index)
-                ? candidateTier
-                : wrappedTier;
-            const requiredLevel = expectedTierUpper(requiredTier, node.maxLevel);
-            if ((levels[index] ?? 0) < requiredLevel) {
-                satisfiesContract = false;
-            }
-        });
-
-        if (satisfiesContract) {
-            return candidateTier;
-        }
+    let current = [...levels];
+    if (testCase.initialLevels) {
+        current = nodes.map((_, index) => testCase.initialLevels?.[index] ?? 0);
     }
 
-    return 0;
-}
-
-function runSeededInvariantCase(testCase: ScenarioCase) {
-    const { nodes, levels: startingLevels } = createYellowBranchFixture();
-    let currentLevels = startingLevels;
-
-    testCase.operations.forEach((operation, stepIndex) => {
-        const node = nodes[operation.index];
-        if (!node) {
-            throw new Error(
-                `${testCase.name} step ${stepIndex} targets missing node ${operation.index}`,
-            );
-        }
-
-        const previousLevel = currentLevels[operation.index] ?? 0;
-        const clampedTarget = Math.min(
-            Math.max(operation.targetLevel, 0),
-            node.maxLevel,
-        );
-        const currentStableTier = inferStableTierFromObservedState({
-            levels: currentLevels,
-            nodes,
-            targetIndex: operation.index,
-        });
+    testCase.steps.forEach((step, stepIndex) => {
+        const previous = [...current];
         const result = applyLevelChange({
             nodes,
-            levels: currentLevels,
-            index: operation.index,
-            targetLevel: operation.targetLevel,
+            levels: current,
+            index: step.index,
+            targetLevel: step.targetLevel,
         });
-        const actualStableTier = inferStableTierFromObservedState({
-            levels: result.levels,
-            nodes,
-            targetIndex: operation.index,
-        });
-        const reactiveTier = propagationStableTier({
-            previousLevel,
-            nextLevel: clampedTarget,
-            stableTier: actualStableTier,
-        });
-        const roles = partitionYellowBranchRoles(nodes, operation.index);
+        const actual = nodes.map((_, index) => result.levels[index] ?? 0);
+        const expected = step.expectedLevels;
+        const targetNode = nodes[step.index];
 
         logTierLine(
-            `step ${stepIndex + 1} [index ${operation.index}] (${previousLevel} -> ${clampedTarget})`,
+            `step ${stepIndex + 1} [index ${step.index}] (${previous[step.index] ?? 0} -> ${step.targetLevel})`,
         );
-        logActualTierStepState(nodes, result.levels);
+        logTierLine(`- expected levels: [${expected.join(", ")}]`);
+        logTierLine(`- actual levels:   [${actual.join(", ")}]`);
+        logTierLine();
 
-        if ((result.levels[operation.index] ?? 0) !== clampedTarget) {
-            throw new Error(
-                `${testCase.name} step ${stepIndex} target ${operation.index} expected level ${clampedTarget}, got ${
-                    result.levels[operation.index] ?? 0
-                }`,
-            );
-        }
-
-        if (clampedTarget > previousLevel && actualStableTier < currentStableTier) {
-            throw new Error(
-                `${testCase.name} step ${stepIndex} target ${operation.index} stable tier decreased during increment (${currentStableTier} -> ${actualStableTier})`,
-            );
-        }
-
-        if (clampedTarget < previousLevel && actualStableTier > currentStableTier) {
-            throw new Error(
-                `${testCase.name} step ${stepIndex} target ${operation.index} stable tier increased during decrement (${currentStableTier} -> ${actualStableTier})`,
-            );
-        }
-
-        if (clampedTarget === previousLevel && actualStableTier !== currentStableTier) {
-            throw new Error(
-                `${testCase.name} step ${stepIndex} target ${operation.index} stable tier changed without a level change (${currentStableTier} -> ${actualStableTier})`,
-            );
-        }
-
-        nodes.forEach((branchNode, index) => {
-            const actualLevel = result.levels[index] ?? 0;
-
-            if (actualLevel < 0 || actualLevel > branchNode.maxLevel) {
-                throw new Error(
-                    `${testCase.name} step ${stepIndex} node ${index} exceeded bounds: ${actualLevel}`,
-                );
-            }
-
-            if (index === operation.index) return;
-
-            const previousNodeLevel = currentLevels[index] ?? 0;
-            const assignedTier = roles.ancestors.has(index)
-                ? reactiveTier
-                : Math.max(reactiveTier - 1, 0);
-            const assignedLevel = expectedTierUpper(
-                assignedTier,
-                branchNode.maxLevel,
-            );
-
-            if (clampedTarget === previousLevel) {
-                if (actualLevel !== previousNodeLevel) {
-                    throw new Error(
-                        `${testCase.name} step ${stepIndex} node ${index} expected level ${previousNodeLevel}, got ${actualLevel}`,
-                    );
-                }
-
-                return;
-            }
-
-            if (clampedTarget > previousLevel) {
-                const expectedLevel = Math.max(previousNodeLevel, assignedLevel);
-                if (actualLevel !== expectedLevel) {
-                    throw new Error(
-                        `${testCase.name} step ${stepIndex} node ${index} expected level ${expectedLevel}, got ${actualLevel}`,
-                    );
-                }
-
-                return;
-            }
-
-            if (actualLevel > previousNodeLevel) {
-                throw new Error(
-                    `${testCase.name} step ${stepIndex} node ${index} increased during decrement (${previousNodeLevel} -> ${actualLevel})`,
-                );
-            }
-
-            if (actualLevel < assignedLevel) {
-                throw new Error(
-                    `${testCase.name} step ${stepIndex} node ${index} dropped below floor ${assignedLevel}, got ${actualLevel}`,
-                );
-            }
-        });
-
-        currentLevels = result.levels;
-    });
-
-    return testCase.operations.length;
-}
-
-function runSweepCase(testCase: SweepCase) {
-    const { nodes, levels: startingLevels } = createYellowBranchFixture();
-    let currentLevels = startingLevels;
-    const targetNode = nodes[testCase.targetIndex];
-    const sequence = buildRoundTripSequence(targetNode.maxLevel);
-    const ancestors = collectAncestors(nodes, testCase.targetIndex);
-
-    let previousLevel = 0;
-    let stableTier = 0;
-
-    sequence.forEach((targetLevel, stepIndex) => {
-        const result = applyLevelChange({
-            nodes,
-            levels: currentLevels,
-            index: testCase.targetIndex,
-            targetLevel,
-        });
-
-        stableTier = nextStableTier({
-            previousLevel,
-            nextLevel: targetLevel,
-            currentStableTier: stableTier,
-            maxLevel: targetNode.maxLevel,
-        });
-        const reactiveTier = propagationStableTier({
-            previousLevel,
-            nextLevel: targetLevel,
-            stableTier,
-        });
-
-        const expectedLevels = buildExpectedBranchLevels({
-            nodes,
-            targetIndex: testCase.targetIndex,
-            targetLevel,
-            stableTier: reactiveTier,
-            ancestors,
-        });
-        formatTierStepState({
-            nodes,
-            expectedLevels,
-            previousLevel,
-            nextLevel: targetLevel,
-            stepIndex,
-            targetIndex: testCase.targetIndex,
-        })
-            .slice(0, -1)
-            .forEach((line) => {
-                logTierLine(line);
-            });
-        logActualTierStepState(nodes, result.levels);
-
-        assertYellowBranchState({
-            caseName: testCase.name,
-            nodes,
-            actualLevels: result.levels,
-            expectedLevels,
-            previousLevel,
-            nextLevel: targetLevel,
-            stepIndex,
-        });
-
-        currentLevels = result.levels;
-        previousLevel = targetLevel;
-    });
-
-    return sequence.length;
-}
-
-function runScenarioCase(
-    testCase: ScenarioCase,
-    expectedStates: ScenarioExpectedStates,
-) {
-    const { nodes, levels: startingLevels } = createYellowBranchFixture();
-    let currentLevels = startingLevels;
-
-    if (expectedStates.length !== testCase.operations.length) {
-        throw new Error(
-            `${testCase.name} expected ${testCase.operations.length} states, got ${expectedStates.length}`,
+        assert.deepStrictEqual(
+            actual,
+            expected,
+            `${testCase.name} step ${stepIndex + 1} levels mismatch`,
         );
-    }
 
-    testCase.operations.forEach((operation, stepIndex) => {
-        const previousLevel = currentLevels[operation.index] ?? 0;
-        const result = applyLevelChange({
-            nodes,
-            levels: currentLevels,
-            index: operation.index,
-            targetLevel: operation.targetLevel,
-        });
-        const expectedLevels = expectedStates[stepIndex] ?? [];
-        formatTierStepState({
-            nodes,
-            expectedLevels,
-            previousLevel,
-            nextLevel: operation.targetLevel,
-            stepIndex,
-            targetIndex: operation.index,
-        })
-            .slice(0, -1)
-            .forEach((line) => {
-                logTierLine(line);
-            });
-        logActualTierStepState(nodes, result.levels);
-
-        assertYellowBranchState({
-            caseName: testCase.name,
-            nodes,
-            actualLevels: result.levels,
-            expectedLevels,
-            previousLevel,
-            nextLevel: operation.targetLevel,
-            stepIndex,
+        const roles = partitionDirectionalRoles(nodes, step.index);
+        sorted(roles.unrelated).forEach((unrelatedIndex) => {
+            assert.equal(
+                actual[unrelatedIndex] ?? 0,
+                previous[unrelatedIndex] ?? 0,
+                `${testCase.name} step ${
+                    stepIndex + 1
+                } unrelated node ${unrelatedIndex} changed`,
+            );
         });
 
-        currentLevels = result.levels;
+        assert.deepStrictEqual(
+            result.deltas,
+            expectedDeltas(previous, expected),
+            `${testCase.name} step ${stepIndex + 1} deltas mismatch`,
+        );
+
+        const expectedTiers = expectedTiersForLevels(nodes, expected);
+        const actualTiers = expectedTiersForLevels(nodes, actual);
+        assert.deepStrictEqual(
+            actualTiers,
+            expectedTiers,
+            `${testCase.name} step ${stepIndex + 1} tier mismatch`,
+        );
+
+        nodes.forEach((scenarioNode, nodeIndex) => {
+            const value = actual[nodeIndex] ?? 0;
+            assert.ok(
+                value >= 0 && value <= scenarioNode.maxLevel,
+                `${testCase.name} step ${
+                    stepIndex + 1
+                } node ${nodeIndex} out of bounds: ${value}`,
+            );
+        });
+
+        if (targetNode) {
+            const clampedTarget = Math.min(
+                Math.max(step.targetLevel, 0),
+                targetNode.maxLevel,
+            );
+            assert.equal(
+                actual[step.index] ?? 0,
+                clampedTarget,
+                `${testCase.name} step ${
+                    stepIndex + 1
+                } target level did not clamp to expected value`,
+            );
+        }
+
+        current = [...actual];
     });
 
-    return testCase.operations.length;
-}
-
-function runExplicitScenarioCase(testCase: ExplicitScenarioCase) {
-    return runScenarioCase(testCase, testCase.expectedStates);
+    return testCase.steps.length;
 }
 
 export function runTierLevelingTests() {
-    assertNextTierTargetBoundaries();
-    assertYellowBranchRolePartitioning();
-    assertSplitNodeBoundaryContracts();
-    assertExtendedBoundaryContracts();
     resetTierLogFile();
     logTierLine("===");
     logTierLine("Tier Leveling Tests");
@@ -742,99 +341,42 @@ export function runTierLevelingTests() {
     logTierLine("===");
     logTierLine();
 
-    const cases = tierSweepCases;
+    const { nodes, levels } = createYellowBranchFixture();
+    assertRootLeafTopology(nodes);
+    assertRolePartitioning(nodes);
+    assertRolePartitionCoverage(nodes);
+    assertNoopChange(nodes, levels);
+    assertClampedNoopChange(nodes);
+    assertInvalidIndexChange(nodes);
+    assertUnlockedTierContracts(nodes);
+    assertSameTierDecrementRebase(nodes);
+    assertCrossBranchIsolation();
 
     let passed = 0;
     let failed = 0;
 
-    cases.forEach((testCase, index) => {
-        logTierLine(`Tier Test ${index + 1}: ${testCase.name}`);
+    directionalScenarioCases.forEach((testCase, index) => {
+        logTierLine(`Scenario ${index + 1}: ${testCase.name}`);
         logTierLine("---");
-
         try {
-            const steps = runSweepCase(testCase);
+            const steps = runScenarioCase(testCase);
             logTierLine(`✅ PASSED (${steps} steps)`);
-            passed++;
+            passed += 1;
         } catch (error) {
             logTierLine(
                 `❌ FAILED: ${
                     error instanceof Error ? error.message : String(error)
                 }`,
             );
-            failed++;
+            failed += 1;
         }
-
         logTierLine();
     });
-
-    tierExplicitScenarioCases.forEach((testCase, index) => {
-        logTierLine(`Explicit Scenario Test ${index + 1}: ${testCase.name}`);
-        logTierLine("---");
-
-        try {
-            const steps = runExplicitScenarioCase(testCase);
-            logTierLine(`✅ PASSED (${steps} steps)`);
-            passed++;
-        } catch (error) {
-            logTierLine(
-                `❌ FAILED: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            );
-            failed++;
-        }
-
-        logTierLine();
-    });
-
-    tierSeededInvariantCases.forEach((testCase, index) => {
-        const seededCase = buildSeededScenarioCase(testCase);
-        logTierLine(`Seeded Invariant Test ${index + 1}: ${seededCase.name}`);
-        logTierLine("---");
-
-        try {
-            const steps = runSeededInvariantCase(seededCase);
-            logTierLine(`✅ PASSED (${steps} steps)`);
-            passed++;
-        } catch (error) {
-            logTierLine(
-                `❌ FAILED: ${
-                    error instanceof Error ? error.message : String(error)
-                }`,
-            );
-            failed++;
-        }
-
-        logTierLine();
-    });
-
-    logTierLine("Two-Step Matrix Test 1: Yellow cross-target boundary matrix");
-    logTierLine("---");
-
-    try {
-        const sequences = runTwoStepSequenceMatrix();
-        logTierLine(`✅ PASSED (${sequences} sequences)`);
-        passed++;
-    } catch (error) {
-        logTierLine(
-            `❌ FAILED: ${error instanceof Error ? error.message : String(error)}`,
-        );
-        failed++;
-    }
-
-    logTierLine();
 
     logTierLine("===");
     logTierLine("Tier Leveling Summary");
     logTierLine("===");
-    logTierLine(
-        `📊 Total tests: ${
-            1 +
-            cases.length +
-            tierExplicitScenarioCases.length +
-            tierSeededInvariantCases.length
-        }`,
-    );
+    logTierLine(`📊 Total tests: ${directionalScenarioCases.length}`);
     logTierLine(`✅ Passed: ${passed}`);
     logTierLine(`❌ Failed: ${failed}`);
     logTierLine(`Log file: ${TIER_LOG_FILE_PATH}:1`);
@@ -845,11 +387,7 @@ export function runTierLevelingTests() {
     }
 
     return {
-        total:
-            1 +
-            cases.length +
-            tierExplicitScenarioCases.length +
-            tierSeededInvariantCases.length,
+        total: directionalScenarioCases.length,
         passed,
         failed,
     };

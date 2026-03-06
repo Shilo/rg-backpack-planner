@@ -23,40 +23,16 @@ Exercises `applyLevelChange()` against the simulated yellow branch from
 
 Current coverage includes:
 
-1. Round-trip sweeps from level `0` to max level and back down for key yellow
-   branch nodes (root, early branch, split node, merged node, and final node)
-2. A silent boundary-contract layer that checks exact tier-threshold behavior
-   for split, root, merged, and final targets before the logged suite starts
-3. A silent cross-target two-step matrix that runs boundary-adjacent two-step
-   combinations across every yellow-branch target pairing and checks exact
-   rule-driven branch states without replaying the production algorithm
-4. Hand-authored multi-step regression scenarios that mix increments and
-   decrements across related nodes to catch ancestor, descendant, and
-   wrapped-node propagation while staying aligned to the current-target
-   contract
-5. Fixed-seed invariant scenarios that hit partial levels, mixed target order,
-   and same-tier decrements without generating full expected branch states
-   from helper code
-6. Per-step validation of every node in the branch, asserting both expected
-   level and derived tier state for sweep and explicit cases, then directional
-   invariants for the seeded cases
-7. Per-step output that prints the target node index, the level transition,
-   aligned `levels` and `tiers` arrays, and mirrors the same output to
-   `test/tierLeveling.output.log`
-
-The active CLI tier suite no longer uses generated scenario expectations as its
-primary correctness oracle. The earlier shadow-oracle approach duplicated the
-same tier-transition reasoning as `applyLevelChange()`, which could create
-false passes when the tests and implementation shared the same bad assumption.
-The boundary-contract layer and explicit scenario tables keep the oracle
-smaller and more independent. The cross-target two-step matrix expands that
-exact coverage across many more boundary-adjacent handoffs without
-reintroducing a shadow simulator. The seeded invariant layer is secondary
-coverage: it checks independent rules after each step, including the fact that
-a decrement can still rebase non-target nodes with `min(...)` even when the
-target remains in the same stable tier. All of these tests assume the same
-core runtime rule: the node you just changed is the sole reactive driver for
-that operation.
+1. Explicit directional propagation scenarios using fixed expected arrays
+2. Directional reachability checks (ancestor-only on increment, ancestor+descendant on decrement)
+3. Role partition checks for ancestor, descendant, and unrelated node sets
+4. Root/leaf topology checks (`root` has no ancestors, `leaf` has no descendants)
+5. README hysteresis checkpoints (`X1` up-react, `X9` down-react, with `21 -> 20` hold and `20 -> 19` drop)
+6. Same-tier decrement guardrails (for example `100 -> 99` keeps ancestor support at tier 5)
+7. Increment-through-tier coverage with low descendants (descendants do not cap level-up progression)
+8. Target-to-zero behavior (`ancestors` keep tier-1 support, descendants rebase to zero)
+9. Delta validation for every step to ensure only expected nodes change
+10. Per-step output mirrored to `test/tierLeveling.output.log`
 
 ### `test/encoder.test.ts`
 
@@ -109,23 +85,13 @@ npm run test:ui:tier
 ```
 
 That launches a visible Chromium window through Playwright, drives the real app
-under the existing `/rg-backpack-planner/` base path, applies each test step by
-calling `applyLevelChange()` directly with that operation's absolute target
-level for the sweep, explicit, and seeded cases, then compares the rendered
-yellow-branch runtime state against the same shared sweep cases, explicit
-scenario tables, and seeded invariant operations used by the CLI tier suite.
-The cross-target two-step matrix also runs by default so the headed UI suite
-stays aligned with the CLI suite's coverage shape, but that matrix preflight
-uses direct store sync of the already-derived expected states so it can finish
-in a reasonable time while still validating the rendered DOM output.
+under the existing `/rg-backpack-planner/` base path, applies each directional
+scenario step by calling `applyLevelChange()` with that operation's absolute
+target level, then compares rendered yellow-branch levels/tiers against the
+same explicit scenario expectations used by the CLI tier suite.
 
-If you need a faster headed smoke run, set `RG_TIER_UI_SKIP_MATRIX=1` before
-launching `npm run test:ui:tier`.
-
-While the Playwright run is active, the app also shows the current test label
-inside the preview indicator area. That indicator is loaded from a dev-only
-module path and is intentionally excluded from the production `npm run build`
-bundle.
+The rewritten UI suite no longer runs a cross-target matrix preflight; it
+focuses on deterministic directional scenarios.
 
 In VS Code, the `.vscode/launch.json` profile `Test UI: Node Level` runs the
 same command.
@@ -161,29 +127,14 @@ import("/rg-backpack-planner/test/index.ts");
 The tests are intentionally verbose:
 
 - each suite prints its own header and summary
-- tier tests run a silent boundary-contract preflight before the logged cases
-- tier tests run a silent cross-target two-step matrix after the logged cases
-- tier tests report pass/fail counts across the two-step matrix, sweep,
-  explicit scenario, and seeded invariant cases
-- tier tests print each expected step as `step N expected [index X] (A -> B)`
-- tier tests print aligned `levels` and `tiers` arrays for each step
+- tier tests print each expected step as `step N [index X] (A -> B)`
+- tier tests print aligned `levels` arrays for each step
 - tier tests mirror their full output to `test/tierLeveling.output.log`
 - the Playwright tier UI run writes its output to `test/tierLeveling.ui.output.log`
-- the Playwright tier UI log reuses the same expected-step format as the CLI
-  tier log, then adds `actual levels` and `actual tiers`, so the two logs can
-  be compared directly
+- the Playwright tier UI log records expected vs actual levels for each step
 - the Playwright tier UI run drives the production UI in a headed browser window
-- the Playwright tier UI run shows the active case label in the app while it is
-  running
 - the Playwright tier UI run compares DOM-derived `levels` and `tiers` against
-  the shared tier expectations after every step
-- by default, the Playwright tier UI run also executes the same silent
-  cross-target matrix preflight used by the CLI suite
-- when the matrix is running, the preview indicator shows live completed/total
-  progress even though the log file keeps the same compact start/end matrix
-  output as the CLI suite
-- set `RG_TIER_UI_SKIP_MATRIX=1` if you need to skip the matrix for a quicker
-  headed smoke run
+  shared directional expectations after every step
 - on a Playwright tier UI failure, a screenshot is saved under
   `test/artifacts/tier-leveling-ui/`
 - both tier log files are already ignored by git through the repo-wide `*.log`
