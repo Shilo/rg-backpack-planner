@@ -218,7 +218,11 @@
     }
 
     function isContextMenuTarget(target: EventTarget | null) {
-        return target instanceof Element && !!target.closest(".context-menu");
+        return (
+            target instanceof Element &&
+            (!!target.closest(".context-menu") ||
+                !!target.closest(".context-menu-backdrop"))
+        );
     }
 
     function isNodeTarget(target: EventTarget | null) {

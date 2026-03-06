@@ -89,7 +89,8 @@
         }
     }
 
-    function handleBackdropPointerDown() {
+    function handleBackdropPointerDown(event: PointerEvent) {
+        event.stopPropagation();
         backdropHadPointerDown = true;
     }
 
@@ -97,9 +98,22 @@
         if (event.target !== event.currentTarget) return;
         // Only close if there was a pointerdown on backdrop first (avoids close from touch release after long-press)
         if (!backdropHadPointerDown) return;
+        event.preventDefault();
         event.stopPropagation();
         triggerHaptic();
         onClose?.();
+    }
+
+    function handleBackdropContextMenu(event: MouseEvent) {
+        if (event.target !== event.currentTarget) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onClose?.();
+    }
+
+    function handleBackdropPointerUp(event: PointerEvent) {
+        if (event.target !== event.currentTarget) return;
+        event.stopPropagation();
     }
 
     function handleBackdropKeydown(event: KeyboardEvent) {
@@ -305,7 +319,9 @@
         aria-label={$t("common.close")}
         bind:this={backdropEl}
         on:pointerdown={handleBackdropPointerDown}
+        on:pointerup={handleBackdropPointerUp}
         on:click={handleBackdropClick}
+        on:contextmenu={handleBackdropContextMenu}
         on:keydown={handleBackdropKeydown}
     ></button>
     <div
