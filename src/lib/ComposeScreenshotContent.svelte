@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import {
-        SquaresFourIcon,
         CopySimpleIcon,
         DownloadSimpleIcon,
         ShareNetworkIcon,
@@ -16,6 +15,8 @@
         downloadImageBlob,
         shareImageBlobNative,
     } from "./buildData/share";
+    import { activePresetName } from "./buildPresetsStore";
+    import { createComposeImageFilename } from "./composeFilename";
     import { t } from "svelte-whisper";
 
     export let isOpen = false;
@@ -33,7 +34,6 @@
         {
             id: "all",
             label: $t("compose.tabs.all"),
-            icon: SquaresFourIcon,
         },
         { id: "guardian", label: $t("trees.guardian") },
         { id: "vanguard", label: $t("trees.vanguard") },
@@ -86,6 +86,10 @@
         onClose?.();
     }
 
+    function getComposeFilename(tabId: string): string {
+        return createComposeImageFilename($activePresetName, tabId);
+    }
+
     async function handleCopy() {
         if (!currentBlob) return;
         const success = await copyImageBlobToClipboard(currentBlob);
@@ -99,14 +103,14 @@
 
     function handleDownload() {
         if (!currentBlob) return;
-        const filename = `build-${activeTab}.png`;
+        const filename = getComposeFilename(activeTab);
         downloadImageBlob(currentBlob, filename);
         showToast($t("compose.downloadedToast"));
     }
 
     async function handleShare() {
         if (!currentBlob) return;
-        const filename = `build-${activeTab}.png`;
+        const filename = getComposeFilename(activeTab);
         const success = await shareImageBlobNative(currentBlob, filename);
         if (!success) {
             showToast($t("compose.shareErrorToast"), {
@@ -229,5 +233,9 @@
     .compose-fab:active {
         transform: scale(0.93);
         filter: var(--brightness-hover);
+    }
+
+    :global(.fullscreen-modal .tab-bar__tab-button:not(.active)) {
+        background: var(--bg-modal, var(--surface));
     }
 </style>
