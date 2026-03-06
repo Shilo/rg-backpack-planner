@@ -79,8 +79,8 @@ export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
             [100, 100, 80, 100, 100, 80, 80, 50, 40, 1],
             [100, 100, 100, 100, 100, 80, 100, 50, 40, 1],
             [100, 100, 100, 100, 100, 100, 100, 50, 50, 1],
-            [20, 0, 20, 0, 0, 20, 20, 0, 10, 0],
-            [20, 0, 20, 0, 0, 0, 20, 0, 0, 0],
+            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [20, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ],
         name: "Cross-branch explicit unwind clears after the root reset",
@@ -422,53 +422,20 @@ export function applyExpectedTargetTransition(params: {
         return nextLevels;
     }
 
-    const isIncrement = nextLevel > previousLevel;
+    nodes.forEach((node, index) => {
+        if (index === targetIndex) return;
 
-    for (let idx = 0; idx < nodes.length; idx += 1) {
-        if (idx === targetIndex) continue;
-
-        const node = nodes[idx];
-        if (!node) continue;
-
-        const assignedTier = roles.ancestors.has(idx)
+        const assignedTier = roles.ancestors.has(index)
             ? reactiveTier
             : wrappedTier;
         const assignedLevel = expectedTierUpper(assignedTier, node.maxLevel);
-        const currentLevel = currentLevels[idx] ?? 0;
+        const currentLevel = currentLevels[index] ?? 0;
 
-        if (isIncrement) {
-            nextLevels[idx] = Math.max(currentLevel, assignedLevel);
-        } else {
-            const candidate = Math.min(currentLevel, assignedLevel);
-            if (roles.ancestors.has(idx)) {
-                nextLevels[idx] = candidate;
-            } else {
-                const nodeLevel = nextLevels[idx] ?? 0;
-                if (nodeLevel <= 0) {
-                    nextLevels[idx] = candidate;
-                    continue;
-                }
-                const nodeTier = expectedTierIndex(nodeLevel, node.maxLevel);
-                if (nodeTier <= 0) {
-                    nextLevels[idx] = candidate;
-                    continue;
-                }
-                const nodeAncestors = collectAncestors(nodes, idx);
-                let maxSupported = nodeTier;
-                nodeAncestors.forEach((ai) => {
-                    const an = nodes[ai];
-                    if (!an) return;
-                    const at = expectedTierIndex(
-                        nextLevels[ai] ?? 0,
-                        an.maxLevel,
-                    );
-                    maxSupported = Math.min(maxSupported, at);
-                });
-                const floor = expectedTierUpper(maxSupported, node.maxLevel);
-                nextLevels[idx] = Math.max(candidate, floor);
-            }
-        }
-    }
+        nextLevels[index] =
+            nextLevel > previousLevel
+                ? Math.max(currentLevel, assignedLevel)
+                : Math.min(currentLevel, assignedLevel);
+    });
 
     return nextLevels;
 }
