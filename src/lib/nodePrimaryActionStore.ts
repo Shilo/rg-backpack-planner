@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { getItem, removeItem, setItem } from "./storage";
+import { getItem, setItem } from "./storage";
 
 export enum NodePrimaryAction {
     IncrementOne = 0,
@@ -8,15 +8,9 @@ export enum NodePrimaryAction {
 }
 
 const DEFAULT_NODE_PRIMARY_ACTION = NodePrimaryAction.IncrementOne;
-const NODE_PRIMARY_ACTION_MIN = NodePrimaryAction.IncrementOne;
-const NODE_PRIMARY_ACTION_MAX = NodePrimaryAction.IncrementTier;
 
 export function isNodePrimaryAction(value: number): value is NodePrimaryAction {
-    return (
-        Number.isInteger(value) &&
-        value >= NODE_PRIMARY_ACTION_MIN &&
-        value <= NODE_PRIMARY_ACTION_MAX
-    );
+    return Number.isInteger(value) && value in NodePrimaryAction;
 }
 
 function parseNodePrimaryAction(storedValue: string | null): NodePrimaryAction | null {
@@ -45,7 +39,6 @@ function createNodePrimaryActionStore() {
             set(value);
         },
         resetToDefault: () => {
-            removeItem("node-touch-action");
             setNodePrimaryAction(DEFAULT_NODE_PRIMARY_ACTION);
             set(DEFAULT_NODE_PRIMARY_ACTION);
         },
