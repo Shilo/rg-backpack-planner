@@ -38,8 +38,9 @@
 </script>
 
 <div
-    class={`node-wrapper ${isLeaf ? "node-wrapper-hex" : ""} badge-${region}`}
-    style="left: {x}px; top: {y}px;"
+    class="node-wrapper badge-{region}"
+    style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
+        radius}px; height: {64 * radius}px;"
 >
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
@@ -77,15 +78,10 @@
         --z-index-badge: 4;
 
         position: absolute;
-        transform: translate(-50%, -50%);
     }
 
-    .node-wrapper.node-wrapper-hex {
-        filter: drop-shadow(var(--shadow-node-hex));
-    }
-
-    /* CSS Custom Properties - All color variables defined here */
-    :global(.button.node) {
+    /* CSS Custom Properties - Scoped to .node-wrapper to avoid global leakage */
+    .node-wrapper :global(.button.node) {
         /* Filter values for unleveled states */
         --filter-locked: var(--node-brightness-locked);
         --filter-available: var(--node-brightness-available);
@@ -138,7 +134,7 @@
     }
 
     /* Top-left region (Orange theme) */
-    :global(.button.node.region-top-left) {
+    .node-wrapper :global(.button.node.region-top-left) {
         --bg-available: var(--region-orange-bg-available);
         --bg-active: var(--region-orange-bg-active);
         --bg-maxed: var(--region-orange-bg-maxed);
@@ -151,7 +147,7 @@
     }
 
     /* Bottom-left region (Yellow theme) */
-    :global(.button.node.region-bottom-left) {
+    .node-wrapper :global(.button.node.region-bottom-left) {
         --bg-available: var(--region-yellow-bg-available);
         --bg-active: var(--region-yellow-bg-active);
         --bg-maxed: var(--region-yellow-bg-maxed);
@@ -164,7 +160,7 @@
     }
 
     /* Right region (Blue theme) */
-    :global(.button.node.region-right) {
+    .node-wrapper :global(.button.node.region-right) {
         --bg-available: var(--region-blue-bg-available);
         --bg-active: var(--region-blue-bg-active);
         --bg-maxed: var(--region-blue-bg-maxed);
@@ -177,7 +173,7 @@
     }
 
     /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
-    :global(.button.node.node-hexagon) {
+    .node-wrapper :global(.button.node.node-hexagon) {
         border-radius: 0;
         border: none;
         position: relative;
@@ -186,10 +182,11 @@
         background: transparent;
         clip-path: var(--hex-clip);
         isolation: isolate;
+        filter: drop-shadow(var(--shadow-node-hex));
     }
 
     /* Create border using pseudo-element that follows the hexagon shape */
-    :global(.button.node.node-hexagon::before) {
+    .node-wrapper :global(.button.node.node-hexagon::before) {
         content: "";
         position: absolute;
         inset: 0;
@@ -200,7 +197,7 @@
     }
 
     /* Inner fill to create a true hexagon stroke */
-    :global(.button.node.node-hexagon::after) {
+    .node-wrapper :global(.button.node.node-hexagon::after) {
         content: "";
         position: absolute;
         inset: var(--hex-border-width);
@@ -210,15 +207,11 @@
         pointer-events: none;
     }
 
-    :global(.button.node.node-hexagon .node-icon) {
+    .node-wrapper :global(.button.node.node-hexagon .node-icon) {
         z-index: 1;
     }
 
-    :global(.button.node.node-hexagon) .node-badge {
-        z-index: 1;
-    }
-
-    :global(.button.node.with-icon) {
+    .node-wrapper :global(.button.node.with-icon) {
         display: grid;
         justify-content: center;
         gap: 0;
@@ -226,13 +219,13 @@
         grid-template-areas: "stack";
     }
 
-    :global(.button.node:focus),
-    :global(.button.node:focus-visible) {
+    .node-wrapper :global(.button.node:focus),
+    .node-wrapper :global(.button.node:focus-visible) {
         outline: none;
         outline-offset: 0;
     }
 
-    :global(.node-icon) {
+    .node-wrapper :global(.node-icon) {
         width: calc(32px * var(--icon-scale, 1));
         height: calc(32px * var(--icon-scale, 1));
         opacity: 0.7;
@@ -243,7 +236,7 @@
         transform: translate(-50%, -50%);
     }
 
-    :global(.button.node .button-text) {
+    .node-wrapper :global(.button.node .button-text) {
         grid-area: stack;
         display: contents;
     }
@@ -261,6 +254,7 @@
 
     .node-badge-anchor {
         bottom: 0;
+        z-index: calc(var(--z-index-badge) + 1);
     }
 
     .node-tier-badge-anchor {
@@ -280,7 +274,11 @@
 
         font-size: 12px;
         font-weight: bold;
-        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-family:
+            system-ui,
+            -apple-system,
+            "Segoe UI",
+            sans-serif;
         line-height: 1;
         letter-spacing: 0.01em;
         font-variant-numeric: tabular-nums;
@@ -346,7 +344,7 @@
     }
 
     /* Node state styles */
-    :global(.button.node.locked) {
+    .node-wrapper :global(.button.node.locked) {
         background: var(--bg-locked);
         border-color: var(--border-color-locked);
         color: var(--text-color-locked);
@@ -355,7 +353,7 @@
         --hex-border-color: var(--border-color-locked);
     }
 
-    :global(.button.node.available) {
+    .node-wrapper :global(.button.node.available) {
         background: var(--bg-available);
         border-color: var(--border-color);
         color: var(--text-color);
@@ -364,7 +362,7 @@
         --hex-border-color: var(--border-color);
     }
 
-    :global(.button.node.active) {
+    .node-wrapper :global(.button.node.active) {
         background: var(--bg-active);
         border-color: var(--border-color-active);
         color: var(--text-color-active);
@@ -372,7 +370,7 @@
         --hex-border-color: var(--border-color-active);
     }
 
-    :global(.button.node.maxed) {
+    .node-wrapper :global(.button.node.maxed) {
         background: var(--bg-maxed);
         border-color: var(--border-color-maxed);
         color: var(--text-color-maxed);
