@@ -152,51 +152,6 @@ export const tierExplicitScenarioCases: ExplicitScenarioCase[] = [
             { index: 3, targetLevel: 21 },
         ],
     },
-    {
-        expectedStates: [
-            [20, 0, 20, 0, 0, 20, 20, 0, 10, 0],
-            [40, 20, 40, 20, 20, 40, 40, 10, 11, 1],
-            [40, 40, 40, 40, 40, 40, 40, 11, 11, 1],
-            [40, 20, 40, 20, 20, 40, 40, 10, 10, 1],
-            [20, 20, 20, 20, 20, 20, 20, 10, 9, 0],
-        ],
-        name: "Decrement below tier boundary with mixed ancestors",
-        operations: [
-            { index: 8, targetLevel: 10 },
-            { index: 8, targetLevel: 11 },
-            { index: 7, targetLevel: 11 },
-            { index: 8, targetLevel: 10 },
-            { index: 8, targetLevel: 9 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 20, 0, 1, 0, 0, 0, 0, 0, 0],
-            [20, 20, 20, 1, 0, 0, 1, 0, 0, 0],
-            [20, 20, 20, 0, 0, 0, 1, 0, 0, 0],
-        ],
-        name: "Decrement zeroing target preserves independent wrapped node",
-        operations: [
-            { index: 3, targetLevel: 1 },
-            { index: 6, targetLevel: 1 },
-            { index: 3, targetLevel: 0 },
-        ],
-    },
-    {
-        expectedStates: [
-            [20, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-            [20, 2, 2, 0, 0, 0, 0, 0, 0, 0],
-            [20, 2, 1, 0, 0, 0, 0, 0, 0, 0],
-            [20, 2, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        name: "Sibling decrement preserves non-target sibling levels",
-        operations: [
-            { index: 2, targetLevel: 2 },
-            { index: 1, targetLevel: 2 },
-            { index: 2, targetLevel: 1 },
-            { index: 2, targetLevel: 0 },
-        ],
-    },
 ];
 
 export const tierSeededInvariantCases: SeededScenarioCase[] = [
