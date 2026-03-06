@@ -20,7 +20,9 @@
         "paste": "Paste",
         "share": "Share",
         "close": "Close",
-        "none": "None"
+        "none": "None",
+        "copy": "Copy",
+        "download": "Download"
     },
     "sideMenu": {
         "tabs": {

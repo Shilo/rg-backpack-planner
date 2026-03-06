@@ -15,6 +15,7 @@
         downloadImageBlob,
         shareImageBlobNative,
     } from "./buildData/share";
+    import FabMenu from "./FabMenu.svelte";
     import { activePresetName } from "./buildPresetsStore";
     import { createComposeImageFilename } from "./composeFilename";
     import { t } from "svelte-whisper";
@@ -90,13 +91,32 @@
         return createComposeImageFilename($activePresetName, tabId);
     }
 
+    const composeFabActions = [
+        {
+            id: "copy",
+            label: $t("common.copy"),
+            icon: CopySimpleIcon,
+            onClick: handleCopy,
+        },
+        {
+            id: "download",
+            label: $t("common.download"),
+            icon: DownloadSimpleIcon,
+            onClick: handleDownload,
+        },
+        {
+            id: "share",
+            label: $t("share.shareTo"),
+            icon: ShareNetworkIcon,
+            onClick: handleShare,
+        },
+    ];
+
     async function handleCopy() {
         if (!currentBlob) return;
         const success = await copyImageBlobToClipboard(currentBlob);
         showToast(
-            success
-                ? $t("compose.copiedToast")
-                : $t("compose.copyErrorToast"),
+            success ? $t("compose.copiedToast") : $t("compose.copyErrorToast"),
             { tone: success ? "positive" : "negative" },
         );
     }
@@ -140,30 +160,10 @@
 
     {#if !isLoading && currentBlob}
         <div class="compose-fabs">
-            <button
-                class="compose-fab"
-                on:click={handleCopy}
-                aria-label={$t("compose.copyTooltip")}
-                type="button"
-            >
-                <CopySimpleIcon size={24} />
-            </button>
-            <button
-                class="compose-fab"
-                on:click={handleDownload}
-                aria-label={$t("compose.downloadTooltip")}
-                type="button"
-            >
-                <DownloadSimpleIcon size={24} />
-            </button>
-            <button
-                class="compose-fab"
-                on:click={handleShare}
-                aria-label={$t("compose.shareTooltip")}
-                type="button"
-            >
-                <ShareNetworkIcon size={24} />
-            </button>
+            <FabMenu
+                actions={composeFabActions}
+                ariaLabel={$t("compose.shareTooltip")}
+            />
         </div>
     {/if}
 </FullscreenModal>
@@ -195,44 +195,7 @@
         position: absolute;
         bottom: var(--spacing-lg);
         right: calc(var(--spacing-lg) + var(--safe-right, 0px));
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
         z-index: 1;
-    }
-
-    .compose-fab {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        border: var(--border-width) solid var(--border-subtle);
-        background: var(--bg-panel);
-        color: var(--text);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: var(--shadow);
-        transition:
-            background var(--ease),
-            border-color var(--ease);
-        padding: 0;
-    }
-
-    .compose-fab:focus-visible {
-        outline: 2px solid var(--border-focus);
-        outline-offset: 2px;
-    }
-
-    @media (hover: hover) {
-        .compose-fab:hover {
-            filter: var(--brightness-hover);
-        }
-    }
-
-    .compose-fab:active {
-        transform: scale(0.93);
-        filter: var(--brightness-hover);
     }
 
     :global(.fullscreen-modal .tab-bar__tab-button:not(.active)) {
