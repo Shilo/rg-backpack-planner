@@ -9,7 +9,7 @@
         SunIcon,
         TrashSimpleIcon,
         EyeIcon,
-        LinkSimpleIcon,
+        GraphIcon,
     } from "phosphor-svelte";
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
@@ -290,7 +290,7 @@
     <SegmentedControl
         label={nodeLevelBehaviorLabel}
         ariaLabel={nodeLevelBehaviorLabel}
-        icon={LinkSimpleIcon as unknown as Component}
+        icon={GraphIcon as unknown as Component}
         options={nodeLevelBehaviorOptions}
         selectedIndex={nodeLevelBehaviorSelectedIndex}
         onChange={handleNodeLevelBehaviorChange}
