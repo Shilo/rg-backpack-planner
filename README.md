@@ -17,13 +17,98 @@ The app lets you plan all three Backpack Tech trees:
 
 It is built for quick iteration while playing: you can level nodes, track Tech Crystal cost, save multiple builds locally, and share builds through compact URLs.
 
+## Behavior Contracts
+
+### Tier Leveling (Level Sync)
+
+Node Level Behavior setting:
+
+- `Sync Lineage` (default): applies the full linked propagation contract below.
+- `Solo Only`: applies level changes only to the target node.
+
+#### 1. Target Rule
+
+- The target node always lands at the requested level after clamp to `[0, maxLevel]`.
+- Each operation is evaluated from the node you changed; previously adjusted nodes do not become independent propagation drivers.
+- Reactive updates are evaluated on every target change, not only when the visible target tier label changes.
+
+#### 2. Reachability Rule
+
+- On increment: only connected ancestors react.
+- On decrement: connected ancestors and connected descendants react.
+- Descendants use strict child-direction traversal from the target.
+- Unrelated nodes are never adjusted.
+- Topology boundary cases:
+  - a root node has no ancestors to propagate into
+  - a leaf node has no descendants to propagate into
+
+#### 3. Propagation Tier Assignment
+
+- Ancestors use `target propagation tier`.
+- Descendants use `target propagation tier - 1`.
+- Descendant levels do not gate or cap increment progression.
+
+#### 4. Boundary/Hysteresis Contract
+
+Tier boundaries are every `X0`, but directional reactive triggers are:
+
+- increment reacts at `X1` (one above boundary)
+- decrement reacts at `X9` (one below boundary)
+
+Example (`100` cap, tier-2 boundary):
+
+- `19 -> 20`: no reactive change
+- `20 -> 21`: reactive change
+- `21 -> 20`: no reactive change
+- `20 -> 19`: reactive change
+
+Reactive thresholds by `maxLevel`:
+
+- `100` cap: upward trigger levels `1`, `21`, `41`, `61`, `81`
+- `50` cap: upward trigger levels `1`, `11`, `21`, `31`, `41`
+- `1` cap: upward trigger level `1`
+
+On decrements, hysteresis keeps support until the lower trigger is crossed:
+
+- `100` cap support drops below `20`, `40`, `60`, `80`
+- `50` cap support drops below `10`, `20`, `30`, `40`
+- `1` cap stable tier drops only at `0`
+
+#### 5. Zero-Rebase Rule
+
+- If target drops to `0`, target still becomes `0`.
+- Non-target propagation uses a virtual floor of tier `1` for the operation.
+- In that zero-rebase case:
+  - ancestors rebase against tier `1`
+  - descendants rebase against tier `0`
+
+#### 6. Directional Clamp Rule
+
+After propagation tier assignment:
+
+- increment uses `max(current, assigned tier upper bound)`
+- decrement uses `min(current, assigned tier upper bound)`
+
+Consequences:
+
+- same-tier decrements can still lower reactive nodes immediately
+- on decrements, propagation does not resolve below the target's own current tier (prevents same-tier ancestor collapse, e.g. `100 -> 99`)
+
+### Global Leaf Node Cap
+
+Leaf leveling has a global limit across Guardian + Vanguard + Cannon:
+
+- at most 3 leaf nodes may have `level > 0` at once
+- once capped, remaining `level = 0` leaves are locked from increment
+- increments that do not increase leveled-leaf count are still allowed
+- already leveled leaves remain editable, so decrement/reset frees slots
+
 ## Features
 
 ### Planning
 
 - Interactive tree planner with tap, click, right-click, and long-press support
 - Per-node controls to increase, decrease, max, or reset levels
-- Global leaf-node cap: only 3 leaf nodes can be leveled (`level > 0`) across all trees combined
 - Tree-level actions to focus the active tree in view or reset it
 - Pan and zoom support for desktop and touch devices
 - Optional "Single Level Up" mode for one-step increments
@@ -31,19 +116,19 @@ It is built for quick iteration while playing: you can level nodes, track Tech C
 
 ### Tracking
 
-- Tech Crystal owned / spent tracking
+- Tech Crystal owned/spent tracking
 - Per-tree and overall totals
 - Statistics panel with copy-to-clipboard support
-- Visual node state feedback for locked, available, active, and maxed nodes
+- Visual state feedback for locked, available, active, and maxed nodes
 
 ### Build Management
 
 - Auto-save using `localStorage`
 - Multiple named local build presets
 - Rename, reorder, create, and delete presets
-- Load a build from a shared link or a raw build code
-- Preview shared builds without overwriting your personal saved presets
-- Clone a preview build into your own presets
+- Load from shared links or raw build codes
+- Preview shared builds without overwriting local presets
+- Clone preview builds into local presets
 - Premade preview builds from `package.json`
 
 ### Sharing
@@ -52,29 +137,27 @@ It is built for quick iteration while playing: you can level nodes, track Tech C
 - Optional build names encoded into the share string
 - Native share sheet support where available
 - Clipboard fallback for share links
-- Copy a combined screenshot of all three trees to the clipboard
+- Combined screenshot copy for all three trees
 
 ### App / Platform
 
 - Installable PWA
 - Offline support through `vite-plugin-pwa`
-- Responsive layout for desktop and mobile
-- Theme color controls, toasts, tooltips, and haptic feedback where supported
+- Responsive desktop/mobile layout
+- Theme controls, toasts, tooltips, and haptics where supported
 
-## How Sharing Works
+## Share Format
 
-Build data is stored in the URL hash using a custom compact, URL-safe format implemented in `src/lib/buildData/`.
+Build data is stored in the URL hash using a compact URL-safe format in `src/lib/buildData/`.
 
-The encoder:
+Encoding strategy:
 
-- stores node levels as arrays indexed by tree node position
-- groups values by branch (yellow, orange, blue)
-- trims trailing zeroes
-- uses base62 for numeric values
-- applies run-length encoding for repeated values and repeated trees
-- can include a URL-encoded build name before the build data
-
-This keeps shared URLs short enough to be practical while still round-tripping cleanly through the decoder.
+- store levels as arrays indexed by tree position
+- group values by branch (yellow, orange, blue)
+- trim trailing zeroes
+- use base62 for numeric values
+- apply run-length encoding for repeated values and repeated trees
+- optionally include URL-encoded build name before encoded build data
 
 ## Local Development
 
@@ -84,22 +167,22 @@ Install dependencies:
 npm install
 ```
 
-Start the dev server:
+Start dev server:
 
 ```bash
 npm run dev
 ```
 
-The app uses the GitHub Pages base path, so during local development the intended URL is:
+Local URL (GitHub Pages base path aware):
 
 `http://localhost:5173/rg-backpack-planner/`
 
-## Available Scripts
+## Scripts
 
 ```bash
-npm run dev         # start the Vite dev server
+npm run dev         # start Vite dev server
 npm run build       # production build + copy index.html to 404.html
-npm run preview     # preview the built dist/ output
+npm run preview     # preview dist output
 npm run check       # svelte-check + TypeScript checks
 npm test            # npm run check + tsx test/index.ts
 npm run pwa:assets  # regenerate PWA assets from public/icon.svg
@@ -107,85 +190,30 @@ npm run pwa:assets  # regenerate PWA assets from public/icon.svg
 
 ## Testing
 
-The automated test suite covers both:
+Automated coverage includes:
 
-- the build-data encoder and decoder
-- tier-level propagation and bulk-leveling behavior on the shared branch-shape
-  fixture used by the hand-written tier suite
+- build-data encoder/decoder behavior
+- tier-level propagation and bulk-leveling behavior on the shared branch fixture
 
-Run it with:
+Run all tests:
 
 ```bash
 npm test
 ```
 
-That command runs:
+`npm test` runs:
 
 1. `npm run check`
 2. `tsx test/index.ts`
 
-**Note on Test Execution:**
-- All tests run sequentially.
-- Console output for all tests is mirrored to a global log file at `test/index.output.log`.
-- If *any* test fails, the entire suite instantly aborts, prints a failure message, and exits with code 1.
-- You will only see the `🎉 All tests completed successfully!` message and the final log file link if every single test passes.
+Test-run behavior:
 
-For more detail on the hand-written CLI suites, see [test/README.md](test/README.md).
+- tests execute sequentially
+- all output is mirrored to `test/index.output.log`
+- first failure aborts the run and exits with code `1`
+- final success summary appears only if all tests pass
 
-## Tier Leveling Rules
-
-Tier leveling uses a stable-tier model with hysteresis:
-
-- the target node always moves to the exact requested level after clamping
-- if a level change drops the target to `0`, the target still lands at `0`, but
-  non-target propagation uses a virtual tier floor of `1` for that rebase
-- each operation is evaluated from the node you just changed; previously raised
-  neighbors do not become independent reactive drivers
-- reactive nodes are updated every time the target changes, not only when the
-  visible target tier label changes
-- ancestor nodes react to the target's propagation tier
-- all other connected nodes in the branch react as wrapped nodes and use
-  `target propagation tier - 1`
-
-Reactive thresholds depend on the node's `maxLevel`:
-
-- `100` cap nodes react upward when the target reaches `1`, `21`, `41`, `61`,
-  and `81`
-- `50` cap nodes react upward when the target reaches `1`, `11`, `21`, `31`,
-  and `41`
-- `1` cap nodes react upward when the target reaches `1`
-
-On the way down, the system uses hysteresis, so the reactive tier does not drop
-at the same number it rose:
-
-- a `100` cap node that already reached tier 2 at `21` keeps tier 2 support at
-  `20` and only drops to tier 1 when it reaches `19`
-- more generally, `100` cap nodes drop reactive support when they fall below
-  `20`, `40`, `60`, or `80`
-- `50` cap nodes drop reactive support when they fall below `10`, `20`, `30`,
-  or `40`
-- a `1` cap node drops its own stable tier when it returns to `0`
-- if a decrement lands on `0`, ancestors still rebase against tier `1`, while
-  wrapped nodes (including descendants) rebase against tier `0`
-
-Once the next stable tier is known, reactive nodes use directional clamping:
-
-- on an increment, each reactive node becomes `max(current, assigned tier upper
-  bound)`
-- on a decrement, each reactive node becomes `min(current, assigned tier upper
-  bound)`
-
-This means a same-tier decrement can still lower other nodes. If the target
-stays in the same stable tier but the assigned bound is lower than the current
-reactive level, the branch is rebased downward immediately.
-
-## Global Leaf Node Cap
-
-Leaf leveling has a global constraint across the full build (Guardian + Vanguard + Cannon):
-
-- A maximum of 3 leaf nodes can have `level > 0` at once
-- Once the cap is reached, all remaining `level = 0` leaf nodes are visually locked and cannot be incremented
-- Already leveled leaf nodes remain editable, so decrementing/resetting one frees a slot for another leaf node
+For hand-written tier suite details, see [test/README.md](test/README.md).
 
 ## Project Structure
 
@@ -199,34 +227,41 @@ test/                CLI test suites and docs
 dist/                Production output (generated)
 ```
 
-## Credits
-
-This project uses the following third-party assets:
-
-* **[250 Sci-fi Flat Icons](https://katgrabowska.itch.io/250-sci-fi-flat-icons)** by [KatGrabowska](https://katgrabowska.itch.io/) (Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)). Original icons were converted to SVG format and resized for this project.
-
 ## Deployment
 
-The app deploys to GitHub Pages automatically on every push to `main` via the `.github/workflows/static.yml` workflow. If deploys aren't working, check the following:
+GitHub Pages deploys on pushes to `main` via `.github/workflows/static.yml`.
 
-1. In your repo go to **Settings → Pages → Build and deployment** and set the **Source** to **GitHub Actions** (not "Deploy from a branch").
-2. Go to **Settings → Actions → General → Workflow permissions** and select **Read and write permissions**.
-3. Push to `main` to trigger a deploy.
+If deploys fail to trigger/work:
 
-The workflow bumps the app version, builds, deploys to Pages, and commits the version bump back to `main`.
+1. In Settings -> Pages -> Build and deployment, set Source to GitHub Actions.
+2. In Settings -> Actions -> General -> Workflow permissions, set Read and write permissions.
+3. Push to `main` (or manually run the workflow).
 
-### Notes
+Workflow behavior:
 
-- The deployed base path is `/rg-backpack-planner/`.
-- `npm run build` copies `index.html` to `404.html` so GitHub Pages can route SPA URLs correctly.
-- If `public/icon.svg` changes, run `npm run pwa:assets` to refresh generated PWA icons.
+- bumps app version
+- builds and deploys Pages
+- commits version bump back to `main`
 
-### Troubleshooting Missed Deploys
+Notes:
 
-GitHub occasionally drops workflow triggers — a push to `main` is registered but no Actions run is created. If a push doesn't deploy:
+- deployed base path: `/rg-backpack-planner/`
+- `npm run build` copies `index.html` to `404.html` for SPA routing
+- if `public/icon.svg` changes, run `npm run pwa:assets`
 
-1. Check the [Actions tab](https://github.com/Shilo/rg-backpack-planner/actions) for a run matching your commit.
-2. If a run exists but failed with "Service Unavailable" or "Internal server error" during **Set up job**, GitHub's infrastructure was temporarily down. Check [GitHub Status](https://www.githubstatus.com/) or [Downdetector](https://downdetector.com/status/github/) for ongoing incidents, then re-run the failed workflow or push another commit once resolved.
-3. If no run exists at all, click **Actions** in the repo's top navigation bar, then click **Deploy Vite app to Pages** in the sidebar, then click **Run workflow** (select `main`) to manually trigger a deploy. Direct link: [Deploy Vite app to Pages workflow](https://github.com/Shilo/rg-backpack-planner/actions/workflows/static.yml). Alternatively, run `gh workflow run "Deploy Vite app to Pages"` from the CLI or push another commit.
+### Deployment Troubleshooting
 
-**Note:** The CI version-bump commit uses `GITHUB_TOKEN`, which [does not trigger new workflow runs by design](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow). Only user pushes trigger deploys.
+If a push is registered but no workflow run appears:
+
+1. Check [Actions tab](https://github.com/Shilo/rg-backpack-planner/actions) for a run for that commit.
+2. If setup failed with service/internal errors, check [GitHub Status](https://www.githubstatus.com/) or [Downdetector](https://downdetector.com/status/github/), then re-run.
+3. If no run exists, manually run **Deploy Vite app to Pages** from Actions or run `gh workflow run "Deploy Vite app to Pages"`.
+
+CI note: version-bump commits use `GITHUB_TOKEN`, which does not trigger new workflow runs by design:
+https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
+
+## Credits
+
+This project uses:
+
+- **[250 Sci-fi Flat Icons](https://katgrabowska.itch.io/250-sci-fi-flat-icons)** by [KatGrabowska](https://katgrabowska.itch.io/) (licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)). Original icons were converted to SVG and resized for this project.

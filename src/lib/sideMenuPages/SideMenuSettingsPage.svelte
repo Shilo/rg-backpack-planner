@@ -9,6 +9,7 @@
         SunIcon,
         TrashSimpleIcon,
         EyeIcon,
+        LinkSimpleIcon,
     } from "phosphor-svelte";
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
@@ -38,10 +39,16 @@
     import { isPreviewMode } from "../previewModeStore";
     import SideMenuSection from "../SideMenuSection.svelte";
     import SegmentedControl from "../SegmentedControl.svelte";
+    import ToggleSwitch from "../ToggleSwitch.svelte";
     import {
         nodePrimaryAction,
         isNodePrimaryAction,
     } from "../nodePrimaryActionStore";
+    import {
+        nodeLevelBehavior,
+        isNodeLevelBehavior,
+    } from "../nodeLevelBehaviorStore";
+    import { showTier } from "../showTierStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import type { TreeViewState } from "../Tree.svelte";
@@ -136,6 +143,12 @@
         $t("nodeMenu.incrementTier"),
     ];
     $: nodePrimaryActionSelectedIndex = $nodePrimaryAction;
+    $: nodeLevelBehaviorLabel = $t("settings.nodeLevelBehavior");
+    $: nodeLevelBehaviorOptions = [
+        $t("settings.nodeLevelBehaviorSolo"),
+        $t("settings.nodeLevelBehaviorSync"),
+    ];
+    $: nodeLevelBehaviorSelectedIndex = $nodeLevelBehavior;
 
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
         const multiplier = zoomScale / getTreeZoomScaleValue(TreeZoomLevel.Fit);
@@ -157,6 +170,11 @@
         nodePrimaryAction.set(index);
     }
 
+    function handleNodeLevelBehaviorChange(index: number) {
+        if (!isNodeLevelBehavior(index)) return;
+        nodeLevelBehavior.set(index);
+    }
+
     function handleResetSettings() {
         openModal({
             type: "confirm",
@@ -168,6 +186,8 @@
             confirmNegative: true,
             onConfirm: () => {
                 nodePrimaryAction.resetToDefault();
+                nodeLevelBehavior.resetToDefault();
+                showTier.resetToDefault();
                 treeZoomScale.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
@@ -266,6 +286,20 @@
         options={nodePrimaryActionOptions}
         selectedIndex={nodePrimaryActionSelectedIndex}
         onChange={handleNodePrimaryActionChange}
+    />
+    <SegmentedControl
+        label={nodeLevelBehaviorLabel}
+        ariaLabel={nodeLevelBehaviorLabel}
+        icon={LinkSimpleIcon as unknown as Component}
+        options={nodeLevelBehaviorOptions}
+        selectedIndex={nodeLevelBehaviorSelectedIndex}
+        onChange={handleNodeLevelBehaviorChange}
+    />
+    <ToggleSwitch
+        checked={$showTier}
+        label={$t("settings.showTier")}
+        ariaLabel={$t("settings.showTier")}
+        onToggle={() => showTier.set(!$showTier)}
     />
 </SideMenuSection>
 

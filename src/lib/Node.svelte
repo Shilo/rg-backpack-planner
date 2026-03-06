@@ -19,7 +19,9 @@
     export let y: number = 0;
     export let label: string = "";
     export let level: number = 0;
+    export let tier: number = 0;
     export let state: NodeState = "locked";
+    export let showTier = true;
     export let radius: number = 1;
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
@@ -49,6 +51,14 @@
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
+    {#if showTier && level > 0 && state !== "maxed"}
+        <span
+            class="node-tier-badge-anchor"
+            data-node-id={String(id)}
+            style={`transform: scale(${Math.max(1 / scale, 1)});`}
+            ><span class="node-badge">T{tier}</span></span
+        >
+    {/if}
     {#if level > 0}
         <span
             class="node-badge-anchor"
@@ -238,15 +248,23 @@
         display: contents;
     }
 
-    .node-badge-anchor {
+    .node-badge-anchor,
+    .node-tier-badge-anchor {
         position: absolute;
-        bottom: 0;
         left: 50%;
         width: 0;
         height: 0;
         z-index: var(--z-index-badge);
         cursor: pointer;
         touch-action: none;
+    }
+
+    .node-badge-anchor {
+        bottom: 0;
+    }
+
+    .node-tier-badge-anchor {
+        top: 0;
     }
 
     .node-badge {

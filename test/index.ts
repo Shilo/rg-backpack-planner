@@ -15,6 +15,7 @@ const TEST_FILES = [
     // 2. Core State & Logic
     "treeLevelsStore.test.ts",
     "treeProgressStore.test.ts",
+    "treeLayout.test.ts",
     "globalLeafCap.test.ts",
     "tierLeveling.test.ts",
     "tierTargetLevelFns.test.ts",
@@ -43,7 +44,9 @@ const TEST_FILES = [
     "sideMenuComposeScreenshotClose.test.ts",
     "treeZoomSetting.test.ts",
     "nodePrimaryActionSetting.test.ts",
-    "segmentedControl.test.ts",
+    "nodeLevelBehaviorSetting.test.ts",
+    "showTierSetting.test.ts",
+    "treeLinkParentLevelColor.test.ts",
     "fullscreenModalBackground.test.ts",
     "imageViewerLayout.test.ts",
     "imageViewerInteractions.test.ts",

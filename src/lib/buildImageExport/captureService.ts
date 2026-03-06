@@ -21,6 +21,16 @@ const TREE_VISIBLE_BOUNDS = {
     // snapdom seems to add a 1px extra margin around the captured area
 };
 
+function setInlineStyleFromComputed(
+    element: HTMLElement,
+    computed: CSSStyleDeclaration,
+    property: string,
+) {
+    const value = computed.getPropertyValue(property);
+    if (!value) return;
+    element.style.setProperty(property, value);
+}
+
 function preserveTreeLinkStrokeStyles(root: HTMLElement) {
     // Ensure SVG link stroke styles survive capture (snapdom can miss CSS for SVG)
     root.querySelectorAll<SVGLineElement>(".tree-link").forEach((line) => {
@@ -47,6 +57,57 @@ function preserveTreeLinkStrokeStyles(root: HTMLElement) {
     });
 }
 
+function preserveNodeVisualStyles(root: HTMLElement) {
+    const nodeStyleProperties = [
+        "background-color",
+        "border-color",
+        "border-width",
+        "border-style",
+        "box-shadow",
+        "clip-path",
+        "color",
+        "filter",
+        "opacity",
+    ];
+    const nodeVariableProperties = [
+        "--hex-border-color",
+        "--hex-border-width",
+        "--hex-fill",
+        "--icon-scale",
+    ];
+    const badgeStyleProperties = [
+        "background-color",
+        "border-color",
+        "border-width",
+        "border-style",
+        "box-shadow",
+        "color",
+        "filter",
+    ];
+
+    root.querySelectorAll<HTMLElement>(".node-wrapper").forEach((wrapper) => {
+        const computed = getComputedStyle(wrapper);
+        setInlineStyleFromComputed(wrapper, computed, "filter");
+    });
+
+    root.querySelectorAll<HTMLElement>(".button.node").forEach((node) => {
+        const computed = getComputedStyle(node);
+        nodeStyleProperties.forEach((property) =>
+            setInlineStyleFromComputed(node, computed, property),
+        );
+        nodeVariableProperties.forEach((property) =>
+            setInlineStyleFromComputed(node, computed, property),
+        );
+    });
+
+    root.querySelectorAll<HTMLElement>(".node-badge").forEach((badge) => {
+        const computed = getComputedStyle(badge);
+        badgeStyleProperties.forEach((property) =>
+            setInlineStyleFromComputed(badge, computed, property),
+        );
+    });
+}
+
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
     parent: HTMLElement,
@@ -64,9 +125,6 @@ async function captureElementAsPng(
         clone.style.transform = "none";
         clone.style.transition = "none";
         clone.style.animation = "none";
-        clone.style.filter = "none";
-        clone.style.opacity = "1";
-        clone.style.boxShadow = "none";
 
         // Offset clone by center node position
         clone.style.position = "absolute";
@@ -79,11 +137,12 @@ async function captureElementAsPng(
         } catch (_) {
             try {
                 while (parent.firstChild) parent.removeChild(parent.firstChild);
-            } catch (_) {}
+            } catch (_) { }
             parent.appendChild(clone);
         }
 
         preserveTreeLinkStrokeStyles(clone);
+        preserveNodeVisualStyles(clone);
 
         try {
             return await snapdom.toBlob(parent, {
@@ -107,7 +166,7 @@ async function captureElementAsPng(
             } catch (_) {
                 try {
                     if (clone.parentNode === parent) parent.removeChild(clone);
-                } catch (_) {}
+                } catch (_) { }
             }
         }
     } catch (error) {
@@ -191,7 +250,7 @@ async function combineTreeImagesHorizontally(
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         canvas.width = 0;
                         canvas.height = 0;
-                    } catch (_) {}
+                    } catch (_) { }
 
                     img1 = img2 = img3 = null as any;
                     resolve(null);
@@ -203,13 +262,13 @@ async function combineTreeImagesHorizontally(
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     canvas.width = 0;
                     canvas.height = 0;
-                } catch (_) {}
+                } catch (_) { }
 
                 try {
                     img1.src = "";
                     img2.src = "";
                     img3.src = "";
-                } catch (_) {}
+                } catch (_) { }
 
                 img1 = img2 = img3 = null as any;
                 resolve(blob);
@@ -285,7 +344,7 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
 
             try {
                 document.body.removeChild(parent);
-            } catch (_) {}
+            } catch (_) { }
         }
     });
 }
@@ -328,7 +387,7 @@ export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
 
             try {
                 document.body.removeChild(parent);
-            } catch (_) {}
+            } catch (_) { }
         }
     });
 }

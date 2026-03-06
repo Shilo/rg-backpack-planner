@@ -4,6 +4,7 @@ import {
     syncImageViewerFit,
     type ImageViewerFitState,
 } from "../src/lib/imageViewerLayout.ts";
+import { getTreeViewportPadding } from "../src/lib/treeLayout.ts";
 
 function buildState(overrides: Partial<ImageViewerFitState> = {}): ImageViewerFitState {
     return {
@@ -38,9 +39,39 @@ assert.ok(
     fitTransform,
     "Expected computeImageViewerFitTransform to return transform for valid dimensions",
 );
-almostEqual(fitTransform.scale, 1800 / 2167);
-almostEqual(fitTransform.offsetX, 0);
-almostEqual(fitTransform.offsetY, (900 - 694 * fitTransform.scale) / 2);
+const viewportPadding = getTreeViewportPadding();
+almostEqual(
+    fitTransform.scale,
+    (1800 - viewportPadding.horizontal * 2) / 2167,
+);
+almostEqual(fitTransform.offsetX, viewportPadding.horizontal);
+almostEqual(
+    fitTransform.offsetY,
+    viewportPadding.vertical +
+        (900 - viewportPadding.vertical * 2 - 694 * fitTransform.scale) / 2,
+);
+
+const tallFitTransform = computeImageViewerFitTransform({
+    viewportWidth: 800,
+    viewportHeight: 800,
+    naturalWidth: 600,
+    naturalHeight: 900,
+});
+assert.ok(
+    tallFitTransform,
+    "Expected tall image fit transform to exist for valid dimensions",
+);
+almostEqual(
+    tallFitTransform.scale,
+    (800 - viewportPadding.vertical * 2) / 900,
+);
+almostEqual(
+    tallFitTransform.offsetX,
+    viewportPadding.horizontal +
+        (800 - viewportPadding.horizontal * 2 - 600 * tallFitTransform.scale) /
+            2,
+);
+almostEqual(tallFitTransform.offsetY, viewportPadding.vertical);
 
 const invalidFitTransform = computeImageViewerFitTransform({
     viewportWidth: 0,
@@ -71,7 +102,7 @@ const firstViewportMeasure = syncImageViewerFit(
 
 assert.strictEqual(firstViewportMeasure.hasInitialFit, true);
 almostEqual(firstViewportMeasure.scale, firstViewportMeasure.fitScale);
-almostEqual(firstViewportMeasure.offsetX, 0);
+almostEqual(firstViewportMeasure.offsetX, viewportPadding.horizontal);
 assert.ok(
     firstViewportMeasure.offsetY > 0,
     `Expected positive centered Y offset, got ${firstViewportMeasure.offsetY}`,

@@ -1,3 +1,5 @@
+import { getTreeViewportPadding } from "./treeLayout";
+
 export type ImageViewerFitState = {
     viewportWidth: number;
     viewportHeight: number;
@@ -17,16 +19,26 @@ export type ImageViewerFitTransform = {
     offsetY: number;
 };
 
-function computeFitScale(params: {
+function getImageViewerFitViewport(params: {
     viewportWidth: number;
     viewportHeight: number;
     naturalWidth: number;
     naturalHeight: number;
-}): number | null {
+}): {
+    fitViewportWidth: number;
+    fitViewportHeight: number;
+    padding: ReturnType<typeof getTreeViewportPadding>;
+} | null {
     const { viewportWidth, viewportHeight, naturalWidth, naturalHeight } = params;
     if (viewportWidth <= 0 || viewportHeight <= 0) return null;
     if (naturalWidth <= 0 || naturalHeight <= 0) return null;
-    return Math.min(viewportWidth / naturalWidth, viewportHeight / naturalHeight);
+
+    const padding = getTreeViewportPadding();
+    return {
+        fitViewportWidth: Math.max(viewportWidth - padding.horizontal * 2, 1),
+        fitViewportHeight: Math.max(viewportHeight - padding.vertical * 2, 1),
+        padding,
+    };
 }
 
 export function computeImageViewerFitTransform(params: {
@@ -35,15 +47,24 @@ export function computeImageViewerFitTransform(params: {
     naturalWidth: number;
     naturalHeight: number;
 }): ImageViewerFitTransform | null {
-    const fitScale = computeFitScale(params);
-    if (fitScale === null) {
+    const fitViewport = getImageViewerFitViewport(params);
+    if (!fitViewport) {
         return null;
     }
 
+    const fitScale = Math.min(
+        fitViewport.fitViewportWidth / params.naturalWidth,
+        fitViewport.fitViewportHeight / params.naturalHeight,
+    );
+
     return {
         scale: fitScale,
-        offsetX: (params.viewportWidth - params.naturalWidth * fitScale) / 2,
-        offsetY: (params.viewportHeight - params.naturalHeight * fitScale) / 2,
+        offsetX:
+            fitViewport.padding.horizontal +
+            (fitViewport.fitViewportWidth - params.naturalWidth * fitScale) / 2,
+        offsetY:
+            fitViewport.padding.vertical +
+            (fitViewport.fitViewportHeight - params.naturalHeight * fitScale) / 2,
     };
 }
 
