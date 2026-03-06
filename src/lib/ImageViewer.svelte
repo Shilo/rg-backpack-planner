@@ -151,10 +151,26 @@
     $: if (viewportEl && !resizeObserver) {
         resizeObserver = new ResizeObserver(() => {
             if (viewportEl) {
+                const previousViewportWidth = viewportWidth;
+                const previousViewportHeight = viewportHeight;
                 const rect = viewportEl.getBoundingClientRect();
                 viewportWidth = rect.width;
                 viewportHeight = rect.height;
-                if (imageLoaded) syncFitState();
+                if (!imageLoaded) return;
+
+                const sizeChanged =
+                    previousViewportWidth > 0 &&
+                    previousViewportHeight > 0 &&
+                    (Math.abs(viewportWidth - previousViewportWidth) > 0.5 ||
+                        Math.abs(viewportHeight - previousViewportHeight) >
+                            0.5);
+
+                if (sizeChanged) {
+                    resetToFit();
+                    return;
+                }
+
+                syncFitState();
             }
         });
         resizeObserver.observe(viewportEl);

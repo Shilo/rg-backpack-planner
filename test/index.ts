@@ -41,6 +41,7 @@ const TEST_FILES = [
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
     "composeScreenshotHost.test.ts",
+    "captureServiceBadgeBounds.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "treeZoomSetting.test.ts",
     "nodePrimaryActionSetting.test.ts",
@@ -49,6 +50,7 @@ const TEST_FILES = [
     "treeLinkParentLevelColor.test.ts",
     "fullscreenModalBackground.test.ts",
     "imageViewerLayout.test.ts",
+    "imageViewerResizeReset.test.ts",
     "imageViewerInteractions.test.ts",
 ];
 

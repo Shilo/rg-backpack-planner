@@ -7,6 +7,7 @@ import {
     decrementCapture,
     type TabsCaptureBridge,
 } from "./captureBridge";
+import { TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
 
 const TREE_VISIBLE_BOUNDS = {
     centerNode: {
@@ -14,7 +15,7 @@ const TREE_VISIBLE_BOUNDS = {
         y: 356,
     },
     width: 701,
-    height: 694,
+    height: 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX,
     // Actual size is:
     // width: 703
     // height: 696
