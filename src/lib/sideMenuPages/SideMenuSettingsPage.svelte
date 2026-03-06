@@ -42,6 +42,7 @@
         NODE_PRIMARY_ACTION_INCREMENT_ONE,
         NODE_PRIMARY_ACTION_INCREMENT_TEN,
         NODE_PRIMARY_ACTION_INCREMENT_TIER,
+        type NodePrimaryAction,
     } from "../nodePrimaryActionStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -132,12 +133,7 @@
         $t("nodeMenu.incrementTen"),
         $t("nodeMenu.incrementTier"),
     ];
-    $: nodePrimaryActionSelectedIndex =
-        $nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TEN
-            ? 1
-            : $nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TIER
-              ? 2
-              : 0;
+    $: nodePrimaryActionSelectedIndex = $nodePrimaryAction;
 
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
         const multiplier = zoomScale / TREE_ZOOM_FIT;
@@ -154,15 +150,14 @@
     }
 
     function handleNodePrimaryActionChange(index: number) {
-        if (index === 1) {
-            nodePrimaryAction.set(NODE_PRIMARY_ACTION_INCREMENT_TEN);
+        if (
+            index !== NODE_PRIMARY_ACTION_INCREMENT_ONE &&
+            index !== NODE_PRIMARY_ACTION_INCREMENT_TEN &&
+            index !== NODE_PRIMARY_ACTION_INCREMENT_TIER
+        ) {
             return;
         }
-        if (index === 2) {
-            nodePrimaryAction.set(NODE_PRIMARY_ACTION_INCREMENT_TIER);
-            return;
-        }
-        nodePrimaryAction.set(NODE_PRIMARY_ACTION_INCREMENT_ONE);
+        nodePrimaryAction.set(index as NodePrimaryAction);
     }
 
     function handleResetSettings() {

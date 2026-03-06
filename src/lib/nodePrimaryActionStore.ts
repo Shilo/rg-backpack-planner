@@ -1,14 +1,11 @@
 import { writable } from "svelte/store";
 import { getItem, removeItem, setItem } from "./storage";
 
-export const NODE_PRIMARY_ACTION_INCREMENT_ONE = "increment-one";
-export const NODE_PRIMARY_ACTION_INCREMENT_TEN = "increment-ten";
-export const NODE_PRIMARY_ACTION_INCREMENT_TIER = "increment-tier";
+export const NODE_PRIMARY_ACTION_INCREMENT_ONE = 0;
+export const NODE_PRIMARY_ACTION_INCREMENT_TEN = 1;
+export const NODE_PRIMARY_ACTION_INCREMENT_TIER = 2;
 
-export type NodePrimaryAction =
-    | typeof NODE_PRIMARY_ACTION_INCREMENT_ONE
-    | typeof NODE_PRIMARY_ACTION_INCREMENT_TEN
-    | typeof NODE_PRIMARY_ACTION_INCREMENT_TIER;
+export type NodePrimaryAction = 0 | 1 | 2;
 
 const VALID_NODE_PRIMARY_ACTIONS = new Set<NodePrimaryAction>([
     NODE_PRIMARY_ACTION_INCREMENT_ONE,
@@ -16,28 +13,15 @@ const VALID_NODE_PRIMARY_ACTIONS = new Set<NodePrimaryAction>([
     NODE_PRIMARY_ACTION_INCREMENT_TIER,
 ]);
 
-const STORAGE_NODE_PRIMARY_ACTION_VALUES: Record<NodePrimaryAction, number> = {
-    [NODE_PRIMARY_ACTION_INCREMENT_ONE]: 1,
-    [NODE_PRIMARY_ACTION_INCREMENT_TEN]: 10,
-    [NODE_PRIMARY_ACTION_INCREMENT_TIER]: -1,
-};
-
 const DEFAULT_NODE_PRIMARY_ACTION = NODE_PRIMARY_ACTION_INCREMENT_ONE;
 
 function parseNodePrimaryAction(storedValue: string | null): NodePrimaryAction | null {
     if (storedValue === null) return null;
     const parsed = Number.parseInt(storedValue, 10);
     if (!Number.isInteger(parsed)) return null;
-    if (parsed === STORAGE_NODE_PRIMARY_ACTION_VALUES[NODE_PRIMARY_ACTION_INCREMENT_ONE]) {
-        return NODE_PRIMARY_ACTION_INCREMENT_ONE;
-    }
-    if (parsed === STORAGE_NODE_PRIMARY_ACTION_VALUES[NODE_PRIMARY_ACTION_INCREMENT_TEN]) {
-        return NODE_PRIMARY_ACTION_INCREMENT_TEN;
-    }
-    if (parsed === STORAGE_NODE_PRIMARY_ACTION_VALUES[NODE_PRIMARY_ACTION_INCREMENT_TIER]) {
-        return NODE_PRIMARY_ACTION_INCREMENT_TIER;
-    }
-    return null;
+    return VALID_NODE_PRIMARY_ACTIONS.has(parsed as NodePrimaryAction)
+        ? (parsed as NodePrimaryAction)
+        : null;
 }
 
 function getNodePrimaryAction(): NodePrimaryAction {
@@ -46,8 +30,7 @@ function getNodePrimaryAction(): NodePrimaryAction {
 }
 
 function setNodePrimaryAction(value: NodePrimaryAction) {
-    const storedValue = STORAGE_NODE_PRIMARY_ACTION_VALUES[value];
-    setItem("node-touch-action", String(storedValue));
+    setItem("node-touch-action", String(value));
 }
 
 function createNodePrimaryActionStore() {

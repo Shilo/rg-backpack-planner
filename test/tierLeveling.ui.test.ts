@@ -185,7 +185,7 @@ async function bootTierUiSession(): Promise<TierUiSession> {
             );
             localStorage.setItem(
                 "rg-backpack-planner-node-touch-action",
-                "1",
+                "0",
             );
         }, CURRENT_VERSION);
 
@@ -774,7 +774,7 @@ async function resetTierUiPage(page: Page): Promise<void> {
         localStorage.setItem("rg-backpack-planner-latest-used-version", version);
         localStorage.setItem(
             "rg-backpack-planner-node-touch-action",
-            "1",
+            "0",
         );
     }, CURRENT_VERSION);
 

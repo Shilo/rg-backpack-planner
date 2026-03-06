@@ -25,24 +25,30 @@ if (!/Number\.parseInt\(storedValue,\s*10\)/.test(nodeActionStoreSource)) {
 }
 
 if (
-    !/\[NODE_PRIMARY_ACTION_INCREMENT_ONE\]:\s*1,/.test(nodeActionStoreSource) ||
-    !/\[NODE_PRIMARY_ACTION_INCREMENT_TEN\]:\s*10,/.test(nodeActionStoreSource) ||
-    !/\[NODE_PRIMARY_ACTION_INCREMENT_TIER\]:\s*-1,/.test(nodeActionStoreSource)
+    !/NODE_PRIMARY_ACTION_INCREMENT_ONE\s*=\s*0/.test(nodeActionStoreSource) ||
+    !/NODE_PRIMARY_ACTION_INCREMENT_TEN\s*=\s*1/.test(nodeActionStoreSource) ||
+    !/NODE_PRIMARY_ACTION_INCREMENT_TIER\s*=\s*2/.test(nodeActionStoreSource)
 ) {
     throw new Error(
-        "nodePrimaryActionStore should map actions to integer storage values 1, 10, and -1.",
+        "nodePrimaryActionStore should use direct selected-index values 0, 1, and 2.",
     );
 }
 
-if (!/setItem\("node-touch-action",\s*String\(storedValue\)\)/.test(nodeActionStoreSource)) {
+if (/STORAGE_NODE_PRIMARY_ACTION_VALUES/.test(nodeActionStoreSource)) {
     throw new Error(
-        "nodePrimaryActionStore should persist integer node-touch-action values as strings.",
+        "nodePrimaryActionStore should not use an explicit storage mapping table.",
     );
 }
 
-if (!/NODE_PRIMARY_ACTION_INCREMENT_ONE\s*=\s*"increment-one"/.test(nodeActionStoreSource)) {
+if (!/setItem\("node-touch-action",\s*String\(value\)\)/.test(nodeActionStoreSource)) {
     throw new Error(
-        "nodePrimaryActionStore should define increment-one action value.",
+        "nodePrimaryActionStore should persist selected index values directly as strings.",
+    );
+}
+
+if (!/export type NodePrimaryAction = 0 \| 1 \| 2;/.test(nodeActionStoreSource)) {
+    throw new Error(
+        "nodePrimaryActionStore should model node actions as selected-index integers.",
     );
 }
 
