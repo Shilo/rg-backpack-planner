@@ -20,6 +20,8 @@
     import { activePresetName } from "./buildPresetsStore";
     import { createComposeImageFilename } from "./composeFilename";
     import { t } from "svelte-whisper";
+    import { get } from "svelte/store";
+    import { showTier } from "./showTierStore";
 
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
@@ -59,6 +61,8 @@
 
     async function captureAll() {
         isLoading = true;
+        const originalShowTier = get(showTier);
+        showTier.setWithoutPersistence(true);
         try {
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
@@ -78,6 +82,7 @@
                 tone: "negative",
             });
         } finally {
+            showTier.setWithoutPersistence(originalShowTier);
             isLoading = false;
         }
     }

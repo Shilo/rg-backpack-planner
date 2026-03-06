@@ -28,6 +28,9 @@ function createShowTierStore() {
             setShowTier(value);
             set(value);
         },
+        setWithoutPersistence: (value: boolean) => {
+            set(value);
+        },
         resetToDefault: () => {
             setShowTier(DEFAULT_SHOW_TIER);
             set(DEFAULT_SHOW_TIER);
