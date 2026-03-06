@@ -36,6 +36,7 @@
     export let onIncrementBy10: ((index: NodeIndex) => void) | null = null;
     export let level: number = 0;
     export let maxLevel: number = 0;
+    export let isGlobalIncrementLocked = false;
     export let state: "locked" | "available" | "active" | "maxed" = "locked";
     export let skillId: SkillId | null = null;
 
@@ -179,7 +180,9 @@
             label={isSingleLevel ? $t("nodeMenu.max") : $t("nodeMenu.incrementOne")}
             crystalValue={actionCosts?.increment1 ?? null}
             positive
-            disabled={nodeIndex === null || level >= maxLevel}
+            disabled={nodeIndex === null ||
+                level >= maxLevel ||
+                isGlobalIncrementLocked}
             onClick={() => {
                 if (nodeIndex !== null && onIncrement) onIncrement(nodeIndex);
             }}
@@ -190,7 +193,9 @@
                 label={$t("nodeMenu.incrementTen")}
                 crystalValue={actionCosts?.increment10 ?? null}
                 positive
-                disabled={nodeIndex === null || level >= maxLevel}
+                disabled={nodeIndex === null ||
+                    level >= maxLevel ||
+                    isGlobalIncrementLocked}
                 onClick={() => {
                     if (nodeIndex !== null && onIncrementBy10)
                         onIncrementBy10(nodeIndex);
@@ -201,7 +206,9 @@
                 label={$t("nodeMenu.max")}
                 crystalValue={actionCosts?.max ?? null}
                 positive
-                disabled={nodeIndex === null || level >= maxLevel}
+                disabled={nodeIndex === null ||
+                    level >= maxLevel ||
+                    isGlobalIncrementLocked}
                 onClick={() => {
                     if (nodeIndex !== null && onMax) onMax(nodeIndex);
                 }}

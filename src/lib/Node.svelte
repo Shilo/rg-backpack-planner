@@ -216,6 +216,12 @@
         grid-template-areas: "stack";
     }
 
+    :global(.button.node:focus),
+    :global(.button.node:focus-visible) {
+        outline: none;
+        outline-offset: 0;
+    }
+
     :global(.node-icon) {
         width: calc(32px * var(--icon-scale, 1));
         height: calc(32px * var(--icon-scale, 1));

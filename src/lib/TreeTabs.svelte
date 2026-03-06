@@ -28,6 +28,7 @@
         setTreeLevels,
         treeLevels,
     } from "./treeLevelsStore";
+    import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
@@ -70,6 +71,7 @@
     let backgroundPressPoint: { x: number; y: number } | null = null;
     let backgroundPressPointerId: number | null = null;
     let lastViewState: TreeViewState | null = null;
+    let globalLeveledLeafNodesOutsideActiveTreeCount = 0;
 
     function getPointerEvent(event: Event) {
         const detail = (event as CustomEvent<PointerEvent>).detail;
@@ -156,6 +158,12 @@
     }
 
     $: ensureTreeLevels(tabs);
+    $: globalLeveledLeafNodesOutsideActiveTreeCount =
+        countGlobalLeveledLeafNodesOutsideActiveTree(
+            tabs,
+            $treeLevels,
+            activeIndex,
+        );
 
     function clearTabPress() {
         clearLongPress(tabPressState);
@@ -434,6 +442,7 @@
                     bind:this={treeRef}
                     nodes={tabs[activeIndex].nodes}
                     levelsById={$treeLevels[activeIndex] ?? null}
+                    globalLeveledLeafNodesOutsideTreeCount={globalLeveledLeafNodesOutsideActiveTreeCount}
                     onLevelsChange={handleLevelsChange}
                     {bottomInset}
                     gesturesDisabled={!!tabContextMenu}

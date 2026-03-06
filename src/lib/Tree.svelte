@@ -26,6 +26,11 @@
     import { closeUpView } from "./closeUpViewStore";
     import { singleLevelUp } from "./singleLevelUpStore";
     import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
+    import {
+        GLOBAL_LEVELED_LEAF_NODE_CAP,
+        countGlobalLeveledLeafNodesInTree,
+        isGlobalLeafNodeIncrementLocked,
+    } from "./globalLeafCap";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { t } from "svelte-whisper";
 
@@ -34,6 +39,7 @@
     export let gesturesDisabled = false;
     export let initialViewState: TreeViewState | null = null;
     export let levelsById: LevelsByIndex | null = null;
+    export let globalLeveledLeafNodesOutsideTreeCount = 0;
     export let onLevelsChange: ((levels: LevelsByIndex) => void) | null = null;
     export let onViewStateChange: ((view: TreeViewState) => void) | null = null;
     export let onFocusViewStateChange:
@@ -201,6 +207,30 @@
         return parents.length > 0 && !hasChildByIndex[index];
     }
 
+    function countGlobalLeveledLeafNodes(levelsSnapshot: LevelsByIndex): number {
+        return countGlobalLeveledLeafNodesInTree(nodes, levelsSnapshot);
+    }
+
+    function getGlobalLeveledLeafNodeCount(levelsSnapshot: LevelsByIndex) {
+        return (
+            globalLeveledLeafNodesOutsideTreeCount +
+            countGlobalLeveledLeafNodes(levelsSnapshot)
+        );
+    }
+
+    function isGlobalLeveledLeafNodeLocked(
+        index: number,
+        levelsSnapshot: LevelsByIndex,
+    ): boolean {
+        return isGlobalLeafNodeIncrementLocked({
+            isLeafNode: isLeafNode(index),
+            currentLevel: getLevelFrom(levelsSnapshot, index),
+            globalLeveledLeafNodeCount:
+                getGlobalLeveledLeafNodeCount(levelsSnapshot),
+            globalLeveledLeafNodeCap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+        });
+    }
+
     function getLevelFrom(levelsSnapshot: LevelsByIndex, index: NodeIndex) {
         return levelsSnapshot[index] ?? 0;
     }
@@ -229,6 +259,8 @@
         const level = getLevelFrom(levelsSnapshot, index);
         if (level >= node.maxLevel) return "maxed";
         if (level > 0) return "active";
+        if (isGlobalLeveledLeafNodeLocked(index, levelsSnapshot))
+            return "locked";
         if (isAvailable(index, levelsSnapshot)) return "available";
         return "locked";
     }
@@ -296,6 +328,7 @@
     let contextMenuLevel = 0;
     let contextMenuMaxLevel = 0;
     let contextMenuState: NodeState = "locked";
+    let contextMenuIsGlobalIncrementLocked = false;
 
     $: {
         renderNodes = nodes.map((node, index) => {
@@ -338,6 +371,7 @@
             contextMenuLevel = 0;
             contextMenuMaxLevel = 0;
             contextMenuState = "locked";
+            contextMenuIsGlobalIncrementLocked = false;
         } else {
             const node = getNodeAt(contextIndex);
             if (!node) {
@@ -345,16 +379,20 @@
                 contextMenuLevel = 0;
                 contextMenuMaxLevel = 0;
                 contextMenuState = "locked";
+                contextMenuIsGlobalIncrementLocked = false;
             } else {
                 contextMenuNode = node;
                 contextMenuLevel = getLevelFrom(levels, contextIndex);
                 contextMenuMaxLevel = node.maxLevel;
                 contextMenuState = getState(node, contextIndex, levels);
+                contextMenuIsGlobalIncrementLocked =
+                    isGlobalLeveledLeafNodeLocked(contextIndex, levels);
             }
         }
     }
 
     function applyChange(index: NodeIndex, targetLevel: number) {
+        const currentLevel = getLevel(index);
         const { levels: nextLevels, deltas } = applyLevelChange({
             nodes,
             levels,
@@ -362,6 +400,14 @@
             targetLevel,
         });
         if (deltas.length === 0) return false;
+        const isGlobalIncrement = targetLevel > currentLevel;
+        if (
+            isGlobalIncrement &&
+            getGlobalLeveledLeafNodeCount(nextLevels) >
+                GLOBAL_LEVELED_LEAF_NODE_CAP
+        ) {
+            return false;
+        }
         updateLevels(nextLevels);
         return true;
     }
@@ -1052,6 +1098,7 @@
                 level={contextMenuLevel}
                 maxLevel={contextMenuMaxLevel}
                 state={contextMenuState}
+                isGlobalIncrementLocked={contextMenuIsGlobalIncrementLocked}
             />
         </div>
     </div>
