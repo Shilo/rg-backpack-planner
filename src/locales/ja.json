@@ -81,8 +81,9 @@
     "settings": {
         "languageLabel": "言語",
         "languageTooltip": "アプリケーションの言語を選択します",
-        "singleLevelUp": "1レベルアップ",
-        "singleLevelUpTooltip": "有効な場合、ノードをタップするとレベルが1上がります。無効な場合は10上がります。",
+        "nodePrimaryActionTitle": "ノード{primaryAction}アクション",
+        "nodePrimaryActionLeftClick": "左クリック",
+        "nodePrimaryActionTouch": "タップ",
         "treeZoom": "ツリーズーム",
         "treeZoomFitOption": "全体表示 ({scale})",
         "treeZoomCloseUpOption": "拡大表示 ({scale})",

@@ -37,12 +37,17 @@
     import { isPreviewMode } from "../previewModeStore";
     import SideMenuSection from "../SideMenuSection.svelte";
     import SegmentedControl from "../SegmentedControl.svelte";
-    import { singleLevelUp } from "../singleLevelUpStore";
+    import {
+        nodePrimaryAction,
+        NODE_PRIMARY_ACTION_INCREMENT_ONE,
+        NODE_PRIMARY_ACTION_INCREMENT_TEN,
+        NODE_PRIMARY_ACTION_INCREMENT_TIER,
+    } from "../nodePrimaryActionStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
-    import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
+    import { onMount } from "svelte";
     import { t, resetLocale, locale } from "svelte-whisper";
 
     export let activeTreeName = "";
@@ -98,6 +103,41 @@
             scale: formatZoomMultiplier(TREE_ZOOM_CLOSE_UP, currentLocale),
         }),
     ];
+    let isTouchPrimaryPlatform = false;
+
+    const detectTouchPrimaryPlatform = () => {
+        if (typeof window === "undefined") return false;
+        const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+        const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+        const hasTouchPoints =
+            typeof navigator !== "undefined" &&
+            (navigator.maxTouchPoints ?? 0) > 0;
+        return !hasFinePointer && (hasCoarsePointer || hasTouchPoints);
+    };
+
+    onMount(() => {
+        isTouchPrimaryPlatform = detectTouchPrimaryPlatform();
+    });
+
+    $: nodePrimaryActionName = $t(
+        isTouchPrimaryPlatform
+            ? "settings.nodePrimaryActionTouch"
+            : "settings.nodePrimaryActionLeftClick",
+    );
+    $: nodePrimaryActionLabel = $t("settings.nodePrimaryActionTitle", {
+        primaryAction: nodePrimaryActionName,
+    });
+    $: nodePrimaryActionOptions = [
+        $t("nodeMenu.incrementOne"),
+        $t("nodeMenu.incrementTen"),
+        $t("nodeMenu.incrementTier"),
+    ];
+    $: nodePrimaryActionSelectedIndex =
+        $nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TEN
+            ? 1
+            : $nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TIER
+              ? 2
+              : 0;
 
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
         const multiplier = zoomScale / TREE_ZOOM_FIT;
@@ -113,6 +153,18 @@
         treeZoomScale.set(index === 1 ? TREE_ZOOM_CLOSE_UP : TREE_ZOOM_FIT);
     }
 
+    function handleNodePrimaryActionChange(index: number) {
+        if (index === 1) {
+            nodePrimaryAction.set(NODE_PRIMARY_ACTION_INCREMENT_TEN);
+            return;
+        }
+        if (index === 2) {
+            nodePrimaryAction.set(NODE_PRIMARY_ACTION_INCREMENT_TIER);
+            return;
+        }
+        nodePrimaryAction.set(NODE_PRIMARY_ACTION_INCREMENT_ONE);
+    }
+
     function handleResetSettings() {
         openModal({
             type: "confirm",
@@ -123,7 +175,7 @@
             cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
-                singleLevelUp.resetToDefault();
+                nodePrimaryAction.resetToDefault();
                 treeZoomScale.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
@@ -215,13 +267,13 @@
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.node")}>
-    <ToggleSwitch
-        checked={$singleLevelUp}
-        label={$t("settings.singleLevelUp")}
-        ariaLabel="Single level up mode"
-        tooltipText={$t("settings.singleLevelUpTooltip")}
+    <SegmentedControl
+        label={nodePrimaryActionLabel}
+        ariaLabel={nodePrimaryActionLabel}
         icon={ArrowUpIcon as unknown as Component}
-        onToggle={() => singleLevelUp.toggle()}
+        options={nodePrimaryActionOptions}
+        selectedIndex={nodePrimaryActionSelectedIndex}
+        onChange={handleNodePrimaryActionChange}
     />
 </SideMenuSection>
 

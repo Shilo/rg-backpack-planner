@@ -183,7 +183,10 @@ async function bootTierUiSession(): Promise<TierUiSession> {
                 "rg-backpack-planner-latest-used-version",
                 version,
             );
-            localStorage.setItem("rg-backpack-planner-single-level-up", "false");
+            localStorage.setItem(
+                "rg-backpack-planner-node-touch-action",
+                "1",
+            );
         }, CURRENT_VERSION);
 
         const page = await context.newPage();
@@ -769,7 +772,10 @@ async function resetTierUiPage(page: Page): Promise<void> {
     await page.evaluate((version: string) => {
         localStorage.clear();
         localStorage.setItem("rg-backpack-planner-latest-used-version", version);
-        localStorage.setItem("rg-backpack-planner-single-level-up", "false");
+        localStorage.setItem(
+            "rg-backpack-planner-node-touch-action",
+            "1",
+        );
     }, CURRENT_VERSION);
 
     await page.goto(APP_URL);

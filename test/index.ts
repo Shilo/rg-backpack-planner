@@ -17,6 +17,7 @@ const TEST_FILES = [
     "treeProgressStore.test.ts",
     "globalLeafCap.test.ts",
     "tierLeveling.test.ts",
+    "tierTargetLevelFns.test.ts",
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
 
@@ -41,6 +42,7 @@ const TEST_FILES = [
     "composeScreenshotHost.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "treeZoomSetting.test.ts",
+    "nodePrimaryActionSetting.test.ts",
     "segmentedControl.test.ts",
     "fullscreenModalBackground.test.ts",
     "imageViewerLayout.test.ts",

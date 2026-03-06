@@ -81,8 +81,9 @@
     "settings": {
         "languageLabel": "Language",
         "languageTooltip": "Choose application language",
-        "singleLevelUp": "Single Level Up",
-        "singleLevelUpTooltip": "When enabled, tapping a node increments its level by 1. When disabled, tapping a node increments by 10",
+        "nodePrimaryActionTitle": "Node {primaryAction} Action",
+        "nodePrimaryActionLeftClick": "Left Click",
+        "nodePrimaryActionTouch": "Touch",
         "treeZoom": "Tree Zoom",
         "treeZoomFitOption": "Fit ({scale})",
         "treeZoomCloseUpOption": "Close-up ({scale})",

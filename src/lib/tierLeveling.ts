@@ -73,6 +73,18 @@ export function nextTierTargetLevel(
     return Math.min(tierUpper(nextTier, maxLevel), maxLevel);
 }
 
+export function previousTierTargetLevel(
+    level: number,
+    maxLevel: Node["maxLevel"],
+): number {
+    if (level <= 0) return 0;
+    if (maxLevel <= 1) return 0;
+
+    const currentTier = tierIndex(level, maxLevel);
+    const previousTier = Math.max(currentTier - 1, 0);
+    return tierUpper(previousTier, maxLevel);
+}
+
 function parentIndices(node: Node): number[] {
     if (node.parent === undefined) return [];
     return Array.isArray(node.parent) ? node.parent : [node.parent];

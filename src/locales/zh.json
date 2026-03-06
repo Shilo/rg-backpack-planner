@@ -81,8 +81,9 @@
     "settings": {
         "languageLabel": "语言",
         "languageTooltip": "选择应用程序语言",
-        "singleLevelUp": "单级提升",
-        "singleLevelUpTooltip": "启用时，点击节点可将其等级提升1。未启用时，点击节点增加10。",
+        "nodePrimaryActionTitle": "节点{primaryAction}动作",
+        "nodePrimaryActionLeftClick": "左键点击",
+        "nodePrimaryActionTouch": "触摸",
         "treeZoom": "树缩放",
         "treeZoomFitOption": "适配 ({scale})",
         "treeZoomCloseUpOption": "特写 ({scale})",

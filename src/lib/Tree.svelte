@@ -28,10 +28,16 @@
         TREE_ZOOM_CLOSE_UP,
         TREE_ZOOM_FIT,
     } from "./treeZoomStore";
-    import { singleLevelUp } from "./singleLevelUpStore";
+    import {
+        nodePrimaryAction,
+        NODE_PRIMARY_ACTION_INCREMENT_ONE,
+        NODE_PRIMARY_ACTION_INCREMENT_TEN,
+        NODE_PRIMARY_ACTION_INCREMENT_TIER,
+    } from "./nodePrimaryActionStore";
     import {
         applyLevelChange,
         nextTierTargetLevel,
+        previousTierTargetLevel,
         tierUpper,
         tierIndex,
     } from "./tierLeveling";
@@ -465,6 +471,39 @@
         applyChange(index, nextLevel);
     }
 
+    function levelDownTier(index: NodeIndex) {
+        const node = getNodeAt(index);
+        if (!node) return;
+        const level = getLevel(index);
+        if (level <= 0) return;
+        const nextLevel = previousTierTargetLevel(level, node.maxLevel);
+        applyChange(index, nextLevel);
+    }
+
+    function applyPrimaryNodeAction(index: NodeIndex) {
+        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_ONE) {
+            levelUp(index);
+            return;
+        }
+        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TEN) {
+            levelUpBy10(index);
+            return;
+        }
+        levelUpTier(index);
+    }
+
+    function applyOppositeNodeAction(index: NodeIndex) {
+        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_ONE) {
+            levelDown(index);
+            return;
+        }
+        if ($nodePrimaryAction === NODE_PRIMARY_ACTION_INCREMENT_TEN) {
+            levelDownBy10(index);
+            return;
+        }
+        levelDownTier(index);
+    }
+
     export function resetAllNodes() {
         updateLevels(nodes.map(() => 0));
     }
@@ -749,9 +788,7 @@
                 event.type === "pointerup" &&
                 movedDistance <= LONG_PRESS_MOVE_THRESHOLD
             ) {
-                $singleLevelUp
-                    ? levelDown(middleClick.nodeIndex)
-                    : levelDownBy10(middleClick.nodeIndex);
+                applyOppositeNodeAction(middleClick.nodeIndex);
             }
             return;
         }
@@ -781,14 +818,9 @@
                 const shouldDecrement =
                     event.pointerType === "mouse" && event.shiftKey;
                 if (shouldDecrement) {
-                    $singleLevelUp
-                        ? levelDown(pointer.nodeIndex)
-                        : levelDownBy10(pointer.nodeIndex);
+                    applyOppositeNodeAction(pointer.nodeIndex);
                 } else {
-                    // Check single level-up setting: if enabled, increment by 1; if disabled, increment by 10
-                    $singleLevelUp
-                        ? levelUp(pointer.nodeIndex)
-                        : levelUpBy10(pointer.nodeIndex);
+                    applyPrimaryNodeAction(pointer.nodeIndex);
                 }
             }
         }
