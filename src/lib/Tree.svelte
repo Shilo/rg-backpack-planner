@@ -30,6 +30,7 @@
     } from "./treeZoomStore";
     import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
+    import { showTier } from "./showTierStore";
     import {
         applyLevelChange,
         nextTierTargetLevel,
@@ -1131,6 +1132,8 @@
                         label={$t(`skills.${nodeView.node.skillId}`)}
                         level={nodeView.level}
                         state={nodeView.state}
+                        tier={nodeView.tier}
+                        showTier={$showTier}
                         radius={nodeView.node.radius ?? 1}
                         {scale}
                         region={nodeView.region}

@@ -87,6 +87,7 @@
         "nodeLevelBehavior": "ノードレベル挙動",
         "nodeLevelBehaviorSolo": "ソロのみ",
         "nodeLevelBehaviorSync": "接続先と同期",
+        "showTier": "ティアを表示",
         "treeZoom": "ツリーズーム",
         "treeZoomFitOption": "全体表示 ({scale})",
         "treeZoomCloseUpOption": "拡大表示 ({scale})",
