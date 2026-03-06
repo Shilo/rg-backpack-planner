@@ -506,7 +506,7 @@
         overflow: hidden;
         background: radial-gradient(
             circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
-            color-mix(in srgb, var(--bg) 40%, var(--surface)),
+            color-mix(in srgb, var(--bg) 20%, var(--surface)),
             var(--bg) 100%
         );
         position: relative;
