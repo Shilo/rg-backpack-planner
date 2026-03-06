@@ -132,14 +132,6 @@ function waitForAnimationFrame(): Promise<void> {
     });
 }
 
-async function yieldForUiFrame(): Promise<void> {
-    await waitForAnimationFrame();
-
-    await new Promise<void>((resolve) => {
-        setTimeout(resolve, 0);
-    });
-}
-
 function getTreeCanvasSignature(element: HTMLElement): string {
     return [
         element.style.transform,
@@ -404,7 +396,6 @@ export async function captureTreeImageByIndex(
         }
 
         const element = await waitForStableTreeCanvas(bridge, tabIndex);
-        await yieldForUiFrame();
         return await captureElementAsPng(element, parent);
     });
 }
@@ -421,16 +412,13 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
 
         try {
             const tree1Blob = await captureTreeImageByIndex(0, bridge, parent);
-            await yieldForUiFrame();
             const tree2Blob = await captureTreeImageByIndex(1, bridge, parent);
-            await yieldForUiFrame();
             const tree3Blob = await captureTreeImageByIndex(2, bridge, parent);
 
             if (!tree1Blob || !tree2Blob || !tree3Blob) {
                 return null;
             }
 
-            await yieldForUiFrame();
             return combineTreeImagesHorizontally(
                 tree1Blob,
                 tree2Blob,
@@ -464,14 +452,11 @@ export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
 
         try {
             const blob0 = await captureTreeImageByIndex(0, bridge, parent);
-            await yieldForUiFrame();
             const blob1 = await captureTreeImageByIndex(1, bridge, parent);
-            await yieldForUiFrame();
             const blob2 = await captureTreeImageByIndex(2, bridge, parent);
 
             let combined: Blob | null = null;
             if (blob0 && blob1 && blob2) {
-                await yieldForUiFrame();
                 combined = await combineTreeImagesHorizontally(
                     blob0,
                     blob1,
