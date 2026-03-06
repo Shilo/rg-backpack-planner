@@ -23,7 +23,11 @@
     import ShareBuildButton from "../buttons/ShareBuildButton.svelte";
     import TechCrystalsButton from "../buttons/TechCrystalsButton.svelte";
     import PreviewBuildsDropdown from "../buttons/PreviewBuildsDropdown.svelte";
-    import { closeUpView } from "../closeUpViewStore";
+    import {
+        treeZoomScale,
+        TREE_ZOOM_CLOSE_UP,
+        TREE_ZOOM_FIT,
+    } from "../treeZoomStore";
     import { darkMode } from "../darkModeStore";
     import { themeColor } from "../themeColorStore";
     import ThemeColorSelector from "../ThemeColorSelector.svelte";
@@ -39,7 +43,7 @@
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
-    import { t, resetLocale } from "svelte-whisper";
+    import { t, resetLocale, locale } from "svelte-whisper";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -52,6 +56,7 @@
 
     const POS_EPSILON = 0.5;
     const SCALE_EPSILON = 0.001;
+    const ZOOM_LABEL_MAX_FRACTION_DIGITS = 1;
 
     let previewButtonElement: HTMLButtonElement | null = null;
     let dropdownMenuOpen = false;
@@ -83,6 +88,30 @@
         );
 
     $: isFocusDisabled = !onFocusInView || isFocused;
+    $: currentLocale = $locale || undefined;
+    $: treeZoomSelectedIndex = $treeZoomScale === TREE_ZOOM_CLOSE_UP ? 1 : 0;
+    $: treeZoomOptions = [
+        $t("settings.treeZoomFitOption", {
+            scale: formatZoomMultiplier(TREE_ZOOM_FIT, currentLocale),
+        }),
+        $t("settings.treeZoomCloseUpOption", {
+            scale: formatZoomMultiplier(TREE_ZOOM_CLOSE_UP, currentLocale),
+        }),
+    ];
+
+    function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
+        const multiplier = zoomScale / TREE_ZOOM_FIT;
+        const minimumFractionDigits = Number.isInteger(multiplier) ? 0 : 1;
+        const localizedMultiplier = new Intl.NumberFormat(localeCode, {
+            minimumFractionDigits,
+            maximumFractionDigits: ZOOM_LABEL_MAX_FRACTION_DIGITS,
+        }).format(multiplier);
+        return `${localizedMultiplier}x`;
+    }
+
+    function handleTreeZoomChange(index: number) {
+        treeZoomScale.set(index === 1 ? TREE_ZOOM_CLOSE_UP : TREE_ZOOM_FIT);
+    }
 
     function handleResetSettings() {
         openModal({
@@ -95,7 +124,7 @@
             confirmNegative: true,
             onConfirm: () => {
                 singleLevelUp.resetToDefault();
-                closeUpView.resetToDefault();
+                treeZoomScale.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
 
@@ -197,13 +226,13 @@
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.view")}>
-    <ToggleSwitch
-        checked={$closeUpView}
-        label={$t("settings.closeUpView")}
-        ariaLabel="Close-up view (150% zoom)"
-        tooltipText={$t("settings.closeUpViewTooltip")}
+    <SegmentedControl
+        label={$t("settings.treeZoom")}
+        ariaLabel={$t("settings.treeZoom")}
         icon={MagnifyingGlassPlusIcon as unknown as Component}
-        onToggle={() => closeUpView.toggle()}
+        options={treeZoomOptions}
+        selectedIndex={treeZoomSelectedIndex}
+        onChange={handleTreeZoomChange}
     />
     <Button
         on:click={() => {

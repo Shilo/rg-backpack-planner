@@ -23,7 +23,11 @@
     } from "./longPress";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
-    import { closeUpView } from "./closeUpViewStore";
+    import {
+        treeZoomScale,
+        TREE_ZOOM_CLOSE_UP,
+        TREE_ZOOM_FIT,
+    } from "./treeZoomStore";
     import { singleLevelUp } from "./singleLevelUpStore";
     import { applyLevelChange, tierUpper, tierIndex } from "./tierLeveling";
     import {
@@ -845,16 +849,17 @@
         const availableH = Math.max(rect.height - bottomInset - padding * 2, 1);
         const paddedCenterX = padding + availableW / 2;
         const paddedCenterY = padding + availableH / 2;
-        // Calculate scale needed to fit all nodes in viewport (old behavior, always 100% base)
+        // Calculate scale needed to fit all nodes in viewport (100% base)
         const fitScale = Math.min(availableW / width, availableH / height);
-        // If close-up view is enabled, multiply the scale by 1.5; otherwise use the fit scale as-is
+        const isCloseUpZoom = $treeZoomScale === TREE_ZOOM_CLOSE_UP;
+        const zoomMultiplier = $treeZoomScale / TREE_ZOOM_FIT;
         const nextScale = clamp(
-            $closeUpView ? fitScale * 1.5 : fitScale,
+            fitScale * zoomMultiplier,
             minScale,
             maxScale,
         );
-        const centerX = $closeUpView ? 0 : minX + width / 2;
-        const centerY = $closeUpView ? 0 : minY + height / 2;
+        const centerX = isCloseUpZoom ? 0 : minX + width / 2;
+        const centerY = isCloseUpZoom ? 0 : minY + height / 2;
         const nextOffsetX = paddedCenterX - centerX * nextScale;
         const nextOffsetY = paddedCenterY - centerY * nextScale;
         const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -980,8 +985,8 @@
     }
 
     onMount(() => {
-        // Set up callback for close-up view changes to trigger focus without toast
-        closeUpView.setOnChange(() => {
+        // Re-focus tree whenever zoom mode changes.
+        treeZoomScale.setOnChange(() => {
             focusTreeInView(false);
         });
         const initializeView = async () => {
@@ -1013,7 +1018,7 @@
                 resizeObserver.disconnect();
                 resizeObserver = null;
             }
-            closeUpView.setOnChange(null);
+            treeZoomScale.setOnChange(null);
         };
     });
 
