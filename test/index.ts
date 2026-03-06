@@ -46,6 +46,7 @@ const TEST_FILES = [
     "captureServiceRenderStability.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "treeZoomSetting.test.ts",
+    "treePinchTapCancellation.test.ts",
     "nodePrimaryActionSetting.test.ts",
     "nodeLevelBehaviorSetting.test.ts",
     "showTierSetting.test.ts",

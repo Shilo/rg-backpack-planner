@@ -142,6 +142,7 @@
         scale: number;
     } | null = null;
     let panActive = false;
+    let multiTouchGestureActive = false;
 
     let primaryPointerId: number | null = null;
     let primaryStart: {
@@ -569,6 +570,7 @@
         primaryPointerId = null;
         primaryStart = null;
         panActive = false;
+        multiTouchGestureActive = false;
     }
 
     export function cancelGestures() {
@@ -676,6 +678,7 @@
         longPressState.fired = false;
 
         if (pointers.size === 1) {
+            multiTouchGestureActive = false;
             primaryPointerId = event.pointerId;
             primaryStart = {
                 x: event.clientX,
@@ -699,6 +702,7 @@
                 startNodeLongPress(event.pointerId);
             }
         } else if (pointers.size === 2) {
+            multiTouchGestureActive = true;
             clearLongPress(longPressState);
             longPressState.fired = false;
             const [p1, p2] = Array.from(pointers.values());
@@ -822,6 +826,7 @@
             event.pointerId === primaryPointerId &&
             !panActive &&
             !longPressState.fired &&
+            !multiTouchGestureActive &&
             pointers.size === 0
         ) {
             if (pointer.isRoot) {
@@ -865,6 +870,7 @@
             primaryPointerId = null;
             primaryStart = null;
             panActive = false;
+            multiTouchGestureActive = false;
             longPressState.fired = false;
         }
     }
