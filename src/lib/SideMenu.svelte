@@ -158,7 +158,7 @@
         right: 0;
         height: 100%;
         max-width: 100%;
-        width: var(--side-menu-width, 280px);
+        width: var(--side-menu-width, 360px);
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
         transform: translateX(100%);
