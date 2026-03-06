@@ -64,6 +64,13 @@
             : appName;
 
     type ControlDevice = "pointer" | "touch" | "both";
+    type ControlTitleRow = {
+        label: string;
+        icon: Component;
+        iconSecondary?: Component;
+        iconSeparator?: string;
+        iconKeycap?: boolean;
+    };
     type ControlItem = {
         id: string;
         label: string;
@@ -72,6 +79,7 @@
         iconSecondary?: Component;
         iconSeparator?: string;
         iconKeycap?: boolean;
+        titleRows?: ControlTitleRow[];
         device: ControlDevice;
     };
 
@@ -86,19 +94,22 @@
         },
         {
             id: "pointer-node-decrement",
-            label: $t("controls.pointerNodeDecrementLabel"),
-            description: $t("controls.pointerNodeDecrementDescription"),
-            icon: ArrowFatUpIcon,
-            iconSecondary: MouseLeftClickIcon,
-            iconSeparator: "+",
-            iconKeycap: true,
-            device: "pointer",
-        },
-        {
-            id: "pointer-node-decrement-middle",
             label: $t("controls.pointerNodeMiddleDecrementLabel"),
             description: $t("controls.pointerNodeDecrementDescription"),
             icon: MouseMiddleClickIcon,
+            titleRows: [
+                {
+                    label: $t("controls.pointerNodeMiddleDecrementLabel"),
+                    icon: MouseMiddleClickIcon,
+                },
+                {
+                    label: $t("controls.pointerNodeDecrementLabel"),
+                    icon: ArrowFatUpIcon,
+                    iconSecondary: MouseLeftClickIcon,
+                    iconSeparator: "+",
+                    iconKeycap: true,
+                },
+            ],
             device: "pointer",
         },
         {
@@ -257,34 +268,83 @@
             <SideMenuSection title={$t("sideMenu.sections.touch")}>
                 <ul class="control-list">
                     {#each touchControls as control (control.id)}
-                        <li class="control-row">
-                            <span
-                                class="control-icon"
-                                class:control-icon-combo={!!control.iconSecondary}
-                                aria-hidden="true"
-                            >
-                                {#if control.iconKeycap}
-                                    <span class="control-keycap">
+                        <li
+                            class="control-row"
+                            class:control-row-multi={
+                                !!control.titleRows &&
+                                control.titleRows.length > 0
+                            }
+                        >
+                            {#if control.titleRows && control.titleRows.length > 0}
+                                <div class="control-text control-text-multi">
+                                    <div class="control-title-list">
+                                        {#each control.titleRows as titleRow, titleIndex (`${control.id}-${titleIndex}`)}
+                                            <div class="control-title-row">
+                                                <span
+                                                    class="control-icon"
+                                                    class:control-icon-combo={!!titleRow.iconSecondary}
+                                                    aria-hidden="true"
+                                                >
+                                                    {#if titleRow.iconKeycap}
+                                                        <span class="control-keycap">
+                                                            <svelte:component
+                                                                this={titleRow.icon}
+                                                            />
+                                                        </span>
+                                                    {:else}
+                                                        <svelte:component
+                                                            this={titleRow.icon}
+                                                        />
+                                                    {/if}
+                                                    {#if titleRow.iconSecondary}
+                                                        <span class="control-icon-joiner">
+                                                            {titleRow.iconSeparator ??
+                                                                "+"}
+                                                        </span>
+                                                        <svelte:component
+                                                            this={titleRow.iconSecondary}
+                                                        />
+                                                    {/if}
+                                                </span>
+                                                <p class="control-label">
+                                                    {titleRow.label}
+                                                </p>
+                                            </div>
+                                        {/each}
+                                    </div>
+                                    <p class="control-desc control-desc-offset">
+                                        {control.description}
+                                    </p>
+                                </div>
+                            {:else}
+                                <span
+                                    class="control-icon"
+                                    class:control-icon-combo={!!control.iconSecondary}
+                                    aria-hidden="true"
+                                >
+                                    {#if control.iconKeycap}
+                                        <span class="control-keycap">
+                                            <svelte:component this={control.icon} />
+                                        </span>
+                                    {:else}
                                         <svelte:component this={control.icon} />
-                                    </span>
-                                {:else}
-                                    <svelte:component this={control.icon} />
-                                {/if}
-                                {#if control.iconSecondary}
-                                    <span class="control-icon-joiner">
-                                        {control.iconSeparator ?? "+"}
-                                    </span>
-                                    <svelte:component
-                                        this={control.iconSecondary}
-                                    />
-                                {/if}
-                            </span>
-                            <div class="control-text">
-                                <p class="control-label">{control.label}</p>
-                                <p class="control-desc">
-                                    {control.description}
-                                </p>
-                            </div>
+                                    {/if}
+                                    {#if control.iconSecondary}
+                                        <span class="control-icon-joiner">
+                                            {control.iconSeparator ?? "+"}
+                                        </span>
+                                        <svelte:component
+                                            this={control.iconSecondary}
+                                        />
+                                    {/if}
+                                </span>
+                                <div class="control-text">
+                                    <p class="control-label">{control.label}</p>
+                                    <p class="control-desc">
+                                        {control.description}
+                                    </p>
+                                </div>
+                            {/if}
                         </li>
                     {/each}
                 </ul>
@@ -294,34 +354,83 @@
             <SideMenuSection title={$t("sideMenu.sections.mouse")}>
                 <ul class="control-list">
                     {#each pointerControls as control (control.id)}
-                        <li class="control-row">
-                            <span
-                                class="control-icon"
-                                class:control-icon-combo={!!control.iconSecondary}
-                                aria-hidden="true"
-                            >
-                                {#if control.iconKeycap}
-                                    <span class="control-keycap">
+                        <li
+                            class="control-row"
+                            class:control-row-multi={
+                                !!control.titleRows &&
+                                control.titleRows.length > 0
+                            }
+                        >
+                            {#if control.titleRows && control.titleRows.length > 0}
+                                <div class="control-text control-text-multi">
+                                    <div class="control-title-list">
+                                        {#each control.titleRows as titleRow, titleIndex (`${control.id}-${titleIndex}`)}
+                                            <div class="control-title-row">
+                                                <span
+                                                    class="control-icon"
+                                                    class:control-icon-combo={!!titleRow.iconSecondary}
+                                                    aria-hidden="true"
+                                                >
+                                                    {#if titleRow.iconKeycap}
+                                                        <span class="control-keycap">
+                                                            <svelte:component
+                                                                this={titleRow.icon}
+                                                            />
+                                                        </span>
+                                                    {:else}
+                                                        <svelte:component
+                                                            this={titleRow.icon}
+                                                        />
+                                                    {/if}
+                                                    {#if titleRow.iconSecondary}
+                                                        <span class="control-icon-joiner">
+                                                            {titleRow.iconSeparator ??
+                                                                "+"}
+                                                        </span>
+                                                        <svelte:component
+                                                            this={titleRow.iconSecondary}
+                                                        />
+                                                    {/if}
+                                                </span>
+                                                <p class="control-label">
+                                                    {titleRow.label}
+                                                </p>
+                                            </div>
+                                        {/each}
+                                    </div>
+                                    <p class="control-desc control-desc-offset">
+                                        {control.description}
+                                    </p>
+                                </div>
+                            {:else}
+                                <span
+                                    class="control-icon"
+                                    class:control-icon-combo={!!control.iconSecondary}
+                                    aria-hidden="true"
+                                >
+                                    {#if control.iconKeycap}
+                                        <span class="control-keycap">
+                                            <svelte:component this={control.icon} />
+                                        </span>
+                                    {:else}
                                         <svelte:component this={control.icon} />
-                                    </span>
-                                {:else}
-                                    <svelte:component this={control.icon} />
-                                {/if}
-                                {#if control.iconSecondary}
-                                    <span class="control-icon-joiner">
-                                        {control.iconSeparator ?? "+"}
-                                    </span>
-                                    <svelte:component
-                                        this={control.iconSecondary}
-                                    />
-                                {/if}
-                            </span>
-                            <div class="control-text">
-                                <p class="control-label">{control.label}</p>
-                                <p class="control-desc">
-                                    {control.description}
-                                </p>
-                            </div>
+                                    {/if}
+                                    {#if control.iconSecondary}
+                                        <span class="control-icon-joiner">
+                                            {control.iconSeparator ?? "+"}
+                                        </span>
+                                        <svelte:component
+                                            this={control.iconSecondary}
+                                        />
+                                    {/if}
+                                </span>
+                                <div class="control-text">
+                                    <p class="control-label">{control.label}</p>
+                                    <p class="control-desc">
+                                        {control.description}
+                                    </p>
+                                </div>
+                            {/if}
                         </li>
                     {/each}
                 </ul>
@@ -484,6 +593,10 @@
         align-items: start;
     }
 
+    .control-row-multi {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .control-icon {
         width: 20px;
         height: 20px;
@@ -542,6 +655,37 @@
     .control-text {
         display: grid;
         gap: var(--spacing-sm);
+    }
+
+    .control-text-multi {
+        gap: var(--spacing-sm);
+    }
+
+    .control-title-list {
+        display: grid;
+        gap: var(--spacing-sm);
+    }
+
+    .control-title-row {
+        position: relative;
+        display: block;
+        min-height: 20px;
+        padding-left: calc(24px + var(--spacing-md));
+    }
+
+    .control-title-row > .control-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        overflow: visible;
+    }
+
+    .control-title-row > .control-label {
+        margin: 0;
+    }
+
+    .control-desc-offset {
+        padding-left: calc(24px + var(--spacing-md));
     }
 
     .control-label {
