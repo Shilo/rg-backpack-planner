@@ -67,7 +67,7 @@
         left: calc(var(--bar-pad) + var(--safe-left, 0px));
         bottom: calc(
             (var(--bar-pad, 0px) + var(--tab-height, 0px)) *
-                (1 - var(--is-keyboard-open, 0)) + 20px +
+                (1 - var(--is-keyboard-open, 0)) + var(--spacing-lg) +
                 var(--keyboard-height, 0px) + var(--safe-bottom, 0px)
         );
         display: flex;
