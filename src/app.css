@@ -5,7 +5,7 @@
 }
 
 :root {
-    --bar-pad: var(--spacing-sm);
+    --bar-pad: var(--spacing-lg);
     --tab-height: 38px;
     --side-menu-tab-height: calc(var(--tab-height) + var(--bar-pad));
     --side-menu-tab-min-width: 72px;
