@@ -46,6 +46,7 @@
         flex: 1;
         min-width: 0;
         height: var(--side-menu-tab-height);
+        --tab-bar-font-size: var(--font-xs);
     }
 
     .tab-bar__tabs {
@@ -91,7 +92,7 @@
     }
 
     .tab-bar__tab-label {
-        font-size: var(--font-xs);
+        font-size: var(--tab-bar-font-size);
         line-height: var(--leading-none);
         text-transform: uppercase;
         letter-spacing: 0.05em;

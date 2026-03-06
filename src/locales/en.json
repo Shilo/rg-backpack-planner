@@ -206,9 +206,6 @@
         "defaultShareTitle": "Backpack tech tree build"
     },
     "compose": {
-        "tabs": {
-            "all": "All"
-        },
         "loading": "Loading...",
         "captureErrorToast": "Unable to generate screenshots",
         "copiedToast": "Screenshot copied to clipboard",

@@ -3,8 +3,9 @@
     import {
         CopySimpleIcon,
         DownloadSimpleIcon,
-        ShareNetworkIcon,
+        ShareIcon,
         ImageIcon,
+        SquaresFourIcon,
     } from "phosphor-svelte";
     import FullscreenModal from "./FullscreenModal.svelte";
     import ImageViewer from "./ImageViewer.svelte";
@@ -34,7 +35,9 @@
     $: tabs = [
         {
             id: "all",
-            label: $t("compose.tabs.all"),
+            label: "",
+            icon: SquaresFourIcon,
+            tooltip: $t("compose.tabs.all"),
         },
         { id: "guardian", label: $t("trees.guardian") },
         { id: "vanguard", label: $t("trees.vanguard") },
@@ -107,7 +110,7 @@
         {
             id: "share",
             label: $t("share.shareTo"),
-            icon: ShareNetworkIcon,
+            icon: ShareIcon,
             onClick: handleShare,
         },
     ];
@@ -200,5 +203,33 @@
 
     :global(.fullscreen-modal .tab-bar__tab-button:not(.active)) {
         background: var(--bg-modal, var(--surface));
+    }
+
+    :global(.fullscreen-modal .tab-bar__tab-button:first-child) {
+        flex: 0 0 var(--side-menu-tab-height);
+    }
+
+    :global(
+            .fullscreen-modal
+                .tab-bar__tab-button:first-child
+                .tab-bar__tab-label
+        ) {
+        display: none;
+    }
+
+    :global(.fullscreen-modal .tab-bar) {
+        --tab-bar-font-size: var(--font-sm);
+    }
+
+    @media (max-width: 400px) {
+        :global(.fullscreen-modal .tab-bar) {
+            --tab-bar-font-size: var(--font-xs);
+        }
+    }
+
+    @media (max-width: 360px) {
+        :global(.fullscreen-modal .tab-bar) {
+            --tab-bar-font-size: var(--font-xxs);
+        }
     }
 </style>
