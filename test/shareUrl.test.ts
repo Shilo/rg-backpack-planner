@@ -41,6 +41,8 @@ const validBuildData = {
     owned: 0,
 };
 const encodedValidBuild = encodeBuildData(validBuildData);
+const SHARED_PAYLOAD_EXAMPLE =
+    "E'4.k.E.E.a.k.1,E'7.k.k.1,E.E.k.E.E.k'3.a;,E'7.k.k;Y.Y.E.Y.k.E.E.a.k,Y.Y.E.E.Y.E.E.k.k.1";
 
 // parseEncodedFromUserInput tests
 assertEqual(
@@ -67,6 +69,18 @@ assertEqual(
     parseEncodedFromUserInput(`Custom_Name|${encodedValidBuild}`),
     `Custom_Name|${encodedValidBuild}`,
     "Should validate raw payload with name",
+);
+assertEqual(
+    parseEncodedFromUserInput(`https://rgbp.app/#${SHARED_PAYLOAD_EXAMPLE}`),
+    SHARED_PAYLOAD_EXAMPLE,
+    "Should accept the reported production share URL payload",
+);
+assertEqual(
+    parseEncodedFromUserInput(
+        `https://rgbp.app/#${encodeURIComponent(SHARED_PAYLOAD_EXAMPLE)}`,
+    ),
+    encodeURIComponent(SHARED_PAYLOAD_EXAMPLE),
+    "Should accept mobile percent-encoded share URL payloads",
 );
 assertEqual(
     parseEncodedFromUserInput("https://example.com/"),

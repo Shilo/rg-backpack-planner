@@ -727,10 +727,7 @@ function safeExecute<T>(fn: () => T, logPrefix: string): T | null {
     }
 }
 
-/**
- * Decodes a serialized string back into build data
- */
-export function decodeBuildData(encoded: string): BuildData | null {
+function decodeBuildDataInternal(encoded: string): BuildData | null {
     // Split on build name separator to validate build data part separately
     // Name is at the start, so build data comes after the separator
     const nameSeparatorIndex = encoded.indexOf(SEPARATOR_BUILD_NAME);
@@ -765,4 +762,30 @@ export function decodeBuildData(encoded: string): BuildData | null {
     }
 
     return buildData;
+}
+
+/**
+ * Decodes a serialized string back into build data
+ */
+export function decodeBuildData(encoded: string): BuildData | null {
+    const directDecode = decodeBuildDataInternal(encoded);
+    if (directDecode) {
+        return directDecode;
+    }
+
+    // Some mobile share/open flows percent-encode the fragment before navigation
+    // (e.g. apostrophe "'" becomes "%27"). Retry once with URL-decoded input.
+    if (!encoded.includes("%")) {
+        return null;
+    }
+
+    const decoded = safeExecute(
+        () => decodeURIComponent(encoded),
+        "Failed to decode percent-encoded build data",
+    );
+    if (!decoded || decoded === encoded) {
+        return null;
+    }
+
+    return decodeBuildDataInternal(decoded);
 }

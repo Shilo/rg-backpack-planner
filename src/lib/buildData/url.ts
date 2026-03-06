@@ -8,7 +8,6 @@ import {
     encodeBuildData,
     decodeBuildData,
     decodeNameSpaces,
-    SERIALIZED_PATTERN,
 } from "./encoder";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
@@ -204,17 +203,6 @@ export function parseEncodedFromUserInput(input: string): string | null {
         input.includes("#") ? (input.split("#").pop() ?? "") : input
     ).trim();
     if (!candidate) return null;
-
-    // Split on build name separator to validate build data part separately
-    // Name is at the start, so build data comes after the separator
-    const nameSeparatorIndex = candidate.indexOf("|");
-    const buildDataPart =
-        nameSeparatorIndex !== -1
-            ? candidate.slice(nameSeparatorIndex + 1)
-            : candidate;
-
-    // Validate build data part (after name separator, or entire string if no name) matches pattern
-    if (!SERIALIZED_PATTERN.test(buildDataPart)) return null;
 
     return decodeBuildData(candidate) ? candidate : null;
 }
