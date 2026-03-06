@@ -1,34 +1,43 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+const modulePath = resolve("src/lib/serviceWorkerAutoUpdate.ts");
+let moduleSource = "";
+try {
+    moduleSource = readFileSync(modulePath, "utf8");
+} catch (e) {
+    throw new Error(`serviceWorkerAutoUpdate module not found at ${modulePath}.`);
+}
+
+if (!/navigator\.serviceWorker\s*\.getRegistration\(\)/.test(moduleSource)) {
+    throw new Error(
+        "serviceWorkerAutoUpdate should inspect the active service worker registration for update lifecycle events.",
+    );
+}
+
+if (!/controllerchange/.test(moduleSource)) {
+    throw new Error(
+        "serviceWorkerAutoUpdate should listen for controllerchange.",
+    );
+}
+
+if (!/statechange/.test(moduleSource)) {
+    throw new Error(
+        "serviceWorkerAutoUpdate should listen for statechange on potential installing workers.",
+    );
+}
+
+if (!/if\s*\(!hadController\)\s*return;/.test(moduleSource)) {
+    throw new Error(
+        "serviceWorkerAutoUpdate should preserve the hadController guard to avoid reloads on first install.",
+    );
+}
+
 const mainPath = resolve("src/main.ts");
 const mainSource = readFileSync(mainPath, "utf8");
-
-if (!/navigator\.serviceWorker\s*\.getRegistration\(\)/.test(mainSource)) {
-    throw new Error(
-        "main.ts should inspect the active service worker registration for update lifecycle events.",
-    );
-}
-
-if (!/updatefound/.test(mainSource)) {
-    throw new Error(
-        "main.ts should listen for service worker updatefound so update feedback can appear early.",
-    );
-}
-
-if (!/showToast\(\s*tr\("toast\.updatingToast"\)/.test(mainSource)) {
+if (!/toast\.updatingToast/.test(mainSource)) {
     throw new Error(
         "main.ts should show a localized updating toast when a service worker update starts.",
-    );
-}
-
-if (
-    !/handleControllerChange\s*=\s*\(\)\s*=>\s*\{\s*if\s*\(!hadController\)\s*\{\s*return;\s*\}\s*showUpdatingToast\(\);\s*window\.location\.reload\(\);\s*\};/s.test(
-        mainSource,
-    )
-) {
-    throw new Error(
-        "main.ts should show updating toast and then reload immediately on controllerchange.",
     );
 }
 

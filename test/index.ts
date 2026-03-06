@@ -64,6 +64,8 @@ const TEST_FILES = [
     "imageViewerLayout.test.ts",
     "imageViewerResizeReset.test.ts",
     "imageViewerInteractions.test.ts",
+    "serviceWorkerAutoUpdateModule.test.ts",
+    "serviceWorkerUpdateToast.test.ts",
 ];
 
 async function runAllTests() {
