@@ -6,6 +6,10 @@
     import { darkMode } from "./darkModeStore";
     import { triggerHaptic } from "./haptics";
     import { DEFAULT_THEME_COLOR, type ThemeColor } from "./themeColorStore";
+    import {
+        dismissFocusedTextEntryWithin,
+        shouldIgnoreBackdropTapForKeyboardDismiss,
+    } from "./useBackdropTextEntryDismiss";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
 
@@ -26,6 +30,8 @@
     // Pointer tracking
     let gridEl: HTMLDivElement | null = null;
     let gridPointerId: number | null = null;
+    let isPointerDownOnBackdrop = false;
+    let shouldIgnoreBackdropClick = false;
 
     // Selection state
     let selectedL = 0.7; // lightness of selected cell (for preview/hex)
@@ -268,9 +274,41 @@
     }
 
     function handleBackdropPointerDown(event: PointerEvent) {
-        if (event.target === event.currentTarget) {
-            handleCancel();
+        isPointerDownOnBackdrop = event.target === event.currentTarget;
+        if (!isPointerDownOnBackdrop) return;
+
+        if (
+            dismissFocusedTextEntryWithin(".color-picker-card") ||
+            shouldIgnoreBackdropTapForKeyboardDismiss()
+        ) {
+            shouldIgnoreBackdropClick = true;
+            isPointerDownOnBackdrop = false;
         }
+    }
+
+    function handleBackdropClick(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.target !== event.currentTarget || !isPointerDownOnBackdrop) {
+            isPointerDownOnBackdrop = false;
+            shouldIgnoreBackdropClick = false;
+            return;
+        }
+        isPointerDownOnBackdrop = false;
+
+        if (shouldIgnoreBackdropClick) {
+            shouldIgnoreBackdropClick = false;
+            return;
+        }
+        handleCancel();
+    }
+
+    function handleBackdropKeydown(event: KeyboardEvent) {
+        if (event.target !== event.currentTarget) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        handleCancel();
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -293,6 +331,8 @@
             tabindex="-1"
             aria-label="Custom color picker"
             on:pointerdown={handleBackdropPointerDown}
+            on:click={handleBackdropClick}
+            on:keydown={handleBackdropKeydown}
         >
             <div class="color-picker-card">
                 <!-- Full-spectrum color grid (col 0 = gray, cols 1-11 = hues) -->
@@ -421,6 +461,7 @@
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
+        pointer-events: auto;
     }
 
     .color-picker-card {

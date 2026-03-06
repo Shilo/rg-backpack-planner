@@ -6,10 +6,15 @@
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
+    import {
+        dismissFocusedTextEntryWithin,
+        shouldIgnoreBackdropTapForKeyboardDismiss,
+    } from "./useBackdropTextEntryDismiss";
     import { t } from "svelte-whisper";
 
     let lastActiveElement: HTMLElement | null = null;
     let isMouseDownOnBackdrop = false;
+    let shouldIgnoreBackdropClick = false;
 
     const unsubscribe = modalStore.subscribe((value) => {
         isMouseDownOnBackdrop = false;
@@ -48,6 +53,11 @@
     }
 
     function handleBackdropClick(event: MouseEvent) {
+        if (shouldIgnoreBackdropClick) {
+            shouldIgnoreBackdropClick = false;
+            isMouseDownOnBackdrop = false;
+            return;
+        }
         if (event.target !== event.currentTarget || !isMouseDownOnBackdrop) {
             isMouseDownOnBackdrop = false;
             return;
@@ -57,8 +67,21 @@
         handleCancel();
     }
 
+    function dismissKeyboardFromBackdropTap() {
+        if (!$modalStore) return false;
+        const didDismissFocusedInput = dismissFocusedTextEntryWithin(".modal-shell");
+        if (!didDismissFocusedInput && !shouldIgnoreBackdropTapForKeyboardDismiss()) {
+            return false;
+        }
+        shouldIgnoreBackdropClick = true;
+        isMouseDownOnBackdrop = false;
+        return true;
+    }
+
     function handleBackdropPointerDown(event: PointerEvent) {
         isMouseDownOnBackdrop = event.target === event.currentTarget;
+        if (!isMouseDownOnBackdrop) return;
+        dismissKeyboardFromBackdropTap();
     }
 
     function handleBackdropKeydown(event: KeyboardEvent) {
