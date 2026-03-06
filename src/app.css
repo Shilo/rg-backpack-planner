@@ -5,11 +5,11 @@
 }
 
 :root {
-    --bar-pad: var(--spacing-lg);
+    --bar-pad: var(--spacing-sm);
     --tab-height: 38px;
-    --side-menu-tab-height: calc(var(--tab-height) + var(--spacing-lg));
+    --side-menu-tab-height: calc(var(--tab-height) + var(--bar-pad));
     --side-menu-tab-min-width: 72px;
-    /* --side-menu-width: calc(3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + var(--spacing-lg)); */
+    /* --side-menu-width: calc(3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + var(--bar-pad)); */
     --side-menu-width: 360px;
 
     --z-index-hud: 5;
