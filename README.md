@@ -172,20 +172,11 @@ Once the next stable tier is known, reactive nodes use directional clamping:
 - on an increment, each reactive node becomes `max(current, assigned tier upper
   bound)`
 - on a decrement, each reactive node becomes `min(current, assigned tier upper
-  bound)`, but only for nodes whose current level was established through the
-  current target's propagation; nodes independently raised by a different
-  target operation are preserved at their current level
+  bound)`
 
 This means a same-tier decrement can still lower other nodes. If the target
 stays in the same stable tier but the assigned bound is lower than the current
 reactive level, the branch is rebased downward immediately.
-
-Decrement propagation is scoped to the current target's influence. When multiple
-nodes in the branch have been independently leveled as separate targets, decrementing
-one target does not tear down levels that another target independently established.
-For example, if node A and node B are siblings and both were independently raised
-as targets, decrementing node A preserves node B's level (and the ancestor levels
-that node B independently justifies).
 
 ## Project Structure
 
