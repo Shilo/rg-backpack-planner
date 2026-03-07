@@ -3,14 +3,9 @@
 </script>
 
 <script lang="ts">
+    import type { Component } from "svelte";
     import type { SkillId } from "../types/tree";
-    import {
-        CheckCircleIcon,
-        CrownIcon,
-        LockIcon,
-        PlusIcon,
-        StarIcon,
-    } from "phosphor-svelte";
+    import { StarIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
     import { formatNumber } from "./mathUtil";
@@ -35,14 +30,11 @@
     export let skillId: SkillId | null = null;
     export let maxLevel: number = 1;
 
-    const stateIcons = {
-        locked: LockIcon,
-        available: PlusIcon,
-        active: CheckCircleIcon,
-        maxed: CrownIcon,
-    } as const;
-
-    $: NodeIcon = stateIcons[state] ?? LockIcon;
+    /**
+     * Optional icon. Omit for no icon. Pass a Svelte component that renders your
+     * SVG/PNG (e.g. <img src={...} alt="" /> or inline SVG).
+     */
+    export let icon: Component | null = null;
 
     $: isRefund = $shiftKeyHeld;
     $: primaryActionCost = getPrimaryActionCost(
@@ -73,7 +65,7 @@
         aria-label={label || String(id)}
         {tooltipText}
         data-node-id={String(id)}
-        icon={NodeIcon}
+        icon={icon}
         iconClass="node-icon"
         style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
     >
