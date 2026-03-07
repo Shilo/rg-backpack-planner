@@ -225,6 +225,7 @@
         "premade": {
             "starter": "スターター",
             "earlyStun": "序盤スタン",
+            "midPve": "中盤 PvE",
             "latePve": "終盤 PvE",
             "latePvp": "終盤 PvP"
         },

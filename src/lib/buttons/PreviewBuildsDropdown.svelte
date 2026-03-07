@@ -6,6 +6,7 @@
         ShareNetworkIcon,
         SwordIcon,
         LinkIcon,
+        KnifeIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
     import Button from "../Button.svelte";
@@ -29,14 +30,16 @@
 
     // Premade build key (from package.json) → icon component
     const premadeBuildIcons: Record<string, Component> = {
-        Starter: SunIcon,
+        "Starter": SunIcon,
         "Early Stun": SpiralIcon,
+        "Mid PvE": KnifeIcon,
         "Late PvE": ShieldIcon,
         "Late PvP": SwordIcon,
     };
     const premadeBuildLabelKeys: Record<string, string> = {
         Starter: "preview.premade.starter",
         "Early Stun": "preview.premade.earlyStun",
+        "Mid PvE": "preview.premade.midPve",
         "Late PvE": "preview.premade.latePve",
         "Late PvP": "preview.premade.latePvp",
     };

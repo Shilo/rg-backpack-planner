@@ -16,10 +16,11 @@
         "url": "https://rungoddess.topgamesinc.com"
     },
     "premadeBuilds": [
-        "Starter|_",
-        "Early_Stun|_",
-        "Late_PvE|_",
-        "Late_PvP|_"
+        "Starter|v:3;;;uA",
+        "Early_Stun|,,k.k.'2.k;;;iU",
+        "Mid_PvE|,k..k.'2.k.k..a:3;;;37W",
+        "Late_PvE|,k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7",
+        "Late_PvP|k'4..k.k..a,k'7.a.a.1;k..k.'2.k.k..a,k'7.a.a.1;k'4..k.k..a,k'7.a.a.1;aox"
     ],
     "private": true,
     "type": "module",

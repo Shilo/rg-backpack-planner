@@ -225,6 +225,7 @@
         "premade": {
             "starter": "Starter",
             "earlyStun": "Early Stun",
+            "midPve": "Mid PvE",
             "latePve": "Late PvE",
             "latePvp": "Late PvP"
         },

@@ -225,6 +225,7 @@
         "premade": {
             "starter": "新手",
             "earlyStun": "早期眩晕",
+            "midPve": "中期 PvE",
             "latePve": "后期 PvE",
             "latePvp": "后期 PvP"
         },
