@@ -10,16 +10,10 @@ import {
 import { TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
 
 const TREE_VISIBLE_BOUNDS = {
-    centerNode: {
-        x: 295,
-        y: 356,
-    },
+    centerNode: { x: 295, y: 356 },
     width: 701,
     height: 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX,
-    // Actual size is:
-    // width: 703
-    // height: 696
-    // snapdom seems to add a 1px extra margin around the captured area
+    // Slightly under actual (703×696); snapdom adds ~1px around the captured area
 };
 
 const CAPTURE_READY_MAX_FRAMES = 12;
@@ -297,7 +291,6 @@ function createAndAttachOffscreenParent() {
     parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
     parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
     parent.style.overflow = "visible";
-    parent.style.background = "transparent";
     parent.style.backgroundColor = "transparent";
     parent.style.pointerEvents = "none";
     parent.style.isolation = "isolate";
@@ -331,18 +324,16 @@ async function combineTreeImagesHorizontally(
     tree3Blob: Blob,
 ): Promise<Blob | null> {
     try {
-        let img1 = await blobToImage(tree1Blob);
-        let img2 = await blobToImage(tree2Blob);
-        let img3 = await blobToImage(tree3Blob);
+        let img1: HTMLImageElement | null = await blobToImage(tree1Blob);
+        let img2: HTMLImageElement | null = await blobToImage(tree2Blob);
+        let img3: HTMLImageElement | null = await blobToImage(tree3Blob);
 
-        const spacing = 32; // spacing (half node size) between each tree, no outer padding
+        const spacing = 32; // half node size between trees, no outer padding
         const maxHeight = Math.max(img1.height, img2.height, img3.height);
-        const totalWidth = img1.width + img2.width + img3.width + spacing * 2; // two gaps between three images
-        const totalHeight = maxHeight;
-
+        const totalWidth = img1.width + img2.width + img3.width + spacing * 2;
         const canvas = document.createElement("canvas");
         canvas.width = totalWidth;
-        canvas.height = totalHeight;
+        canvas.height = maxHeight;
 
         const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) {
@@ -351,50 +342,43 @@ async function combineTreeImagesHorizontally(
         }
 
         let xOffset = 0;
-
         ctx.drawImage(img1, xOffset, (maxHeight - img1.height) / 2);
         xOffset += img1.width + spacing;
-
         ctx.drawImage(img2, xOffset, (maxHeight - img2.height) / 2);
         xOffset += img2.width + spacing;
-
         ctx.drawImage(img3, xOffset, (maxHeight - img3.height) / 2);
 
         return new Promise((resolve) => {
             canvas.toBlob((blob) => {
-                // If blob is null (very rare), clean up and return null
                 if (!blob) {
-                    try {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        canvas.width = 0;
-                        canvas.height = 0;
-                    } catch (_) { }
-
-                    img1 = img2 = img3 = null as any;
+                    clearCanvasAndImages(ctx, canvas, img1, img2, img3);
                     resolve(null);
                     return;
                 }
-
-                // Clear canvas backing store and drop image refs to make memory reclaiming easier
-                try {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    canvas.width = 0;
-                    canvas.height = 0;
-                } catch (_) { }
-
-                try {
-                    img1.src = "";
-                    img2.src = "";
-                    img3.src = "";
-                } catch (_) { }
-
-                img1 = img2 = img3 = null as any;
+                clearCanvasAndImages(ctx, canvas, img1, img2, img3);
                 resolve(blob);
             }, "image/png");
         });
     } catch (error) {
         console.error("Failed to combine tree images:", error);
         return null;
+    }
+}
+
+function clearCanvasAndImages(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    ...imgs: (HTMLImageElement | null)[]
+): void {
+    try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.width = 0;
+        canvas.height = 0;
+    } catch (_) {}
+    for (const img of imgs) {
+        try {
+            if (img) img.src = "";
+        } catch (_) {}
     }
 }
 
@@ -432,81 +416,54 @@ export async function captureTreeImageByIndex(
     });
 }
 
+type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
+
+async function captureThreeTreeBlobs(
+    bridge: TabsCaptureBridge,
+): Promise<ThreeTreeBlobs> {
+    const parent = createAndAttachOffscreenParent();
+    const currentIndex = bridge.getActive();
+    try {
+        const blob0 = await captureTreeImageByIndex(0, bridge, parent);
+        const blob1 = await captureTreeImageByIndex(1, bridge, parent);
+        const blob2 = await captureTreeImageByIndex(2, bridge, parent);
+        return [blob0, blob1, blob2];
+    } finally {
+        bridge.setActive(currentIndex);
+        try {
+            document.body.removeChild(parent);
+        } catch (_) {}
+    }
+}
+
 export async function captureCombinedTreesImage(): Promise<Blob | null> {
     const bridge = tabsBridge;
-    if (!bridge) {
-        return null;
-    }
+    if (!bridge) return null;
 
     return withCaptureState(async () => {
-        const parent = createAndAttachOffscreenParent();
-        const currentIndex = bridge.getActive();
-
-        try {
-            const tree1Blob = await captureTreeImageByIndex(0, bridge, parent);
-            const tree2Blob = await captureTreeImageByIndex(1, bridge, parent);
-            const tree3Blob = await captureTreeImageByIndex(2, bridge, parent);
-
-            if (!tree1Blob || !tree2Blob || !tree3Blob) {
-                return null;
-            }
-
-            return combineTreeImagesHorizontally(
-                tree1Blob,
-                tree2Blob,
-                tree3Blob,
-            );
-        } finally {
-            // Restore active tab
-            bridge.setActive(currentIndex);
-
-            try {
-                document.body.removeChild(parent);
-            } catch (_) { }
-        }
+        const [b0, b1, b2] = await captureThreeTreeBlobs(bridge);
+        if (!b0 || !b1 || !b2) return null;
+        return combineTreeImagesHorizontally(b0, b1, b2);
     });
 }
 
 export type CaptureAllResult = {
     combined: Blob | null;
-    trees: [Blob | null, Blob | null, Blob | null];
+    trees: ThreeTreeBlobs;
 };
 
 export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
     const bridge = tabsBridge;
-    if (!bridge) {
-        return null;
-    }
+    if (!bridge) return null;
 
     return withCaptureState(async () => {
-        const parent = createAndAttachOffscreenParent();
-        const currentIndex = bridge.getActive();
-
-        try {
-            const blob0 = await captureTreeImageByIndex(0, bridge, parent);
-            const blob1 = await captureTreeImageByIndex(1, bridge, parent);
-            const blob2 = await captureTreeImageByIndex(2, bridge, parent);
-
-            let combined: Blob | null = null;
-            if (blob0 && blob1 && blob2) {
-                combined = await combineTreeImagesHorizontally(
-                    blob0,
-                    blob1,
-                    blob2,
-                );
-            }
-
-            return {
-                combined,
-                trees: [blob0, blob1, blob2] as [Blob | null, Blob | null, Blob | null],
-            };
-        } finally {
-            bridge.setActive(currentIndex);
-
-            try {
-                document.body.removeChild(parent);
-            } catch (_) { }
-        }
+        const trees = await captureThreeTreeBlobs(bridge);
+        const [b0, b1, b2] = trees;
+        const combined =
+            b0 && b1 && b2
+                ? await combineTreeImagesHorizontally(b0, b1, b2)
+                : null;
+        return { combined, trees };
     });
 }
 
