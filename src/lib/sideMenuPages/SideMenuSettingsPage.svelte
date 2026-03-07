@@ -10,6 +10,7 @@
         TrashSimpleIcon,
         EyeIcon,
         GraphIcon,
+        CloudIcon,
     } from "phosphor-svelte";
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
@@ -373,6 +374,14 @@
         </button>
     </div>
     <FullscreenToggle />
+    <Button
+        on:click={() =>
+            openModal({ type: "sync", title: $t("modal.sync.title") })}
+        tooltipText={$t("modal.sync.message")}
+        icon={CloudIcon}
+    >
+        {$t("modal.sync.title")}
+    </Button>
     <InstallPwaButton title={true} />
     <Button
         on:click={handleReloadWindow}

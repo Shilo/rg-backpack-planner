@@ -293,6 +293,17 @@
             "title": "すべてのデータを消去",
             "message": "すべてのデータを削除してアプリケーションをリロードします。すべてのツリー、設定、進行状況がリセットされます。",
             "confirmLabel": "すべてのデータを消去"
+        },
+        "sync": {
+            "title": "設定の同期",
+            "message": "このコードを別のデバイスにコピーするか、別のデバイスからのコードを貼り付けて、プリセットと設定を同期します。",
+            "exportLabel": "あなたの同期コード",
+            "importLabel": "同期コードを貼り付け",
+            "importPlaceholder": "ここにコードを貼り付け...",
+            "importConfirmLabel": "インポートして上書き",
+            "importSuccessToast": "設定が正常に同期されました",
+            "importFailedToast": "無効な同期コードです",
+            "copySuccessToast": "同期コードをクリップボードにコピーしました"
         }
     },
     "fullscreen": {

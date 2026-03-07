@@ -293,6 +293,17 @@
             "title": "CLEAR ALL DATA",
             "message": "Delete all data and reload the application. This will reset all trees, settings, and progress.",
             "confirmLabel": "Clear all data"
+        },
+        "sync": {
+            "title": "SYNC SETTINGS",
+            "message": "Copy this code to another device or paste a code from another device to sync your presets and settings.",
+            "exportLabel": "Your Sync Code",
+            "importLabel": "Paste Sync Code",
+            "importPlaceholder": "Paste code here...",
+            "importConfirmLabel": "Import & Overwrite",
+            "importSuccessToast": "Settings synced successfully",
+            "importFailedToast": "Invalid sync code",
+            "copySuccessToast": "Sync code copied to clipboard"
         }
     },
     "fullscreen": {

@@ -293,6 +293,17 @@
             "title": "清空所有数据",
             "message": "删除所有数据并重新加载应用。这将重置所有技能树、设置和进度。",
             "confirmLabel": "清空所有数据"
+        },
+        "sync": {
+            "title": "同步设置",
+            "message": "将此代码复制到另一个设备，或粘贴来自另一个设备的代码，以同步您的预设和设置。",
+            "exportLabel": "您的同步代码",
+            "importLabel": "粘贴同步代码",
+            "importPlaceholder": "在此粘贴代码...",
+            "importConfirmLabel": "导入并覆盖",
+            "importSuccessToast": "设置同步成功",
+            "importFailedToast": "无效的同步代码",
+            "copySuccessToast": "同步代码已复制到剪贴板"
         }
     },
     "fullscreen": {

@@ -4,6 +4,7 @@
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
+    import SyncModal from "./modals/SyncModal.svelte";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
     import {
@@ -69,8 +70,12 @@
 
     function dismissKeyboardFromBackdropTap() {
         if (!$modalStore) return false;
-        const didDismissFocusedInput = dismissFocusedTextEntryWithin(".modal-shell");
-        if (!didDismissFocusedInput && !shouldIgnoreBackdropTapForKeyboardDismiss()) {
+        const didDismissFocusedInput =
+            dismissFocusedTextEntryWithin(".modal-shell");
+        if (
+            !didDismissFocusedInput &&
+            !shouldIgnoreBackdropTapForKeyboardDismiss()
+        ) {
             return false;
         }
         shouldIgnoreBackdropClick = true;
@@ -204,6 +209,11 @@
                         $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
+                />
+            {:else if $modalStore.type === "sync"}
+                <SyncModal
+                    title={$modalStore.title}
+                    message={$modalStore.message}
                 />
             {/if}
         </div>
