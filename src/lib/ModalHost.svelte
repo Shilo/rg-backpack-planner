@@ -177,6 +177,7 @@
                     value={$modalStore.input?.value ?? 0}
                     min={$modalStore.input?.min ?? 0}
                     step={$modalStore.input?.step ?? 1}
+                    footerButton={$modalStore.inputFooterButton ?? null}
                     confirmLabel={$modalStore.confirmLabel ??
                         $t("modal.saveLabel")}
                     cancelLabel={$modalStore.cancelLabel ??

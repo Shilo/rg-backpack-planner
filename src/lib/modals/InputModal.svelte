@@ -24,6 +24,7 @@
     export let step = 1;
     export let confirmLabel = "";
     export let cancelLabel = "";
+    export let footerButton: { label: string; value: number; icon: Component } | null = null;
     export let onConfirm: ((value: number) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
@@ -164,6 +165,22 @@
         </button>
     </div>
     <div class="modal-actions">
+        {#if footerButton}
+            <div class="modal-actions__left">
+                <Button
+                    data-modal-current-value
+                    icon={footerButton.icon}
+                    iconSize={19}
+                    iconWeight="fill"
+                    on:click={() => {
+                        triggerHaptic();
+                        onConfirm?.(footerButton.value);
+                    }}
+                >
+                    {footerButton.label}
+                </Button>
+            </div>
+        {/if}
         <div class="modal-actions__right">
             <Button data-modal-cancel on:click={() => onCancel?.()}>
                 {resolvedCancelLabel}
@@ -298,6 +315,11 @@
         justify-content: flex-end;
         align-items: center;
         gap: var(--spacing-lg);
+    }
+
+    .modal-actions__left {
+        margin-right: auto;
+        display: flex;
     }
 
     .modal-actions__right {

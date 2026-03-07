@@ -18,6 +18,12 @@ export type TextInputConfig = {
     placeholder?: string;
 };
 
+export type InputFooterButtonConfig = {
+    label: string;
+    value: number;
+    icon: Component;
+};
+
 export type ModalPayload = {
     type: ModalType;
     title: string;
@@ -30,6 +36,8 @@ export type ModalPayload = {
     confirmPositive?: boolean;
     cancelLabel?: string;
     input?: ModalInputConfig;
+    /** Optional bottom-left button: shows label + icon, submits with value when clicked. */
+    inputFooterButton?: InputFooterButtonConfig;
     textInput?: TextInputConfig;
     onConfirm?: (value?: string | number) => void;
     onCancel?: () => void;
