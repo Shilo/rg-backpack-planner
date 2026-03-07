@@ -16,6 +16,7 @@
     },
     "common": {
         "cancel": "Cancel",
+        "clone": "Clone",
         "save": "Save",
         "paste": "Paste",
         "share": "Share",
@@ -159,6 +160,7 @@
         "movePresetUpTooltip": "Move preset up",
         "movePresetDownTooltip": "Move preset down",
         "editPresetNameTooltip": "Edit preset name",
+        "clonePresetTooltip": "Clone build preset",
         "removePresetTooltip": "Remove build preset",
         "renameButton": "Rename",
         "deleteButton": "Delete",
@@ -166,6 +168,8 @@
         "renameModalMessage": "Type a new name for this build preset",
         "presetNameLabel": "Preset name",
         "renameConfirmLabel": "Rename",
+        "cloneModalTitle": "Clone Build Preset",
+        "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\"?",
         "deleteModalTitle": "Delete build preset",
         "deleteModalMessage": "Are you sure you want to remove \"{name}\" preset?",
         "deleteConfirmLabel": "Delete preset",
@@ -184,7 +188,6 @@
         "generated": {
             "default": "Default",
             "new": "New",
-            "clone": "Clone",
             "newCount": "New {count}",
             "cloneCount": "Clone {count}"
         }
@@ -237,7 +240,6 @@
         "clonePreviewBuildTooltip": "Copy preview build to personal build",
         "cloneModalTitle": "CLONE PREVIEW BUILD",
         "cloneModalMessage": "Create a new preset named \"{name}\" from the preview build.",
-        "cloneConfirmLabel": "Clone",
         "failedCloneToast": "Failed to clone build",
         "invalidBuildDataToast": "Invalid build data",
         "invalidShareLinkToast": "Invalid share link",

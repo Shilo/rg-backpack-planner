@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+    export type { Component };
+</script>
+
 <script lang="ts">
     import type { Component } from "svelte";
     import { CopySimpleIcon } from "phosphor-svelte";
@@ -19,40 +23,46 @@
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
 
+    export let name: string | undefined = undefined;
+    export let buildCode: string | undefined = undefined;
+    export let label: string | undefined = undefined;
+    export let tooltip: string | undefined = undefined;
+
     function handleCloneBuild() {
-        const previewName = get(previewBuildName) ?? "";
-        const uniqueName = getUniquePresetName(previewName, "Clone");
+        const sourceName = name ?? get(previewBuildName) ?? "";
+        const uniqueName = getUniquePresetName(sourceName, "Clone");
+        const uniqueDisplayName = getDisplayPresetName(uniqueName);
+
         openModal({
             type: "confirm",
             title: $t("preview.cloneModalTitle"),
             titleIcon: CopySimpleIcon as unknown as Component,
-            message: $t("preview.cloneModalMessage", {
-                name: truncateText(getDisplayPresetName(uniqueName)),
-            }),
-            confirmLabel: $t("preview.cloneConfirmLabel"),
+            message: name
+                ? $t("buildPresets.cloneModalMessage", {
+                      name: truncateText(uniqueDisplayName),
+                      originalName: truncateText(getDisplayPresetName(name)),
+                  })
+                : $t("preview.cloneModalMessage", {
+                      name: truncateText(uniqueDisplayName),
+                  }),
+            confirmLabel: $t("common.clone"),
             cancelLabel: $t("common.cancel"),
             confirmPositive: true,
             onConfirm: () => {
-                try {
-                    const currentTreeLevels = get(treeLevels);
-                    const currentTechCrystalsOwned = get(techCrystalsOwned);
-                    const buildCode = encodeBuildData({
-                        trees: currentTreeLevels,
-                        owned: currentTechCrystalsOwned,
+                const finalCode =
+                    buildCode ??
+                    encodeBuildData({
+                        trees: get(treeLevels),
+                        owned: get(techCrystalsOwned),
                     });
-                    const preset = addPreset(uniqueName, buildCode);
-                    setActivePresetId(preset.id);
 
-                    if (typeof window !== "undefined") {
-                        queueClonedBuildToast(uniqueName);
-                        clearShareFromUrl(false);
-                        window.location.reload();
-                    }
-                } catch (error) {
-                    console.error("Failed to clone build:", error);
-                    showToast($t("preview.failedCloneToast"), {
-                        tone: "negative",
-                    });
+                const preset = addPreset(uniqueName, finalCode);
+                setActivePresetId(preset.id);
+
+                if (typeof window !== "undefined") {
+                    queueClonedBuildToast(uniqueName);
+                    clearShareFromUrl(false);
+                    window.location.reload();
                 }
             },
         });
@@ -61,9 +71,9 @@
 
 <Button
     on:click={handleCloneBuild}
-    tooltipText={$t("preview.clonePreviewBuildTooltip")}
+    tooltipText={tooltip ?? $t("preview.clonePreviewBuildTooltip")}
     icon={CopySimpleIcon}
     arrow="right"
 >
-    {$t("preview.clonePreviewBuild")}
+    {label ?? $t("preview.clonePreviewBuild")}
 </Button>

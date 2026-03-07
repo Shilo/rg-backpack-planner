@@ -12,6 +12,7 @@
         TrashSimpleIcon,
     } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import CloneBuildButton from "./CloneBuildButton.svelte";
     import ShareBuildButton from "./ShareBuildButton.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
@@ -447,6 +448,13 @@
                 shareTitle={editPresetShareTitle}
                 showScreenshot={false}
                 disabled={!editPresetBuildData}
+            />
+            <CloneBuildButton
+                name={editPreset?.name}
+                buildCode={editPreset?.buildCode}
+                label={$t("common.clone")}
+                tooltip={$t("buildPresets.clonePresetTooltip")}
+                on:click={closeEditMenu}
             />
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}

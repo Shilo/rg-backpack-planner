@@ -16,6 +16,7 @@
     },
     "common": {
         "cancel": "取消",
+        "clone": "克隆",
         "save": "保存",
         "paste": "粘贴",
         "share": "分享",
@@ -159,6 +160,7 @@
         "movePresetUpTooltip": "上移预设",
         "movePresetDownTooltip": "下移预设",
         "editPresetNameTooltip": "编辑预设名称",
+        "clonePresetTooltip": "克隆构建预设",
         "removePresetTooltip": "移除构建预设",
         "renameButton": "重命名",
         "deleteButton": "删除",
@@ -166,6 +168,8 @@
         "renameModalMessage": "输入该构建预设的新名称",
         "presetNameLabel": "预设名称",
         "renameConfirmLabel": "重命名",
+        "cloneModalTitle": "克隆构建预设",
+        "cloneModalMessage": "从 \"{originalName}\" 创建一个名为 \"{name}\" 的新预设？",
         "deleteModalTitle": "删除构建预设",
         "deleteModalMessage": "确定要移除 \"{name}\" 预设吗？",
         "deleteConfirmLabel": "删除预设",
@@ -184,7 +188,6 @@
         "generated": {
             "default": "默认",
             "new": "新建",
-            "clone": "克隆",
             "newCount": "新建 {count}",
             "cloneCount": "克隆 {count}"
         }
@@ -237,7 +240,6 @@
         "clonePreviewBuildTooltip": "将预览构建复制到个人构建",
         "cloneModalTitle": "克隆预览构建",
         "cloneModalMessage": "从预览构建创建一个名为 \"{name}\" 的新预设。",
-        "cloneConfirmLabel": "克隆",
         "failedCloneToast": "克隆构建失败",
         "invalidBuildDataToast": "构建数据无效",
         "invalidShareLinkToast": "分享链接无效",

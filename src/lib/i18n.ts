@@ -23,7 +23,7 @@ export function getDisplayPresetName(name: string): string {
         return tr("buildPresets.generated.new");
     }
     if (trimmed === "Clone") {
-        return tr("buildPresets.generated.clone");
+        return tr("common.clone");
     }
 
     const newCount = trimmed.match(/^New\s+(\d+)$/i);

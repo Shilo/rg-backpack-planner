@@ -16,6 +16,7 @@
     },
     "common": {
         "cancel": "キャンセル",
+        "clone": "複製",
         "save": "保存",
         "paste": "貼り付け",
         "share": "共有",
@@ -159,6 +160,7 @@
         "movePresetUpTooltip": "プリセットを上に移動",
         "movePresetDownTooltip": "プリセットを下に移動",
         "editPresetNameTooltip": "プリセット名を編集",
+        "clonePresetTooltip": "ビルドプリセットを複製",
         "removePresetTooltip": "ビルドプリセットを削除",
         "renameButton": "名前変更",
         "deleteButton": "削除",
@@ -166,6 +168,8 @@
         "renameModalMessage": "このビルドプリセットの新しい名前を入力してください",
         "presetNameLabel": "プリセット名",
         "renameConfirmLabel": "名前変更",
+        "cloneModalTitle": "ビルドプリセットの複製",
+        "cloneModalMessage": "\"{originalName}\" から \"{name}\" という名前の新しいプリセットを作成しますか？",
         "deleteModalTitle": "ビルドプリセットの削除",
         "deleteModalMessage": "プリセット \"{name}\" を削除してもよろしいですか？",
         "deleteConfirmLabel": "プリセット削除",
@@ -184,7 +188,6 @@
         "generated": {
             "default": "デフォルト",
             "new": "新規",
-            "clone": "複製",
             "newCount": "新規 {count}",
             "cloneCount": "複製 {count}"
         }
@@ -237,7 +240,6 @@
         "clonePreviewBuildTooltip": "プレビュービルドを自分のビルドにコピー",
         "cloneModalTitle": "プレビュービルドの複製",
         "cloneModalMessage": "プレビュービルドから \"{name}\" という名前のプリセットを作成します。",
-        "cloneConfirmLabel": "複製",
         "failedCloneToast": "ビルドの複製に失敗しました",
         "invalidBuildDataToast": "ビルドデータが無効です",
         "invalidShareLinkToast": "共有リンクが無効です",
