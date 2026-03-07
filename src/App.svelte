@@ -61,6 +61,7 @@
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
     import { tr } from "svelte-whisper";
+    import { useInputStore } from "./lib/inputStore";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -476,6 +477,7 @@
     class="app-shell"
     class:menu-open={isMenuOpen}
     role="application"
+    use:useInputStore
     on:touchstart|passive={handleTouchStart}
     on:touchmove|passive={handleTouchMove}
     on:touchend={handleTouchEnd}

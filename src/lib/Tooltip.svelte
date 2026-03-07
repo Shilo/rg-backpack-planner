@@ -145,9 +145,12 @@
     >
         {#if $tooltipStore.costLine != null}
             <div class="tooltip-line">{$tooltipStore.text}</div>
-            <div class="tooltip-cost-line">
+            <div
+                class="tooltip-cost-line"
+                class:refund={$tooltipStore.costLineRefund}
+            >
                 <HexagonIcon size={14} weight="fill" class="tooltip-cost-icon" />
-                <span class="tooltip-cost-value">{$tooltipStore.costLine}</span>
+                <span class="tooltip-cost-value">{$tooltipStore.costLineRefund ? "+" : "-"}{$tooltipStore.costLine}</span>
             </div>
         {:else}
             {$tooltipStore.text}

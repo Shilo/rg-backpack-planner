@@ -17,6 +17,7 @@
     import {
         getPrimaryActionCost,
         nodePrimaryAction,
+        shiftKeyHeld,
     } from "./nodePrimaryActionStore";
 
     export let id: number;
@@ -43,11 +44,13 @@
 
     $: NodeIcon = stateIcons[state] ?? LockIcon;
 
+    $: isRefund = $shiftKeyHeld;
     $: primaryActionCost = getPrimaryActionCost(
         $nodePrimaryAction,
         skillId,
         level,
         maxLevel,
+        isRefund,
     );
 
     $: tooltipText =
@@ -55,6 +58,7 @@
             ? {
                   line1: label || String(id),
                   costLine: formatNumber(primaryActionCost),
+                  costLineRefund: isRefund,
               }
             : label || String(id);
 </script>

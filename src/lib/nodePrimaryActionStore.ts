@@ -1,8 +1,13 @@
 import { writable } from "svelte/store";
 import type { SkillId } from "../types/tree";
 import { getCostRange } from "../config/skillMetadata";
-import { nextTierTargetLevel } from "./tierLeveling";
+import {
+    nextTierTargetLevel,
+    previousTierTargetLevel,
+} from "./tierLeveling";
 import { getItem, setItem } from "./storage";
+
+export { shiftKeyHeld } from "./inputStore";
 
 export enum NodePrimaryAction {
     IncrementOne = 0,
@@ -51,23 +56,37 @@ function createNodePrimaryActionStore() {
 export const nodePrimaryAction = createNodePrimaryActionStore();
 
 /**
- * Returns the tech crystal cost for the given primary action to level up
- * from the given level. Returns null if skillId is missing, already at max,
- * or no upgrade possible.
+ * Returns the tech crystal cost for the primary action (or its opposite when
+ * isRefund is true, i.e. shift+click refund). Returns null if skillId is
+ * missing, no upgrade/refund possible, or already at max/zero.
  */
 export function getPrimaryActionCost(
     action: NodePrimaryAction,
     skillId: SkillId | null,
     level: number,
     maxLevel: number,
+    isRefund = false,
 ): number | null {
-    if (skillId == null || level >= maxLevel) return null;
+    if (skillId == null) return null;
+    const ml = maxLevel as 100 | 50 | 1;
+    if (isRefund) {
+        if (level <= 0) return null;
+        const fromLevel =
+            action === NodePrimaryAction.IncrementOne
+                ? Math.max(0, level - 1)
+                : action === NodePrimaryAction.IncrementTen
+                  ? Math.max(0, level - 10)
+                  : previousTierTargetLevel(level, ml);
+        if (fromLevel >= level) return null;
+        return getCostRange(skillId, fromLevel, level);
+    }
+    if (level >= maxLevel) return null;
     const toLevel =
         action === NodePrimaryAction.IncrementOne
             ? Math.min(level + 1, maxLevel)
             : action === NodePrimaryAction.IncrementTen
               ? Math.min(level + 10, maxLevel)
-              : nextTierTargetLevel(level, maxLevel as 100 | 50 | 1);
+              : nextTierTargetLevel(level, ml);
     if (toLevel <= level) return null;
     return getCostRange(skillId, level, toLevel);
 }

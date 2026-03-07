@@ -1,12 +1,15 @@
 import { writable } from "svelte/store";
 import { LONG_PRESS_MOVE_THRESHOLD, LONG_PRESS_MS } from "./longPress";
 
-export type TooltipContent = string | { line1: string; costLine?: string };
+export type TooltipContent =
+    | string
+    | { line1: string; costLine?: string; costLineRefund?: boolean };
 
 type TooltipState = {
     isOpen: boolean;
     text: string;
     costLine: string | undefined;
+    costLineRefund: boolean;
     x: number;
     y: number;
 };
@@ -20,6 +23,7 @@ export const tooltipStore = writable<TooltipState>({
     isOpen: false,
     text: "",
     costLine: undefined,
+    costLineRefund: false,
     x: 0,
     y: 0,
 });
@@ -32,12 +36,14 @@ function showTooltip(
     text: string,
     point: Point,
     costLine?: string,
+    costLineRefund = false,
 ) {
     currentOwner = owner;
     tooltipStore.set({
         isOpen: true,
         text,
         costLine,
+        costLineRefund,
         x: point.x,
         y: point.y,
     });
@@ -47,10 +53,11 @@ function updateTooltipText(
     owner: HTMLElement,
     text: string,
     costLine?: string,
+    costLineRefund = false,
 ) {
     if (currentOwner !== owner) return;
     tooltipStore.update((state) =>
-        state.isOpen ? { ...state, text, costLine } : state,
+        state.isOpen ? { ...state, text, costLine, costLineRefund } : state,
     );
 }
 
@@ -61,6 +68,7 @@ export function hideTooltip(owner?: HTMLElement) {
         isOpen: false,
         text: "",
         costLine: undefined,
+        costLineRefund: false,
         x: 0,
         y: 0,
     });
@@ -83,17 +91,19 @@ function isSuppressed(pointerId: number | null) {
 function normalizeContent(value?: TooltipContent): {
     text: string;
     costLine: string | undefined;
+    costLineRefund: boolean;
 } {
-    if (value == null) return { text: "", costLine: undefined };
-    if (typeof value === "string") return { text: value, costLine: undefined };
+    if (value == null) return { text: "", costLine: undefined, costLineRefund: false };
+    if (typeof value === "string") return { text: value, costLine: undefined, costLineRefund: false };
     return {
         text: value.line1 ?? "",
         costLine: value.costLine,
+        costLineRefund: value.costLineRefund ?? false,
     };
 }
 
 export function tooltip(node: HTMLElement, value?: TooltipContent) {
-    let { text, costLine } = normalizeContent(value);
+    let { text, costLine, costLineRefund } = normalizeContent(value);
     let hoverTimer: number | null = null;
     let pressTimer: number | null = null;
     let activePointerId: number | null = null;
@@ -127,7 +137,7 @@ export function tooltip(node: HTMLElement, value?: TooltipContent) {
         lastPoint = { x: event.clientX, y: event.clientY };
         clearHoverTimer();
         hoverTimer = window.setTimeout(() => {
-            showTooltip(node, text, lastPoint, costLine);
+            showTooltip(node, text, lastPoint, costLine, costLineRefund);
         }, HOVER_DELAY_MS);
     };
 
@@ -140,7 +150,7 @@ export function tooltip(node: HTMLElement, value?: TooltipContent) {
         clearPressTimer();
         pressTimer = window.setTimeout(() => {
             if (isSuppressed(activePointerId)) return;
-            showTooltip(node, text, lastPoint, costLine);
+            showTooltip(node, text, lastPoint, costLine, costLineRefund);
         }, PRESS_DELAY_MS);
     };
 
@@ -224,8 +234,8 @@ export function tooltip(node: HTMLElement, value?: TooltipContent) {
     node.addEventListener("pointercancel", handlePointerCancel);
     return {
         update(nextValue?: TooltipContent) {
-            ({ text, costLine } = normalizeContent(nextValue));
-            updateTooltipText(node, text, costLine);
+            ({ text, costLine, costLineRefund } = normalizeContent(nextValue));
+            updateTooltipText(node, text, costLine, costLineRefund);
         },
         destroy() {
             clearHoverTimer();
