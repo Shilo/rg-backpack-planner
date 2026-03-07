@@ -6,6 +6,7 @@
         ShareIcon,
         ImageIcon,
         SquaresFourIcon,
+        ArrowClockwiseIcon,
     } from "phosphor-svelte";
     import FullscreenModal from "./FullscreenModal.svelte";
     import ImageViewer from "./ImageViewer.svelte";
@@ -22,6 +23,7 @@
     import { t } from "svelte-whisper";
     import { get } from "svelte/store";
     import { showTier } from "./showTierStore";
+    import Button from "./Button.svelte";
 
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
@@ -99,24 +101,27 @@
         return createComposeImageFilename($activePresetName, tabId);
     }
 
-    const composeFabActions = [
+    $: composeFabActions = [
         {
             id: "copy",
             label: $t("common.copy"),
             icon: CopySimpleIcon,
             onClick: handleCopy,
+            disabled: isLoading,
         },
         {
             id: "download",
             label: $t("common.download"),
             icon: DownloadSimpleIcon,
             onClick: handleDownload,
+            disabled: isLoading,
         },
         {
             id: "share",
             label: $t("share.shareTo"),
             icon: ShareIcon,
             onClick: handleShare,
+            disabled: isLoading,
         },
     ];
 
@@ -166,7 +171,20 @@
         <ImageViewer blob={currentBlob} />
     {/if}
 
-    {#if !isLoading && currentBlob}
+    {#if currentBlob || isLoading}
+        <Button
+            class="compose-reload"
+            type="button"
+            aria-label={$t("compose.refreshTooltip")}
+            tooltipText={$t("compose.refreshTooltip")}
+            icon={ArrowClockwiseIcon}
+            iconClass="compose-reload__icon"
+            iconSize={24}
+            disabled={isLoading}
+            on:click={() => captureAll()}
+        />
+    {/if}
+    {#if currentBlob || isLoading}
         <div class="compose-fabs">
             <FabMenu
                 actions={composeFabActions}
@@ -197,6 +215,23 @@
         font-size: 0.95rem;
         font-weight: 600;
         letter-spacing: 0.02em;
+    }
+
+    :global(.compose-reload) {
+        position: absolute;
+        bottom: var(--spacing-lg);
+        left: calc(var(--spacing-lg) + var(--safe-left, 0px));
+        z-index: 1;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border-radius: 999px;
+        min-width: 38px;
+        background: color-mix(in srgb, var(--bg-raised) 80%, transparent) !important;
+    }
+
+    :global(.compose-reload:disabled) {
+        background: color-mix(in srgb, var(--bg-input) 80%, transparent) !important;
     }
 
     .compose-fabs {

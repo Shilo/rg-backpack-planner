@@ -217,7 +217,8 @@
         "shareErrorToast": "Unable to share screenshot",
         "copyTooltip": "Copy to clipboard",
         "downloadTooltip": "Download as PNG",
-        "shareTooltip": "Share via app"
+        "shareTooltip": "Share via app",
+        "refreshTooltip": "Regenerate screenshots"
     },
     "preview": {
         "title": "Preview",

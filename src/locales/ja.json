@@ -217,7 +217,8 @@
         "shareErrorToast": "スクリーンショットを共有できません",
         "copyTooltip": "クリップボードにコピー",
         "downloadTooltip": "PNGとしてダウンロード",
-        "shareTooltip": "アプリで共有"
+        "shareTooltip": "アプリで共有",
+        "refreshTooltip": "スクリーンショットを再生成"
     },
     "preview": {
         "title": "プレビュー",

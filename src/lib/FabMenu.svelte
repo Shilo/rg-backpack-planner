@@ -64,7 +64,7 @@
         border-radius: var(--radius);
         border: var(--border-width) solid
             color-mix(in srgb, var(--accent) 36%, var(--border-subtle));
-        background: color-mix(in srgb, var(--accent) 20%, var(--bg-raised));
+        background: color-mix(in srgb, color-mix(in srgb, var(--accent) 20%, var(--bg-raised)) 50%, transparent) !important;
         color: var(--text);
         box-shadow: var(--shadow-node, var(--shadow));
         display: inline-flex;

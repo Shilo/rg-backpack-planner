@@ -217,7 +217,8 @@
         "shareErrorToast": "无法分享截图",
         "copyTooltip": "复制到剪贴板",
         "downloadTooltip": "下载为 PNG",
-        "shareTooltip": "通过应用分享"
+        "shareTooltip": "通过应用分享",
+        "refreshTooltip": "重新生成截图"
     },
     "preview": {
         "title": "预览",
