@@ -132,7 +132,7 @@
     }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window on:keydown|capture={handleKeydown} />
 
 {#if $modalStore}
     <div
