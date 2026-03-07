@@ -107,6 +107,7 @@
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === "Enter") {
             event.preventDefault();
+            event.stopPropagation();
             void handleLoad();
         }
     }

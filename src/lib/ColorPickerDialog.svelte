@@ -239,6 +239,7 @@
     function handleHexKeydown(event: KeyboardEvent) {
         if (event.key === "Enter") {
             event.preventDefault();
+            event.stopPropagation();
             handleApply();
         }
     }
@@ -326,11 +327,15 @@
             event.preventDefault();
             event.stopImmediatePropagation();
             handleCancel();
+        } else if (event.key === "Enter") {
+            if (document.activeElement instanceof HTMLButtonElement) return;
+            event.preventDefault();
+            handleApply();
         }
     }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window on:keydown|capture={handleKeydown} />
 
 {#if isOpen}
     <div use:portal class="color-picker-portal">

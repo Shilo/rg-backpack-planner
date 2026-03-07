@@ -43,6 +43,7 @@
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === "Enter" && !isConfirmDisabled) {
             event.preventDefault();
+            event.stopPropagation();
             handleConfirm();
         }
     }
