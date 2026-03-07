@@ -184,6 +184,27 @@ textarea,
     pointer-events: none;
 }
 
+.tooltip-line {
+    display: block;
+}
+
+.tooltip-cost-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs, 4px);
+    margin-top: var(--spacing-xs, 4px);
+}
+
+.tooltip-cost-line .tooltip-cost-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.tooltip-cost-line .tooltip-cost-value {
+    color: var(--accent-danger);
+}
+
 @media (hover: none) {
     .tooltip {
         transform: none;

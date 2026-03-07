@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
+    import { HexagonIcon } from "phosphor-svelte";
     import { tooltipStore } from "./tooltip";
 
     let tooltipEl: HTMLDivElement | null = null;
@@ -142,6 +143,14 @@
         style={`left: ${boundedX}px; top: ${boundedY}px;`}
         aria-hidden="true"
     >
-        {$tooltipStore.text}
+        {#if $tooltipStore.costLine != null}
+            <div class="tooltip-line">{$tooltipStore.text}</div>
+            <div class="tooltip-cost-line">
+                <HexagonIcon size={14} weight="fill" class="tooltip-cost-icon" />
+                <span class="tooltip-cost-value">{$tooltipStore.costLine}</span>
+            </div>
+        {:else}
+            {$tooltipStore.text}
+        {/if}
     </div>
 {/if}

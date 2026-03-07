@@ -2,7 +2,7 @@
     import type { Component } from "svelte";
     import { createEventDispatcher } from "svelte";
     import { showToast } from "./toast";
-    import { tooltip } from "./tooltip";
+    import { tooltip, type TooltipContent } from "./tooltip";
     import { triggerHaptic } from "./haptics";
     import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
@@ -24,7 +24,7 @@
     export let positive = false;
     export let accent = false;
     export let disabled: boolean | undefined = undefined;
-    export let tooltipText: string | undefined = undefined;
+    export let tooltipText: TooltipContent | undefined = undefined;
     export let element: HTMLButtonElement | null = null;
     export let toastMessage: string | undefined = undefined;
     export let toastNegative = false;

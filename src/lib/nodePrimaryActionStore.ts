@@ -1,4 +1,7 @@
 import { writable } from "svelte/store";
+import type { SkillId } from "../types/tree";
+import { getCostRange } from "../config/skillMetadata";
+import { nextTierTargetLevel } from "./tierLeveling";
 import { getItem, setItem } from "./storage";
 
 export enum NodePrimaryAction {
@@ -46,3 +49,25 @@ function createNodePrimaryActionStore() {
 }
 
 export const nodePrimaryAction = createNodePrimaryActionStore();
+
+/**
+ * Returns the tech crystal cost for the given primary action to level up
+ * from the given level. Returns null if skillId is missing, already at max,
+ * or no upgrade possible.
+ */
+export function getPrimaryActionCost(
+    action: NodePrimaryAction,
+    skillId: SkillId | null,
+    level: number,
+    maxLevel: number,
+): number | null {
+    if (skillId == null || level >= maxLevel) return null;
+    const toLevel =
+        action === NodePrimaryAction.IncrementOne
+            ? Math.min(level + 1, maxLevel)
+            : action === NodePrimaryAction.IncrementTen
+              ? Math.min(level + 10, maxLevel)
+              : nextTierTargetLevel(level, maxLevel as 100 | 50 | 1);
+    if (toLevel <= level) return null;
+    return getCostRange(skillId, level, toLevel);
+}

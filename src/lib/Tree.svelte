@@ -1124,6 +1124,8 @@
                         {scale}
                         region={nodeView.region}
                         isLeaf={nodeView.isLeaf}
+                        skillId={nodeView.node.skillId}
+                        maxLevel={nodeView.node.maxLevel}
                     />
                 {/each}
             </div>

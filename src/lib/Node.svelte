@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+    import type { SkillId } from "../types/tree";
     import {
         CheckCircleIcon,
         CrownIcon,
@@ -13,6 +14,10 @@
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
     import { formatNumber } from "./mathUtil";
+    import {
+        getPrimaryActionCost,
+        nodePrimaryAction,
+    } from "./nodePrimaryActionStore";
 
     export let id: number;
     export let x: number = 0;
@@ -26,6 +31,8 @@
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
     export let isLeaf: boolean = false;
+    export let skillId: SkillId | null = null;
+    export let maxLevel: number = 1;
 
     const stateIcons = {
         locked: LockIcon,
@@ -35,6 +42,21 @@
     } as const;
 
     $: NodeIcon = stateIcons[state] ?? LockIcon;
+
+    $: primaryActionCost = getPrimaryActionCost(
+        $nodePrimaryAction,
+        skillId,
+        level,
+        maxLevel,
+    );
+
+    $: tooltipText =
+        primaryActionCost != null
+            ? {
+                  line1: label || String(id),
+                  costLine: formatNumber(primaryActionCost),
+              }
+            : label || String(id);
 </script>
 
 <div
@@ -45,6 +67,7 @@
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
         aria-label={label || String(id)}
+        {tooltipText}
         data-node-id={String(id)}
         icon={NodeIcon}
         iconClass="node-icon"
