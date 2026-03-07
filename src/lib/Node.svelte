@@ -3,11 +3,14 @@
 </script>
 
 <script lang="ts">
+    import { setContext } from "svelte";
     import type { Component } from "svelte";
     import type { SkillId } from "../types/tree";
     import { StarIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
+    import { NODE_SKILL_ID_KEY } from "../config/skillNodeIcons";
+    import SkillNodeIcon from "./SkillNodeIcon.svelte";
     import { formatNumber } from "./mathUtil";
     import {
         getPrimaryActionCost,
@@ -31,10 +34,16 @@
     export let maxLevel: number = 1;
 
     /**
-     * Optional icon. Omit for no icon. Pass a Svelte component that renders your
-     * SVG/PNG (e.g. <img src={...} alt="" /> or inline SVG).
+     * Optional icon override. When set, this component is used instead of the
+     * skill asset icon. When unset and skillId is set, the icon from
+     * src/assets/nodes/{skillId}.svg is used.
      */
     export let icon: Component | null = null;
+
+    if (skillId != null) {
+        setContext(NODE_SKILL_ID_KEY, skillId);
+    }
+    $: nodeIcon = icon ?? (skillId != null ? SkillNodeIcon : null);
 
     $: isRefund = $shiftKeyHeld;
     $: primaryActionCost = getPrimaryActionCost(
@@ -65,7 +74,7 @@
         aria-label={label || String(id)}
         {tooltipText}
         data-node-id={String(id)}
-        icon={icon}
+        icon={nodeIcon}
         iconClass="node-icon"
         style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
     >
