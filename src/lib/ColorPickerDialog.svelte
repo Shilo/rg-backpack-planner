@@ -273,14 +273,23 @@
         onCancel?.();
     }
 
+    /** True when pointer is touch; first backdrop tap then only dismisses keyboard. */
+    const isTouch = () => window.matchMedia("(pointer: coarse)").matches;
+
     function handleBackdropPointerDown(event: PointerEvent) {
         isPointerDownOnBackdrop = event.target === event.currentTarget;
         if (!isPointerDownOnBackdrop) return;
 
-        if (
-            dismissFocusedTextEntryWithin(".color-picker-card") ||
-            shouldIgnoreBackdropTapForKeyboardDismiss()
-        ) {
+        const didDismissFocusedInput =
+            dismissFocusedTextEntryWithin(".color-picker-card");
+        if (didDismissFocusedInput) {
+            if (isTouch()) {
+                shouldIgnoreBackdropClick = true;
+                isPointerDownOnBackdrop = false;
+            }
+            return;
+        }
+        if (shouldIgnoreBackdropTapForKeyboardDismiss()) {
             shouldIgnoreBackdropClick = true;
             isPointerDownOnBackdrop = false;
         }

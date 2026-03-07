@@ -67,10 +67,22 @@
         handleCancel();
     }
 
+    /** True when primary pointer is touch (not mouse), so first backdrop tap should only dismiss keyboard. */
+    const isTouch = () => window.matchMedia("(pointer: coarse)").matches;
+
     function dismissKeyboardFromBackdropTap() {
         if (!$modalStore) return false;
         const didDismissFocusedInput = dismissFocusedTextEntryWithin(".modal-shell");
-        if (!didDismissFocusedInput && !shouldIgnoreBackdropTapForKeyboardDismiss()) {
+        if (didDismissFocusedInput) {
+            // Touch: first tap dismisses keyboard only; mouse: same click closes modal.
+            if (isTouch()) {
+                shouldIgnoreBackdropClick = true;
+                isMouseDownOnBackdrop = false;
+                return true;
+            }
+            return false;
+        }
+        if (!shouldIgnoreBackdropTapForKeyboardDismiss()) {
             return false;
         }
         shouldIgnoreBackdropClick = true;
