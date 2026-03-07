@@ -35,10 +35,18 @@ function setInlineStyleFromComputed(
     element.style.setProperty(property, value);
 }
 
-function preserveTreeLinkStrokeStyles(root: HTMLElement) {
-    // Ensure SVG link stroke styles survive capture (snapdom can miss CSS for SVG)
-    root.querySelectorAll<SVGLineElement>(".tree-link").forEach((line) => {
-        const computed = getComputedStyle(line);
+function preserveTreeLinkStrokeStyles(
+    original: HTMLElement,
+    clone: HTMLElement,
+) {
+    // Read from original (correct cascade); write to clone. Ensures SVG link stroke
+    // styles survive capture (snapdom can miss CSS for SVG).
+    const origLines = original.querySelectorAll<SVGLineElement>(".tree-link");
+    const cloneLines = clone.querySelectorAll<SVGLineElement>(".tree-link");
+    for (let i = 0; i < origLines.length && i < cloneLines.length; i++) {
+        const orig = origLines[i];
+        const line = cloneLines[i];
+        const computed = getComputedStyle(orig);
         const stroke = computed.stroke;
         const strokeOpacity = computed.strokeOpacity;
         const widthValue = Number.parseFloat(computed.strokeWidth);
@@ -58,10 +66,12 @@ function preserveTreeLinkStrokeStyles(root: HTMLElement) {
         if (filter && filter !== "none") {
             line.style.filter = filter;
         }
-    });
+    }
 }
 
-function preserveNodeVisualStyles(root: HTMLElement) {
+function preserveNodeVisualStyles(original: HTMLElement, clone: HTMLElement) {
+    // Read from original (correct cascade); write to clone so clone has correct
+    // colors/effects when snapdom runs.
     const nodeStyleProperties = [
         "background-color",
         "border-color",
@@ -95,27 +105,34 @@ function preserveNodeVisualStyles(root: HTMLElement) {
         "font-variant-numeric",
     ];
 
-    root.querySelectorAll<HTMLElement>(".node-wrapper").forEach((wrapper) => {
-        const computed = getComputedStyle(wrapper);
-        setInlineStyleFromComputed(wrapper, computed, "filter");
-    });
+    const origWrappers = original.querySelectorAll<HTMLElement>(".node-wrapper");
+    const cloneWrappers = clone.querySelectorAll<HTMLElement>(".node-wrapper");
+    for (let i = 0; i < origWrappers.length && i < cloneWrappers.length; i++) {
+        const computed = getComputedStyle(origWrappers[i]);
+        setInlineStyleFromComputed(cloneWrappers[i], computed, "filter");
+    }
 
-    root.querySelectorAll<HTMLElement>(".button.node").forEach((node) => {
-        const computed = getComputedStyle(node);
+    const origNodes = original.querySelectorAll<HTMLElement>(".button.node");
+    const cloneNodes = clone.querySelectorAll<HTMLElement>(".button.node");
+    for (let i = 0; i < origNodes.length && i < cloneNodes.length; i++) {
+        const computed = getComputedStyle(origNodes[i]);
+        const node = cloneNodes[i];
         nodeStyleProperties.forEach((property) =>
             setInlineStyleFromComputed(node, computed, property),
         );
         nodeVariableProperties.forEach((property) =>
             setInlineStyleFromComputed(node, computed, property),
         );
-    });
+    }
 
-    root.querySelectorAll<HTMLElement>(".node-badge").forEach((badge) => {
-        const computed = getComputedStyle(badge);
+    const origBadges = original.querySelectorAll<HTMLElement>(".node-badge");
+    const cloneBadges = clone.querySelectorAll<HTMLElement>(".node-badge");
+    for (let i = 0; i < origBadges.length && i < cloneBadges.length; i++) {
+        const computed = getComputedStyle(origBadges[i]);
         badgeStyleProperties.forEach((property) =>
-            setInlineStyleFromComputed(badge, computed, property),
+            setInlineStyleFromComputed(cloneBadges[i], computed, property),
         );
-    });
+    }
 }
 
 function normalizeBadgeAnchorScale(root: HTMLElement) {
@@ -136,6 +153,13 @@ function waitForAnimationFrame(): Promise<void> {
     return new Promise((resolve) => {
         window.requestAnimationFrame(() => resolve());
     });
+}
+
+/** Force reflow then wait for two animation frames (layout then paint) before capture. */
+async function forceReflowAndWaitForPaint(element: HTMLElement): Promise<void> {
+    void element.offsetHeight;
+    await waitForAnimationFrame();
+    await waitForAnimationFrame();
 }
 
 function getTreeCanvasSignature(element: HTMLElement): string {
@@ -228,9 +252,11 @@ async function captureElementAsPng(
             parent.appendChild(clone);
         }
 
-        preserveTreeLinkStrokeStyles(clone);
-        preserveNodeVisualStyles(clone);
+        preserveTreeLinkStrokeStyles(element, clone);
+        preserveNodeVisualStyles(element, clone);
         normalizeBadgeAnchorScale(clone);
+
+        await forceReflowAndWaitForPaint(clone);
 
         try {
             return await snapdom.toBlob(parent, {
