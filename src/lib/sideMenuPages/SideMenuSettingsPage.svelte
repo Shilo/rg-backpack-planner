@@ -360,7 +360,6 @@
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.lookAndFeel")}>
-    <TextSizeSliderSetting />
     <LanguageDropdown />
     <div class="button-group theme-row">
         <ThemeColorSelector />
@@ -390,6 +389,7 @@
         ariaLabel={$t("settings.haptics")}
         onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
     />
+    <TextSizeSliderSetting />
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.application")}>

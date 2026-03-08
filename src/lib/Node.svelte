@@ -413,11 +413,11 @@
     /* Name/title badge (top) only: raise z-index so it stacks above level badge */
     .node-name-badge-anchor {
         top: 0;
-        z-index: calc(var(--z-index-badge) + 1);
     }
 
     .node-level-badge-anchor {
         bottom: 0;
+        z-index: calc(var(--z-index-badge) + 1);
     }
 
     .node-wrapper-hex .node-name-badge-anchor {
@@ -440,19 +440,6 @@
     .node-level-badge-anchor .node-badge {
         transform: translate(-50%, calc(-1 * var(--badge-offset)))
             scale(var(--node-badge-scale, 1));
-    }
-
-    .node-level-badge {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .node-level-badge-max {
-        width: 1em;
-        height: 1em;
-        display: block;
-        color: currentColor;
     }
 
     .node-badge {
@@ -550,6 +537,20 @@
     .node-wrapper:active :global(.button.node:not(:disabled)) {
         filter: var(--brightness-hover);
         transform: scale(0.96);
+    }
+
+    .node-level-badge {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        font-size: var(--font-xs);
+    }
+
+    .node-level-badge-max {
+        width: 1em;
+        height: 1em;
+        display: block;
+        color: currentColor;
     }
 
     /* Node state styles */
