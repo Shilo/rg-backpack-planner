@@ -9,9 +9,7 @@
     --tab-height: 38px;
     --side-menu-tab-height: calc(var(--tab-height) + var(--bar-pad));
     --side-menu-tab-min-width: 72px;
-    /* --side-menu-width: calc(3 * var(--side-menu-tab-min-width) + var(--side-menu-tab-height) + var(--bar-pad)); */
-    --side-menu-width: 360px;
-
+    --side-menu-width: 440px;
     --z-index-hud: 5;
     --z-index-hud-over-side-menu-backdrop: 9;
     --z-index-side-menu: 10;
