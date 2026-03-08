@@ -11,6 +11,13 @@ export function initServiceWorkerAutoUpdate(
 
     const { showUpdatingToast } = options;
     const hadController = !!navigator.serviceWorker.controller;
+    let updatingToastShown = false;
+
+    const showUpdatingToastOnce = () => {
+        if (updatingToastShown) return;
+        updatingToastShown = true;
+        showUpdatingToast();
+    };
 
     let handleControllerChange: (() => void) | null = null;
     let handleUpdateFound: (() => void) | null = null;
@@ -37,7 +44,7 @@ export function initServiceWorkerAutoUpdate(
                 worker.state === "installed" ||
                 worker.state === "activating"
             ) {
-                showUpdatingToast();
+                showUpdatingToastOnce();
             }
         };
 
@@ -48,7 +55,7 @@ export function initServiceWorkerAutoUpdate(
     handleControllerChange = () => {
         if (!hadController) return;
 
-        showUpdatingToast();
+        showUpdatingToastOnce();
         window.location.reload();
     };
     navigator.serviceWorker.addEventListener(
