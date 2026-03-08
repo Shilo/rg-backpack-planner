@@ -368,7 +368,7 @@
         position: absolute;
         inset: 0;
         --badge-icon-gap: 2px;
-        z-index: var(--z-index-badge);
+        /* z-index: var(--z-index-badge); */
         pointer-events: none;
     }
 
