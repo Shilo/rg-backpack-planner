@@ -167,6 +167,7 @@
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
+        --badge-mobile-y-offset: 0px;
         /* Contrast text: soft black/white so badge text is readable and not blinding */
         --badge-text-on-light: #1c1c1c;
         --badge-text-on-dark: #f2f2f2;
@@ -415,14 +416,20 @@
 
     /* Name: slot bottom = top of icon (minus gap); badge sits above, bottom of badge aligns with top of icon */
     .node-badge-slot-name {
-        bottom: calc(50% + (var(--node-icon-size) / 2) + var(--badge-icon-gap));
+        bottom: calc(
+            50% + (var(--node-icon-size) / 2) + var(--badge-icon-gap) -
+                var(--badge-mobile-y-offset)
+        );
         transform: translateX(-50%);
         align-items: flex-end;
     }
 
     /* Level: slot top = bottom of icon (plus gap); badge sits below, top of badge aligns with bottom of icon */
     .node-badge-slot-level {
-        top: calc(50% + (var(--node-icon-size) / 2) + var(--badge-icon-gap));
+        top: calc(
+            50% + (var(--node-icon-size) / 2) + var(--badge-icon-gap) +
+                var(--badge-mobile-y-offset)
+        );
         transform: translateX(-50%);
         align-items: flex-start;
     }
@@ -526,6 +533,12 @@
     .badge-right .node-badge {
         --badge-bg: var(--region-blue-accent);
         background: var(--badge-bg);
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        .node-wrapper {
+            --badge-mobile-y-offset: 1px;
+        }
     }
 
     @media (hover: hover) {
