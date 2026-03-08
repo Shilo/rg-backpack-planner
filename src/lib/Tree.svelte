@@ -36,6 +36,7 @@
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
     import { showSkillName } from "./showSkillNameStore";
+    import { textSize } from "./textSizeStore";
     import {
         applyLevelChange,
         nextTierTargetLevel,
@@ -87,6 +88,9 @@
         // Reference viewportSize to make this reactive to viewport size changes
         void viewportSize.width;
         void viewportSize.height;
+        // Keep min/max scale tied to user text-size setting because badge overflow
+        // derives from root font size.
+        void $textSize;
 
         if (!viewportEl || nodes.length === 0) {
             return { minScale: 0.1, maxScale: 2.2 };
@@ -817,6 +821,7 @@
             }
 
             if (panActive) {
+                allowReactiveFocus = false;
                 const dx = event.clientX - panStart.x;
                 const dy = event.clientY - panStart.y;
                 const nextOffsetX = panStart.offsetX + dx;
@@ -831,6 +836,7 @@
         if (pointers.size === 2 && pinchStart) {
             clearLongPress(longPressState);
             panActive = false;
+            allowReactiveFocus = false;
             const [p1, p2] = Array.from(pointers.values());
             const centerX = (p1.x + p2.x) / 2;
             const centerY = (p1.y + p2.y) / 2;
@@ -1046,6 +1052,7 @@
         if (gesturesDisabled) return;
         if (!viewportEl) return;
         if (pointers.size > 0) return;
+        allowReactiveFocus = false;
         const rect = viewportEl.getBoundingClientRect();
         const localX = event.clientX - rect.left;
         const localY = event.clientY - rect.top;
@@ -1066,6 +1073,7 @@
         offsetX = next.offsetX;
         offsetY = next.offsetY;
         scale = next.scale;
+        allowReactiveFocus = true;
         if (announce) {
             showToast($t("tree.focusedInViewToast"));
         }
@@ -1077,6 +1085,19 @@
     }
 
     let resizeObserver: ResizeObserver | null = null;
+    let hasMounted = false;
+    let lastAppliedBottomInset = bottomInset;
+    let allowReactiveFocus = false;
+    let hasSeenInitialTextSize = false;
+    let hasSeenInitialShowTier = false;
+    let hasSeenInitialShowSkillName = false;
+
+    $: if (hasMounted && bottomInset !== lastAppliedBottomInset) {
+        lastAppliedBottomInset = bottomInset;
+        if (allowReactiveFocus) {
+            focusTreeInView(false);
+        }
+    }
 
     // Set up ResizeObserver when viewportEl is available
     $: if (viewportEl && typeof ResizeObserver !== "undefined") {
@@ -1096,8 +1117,35 @@
     }
 
     onMount(() => {
+        hasMounted = true;
+        lastAppliedBottomInset = bottomInset;
+
         // Re-focus tree whenever zoom mode changes.
         treeZoomScale.setOnChange(() => {
+            focusTreeInView(false);
+        });
+        const unsubscribeTextSize = textSize.subscribe(() => {
+            if (!hasSeenInitialTextSize) {
+                hasSeenInitialTextSize = true;
+                return;
+            }
+            if (!allowReactiveFocus) return;
+            focusTreeInView(false);
+        });
+        const unsubscribeShowTier = showTier.subscribe(() => {
+            if (!hasSeenInitialShowTier) {
+                hasSeenInitialShowTier = true;
+                return;
+            }
+            if (!allowReactiveFocus) return;
+            focusTreeInView(false);
+        });
+        const unsubscribeShowSkillName = showSkillName.subscribe(() => {
+            if (!hasSeenInitialShowSkillName) {
+                hasSeenInitialShowSkillName = true;
+                return;
+            }
+            if (!allowReactiveFocus) return;
             focusTreeInView(false);
         });
         const initializeView = async () => {
@@ -1124,12 +1172,16 @@
         window.addEventListener("resize", handleResize, { passive: true });
 
         return () => {
+            hasMounted = false;
             window.removeEventListener("resize", handleResize);
             if (resizeObserver) {
                 resizeObserver.disconnect();
                 resizeObserver = null;
             }
             treeZoomScale.setOnChange(null);
+            unsubscribeTextSize();
+            unsubscribeShowTier();
+            unsubscribeShowSkillName();
         };
     });
 
@@ -1138,6 +1190,15 @@
     }
 
     $: {
+        void viewportSize.width;
+        void viewportSize.height;
+        void bottomInset;
+        void minScale;
+        void maxScale;
+        void $showSkillName;
+        void $showTier;
+        void $treeZoomScale;
+        void $textSize;
         focusViewState = computeFocusViewState();
         onFocusViewStateChange?.(focusViewState);
     }
