@@ -16,7 +16,7 @@ const TREE_VISIBLE_BOUNDS = {
     // Slightly under actual (703×696); snapdom adds ~1px around the captured area
 };
 
-const CAPTURE_READY_MAX_FRAMES = 12;
+const CAPTURE_READY_MAX_FRAMES = 6;
 const CAPTURE_STABLE_FRAME_COUNT = 2;
 
 function setInlineStyleFromComputed(
@@ -189,6 +189,8 @@ async function waitForPaintFrames(n: number): Promise<void> {
     }
 }
 
+const PRE_CLONE_PAINT_FRAMES = 2;
+
 /** Force reflow then wait for two animation frames (layout then paint) before capture. */
 async function forceReflowAndWaitForPaint(element: HTMLElement): Promise<void> {
     void element.offsetHeight;
@@ -246,6 +248,75 @@ async function waitForStableTreeCanvas(
     return fallback && fallback.isConnected ? fallback : null;
 }
 
+const SNAPDOM_OPTS = {
+    type: "png" as const,
+    backgroundColor: "transparent",
+    outerTransforms: false,
+    outerShadows: false,
+    exclude: [
+        ".tree-context-menu",
+        ".tooltip",
+        ".context-menu",
+        "[role='tooltip']",
+        ".modal",
+        ".overlay",
+    ],
+};
+
+/** Prepares a clone of the live tree in parent (paint wait, clone, styles, reflow). Call captureParentAsBlob(parent) after. */
+async function prepareTreeCloneInParent(
+    element: HTMLElement,
+    parent: HTMLElement,
+): Promise<void> {
+    await waitForPaintFrames(PRE_CLONE_PAINT_FRAMES);
+
+    const clone = element.cloneNode(true) as HTMLElement;
+
+    clone.style.transform = "none";
+    clone.style.transition = "none";
+    clone.style.animation = "none";
+    clone.style.inset = "auto";
+    clone.style.right = "auto";
+    clone.style.bottom = "auto";
+    clone.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
+    clone.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
+    clone.style.pointerEvents = "none";
+    clone.style.overflow = "visible";
+    clone.style.position = "absolute";
+    clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
+    clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
+
+    try {
+        parent.replaceChildren(clone);
+    } catch (_) {
+        try {
+            while (parent.firstChild) parent.removeChild(parent.firstChild);
+        } catch (_) {}
+        parent.appendChild(clone);
+    }
+
+    preserveTreeLinkStrokeStyles(element, clone);
+    preserveNodeVisualStyles(element, clone);
+    normalizeBadgeAnchorScale(clone);
+
+    await forceReflowAndWaitForPaint(clone);
+}
+
+/** Captures parent's contents to PNG blob. Clears parent in finally. */
+async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
+    try {
+        return await snapdom.toBlob(parent, SNAPDOM_OPTS);
+    } finally {
+        try {
+            parent.replaceChildren();
+        } catch (_) {
+            try {
+                while (parent.firstChild) parent.removeChild(parent.firstChild);
+            } catch (_) {}
+        }
+    }
+}
+
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
     parent: HTMLElement,
@@ -256,71 +327,8 @@ async function captureElementAsPng(
     }
 
     try {
-        // Wait for the live tree to be painted before reading styles (avoids whiteish/partial color).
-        await waitForPaintFrames(3);
-
-        // Clone the element
-        const clone = element.cloneNode(true) as HTMLElement;
-
-        // Reset non-default CSS values on clone
-        clone.style.transform = "none";
-        clone.style.transition = "none";
-        clone.style.animation = "none";
-        clone.style.inset = "auto";
-        clone.style.right = "auto";
-        clone.style.bottom = "auto";
-        clone.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
-        clone.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
-        clone.style.pointerEvents = "none";
-        clone.style.overflow = "visible";
-
-        // Offset clone by center node position
-        clone.style.position = "absolute";
-        clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
-        clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
-
-        // Clear any previous contents and append the clone
-        try {
-            parent.replaceChildren(clone);
-        } catch (_) {
-            try {
-                while (parent.firstChild) parent.removeChild(parent.firstChild);
-            } catch (_) { }
-            parent.appendChild(clone);
-        }
-
-        preserveTreeLinkStrokeStyles(element, clone);
-        preserveNodeVisualStyles(element, clone);
-        normalizeBadgeAnchorScale(clone);
-
-        await forceReflowAndWaitForPaint(clone);
-        await waitForAnimationFrame();
-
-        try {
-            return await snapdom.toBlob(parent, {
-                type: "png",
-                backgroundColor: "transparent",
-                outerTransforms: false,
-                outerShadows: false,
-                exclude: [
-                    ".tree-context-menu",
-                    ".tooltip",
-                    ".context-menu",
-                    "[role='tooltip']",
-                    ".modal",
-                    ".overlay",
-                ],
-            });
-        } finally {
-            // remove the clone to avoid memory leaks
-            try {
-                parent.replaceChildren();
-            } catch (_) {
-                try {
-                    if (clone.parentNode === parent) parent.removeChild(clone);
-                } catch (_) { }
-            }
-        }
+        await prepareTreeCloneInParent(element, parent);
+        return await captureParentAsBlob(parent);
     } catch (error) {
         console.error("Failed to capture tree as PNG:", error);
         return null;
@@ -462,21 +470,41 @@ export async function captureTreeImageByIndex(
 
 type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 
+/** Prepare all three tree clones (sequential tab switch + wait), then run the three toBlob calls in parallel. */
 async function captureThreeTreeBlobs(
     bridge: TabsCaptureBridge,
 ): Promise<ThreeTreeBlobs> {
-    const parent = createAndAttachOffscreenParent();
+    const parents = [
+        createAndAttachOffscreenParent(),
+        createAndAttachOffscreenParent(),
+        createAndAttachOffscreenParent(),
+    ];
     const currentIndex = bridge.getActive();
+
     try {
-        const blob0 = await captureTreeImageByIndex(0, bridge, parent);
-        const blob1 = await captureTreeImageByIndex(1, bridge, parent);
-        const blob2 = await captureTreeImageByIndex(2, bridge, parent);
+        for (let i = 0; i < 3; i++) {
+            if (i !== bridge.getActive()) {
+                bridge.setActive(i);
+                await tick();
+            }
+            const element = await waitForStableTreeCanvas(bridge, i);
+            if (!element) continue;
+            await prepareTreeCloneInParent(element, parents[i]);
+        }
+
+        const [blob0, blob1, blob2] = await Promise.all([
+            captureParentAsBlob(parents[0]),
+            captureParentAsBlob(parents[1]),
+            captureParentAsBlob(parents[2]),
+        ]);
         return [blob0, blob1, blob2];
     } finally {
         bridge.setActive(currentIndex);
-        try {
-            document.body.removeChild(parent);
-        } catch (_) {}
+        for (const parent of parents) {
+            try {
+                document.body.removeChild(parent);
+            } catch (_) {}
+        }
     }
 }
 
