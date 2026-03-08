@@ -430,6 +430,8 @@
 
         async function runInitialization() {
             await initializeFromUrl();
+            await tick();
+            tabsRef?.focusActiveTreeInView?.(false);
 
             // New-version controls behavior is tied to initial load, not history navigation
             if (shouldShowControls && !hasRunVersionCheck) {

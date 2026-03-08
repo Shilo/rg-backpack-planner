@@ -261,11 +261,46 @@ function preserveNodeVisualStyles(original: HTMLElement, clone: HTMLElement) {
 }
 
 function normalizeBadgeAnchorScale(root: HTMLElement) {
-    root.querySelectorAll<HTMLElement>(
-        ".node-badge-anchor, .node-tier-badge-anchor",
-    ).forEach((anchor) => {
-        anchor.style.transform = "scale(1)";
+    // Node.svelte uses .node-badge-icon-stack + --node-badge-scale.
+    root.querySelectorAll<HTMLElement>(".node-badge-icon-stack").forEach(
+        (stack) => {
+            stack.style.setProperty("--node-badge-scale", "1");
+            stack.style.transform = "none";
+        },
+    );
+}
+
+/** NodeFlash animation can be frozen by capture animation disabling and appear as artifacts. */
+function removeTransientNodeFlashOverlays(clone: HTMLElement) {
+    clone.querySelectorAll<HTMLElement>(".node-flash").forEach((el) => {
+        try {
+            el.remove();
+        } catch (_) {
+            const parent = el.parentElement;
+            if (parent) {
+                try {
+                    parent.removeChild(el);
+                } catch (_) {}
+            }
+        }
     });
+}
+
+/**
+ * SnapDOM materializes pseudo-elements as child spans.
+ * Hide native pseudo-elements when those spans exist to avoid duplicate/offset artifacts.
+ */
+function addSnapdomPseudoElementGuardStyle(clone: HTMLElement) {
+    const style = document.createElement("style");
+    style.setAttribute("data-snapdom-pseudo-guard", "true");
+    style.textContent = `
+*:has(> span[data-snapdom-pseudo="::before"])::before,
+*:has(> span[data-snapdom-pseudo="::after"])::after {
+    content: none !important;
+    display: none !important;
+}
+`;
+    clone.appendChild(style);
 }
 
 /** Ensure node wrappers and badge stack never clip badges that sit outside the circle. */
@@ -362,6 +397,7 @@ async function waitForStableTreeCanvas(
 const SNAPDOM_OPTS = {
     type: "png" as const,
     backgroundColor: "transparent",
+    cache: "disabled" as const,
     outerTransforms: false,
     outerShadows: false,
     exclude: [
@@ -409,6 +445,8 @@ async function prepareTreeCloneInParent(
     preserveTreeLinkStrokeStyles(element, clone);
     preserveNodeVisualStyles(element, clone);
     normalizeBadgeAnchorScale(clone);
+    removeTransientNodeFlashOverlays(clone);
+    addSnapdomPseudoElementGuardStyle(clone);
     ensureBadgesNotClipped(clone);
 
     await forceReflowAndWaitForPaint(clone);

@@ -4,6 +4,7 @@ import {
     getTreeWorldBounds,
     TREE_BADGE_VERTICAL_OVERFLOW_PX,
     TREE_BASE_VIEWPORT_PADDING_PX,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
 } from "../src/lib/treeLayout.ts";
 
 function almostEqual(actual: number, expected: number, epsilon = 1e-6): void {
@@ -18,6 +19,49 @@ assert.strictEqual(padding.horizontal, TREE_BASE_VIEWPORT_PADDING_PX);
 assert.strictEqual(
     padding.vertical,
     TREE_BASE_VIEWPORT_PADDING_PX + TREE_BADGE_VERTICAL_OVERFLOW_PX,
+);
+assert.strictEqual(padding.top, padding.vertical);
+assert.strictEqual(padding.bottom, padding.vertical);
+
+const noBadgePadding = getTreeViewportPadding({
+    showSkillName: false,
+    showTier: false,
+    hasLeveledNodes: false,
+});
+assert.strictEqual(
+    noBadgePadding.horizontal,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+);
+assert.strictEqual(
+    noBadgePadding.vertical,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+);
+assert.strictEqual(noBadgePadding.top, TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX);
+assert.strictEqual(
+    noBadgePadding.bottom,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+);
+
+const tierBadgePadding = getTreeViewportPadding({
+    showSkillName: true,
+    showTier: true,
+    hasLeveledNodes: true,
+});
+assert.strictEqual(
+    tierBadgePadding.top,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+);
+assert.strictEqual(
+    tierBadgePadding.bottom,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+);
+assert.strictEqual(
+    tierBadgePadding.vertical,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+);
+assert.strictEqual(
+    tierBadgePadding.horizontal,
+    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
 );
 
 const singleNodeBounds = getTreeWorldBounds([{ x: 0, y: 0, radius: 1 }]);
@@ -46,3 +90,51 @@ assert.strictEqual(
     null,
     "Expected empty-node bounds to be null",
 );
+
+const dynamicNode = {
+    x: 0,
+    y: 0,
+    radius: 0.8,
+    level: 10,
+    maxLevel: 50,
+    skillId: "global_def",
+};
+
+const allBadgesBounds = getTreeWorldBounds([dynamicNode], {
+    showSkillName: true,
+    showTier: true,
+});
+const nameHiddenBounds = getTreeWorldBounds([dynamicNode], {
+    showSkillName: false,
+    showTier: true,
+});
+const tierHiddenBounds = getTreeWorldBounds([dynamicNode], {
+    showSkillName: true,
+    showTier: false,
+});
+const noLevelBadgeBounds = getTreeWorldBounds(
+    [{ ...dynamicNode, level: 0 }],
+    {
+        showSkillName: true,
+        showTier: true,
+    },
+);
+
+assert.ok(allBadgesBounds, "Expected bounds with all badges");
+assert.ok(nameHiddenBounds, "Expected bounds when skill name is hidden");
+assert.ok(tierHiddenBounds, "Expected bounds when tier row is hidden");
+assert.ok(noLevelBadgeBounds, "Expected bounds when level badge is hidden");
+
+assert.ok(
+    allBadgesBounds.minY < nameHiddenBounds.minY,
+    "Expected top bound to extend further when skill names are shown.",
+);
+assert.ok(
+    allBadgesBounds.maxY > tierHiddenBounds.maxY,
+    "Expected bottom bound to extend further when tier stars are shown.",
+);
+assert.ok(
+    noLevelBadgeBounds.maxY < tierHiddenBounds.maxY,
+    "Expected bottom bound to shrink when level is zero (no level badge).",
+);
+almostEqual(noLevelBadgeBounds.maxY, dynamicNode.y + 0.8 * 32);

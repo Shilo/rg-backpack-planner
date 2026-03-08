@@ -92,16 +92,19 @@
             return { minScale: 0.1, maxScale: 2.2 };
         }
 
-        const bounds = getTreeWorldBounds(nodes);
+        const bounds = getWorldBounds();
         if (!bounds) {
             return { minScale: 0.1, maxScale: 2.2 };
         }
 
         const rect = viewportEl.getBoundingClientRect();
-        const padding = getTreeViewportPadding();
+        const padding = getTreeViewportPadding({
+            showSkillName: $showSkillName,
+            showTier: $showTier,
+        });
         const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
         const availableH = Math.max(
-            rect.height - bottomInset - padding.vertical * 2,
+            rect.height - bottomInset - padding.top - padding.bottom,
             1,
         );
 
@@ -948,18 +951,21 @@
         // Ensure viewport has valid dimensions
         if (rect.width <= 0 || rect.height <= 0) return null;
         // Include node radius plus badge overhang in world bounds.
-        const bounds = getTreeWorldBounds(nodes);
+        const bounds = getWorldBounds();
         if (!bounds) return null;
-        const { minX, maxX, minY, maxY, width, height } = bounds;
+        const { minX, minY, width, height } = bounds;
 
-        const padding = getTreeViewportPadding();
+        const padding = getTreeViewportPadding({
+            showSkillName: $showSkillName,
+            showTier: $showTier,
+        });
         const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
         const availableH = Math.max(
-            rect.height - bottomInset - padding.vertical * 2,
+            rect.height - bottomInset - padding.top - padding.bottom,
             1,
         );
         const paddedCenterX = padding.horizontal + availableW / 2;
-        const paddedCenterY = padding.vertical + availableH / 2;
+        const paddedCenterY = padding.top + availableH / 2;
         // Calculate scale needed to fit all nodes in viewport (100% base)
         const fitScale = Math.min(availableW / width, availableH / height);
         const isCloseUpZoom = $treeZoomScale === TreeZoomLevel.CloseUp;
@@ -976,7 +982,18 @@
     }
 
     function getWorldBounds() {
-        return getTreeWorldBounds(nodes);
+        const layoutNodes = nodes.map((node) => ({
+            x: node.x,
+            y: node.y,
+            radius: node.radius,
+            maxLevel: node.maxLevel,
+            skillId: node.skillId,
+        }));
+
+        return getTreeWorldBounds(layoutNodes, {
+            showSkillName: $showSkillName,
+            showTier: $showTier,
+        });
     }
 
     function clampOffsets(
