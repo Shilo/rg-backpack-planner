@@ -83,6 +83,8 @@
             background var(--ease),
             z-index var(--ease);
         pointer-events: auto;
+        container-type: inline-size;
+        container-name: tab-bar-tab;
     }
 
     :global(.tab-bar__tab-icon) {
@@ -100,6 +102,18 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;
+    }
+
+    @container tab-bar-tab (max-width: calc(100px / var(--text-scale, 1))) {
+        .tab-bar__tab-label {
+            font-size: var(--font-xs);
+        }
+    }
+
+    @container tab-bar-tab (max-width: calc(75px / var(--text-scale, 1))) {
+        .tab-bar__tab-label {
+            font-size: var(--font-xxs);
+        }
     }
 
     .tab-bar__tab-button:not(:first-child) {

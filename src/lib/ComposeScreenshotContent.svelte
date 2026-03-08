@@ -264,16 +264,4 @@
     :global(.fullscreen-modal .tab-bar) {
         --tab-bar-font-size: var(--font-sm);
     }
-
-    @media (max-width: 400px) {
-        :global(.fullscreen-modal .tab-bar) {
-            --tab-bar-font-size: var(--font-xs);
-        }
-    }
-
-    @media (max-width: 360px) {
-        :global(.fullscreen-modal .tab-bar) {
-            --tab-bar-font-size: var(--font-xxs);
-        }
-    }
 </style>

@@ -69,11 +69,15 @@ function setTextSizeNotch(notch: number) {
 function applyTextSizeToDocument(notch: number): void {
     if (typeof document === "undefined") return;
     const scale = getTextSizeScale(notch);
-    document.documentElement.style.fontSize = `${BASE_FONT_SIZE_PX * scale}px`;
+    const root = document.documentElement;
+    root.style.fontSize = `${BASE_FONT_SIZE_PX * scale}px`;
+    root.style.setProperty("--text-scale", String(scale));
 }
 
 function createTextSizeStore() {
-    const { subscribe, set } = writable(getTextSizeNotch());
+    const initialNotch = getTextSizeNotch();
+    applyTextSizeToDocument(initialNotch);
+    const { subscribe, set } = writable(initialNotch);
 
     subscribe(applyTextSizeToDocument);
 

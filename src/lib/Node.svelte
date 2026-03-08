@@ -97,46 +97,48 @@
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
-    {#if nodeIcon}
-        <span class="node-icon-layer" aria-hidden="true">
-            <svelte:component
-                this={nodeIcon}
-                class="node-icon"
-                aria-hidden={true}
-            />
+    <div
+        class="node-badge-icon-stack"
+        style="--node-badge-scale: {Math.max(1 / scale, 1)}"
+    >
+        <span class="node-badge-slot node-badge-slot-name">
+            {#if showSkillName && (badgeLabel || skillId)}
+                <span class="node-badge" data-node-id={String(id)}
+                    >{badgeLabel || skillId}</span
+                >
+            {/if}
         </span>
-    {/if}
-    {#if showSkillName && (badgeLabel || skillId)}
-        <span
-            class="node-name-badge-anchor"
-            data-node-id={String(id)}
-            style="--node-badge-scale: {Math.max(1 / scale, 1)}"
-        >
-            <span class="node-badge">{badgeLabel || skillId}</span>
+        <span class="node-icon-container" aria-hidden="true">
+            {#if nodeIcon}
+                <svelte:component
+                    this={nodeIcon}
+                    class="node-icon"
+                    aria-hidden={true}
+                />
+            {/if}
         </span>
-    {/if}
-    {#if level > 0}
-        <span
-            class="node-level-badge-anchor"
-            data-node-id={String(id)}
-            style="--node-badge-scale: {Math.max(1 / scale, 1)}"
-        >
-            <span class="node-badge node-level-badge">
-                {#if isMaxed}
-                    <CrownIcon
-                        class="node-level-badge-max"
-                        weight="fill"
-                        aria-label="max"
-                    />
-                {:else}
-                    {#if showTier}
-                        <span>{"★".repeat(tier)}</span>
+        <span class="node-badge-slot node-badge-slot-level">
+            {#if level > 0}
+                <span
+                    class="node-badge node-level-badge"
+                    data-node-id={String(id)}
+                >
+                    {#if isMaxed}
+                        <CrownIcon
+                            class="node-level-badge-max"
+                            weight="fill"
+                            aria-label="max"
+                        />
+                    {:else}
+                        {#if showTier}
+                            <span>{"★".repeat(tier)}</span>
+                        {/if}
+                        <span>{formatNumber(level)}</span>
                     {/if}
-                    <span>{formatNumber(level)}</span>
-                {/if}
-            </span>
+                </span>
+            {/if}
         </span>
-    {/if}
+    </div>
 </div>
 
 <style>
@@ -144,17 +146,13 @@
         --node-badge-max-width: 128px;
         --z-index-badge: 4;
         --border-width: 2px;
-        --badge-offset-base: 7px;
-        --badge-offset: calc(
-            (var(--border-width) + var(--radius-sm) + var(--badge-offset-base)) *
-                var(--icon-scale)
-        );
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
         /* Contrast text: soft black/white so badge text is readable and not blinding */
         --badge-text-on-light: #1c1c1c;
         --badge-text-on-dark: #f2f2f2;
+        --hex-border-width: 3px;
         /* Hexagon from FinalDamageBoost.svelte path (viewBox 365×316, flat top/bottom) */
         --hex-clip: polygon(
             12.4932% 71.6438%,
@@ -209,29 +207,26 @@
         --node-icon-color: var(--border-color-maxed);
     }
 
-    /* Name badge: background per state; text color is contrast-based (see .node-badge) */
-    .node-wrapper.locked .node-name-badge-anchor .node-badge {
+    /* Name badge: background per state; text color is contrast-based (see 
+    .node-badge) */
+    .node-wrapper.locked .node-badge-slot-name .node-badge {
         --badge-bg: var(--border-color-locked);
         background: var(--badge-bg);
     }
-    .node-wrapper.available .node-name-badge-anchor .node-badge {
+    .node-wrapper.available .node-badge-slot-name .node-badge {
         --badge-bg: var(--border-color);
         background: var(--badge-bg);
     }
-    .node-wrapper.active .node-name-badge-anchor .node-badge {
+    .node-wrapper.active .node-badge-slot-name .node-badge {
         --badge-bg: var(--border-color-active);
         background: var(--badge-bg);
     }
-    .node-wrapper.maxed .node-name-badge-anchor .node-badge {
+    .node-wrapper.maxed .node-badge-slot-name .node-badge {
         --badge-bg: var(--border-color-maxed);
         background: var(--badge-bg);
     }
 
     .node-wrapper.node-wrapper-important {
-        --badge-offset: calc(
-            (var(--border-width) + var(--radius-sm) + var(--badge-offset-base)) *
-                var(--icon-scale) * 0.6
-        );
         --node-icon-size: var(--node-important-icon-size);
     }
 
@@ -354,10 +349,6 @@
         pointer-events: none;
     }
 
-    .node-wrapper :global(.button.node.node-hexagon .node-icon) {
-        z-index: 1;
-    }
-
     .node-wrapper :global(.button.node.with-icon) {
         display: grid;
         justify-content: center;
@@ -372,36 +363,69 @@
         outline-offset: 0;
     }
 
-    /* Icon layer: below badges; scales on press */
-    .node-icon-layer {
+    /* Order: name badge → icon → level badge. Icon centered in node; badges aligned to icon edges. */
+    .node-badge-icon-stack {
         position: absolute;
         inset: 0;
-        overflow: hidden;
-        border-radius: var(--radius-full);
-        z-index: 2;
+        --badge-icon-gap: 2px;
+        z-index: var(--z-index-badge);
         pointer-events: none;
+    }
+
+    .node-badge-slot {
+        pointer-events: auto;
+        position: absolute;
+        left: 50%;
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+        touch-action: none;
+        z-index: var(--z-index-badge);
+    }
+
+    /* Name: slot bottom = top of icon (minus gap); badge sits above, bottom of badge aligns with top of icon */
+    .node-badge-slot-name {
+        bottom: calc(50% + (var(--node-icon-size) / 2) + var(--badge-icon-gap));
+        transform: translateX(-50%);
+        align-items: flex-end;
+    }
+
+    /* Level: slot top = bottom of icon (plus gap); badge sits below, top of badge aligns with bottom of icon */
+    .node-badge-slot-level {
+        top: calc(50% + (var(--node-icon-size) / 2) + var(--badge-icon-gap));
+        transform: translateX(-50%);
+        align-items: flex-start;
+    }
+
+    /* Icon container: center is always the node center (origin) */
+    .node-icon-container {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: var(--node-icon-size);
+        height: var(--node-icon-size);
+        transform: translate(-50%, -50%);
         display: flex;
         align-items: center;
         justify-content: center;
         transition: transform var(--ease);
+        z-index: 0;
     }
 
-    .node-wrapper:active .node-icon-layer {
-        transform: scale(0.96);
+    .node-wrapper:active .node-icon-container {
+        transform: translate(-50%, -50%) scale(0.96);
     }
 
-    .node-wrapper-hex .node-icon-layer {
+    .node-wrapper-hex .node-icon-container {
         border-radius: 0;
         clip-path: var(--hex-clip);
     }
 
     .node-wrapper :global(.node-icon) {
-        width: var(--node-icon-size);
-        height: var(--node-icon-size);
+        width: 100%;
+        height: 100%;
         display: block;
         color: var(--node-icon-color, currentColor);
-        opacity: 0.9;
-        background: var(--surface);
     }
 
     .node-wrapper :global(.button.node .button-text) {
@@ -409,54 +433,9 @@
         display: contents;
     }
 
-    .node-name-badge-anchor,
-    .node-level-badge-anchor {
-        position: absolute;
-        left: 50%;
-        width: 0;
-        height: 0;
-        z-index: var(--z-index-badge);
-        cursor: pointer;
-        touch-action: none;
-    }
-
-    /* Name/title badge (top) only: raise z-index so it stacks above level badge */
-    .node-name-badge-anchor {
-        top: 0;
-    }
-
-    .node-level-badge-anchor {
-        bottom: 0;
-        z-index: calc(var(--z-index-badge) + 1);
-    }
-
-    .node-wrapper-hex .node-name-badge-anchor {
-        top: 6.71%;
-    }
-
-    .node-wrapper-hex .node-level-badge-anchor {
-        bottom: 6.71%;
-    }
-
-    /* Name badge: bottom of badge aligned with top of node; --badge-offset = gap above node */
-    .node-name-badge-anchor .node-badge {
-        transform-origin: 50% 100%;
-        transform: translate(-50%, calc(-100% + var(--badge-offset)))
-            scale(var(--node-badge-scale, 1));
-    }
-
-    /* Level badge: top of badge aligned with bottom of node; --badge-offset = gap below node */
-    .node-level-badge-anchor .node-badge {
-        transform-origin: 50% 0%;
-        transform: translate(-50%, calc(-1 * var(--badge-offset)))
-            scale(var(--node-badge-scale, 1));
-    }
-
     .node-badge {
         --badge-bg: var(--region-blue-accent);
-        position: absolute;
-        left: 0;
-        top: 0;
+        transform: scale(var(--node-badge-scale, 1));
         width: max-content;
         max-width: var(--node-badge-max-width);
         overflow: hidden;
@@ -527,23 +506,14 @@
             filter: var(--brightness-hover);
         }
 
-        .node-wrapper:hover .node-icon-layer {
+        .node-wrapper:hover .node-icon-container {
             filter: var(--brightness-hover);
         }
     }
 
-    .node-wrapper:active .node-name-badge-anchor .node-badge {
+    .node-wrapper:active .node-badge {
         filter: var(--brightness-hover);
-        transform-origin: 50% 100%;
-        transform: translate(-50%, calc(-100% - var(--badge-offset)))
-            scale(calc(var(--node-badge-scale, 1) * 0.9));
-    }
-
-    .node-wrapper:active .node-level-badge-anchor .node-badge {
-        filter: var(--brightness-hover);
-        transform-origin: 50% 0%;
-        transform: translate(-50%, calc(-1 * var(--badge-offset)))
-            scale(calc(var(--node-badge-scale, 1) * 0.9));
+        transform: scale(calc(var(--node-badge-scale, 1) * 0.9));
     }
 
     .node-wrapper:active :global(.button.node:not(:disabled)) {

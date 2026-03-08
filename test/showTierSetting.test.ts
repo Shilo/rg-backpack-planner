@@ -94,8 +94,8 @@ if (!/isMaxed/.test(nodeSource)) {
     throw new Error("Node should branch on isMaxed so tier is hidden when maxed.");
 }
 
-if (!/class="node-level-badge-anchor"/.test(nodeSource)) {
-    throw new Error("Node should render a level badge anchor (tier/level).");
+if (!/node-badge-slot-level/.test(nodeSource)) {
+    throw new Error("Node should render a level badge slot (tier/level).");
 }
 
 if (!/\{#if showTier\}[\s\S]*?tier/.test(nodeSource)) {

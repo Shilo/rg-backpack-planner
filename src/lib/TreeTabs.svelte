@@ -562,23 +562,29 @@
         gap: var(--spacing-md);
         min-width: 0;
         overflow: hidden;
+        container-type: inline-size;
+        container-name: tab;
     }
 
     :global(.tab-buttons button .button-text) {
         display: contents;
     }
 
-    @media (max-width: 400px) {
+    @container tab (max-width: calc(130px / var(--text-scale, 1))) {
+        :global(.tab-buttons button .tab-label) {
+            font-size: var(--font-xs) !important;
+        }
         :global(.tab-buttons button) {
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
-            font-size: var(--font-xs) !important;
         }
     }
 
-    @media (max-width: 360px) {
-        :global(.tab-buttons button) {
+    @container tab (max-width: calc(95px / var(--text-scale, 1))) {
+        :global(.tab-buttons button .tab-label) {
             font-size: var(--font-xxs) !important;
+        }
+        :global(.tab-buttons button) {
             letter-spacing: 0.02em;
         }
     }

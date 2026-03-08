@@ -181,7 +181,7 @@ async function readYellowBranchState(page: Page): Promise<UiBranchState> {
         }
 
         const levelBadge = page.locator(
-            `.node-badge-anchor[data-node-id="${index}"] .node-badge`,
+            `.node-level-badge[data-node-id="${index}"]`,
         );
         let level = 0;
         if ((await levelBadge.count()) > 0) {
@@ -212,7 +212,7 @@ async function waitForRenderedYellowBranch(
         }) => {
             return levels.every((expectedLevel, index) => {
                 const badge = document.querySelector(
-                    `.node-badge-anchor[data-node-id="${index}"] .node-badge`,
+                    `.node-level-badge[data-node-id="${index}"]`,
                 );
                 if (!badge) {
                     return expectedLevel === 0;
