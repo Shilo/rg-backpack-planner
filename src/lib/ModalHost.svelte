@@ -4,6 +4,7 @@
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
+    import ImportPresetsModal from "./modals/ImportPresetsModal.svelte";
     import { get } from "svelte/store";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./hapticsStore";
@@ -243,6 +244,18 @@
                     cancelLabel={$modalStore.cancelLabel ??
                         $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
+                    onCancel={handleCancel}
+                />
+            {:else if $modalStore.type === "importPresets"}
+                <ImportPresetsModal
+                    title={$modalStore.title}
+                    titleIcon={$modalStore.titleIcon ?? null}
+                    titleIconClass={$modalStore.titleIconClass ?? ""}
+                    titleIconWeight={$modalStore.titleIconWeight}
+                    message={$modalStore.message}
+                    cancelLabel={$modalStore.cancelLabel ??
+                        $t("modal.cancelLabel")}
+                    onImported={() => handleConfirm()}
                     onCancel={handleCancel}
                 />
             {/if}

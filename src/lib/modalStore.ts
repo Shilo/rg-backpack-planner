@@ -2,7 +2,7 @@ import type { Component } from "svelte";
 import type { IconWeight } from "phosphor-svelte";
 import { writable } from "svelte/store";
 
-export type ModalType = "confirm" | "input" | "textInput" | "loadBuild";
+export type ModalType = "confirm" | "input" | "textInput" | "loadBuild" | "importPresets";
 
 export type ModalInputConfig = {
     label: string;

@@ -28,6 +28,7 @@ const TEST_FILES = [
 
     // 4. Features (Presets & Sharing)
     "buildPresets.test.ts",
+    "deviceSync.test.ts",
     "shareUrl.test.ts",
     "shareBuild.lazy.test.ts",
 

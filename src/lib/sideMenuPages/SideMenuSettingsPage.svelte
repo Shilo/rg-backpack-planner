@@ -10,6 +10,9 @@
         TrashSimpleIcon,
         EyeIcon,
         GraphIcon,
+        ExportIcon,
+        DownloadSimpleIcon,
+        UploadSimpleIcon,
     } from "phosphor-svelte";
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
@@ -54,6 +57,11 @@
     import { textSize } from "../textSizeStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
+    import {
+        exportPresetsToClipboard,
+        exportPresetsToFile,
+        sharePresetsNative,
+    } from "../deviceSync";
     import type { TreeViewState } from "../Tree.svelte";
     import { treeLevels } from "../treeLevelsStore";
     import { onMount } from "svelte";
@@ -246,6 +254,40 @@
         });
     }
 
+    async function handleExportPresets() {
+        triggerHaptic();
+        const result = await sharePresetsNative();
+        if (result === "shared") {
+            showToast($t("deviceSync.exportedToast"));
+        } else if (result === "copied") {
+            showToast($t("deviceSync.copiedToast"));
+        } else if (result === "cancelled") {
+            // User dismissed share dialog
+        } else {
+            showToast($t("deviceSync.exportFailedToast"), { tone: "negative" });
+        }
+    }
+
+    function handleDownloadPresets() {
+        triggerHaptic();
+        exportPresetsToFile();
+        showToast($t("deviceSync.downloadedToast"));
+    }
+
+    function handleImportPresets() {
+        triggerHaptic();
+        openModal({
+            type: "importPresets",
+            title: $t("deviceSync.importModalTitle"),
+            titleIcon: UploadSimpleIcon as unknown as Component,
+            message: $t("deviceSync.importModalMessage"),
+            cancelLabel: $t("common.cancel"),
+            onConfirm: () => {
+                onClose?.();
+            },
+        });
+    }
+
     function handlePreviewDropdownClick() {
         if (!previewButtonElement) return;
         const rect = previewButtonElement.getBoundingClientRect();
@@ -281,6 +323,35 @@
             {$t("settings.previewButton")}
         </Button>
     </div>
+</SideMenuSection>
+
+<SideMenuSection title={$t("sideMenu.sections.deviceSync")}>
+    <div class="button-group sync-row">
+        <Button
+            on:click={handleExportPresets}
+            tooltipText={$t("deviceSync.exportTooltip")}
+            icon={ExportIcon}
+            disabled={$isPreviewMode}
+        >
+            {$t("deviceSync.exportButton")}
+        </Button>
+        <Button
+            class="dropdown-button"
+            on:click={handleDownloadPresets}
+            tooltipText={$t("deviceSync.downloadTooltip")}
+            icon={DownloadSimpleIcon}
+            disabled={$isPreviewMode}
+        />
+    </div>
+    <Button
+        on:click={handleImportPresets}
+        tooltipText={$t("deviceSync.importTooltip")}
+        icon={UploadSimpleIcon}
+        arrow="right"
+        disabled={$isPreviewMode}
+    >
+        {$t("deviceSync.importButton")}
+    </Button>
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.node")}>
@@ -447,6 +518,18 @@
             .side-menu-section .button-group
         ) {
         min-width: 0;
+    }
+
+    .sync-row :global(.button) {
+        flex: 1 1 auto;
+    }
+
+    .sync-row > :global(:first-child) {
+        border-right: none;
+    }
+
+    .sync-row > :global(.dropdown-button) {
+        border-left: var(--border-width) solid var(--border);
     }
 
     .build-share-row :global(.button) {
