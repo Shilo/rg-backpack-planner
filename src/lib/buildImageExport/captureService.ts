@@ -1,8 +1,97 @@
 /**
- * Tree screenshot capture: wait for stable + painted live tree, clone into
- * offscreen parent, inline computed styles (avoids whiteish/partial color),
- * then snapdom.toBlob. Three-tree capture prepares all clones sequentially
- * then runs the three toBlob calls in parallel for speed.
+ * Tree screenshot capture for export/share. Clones the live tree canvas into
+ * an offscreen parent, inlines computed styles, then uses snapdom.toBlob.
+ * Three-tree capture prepares all clones sequentially then runs the three
+ * toBlob calls in parallel.
+ *
+ * --- PROBLEMS (why capture glitches without the fixes below) ---
+ *
+ * 1. Capturing before tree is ready: tab switch remounts Tree; DOM can be
+ *    incomplete or mid-paint so we get partial/missing nodes or wrong layout.
+ *
+ * 2. Reading getComputedStyle too early: if we clone and read styles as soon
+ *    as the tree is "stable" (same signature 2 frames), the live tree may not
+ *    have painted yet → we bake initial/transparent colors into the clone →
+ *    nodes look whiteish or partially colored.
+ *
+ * 3. Clone depends on stylesheet cascade: node colors come from CSS variables
+ *    (--hex-fill, --bg-available, etc.). If snapdom's pipeline loses full
+ *    stylesheet context, those variables resolve to initial/transparent →
+ *    whiteish nodes.
+ *
+ * 4. Snapdom can miss CSS for SVG: tree links (.tree-link) use cascade for
+ *    stroke/filter; in the clone/snapdom path they can render wrong or missing.
+ *
+ * 5. Badge anchor scale vs live zoom: badge position uses transform scale; if
+ *    we don't normalize to scale(1) on the clone, badges can be mispositioned.
+ *
+ * 6. Clone positioning conflict: .tree-canvas uses inset positioning; if we
+ *    don't reset clone inset/right/bottom to auto and set explicit left/top,
+ *    we get stretch/cropping drift across browsers.
+ *
+ * 7. Offscreen parent background: must be explicitly transparent for mobile
+ *    parity (some browsers treat unset background differently).
+ *
+ * 8. Combined PNG transparency: canvas must use getContext("2d", { alpha: true })
+ *    so the stitched image preserves transparency.
+ *
+ * 9. Name badges clipped: badges sit outside the node circle (sibling of
+ *    .button.node). During capture the wrapper/badge-stack can be treated as
+ *    a clipping region so badge text is cut off by the circle.
+ *
+ * 10. Unprepared parent: if waitForStableTreeCanvas returns null for a tab,
+ *     we must not run toBlob on that parent (it's empty) or we get a blank
+ *     blob; we track prepared[i] and return null for that slot instead.
+ *
+ * 11. Speed: three sequential toBlob calls (one per tree) were slow; we now
+ *     prepare all three clones then run the three toBlob calls in parallel.
+ *
+ * 12. Transitions/animations during capture: can cause wrong or partial frames;
+ *     we add class "snapdom-capture" to html (see app.css) to disable them.
+ *
+ * --- FIXES (where they live in this file) ---
+ *
+ * - waitForStableTreeCanvas: wait until canvas exists, correct tab active,
+ *   at least one .button.node, and signature (transform + node/link counts)
+ *   unchanged for 2 consecutive frames; max 6 iterations. Avoids (1).
+ *
+ * - waitForPaintFrames(2) before cloning (PRE_CLONE_PAINT_FRAMES): so we read
+ *   getComputedStyle after the live tree has painted. Avoids (2).
+ *
+ * - preserveNodeVisualStyles: copy computed colors and all color-driving CSS
+ *   variables from original to clone (wrappers, .button.node, .node-badge).
+ *   Avoids (3).
+ *
+ * - preserveTreeLinkStrokeStyles: copy stroke/strokeOpacity/strokeWidth/filter
+ *   from each .tree-link to clone. Avoids (4).
+ *
+ * - normalizeBadgeAnchorScale: set transform scale(1) on badge anchors in
+ *   clone. Avoids (5).
+ *
+ * - Clone style reset in prepareTreeCloneInParent: transform/transition/
+ *   animation none; inset/right/bottom auto; explicit width/height; overflow
+ *   visible; position absolute with left/top. Avoids (6).
+ *
+ * - createAndAttachOffscreenParent: overflow visible, backgroundColor
+ *   "transparent", isolation isolate. Avoids (7).
+ *
+ * - combineTreeImagesHorizontally: getContext("2d", { alpha: true }).
+ *   Avoids (8).
+ *
+ * - ensureBadgesNotClipped: set overflow "visible" on .node-wrapper and
+ *   .node-badge-icon-stack in clone so badges above the circle aren't clipped.
+ *   Avoids (9).
+ *
+ * - captureThreeTreeBlobs: prepared[i] only set after successful prepare;
+ *   only call captureParentAsBlob(parent) when prepared[i]; otherwise resolve
+ *   null. Avoids (10).
+ *
+ * - captureThreeTreeBlobs: prepare all three clones in a loop (tab switch +
+ *   wait + prepare per tab), then Promise.all([captureParentAsBlob(p0), ...]).
+ *   Avoids (11).
+ *
+ * - withCaptureState: increment capture count, add "snapdom-capture" to
+ *   documentElement on first entry, remove on last exit. Avoids (12).
  */
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
@@ -179,6 +268,18 @@ function normalizeBadgeAnchorScale(root: HTMLElement) {
     });
 }
 
+/** Ensure node wrappers and badge stack never clip badges that sit outside the circle. */
+function ensureBadgesNotClipped(clone: HTMLElement) {
+    clone.querySelectorAll<HTMLElement>(".node-wrapper").forEach((el) => {
+        el.style.overflow = "visible";
+    });
+    clone.querySelectorAll<HTMLElement>(".node-badge-icon-stack").forEach(
+        (el) => {
+            el.style.overflow = "visible";
+        },
+    );
+}
+
 function waitForAnimationFrame(): Promise<void> {
     if (
         typeof window === "undefined" ||
@@ -308,6 +409,7 @@ async function prepareTreeCloneInParent(
     preserveTreeLinkStrokeStyles(element, clone);
     preserveNodeVisualStyles(element, clone);
     normalizeBadgeAnchorScale(clone);
+    ensureBadgesNotClipped(clone);
 
     await forceReflowAndWaitForPaint(clone);
 }
