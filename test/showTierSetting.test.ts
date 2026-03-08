@@ -10,8 +10,8 @@ try {
     throw new Error("showTierStore.ts should exist for the show tier setting.");
 }
 
-if (!/DEFAULT_SHOW_TIER\s*=\s*true/.test(showTierStoreSource)) {
-    throw new Error("showTierStore default should be true.");
+if (!/DEFAULT_SHOW_TIER\s*=\s*false/.test(showTierStoreSource)) {
+    throw new Error("showTierStore default should be false.");
 }
 
 if (!/getItem\("show-tier"\)/.test(showTierStoreSource)) {
