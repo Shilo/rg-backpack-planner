@@ -3,12 +3,15 @@
     import { HexagonIcon } from "phosphor-svelte";
     import { tooltipStore } from "./tooltip";
     import { portal } from "./portal";
+    import { textSize } from "./textSizeStore";
 
     let tooltipEl: HTMLDivElement | null = null;
     let boundedX = 0;
     let boundedY = 0;
 
     const TOOLTIP_MARGIN = 8;
+    /** Max tooltip size as % of viewport (width and height); prevents tooltip from ever exceeding this. */
+    const TOOLTIP_MAX_VIEWPORT_PERCENT = 85;
     /** Minimum distance from touch point to tooltip edge so the finger doesn't cover text */
     const FINGER_AVOID_OFFSET = 52;
     const HOVER_OFFSET = 12;
@@ -133,8 +136,11 @@
     $: if ($tooltipStore.isOpen) {
         $tooltipStore.x;
         $tooltipStore.y;
+        $textSize;
         tick().then(updateBounds);
     }
+
+    $: tooltipMaxViewport = TOOLTIP_MAX_VIEWPORT_PERCENT;
 </script>
 
 {#if $tooltipStore.isOpen}
@@ -144,7 +150,7 @@
             <div
                 class="tooltip"
                 bind:this={tooltipEl}
-                style={`left: ${boundedX}px; top: ${boundedY}px;`}
+                style="--tooltip-max-vw: {tooltipMaxViewport}; --tooltip-max-vh: {tooltipMaxViewport}; left: {boundedX}px; top: {boundedY}px;"
                 aria-hidden="true"
             >
                 {#if $tooltipStore.costLine != null}
