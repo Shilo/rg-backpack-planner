@@ -37,7 +37,7 @@
                 {#if tab.icon}
                     <svelte:component
                         this={tab.icon}
-                        class="tab-bar__tab-icon"
+                        class={`tab-bar__tab-icon${!tab.label ? " tab-bar__tab-icon--always-visible" : ""}`}
                         aria-hidden="true"
                     />
                 {/if}
@@ -49,7 +49,9 @@
 
 <style>
     .tab-bar {
-        flex: 1;
+        display: flex;
+        flex: 1 1 0%;
+        width: 100%;
         min-width: 0;
         min-height: var(--side-menu-tab-height);
         --tab-bar-font-size: var(--font-xs);
@@ -61,6 +63,7 @@
         gap: 0;
         padding: 0;
         flex: 1;
+        width: 100%;
         min-width: 0;
         min-height: var(--side-menu-tab-height);
         pointer-events: none;
@@ -74,7 +77,7 @@
         color: var(--text-muted);
         border-radius: 0;
         min-height: var(--side-menu-tab-height);
-        padding: var(--spacing-sm);
+        padding: 2px var(--spacing-sm);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -99,33 +102,35 @@
         flex: 0 0 auto;
     }
 
-    /* Hide icon when tab is narrow so label can use space and wrap */
-    @container tab-bar-tab (max-width: calc(72px / var(--text-scale, 1))) {
-        :global(.tab-bar__tab-icon) {
+    @container tab-bar-tab (max-width: 84px) {
+        .tab-bar__tab-label {
+            letter-spacing: 0.03em;
+        }
+    }
+
+    /* Hide icon when tab is narrow so label can use space and wrap. */
+    @container tab-bar-tab (max-width: 72px) {
+        :global(.tab-bar__tab-icon:not(.tab-bar__tab-icon--always-visible)) {
             display: none;
         }
     }
 
     .tab-bar__tab-label {
-        font-size: var(--tab-bar-font-size);
-        line-height: var(--leading);
+        font-size: clamp(calc(9px / var(--text-scale, 1)), 12cqw, var(--tab-bar-font-size));
+        line-height: 1.1;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         white-space: normal;
         overflow-wrap: anywhere;
+        word-break: break-word;
+        text-wrap: balance;
         text-align: center;
         max-width: 100%;
     }
 
-    @container tab-bar-tab (max-width: calc(100px / var(--text-scale, 1))) {
+    @container tab-bar-tab (max-width: 62px) {
         .tab-bar__tab-label {
-            font-size: var(--font-xs);
-        }
-    }
-
-    @container tab-bar-tab (max-width: calc(75px / var(--text-scale, 1))) {
-        .tab-bar__tab-label {
-            font-size: var(--font-xxs);
+            letter-spacing: 0.02em;
         }
     }
 

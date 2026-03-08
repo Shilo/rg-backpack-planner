@@ -592,16 +592,16 @@
 
     :global(.tab-buttons button) {
         color: var(--text-muted);
-        padding: 0 !important;
-        height: var(--tab-height);
+        padding: 2px var(--spacing-sm) !important;
+        min-height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: normal;
         font-size: var(--font-sm) !important;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: var(--spacing-md);
+        gap: var(--spacing-sm);
         min-width: 0;
         overflow: hidden;
         container-type: inline-size;
@@ -612,31 +612,33 @@
         display: contents;
     }
 
-    /* Tighter letter-spacing as tab narrows */
-    @container tab (max-width: calc(130px / var(--text-scale, 1))) {
-        :global(.tab-buttons button) {
-            gap: var(--spacing-sm);
-            letter-spacing: 0.04em;
-        }
-    }
-
-    @container tab (max-width: calc(95px / var(--text-scale, 1))) {
-        :global(.tab-buttons button) {
+    /* Tighter label tracking as tab narrows. */
+    @container tab (max-width: 130px) {
+        .tab-label {
             letter-spacing: 0.02em;
         }
     }
 
+    @container tab (max-width: 95px) {
+        .tab-label {
+            letter-spacing: 0.01em;
+        }
+    }
+
     .tab-label {
-        /* Fluid font: scale with tab width so text fits at any text-size scale */
-        font-size: clamp(var(--font-xxs), 10cqw, var(--font-sm));
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        /* Scale to the actual tab width while keeping tiny tabs readable. */
+        font-size: clamp(calc(8px / var(--text-scale, 1)), calc(0.2rem + 8cqw), var(--font-sm));
+        line-height: 1.1;
+        letter-spacing: 0.03em;
         min-width: 0;
         max-width: 100%;
         flex: 1 1 auto;
         display: block;
         text-align: center;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        text-wrap: balance;
     }
 
     :global(.tab-buttons button.active) {

@@ -56,9 +56,9 @@
         }
     },
     "trees": {
-        "guardian": "守护者 (Guardian)",
-        "vanguard": "先锋 (Vanguard)",
-        "cannon": "火炮 (Cannon)",
+        "guardian": "守护者",
+        "vanguard": "先锋",
+        "cannon": "火炮",
         "named": "{label} 树",
         "generic": "树"
     },

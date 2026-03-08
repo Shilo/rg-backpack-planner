@@ -46,6 +46,18 @@
         padding-right: var(--safe-right, 0px);
     }
 
+    :global(.bottom-nav-bar > .tab-bar) {
+        flex: 1 1 0%;
+        width: 0;
+        min-width: 0;
+        align-self: stretch;
+    }
+
+    :global(.bottom-nav-bar > .tab-bar > .tab-bar__tabs) {
+        width: 100%;
+        min-width: 0;
+    }
+
     .bottom-nav-bar__close-button {
         flex: 0 0 auto;
         width: var(--side-menu-tab-height);
