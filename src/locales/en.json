@@ -45,6 +45,7 @@
             "node": "Node",
             "view": "View",
             "tree": "Tree",
+            "lookAndFeel": "Look and feel",
             "application": "Application",
             "statistics": "Statistics",
             "touch": "Touch",

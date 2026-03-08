@@ -349,14 +349,8 @@
     />
 </SideMenuSection>
 
-<SideMenuSection title={$t("sideMenu.sections.application")}>
+<SideMenuSection title={$t("sideMenu.sections.lookAndFeel")}>
     <LanguageDropdown />
-    <ToggleSwitch
-        checked={$hapticsEnabled}
-        label={$t("settings.haptics")}
-        ariaLabel={$t("settings.haptics")}
-        onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
-    />
     <div class="button-group theme-row">
         <ThemeColorSelector />
         <button
@@ -379,6 +373,15 @@
             {/if}
         </button>
     </div>
+    <ToggleSwitch
+        checked={$hapticsEnabled}
+        label={$t("settings.haptics")}
+        ariaLabel={$t("settings.haptics")}
+        onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
+    />
+</SideMenuSection>
+
+<SideMenuSection title={$t("sideMenu.sections.application")}>
     <FullscreenToggle />
     <InstallPwaButton title={true} />
     <Button
