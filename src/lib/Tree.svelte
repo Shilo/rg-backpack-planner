@@ -355,7 +355,6 @@
     let contextMenuNode: NodeType | null = null;
     let contextMenuLevel = 0;
     let contextMenuMaxLevel = 0;
-    let contextMenuState: NodeState = "locked";
     let contextMenuIsGlobalIncrementLocked = false;
 
     $: {
@@ -418,7 +417,6 @@
             contextMenuNode = null;
             contextMenuLevel = 0;
             contextMenuMaxLevel = 0;
-            contextMenuState = "locked";
             contextMenuIsGlobalIncrementLocked = false;
         } else {
             const node = getNodeAt(contextIndex);
@@ -426,13 +424,11 @@
                 contextMenuNode = null;
                 contextMenuLevel = 0;
                 contextMenuMaxLevel = 0;
-                contextMenuState = "locked";
                 contextMenuIsGlobalIncrementLocked = false;
             } else {
                 contextMenuNode = node;
                 contextMenuLevel = getLevelFrom(levels, contextIndex);
                 contextMenuMaxLevel = node.maxLevel;
-                contextMenuState = getState(node, contextIndex, levels);
                 contextMenuIsGlobalIncrementLocked =
                     isGlobalLeveledLeafNodeLocked(contextIndex, levels);
             }
@@ -1206,7 +1202,6 @@
                 onIncrementBy10={levelUpBy10}
                 level={contextMenuLevel}
                 maxLevel={contextMenuMaxLevel}
-                state={contextMenuState}
                 isGlobalIncrementLocked={contextMenuIsGlobalIncrementLocked}
             />
         </div>
