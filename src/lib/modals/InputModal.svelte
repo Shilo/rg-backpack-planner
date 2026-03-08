@@ -24,7 +24,11 @@
     export let step = 1;
     export let confirmLabel = "";
     export let cancelLabel = "";
-    export let footerButton: { label: string; value: number; icon: Component } | null = null;
+    export let footerButton: {
+        label: string;
+        value: number;
+        icon: Component;
+    } | null = null;
     export let onConfirm: ((value: number) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
@@ -203,12 +207,15 @@
     .modal-header {
         display: flex;
         align-items: center;
+        min-width: 0;
     }
 
     .modal-title {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: var(--spacing-md);
+        min-width: 0;
+        flex: 1;
     }
 
     .modal-header h2 {
@@ -216,6 +223,10 @@
         font-size: var(--font-lg);
         color: var(--text);
         line-height: var(--leading-none);
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     :global(.modal-title-icon) {

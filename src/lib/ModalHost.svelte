@@ -167,6 +167,7 @@ import { closeModal, modalStore } from "./modalStore";
     >
         <div
             class="modal-shell"
+            class:modal-shell--input={$modalStore.type === "input"}
             role="dialog"
             aria-modal="true"
             aria-label={$modalStore.title}
@@ -288,5 +289,9 @@ import { closeModal, modalStore } from "./modalStore";
         -webkit-overflow-scrolling: touch;
         display: grid;
         gap: var(--spacing-lg);
+    }
+
+    .modal-shell--input {
+        min-width: min(92vw, 280px);
     }
 </style>
