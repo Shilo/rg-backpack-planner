@@ -167,16 +167,25 @@
         --border-color: var(--region-blue-accent);
         --border-color-active: var(--region-blue-accent);
         --border-color-maxed: var(--region-blue-light);
+        --text-color: var(--region-blue-text);
+        --text-color-active: var(--region-blue-text);
+        --text-color-maxed: var(--region-blue-text-maxed);
     }
     .node-wrapper.region-top-left {
         --border-color: var(--region-orange-accent);
         --border-color-active: var(--region-orange-accent);
         --border-color-maxed: var(--region-orange-light);
+        --text-color: var(--region-orange-text);
+        --text-color-active: var(--region-orange-text);
+        --text-color-maxed: var(--region-orange-text-maxed);
     }
     .node-wrapper.region-bottom-left {
         --border-color: var(--region-yellow-accent);
         --border-color-active: var(--region-yellow-accent);
         --border-color-maxed: var(--region-yellow-light);
+        --text-color: var(--region-yellow-text);
+        --text-color-active: var(--region-yellow-text);
+        --text-color-maxed: var(--region-yellow-text-maxed);
     }
     .node-wrapper.locked {
         --node-icon-color: var(--border-color-locked);
@@ -190,6 +199,25 @@
     .node-wrapper.maxed {
         --node-icon-color: var(--border-color-maxed);
     }
+
+    /* Name badge matches node state/region color */
+    .node-wrapper.locked .node-name-badge-anchor .node-badge {
+        background: var(--border-color-locked);
+        color: var(--node-locked-text);
+    }
+    .node-wrapper.available .node-name-badge-anchor .node-badge {
+        background: var(--border-color);
+        color: var(--text-color);
+    }
+    .node-wrapper.active .node-name-badge-anchor .node-badge {
+        background: var(--border-color-active);
+        color: var(--text-color-active);
+    }
+    .node-wrapper.maxed .node-name-badge-anchor .node-badge {
+        background: var(--border-color-maxed);
+        color: var(--text-color-maxed);
+    }
+
     .node-wrapper.node-wrapper-important {
         --node-icon-size: var(--node-important-icon-size);
     }
