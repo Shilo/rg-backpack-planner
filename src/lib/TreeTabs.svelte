@@ -110,7 +110,6 @@
             ? (activeIndex - 1 + tabs.length) % tabs.length
             : (activeIndex + 1) % tabs.length;
         setActive(next);
-        void tick().then(() => focusActiveTreeInView(true));
     }
 
     onMount(() => {
