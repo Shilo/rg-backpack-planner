@@ -1260,17 +1260,14 @@
 
     .tree-links .tree-link.region-top-left {
         --link-color: var(--region-orange-accent);
-        --link-color-maxed: var(--region-orange-light);
     }
 
     .tree-links .tree-link.region-bottom-left {
         --link-color: var(--region-yellow-accent);
-        --link-color-maxed: var(--region-yellow-light);
     }
 
     .tree-links .tree-link.region-right {
         --link-color: var(--region-blue-accent);
-        --link-color-maxed: var(--region-blue-light);
     }
 
     .tree-links .tree-link.locked {
@@ -1285,9 +1282,5 @@
 
     .tree-links .tree-link.active {
         stroke: var(--link-color);
-    }
-
-    .tree-links .tree-link.maxed {
-        stroke: var(--link-color-maxed);
     }
 </style>
