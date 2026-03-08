@@ -627,7 +627,11 @@
 
     .tab-label {
         /* Scale to the actual tab width while keeping tiny tabs readable. */
-        font-size: clamp(calc(8px / var(--text-scale, 1)), calc(0.2rem + 8cqw), var(--font-sm));
+        font-size: clamp(
+            calc(8px / var(--text-scale, 1)),
+            calc(0.205rem + 6.9cqw),
+            var(--font-sm)
+        );
         line-height: 1.1;
         letter-spacing: 0.03em;
         min-width: 0;
