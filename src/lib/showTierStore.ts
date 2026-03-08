@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-const DEFAULT_SHOW_TIER = true;
+const DEFAULT_SHOW_TIER = false;
 
 function parseShowTier(storedValue: string | null): boolean | null {
     if (storedValue === null) return null;
