@@ -863,7 +863,22 @@
                 if (shouldDecrement) {
                     applyOppositeNodeAction(pointer.nodeIndex);
                 } else {
-                    applyPrimaryNodeAction(pointer.nodeIndex);
+                    const node = getNodeAt(pointer.nodeIndex);
+                    const level = getLevel(pointer.nodeIndex);
+                    const isMaxed =
+                        node != null &&
+                        level >= node.maxLevel &&
+                        node.maxLevel > 0;
+                    if (isMaxed) {
+                        contextMenu = {
+                            index: pointer.nodeIndex,
+                            x: event.clientX,
+                            y: event.clientY,
+                        };
+                        cancelActiveGestures();
+                    } else {
+                        applyPrimaryNodeAction(pointer.nodeIndex);
+                    }
                 }
             }
         }
