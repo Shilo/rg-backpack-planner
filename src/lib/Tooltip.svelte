@@ -144,7 +144,9 @@
         aria-hidden="true"
     >
         {#if $tooltipStore.costLine != null}
-            <div class="tooltip-line">{$tooltipStore.text}</div>
+            {#if $tooltipStore.text}
+                <div class="tooltip-line">{$tooltipStore.text}</div>
+            {/if}
             <div
                 class="tooltip-cost-line"
                 class:refund={$tooltipStore.costLineRefund}

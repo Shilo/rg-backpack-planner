@@ -11,6 +11,8 @@
     export let onClose: (() => void) | null = null;
     /** When set, don't close on pointerup if target matches (e.g. tab bar for tab context menu) */
     export let ignoreCloseTargetSelector: string | null = null;
+    /** When true, (x,y) is the point just above the menu; menu is positioned with its top at y. */
+    export let anchorBelow = false;
 
     let menuEl: HTMLDivElement | null = null;
     let displayX = 0;
@@ -132,26 +134,24 @@
 
     export function updatePosition() {
         if (!menuEl) {
-            const adjustedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedY = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             displayX = x + dragOffset.x;
             displayY = adjustedY + dragOffset.y;
             return;
         }
 
-        const adjustedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+        const adjustedY = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
         const baseX = x + dragOffset.x;
         const baseY = adjustedY + dragOffset.y;
 
         // Get menu dimensions
         const rect = menuEl.getBoundingClientRect();
         const offsetX = rect.width / 2;
-        const offsetY = rect.height * 0.1;
+        const offsetY = anchorBelow ? 0 : rect.height * 0.1;
 
         // Calculate bounds - keep menu within viewport
-        // displayX is the center, so we need width/2 margin on each side
         const minX = MENU_MARGIN + offsetX;
         const maxX = window.innerWidth - MENU_MARGIN - offsetX;
-        // displayY is 10% from top, so top edge is at displayY - offsetY, bottom edge is at displayY + (height - offsetY)
         const minY = MENU_MARGIN + offsetY;
         const maxY = window.innerHeight - MENU_MARGIN - (rect.height - offsetY);
 
@@ -190,7 +190,7 @@
 
         const rect = menuEl.getBoundingClientRect();
         const menuCenterX = rect.left + rect.width / 2;
-        const menuCenterY = rect.top + rect.height * 0.1;
+        const menuCenterY = anchorBelow ? rect.top : rect.top + rect.height * 0.1;
 
         dragStart = {
             x: event.clientX,
@@ -232,7 +232,7 @@
             const newMenuY = dragStart.menuY + dy;
 
             // Calculate offset from original position
-            const adjustedY = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedY = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             dragOffset.x = newMenuX - x;
             dragOffset.y = newMenuY - adjustedY;
 
@@ -240,8 +240,7 @@
             updatePosition();
 
             // After clamping, update dragOffset to reflect the actual clamped position
-            // Use displayX/displayY which are the clamped values
-            const adjustedYBase = y + (isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedYBase = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             dragOffset.x = displayX - x;
             dragOffset.y = displayY - adjustedYBase;
         }
@@ -300,6 +299,8 @@
         tick().then(updatePosition);
     }
 
+    $: transformOrigin = anchorBelow ? "translate(-50%, 0)" : "translate(-50%, -10%)";
+
     // Reset when menu closes
     $: if (!isOpen && wasOpen) {
         dragOffset = { x: 0, y: 0 };
@@ -330,7 +331,7 @@
         class="context-menu"
         class:dragging={isDragging}
         bind:this={menuEl}
-        style={`left: ${displayX}px; top: ${displayY}px;`}
+        style={`left: ${displayX}px; top: ${displayY}px; transform: ${transformOrigin};`}
         role="menu"
         tabindex="-1"
         aria-label={resolvedAriaLabel}
@@ -349,7 +350,7 @@
 <style>
     .context-menu {
         position: fixed;
-        transform: translate(-50%, -10%);
+        /* transform set inline for anchorBelow vs default */
         background: var(--bg-panel);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);

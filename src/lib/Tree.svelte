@@ -340,6 +340,7 @@
         tier: number;
         region: NodeRegion;
         isLeaf: boolean;
+        isGlobalIncrementLocked: boolean;
     };
 
     type RenderLink = {
@@ -369,6 +370,10 @@
                 tier: tierIndex(level, node.maxLevel),
                 region: getNodeRegion(node, index),
                 isLeaf: isLeafNode(index),
+                isGlobalIncrementLocked: isGlobalLeveledLeafNodeLocked(
+                    index,
+                    levels,
+                ),
             };
         });
     }
@@ -605,16 +610,25 @@
             suppressTooltip(pointerId);
             hideTooltip();
             suppressNextPointerUp(pointerId);
-            // No triggerHaptic() needed as mobile will native haptic feedback on long-press.
-            contextMenu = {
-                index: pointer.nodeIndex,
+            const nodeEl =
+                viewportEl?.querySelector(
+                    `[data-node-id="${pointer.nodeIndex}"]`,
+                ) ?? null;
+            const pos = getNodeMenuPosition(nodeEl) ?? {
                 x: pointer.x,
                 y: pointer.y,
+            };
+            contextMenu = {
+                index: pointer.nodeIndex,
+                x: pos.x,
+                y: pos.y,
             };
             cancelActiveGestures();
             return true;
         });
     }
+
+    const NODE_MENU_GAP = 4;
 
     function getNodeInfoFromTarget(target: EventTarget | null) {
         if (!(target instanceof Element)) return null;
@@ -631,6 +645,23 @@
         return { index: parsed as NodeIndex, isRoot: false };
     }
 
+    function getNodeMenuPosition(
+        nodeEl: Element | null,
+    ): { x: number; y: number } | null {
+        if (!nodeEl) return null;
+        const wrapper = nodeEl.closest(".node-wrapper");
+        const el = (wrapper ?? nodeEl) as Element;
+        const rect = el.getBoundingClientRect();
+        const levelSlot = wrapper?.querySelector(".node-badge-slot-level");
+        const bottom = levelSlot
+            ? Math.max(rect.bottom, levelSlot.getBoundingClientRect().bottom)
+            : rect.bottom;
+        return {
+            x: rect.left + rect.width / 2,
+            y: bottom + NODE_MENU_GAP,
+        };
+    }
+
     function onContextMenu(event: MouseEvent) {
         if (gesturesDisabled) return;
         // Ignore touch-synthesized contextmenu - we use long-press for that
@@ -643,7 +674,15 @@
 
         event.preventDefault();
         hideTooltip();
-        contextMenu = { index: info.index, x: event.clientX, y: event.clientY };
+        const nodeEl =
+            event.target instanceof Element
+                ? event.target.closest("[data-node-id]")
+                : null;
+        const pos = getNodeMenuPosition(nodeEl) ?? {
+            x: event.clientX,
+            y: event.clientY,
+        };
+        contextMenu = { index: info.index, x: pos.x, y: pos.y };
         cancelActiveGestures();
     }
 
@@ -1143,6 +1182,7 @@
                         {scale}
                         region={nodeView.region}
                         isLeaf={nodeView.isLeaf}
+                        isGlobalIncrementLocked={nodeView.isGlobalIncrementLocked}
                         skillId={nodeView.node.skillId}
                         maxLevel={nodeView.node.maxLevel}
                     />

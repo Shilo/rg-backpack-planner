@@ -31,6 +31,8 @@
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
     export let isLeaf: boolean = false;
+    /** When true, node is locked due to GLOBAL_LEVELED_LEAF_NODE_CAP; tooltip should not show cost. */
+    export let isGlobalIncrementLocked: boolean = false;
     export let skillId: SkillId | null = null;
     export let maxLevel: number = 1;
 
@@ -58,14 +60,17 @@
         isRefund,
     );
 
+    /** When showSkillName is on, name is on the badge so tooltip omits it. */
+    $: tooltipLine1 = showSkillName ? "" : label || String(id);
     $: tooltipText =
-        primaryActionCost != null
+        primaryActionCost != null &&
+        !(state === "locked" && isGlobalIncrementLocked)
             ? {
-                  line1: label || String(id),
+                  line1: tooltipLine1,
                   costLine: formatNumber(primaryActionCost),
                   costLineRefund: isRefund,
               }
-            : label || String(id);
+            : tooltipLine1;
 
     $: tooltipParam =
         tooltipText == null
@@ -77,12 +82,18 @@
         skillId != null ? $t(`skills.short.${skillId}`) || label : label;
 
     $: isMaxed = level >= maxLevel && maxLevel > 0;
+
+    /** Show not-allowed cursor when user cannot level (maxed or leaf locked by global cap). */
+    $: cursorNotAllowed = isMaxed || (isLeaf && isGlobalIncrementLocked);
 </script>
 
 <div
     class="node-wrapper badge-{region} {state} region-{region} {isLeaf
         ? 'node-wrapper-hex'
-        : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
+        : ''} {isImportantNode ? 'node-wrapper-important' : ''} {cursorNotAllowed
+        ? 'cursor-not-allowed'
+        : ''}"
+    data-node-id={String(id)}
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
         radius}px; height: {64 *
         radius}px; --node-radius: {radius}; --icon-scale: {radius}"
@@ -169,6 +180,13 @@
             24.9863% 93.2877%
         );
         position: absolute;
+        cursor: pointer;
+    }
+
+    .node-wrapper.cursor-not-allowed,
+    .node-wrapper.cursor-not-allowed :global(.button.node),
+    .node-wrapper.cursor-not-allowed .node-badge-slot {
+        cursor: not-allowed;
     }
 
     /* Icon layer (sibling of button) needs same variables as button */
