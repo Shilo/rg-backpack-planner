@@ -373,6 +373,14 @@
         });
     }
 
+    // Y-sort render order: later-rendered nodes stack on top in the DOM, so the level
+    // badge of an earlier node can appear under a later node's name badge. We sort by node.y
+    // descending (higher y first) so lower-y nodes render later and correctly stack on top
+    // (painter's algorithm). Key remains nodeView.index so all index-based logic is unchanged.
+    $: sortedRenderNodes = [...renderNodes].sort(
+        (a, b) => b.node.y - a.node.y || a.index - b.index,
+    );
+
     $: {
         renderLinks = linkList
             .map((link) => {
@@ -1120,7 +1128,7 @@
                     onFocusView={() => focusTreeInView(true)}
                 />
 
-                {#each renderNodes as nodeView (nodeView.index)}
+                {#each sortedRenderNodes as nodeView (nodeView.index)}
                     <Node
                         id={nodeView.index}
                         x={nodeView.node.x}
