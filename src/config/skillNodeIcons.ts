@@ -1,44 +1,46 @@
+import type { Component } from "svelte";
 import type { SkillId } from "../types/tree";
-import attack_boost from "../assets/nodes/attack_boost.svg?url";
-import counterattack_resistance from "../assets/nodes/counterattack_resistance.svg?url";
-import critical_hit from "../assets/nodes/critical_hit.svg?url";
-import damage_reflection_chance from "../assets/nodes/damage_reflection_chance.svg?url";
-import defense_boost from "../assets/nodes/defense_boost.svg?url";
-import dodge from "../assets/nodes/dodge.svg?url";
-import final_damage_boost from "../assets/nodes/final_damage_boost.svg?url";
-import global_atk from "../assets/nodes/global_atk.svg?url";
-import global_def from "../assets/nodes/global_def.svg?url";
-import global_hp from "../assets/nodes/global_hp.svg?url";
-import hp_boost from "../assets/nodes/hp_boost.svg?url";
-import ignore_dodge from "../assets/nodes/ignore_dodge.svg?url";
-import ignore_stun from "../assets/nodes/ignore_stun.svg?url";
-import pierce_damage from "../assets/nodes/pierce_damage.svg?url";
-import pierce_resistance from "../assets/nodes/pierce_resistance.svg?url";
-import skill_crit from "../assets/nodes/skill_crit.svg?url";
-import skill_crit_resistance from "../assets/nodes/skill_crit_resistance.svg?url";
-import stun from "../assets/nodes/stun.svg?url";
 
-/** Context key for passing skillId into SkillNodeIcon (used by Node.svelte). */
-export const NODE_SKILL_ID_KEY = Symbol("nodeSkillId");
+import AttackBoost from "../assets/nodes/AttackBoost.svelte";
+import CounterattackResistance from "../assets/nodes/CounterattackResistance.svelte";
+import CriticalHit from "../assets/nodes/CriticalHit.svelte";
+import DamageReflectionChance from "../assets/nodes/DamageReflectionChance.svelte";
+import DefenseBoost from "../assets/nodes/DefenseBoost.svelte";
+import Dodge from "../assets/nodes/Dodge.svelte";
+import FinalDamageBoost from "../assets/nodes/FinalDamageBoost.svelte";
+import GlobalAtk from "../assets/nodes/GlobalAtk.svelte";
+import GlobalDef from "../assets/nodes/GlobalDef.svelte";
+import GlobalHp from "../assets/nodes/GlobalHp.svelte";
+import HpBoost from "../assets/nodes/HpBoost.svelte";
+import IgnoreDodge from "../assets/nodes/IgnoreDodge.svelte";
+import IgnoreStun from "../assets/nodes/IgnoreStun.svelte";
+import PierceDamage from "../assets/nodes/PierceDamage.svelte";
+import PierceResistance from "../assets/nodes/PierceResistance.svelte";
+import SkillCrit from "../assets/nodes/SkillCrit.svelte";
+import SkillCritResistance from "../assets/nodes/SkillCritResistance.svelte";
+import Stun from "../assets/nodes/Stun.svelte";
 
-/** Map each SkillId to its node icon URL (1:1 with assets in src/assets/nodes/). */
-export const SKILL_NODE_ICON_URLS: Record<SkillId, string> = {
-    attack_boost,
-    hp_boost,
-    defense_boost,
-    dodge,
-    ignore_dodge,
-    stun,
-    pierce_resistance,
-    skill_crit,
-    pierce_damage,
-    counterattack_resistance,
-    critical_hit,
-    damage_reflection_chance,
-    ignore_stun,
-    skill_crit_resistance,
-    global_atk,
-    global_def,
-    global_hp,
-    final_damage_boost,
+/**
+ * Map each SkillId to its node icon component (1:1 with src/assets/nodes/*.svelte).
+ * Icons use fill="currentColor" so they inherit the node's --node-icon-color (border color).
+ */
+export const SKILL_NODE_ICONS: Record<SkillId, Component> = {
+    attack_boost: AttackBoost,
+    hp_boost: HpBoost,
+    defense_boost: DefenseBoost,
+    dodge: Dodge,
+    ignore_dodge: IgnoreDodge,
+    stun: Stun,
+    pierce_resistance: PierceResistance,
+    skill_crit: SkillCrit,
+    pierce_damage: PierceDamage,
+    counterattack_resistance: CounterattackResistance,
+    critical_hit: CriticalHit,
+    damage_reflection_chance: DamageReflectionChance,
+    ignore_stun: IgnoreStun,
+    skill_crit_resistance: SkillCritResistance,
+    global_atk: GlobalAtk,
+    global_def: GlobalDef,
+    global_hp: GlobalHp,
+    final_damage_boost: FinalDamageBoost,
 };

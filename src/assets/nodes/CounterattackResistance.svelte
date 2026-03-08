@@ -1,0 +1,11 @@
+<script lang="ts">
+    import type { SVGAttributes } from 'svelte/elements';
+    let props: SVGAttributes<SVGSVGElement> = $props();
+</script>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 329.953020 372.454545" preserveAspectRatio="xMidYMid meet" {...props}>
+    <g transform="translate(-2.000000,374.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+        <path d="M1030 3421 l0 -320 28 -78 c65 -183 351 -546 550 -697 l62 -47 63 47 c198 151 484 514 549 697 l28 78 0 320 0 319 -640 0 -640 0 0 -319z"/>
+        <path d="M20 1838 l1 -503 806 -660 c731 -598 811 -660 843 -660 32 0 111 62 842 660 l807 660 1 503 c0 277 -3 501 -7 499 -5 -3 -375 -321 -823 -706 -448 -385 -817 -701 -820 -701 -3 0 -354 300 -780 666 -426 366 -796 684 -822 706 l-48 40 0 -504z"/>
+    </g>
+</svg>

@@ -3,14 +3,12 @@
 </script>
 
 <script lang="ts">
-    import { setContext } from "svelte";
     import type { Component } from "svelte";
     import type { SkillId } from "../types/tree";
     import { StarIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
-    import { NODE_SKILL_ID_KEY } from "../config/skillNodeIcons";
-    import SkillNodeIcon from "./SkillNodeIcon.svelte";
+    import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import { formatNumber } from "./mathUtil";
     import {
         getPrimaryActionCost,
@@ -34,16 +32,19 @@
     export let maxLevel: number = 1;
 
     /**
-     * Optional icon override. When set, this component is used instead of the
-     * skill asset icon. When unset and skillId is set, the icon from
-     * src/assets/nodes/{skillId}.svg is used.
+     * Optional icon override. When unset and skillId is set, the icon from
+     * src/assets/nodes/*.svelte (mapped by skillId) is used; it fills the node
+     * and uses the node border color (currentColor via --node-icon-color).
      */
     export let icon: Component | null = null;
 
-    if (skillId != null) {
-        setContext(NODE_SKILL_ID_KEY, skillId);
-    }
-    $: nodeIcon = icon ?? (skillId != null ? SkillNodeIcon : null);
+    $: nodeIcon =
+        icon ?? (skillId != null ? SKILL_NODE_ICONS[skillId] ?? null : null);
+
+    /** Last 3 nodes per branch: global_* and final_damage_boost use important icon size */
+    $: isImportantNode =
+        skillId != null &&
+        (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
     $: isRefund = $shiftKeyHeld;
     $: primaryActionCost = getPrimaryActionCost(
@@ -65,7 +66,7 @@
 </script>
 
 <div
-    class="node-wrapper badge-{region}"
+    class="node-wrapper badge-{region} {state} region-{region} {isLeaf ? 'node-wrapper-hex' : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
         radius}px; height: {64 * radius}px;"
 >
@@ -74,12 +75,20 @@
         aria-label={label || String(id)}
         {tooltipText}
         data-node-id={String(id)}
-        icon={nodeIcon}
-        iconClass="node-icon"
+        icon={null}
         style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
+    {#if nodeIcon}
+        <span class="node-icon-layer" aria-hidden="true">
+            <svelte:component
+                this={nodeIcon}
+                class="node-icon"
+                aria-hidden={true}
+            />
+        </span>
+    {/if}
     {#if showTier && level > 0 && state !== "maxed"}
         <span
             class="node-tier-badge-anchor"
@@ -104,9 +113,29 @@
 <style>
     .node-wrapper {
         --z-index-badge: 4;
-
+        --border-color-locked: var(--node-locked-border);
+        --node-icon-size: 50%;
+        --node-important-icon-size: 65%;
+        --hex-clip: polygon(
+            25% 0%,
+            75% 0%,
+            100% 50%,
+            75% 100%,
+            25% 100%,
+            0% 50%
+        );
         position: absolute;
     }
+
+    /* Icon layer (sibling of button) needs same variables as button */
+    .node-wrapper.region-right { --border-color: var(--region-blue-accent); --border-color-active: var(--region-blue-accent); --border-color-maxed: var(--region-blue-light); }
+    .node-wrapper.region-top-left { --border-color: var(--region-orange-accent); --border-color-active: var(--region-orange-accent); --border-color-maxed: var(--region-orange-light); }
+    .node-wrapper.region-bottom-left { --border-color: var(--region-yellow-accent); --border-color-active: var(--region-yellow-accent); --border-color-maxed: var(--region-yellow-light); }
+    .node-wrapper.locked { --node-icon-color: var(--border-color-locked); }
+    .node-wrapper.available { --node-icon-color: var(--border-color); }
+    .node-wrapper.active { --node-icon-color: var(--border-color-active); }
+    .node-wrapper.maxed { --node-icon-color: var(--border-color-maxed); }
+    .node-wrapper.node-wrapper-important { --node-icon-size: var(--node-important-icon-size); }
 
     /* CSS Custom Properties - Scoped to .node-wrapper to avoid global leakage */
     .node-wrapper :global(.button.node) {
@@ -126,6 +155,7 @@
         --border-color: var(--region-blue-accent);
         --border-color-active: var(--region-blue-accent);
         --border-color-maxed: var(--region-blue-light);
+        --node-icon-color: var(--border-color);
         --text-color: var(--region-blue-text);
         --text-color-active: var(--region-blue-text);
         --text-color-maxed: var(--region-blue-text-maxed);
@@ -253,15 +283,35 @@
         outline-offset: 0;
     }
 
-    .node-wrapper :global(.node-icon) {
-        width: calc(32px * var(--icon-scale, 1));
-        height: calc(32px * var(--icon-scale, 1));
-        opacity: 0.7;
-        grid-area: stack;
+    /* Icon layer: below badges; scales on press */
+    .node-icon-layer {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        inset: 0;
+        overflow: hidden;
+        border-radius: var(--radius-full);
+        z-index: 2;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--ease);
+    }
+
+    .node-wrapper:active .node-icon-layer {
+        transform: scale(0.96);
+    }
+
+    .node-wrapper-hex .node-icon-layer {
+        border-radius: 0;
+        clip-path: var(--hex-clip);
+    }
+
+    .node-wrapper :global(.node-icon) {
+        width: var(--node-icon-size);
+        height: var(--node-icon-size);
+        display: block;
+        color: var(--node-icon-color, currentColor);
+        opacity: 0.9;
     }
 
     .node-wrapper :global(.button.node .button-text) {
@@ -347,6 +397,10 @@
         .node-wrapper:hover :global(.button.node:not(:disabled)) {
             filter: var(--brightness-hover);
         }
+
+        .node-wrapper:hover .node-icon-layer {
+            filter: var(--brightness-hover);
+        }
     }
 
     .node-wrapper:active .node-badge {
@@ -379,6 +433,7 @@
         filter: var(--filter-locked);
         --hex-fill: var(--bg-locked);
         --hex-border-color: var(--border-color-locked);
+        --node-icon-color: var(--border-color-locked);
     }
 
     .node-wrapper :global(.button.node.available) {
@@ -388,6 +443,7 @@
         filter: var(--filter-available);
         --hex-fill: var(--bg-available);
         --hex-border-color: var(--border-color);
+        --node-icon-color: var(--border-color);
     }
 
     .node-wrapper :global(.button.node.active) {
@@ -396,6 +452,7 @@
         color: var(--text-color-active);
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
+        --node-icon-color: var(--border-color-active);
     }
 
     .node-wrapper :global(.button.node.maxed) {
@@ -404,5 +461,6 @@
         color: var(--text-color-maxed);
         --hex-fill: var(--bg-maxed);
         --hex-border-color: var(--border-color-maxed);
+        --node-icon-color: var(--border-color-maxed);
     }
 </style>
