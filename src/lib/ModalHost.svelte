@@ -255,6 +255,7 @@ import { closeModal, modalStore } from "./modalStore";
         display: flex;
         flex-direction: column;
         align-items: center;
+        overflow-x: auto;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
@@ -269,7 +270,10 @@ import { closeModal, modalStore } from "./modalStore";
         margin-top: auto;
         margin-bottom: auto;
         flex-shrink: 0;
-        width: min(92vw, 380px);
+        min-width: 0;
+        /* Use same proportion of viewport as height: 92vw, capped by backdrop content area */
+        width: min(92vw, 100%);
+        max-width: 100%;
         max-height: 100%;
         border-radius: var(--radius);
         background: var(--bg-panel);
@@ -281,16 +285,9 @@ import { closeModal, modalStore } from "./modalStore";
             );
         box-shadow: var(--shadow);
         padding: 0;
-        overflow: hidden;
-        overflow-y: auto;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
         display: grid;
         gap: var(--spacing-lg);
-    }
-
-    @media (max-width: 480px) {
-        .modal-shell {
-            width: min(92vw, 340px);
-            padding: 0;
-        }
     }
 </style>

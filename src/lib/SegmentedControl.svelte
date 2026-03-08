@@ -130,7 +130,7 @@
         gap: 8px;
         min-width: 0;
         min-height: 32px;
-        padding: 0 8px 0 12px;
+        padding: 8px 8px 8px 12px;
         background: var(--bg-input);
     }
 
@@ -198,7 +198,7 @@
         border: none;
         border-radius: 0;
         overflow: hidden;
-        min-height: 38px;
+        min-height: 0;
         background: transparent;
     }
 
@@ -216,7 +216,7 @@
         cursor: pointer;
         font-size: var(--font-sm);
         line-height: var(--leading);
-        padding: 0 var(--spacing-sm);
+        padding: var(--spacing-sm);
         transition:
             background var(--ease),
             color var(--ease),
@@ -262,9 +262,8 @@
         display: block;
         min-width: 0;
         max-width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow-wrap: anywhere;
         text-align: center;
         transition: transform var(--ease);
     }

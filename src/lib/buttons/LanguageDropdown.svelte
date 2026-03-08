@@ -136,7 +136,7 @@
     .language-dropdown-container {
         display: flex;
         width: 100%;
-        overflow: hidden;
+        min-width: 0;
     }
 
     :global(.language-button) {
@@ -158,15 +158,15 @@
         width: 100%;
         gap: var(--spacing-md);
         min-width: 0;
+        flex-wrap: wrap;
     }
 
     .label {
         flex: 1;
-        text-align: left;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         min-width: 0;
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: anywhere;
         display: flex;
         align-items: center;
     }
@@ -175,6 +175,7 @@
         width: var(--border-width);
         background: var(--border);
         margin: calc(var(--spacing-sm) * -1) 0;
+        flex-shrink: 0;
     }
 
     .value-container {
@@ -186,9 +187,8 @@
     }
 
     .language-value {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        white-space: normal;
+        overflow-wrap: anywhere;
         text-align: right;
         min-width: 0;
     }

@@ -250,13 +250,13 @@
             minmax(0, 44px)
             minmax(0, 60px);
         gap: var(--spacing-md);
-        align-items: center;
+        align-items: stretch;
     }
 
     .modal-input {
         min-width: 0;
         width: 100%;
-        height: 44px;
+        min-height: 44px;
         border-radius: var(--radius);
         border: var(--border-width) solid var(--border-subtle);
         background: var(--bg-input);
@@ -272,7 +272,8 @@
 
     .stepper {
         width: 100%;
-        height: 44px;
+        min-height: 44px;
+        padding: var(--spacing-sm);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -306,9 +307,11 @@
 
     .stepper-wide {
         width: 100%;
+        min-width: 0;
+        padding: var(--spacing-sm);
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     .modal-actions {
@@ -329,7 +332,7 @@
     }
 
     .reset-button {
-        height: 44px;
+        min-height: 44px;
         flex: 0 0 auto;
     }
 </style>

@@ -51,7 +51,7 @@
     .tab-bar {
         flex: 1;
         min-width: 0;
-        height: var(--side-menu-tab-height);
+        min-height: var(--side-menu-tab-height);
         --tab-bar-font-size: var(--font-xs);
     }
 
@@ -62,7 +62,7 @@
         padding: 0;
         flex: 1;
         min-width: 0;
-        height: var(--side-menu-tab-height);
+        min-height: var(--side-menu-tab-height);
         pointer-events: none;
     }
 
@@ -73,7 +73,7 @@
         background: transparent;
         color: var(--text-muted);
         border-radius: 0;
-        height: var(--side-menu-tab-height);
+        min-height: var(--side-menu-tab-height);
         padding: var(--spacing-sm);
         display: flex;
         flex-direction: column;
@@ -99,14 +99,21 @@
         flex: 0 0 auto;
     }
 
+    /* Hide icon when tab is narrow so label can use space and wrap */
+    @container tab-bar-tab (max-width: calc(72px / var(--text-scale, 1))) {
+        :global(.tab-bar__tab-icon) {
+            display: none;
+        }
+    }
+
     .tab-bar__tab-label {
         font-size: var(--tab-bar-font-size);
-        line-height: var(--leading-none);
+        line-height: var(--leading);
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: center;
         max-width: 100%;
     }
 

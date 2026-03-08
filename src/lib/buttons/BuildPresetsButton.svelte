@@ -324,7 +324,7 @@
     {disabled}
 >
     {$t("buildPresets.buttonLabel", {
-        name: truncateText(getDisplayPresetName($activePresetName)),
+        name: getDisplayPresetName($activePresetName),
     })}
 </Button>
 

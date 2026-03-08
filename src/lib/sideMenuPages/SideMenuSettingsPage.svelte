@@ -467,8 +467,9 @@
     }
 
     .icon-button {
-        width: 39px;
-        height: 40px;
+        min-width: 39px;
+        min-height: 40px;
+        align-self: stretch;
         display: grid;
         place-items: center;
         position: relative;

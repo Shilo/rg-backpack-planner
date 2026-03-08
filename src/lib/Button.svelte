@@ -157,7 +157,6 @@
     }
 
     .button.with-arrow {
-        overflow: hidden;
         max-width: 100%;
         padding-right: var(--spacing-sm);
     }
@@ -171,14 +170,15 @@
 
     .button-text {
         line-height: var(--leading);
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .button.with-arrow .button-text {
         flex: 1;
         min-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     :global(.button-arrow) {
@@ -253,6 +253,11 @@
         display: flex;
         align-items: stretch;
         gap: 0;
+    }
+
+    /* Let all group members stretch to match the tallest (e.g. when text wraps) */
+    :global(.button-group > *) {
+        align-self: stretch;
     }
 
     :global(.button-group > :first-child) {

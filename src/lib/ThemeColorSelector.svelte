@@ -172,7 +172,7 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-md);
-        height: 40px;
+        min-height: 40px;
         padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md)
             var(--spacing-lg);
         border: var(--border-width) solid var(--border);
@@ -225,6 +225,9 @@
 
     .theme-button-label {
         flex: 1;
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
         user-select: none;
     }
 
@@ -236,8 +239,9 @@
         flex-shrink: 0;
     }
 
-    /* Remove right border-radius when inside a button-group */
+    /* Stretch and remove right border-radius when inside a button-group */
     :global(.button-group) .theme-color-button {
+        align-self: stretch;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
     }
@@ -317,6 +321,9 @@
 
     .preset-label {
         flex: 1;
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
         user-select: none;
     }
 

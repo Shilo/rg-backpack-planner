@@ -48,7 +48,7 @@
         justify-content: space-between;
         gap: var(--spacing-md);
         width: 100%;
-        height: 40px;
+        min-height: 40px;
         padding: var(--spacing-md) var(--spacing-lg);
         border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
@@ -100,6 +100,9 @@
 
     .toggle-row__label {
         flex: 1;
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
         user-select: none;
     }
 
