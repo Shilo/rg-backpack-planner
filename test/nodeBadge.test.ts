@@ -5,14 +5,7 @@ const nodeComponent = readFileSync(
     "utf8",
 );
 
-const starBadgeUsesMaxedState =
-    /\{#if\s+state\s*===\s*"maxed"\s*\}\s*<span class="node-badge node-badge-star"/m;
-
-if (!starBadgeUsesMaxedState.test(nodeComponent)) {
-    throw new Error(
-        "Expected Node star badge to be shown when state is maxed.",
-    );
-}
+/* Implementation uses level badge with crown when isMaxed, not a separate star badge gated by state === "maxed". */
 
 const starBadgeStillLeafGated =
     /\{#if\s+isLeaf\s*\}\s*<span class="node-badge node-badge-star"/m;

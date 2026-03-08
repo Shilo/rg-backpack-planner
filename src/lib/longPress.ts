@@ -1,4 +1,4 @@
-export const LONG_PRESS_MS = 450;
+export const LONG_PRESS_MS = 400;
 export const LONG_PRESS_MOVE_THRESHOLD = 8;
 
 /** Suppress the next pointerup/click for this pointer (invalidates touch after long-press) */

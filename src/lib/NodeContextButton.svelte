@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import { HexagonIcon } from "phosphor-svelte";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { formatNumber } from "./mathUtil";
 

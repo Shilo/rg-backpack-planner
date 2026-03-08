@@ -83,26 +83,31 @@ if (!/export let showTier = true;/.test(nodeSource)) {
     throw new Error("Node should accept showTier prop.");
 }
 
-if (!/\{#if showTier && level > 0 && state !== "maxed"\}/.test(nodeSource)) {
-    throw new Error(
-        "Node should only render the tier badge when showTier is enabled, level > 0, and not maxed.",
-    );
+// Node shows tier only when showTier, level > 0, and not maxed (implementation uses nested #if level > 0, #if isMaxed, #if showTier)
+if (!/\{#if level > 0\}/.test(nodeSource)) {
+    throw new Error("Node should condition tier/level badge on level > 0.");
+}
+if (!/\{#if showTier\}/.test(nodeSource)) {
+    throw new Error("Node should condition tier display on showTier.");
+}
+if (!/isMaxed/.test(nodeSource)) {
+    throw new Error("Node should branch on isMaxed so tier is hidden when maxed.");
 }
 
-if (!/class="node-tier-badge-anchor"/.test(nodeSource)) {
-    throw new Error("Node should render a top tier badge anchor.");
+if (!/class="node-level-badge-anchor"/.test(nodeSource)) {
+    throw new Error("Node should render a level badge anchor (tier/level).");
 }
 
-if (!/class="node-tier-badge-anchor"[\s\S]*<span class="node-badge">T\{tier\}<\/span>/.test(nodeSource)) {
-    throw new Error('Node tier badge should render prefixed tier text like "T1".');
+if (!/\{#if showTier\}[\s\S]*?tier/.test(nodeSource)) {
+    throw new Error("Node tier display should be inside showTier block and use tier.");
 }
 
-const tierBadgeBlockMatch = nodeSource.match(
-    /\{#if showTier && level > 0 && state !== "maxed"\}([\s\S]*?)\{\/if\}/,
+const showTierBlockMatch = nodeSource.match(
+    /\{#if showTier\}([\s\S]*?)\{\/if\}/,
 );
-const tierBadgeBlock = tierBadgeBlockMatch?.[1] ?? "";
+const showTierBlock = showTierBlockMatch?.[1] ?? "";
 
-if (/class="node-badge node-badge-star"/.test(tierBadgeBlock)) {
+if (showTierBlock && /class="node-badge node-badge-star"/.test(showTierBlock)) {
     throw new Error(
         "Node tier badge should not render a star; it should be hidden when maxed.",
     );

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { dismissToast, toastStore, type Toast } from "./toast";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
 
     const timeouts = new Map<string, number>();
 

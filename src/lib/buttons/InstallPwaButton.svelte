@@ -95,7 +95,7 @@
     import { onMount } from "svelte";
     import { DownloadSimpleIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
-    import { triggerHaptic } from "../haptics";
+    import { triggerHaptic } from "../hapticsStore";
     import { getOSName } from "../systemUtil";
     import { t } from "svelte-whisper";
 

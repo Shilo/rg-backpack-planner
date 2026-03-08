@@ -8,7 +8,7 @@
         parseEncodedFromUserInput,
         navigateToEncodedBuild,
     } from "../buildData/url";
-    import { triggerHaptic } from "../haptics";
+    import { triggerHaptic } from "../hapticsStore";
     import type { IconWeight } from "phosphor-svelte";
     import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";

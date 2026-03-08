@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
 
     type SegmentOption = {
         index: number;

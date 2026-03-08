@@ -9,7 +9,7 @@
     import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
     import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
     import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import type { TreeViewState } from "./Tree.svelte";
     import { get } from "svelte/store";
     import {

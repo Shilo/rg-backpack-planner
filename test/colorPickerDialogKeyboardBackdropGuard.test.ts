@@ -16,12 +16,14 @@ if (!/shouldIgnoreBackdropTapForKeyboardDismiss/.test(source)) {
     );
 }
 
-if (
-    !/if \(\s*dismissFocusedTextEntryWithin\("\.color-picker-card"\)\s*\|\|\s*shouldIgnoreBackdropTapForKeyboardDismiss\(\)\s*\)\s*\{[\s\S]*?shouldIgnoreBackdropClick = true;[\s\S]*?isPointerDownOnBackdrop = false;[\s\S]*?\}/m.test(
-        source,
-    )
-) {
+// Implementation uses two branches: didDismissFocusedInput (with isTouch) and shouldIgnoreBackdropTapForKeyboardDismiss().
+if (!/dismissFocusedTextEntryWithin\("\.color-picker-card"\)[\s\S]*?shouldIgnoreBackdropClick = true;[\s\S]*?isPointerDownOnBackdrop = false/.test(source)) {
     throw new Error(
-        "ColorPickerDialog should suppress backdrop close when dismissing focused text entry or when mobile keyboard state is open.",
+        "ColorPickerDialog should set shouldIgnoreBackdropClick and isPointerDownOnBackdrop when dismissing text entry or keyboard.",
+    );
+}
+if (!/shouldIgnoreBackdropTapForKeyboardDismiss\(\)[\s\S]*?shouldIgnoreBackdropClick = true;[\s\S]*?isPointerDownOnBackdrop = false/.test(source)) {
+    throw new Error(
+        "ColorPickerDialog should set shouldIgnoreBackdropClick and isPointerDownOnBackdrop when keyboard-dismiss heuristic applies.",
     );
 }

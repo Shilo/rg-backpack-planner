@@ -10,7 +10,7 @@
         type ThemeColor,
     } from "./themeColorStore";
     import { oklchToHex } from "./themeEngine";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
     import { portal } from "./portal";
     import ContextMenu from "./ContextMenu.svelte";

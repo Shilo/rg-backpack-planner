@@ -4,9 +4,9 @@ import { resolve } from "node:path";
 const nodePath = resolve("src/lib/Node.svelte");
 const source = readFileSync(nodePath, "utf8");
 
-if (!/font-size:\s*12px;/.test(source)) {
+if (!/font-size:\s*var\(--font-xxs\)/.test(source)) {
     throw new Error(
-        "Node badge should use 12px font size for cross-platform stability.",
+        "Node badge should use --font-xxs (theme variable) for typography.",
     );
 }
 

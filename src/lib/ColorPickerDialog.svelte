@@ -4,7 +4,7 @@
     import { portal } from "./portal";
     import { oklchToHex, hexToOklch, applyTheme } from "./themeEngine";
     import { darkMode } from "./darkModeStore";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import { DEFAULT_THEME_COLOR, type ThemeColor } from "./themeColorStore";
     import {
         dismissFocusedTextEntryWithin,

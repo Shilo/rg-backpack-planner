@@ -6,7 +6,7 @@
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { get } from "svelte/store";
 import { closeModal, modalStore } from "./modalStore";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import {
         dismissFocusedTextEntryWithin,
         shouldIgnoreBackdropTapForKeyboardDismiss,

@@ -21,6 +21,7 @@
         suppressNextPointerUp,
         type LongPressState,
     } from "./longPress";
+    import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import {
@@ -595,6 +596,7 @@
             suppressTooltip(pointerId);
             hideTooltip();
             suppressNextPointerUp(pointerId);
+            // No triggerHaptic() needed as mobile will native haptic feedback on long-press.
             contextMenu = {
                 index: pointer.nodeIndex,
                 x: pointer.x,
@@ -1175,6 +1177,9 @@
         overflow: hidden;
         touch-action: none;
         overscroll-behavior: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
     }
 
     .tree-viewport.pan-enabled {

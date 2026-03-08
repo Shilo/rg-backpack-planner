@@ -1,7 +1,7 @@
 <script lang="ts">
     import BottomNavBar from "./BottomNavBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
 
     export let isOpen = false;
     export let tabs: TabBarItem[];

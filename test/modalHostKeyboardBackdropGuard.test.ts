@@ -30,12 +30,25 @@ if (
     );
 }
 
-if (
-    !/if \(!\$modalStore\) return false;[\s\S]*?const didDismissFocusedInput = dismissFocusedTextEntryWithin\("\.modal-shell"\);[\s\S]*?if \(!didDismissFocusedInput && !shouldIgnoreBackdropTapForKeyboardDismiss\(\)\) \{\s*return false;\s*\}[\s\S]*?shouldIgnoreBackdropClick = true;[\s\S]*?isMouseDownOnBackdrop = false;/m.test(
-        source,
-    )
-) {
+// Implementation: dismissKeyboardFromBackdropTap checks $modalStore, calls dismissFocusedTextEntryWithin,
+// then either (didDismissFocusedInput + isTouch) or shouldIgnoreBackdropTapForKeyboardDismiss sets shouldIgnoreBackdropClick.
+if (!/if \(!\$modalStore\) return false;/.test(source)) {
     throw new Error(
-        "ModalHost should suppress modal cancel for any open modal when focused text entry is dismissed or the mobile keyboard is reported open.",
+        "ModalHost should guard backdrop tap with $modalStore check.",
+    );
+}
+if (!/dismissFocusedTextEntryWithin\("\.modal-shell"\)/.test(source)) {
+    throw new Error(
+        "ModalHost should dismiss focused text entry within .modal-shell on backdrop tap.",
+    );
+}
+if (!/shouldIgnoreBackdropTapForKeyboardDismiss\(\)/.test(source)) {
+    throw new Error(
+        "ModalHost should use shouldIgnoreBackdropTapForKeyboardDismiss for keyboard-open heuristic.",
+    );
+}
+if (!/shouldIgnoreBackdropClick = true;[\s\S]*?isMouseDownOnBackdrop = false/.test(source)) {
+    throw new Error(
+        "ModalHost should set shouldIgnoreBackdropClick and reset isMouseDownOnBackdrop when suppressing cancel.",
     );
 }

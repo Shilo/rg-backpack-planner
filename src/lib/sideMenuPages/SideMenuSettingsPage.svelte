@@ -14,7 +14,7 @@
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
     import { tooltip } from "../tooltip";
-    import { triggerHaptic } from "../haptics";
+    import { triggerHaptic, hapticsEnabled } from "../hapticsStore";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -188,6 +188,7 @@
                 nodePrimaryAction.resetToDefault();
                 nodeLevelBehavior.resetToDefault();
                 showTier.resetToDefault();
+                hapticsEnabled.resetToDefault();
                 treeZoomScale.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
@@ -350,6 +351,12 @@
 
 <SideMenuSection title={$t("sideMenu.sections.application")}>
     <LanguageDropdown />
+    <ToggleSwitch
+        checked={$hapticsEnabled}
+        label={$t("settings.haptics")}
+        ariaLabel={$t("settings.haptics")}
+        onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
+    />
     <div class="button-group theme-row">
         <ThemeColorSelector />
         <button

@@ -3,7 +3,7 @@
     import { createEventDispatcher } from "svelte";
     import { showToast } from "./toast";
     import { tooltip, type TooltipContent } from "./tooltip";
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
     export let icon: Component | null = null;

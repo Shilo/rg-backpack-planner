@@ -111,6 +111,7 @@
         "nodeLevelBehaviorSolo": "Solo Only",
         "nodeLevelBehaviorSync": "Sync Lineage",
         "showTier": "Show Tier",
+        "haptics": "Haptic feedback",
         "treeZoom": "Tree Zoom",
         "treeZoomFitOption": "Fit ({scale})",
         "treeZoomCloseUpOption": "Close-up ({scale})",

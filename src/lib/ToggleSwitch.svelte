@@ -7,7 +7,7 @@
     export let icon: Component | null = null;
     export let iconClass = "toggle-icon";
     export let onToggle: (() => void) | null = null;
-    import { triggerHaptic } from "./haptics";
+    import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
 </script>
 
