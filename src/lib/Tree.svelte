@@ -891,12 +891,14 @@
             pointers.size === 0
         ) {
             if (pointer.isRoot) {
+                triggerHaptic();
                 if (onOpenTreeContextMenu) {
                     onOpenTreeContextMenu(event.clientX, event.clientY);
                 } else {
                     focusTreeInView(true);
                 }
             } else if (pointer.nodeIndex !== null) {
+                triggerHaptic();
                 const shouldDecrement =
                     event.pointerType === "mouse" && event.shiftKey;
                 if (shouldDecrement) {

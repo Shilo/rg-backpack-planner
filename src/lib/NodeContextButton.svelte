@@ -21,8 +21,8 @@
     class:positive
     class:negative
     {disabled}
-    on:pointerdown={() => triggerHaptic()}
     on:click={() => {
+        if (onClick || toastMessage) triggerHaptic();
         if (onClick) onClick();
         if (toastMessage) {
             showToast(toastMessage, {

@@ -13,6 +13,7 @@
 
 <script lang="ts">
     import type { Component } from "svelte";
+    import { triggerHaptic } from "./hapticsStore";
 
     type FabMenuAction = {
         id: string;
@@ -29,6 +30,7 @@
 
     async function handleActionClick(action: FabMenuAction): Promise<void> {
         if (action.disabled) return;
+        triggerHaptic();
         await action.onClick();
     }
 </script>

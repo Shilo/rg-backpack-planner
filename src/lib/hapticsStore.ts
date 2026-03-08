@@ -4,6 +4,7 @@ import { getItem, setItem } from "./storage";
 const DEFAULT_HAPTICS_ENABLED = true;
 
 const HAPTIC_COOLDOWN_MS = 140;
+const TAP_HAPTIC_MS = 1;
 let lastHapticAt = 0;
 /** Only call vibrate after a user gesture to avoid Chrome's "[Intervention] Blocked call to navigator.vibrate because user hasn't tapped on the frame..." */
 let userHasTouched = false;
@@ -15,7 +16,7 @@ function markInteracted() {
     }
 }
 
-export function triggerHaptic(durationMs = 5) {
+export function triggerHaptic(durationMs = TAP_HAPTIC_MS) {
     if (!get(hapticsEnabled)) return;
     if (!userHasTouched) return; // Avoid Chrome intervention (see comment on userHasInteracted)
 

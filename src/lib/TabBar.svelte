@@ -11,10 +11,16 @@
 
 <script lang="ts">
     import { tooltip } from "./tooltip";
+    import { triggerHaptic } from "./hapticsStore";
 
     export let tabs: TabBarItem[];
     export let activeTab: string;
     export let onTabChange: (tabId: string) => void;
+
+    function handleTabClick(tabId: string) {
+        triggerHaptic();
+        onTabChange(tabId);
+    }
 </script>
 
 <div class="tab-bar">
@@ -25,7 +31,7 @@
                 class:active={activeTab === tab.id}
                 aria-label={tab.label}
                 use:tooltip={tab.tooltip ?? ""}
-                on:click={() => onTabChange(tab.id)}
+                on:click={() => handleTabClick(tab.id)}
                 type="button"
             >
                 {#if tab.icon}

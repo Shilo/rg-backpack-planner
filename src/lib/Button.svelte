@@ -81,6 +81,7 @@
 
     const handleClick = (event: MouseEvent) => {
         forward(event);
+        triggerHaptic();
         if (toastMessage) {
             showToast(toastMessage, {
                 tone: toastNegative ? "negative" : "positive",
@@ -90,7 +91,6 @@
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-        triggerHaptic();
         forward(event);
     };
 </script>

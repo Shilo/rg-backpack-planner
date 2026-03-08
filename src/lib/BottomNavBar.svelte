@@ -4,11 +4,17 @@
     import type { TabBarItem } from "./TabBar.svelte";
     import { tooltip } from "./tooltip";
     import { t } from "svelte-whisper";
+    import { triggerHaptic } from "./hapticsStore";
 
     export let tabs: TabBarItem[];
     export let activeTab: string;
     export let onTabChange: (tabId: string) => void;
     export let onClose: (() => void) | null = null;
+
+    function handleCloseClick() {
+        triggerHaptic();
+        onClose?.();
+    }
 </script>
 
 <div class="bottom-nav-bar">
@@ -17,7 +23,7 @@
         class="bottom-nav-bar__close-button"
         aria-label={$t("common.close")}
         use:tooltip={$t("common.close")}
-        on:click={() => onClose?.()}
+        on:click={handleCloseClick}
         type="button"
     >
         <svelte:component
