@@ -244,77 +244,74 @@ export function applyTheme(
         ? "rgba(255, 255, 255, 0.5)"
         : "rgba(0, 0, 0, 0.25)";
 
-    // ── Region accent palettes ──
+    // ── Region accent palettes (static, no theme harmonization) ──
+    // Muted colors for readability, especially on mobile. Orange vs amber
+    // separated for red/green colorblind distinction.
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: 25, chroma: 0.23 },
-        { name: "yellow", hue: 95, chroma: 0.19 },
-        { name: "blue", hue: 255, chroma: 0.15 },
+        { name: "orange", hue: 18, chroma: 0.11 },   // Reddish-orange
+        { name: "yellow", hue: 78, chroma: 0.11 },  // Amber (distinct from orange)
+        { name: "blue", hue: 255, chroma: 0.11 },
     ];
 
     for (const region of regions) {
-        const rawHue = region.hue;
-        const softenedHue = harmonize(region.hue, source.h, harmonizeAmount);
+        const h = region.hue;
         const c = region.chroma;
 
         if (isDark) {
-            vars[`--region-${region.name}-accent`] = oklchToHex(
-                0.72,
-                c,
-                rawHue,
-            );
-            vars[`--region-${region.name}-light`] = oklchToHex(0.85, c, rawHue);
+            vars[`--region-${region.name}-accent`] = oklchToHex(0.58, c, h);
+            vars[`--region-${region.name}-light`] = oklchToHex(0.68, c, h);
             vars[`--region-${region.name}-bg-available`] = oklchToHex(
                 0.22,
-                c * 0.5,
-                softenedHue,
+                c * 0.45,
+                h,
             );
             vars[`--region-${region.name}-bg-active`] = oklchToHex(
-                0.36,
-                c * 0.7,
-                rawHue,
+                0.32,
+                c * 0.55,
+                h,
             );
             vars[`--region-${region.name}-bg-maxed`] = oklchToHex(
-                0.46,
-                c * 0.8,
-                rawHue,
+                0.40,
+                c * 0.6,
+                h,
             );
             vars[`--region-${region.name}-text`] = oklchToHex(
-                0.8,
-                c * 0.7,
-                rawHue,
+                0.75,
+                c * 0.55,
+                h,
             );
             vars[`--region-${region.name}-text-maxed`] = oklchToHex(
-                0.9,
-                c * 0.5,
-                rawHue,
+                0.85,
+                c * 0.4,
+                h,
             );
         } else {
-            vars[`--region-${region.name}-accent`] = oklchToHex(0.5, c, rawHue);
-            vars[`--region-${region.name}-light`] = oklchToHex(0.4, c, rawHue);
+            vars[`--region-${region.name}-accent`] = oklchToHex(0.45, c, h);
+            vars[`--region-${region.name}-light`] = oklchToHex(0.38, c, h);
             vars[`--region-${region.name}-bg-available`] = oklchToHex(
                 0.92,
-                c * 0.3,
-                softenedHue,
+                c * 0.25,
+                h,
             );
             vars[`--region-${region.name}-bg-active`] = oklchToHex(
-                0.86,
-                c * 0.4,
-                rawHue,
+                0.84,
+                c * 0.35,
+                h,
             );
             vars[`--region-${region.name}-bg-maxed`] = oklchToHex(
-                0.8,
-                c * 0.5,
-                rawHue,
+                0.76,
+                c * 0.4,
+                h,
             );
             vars[`--region-${region.name}-text`] = oklchToHex(
-                0.3,
-                c * 0.7,
-                rawHue,
+                0.28,
+                c * 0.55,
+                h,
             );
             vars[`--region-${region.name}-text-maxed`] = oklchToHex(
-                0.2,
-                c * 0.5,
-                rawHue,
+                0.20,
+                c * 0.4,
+                h,
             );
         }
     }
