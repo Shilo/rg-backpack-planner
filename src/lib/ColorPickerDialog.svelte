@@ -10,6 +10,7 @@
         dismissFocusedTextEntryWithin,
         shouldIgnoreBackdropTapForKeyboardDismiss,
     } from "./useBackdropTextEntryDismiss";
+    import { pushOverlay, popOverlay } from "./overlayHistory";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
 
@@ -26,6 +27,7 @@
     let wasOpen = false;
     let previewDark = true;
     let translate = $t;
+    let wePushedOverlay = false;
 
     // Pointer tracking
     let gridEl: HTMLDivElement | null = null;
@@ -145,8 +147,19 @@
             isEditingHex = false;
             previewDark = get(darkMode);
             selectedL = initialColor.l ?? (previewDark ? 0.7 : 0.45);
+            pushOverlay(() => {
+                wePushedOverlay = false;
+                const realDark = get(darkMode);
+                applyTheme(initialColor, realDark ? "dark" : "light");
+                onCancel?.();
+            });
+            wePushedOverlay = true;
         }
         wasOpen = isOpen;
+    }
+    $: if (!isOpen && wePushedOverlay) {
+        wePushedOverlay = false;
+        popOverlay(true);
     }
 
     // Live preview
@@ -265,13 +278,18 @@
         const savedH = c < 0.015 ? 0 : h;
         applyTheme({ h: savedH, c, l: selectedL }, realDark ? "dark" : "light");
         onApply?.({ h: savedH, c, l: selectedL });
+        if (wePushedOverlay) {
+            wePushedOverlay = false;
+            popOverlay(true);
+        }
     }
 
     function handleCancel() {
         triggerHaptic();
         const realDark = get(darkMode);
         applyTheme(initialColor, realDark ? "dark" : "light");
-        onCancel?.();
+        if (wePushedOverlay) popOverlay();
+        else onCancel?.();
     }
 
     /** True when pointer is touch; first backdrop tap then only dismisses keyboard. */
@@ -326,7 +344,12 @@
         if (event.key === "Escape") {
             event.preventDefault();
             event.stopImmediatePropagation();
-            handleCancel();
+            if (wePushedOverlay) popOverlay();
+            else {
+                const realDark = get(darkMode);
+                applyTheme(initialColor, realDark ? "dark" : "light");
+                onCancel?.();
+            }
         } else if (event.key === "Enter") {
             if (document.activeElement instanceof HTMLButtonElement) return;
             event.preventDefault();
