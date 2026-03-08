@@ -206,7 +206,10 @@
         --node-icon-color: var(--border-color-active);
     }
     .node-wrapper.maxed {
-        --node-icon-color: var(--border-color-maxed);
+        /* Maxed uses same color as active so it never looks different */
+        --border-color-maxed: var(--border-color-active);
+        --text-color-maxed: var(--text-color-active);
+        --node-icon-color: var(--border-color-active);
     }
 
     /* Name badge: background per state; text color is contrast-based (see 
@@ -227,7 +230,7 @@
         background: var(--badge-bg);
     }
     .node-wrapper.maxed .node-badge-slot-name .node-badge {
-        --badge-bg: var(--border-color-maxed);
+        --badge-bg: var(--border-color-active);
         background: var(--badge-bg);
     }
 
@@ -576,11 +579,12 @@
     }
 
     .node-wrapper :global(.button.node.maxed) {
-        background: var(--bg-maxed);
-        border-color: var(--border-color-maxed);
-        color: var(--text-color-maxed);
-        --hex-fill: var(--bg-maxed);
-        --hex-border-color: var(--border-color-maxed);
-        --node-icon-color: var(--border-color-maxed);
+        /* Maxed uses same color as active so it never looks different */
+        background: var(--bg-active);
+        border-color: var(--border-color-active);
+        color: var(--text-color-active);
+        --hex-fill: var(--bg-active);
+        --hex-border-color: var(--border-color-active);
+        --node-icon-color: var(--border-color-active);
     }
 </style>
