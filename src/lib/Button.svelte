@@ -138,8 +138,9 @@
         text-align: left;
         line-height: var(--leading-none);
         transition:
-            transform var(--ease),
-            filter var(--ease);
+            transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter var(--ease),
+            box-shadow var(--ease);
     }
 
     .button:not(:disabled) {
@@ -215,7 +216,8 @@
 
     .button:not(:disabled):active {
         filter: var(--brightness-hover);
-        transform: scale(0.96);
+        transform: scale(0.95);
+        transition-duration: 0.1s;
     }
 
     .button-sm {

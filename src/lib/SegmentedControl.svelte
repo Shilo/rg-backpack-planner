@@ -256,6 +256,7 @@
     .segmented-control__segment.segment-selected {
         color: var(--text);
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
+        box-shadow: inset 0 0 8px color-mix(in srgb, var(--accent) 12%, transparent);
     }
 
     .segmented-control__segment-text {

@@ -43,6 +43,7 @@
     {#each $toastStore as toast (toast.id)}
         <div
             class="toast toast--{toast.tone}"
+            style="--toast-duration: {toast.durationMs}ms;"
             role="button"
             tabindex="0"
             on:click={() => {
@@ -57,6 +58,7 @@
             }}
         >
             <span class="toast__message">{toast.message}</span>
+            <div class="toast__progress"></div>
         </div>
     {/each}
 </div>
@@ -93,6 +95,15 @@
         color: var(--text-muted);
         font-size: var(--font-base);
         line-height: var(--leading);
+        position: relative;
+        overflow: hidden;
+        animation: toast-enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        cursor: pointer;
+        transition: transform var(--ease), opacity var(--ease);
+    }
+
+    .toast:active {
+        transform: scale(0.97);
     }
 
     .toast--negative {
@@ -103,5 +114,39 @@
 
     .toast__message {
         flex: 1;
+    }
+
+    .toast__progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        background: color-mix(in srgb, var(--accent) 70%, transparent);
+        border-radius: 0 0 0 var(--radius);
+        animation: toast-progress var(--toast-duration, 3000ms) linear both;
+    }
+
+    .toast--negative .toast__progress {
+        background: color-mix(in srgb, var(--danger-text) 60%, transparent);
+    }
+
+    @keyframes toast-enter {
+        0% {
+            opacity: 0;
+            transform: translateX(-24px) scale(0.92);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    @keyframes toast-progress {
+        0% {
+            width: 100%;
+        }
+        100% {
+            width: 0%;
+        }
     }
 </style>

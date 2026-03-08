@@ -115,8 +115,8 @@
         border: var(--border-width) solid
             color-mix(in srgb, var(--border) 90%, transparent);
         transition:
-            background var(--ease),
-            border-color var(--ease);
+            background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+            border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
     }
 
@@ -133,8 +133,10 @@
         height: 24px;
         border-radius: 50%;
         background: white;
-        transition: transform var(--ease);
-        box-shadow: var(--shadow);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow:
+            var(--shadow),
+            0 1px 3px rgba(0, 0, 0, 0.12);
     }
 
     .toggle-switch.active .toggle-switch__thumb {

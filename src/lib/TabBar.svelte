@@ -140,7 +140,7 @@
 
     .tab-bar__tab-button.active {
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
-        color: var(--text-muted);
+        color: var(--text);
         border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
         z-index: 2;
     }

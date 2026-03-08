@@ -79,10 +79,28 @@
         text-transform: none;
         cursor: pointer;
         transition:
-            transform var(--ease),
+            transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
             filter var(--ease),
             background var(--ease),
             border-color var(--ease);
+        animation: fab-action-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .fab-menu__action:nth-child(1) { animation-delay: 0ms; }
+    .fab-menu__action:nth-child(2) { animation-delay: 40ms; }
+    .fab-menu__action:nth-child(3) { animation-delay: 80ms; }
+    .fab-menu__action:nth-child(4) { animation-delay: 120ms; }
+    .fab-menu__action:nth-child(5) { animation-delay: 160ms; }
+
+    @keyframes fab-action-in {
+        from {
+            opacity: 0;
+            transform: translateX(12px) scale(0.92);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
     }
 
     .fab-menu__icon {

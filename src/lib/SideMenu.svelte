@@ -134,10 +134,12 @@
     :global(.menu-backdrop) {
         position: fixed;
         inset: 0;
-        background: var(--backdrop-overlay, rgba(0, 0, 0, 0.5));
+        background: var(--backdrop-overlay, rgba(0, 0, 0, 0.45));
+        backdrop-filter: var(--backdrop-blur-light);
+        -webkit-backdrop-filter: var(--backdrop-blur-light);
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.15s ease;
+        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-side-menu) - 2);
@@ -162,13 +164,14 @@
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
         transform: translateX(100%);
-        transition: transform 0.15s ease;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         padding: 0;
         display: flex;
         flex-direction: column;
         gap: 0px;
         overflow: hidden;
         z-index: var(--z-index-side-menu);
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
     }
 
     .side-menu.skip-transition {
@@ -177,6 +180,7 @@
 
     .side-menu.open {
         transform: translateX(0);
+        box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15);
     }
 
     .side-menu__content {
@@ -220,6 +224,32 @@
     .side-menu__content-inner {
         display: grid;
         gap: var(--spacing-lg);
+    }
+
+    .side-menu__content-inner > :global(*) {
+        animation: side-menu-item-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .side-menu__content-inner > :global(:nth-child(1)) { animation-delay: 20ms; }
+    .side-menu__content-inner > :global(:nth-child(2)) { animation-delay: 50ms; }
+    .side-menu__content-inner > :global(:nth-child(3)) { animation-delay: 80ms; }
+    .side-menu__content-inner > :global(:nth-child(4)) { animation-delay: 110ms; }
+    .side-menu__content-inner > :global(:nth-child(5)) { animation-delay: 140ms; }
+    .side-menu__content-inner > :global(:nth-child(6)) { animation-delay: 170ms; }
+    .side-menu__content-inner > :global(:nth-child(7)) { animation-delay: 200ms; }
+    .side-menu__content-inner > :global(:nth-child(8)) { animation-delay: 230ms; }
+    .side-menu__content-inner > :global(:nth-child(9)) { animation-delay: 260ms; }
+    .side-menu__content-inner > :global(:nth-child(10)) { animation-delay: 290ms; }
+
+    @keyframes side-menu-item-in {
+        from {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 
     .side-menu__content-inner > :global(:first-child) {

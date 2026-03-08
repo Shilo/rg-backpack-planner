@@ -305,6 +305,13 @@
         padding: 0;
         text-align: center;
         box-shadow: var(--shadow-node);
+        transition:
+            background 0.25s ease,
+            border-color 0.25s ease,
+            color 0.25s ease,
+            filter 0.25s ease,
+            transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow 0.25s ease;
     }
 
     /* Top-left region (Orange theme) */
@@ -445,12 +452,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform var(--ease);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter var(--ease);
         z-index: 0;
     }
 
     .node-wrapper:active .node-icon-container {
-        transform: translate(-50%, -50%) scale(0.96);
+        transform: translate(-50%, -50%) scale(0.88);
+        transition-duration: 0.1s;
     }
 
     .node-wrapper-hex .node-icon-container {
@@ -481,8 +489,9 @@
         overflow-wrap: normal;
         transition:
             filter var(--ease),
-            transform var(--ease),
-            box-shadow var(--ease);
+            transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+            box-shadow var(--ease),
+            background 0.25s ease;
 
         font-size: var(--font-xxs);
         font-weight: bold;
@@ -557,12 +566,14 @@
 
     .node-wrapper:active .node-badge {
         filter: var(--brightness-hover);
-        transform: scale(calc(var(--node-badge-scale, 1) * 0.9));
+        transform: scale(calc(var(--node-badge-scale, 1) * 0.88));
+        transition-duration: 0.1s;
     }
 
     .node-wrapper:active :global(.button.node:not(:disabled)) {
         filter: var(--brightness-hover);
-        transform: scale(0.96);
+        transform: scale(0.93);
+        transition-duration: 0.1s;
     }
 
     .node-level-badge {
@@ -612,15 +623,20 @@
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
+        box-shadow:
+            var(--shadow-node),
+            0 0 8px color-mix(in srgb, var(--border-color-active) 30%, transparent);
     }
 
     .node-wrapper :global(.button.node.maxed) {
-        /* Maxed uses same color as active so it never looks different */
         background: var(--bg-active);
         border-color: var(--border-color-active);
         color: var(--text-color-active);
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
+        box-shadow:
+            var(--shadow-node),
+            0 0 12px color-mix(in srgb, var(--border-color-active) 40%, transparent);
     }
 </style>

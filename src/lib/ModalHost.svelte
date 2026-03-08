@@ -258,6 +258,8 @@
         width: 100%;
         height: var(--vv-height, 100vh);
         background: var(--backdrop-overlay);
+        backdrop-filter: var(--backdrop-blur);
+        -webkit-backdrop-filter: var(--backdrop-blur);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -270,16 +272,14 @@
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
+        animation: modal-backdrop-in 0.2s ease both;
     }
 
-    /* Dialog container: centered, scrollable, width from content up to viewport cap */
     .modal-shell {
         margin-top: auto;
         margin-bottom: auto;
         flex-shrink: 0;
-        /* At least 380px (or 92vw on narrow viewports); scales with rem but not below 1x size */
         min-width: max(380px, min(92vw, 23.75rem));
-        /* Cap at 92vw or 100% of container so it never overflows */
         max-width: min(92vw, 100%);
         max-height: 100%;
         width: max-content;
@@ -291,12 +291,35 @@
                 color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
                 transparent
             );
-        box-shadow: var(--shadow);
+        box-shadow:
+            var(--shadow),
+            0 8px 32px rgba(0, 0, 0, 0.12);
         padding: 0;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
         display: grid;
         gap: var(--spacing-lg);
+        animation: modal-shell-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes modal-backdrop-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes modal-shell-in {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
     }
 
     /* Confirm, number input, and text input modals: narrower shell, scales with font, floor at 320px */

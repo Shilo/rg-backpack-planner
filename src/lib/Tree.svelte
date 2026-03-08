@@ -1273,7 +1273,7 @@
 </script>
 
 {#key fadeKey}
-    <div class="tree-root" in:fade={{ duration: 300 }}>
+    <div class="tree-root" in:fade={{ duration: 250 }}>
         <div
             class="tree-viewport"
             class:pan-enabled={!gesturesDisabled}
@@ -1399,7 +1399,9 @@
         stroke-width: 4;
         stroke: var(--link-color);
         filter: none;
-        transition: stroke-opacity 0.2s;
+        transition:
+            stroke-opacity 0.3s ease,
+            stroke 0.3s ease;
     }
 
     .tree-links .tree-link.region-top-left {

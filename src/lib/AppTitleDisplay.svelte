@@ -66,9 +66,22 @@
         padding: var(--spacing-sm) var(--spacing-lg);
         pointer-events: auto;
         --app-title-display-duration: 2s;
-        --app-title-display-fade: 200ms;
-        animation: app-title-fade var(--app-title-display-fade) ease-in forwards;
-        animation-delay: var(--app-title-display-duration);
+        --app-title-display-fade: 300ms;
+        animation:
+            app-title-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both,
+            app-title-fade var(--app-title-display-fade) ease-in forwards;
+        animation-delay: 0ms, var(--app-title-display-duration);
+    }
+
+    @keyframes app-title-enter {
+        0% {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
     @keyframes app-title-fade {

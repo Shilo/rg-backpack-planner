@@ -546,11 +546,12 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: radial-gradient(
-            circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
-            color-mix(in srgb, var(--bg) 20%, var(--surface)),
-            var(--bg) 100%
-        );
+        background:
+            radial-gradient(
+                ellipse 120% 80% at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
+                color-mix(in srgb, var(--bg) 15%, var(--surface)),
+                var(--bg) 85%
+            );
         position: relative;
     }
 
@@ -647,8 +648,9 @@
 
     :global(.tab-buttons button.active) {
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
-        color: var(--text-muted);
+        color: var(--text);
         border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+        box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 20%, transparent);
     }
 
     :global(.fullscreen-button) {

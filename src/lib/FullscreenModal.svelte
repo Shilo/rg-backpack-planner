@@ -58,6 +58,18 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        animation: fullscreen-modal-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes fullscreen-modal-in {
+        from {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 
     .fullscreen-modal__content {

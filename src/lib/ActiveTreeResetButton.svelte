@@ -53,5 +53,17 @@
 <style>
     :global(.active-tree-reset) {
         border-radius: 999px !important;
+        animation: reset-btn-enter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes reset-btn-enter {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 </style>

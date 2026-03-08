@@ -566,13 +566,13 @@
     .top-left-actions {
         left: 0;
         align-items: flex-start;
-        transition: left 0.15s ease;
+        transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .top-right-actions {
         right: 0;
         align-items: flex-end;
-        transition: right 0.15s ease;
+        transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @media (min-width: 768px) {

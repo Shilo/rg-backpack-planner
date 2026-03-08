@@ -49,6 +49,19 @@
         font-weight: var(--weight-bold);
         font-size: var(--font-lg) !important;
         letter-spacing: var(--tracking);
+        animation: currency-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation-delay: 0.1s;
+    }
+
+    @keyframes currency-enter {
+        from {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
     :global(.currency-display .button-text) {
@@ -65,6 +78,7 @@
     .currency-spent {
         text-align: right;
         color: var(--text);
+        transition: color 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .currency-spent.is-negative {

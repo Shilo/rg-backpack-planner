@@ -363,6 +363,21 @@
         cursor: move;
         touch-action: none;
         user-select: none;
+        box-shadow:
+            var(--shadow),
+            0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: context-menu-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes context-menu-in {
+        from {
+            opacity: 0;
+            filter: blur(2px);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+        }
     }
 
     .context-menu :global(button),
@@ -393,9 +408,21 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay-context);
+        backdrop-filter: var(--backdrop-blur-light);
+        -webkit-backdrop-filter: var(--backdrop-blur-light);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);
         cursor: default;
+        animation: context-backdrop-in 0.15s ease both;
+    }
+
+    @keyframes context-backdrop-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 </style>
