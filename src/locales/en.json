@@ -411,6 +411,8 @@
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
         "keyboardCycleTabsLabel": "Tab - Cycle tree tabs",
         "keyboardCycleTabsDescription": "Switch between Guardian, Vanguard, and Cannon trees.",
+        "keyboardBackspaceResetLabel": "Backspace - Reset active tree",
+        "keyboardBackspaceResetDescription": "Open reset confirmation for the current tree when it has levels.",
         "hudTechCrystalsLabel": "Tech Crystals (Currency)",
         "hudTechCrystalsDescription": "View spent and set owned amount",
         "hudResetTreeLabel": "Reset active tree",

@@ -404,6 +404,8 @@
         "keyboardScreenshotDescription": "ツリー画像のプレビューと共有",
         "keyboardCycleTabsLabel": "Tab - ツリータブを切り替え",
         "keyboardCycleTabsDescription": "ガーディアン、ヴァンガード、キャノンのツリーを切り替えます。",
+        "keyboardBackspaceResetLabel": "Backspace - 表示中のツリーをリセット",
+        "keyboardBackspaceResetDescription": "現在のツリーにレベルがある場合、リセット確認を開く。",
         "hudTechCrystalsLabel": "テッククリスタル (通貨)",
         "hudTechCrystalsDescription": "消費量を確認し、所持量を設定",
         "hudResetTreeLabel": "現在表示中のツリーをリセット",

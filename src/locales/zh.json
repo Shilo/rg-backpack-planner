@@ -404,6 +404,8 @@
         "keyboardScreenshotDescription": "预览并分享技能树图像",
         "keyboardCycleTabsLabel": "Tab - 切换技能树标签",
         "keyboardCycleTabsDescription": "在 Guardian、Vanguard、Cannon 技能树之间切换。",
+        "keyboardBackspaceResetLabel": "Backspace - 重置当前技能树",
+        "keyboardBackspaceResetDescription": "当前技能树有等级时打开重置确认。",
         "hudTechCrystalsLabel": "科技水晶 (货币)",
         "hudTechCrystalsDescription": "查看已消耗数量并设置拥有数量",
         "hudResetTreeLabel": "重置当前技能树",

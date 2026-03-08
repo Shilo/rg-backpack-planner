@@ -480,6 +480,19 @@
                             {$t("controls.keyboardCycleTabsDescription")}
                         </p>
                     </li>
+                    <li class="control-row">
+                        <div class="control-label-row">
+                            <span class="control-icon" aria-hidden="true">
+                                <ArrowCounterClockwiseIcon />
+                            </span>
+                            <p class="control-label">
+                                {$t("controls.keyboardBackspaceResetLabel")}
+                            </p>
+                        </div>
+                        <p class="control-desc control-desc-standalone">
+                            {$t("controls.keyboardBackspaceResetDescription")}
+                        </p>
+                    </li>
                 </ul>
             </SideMenuSection>
         {/if}

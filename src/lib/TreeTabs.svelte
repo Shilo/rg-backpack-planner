@@ -26,8 +26,11 @@
         resetAllTreeLevels,
         resetTreeLevels,
         setTreeLevels,
+        sumLevels,
         treeLevels,
     } from "./treeLevelsStore";
+    import { openResetTreeModal } from "./resetTreeModal";
+    import { isKeyboardShortcutTarget } from "./domUtil";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
@@ -92,27 +95,10 @@
         return event as MouseEvent;
     }
 
-    function isFormField(el: Element | null): boolean {
-        if (!el || !(el instanceof HTMLElement)) return false;
-        const tag = el.tagName.toLowerCase();
-        if (tag === "input" || tag === "textarea" || tag === "select")
-            return true;
-        if (el.isContentEditable) return true;
-        return !!el.closest(
-            "input, textarea, select, [contenteditable='true']",
-        );
-    }
-
     function handleTabKeydown(event: KeyboardEvent) {
         if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
-        const activeEl = document.activeElement;
-        const inTree =
-            activeEl &&
-            (tabsRootEl.contains(activeEl) ||
-                activeEl === document.body ||
-                activeEl === document.documentElement);
-        if (!inTree) return;
-        if (isFormField(activeEl as Element)) return;
+        if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
+            return;
 
         if (event.repeat) {
             const now = performance.now();
@@ -408,6 +394,14 @@
         closeTabMenu();
     }
 
+    function openResetModalForActiveTab() {
+        const tab = tabs[activeIndex];
+        if (!tab) return;
+        const levels = $treeLevels[activeIndex];
+        if (sumLevels(levels) === 0) return;
+        openResetTreeModal($t, tab.label, () => resetTabTree(tab.id));
+    }
+
     export function resetActiveTree() {
         if (!tabs[activeIndex]) return;
         resetTreeByIndex(activeIndex);
@@ -495,6 +489,7 @@
                     levelsById={$treeLevels[activeIndex] ?? null}
                     globalLeveledLeafNodesOutsideTreeCount={globalLeveledLeafNodesOutsideActiveTreeCount}
                     onLevelsChange={handleLevelsChange}
+                    onRequestReset={openResetModalForActiveTab}
                     {bottomInset}
                     gesturesDisabled={!!tabContextMenu}
                     initialViewState={lastViewState}

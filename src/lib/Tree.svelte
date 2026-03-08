@@ -51,6 +51,7 @@
         shouldBlockIncrementForGlobalLeafCap,
     } from "./globalLeafCap";
     import { getTreeViewportPadding, getTreeWorldBounds } from "./treeLayout";
+    import { isKeyboardShortcutTarget } from "./domUtil";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { locale, t } from "svelte-whisper";
 
@@ -67,6 +68,7 @@
         | null = null;
     export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
         null;
+    export let onRequestReset: (() => void) | null = null;
 
     let levels: LevelsByIndex = [];
     let contextMenu: { index: NodeIndex | null; x: number; y: number } | null =
@@ -579,6 +581,19 @@
 
     function isInContextMenu(target: EventTarget | null) {
         return target instanceof Element && !!target.closest(".context-menu");
+    }
+
+    $: hasLevelsToReset =
+        levels.length > 0 &&
+        levels.reduce((sum, l) => sum + (l ?? 0), 0) > 0;
+
+    function handleBackspaceKeydown(event: KeyboardEvent) {
+        if (event.key !== "Backspace") return;
+        if (!viewportEl || !onRequestReset || !hasLevelsToReset) return;
+        if (event.repeat) return;
+        if (!isKeyboardShortcutTarget(document.activeElement, viewportEl)) return;
+        event.preventDefault();
+        onRequestReset();
     }
 
     function cancelActiveGestures() {
@@ -1218,10 +1233,12 @@
             focusTreeInView();
         };
         window.addEventListener("resize", handleResize, { passive: true });
+        window.addEventListener("keydown", handleBackspaceKeydown, true);
 
         return () => {
             hasMounted = false;
             window.removeEventListener("resize", handleResize);
+            window.removeEventListener("keydown", handleBackspaceKeydown, true);
             if (resizeObserver) {
                 resizeObserver.disconnect();
                 resizeObserver = null;
