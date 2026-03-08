@@ -2,6 +2,7 @@
     import { onMount, tick } from "svelte";
     import { HexagonIcon } from "phosphor-svelte";
     import { tooltipStore } from "./tooltip";
+    import { portal } from "./portal";
 
     let tooltipEl: HTMLDivElement | null = null;
     let boundedX = 0;
@@ -9,7 +10,7 @@
 
     const TOOLTIP_MARGIN = 8;
     /** Minimum distance from touch point to tooltip edge so the finger doesn't cover text */
-    const FINGER_AVOID_OFFSET = 32;
+    const FINGER_AVOID_OFFSET = 52;
     const HOVER_OFFSET = 12;
 
     function clamp(value: number, min: number, max: number) {
@@ -137,33 +138,38 @@
 </script>
 
 {#if $tooltipStore.isOpen}
-    <div
-        class="tooltip"
-        bind:this={tooltipEl}
-        style={`left: ${boundedX}px; top: ${boundedY}px;`}
-        aria-hidden="true"
-    >
-        {#if $tooltipStore.costLine != null}
-            {#if $tooltipStore.text}
-                <div class="tooltip-line">{$tooltipStore.text}</div>
-            {/if}
+    <!-- Wrapper keeps portaled node from being component's only top-level node (Svelte 5 DOM tracking). -->
+    <div hidden>
+        <div use:portal>
             <div
-                class="tooltip-cost-line"
-                class:refund={$tooltipStore.costLineRefund}
+                class="tooltip"
+                bind:this={tooltipEl}
+                style={`left: ${boundedX}px; top: ${boundedY}px;`}
+                aria-hidden="true"
             >
-                <HexagonIcon
-                    size={14}
-                    weight="fill"
-                    class="tooltip-cost-icon"
-                />
-                <span class="tooltip-cost-value"
-                    >{$tooltipStore.costLineRefund
-                        ? "+"
-                        : "-"}{$tooltipStore.costLine}</span
-                >
+                {#if $tooltipStore.costLine != null}
+                    {#if $tooltipStore.text}
+                        <div class="tooltip-line">{$tooltipStore.text}</div>
+                    {/if}
+                    <div
+                        class="tooltip-cost-line"
+                        class:refund={$tooltipStore.costLineRefund}
+                    >
+                        <HexagonIcon
+                            size={14}
+                            weight="fill"
+                            class="tooltip-cost-icon"
+                        />
+                        <span class="tooltip-cost-value"
+                            >{$tooltipStore.costLineRefund
+                                ? "+"
+                                : "-"}{$tooltipStore.costLine}</span
+                        >
+                    </div>
+                {:else}
+                    {$tooltipStore.text}
+                {/if}
             </div>
-        {:else}
-            {$tooltipStore.text}
-        {/if}
+        </div>
     </div>
 {/if}

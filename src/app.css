@@ -172,11 +172,12 @@ textarea,
     color: var(--text-muted);
     font-size: var(--font-base);
     letter-spacing: var(--tracking);
-    max-width: 240px;
+    width: max-content;
+    max-width: min(240px, calc(100vw - 2 * 8px));
     text-align: center;
     white-space: pre-line;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: break-word;
+    word-break: normal;
     hyphens: auto;
     box-shadow: var(--shadow);
     pointer-events: none;
