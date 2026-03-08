@@ -55,19 +55,22 @@
 <style>
     .modal-content {
         display: grid;
-        gap: var(--spacing-lg);
-        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+        padding: var(--spacing-sm);
+        width: 100%;
+        min-width: 0;
     }
 
     .modal-header {
         display: flex;
         align-items: center;
+        min-width: 0;
     }
 
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: var(--spacing-md);
+        gap: var(--spacing-sm);
     }
 
     .modal-header h2 {
@@ -87,15 +90,17 @@
         margin: 0;
         font-size: var(--font-base);
         color: var(--text-muted);
-        line-height: 1.4;
+        line-height: 1.35;
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;
+        min-width: 0;
     }
 
     .modal-actions {
         display: flex;
         justify-content: flex-end;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
+        min-width: 0;
     }
 </style>

@@ -15,8 +15,8 @@ export function openTechCrystalsOwnedModal(
         type: "input",
         title: tooltipSubject
             ? tr("techCrystals.ownedModalTitleWithSubject", {
-                  subject: normalizedSubject,
-              })
+                subject: normalizedSubject,
+            })
             : tr("techCrystals.ownedModalTitle"),
         titleIcon: HexagonIcon,
         titleIconWeight: "fill",
@@ -35,8 +35,6 @@ export function openTechCrystalsOwnedModal(
                 icon: HexagonIcon,
             },
         }),
-        confirmLabel: tr("common.save"),
-        cancelLabel: tr("common.cancel"),
         onConfirm: (value) => {
             if (typeof value === "number") {
                 setTechCrystalsOwned(value);

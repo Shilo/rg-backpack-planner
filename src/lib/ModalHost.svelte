@@ -5,7 +5,7 @@
     import TextInputModal from "./modals/TextInputModal.svelte";
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import { get } from "svelte/store";
-import { closeModal, modalStore } from "./modalStore";
+    import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./hapticsStore";
     import {
         dismissFocusedTextEntryWithin,
@@ -28,7 +28,7 @@ import { closeModal, modalStore } from "./modalStore";
                 const current = get(modalStore);
                 if (current?.type === "confirm") {
                     const btn = document.querySelector<HTMLButtonElement>(
-                        "[data-modal-confirm]"
+                        "[data-modal-confirm]",
                     );
                     btn?.focus();
                 }
@@ -82,7 +82,8 @@ import { closeModal, modalStore } from "./modalStore";
 
     function dismissKeyboardFromBackdropTap() {
         if (!$modalStore) return false;
-        const didDismissFocusedInput = dismissFocusedTextEntryWithin(".modal-shell");
+        const didDismissFocusedInput =
+            dismissFocusedTextEntryWithin(".modal-shell");
         if (didDismissFocusedInput) {
             // Touch: first tap dismisses keyboard only; mouse: same click closes modal.
             if (isTouch()) {
@@ -144,7 +145,9 @@ import { closeModal, modalStore } from "./modalStore";
             event.stopImmediatePropagation();
             const triggered = triggerModalAction("[data-modal-confirm]");
             if (!triggered) {
-                const confirmBtn = document.querySelector("[data-modal-confirm]");
+                const confirmBtn = document.querySelector(
+                    "[data-modal-confirm]",
+                );
                 if (!confirmBtn) {
                     handleConfirm();
                 }
@@ -167,7 +170,9 @@ import { closeModal, modalStore } from "./modalStore";
     >
         <div
             class="modal-shell"
+            class:modal-shell--confirm={$modalStore.type === "confirm"}
             class:modal-shell--input={$modalStore.type === "input"}
+            class:modal-shell--textInput={$modalStore.type === "textInput"}
             role="dialog"
             aria-modal="true"
             aria-label={$modalStore.title}
@@ -267,11 +272,14 @@ import { closeModal, modalStore } from "./modalStore";
         z-index: var(--z-index-modal);
     }
 
+    /* Dialog container: centered, scrollable, width from content up to viewport cap */
     .modal-shell {
         margin-top: auto;
         margin-bottom: auto;
         flex-shrink: 0;
-        min-width: min(92vw, 380px);
+        /* At least 380px (or 92vw on narrow viewports); scales with rem but not below 1x size */
+        min-width: max(380px, min(92vw, 23.75rem));
+        /* Cap at 92vw or 100% of container so it never overflows */
         max-width: min(92vw, 100%);
         max-height: 100%;
         width: max-content;
@@ -291,7 +299,11 @@ import { closeModal, modalStore } from "./modalStore";
         gap: var(--spacing-lg);
     }
 
-    .modal-shell--input {
-        min-width: min(92vw, 280px);
+    /* Confirm, number input, and text input modals: narrower shell, scales with font, floor at 320px */
+    .modal-shell--confirm,
+    .modal-shell--input,
+    .modal-shell--textInput {
+        min-width: max(320px, min(92vw, 20rem));
+        max-width: max(320px, min(20rem, 100%));
     }
 </style>
