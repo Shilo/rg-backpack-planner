@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import BottomNavBar from "./BottomNavBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
     import { triggerHaptic } from "./hapticsStore";
@@ -18,6 +19,20 @@
         triggerHaptic();
         onClose?.();
     }
+
+    function handleKeydown(event: KeyboardEvent) {
+        if (!isOpen) return;
+        if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            handleClose();
+        }
+    }
+
+    onMount(() => {
+        document.addEventListener("keydown", handleKeydown);
+        return () => document.removeEventListener("keydown", handleKeydown);
+    });
 </script>
 
 {#if isOpen}

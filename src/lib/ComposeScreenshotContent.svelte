@@ -34,6 +34,7 @@
     export let onClose: (() => void) | null = null;
 
     let isLoading = true;
+    let closeRequested = false;
     let combinedBlob: Blob | null = null;
     let guardianBlob: Blob | null = null;
     let vanguardBlob: Blob | null = null;
@@ -97,6 +98,10 @@
             showSkillName.setWithoutPersistence(originalShowSkillName);
             textSize.setWithoutPersistence(originalTextSizeNotch);
             isLoading = false;
+            if (closeRequested) {
+                closeRequested = false;
+                onClose?.();
+            }
         }
     }
 
@@ -105,6 +110,10 @@
     }
 
     function handleClose() {
+        if (isLoading) {
+            closeRequested = true;
+            return;
+        }
         onClose?.();
     }
 
