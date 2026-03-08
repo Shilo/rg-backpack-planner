@@ -114,6 +114,7 @@
         "showTier": "Show Tier",
         "showSkillName": "Show skill name",
         "haptics": "Haptic feedback",
+        "textSize": "Font Size",
         "treeZoom": "Tree Zoom",
         "treeZoomFitOption": "Fit ({scale})",
         "treeZoomCloseUpOption": "Close-up ({scale})",

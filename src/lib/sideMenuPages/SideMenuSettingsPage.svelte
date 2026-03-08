@@ -40,6 +40,7 @@
     import SideMenuSection from "../SideMenuSection.svelte";
     import SegmentedControl from "../SegmentedControl.svelte";
     import ToggleSwitch from "../ToggleSwitch.svelte";
+    import TextSizeSliderSetting from "../TextSizeSliderSetting.svelte";
     import {
         nodePrimaryAction,
         isNodePrimaryAction,
@@ -50,6 +51,7 @@
     } from "../nodeLevelBehaviorStore";
     import { showTier } from "../showTierStore";
     import { showSkillName } from "../showSkillNameStore";
+    import { textSize } from "../textSizeStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import type { TreeViewState } from "../Tree.svelte";
@@ -150,7 +152,6 @@
         $t("settings.nodeLevelBehaviorSync"),
     ];
     $: nodeLevelBehaviorSelectedIndex = $nodeLevelBehavior;
-
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
         const multiplier = zoomScale / getTreeZoomScaleValue(TreeZoomLevel.Fit);
         const minimumFractionDigits = Number.isInteger(multiplier) ? 0 : 1;
@@ -192,6 +193,7 @@
                 showSkillName.resetToDefault();
                 hapticsEnabled.resetToDefault();
                 treeZoomScale.resetToDefault();
+                textSize.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
 
@@ -358,6 +360,7 @@
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.lookAndFeel")}>
+    <TextSizeSliderSetting />
     <LanguageDropdown />
     <div class="button-group theme-row">
         <ThemeColorSelector />
