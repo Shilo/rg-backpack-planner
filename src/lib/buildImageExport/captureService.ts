@@ -1,3 +1,9 @@
+/**
+ * Tree screenshot capture: wait for stable + painted live tree, clone into
+ * offscreen parent, inline computed styles (avoids whiteish/partial color),
+ * then snapdom.toBlob. Three-tree capture prepares all clones sequentially
+ * then runs the three toBlob calls in parallel for speed.
+ */
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 import {
@@ -16,8 +22,11 @@ const TREE_VISIBLE_BOUNDS = {
     // Slightly under actual (703×696); snapdom adds ~1px around the captured area
 };
 
+/** Max iterations before giving up waiting for tree DOM to settle (tab switch). */
 const CAPTURE_READY_MAX_FRAMES = 6;
+/** Consecutive frames with same signature required before we consider tree ready. */
 const CAPTURE_STABLE_FRAME_COUNT = 2;
+const NUM_TREES = 3;
 
 function setInlineStyleFromComputed(
     element: HTMLElement,
@@ -189,9 +198,10 @@ async function waitForPaintFrames(n: number): Promise<void> {
     }
 }
 
+/** rAFs to wait after stability before cloning so live tree is fully painted. */
 const PRE_CLONE_PAINT_FRAMES = 2;
 
-/** Force reflow then wait for two animation frames (layout then paint) before capture. */
+/** Force reflow then wait for two animation frames (layout then paint) before toBlob. */
 async function forceReflowAndWaitForPaint(element: HTMLElement): Promise<void> {
     void element.offsetHeight;
     await waitForAnimationFrame();
@@ -302,7 +312,7 @@ async function prepareTreeCloneInParent(
     await forceReflowAndWaitForPaint(clone);
 }
 
-/** Captures parent's contents to PNG blob. Clears parent in finally. */
+/** Captures parent's contents to PNG blob. Clears parent in finally to avoid leaking clone nodes. */
 async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
     try {
         return await snapdom.toBlob(parent, SNAPDOM_OPTS);
@@ -310,9 +320,9 @@ async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
         try {
             parent.replaceChildren();
         } catch (_) {
-            try {
-                while (parent.firstChild) parent.removeChild(parent.firstChild);
-            } catch (_) {}
+            while (parent.firstChild) {
+                parent.removeChild(parent.firstChild);
+            }
         }
     }
 }
@@ -376,9 +386,11 @@ async function combineTreeImagesHorizontally(
     tree3Blob: Blob,
 ): Promise<Blob | null> {
     try {
-        let img1: HTMLImageElement | null = await blobToImage(tree1Blob);
-        let img2: HTMLImageElement | null = await blobToImage(tree2Blob);
-        let img3: HTMLImageElement | null = await blobToImage(tree3Blob);
+        const [img1, img2, img3] = await Promise.all([
+            blobToImage(tree1Blob),
+            blobToImage(tree2Blob),
+            blobToImage(tree3Blob),
+        ]);
 
         const spacing = 32; // half node size between trees, no outer padding
         const maxHeight = Math.max(img1.height, img2.height, img3.height);
@@ -474,15 +486,15 @@ type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 async function captureThreeTreeBlobs(
     bridge: TabsCaptureBridge,
 ): Promise<ThreeTreeBlobs> {
-    const parents = [
-        createAndAttachOffscreenParent(),
-        createAndAttachOffscreenParent(),
-        createAndAttachOffscreenParent(),
-    ];
+    const parents: HTMLElement[] = [];
+    for (let i = 0; i < NUM_TREES; i++) {
+        parents.push(createAndAttachOffscreenParent());
+    }
     const currentIndex = bridge.getActive();
+    const prepared = new Array<boolean>(NUM_TREES).fill(false);
 
     try {
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < NUM_TREES; i++) {
             if (i !== bridge.getActive()) {
                 bridge.setActive(i);
                 await tick();
@@ -490,14 +502,15 @@ async function captureThreeTreeBlobs(
             const element = await waitForStableTreeCanvas(bridge, i);
             if (!element) continue;
             await prepareTreeCloneInParent(element, parents[i]);
+            prepared[i] = true;
         }
 
-        const [blob0, blob1, blob2] = await Promise.all([
-            captureParentAsBlob(parents[0]),
-            captureParentAsBlob(parents[1]),
-            captureParentAsBlob(parents[2]),
-        ]);
-        return [blob0, blob1, blob2];
+        const blobs = await Promise.all(
+            parents.map((parent, i) =>
+                prepared[i] ? captureParentAsBlob(parent) : Promise.resolve(null),
+            ),
+        );
+        return [blobs[0] ?? null, blobs[1] ?? null, blobs[2] ?? null];
     } finally {
         bridge.setActive(currentIndex);
         for (const parent of parents) {
