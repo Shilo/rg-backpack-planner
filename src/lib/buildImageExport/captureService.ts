@@ -389,6 +389,22 @@ function addSnapdomPseudoElementGuardStyle(clone: HTMLElement) {
     clone.appendChild(style);
 }
 
+/** Copy runtime background styles from live tree to offscreen parent so captured trees keep visual context. */
+function syncCaptureBackground(parent: HTMLElement, element: HTMLElement) {
+    const computed = getComputedStyle(element);
+    const bgProps = [
+        "background-color",
+        "background-image",
+        "background-size",
+        "background-position",
+        "background-repeat",
+    ];
+    for (const prop of bgProps) {
+        const value = computed.getPropertyValue(prop);
+        if (value) parent.style.setProperty(prop, value);
+    }
+}
+
 /** Ensure node wrappers and badge stack never clip badges that sit outside the circle. */
 function ensureBadgesNotClipped(clone: HTMLElement) {
     clone.querySelectorAll<HTMLElement>(".node-wrapper").forEach((el) => {
@@ -502,6 +518,8 @@ async function prepareTreeCloneInParent(
     parent: HTMLElement,
 ): Promise<void> {
     await waitForPaintFrames(PRE_CLONE_PAINT_FRAMES);
+
+    syncCaptureBackground(parent, element);
 
     const clone = element.cloneNode(true) as HTMLElement;
 
