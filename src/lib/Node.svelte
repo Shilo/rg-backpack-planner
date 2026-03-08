@@ -39,7 +39,7 @@
     export let icon: Component | null = null;
 
     $: nodeIcon =
-        icon ?? (skillId != null ? SKILL_NODE_ICONS[skillId] ?? null : null);
+        icon ?? (skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null);
 
     /** Last 3 nodes per branch: global_* and final_damage_boost use important icon size */
     $: isImportantNode =
@@ -66,7 +66,9 @@
 </script>
 
 <div
-    class="node-wrapper badge-{region} {state} region-{region} {isLeaf ? 'node-wrapper-hex' : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
+    class="node-wrapper badge-{region} {state} region-{region} {isLeaf
+        ? 'node-wrapper-hex'
+        : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
         radius}px; height: {64 * radius}px;"
 >
@@ -116,26 +118,53 @@
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
+        /* Hexagon from FinalDamageBoost.svelte path (viewBox 365×316, flat top/bottom) */
         --hex-clip: polygon(
-            25% 0%,
-            75% 0%,
+            12.4932% 71.6438%,
+            0% 50%,
+            12.4932% 28.3562%,
+            24.9863% 6.7123%,
+            75.0137% 6.7123%,
+            87.5068% 28.3562%,
             100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
+            87.5068% 71.6438%,
+            75.0137% 93.2877%,
+            24.9863% 93.2877%
         );
         position: absolute;
     }
 
     /* Icon layer (sibling of button) needs same variables as button */
-    .node-wrapper.region-right { --border-color: var(--region-blue-accent); --border-color-active: var(--region-blue-accent); --border-color-maxed: var(--region-blue-light); }
-    .node-wrapper.region-top-left { --border-color: var(--region-orange-accent); --border-color-active: var(--region-orange-accent); --border-color-maxed: var(--region-orange-light); }
-    .node-wrapper.region-bottom-left { --border-color: var(--region-yellow-accent); --border-color-active: var(--region-yellow-accent); --border-color-maxed: var(--region-yellow-light); }
-    .node-wrapper.locked { --node-icon-color: var(--border-color-locked); }
-    .node-wrapper.available { --node-icon-color: var(--border-color); }
-    .node-wrapper.active { --node-icon-color: var(--border-color-active); }
-    .node-wrapper.maxed { --node-icon-color: var(--border-color-maxed); }
-    .node-wrapper.node-wrapper-important { --node-icon-size: var(--node-important-icon-size); }
+    .node-wrapper.region-right {
+        --border-color: var(--region-blue-accent);
+        --border-color-active: var(--region-blue-accent);
+        --border-color-maxed: var(--region-blue-light);
+    }
+    .node-wrapper.region-top-left {
+        --border-color: var(--region-orange-accent);
+        --border-color-active: var(--region-orange-accent);
+        --border-color-maxed: var(--region-orange-light);
+    }
+    .node-wrapper.region-bottom-left {
+        --border-color: var(--region-yellow-accent);
+        --border-color-active: var(--region-yellow-accent);
+        --border-color-maxed: var(--region-yellow-light);
+    }
+    .node-wrapper.locked {
+        --node-icon-color: var(--border-color-locked);
+    }
+    .node-wrapper.available {
+        --node-icon-color: var(--border-color);
+    }
+    .node-wrapper.active {
+        --node-icon-color: var(--border-color-active);
+    }
+    .node-wrapper.maxed {
+        --node-icon-color: var(--border-color-maxed);
+    }
+    .node-wrapper.node-wrapper-important {
+        --node-icon-size: var(--node-important-icon-size);
+    }
 
     /* CSS Custom Properties - Scoped to .node-wrapper to avoid global leakage */
     .node-wrapper :global(.button.node) {
@@ -159,14 +188,6 @@
         --text-color: var(--region-blue-text);
         --text-color-active: var(--region-blue-text);
         --text-color-maxed: var(--region-blue-text-maxed);
-        --hex-clip: polygon(
-            25% 0%,
-            75% 0%,
-            100% 50%,
-            75% 100%,
-            25% 100%,
-            0% 50%
-        );
         --hex-border-width: 3px;
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
@@ -230,7 +251,7 @@
         --text-color-maxed: var(--region-blue-text-maxed);
     }
 
-    /* Hexagon shape for leaf nodes - flat top and bottom, all sides equal */
+    /* Hexagon shape for leaf nodes - pointy top/bottom to match icon (flat left/right) */
     .node-wrapper :global(.button.node.node-hexagon) {
         border-radius: 0;
         border: none;
