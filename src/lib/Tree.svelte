@@ -754,6 +754,7 @@
             if (!panActive && distance > LONG_PRESS_MOVE_THRESHOLD) {
                 panActive = true;
                 clearLongPress(longPressState);
+                suppressTooltip(primaryPointerId);
             }
 
             if (panActive) {
