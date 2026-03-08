@@ -17,7 +17,6 @@ import {
     previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
-import { hasOverlays } from "../overlayHistory";
 /**
  * Cached base path from vite.config.ts
  * Normalized to have leading slash and trailing slash
@@ -239,12 +238,6 @@ export function updateUrlWithCurrentBuild(): void {
 
     // Skip URL updates during initial build application
     if (isApplyingBuildFromUrl) {
-        return;
-    }
-
-    // Don't replace history while an overlay (modal, side menu, context menu) is open,
-    // so the back button closes the overlay instead of navigating away.
-    if (hasOverlays()) {
         return;
     }
 

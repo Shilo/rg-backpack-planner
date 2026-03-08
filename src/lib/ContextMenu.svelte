@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import { pushOverlay, popOverlay } from "./overlayHistory";
     import { triggerHaptic } from "./hapticsStore";
     import { t } from "svelte-whisper";
 
@@ -37,27 +36,11 @@
     } | null = null;
     let pointerId: number | null = null;
     let wasOpen = false; // Track previous open state
-    let wePushedOverlay = false; // True if we pushed a history entry for this menu
     let lastX = 0;
     let lastY = 0;
     let backdropEl: HTMLButtonElement | null = null;
     $: resolvedTitle = title || "";
     $: resolvedAriaLabel = ariaLabel || "Context menu";
-
-    $: {
-        if (isOpen && !wasOpen) {
-            pushOverlay(() => {
-                wePushedOverlay = false;
-                onClose?.();
-            });
-            wePushedOverlay = true;
-        }
-        if (!isOpen && wePushedOverlay) {
-            wePushedOverlay = false;
-            popOverlay(true);
-        }
-        wasOpen = isOpen;
-    }
 
     function handleDocumentPointerUp(event: PointerEvent) {
         if (!isOpen) return;
@@ -96,8 +79,7 @@
         )
             return;
 
-        if (wePushedOverlay) popOverlay();
-        else onClose?.();
+        onClose?.();
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -105,8 +87,7 @@
         if (event.key === "Escape") {
             event.preventDefault();
             event.stopImmediatePropagation();
-            if (wePushedOverlay) popOverlay();
-            else onClose?.();
+            onClose?.();
         }
     }
 
@@ -122,8 +103,7 @@
         event.preventDefault();
         event.stopPropagation();
         triggerHaptic();
-        if (wePushedOverlay) popOverlay();
-        else onClose?.();
+        onClose?.();
     }
 
     function handleBackdropContextMenu(event: MouseEvent) {
@@ -132,8 +112,7 @@
         if (!backdropHadPointerDown) return;
         event.preventDefault();
         event.stopPropagation();
-        if (wePushedOverlay) popOverlay();
-        else onClose?.();
+        onClose?.();
     }
 
     function handleBackdropPointerUp(event: PointerEvent) {
@@ -146,8 +125,7 @@
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
         triggerHaptic();
-        if (wePushedOverlay) popOverlay();
-        else onClose?.();
+        onClose?.();
     }
 
     function clamp(value: number, min: number, max: number) {

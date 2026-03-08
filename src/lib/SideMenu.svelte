@@ -9,7 +9,6 @@
     import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
     import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
     import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
-    import { pushOverlay, popOverlay } from "./overlayHistory";
     import { triggerHaptic } from "./hapticsStore";
     import type { TreeViewState } from "./Tree.svelte";
     import { get } from "svelte/store";
@@ -57,23 +56,6 @@
     // Tab changes are driven by direct assignment in handleSideMenuTabChange/openTab.
     let activeTab: SideMenuTab = get(sideMenuActiveTab);
     let scrollContentElement: HTMLElement | null = null;
-    let wasOpen = false;
-    let wePushedOverlay = false;
-
-    $: {
-        if (isOpen && !wasOpen) {
-            pushOverlay(() => {
-                wePushedOverlay = false;
-                onClose?.();
-            });
-            wePushedOverlay = true;
-        }
-        if (!isOpen && wePushedOverlay) {
-            wePushedOverlay = false;
-            popOverlay(true);
-        }
-        wasOpen = isOpen;
-    }
 
     export function openTab(tab: SideMenuTab, persist: boolean = true) {
         activeTab = tab;
@@ -92,8 +74,7 @@
 
     function handleBackdropClick() {
         triggerHaptic();
-        if (wePushedOverlay) popOverlay();
-        else onClose?.();
+        onClose?.();
     }
 
     // Reset scroll position when activeTab changes
