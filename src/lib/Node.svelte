@@ -120,7 +120,9 @@
         <span class="node-badge-slot node-badge-slot-level">
             {#if level > 0}
                 <span
-                    class="node-badge node-level-badge"
+                    class="node-badge node-level-badge {isMaxed
+                        ? 'node-level-badge-max-container'
+                        : ''}"
                     data-node-id={String(id)}
                 >
                     {#if isMaxed}
@@ -440,6 +442,7 @@
         transform: scale(var(--node-badge-scale, 1));
         width: max-content;
         max-width: var(--node-badge-max-width);
+        min-width: 15px;
         overflow: hidden;
         white-space: normal;
         overflow-wrap: normal;
@@ -535,6 +538,11 @@
         height: 1em;
         display: block;
         color: currentColor;
+    }
+
+    .node-level-badge-max-container {
+        border-radius: 50%;
+        aspect-ratio: 1;
     }
 
     /* Node state styles */
