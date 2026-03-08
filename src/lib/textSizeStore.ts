@@ -8,7 +8,7 @@ import { getItem, setItem, removeItem } from "./storage";
 export const BASE_FONT_SIZE_PX = 16;
 
 export const TEXT_SIZE_SCALE_MIN = 0.8;
-export const TEXT_SIZE_SCALE_MAX = 5.0;
+export const TEXT_SIZE_SCALE_MAX = 2.0;
 export const TEXT_SIZE_SCALE_STEP = 0.1;
 
 function buildTextSizeScales(): number[] {
