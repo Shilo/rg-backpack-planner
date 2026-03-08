@@ -236,17 +236,19 @@
         <SideMenuSection title={appSectionTitle}>
             <div class="app-info-actions">
                 <div class="control-row">
-                    <span class="control-icon" aria-hidden="true">
-                        <AppIcon />
-                    </span>
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <AppIcon />
+                        </span>
                         {#if appDescription}
                             <p class="control-label">{appDescription}</p>
                         {/if}
-                        {#if helpMessage}
-                            <p class="control-desc">{@html helpMessage}</p>
-                        {/if}
                     </div>
+                    {#if helpMessage}
+                        <p class="control-desc control-desc-standalone">
+                            {@html helpMessage}
+                        </p>
+                    {/if}
                 </div>
                 <div class="controls-actions">
                     <Button
@@ -271,10 +273,8 @@
                     {#each touchControls as control (control.id)}
                         <li
                             class="control-row"
-                            class:control-row-multi={
-                                !!control.titleRows &&
-                                control.titleRows.length > 0
-                            }
+                            class:control-row-multi={!!control.titleRows &&
+                                control.titleRows.length > 0}
                         >
                             {#if control.titleRows && control.titleRows.length > 0}
                                 <div class="control-text control-text-multi">
@@ -287,7 +287,9 @@
                                                     aria-hidden="true"
                                                 >
                                                     {#if titleRow.iconKeycap}
-                                                        <span class="control-keycap">
+                                                        <span
+                                                            class="control-keycap"
+                                                        >
                                                             <svelte:component
                                                                 this={titleRow.icon}
                                                             />
@@ -298,7 +300,9 @@
                                                         />
                                                     {/if}
                                                     {#if titleRow.iconSecondary}
-                                                        <span class="control-icon-joiner">
+                                                        <span
+                                                            class="control-icon-joiner"
+                                                        >
                                                             {titleRow.iconSeparator ??
                                                                 "+"}
                                                         </span>
@@ -318,33 +322,37 @@
                                     </p>
                                 </div>
                             {:else}
-                                <span
-                                    class="control-icon"
-                                    class:control-icon-combo={!!control.iconSecondary}
-                                    aria-hidden="true"
-                                >
-                                    {#if control.iconKeycap}
-                                        <span class="control-keycap">
-                                            <svelte:component this={control.icon} />
-                                        </span>
-                                    {:else}
-                                        <svelte:component this={control.icon} />
-                                    {/if}
-                                    {#if control.iconSecondary}
-                                        <span class="control-icon-joiner">
-                                            {control.iconSeparator ?? "+"}
-                                        </span>
-                                        <svelte:component
-                                            this={control.iconSecondary}
-                                        />
-                                    {/if}
-                                </span>
-                                <div class="control-text">
+                                <div class="control-label-row">
+                                    <span
+                                        class="control-icon"
+                                        class:control-icon-combo={!!control.iconSecondary}
+                                        aria-hidden="true"
+                                    >
+                                        {#if control.iconKeycap}
+                                            <span class="control-keycap">
+                                                <svelte:component
+                                                    this={control.icon}
+                                                />
+                                            </span>
+                                        {:else}
+                                            <svelte:component
+                                                this={control.icon}
+                                            />
+                                        {/if}
+                                        {#if control.iconSecondary}
+                                            <span class="control-icon-joiner">
+                                                {control.iconSeparator ?? "+"}
+                                            </span>
+                                            <svelte:component
+                                                this={control.iconSecondary}
+                                            />
+                                        {/if}
+                                    </span>
                                     <p class="control-label">{control.label}</p>
-                                    <p class="control-desc">
-                                        {control.description}
-                                    </p>
                                 </div>
+                                <p class="control-desc control-desc-standalone">
+                                    {control.description}
+                                </p>
                             {/if}
                         </li>
                     {/each}
@@ -357,10 +365,8 @@
                     {#each pointerControls as control (control.id)}
                         <li
                             class="control-row"
-                            class:control-row-multi={
-                                !!control.titleRows &&
-                                control.titleRows.length > 0
-                            }
+                            class:control-row-multi={!!control.titleRows &&
+                                control.titleRows.length > 0}
                         >
                             {#if control.titleRows && control.titleRows.length > 0}
                                 <div class="control-text control-text-multi">
@@ -373,7 +379,9 @@
                                                     aria-hidden="true"
                                                 >
                                                     {#if titleRow.iconKeycap}
-                                                        <span class="control-keycap">
+                                                        <span
+                                                            class="control-keycap"
+                                                        >
                                                             <svelte:component
                                                                 this={titleRow.icon}
                                                             />
@@ -384,7 +392,9 @@
                                                         />
                                                     {/if}
                                                     {#if titleRow.iconSecondary}
-                                                        <span class="control-icon-joiner">
+                                                        <span
+                                                            class="control-icon-joiner"
+                                                        >
                                                             {titleRow.iconSeparator ??
                                                                 "+"}
                                                         </span>
@@ -404,33 +414,37 @@
                                     </p>
                                 </div>
                             {:else}
-                                <span
-                                    class="control-icon"
-                                    class:control-icon-combo={!!control.iconSecondary}
-                                    aria-hidden="true"
-                                >
-                                    {#if control.iconKeycap}
-                                        <span class="control-keycap">
-                                            <svelte:component this={control.icon} />
-                                        </span>
-                                    {:else}
-                                        <svelte:component this={control.icon} />
-                                    {/if}
-                                    {#if control.iconSecondary}
-                                        <span class="control-icon-joiner">
-                                            {control.iconSeparator ?? "+"}
-                                        </span>
-                                        <svelte:component
-                                            this={control.iconSecondary}
-                                        />
-                                    {/if}
-                                </span>
-                                <div class="control-text">
+                                <div class="control-label-row">
+                                    <span
+                                        class="control-icon"
+                                        class:control-icon-combo={!!control.iconSecondary}
+                                        aria-hidden="true"
+                                    >
+                                        {#if control.iconKeycap}
+                                            <span class="control-keycap">
+                                                <svelte:component
+                                                    this={control.icon}
+                                                />
+                                            </span>
+                                        {:else}
+                                            <svelte:component
+                                                this={control.icon}
+                                            />
+                                        {/if}
+                                        {#if control.iconSecondary}
+                                            <span class="control-icon-joiner">
+                                                {control.iconSeparator ?? "+"}
+                                            </span>
+                                            <svelte:component
+                                                this={control.iconSecondary}
+                                            />
+                                        {/if}
+                                    </span>
                                     <p class="control-label">{control.label}</p>
-                                    <p class="control-desc">
-                                        {control.description}
-                                    </p>
                                 </div>
+                                <p class="control-desc control-desc-standalone">
+                                    {control.description}
+                                </p>
                             {/if}
                         </li>
                     {/each}
@@ -441,30 +455,30 @@
             <SideMenuSection title={$t("sideMenu.sections.keyboard")}>
                 <ul class="control-list">
                     <li class="control-row">
-                        <span class="control-icon" aria-hidden="true">
-                            <ImageIcon />
-                        </span>
-                        <div class="control-text">
+                        <div class="control-label-row">
+                            <span class="control-icon" aria-hidden="true">
+                                <ImageIcon />
+                            </span>
                             <p class="control-label">
                                 {$t("controls.keyboardScreenshotLabel")}
                             </p>
-                            <p class="control-desc">
-                                {$t("controls.keyboardScreenshotDescription")}
-                            </p>
                         </div>
+                        <p class="control-desc control-desc-standalone">
+                            {$t("controls.keyboardScreenshotDescription")}
+                        </p>
                     </li>
                     <li class="control-row">
-                        <span class="control-icon" aria-hidden="true">
-                            <SquaresFourIcon />
-                        </span>
-                        <div class="control-text">
+                        <div class="control-label-row">
+                            <span class="control-icon" aria-hidden="true">
+                                <SquaresFourIcon />
+                            </span>
                             <p class="control-label">
                                 {$t("controls.keyboardCycleTabsLabel")}
                             </p>
-                            <p class="control-desc">
-                                {$t("controls.keyboardCycleTabsDescription")}
-                            </p>
                         </div>
+                        <p class="control-desc control-desc-standalone">
+                            {$t("controls.keyboardCycleTabsDescription")}
+                        </p>
                     </li>
                 </ul>
             </SideMenuSection>
@@ -472,105 +486,105 @@
         <SideMenuSection title={$t("sideMenu.sections.hud")}>
             <ul class="control-list">
                 <li class="control-row">
-                    <span
-                        class="control-icon control-icon-filled"
-                        aria-hidden="true"
-                    >
-                        <HexagonIcon weight="fill" />
-                    </span>
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span
+                            class="control-icon control-icon-filled"
+                            aria-hidden="true"
+                        >
+                            <HexagonIcon weight="fill" />
+                        </span>
                         <p class="control-label">
                             {$t("controls.hudTechCrystalsLabel")}
                         </p>
-                        <p class="control-desc">
-                            {$t("controls.hudTechCrystalsDescription")}
-                        </p>
                     </div>
+                    <p class="control-desc control-desc-standalone">
+                        {$t("controls.hudTechCrystalsDescription")}
+                    </p>
                 </li>
                 <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><ArrowCounterClockwiseIcon /></span
-                    >
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span class="control-icon" aria-hidden="true"
+                            ><ArrowCounterClockwiseIcon /></span
+                        >
                         <p class="control-label">
                             {$t("controls.hudResetTreeLabel")}
                         </p>
-                        <p class="control-desc">
-                            {$t("controls.hudResetTreeDescription")}
-                        </p>
                     </div>
+                    <p class="control-desc control-desc-standalone">
+                        {$t("controls.hudResetTreeDescription")}
+                    </p>
                 </li>
                 <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><ListIcon /></span
-                    >
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span class="control-icon" aria-hidden="true"
+                            ><ListIcon /></span
+                        >
                         <p class="control-label">
                             {$t("controls.hudSideMenuLabel")}
                         </p>
-                        <p class="control-desc">
-                            {$t("controls.hudSideMenuDescription")}
-                        </p>
                     </div>
+                    <p class="control-desc control-desc-standalone">
+                        {$t("controls.hudSideMenuDescription")}
+                    </p>
                 </li>
                 <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><CornersOutIcon /></span
-                    >
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span class="control-icon" aria-hidden="true"
+                            ><CornersOutIcon /></span
+                        >
                         <p class="control-label">
                             {$t("controls.hudFullscreenLabel")}
                         </p>
-                        <p class="control-desc">
-                            {$t("controls.hudFullscreenDescription")}
-                        </p>
                     </div>
+                    <p class="control-desc control-desc-standalone">
+                        {$t("controls.hudFullscreenDescription")}
+                    </p>
                 </li>
                 <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><EyeIcon /></span
-                    >
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span class="control-icon" aria-hidden="true"
+                            ><EyeIcon /></span
+                        >
                         <p class="control-label">
                             {$t("controls.hudPreviewIndicatorLabel")}
                         </p>
-                        <p class="control-desc">
-                            {$t("controls.hudPreviewIndicatorDescription")}
-                        </p>
                     </div>
+                    <p class="control-desc control-desc-standalone">
+                        {$t("controls.hudPreviewIndicatorDescription")}
+                    </p>
                 </li>
             </ul>
         </SideMenuSection>
         <SideMenuSection title={$t("sideMenu.sections.controlsTab")}>
             <ul class="control-list">
                 <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><GithubLogoIcon /></span
-                    >
-                    <div class="control-text">
+                    <div class="control-label-row">
+                        <span class="control-icon" aria-hidden="true"
+                            ><GithubLogoIcon /></span
+                        >
                         <p class="control-label">
                             {$t("controls.controlsTabGithubLabel")}
                         </p>
-                        <p class="control-desc">
-                            {$t("controls.controlsTabGithubDescription")}
-                        </p>
                     </div>
+                    <p class="control-desc control-desc-standalone">
+                        {$t("controls.controlsTabGithubDescription")}
+                    </p>
                 </li>
                 {#if canInstall && !isInstalled}
                     <li class="control-row">
-                        <span class="control-icon" aria-hidden="true"
-                            ><DownloadSimpleIcon /></span
-                        >
-                        <div class="control-text">
+                        <div class="control-label-row">
+                            <span class="control-icon" aria-hidden="true"
+                                ><DownloadSimpleIcon /></span
+                            >
                             <p class="control-label">
                                 {$t("controls.controlsTabInstallLabel")}
                             </p>
-                            <p class="control-desc">
-                                {$t("controls.controlsTabInstallDescription", {
-                                    osName,
-                                })}
-                            </p>
                         </div>
+                        <p class="control-desc control-desc-standalone">
+                            {$t("controls.controlsTabInstallDescription", {
+                                osName,
+                            })}
+                        </p>
                     </li>
                 {/if}
             </ul>
@@ -601,19 +615,34 @@
     }
 
     .control-row {
-        display: grid;
-        grid-template-columns: 24px minmax(0, 1fr);
-        gap: var(--spacing-md);
-        align-items: start;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
 
     .control-row-multi {
-        grid-template-columns: minmax(0, 1fr);
+        display: block;
+    }
+
+    .control-label-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        min-width: 0;
+    }
+
+    .control-label-row .control-label {
+        min-width: 0;
+    }
+
+    .control-desc-standalone {
+        padding-left: calc(20px + var(--spacing-md));
     }
 
     .control-icon {
         width: 20px;
         height: 20px;
+        flex-shrink: 0;
         color: var(--text-muted);
     }
 
@@ -672,7 +701,7 @@
     }
 
     .control-text-multi {
-        gap: var(--spacing-sm);
+        gap: 0;
     }
 
     .control-title-list {
@@ -684,14 +713,21 @@
         position: relative;
         display: block;
         min-height: 20px;
-        padding-left: calc(24px + var(--spacing-md));
+        padding-left: calc(22px + var(--spacing-md));
     }
 
     .control-title-row > .control-icon {
         position: absolute;
         left: 0;
-        top: 0;
+        top: 50%;
+        transform: translateY(-50%);
         overflow: visible;
+    }
+
+    /* Combo icons (e.g. shift+click): pin to top of row so they never overlap the row above */
+    .control-title-row > .control-icon-combo {
+        top: 0;
+        transform: none;
     }
 
     .control-title-row > .control-label {
@@ -699,7 +735,7 @@
     }
 
     .control-desc-offset {
-        padding-left: calc(24px + var(--spacing-md));
+        padding-left: calc(22px + var(--spacing-md));
     }
 
     .control-label {
