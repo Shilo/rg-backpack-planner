@@ -113,7 +113,7 @@
 
 <style>
     :global(.preview-indicator-button) {
-        border-radius: var(--radius-full) !important;
+        border-radius: var(--radius-lg) !important;
         font-weight: var(--weight-bold);
         font-size: var(--font-base) !important;
         letter-spacing: 0.06em;

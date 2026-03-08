@@ -40,7 +40,7 @@
 
 <style>
     :global(.currency-display) {
-        border-radius: var(--radius-full) !important;
+        border-radius: var(--radius-lg) !important;
         display: inline-flex;
         align-items: center;
         gap: 2px !important;

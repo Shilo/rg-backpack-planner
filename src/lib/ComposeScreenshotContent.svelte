@@ -23,7 +23,10 @@
     import { t } from "svelte-whisper";
     import { get } from "svelte/store";
     import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
-    import { showSkillName, DEFAULT_SHOW_SKILL_NAME } from "./showSkillNameStore";
+    import {
+        showSkillName,
+        DEFAULT_SHOW_SKILL_NAME,
+    } from "./showSkillNameStore";
     import { textSize, DEFAULT_TEXT_SIZE_NOTCH } from "./textSizeStore";
     import Button from "./Button.svelte";
 
@@ -235,11 +238,19 @@
         padding: 0;
         border-radius: 999px;
         min-width: 38px;
-        background: color-mix(in srgb, var(--bg-raised) 80%, transparent) !important;
+        background: color-mix(
+            in srgb,
+            var(--bg-raised) 80%,
+            transparent
+        ) !important;
     }
 
     :global(.compose-reload:disabled) {
-        background: color-mix(in srgb, var(--bg-input) 80%, transparent) !important;
+        background: color-mix(
+            in srgb,
+            var(--bg-input) 80%,
+            transparent
+        ) !important;
     }
 
     .compose-fabs {

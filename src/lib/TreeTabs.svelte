@@ -570,10 +570,8 @@
         display: contents;
     }
 
+    /* Tighter letter-spacing as tab narrows */
     @container tab (max-width: calc(130px / var(--text-scale, 1))) {
-        :global(.tab-buttons button .tab-label) {
-            font-size: var(--font-xs) !important;
-        }
         :global(.tab-buttons button) {
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
@@ -581,15 +579,14 @@
     }
 
     @container tab (max-width: calc(95px / var(--text-scale, 1))) {
-        :global(.tab-buttons button .tab-label) {
-            font-size: var(--font-xxs) !important;
-        }
         :global(.tab-buttons button) {
             letter-spacing: 0.02em;
         }
     }
 
     .tab-label {
+        /* Fluid font: scale with tab width so text fits at any text-size scale */
+        font-size: clamp(var(--font-xxs), 10cqw, var(--font-sm));
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

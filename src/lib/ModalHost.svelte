@@ -270,11 +270,10 @@ import { closeModal, modalStore } from "./modalStore";
         margin-top: auto;
         margin-bottom: auto;
         flex-shrink: 0;
-        min-width: 0;
-        /* Use same proportion of viewport as height: 92vw, capped by backdrop content area */
-        width: min(92vw, 100%);
-        max-width: 100%;
+        min-width: min(92vw, 380px);
+        max-width: min(92vw, 100%);
         max-height: 100%;
+        width: max-content;
         border-radius: var(--radius);
         background: var(--bg-panel);
         border: var(--border-width) solid

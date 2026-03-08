@@ -24,6 +24,8 @@
     /* Border radius */
     --radius: 12px;
     --radius-sm: 6px;
+    --radius-lg: 19px;
+    /* for hud text-based displays. 19px = half of height. Use pixels for text scale setting. */
     --radius-full: 999px;
 
     /* Transitions */
