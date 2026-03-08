@@ -7,7 +7,8 @@ import { initThemeReactivity } from "./lib/themeApply";
 import { initializeI18n } from "./lib/i18n";
 import { initViewportTracking } from "./lib/viewportState";
 import { showToast } from "./lib/toast";
-import { tr } from "svelte-whisper";
+import { get } from "svelte/store";
+import { tr, locale } from "svelte-whisper";
 import { initServiceWorkerAutoUpdate } from "./lib/serviceWorkerAutoUpdate";
 
 
@@ -18,6 +19,12 @@ try {
 } catch (error) {
     console.error("Failed to initialize i18n. Continuing with fallback locale.", error);
 }
+
+function setHtmlLang(code: string | null | undefined) {
+    document.documentElement.lang = code || "en";
+}
+setHtmlLang(get(locale));
+const unsubLocale = locale.subscribe(setHtmlLang);
 
 const app = mount(App, {
     target: document.getElementById("app")!,
@@ -48,6 +55,7 @@ const removeGlobalContextMenuListener = () => {
 
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
+        unsubLocale();
         cleanupThemeReactivity();
         removeGlobalContextMenuListener();
         cleanupServiceWorkerAutoUpdate();

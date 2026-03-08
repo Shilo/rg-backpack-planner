@@ -12,7 +12,7 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { t } from "svelte-whisper";
+    import { t, locale } from "svelte-whisper";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
         isNewVersion,
@@ -474,7 +474,7 @@
 </script>
 
 <div
-    class="app-shell"
+    class="app app-shell locale-{$locale || 'en'}"
     class:menu-open={isMenuOpen}
     role="application"
     use:useInputStore

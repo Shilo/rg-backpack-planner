@@ -28,7 +28,10 @@
         TreeZoomLevel,
         getTreeZoomScaleValue,
     } from "./treeZoomStore";
-    import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
+    import {
+        nodePrimaryAction,
+        NodePrimaryAction,
+    } from "./nodePrimaryActionStore";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
     import {
@@ -224,7 +227,9 @@
         return parents.length > 0 && !hasChildByIndex[index];
     }
 
-    function countGlobalLeveledLeafNodes(levelsSnapshot: LevelsByIndex): number {
+    function countGlobalLeveledLeafNodes(
+        levelsSnapshot: LevelsByIndex,
+    ): number {
         return countGlobalLeveledLeafNodesInTree(nodes, levelsSnapshot);
     }
 
@@ -256,7 +261,10 @@
         return getLevelFrom(levels, index);
     }
 
-    function isAvailable(index: number, levelsSnapshot: LevelsByIndex): boolean {
+    function isAvailable(
+        index: number,
+        levelsSnapshot: LevelsByIndex,
+    ): boolean {
         const parents = parentsFor(index);
         if (parents.length === 0) return true;
         return parents.every((pi) => {
@@ -369,7 +377,9 @@
                 const to = renderNodes[link.to];
                 if (!to) return null;
                 const parentLevel =
-                    link.from === undefined ? 0 : getLevelFrom(levels, link.from);
+                    link.from === undefined
+                        ? 0
+                        : getLevelFrom(levels, link.from);
                 const state =
                     link.from === undefined || parentLevel > 0
                         ? to.state
@@ -908,11 +918,7 @@
         const zoomMultiplier =
             getTreeZoomScaleValue($treeZoomScale) /
             getTreeZoomScaleValue(TreeZoomLevel.Fit);
-        const nextScale = clamp(
-            fitScale * zoomMultiplier,
-            minScale,
-            maxScale,
-        );
+        const nextScale = clamp(fitScale * zoomMultiplier, minScale, maxScale);
         const centerX = isCloseUpZoom ? 0 : minX + width / 2;
         const centerY = isCloseUpZoom ? 0 : minY + height / 2;
         const nextOffsetX = paddedCenterX - centerX * nextScale;

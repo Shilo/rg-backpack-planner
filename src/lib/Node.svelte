@@ -5,7 +5,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import type { SkillId } from "../types/tree";
-    import { StarIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
@@ -15,7 +14,9 @@
         nodePrimaryAction,
         shiftKeyHeld,
     } from "./nodePrimaryActionStore";
+    import { t } from "svelte-whisper";
     import { tooltip } from "./tooltip";
+    import { CrownIcon } from "phosphor-svelte";
 
     export let id: number;
     export let x: number = 0;
@@ -69,6 +70,12 @@
         tooltipText == null
             ? undefined
             : { content: tooltipText, hoverOnly: true };
+
+    /** Name badge text: short skill name when skillId is set, else label (tooltip/aria use full label). */
+    $: badgeLabel =
+        skillId != null ? $t(`skills.short.${skillId}`) || label : label;
+
+    $: isMaxed = level >= maxLevel && maxLevel > 0;
 </script>
 
 <div
@@ -76,8 +83,7 @@
         ? 'node-wrapper-hex'
         : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
-        radius}px; height: {64 * radius}px; --node-badge-max-width: {64 *
-        radius}px;"
+        radius}px; height: {64 * radius}px;"
     use:tooltip={tooltipParam}
 >
     <Button
@@ -98,30 +104,45 @@
             />
         </span>
     {/if}
-    {#if showTier && level > 0 && state !== "maxed"}
+    {#if badgeLabel || skillId}
         <span
-            class="node-tier-badge-anchor"
+            class="node-name-badge-anchor"
             data-node-id={String(id)}
-            style={`transform: scale(${Math.max(1 / scale, 1)});`}
-            ><span class="node-badge">T{tier}</span></span
+            style="--node-badge-scale: {Math.max(1 / scale, 1)}"
         >
+            <span class="node-badge">{badgeLabel || skillId}</span>
+        </span>
     {/if}
     {#if level > 0}
         <span
-            class="node-badge-anchor"
+            class="node-level-badge-anchor"
             data-node-id={String(id)}
-            style={`transform: scale(${Math.max(1 / scale, 1)});`}
-            >{#if state === "maxed"}<span class="node-badge node-badge-star"
-                    ><StarIcon size={12} weight="fill" /></span
-                >{:else}<span class="node-badge">{formatNumber(level)}</span
-                >{/if}</span
+            style="--node-badge-scale: {Math.max(1 / scale, 1)}"
         >
+            <span class="node-badge node-level-badge">
+                {#if isMaxed}
+                    <CrownIcon
+                        class="node-level-badge-max"
+                        weight="fill"
+                        aria-label="max"
+                    />
+                {:else}
+                    {#if showTier}
+                        <span>{"★".repeat(tier)}</span>
+                    {/if}
+                    <span>{formatNumber(level)}</span>
+                {/if}
+            </span>
+        </span>
     {/if}
 </div>
 
 <style>
     .node-wrapper {
+        --node-badge-max-width: 128px;
         --z-index-badge: 4;
+        --border-width: 2px;
+        --badge-offset: calc(var(--border-width) + var(--radius-sm));
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
@@ -195,7 +216,6 @@
         --text-color: var(--region-blue-text);
         --text-color-active: var(--region-blue-text);
         --text-color-maxed: var(--region-blue-text-maxed);
-        --hex-border-width: 3px;
         --hex-fill: var(--surface);
         --hex-border-color: var(--border);
 
@@ -205,7 +225,7 @@
         width: 64px;
         height: 64px;
         border-radius: var(--radius-full);
-        border: 2px solid transparent;
+        border: var(--border-width) solid transparent;
         display: grid;
         place-items: center;
         background: var(--surface);
@@ -347,8 +367,8 @@
         display: contents;
     }
 
-    .node-badge-anchor,
-    .node-tier-badge-anchor {
+    .node-name-badge-anchor,
+    .node-level-badge-anchor {
         position: absolute;
         left: 50%;
         width: 0;
@@ -358,35 +378,74 @@
         touch-action: none;
     }
 
-    .node-badge-anchor {
-        bottom: 0;
+    /* Name/title badge (top) only: raise z-index so it stacks above level badge */
+    .node-name-badge-anchor {
+        top: 0;
         z-index: calc(var(--z-index-badge) + 1);
     }
 
-    .node-tier-badge-anchor {
-        top: 0;
+    .node-level-badge-anchor {
+        bottom: 0;
+    }
+
+    .node-wrapper-hex .node-name-badge-anchor {
+        top: 6.71%;
+    }
+
+    .node-wrapper-hex .node-level-badge-anchor {
+        bottom: 6.71%;
+    }
+
+    .node-wrapper-hex {
+        --hex-border-width: 3px; /* shared by hex button (inset) and badge offset */
+        --badge-offset: var(--radius-sm);
+    }
+
+    .node-name-badge-anchor .node-badge {
+        transform: translate(-50%, -50%) scale(var(--node-badge-scale, 1));
+    }
+
+    .node-level-badge-anchor .node-badge {
+        transform: translate(-50%, calc(-1 * var(--badge-offset)))
+            scale(var(--node-badge-scale, 1));
+    }
+
+    .node-level-badge {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .node-level-badge-max {
+        width: 1em;
+        height: 1em;
+        display: block;
+        color: currentColor;
     }
 
     .node-badge {
         position: absolute;
         left: 0;
         top: 0;
-        transform: translate(-50%, -50%);
-        white-space: nowrap;
+        width: max-content;
+        max-width: var(--node-badge-max-width);
+        overflow: hidden;
+        white-space: normal;
+        overflow-wrap: normal;
         transition:
             filter var(--ease),
             transform var(--ease),
             box-shadow var(--ease);
 
-        font-size: 12px;
+        font-size: var(--font-xxs);
         font-weight: bold;
         font-family:
             system-ui,
             -apple-system,
             "Segoe UI",
             sans-serif;
-        line-height: 1;
-        letter-spacing: 0.01em;
+        line-height: var(--leading-none);
+        letter-spacing: 0;
         font-variant-numeric: tabular-nums;
         color: var(--node-badge-text);
         display: inline-flex;
@@ -394,9 +453,8 @@
         justify-content: center;
 
         min-height: 15px;
-        padding: 0 4px;
-        border-radius: var(--radius-full);
-        min-width: 18px;
+        padding: 0px calc(var(--radius-sm) / 2);
+        border-radius: var(--radius-sm);
         text-align: center;
 
         background: var(--region-blue-accent);
@@ -431,26 +489,21 @@
         }
     }
 
-    .node-wrapper:active .node-badge {
+    .node-wrapper:active .node-name-badge-anchor .node-badge {
         filter: var(--brightness-hover);
-        transform: translate(-50%, -50%) scale(0.9);
+        transform: translate(-50%, -50%)
+            scale(calc(var(--node-badge-scale, 1) * 0.9));
+    }
+
+    .node-wrapper:active .node-level-badge-anchor .node-badge {
+        filter: var(--brightness-hover);
+        transform: translate(-50%, calc(-1 * var(--badge-offset)))
+            scale(calc(var(--node-badge-scale, 1) * 0.9));
     }
 
     .node-wrapper:active :global(.button.node:not(:disabled)) {
         filter: var(--brightness-hover);
         transform: scale(0.96);
-    }
-
-    .node-badge-star {
-        min-width: 0;
-        padding: 3px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .node-badge-star :global(svg) {
-        display: block;
     }
 
     /* Node state styles */

@@ -79,7 +79,27 @@
         "critical_hit": "会心",
         "skill_crit_resistance": "スキル会心耐性",
         "ignore_stun": "スタン無視",
-        "damage_reflection_chance": "ダメージ反射率"
+        "damage_reflection_chance": "ダメージ反射率",
+        "short": {
+            "attack_boost": "攻撃ブースト",
+            "hp_boost": "HPブースト",
+            "defense_boost": "防御ブースト",
+            "ignore_dodge": "回避無視",
+            "dodge": "回避",
+            "global_def": "全体防御",
+            "global_hp": "全体HP",
+            "final_damage_boost": "最終ダメブースト",
+            "global_atk": "全体攻撃",
+            "skill_crit": "スキル会心",
+            "pierce_resistance": "貫通耐性",
+            "stun": "スタン",
+            "pierce_damage": "貫通ダメ",
+            "counterattack_resistance": "反撃耐性",
+            "critical_hit": "会心",
+            "skill_crit_resistance": "スキル会心耐性",
+            "ignore_stun": "スタン無視",
+            "damage_reflection_chance": "ダメ反射"
+        }
     },
     "settings": {
         "languageLabel": "言語",

@@ -79,7 +79,27 @@
         "critical_hit": "暴击",
         "skill_crit_resistance": "技能暴击抗性",
         "ignore_stun": "无视眩晕",
-        "damage_reflection_chance": "伤害反弹概率"
+        "damage_reflection_chance": "伤害反弹概率",
+        "short": {
+            "attack_boost": "攻加成",
+            "hp_boost": "生命加成",
+            "defense_boost": "防加成",
+            "ignore_dodge": "无视闪避",
+            "dodge": "闪避",
+            "global_def": "全局防",
+            "global_hp": "全局生命",
+            "final_damage_boost": "最终伤加成",
+            "global_atk": "全局攻",
+            "skill_crit": "技能暴击",
+            "pierce_resistance": "穿透抗性",
+            "stun": "眩晕",
+            "pierce_damage": "穿透伤",
+            "counterattack_resistance": "反击抗性",
+            "critical_hit": "暴击",
+            "skill_crit_resistance": "技能暴击抗性",
+            "ignore_stun": "无视眩晕",
+            "damage_reflection_chance": "伤反弹率"
+        }
     },
     "settings": {
         "languageLabel": "语言",

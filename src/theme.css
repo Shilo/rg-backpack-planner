@@ -23,6 +23,7 @@
 
     /* Border radius */
     --radius: 12px;
+    --radius-sm: 6px;
     --radius-full: 999px;
 
     /* Transitions */
