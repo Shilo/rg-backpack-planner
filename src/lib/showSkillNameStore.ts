@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-const DEFAULT_SHOW_SKILL_NAME = true;
+export const DEFAULT_SHOW_SKILL_NAME = true;
 
 function parseShowSkillName(storedValue: string | null): boolean | null {
     if (storedValue === null) return null;

@@ -88,6 +88,10 @@ function createTextSizeStore() {
             setTextSizeNotch(value);
             set(value);
         },
+        setWithoutPersistence: (value: number) => {
+            if (!isTextSizeNotchIndex(value)) return;
+            set(value);
+        },
         resetToDefault: () => {
             removeItem("text-size");
             setTextSizeNotch(DEFAULT_TEXT_SIZE_NOTCH);

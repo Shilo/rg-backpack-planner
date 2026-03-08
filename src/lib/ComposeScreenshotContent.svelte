@@ -22,8 +22,9 @@
     import { createComposeImageFilename } from "./composeFilename";
     import { t } from "svelte-whisper";
     import { get } from "svelte/store";
-    import { showTier } from "./showTierStore";
-    import { showSkillName } from "./showSkillNameStore";
+    import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
+    import { showSkillName, DEFAULT_SHOW_SKILL_NAME } from "./showSkillNameStore";
+    import { textSize, DEFAULT_TEXT_SIZE_NOTCH } from "./textSizeStore";
     import Button from "./Button.svelte";
 
     export let isOpen = false;
@@ -66,8 +67,10 @@
         isLoading = true;
         const originalShowTier = get(showTier);
         const originalShowSkillName = get(showSkillName);
-        showTier.setWithoutPersistence(true);
-        showSkillName.setWithoutPersistence(true);
+        const originalTextSizeNotch = get(textSize);
+        showTier.setWithoutPersistence(DEFAULT_SHOW_TIER);
+        showSkillName.setWithoutPersistence(DEFAULT_SHOW_SKILL_NAME);
+        textSize.setWithoutPersistence(DEFAULT_TEXT_SIZE_NOTCH);
         try {
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
@@ -89,6 +92,7 @@
         } finally {
             showTier.setWithoutPersistence(originalShowTier);
             showSkillName.setWithoutPersistence(originalShowSkillName);
+            textSize.setWithoutPersistence(originalTextSizeNotch);
             isLoading = false;
         }
     }
