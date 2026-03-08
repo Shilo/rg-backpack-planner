@@ -396,21 +396,27 @@
             <FullscreenToggle iconButton={true} class="fullscreen-button" />
             <div class="tab-buttons">
                 {#each tabs as tab, index}
-                    <Button
-                        class={index === activeIndex ? "active" : ""}
-                        on:click={() => onTabClick(index)}
-                        on:contextmenu={(event: Event) =>
-                            openTabMenu(getMouseEvent(event), tab, index)}
-                        on:pointerdown={(event: Event) =>
-                            startTabPress(getPointerEvent(event), tab, index)}
-                        on:pointermove={(event: Event) =>
-                            moveTabPress(getPointerEvent(event))}
-                        on:pointerup={clearTabPress}
-                        on:pointercancel={clearTabPress}
-                        on:pointerleave={clearTabPress}
-                    >
-                        <span class="tab-label">{tab.label}</span>
-                    </Button>
+                    <div class="tab-button-wrap">
+                        <Button
+                            class={index === activeIndex ? "active" : ""}
+                            on:click={() => onTabClick(index)}
+                            on:contextmenu={(event: Event) =>
+                                openTabMenu(getMouseEvent(event), tab, index)}
+                            on:pointerdown={(event: Event) =>
+                                startTabPress(
+                                    getPointerEvent(event),
+                                    tab,
+                                    index,
+                                )}
+                            on:pointermove={(event: Event) =>
+                                moveTabPress(getPointerEvent(event))}
+                            on:pointerup={clearTabPress}
+                            on:pointercancel={clearTabPress}
+                            on:pointerleave={clearTabPress}
+                        >
+                            <span class="tab-label">{tab.label}</span>
+                        </Button>
+                    </div>
                 {/each}
             </div>
         </div>
@@ -548,9 +554,16 @@
         z-index: var(--z-index-hud);
     }
 
+    .tab-button-wrap {
+        min-width: 0;
+        container-type: inline-size;
+        container-name: tab;
+    }
+
     :global(.tab-buttons button) {
         color: var(--text-muted);
         padding: 0 !important;
+        width: 100%;
         height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
@@ -562,24 +575,22 @@
         gap: var(--spacing-md);
         min-width: 0;
         overflow: hidden;
-        container-type: inline-size;
-        container-name: tab;
     }
 
     :global(.tab-buttons button .button-text) {
         display: contents;
     }
 
-    /* Tighter letter-spacing as tab narrows */
-    @container tab (max-width: calc(130px / var(--text-scale, 1))) {
-        :global(.tab-buttons button) {
+    /* Tighter letter-spacing as tab narrows; selector must target descendant of container */
+    @container tab (max-width: calc(130px * var(--text-scale, 1))) {
+        .tab-button-wrap > :global(button) {
             gap: var(--spacing-sm);
             letter-spacing: 0.04em;
         }
     }
 
-    @container tab (max-width: calc(95px / var(--text-scale, 1))) {
-        :global(.tab-buttons button) {
+    @container tab (max-width: calc(95px * var(--text-scale, 1))) {
+        .tab-button-wrap > :global(button) {
             letter-spacing: 0.02em;
         }
     }
