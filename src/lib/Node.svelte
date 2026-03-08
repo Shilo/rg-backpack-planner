@@ -213,6 +213,9 @@
         --badge-bg: var(--border-color-locked);
         background: var(--badge-bg);
     }
+    .node-wrapper.locked .node-badge-slot {
+        z-index: calc(var(--z-index-badge) - 1);
+    }
     .node-wrapper.available .node-badge-slot-name .node-badge {
         --badge-bg: var(--border-color);
         background: var(--badge-bg);
@@ -368,7 +371,6 @@
         position: absolute;
         inset: 0;
         --badge-icon-gap: 2px;
-        /* z-index: var(--z-index-badge); */
         pointer-events: none;
     }
 
