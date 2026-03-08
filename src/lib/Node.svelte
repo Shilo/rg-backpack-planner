@@ -1,5 +1,7 @@
 <script lang="ts" context="module">
     export type NodeState = "locked" | "available" | "active" | "maxed";
+    export const NODE_RADIUS_PX = 32;
+    export const NODE_DIAMETER_PX = NODE_RADIUS_PX * 2;
 </script>
 
 <script lang="ts">
@@ -94,9 +96,11 @@
         ? 'node-wrapper-important'
         : ''} {cursorNotAllowed ? 'cursor-not-allowed' : ''}"
     data-node-id={String(id)}
-    style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
-        radius}px; height: {64 *
-        radius}px; --node-radius: {radius}; --icon-scale: {radius}"
+    style="left: {x - NODE_RADIUS_PX * radius}px; top: {y -
+        NODE_RADIUS_PX * radius}px; width: {NODE_DIAMETER_PX *
+        radius}px; height: {NODE_DIAMETER_PX *
+        radius}px; --node-radius: {radius}; --icon-scale: {radius}; --node-diameter-px: {NODE_DIAMETER_PX *
+        radius}px;"
     use:tooltip={tooltipParam}
 >
     <Button
@@ -104,7 +108,8 @@
         aria-label={label || String(id)}
         data-node-id={String(id)}
         icon={null}
-        style="width: {64 * radius}px; height: {64 * radius}px;"
+        style="width: {NODE_DIAMETER_PX * radius}px; height: {NODE_DIAMETER_PX *
+            radius}px;"
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
@@ -284,8 +289,8 @@
         /* Base node styles */
         position: relative;
         overflow: hidden;
-        width: 64px;
-        height: 64px;
+        width: var(--node-diameter-px);
+        height: var(--node-diameter-px);
         border-radius: var(--radius-full);
         border: var(--border-width) solid transparent;
         display: grid;
