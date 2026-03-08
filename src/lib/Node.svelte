@@ -15,6 +15,7 @@
         nodePrimaryAction,
         shiftKeyHeld,
     } from "./nodePrimaryActionStore";
+    import { tooltip } from "./tooltip";
 
     export let id: number;
     export let x: number = 0;
@@ -63,6 +64,11 @@
                   costLineRefund: isRefund,
               }
             : label || String(id);
+
+    $: tooltipParam =
+        tooltipText == null
+            ? undefined
+            : { content: tooltipText, hoverOnly: true };
 </script>
 
 <div
@@ -70,12 +76,13 @@
         ? 'node-wrapper-hex'
         : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
-        radius}px; height: {64 * radius}px;"
+        radius}px; height: {64 * radius}px; --node-badge-max-width: {64 *
+        radius}px;"
+    use:tooltip={tooltipParam}
 >
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
         aria-label={label || String(id)}
-        {tooltipText}
         data-node-id={String(id)}
         icon={null}
         style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}

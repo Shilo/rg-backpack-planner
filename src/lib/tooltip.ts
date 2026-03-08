@@ -5,6 +5,10 @@ export type TooltipContent =
     | string
     | { line1: string; costLine?: string; costLineRefund?: boolean };
 
+export type TooltipParam =
+    | TooltipContent
+    | { content: TooltipContent; hoverOnly?: boolean };
+
 type TooltipState = {
     isOpen: boolean;
     text: string;
@@ -102,8 +106,22 @@ function normalizeContent(value?: TooltipContent): {
     };
 }
 
-export function tooltip(node: HTMLElement, value?: TooltipContent) {
-    let { text, costLine, costLineRefund } = normalizeContent(value);
+function parseTooltipParam(value?: TooltipParam): {
+    text: string;
+    costLine: string | undefined;
+    costLineRefund: boolean;
+    hoverOnly: boolean;
+} {
+    if (value == null) return { ...normalizeContent(undefined), hoverOnly: false };
+    if (typeof value === "object" && "content" in value) {
+        const { content, hoverOnly = false } = value;
+        return { ...normalizeContent(content), hoverOnly };
+    }
+    return { ...normalizeContent(value as TooltipContent), hoverOnly: false };
+}
+
+export function tooltip(node: HTMLElement, value?: TooltipParam) {
+    let { text, costLine, costLineRefund, hoverOnly } = parseTooltipParam(value);
     let hoverTimer: number | null = null;
     let pressTimer: number | null = null;
     let activePointerId: number | null = null;
@@ -182,7 +200,7 @@ export function tooltip(node: HTMLElement, value?: TooltipContent) {
 
     const handlePointerDown = (event: PointerEvent) => {
         clearHoverTimer();
-        schedulePress(event);
+        if (!hoverOnly) schedulePress(event);
         if (event.pointerType === "touch") {
             attachGlobalPointerEnd(event.pointerId);
         }
@@ -233,8 +251,8 @@ export function tooltip(node: HTMLElement, value?: TooltipContent) {
     node.addEventListener("pointerup", handlePointerUp);
     node.addEventListener("pointercancel", handlePointerCancel);
     return {
-        update(nextValue?: TooltipContent) {
-            ({ text, costLine, costLineRefund } = normalizeContent(nextValue));
+        update(nextValue?: TooltipParam) {
+            ({ text, costLine, costLineRefund, hoverOnly } = parseTooltipParam(nextValue));
             updateTooltipText(node, text, costLine, costLineRefund);
         },
         destroy() {

@@ -25,6 +25,8 @@
     export let accent = false;
     export let disabled: boolean | undefined = undefined;
     export let tooltipText: TooltipContent | undefined = undefined;
+    /** When true, tooltip only shows on hover (e.g. mouse); long-press on touch will not show it. */
+    export let tooltipHoverOnly = false;
     export let element: HTMLButtonElement | null = null;
     export let toastMessage: string | undefined = undefined;
     export let toastNegative = false;
@@ -35,6 +37,13 @@
     let buttonProps: Record<string, unknown> = {};
 
     $: ({ class: restClass, ...buttonProps } = $$restProps);
+    $: tooltipParam =
+        tooltipText == null
+            ? undefined
+            : tooltipHoverOnly
+              ? { content: tooltipText, hoverOnly: true }
+              : tooltipText;
+
     $: computedClass = [
         "button",
         small ? "button-sm" : "button-md",
@@ -91,7 +100,7 @@
     class={computedClass}
     bind:this={element}
     {disabled}
-    use:tooltip={tooltipText}
+    use:tooltip={tooltipParam}
     on:click={handleClick}
     on:contextmenu={forward}
     on:pointerdown={handlePointerDown}
