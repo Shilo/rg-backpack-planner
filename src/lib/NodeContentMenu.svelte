@@ -1,4 +1,12 @@
 <script lang="ts">
+    import {
+        ArrowCounterClockwiseIcon,
+        CaretDownIcon,
+        CaretDoubleDownIcon,
+        CaretDoubleUpIcon,
+        CaretLineUpIcon,
+        CaretUpIcon,
+    } from "phosphor-svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
     import { formatNumber } from "./mathUtil";
@@ -173,6 +181,7 @@
     <div class="button-grid" class:stacked={isSingleLevel}>
         {#if !isSingleLevel}
             <NodeContextButton
+                icon={CaretUpIcon}
                 label={$t("nodeMenu.incrementOne")}
                 crystalValue={actionCosts?.increment1 ?? null}
                 positive
@@ -185,6 +194,7 @@
                 }}
             />
             <NodeContextButton
+                icon={CaretDoubleUpIcon}
                 label={$t("nodeMenu.incrementTen")}
                 crystalValue={actionCosts?.increment10 ?? null}
                 positive
@@ -198,6 +208,7 @@
             />
         {/if}
         <NodeContextButton
+            icon={CaretLineUpIcon}
             label={tierTargetLevel >= maxLevel
                 ? $t("nodeMenu.max")
                 : $t("nodeMenu.incrementTier")}
@@ -213,6 +224,7 @@
         />
         {#if !isSingleLevel}
             <NodeContextButton
+                icon={CaretDownIcon}
                 label={$t("nodeMenu.decrementOne")}
                 crystalValue={actionCosts?.decrement1 ?? null}
                 negative
@@ -223,6 +235,7 @@
                 }}
             />
             <NodeContextButton
+                icon={CaretDoubleDownIcon}
                 label={$t("nodeMenu.decrementTen")}
                 crystalValue={actionCosts?.decrement10 ?? null}
                 negative
@@ -234,6 +247,7 @@
             />
         {/if}
         <NodeContextButton
+            icon={ArrowCounterClockwiseIcon}
             label={$t("nodeMenu.reset")}
             crystalValue={actionCosts?.reset ?? null}
             negative
