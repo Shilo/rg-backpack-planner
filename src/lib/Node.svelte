@@ -90,9 +90,9 @@
 <div
     class="node-wrapper badge-{region} {state} region-{region} {isLeaf
         ? 'node-wrapper-hex'
-        : ''} {isImportantNode ? 'node-wrapper-important' : ''} {cursorNotAllowed
-        ? 'cursor-not-allowed'
-        : ''}"
+        : ''} {isImportantNode
+        ? 'node-wrapper-important'
+        : ''} {cursorNotAllowed ? 'cursor-not-allowed' : ''}"
     data-node-id={String(id)}
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
         radius}px; height: {64 *
@@ -551,7 +551,7 @@
         display: flex;
         flex-direction: column;
         gap: 0;
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
     }
 
     .node-level-badge-max {
