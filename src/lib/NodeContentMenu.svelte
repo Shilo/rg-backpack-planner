@@ -26,7 +26,6 @@
     export let level: number = 0;
     export let maxLevel: number = 0;
     export let isGlobalIncrementLocked = false;
-    export let state: "locked" | "available" | "active" | "maxed" = "locked";
     export let skillId: SkillId | null = null;
 
     function formatBonusValue(v: number): string {
@@ -69,8 +68,7 @@
 
     $: isSingleLevel = maxLevel <= 1;
 
-    $: nodeIcon =
-        skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
+    $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
     const tickGradient = (max: number) => {
         if (max <= 1) return "";
@@ -112,14 +110,18 @@
     <div class="node-info">
         <div class="info-header">
             {#if nodeIcon}
-                <span class="state-icon">
+                <span class="node-icon">
                     <svelte:component this={nodeIcon} />
                 </span>
             {/if}
-            <span class="skill-name">{skillId ? $t(`skills.${skillId}`) : "Node"}</span>
-            {#if descKey}
-                <p class="skill-desc">{descKey}</p>
-            {/if}
+            <div class="info-header-text">
+                <span class="skill-name"
+                    >{skillId ? $t(`skills.${skillId}`) : "Node"}</span
+                >
+                {#if descKey}
+                    <p class="skill-desc">{descKey}</p>
+                {/if}
+            </div>
         </div>
 
         {#if levelInfo}
@@ -130,7 +132,9 @@
                 {#if levelInfo.nextTotalValue !== null}
                     <span class="bonus-arrow">→</span>
                     <span class="bonus-next"
-                        >{formatBonusValue(levelInfo.nextTotalValue * 100)}%</span
+                        >{formatBonusValue(
+                            levelInfo.nextTotalValue * 100,
+                        )}%</span
                     >
                 {/if}
             </div>
@@ -176,7 +180,8 @@
                     level >= maxLevel ||
                     isGlobalIncrementLocked}
                 onClick={() => {
-                    if (nodeIndex !== null && onIncrement) onIncrement(nodeIndex);
+                    if (nodeIndex !== null && onIncrement)
+                        onIncrement(nodeIndex);
                 }}
             />
             <NodeContextButton
@@ -202,7 +207,8 @@
                 level >= maxLevel ||
                 isGlobalIncrementLocked}
             onClick={() => {
-                if (nodeIndex !== null && onIncrementTier) onIncrementTier(nodeIndex);
+                if (nodeIndex !== null && onIncrementTier)
+                    onIncrementTier(nodeIndex);
             }}
         />
         {#if !isSingleLevel}
@@ -212,7 +218,8 @@
                 negative
                 disabled={nodeIndex === null || level <= 0}
                 onClick={() => {
-                    if (nodeIndex !== null && onDecrement) onDecrement(nodeIndex);
+                    if (nodeIndex !== null && onDecrement)
+                        onDecrement(nodeIndex);
                 }}
             />
             <NodeContextButton
@@ -252,46 +259,45 @@
     }
 
     .info-header {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto auto;
-        gap: 0 var(--spacing-md);
-        align-items: end;
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: stretch;
     }
 
-    .state-icon {
-        grid-row: 1 / 3;
-        grid-column: 1;
+    .node-icon {
+        width: 2.5em;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        align-self: stretch;
     }
 
-    .state-icon :global(svg) {
+    .node-icon :global(svg) {
         width: 100%;
         height: 100%;
         opacity: var(--opacity-disabled);
     }
 
+    .info-header-text {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
     .skill-name {
-        grid-column: 2;
-        grid-row: 1;
         font-size: var(--font-base);
         font-weight: var(--weight-bold);
         color: var(--text);
         letter-spacing: var(--tracking);
-        align-self: end;
     }
 
     .skill-desc {
-        grid-column: 2;
-        grid-row: 2;
         margin: 0;
         font-size: var(--font-xs);
         color: var(--text-muted);
         line-height: var(--leading);
-        align-self: start;
     }
 
     .bonus-display {
