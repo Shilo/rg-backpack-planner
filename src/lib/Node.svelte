@@ -146,6 +146,9 @@
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
+        /* Contrast text: soft black/white so badge text is readable and not blinding */
+        --badge-text-on-light: #1c1c1c;
+        --badge-text-on-dark: #f2f2f2;
         /* Hexagon from FinalDamageBoost.svelte path (viewBox 365×316, flat top/bottom) */
         --hex-clip: polygon(
             12.4932% 71.6438%,
@@ -200,22 +203,22 @@
         --node-icon-color: var(--border-color-maxed);
     }
 
-    /* Name badge matches node state/region color */
+    /* Name badge: background per state; text color is contrast-based (see .node-badge) */
     .node-wrapper.locked .node-name-badge-anchor .node-badge {
-        background: var(--border-color-locked);
-        color: var(--node-locked-text);
+        --badge-bg: var(--border-color-locked);
+        background: var(--badge-bg);
     }
     .node-wrapper.available .node-name-badge-anchor .node-badge {
-        background: var(--border-color);
-        color: var(--text-color);
+        --badge-bg: var(--border-color);
+        background: var(--badge-bg);
     }
     .node-wrapper.active .node-name-badge-anchor .node-badge {
-        background: var(--border-color-active);
-        color: var(--text-color-active);
+        --badge-bg: var(--border-color-active);
+        background: var(--badge-bg);
     }
     .node-wrapper.maxed .node-name-badge-anchor .node-badge {
-        background: var(--border-color-maxed);
-        color: var(--text-color-maxed);
+        --badge-bg: var(--border-color-maxed);
+        background: var(--badge-bg);
     }
 
     .node-wrapper.node-wrapper-important {
@@ -452,6 +455,7 @@
     }
 
     .node-badge {
+        --badge-bg: var(--region-blue-accent);
         position: absolute;
         left: 0;
         top: 0;
@@ -475,6 +479,7 @@
         line-height: var(--leading-none);
         letter-spacing: 0;
         font-variant-numeric: tabular-nums;
+        /* Dynamic contrast: soft black/white vs badge background; fallback when color-contrast() unsupported */
         color: var(--node-badge-text);
         display: inline-flex;
         align-items: center;
@@ -485,22 +490,34 @@
         border-radius: var(--radius-sm);
         text-align: center;
 
-        background: var(--region-blue-accent);
+        background: var(--badge-bg);
         box-shadow:
             0 1px 2px rgba(0, 0, 0, 0.3),
             0 2px 6px 2px rgba(0, 0, 0, 0.15);
     }
 
+    @supports (color: color-contrast(red vs red)) {
+        .node-badge {
+            color: color-contrast(
+                var(--badge-bg) vs var(--badge-text-on-light)
+                    var(--badge-text-on-dark)
+            );
+        }
+    }
+
     .badge-top-left .node-badge {
-        background: var(--region-orange-accent);
+        --badge-bg: var(--region-orange-accent);
+        background: var(--badge-bg);
     }
 
     .badge-bottom-left .node-badge {
-        background: var(--region-yellow-accent);
+        --badge-bg: var(--region-yellow-accent);
+        background: var(--badge-bg);
     }
 
     .badge-right .node-badge {
-        background: var(--region-blue-accent);
+        --badge-bg: var(--region-blue-accent);
+        background: var(--badge-bg);
     }
 
     @media (hover: hover) {
