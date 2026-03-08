@@ -4,7 +4,8 @@
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
-    import { closeModal, modalStore } from "./modalStore";
+    import { get } from "svelte/store";
+import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./haptics";
     import {
         dismissFocusedTextEntryWithin,
@@ -23,6 +24,15 @@
                 document.activeElement instanceof HTMLElement
                     ? document.activeElement
                     : null;
+            requestAnimationFrame(() => {
+                const current = get(modalStore);
+                if (current?.type === "confirm") {
+                    const btn = document.querySelector<HTMLButtonElement>(
+                        "[data-modal-confirm]"
+                    );
+                    btn?.focus();
+                }
+            });
             return;
         }
 
@@ -123,10 +133,21 @@
         }
 
         if (event.key === "Enter") {
-            if (document.activeElement instanceof HTMLButtonElement) return;
+            const active = document.activeElement;
+            if (
+                active instanceof HTMLButtonElement &&
+                active.getAttribute("data-modal-confirm") !== null
+            ) {
+                return;
+            }
             event.preventDefault();
-            if (!triggerModalAction("[data-modal-confirm]")) {
-                handleConfirm();
+            event.stopImmediatePropagation();
+            const triggered = triggerModalAction("[data-modal-confirm]");
+            if (!triggered) {
+                const confirmBtn = document.querySelector("[data-modal-confirm]");
+                if (!confirmBtn) {
+                    handleConfirm();
+                }
             }
         }
     }
