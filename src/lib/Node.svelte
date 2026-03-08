@@ -26,6 +26,7 @@
     export let tier: number = 0;
     export let state: NodeState = "locked";
     export let showTier = true;
+    export let showSkillName = true;
     export let radius: number = 1;
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
@@ -104,7 +105,7 @@
             />
         </span>
     {/if}
-    {#if badgeLabel || skillId}
+    {#if showSkillName && (badgeLabel || skillId)}
         <span
             class="node-name-badge-anchor"
             data-node-id={String(id)}

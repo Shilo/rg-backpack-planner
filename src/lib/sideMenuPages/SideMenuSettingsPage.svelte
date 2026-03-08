@@ -49,6 +49,7 @@
         isNodeLevelBehavior,
     } from "../nodeLevelBehaviorStore";
     import { showTier } from "../showTierStore";
+    import { showSkillName } from "../showSkillNameStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import type { TreeViewState } from "../Tree.svelte";
@@ -188,6 +189,7 @@
                 nodePrimaryAction.resetToDefault();
                 nodeLevelBehavior.resetToDefault();
                 showTier.resetToDefault();
+                showSkillName.resetToDefault();
                 hapticsEnabled.resetToDefault();
                 treeZoomScale.resetToDefault();
                 themeColor.resetToDefault();
@@ -295,6 +297,12 @@
         options={nodeLevelBehaviorOptions}
         selectedIndex={nodeLevelBehaviorSelectedIndex}
         onChange={handleNodeLevelBehaviorChange}
+    />
+    <ToggleSwitch
+        checked={$showSkillName}
+        label={$t("settings.showSkillName")}
+        ariaLabel={$t("settings.showSkillName")}
+        onToggle={() => showSkillName.set(!$showSkillName)}
     />
     <ToggleSwitch
         checked={$showTier}

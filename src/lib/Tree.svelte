@@ -35,6 +35,7 @@
     } from "./nodePrimaryActionStore";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
+    import { showSkillName } from "./showSkillNameStore";
     import {
         applyLevelChange,
         nextTierTargetLevel,
@@ -1129,6 +1130,7 @@
                         state={nodeView.state}
                         tier={nodeView.tier}
                         showTier={$showTier}
+                        showSkillName={$showSkillName}
                         radius={nodeView.node.radius ?? 1}
                         {scale}
                         region={nodeView.region}

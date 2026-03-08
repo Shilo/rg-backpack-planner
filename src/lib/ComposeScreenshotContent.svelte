@@ -23,6 +23,7 @@
     import { t } from "svelte-whisper";
     import { get } from "svelte/store";
     import { showTier } from "./showTierStore";
+    import { showSkillName } from "./showSkillNameStore";
     import Button from "./Button.svelte";
 
     export let isOpen = false;
@@ -64,7 +65,9 @@
     async function captureAll() {
         isLoading = true;
         const originalShowTier = get(showTier);
+        const originalShowSkillName = get(showSkillName);
         showTier.setWithoutPersistence(true);
+        showSkillName.setWithoutPersistence(true);
         try {
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
@@ -85,6 +88,7 @@
             });
         } finally {
             showTier.setWithoutPersistence(originalShowTier);
+            showSkillName.setWithoutPersistence(originalShowSkillName);
             isLoading = false;
         }
     }
