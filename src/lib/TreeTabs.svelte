@@ -73,6 +73,8 @@
     let backgroundPressPointerId: number | null = null;
     let lastViewState: TreeViewState | null = null;
     let globalLeveledLeafNodesOutsideActiveTreeCount = 0;
+    const TAB_CYCLE_REPEAT_MS = 400;
+    let lastTabCycleAt = 0;
 
     function getPointerEvent(event: Event) {
         const detail = (event as CustomEvent<PointerEvent>).detail;
@@ -96,16 +98,31 @@
         if (tag === "input" || tag === "textarea" || tag === "select")
             return true;
         if (el.isContentEditable) return true;
-        return !!el.closest("input, textarea, select, [contenteditable='true']");
+        return !!el.closest(
+            "input, textarea, select, [contenteditable='true']",
+        );
     }
 
     function handleTabKeydown(event: KeyboardEvent) {
         if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
         const activeEl = document.activeElement;
-        if (!activeEl || !tabsRootEl.contains(activeEl)) return;
+        const inTree =
+            activeEl &&
+            (tabsRootEl.contains(activeEl) ||
+                activeEl === document.body ||
+                activeEl === document.documentElement);
+        if (!inTree) return;
         if (isFormField(activeEl as Element)) return;
 
+        if (event.repeat) {
+            const now = performance.now();
+            if (now - lastTabCycleAt < TAB_CYCLE_REPEAT_MS) {
+                event.preventDefault();
+                return;
+            }
+        }
         event.preventDefault();
+        lastTabCycleAt = performance.now();
         const next = event.shiftKey
             ? (activeIndex - 1 + tabs.length) % tabs.length
             : (activeIndex + 1) % tabs.length;
@@ -126,7 +143,8 @@
         isInitialRestore = false;
         window.addEventListener("keydown", handleTabKeydown, true);
         if (!tabsBarEl) {
-            return () => window.removeEventListener("keydown", handleTabKeydown, true);
+            return () =>
+                window.removeEventListener("keydown", handleTabKeydown, true);
         }
         const observer = new ResizeObserver(() => {
             bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
