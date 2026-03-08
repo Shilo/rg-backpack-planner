@@ -84,7 +84,8 @@
         ? 'node-wrapper-hex'
         : ''} {isImportantNode ? 'node-wrapper-important' : ''}"
     style="left: {x - 32 * radius}px; top: {y - 32 * radius}px; width: {64 *
-        radius}px; height: {64 * radius}px;"
+        radius}px; height: {64 *
+        radius}px; --node-radius: {radius}; --icon-scale: {radius}"
     use:tooltip={tooltipParam}
 >
     <Button
@@ -92,7 +93,7 @@
         aria-label={label || String(id)}
         data-node-id={String(id)}
         icon={null}
-        style={`width: ${64 * radius}px; height: ${64 * radius}px; --icon-scale: ${radius};`}
+        style="width: {64 * radius}px; height: {64 * radius}px;"
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
@@ -143,7 +144,11 @@
         --node-badge-max-width: 128px;
         --z-index-badge: 4;
         --border-width: 2px;
-        --badge-offset: calc(var(--border-width) + var(--radius-sm));
+        --badge-offset-base: 7px;
+        --badge-offset: calc(
+            (var(--border-width) + var(--radius-sm) + var(--badge-offset-base)) *
+                var(--icon-scale)
+        );
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
@@ -223,6 +228,10 @@
     }
 
     .node-wrapper.node-wrapper-important {
+        --badge-offset: calc(
+            (var(--border-width) + var(--radius-sm) + var(--badge-offset-base)) *
+                var(--icon-scale) * 0.6
+        );
         --node-icon-size: var(--node-important-icon-size);
     }
 
@@ -392,6 +401,7 @@
         display: block;
         color: var(--node-icon-color, currentColor);
         opacity: 0.9;
+        background: var(--surface);
     }
 
     .node-wrapper :global(.button.node .button-text) {
@@ -428,16 +438,16 @@
         bottom: 6.71%;
     }
 
-    .node-wrapper-hex {
-        --hex-border-width: 3px; /* shared by hex button (inset) and badge offset */
-        --badge-offset: var(--radius-sm);
-    }
-
+    /* Name badge: bottom of badge aligned with top of node; --badge-offset = gap above node */
     .node-name-badge-anchor .node-badge {
-        transform: translate(-50%, -50%) scale(var(--node-badge-scale, 1));
+        transform-origin: 50% 100%;
+        transform: translate(-50%, calc(-100% + var(--badge-offset)))
+            scale(var(--node-badge-scale, 1));
     }
 
+    /* Level badge: top of badge aligned with bottom of node; --badge-offset = gap below node */
     .node-level-badge-anchor .node-badge {
+        transform-origin: 50% 0%;
         transform: translate(-50%, calc(-1 * var(--badge-offset)))
             scale(var(--node-badge-scale, 1));
     }
@@ -524,12 +534,14 @@
 
     .node-wrapper:active .node-name-badge-anchor .node-badge {
         filter: var(--brightness-hover);
-        transform: translate(-50%, -50%)
+        transform-origin: 50% 100%;
+        transform: translate(-50%, calc(-100% - var(--badge-offset)))
             scale(calc(var(--node-badge-scale, 1) * 0.9));
     }
 
     .node-wrapper:active .node-level-badge-anchor .node-badge {
         filter: var(--brightness-hover);
+        transform-origin: 50% 0%;
         transform: translate(-50%, calc(-1 * var(--badge-offset)))
             scale(calc(var(--node-badge-scale, 1) * 0.9));
     }
