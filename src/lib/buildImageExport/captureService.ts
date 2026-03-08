@@ -320,9 +320,11 @@ async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
         try {
             parent.replaceChildren();
         } catch (_) {
-            while (parent.firstChild) {
-                parent.removeChild(parent.firstChild);
-            }
+            try {
+                while (parent.firstChild) {
+                    parent.removeChild(parent.firstChild);
+                }
+            } catch (_) {}
         }
     }
 }
