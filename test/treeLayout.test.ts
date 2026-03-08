@@ -14,6 +14,37 @@ function almostEqual(actual: number, expected: number, epsilon = 1e-6): void {
     );
 }
 
+function withMockRootFontSize(fontSizePx: number, run: () => void): void {
+    const globalWithDom = globalThis as {
+        window?: unknown;
+        document?: unknown;
+    };
+
+    const previousWindow = globalWithDom.window;
+    const previousDocument = globalWithDom.document;
+
+    globalWithDom.document = {
+        documentElement: {},
+        createElement: () => ({
+            getContext: () => null,
+        }),
+    };
+
+    globalWithDom.window = {
+        getComputedStyle: () => ({
+            fontSize: `${fontSizePx}px`,
+            getPropertyValue: () => "",
+        }),
+    };
+
+    try {
+        run();
+    } finally {
+        globalWithDom.window = previousWindow;
+        globalWithDom.document = previousDocument;
+    }
+}
+
 const padding = getTreeViewportPadding();
 assert.strictEqual(padding.horizontal, TREE_BASE_VIEWPORT_PADDING_PX);
 assert.strictEqual(
@@ -138,3 +169,111 @@ assert.ok(
     "Expected bottom bound to shrink when level is zero (no level badge).",
 );
 almostEqual(noLevelBadgeBounds.maxY, dynamicNode.y + 0.8 * 32);
+
+const horizontalOverflowNode = {
+    x: 0,
+    y: 0,
+    radius: 1,
+    level: 10,
+    maxLevel: 50,
+    skillId: "global_def",
+    nameLabel: "Critical Damage",
+};
+
+const nameBadgeHorizontalBounds = getTreeWorldBounds([horizontalOverflowNode], {
+    showSkillName: true,
+    showTier: false,
+});
+const nameHiddenHorizontalBounds = getTreeWorldBounds([horizontalOverflowNode], {
+    showSkillName: false,
+    showTier: false,
+});
+
+assert.ok(
+    nameBadgeHorizontalBounds,
+    "Expected horizontal bounds when skill names are shown.",
+);
+assert.ok(
+    nameHiddenHorizontalBounds,
+    "Expected horizontal bounds when skill names are hidden.",
+);
+assert.ok(
+    nameBadgeHorizontalBounds.minX < nameHiddenHorizontalBounds.minX,
+    "Expected left bound to extend further when skill names are shown.",
+);
+assert.ok(
+    nameBadgeHorizontalBounds.maxX > nameHiddenHorizontalBounds.maxX,
+    "Expected right bound to extend further when skill names are shown.",
+);
+
+let normalTextSizeBounds = getTreeWorldBounds([horizontalOverflowNode], {
+    showSkillName: true,
+    showTier: false,
+});
+let largeTextSizeBounds = getTreeWorldBounds([horizontalOverflowNode], {
+    showSkillName: true,
+    showTier: false,
+});
+
+withMockRootFontSize(16, () => {
+    normalTextSizeBounds = getTreeWorldBounds([horizontalOverflowNode], {
+        showSkillName: true,
+        showTier: false,
+    });
+});
+
+withMockRootFontSize(32, () => {
+    largeTextSizeBounds = getTreeWorldBounds([horizontalOverflowNode], {
+        showSkillName: true,
+        showTier: false,
+    });
+});
+
+assert.ok(
+    normalTextSizeBounds && largeTextSizeBounds,
+    "Expected bounds for both normal and large text sizes.",
+);
+assert.ok(
+    largeTextSizeBounds.minX < normalTextSizeBounds.minX,
+    "Expected larger text size to extend the left bound further.",
+);
+assert.ok(
+    largeTextSizeBounds.maxX > normalTextSizeBounds.maxX,
+    "Expected larger text size to extend the right bound further.",
+);
+
+const zoomedOutBadgeScaleBounds = getTreeWorldBounds([horizontalOverflowNode], {
+    showSkillName: true,
+    showTier: false,
+    badgeScale: 0.5,
+});
+const zoomedInBadgeScaleBounds = getTreeWorldBounds([horizontalOverflowNode], {
+    showSkillName: true,
+    showTier: false,
+    badgeScale: 1.5,
+});
+
+assert.ok(
+    zoomedOutBadgeScaleBounds && nameBadgeHorizontalBounds,
+    "Expected bounds for zoomed-out badge scale compensation.",
+);
+assert.ok(
+    zoomedInBadgeScaleBounds && nameBadgeHorizontalBounds,
+    "Expected bounds for zoomed-in badge scale compensation.",
+);
+assert.ok(
+    zoomedOutBadgeScaleBounds.minX < nameBadgeHorizontalBounds.minX,
+    "Expected zoomed-out bounds to expand left when badges are not shrinking.",
+);
+assert.ok(
+    zoomedOutBadgeScaleBounds.maxX > nameBadgeHorizontalBounds.maxX,
+    "Expected zoomed-out bounds to expand right when badges are not shrinking.",
+);
+assert.ok(
+    zoomedInBadgeScaleBounds.minX >= nameBadgeHorizontalBounds.minX,
+    "Expected zoomed-in bounds to avoid extra horizontal compensation.",
+);
+assert.ok(
+    zoomedInBadgeScaleBounds.maxX <= nameBadgeHorizontalBounds.maxX,
+    "Expected zoomed-in bounds to avoid extra horizontal compensation.",
+);

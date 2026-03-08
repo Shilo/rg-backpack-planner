@@ -17,8 +17,8 @@ if (!/from "\.\.\/treeLayout"/.test(source)) {
     );
 }
 
-if (!/height:\s*694\s*\+\s*TREE_BADGE_VERTICAL_OVERFLOW_PX/.test(normalized)) {
+if (!/const fallbackHeight = 694 \+ TREE_BADGE_VERTICAL_OVERFLOW_PX/.test(normalized)) {
     throw new Error(
-        "captureService export height should include bottom badge overflow padding.",
+        "captureService fallback export height should include bottom badge overflow padding.",
     );
 }

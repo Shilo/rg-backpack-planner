@@ -409,6 +409,8 @@
         "touchMenuSwipeDescription": "Close side menu",
         "keyboardScreenshotLabel": "F9 - Share screenshot",
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
+        "keyboardCycleTabsLabel": "Tab - Cycle tree tabs",
+        "keyboardCycleTabsDescription": "Switch between Guardian, Vanguard, and Cannon trees.",
         "hudTechCrystalsLabel": "Tech Crystals (Currency)",
         "hudTechCrystalsDescription": "View spent and set owned amount",
         "hudResetTreeLabel": "Reset active tree",

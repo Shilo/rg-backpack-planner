@@ -139,9 +139,31 @@
         const margin = 48;
         const contentW = naturalWidth * s;
         const contentH = naturalHeight * s;
+
+        // When the fitted image is fully visible on an axis, keep it centered and
+        // block panning on that axis. This prevents accidental "broken-looking"
+        // offsets while browsing captures at fit scale.
+        // Verified by test/imageViewerClampAtFit.test.ts.
+        // Known limitation (unfixed): centering is based on full image dimensions,
+        // not non-transparent content bounds. If the exported PNG itself contains
+        // asymmetric transparent padding, the visible tree can still look off-center
+        // even though the bitmap is mathematically centered in the viewer.
+        if (contentW <= viewportWidth && contentH <= viewportHeight) {
+            return {
+                x: (viewportWidth - contentW) / 2,
+                y: (viewportHeight - contentH) / 2,
+            };
+        }
+
         return {
-            x: clamp(nextX, margin - contentW, viewportWidth - margin),
-            y: clamp(nextY, margin - contentH, viewportHeight - margin),
+            x:
+                contentW <= viewportWidth
+                    ? (viewportWidth - contentW) / 2
+                    : clamp(nextX, viewportWidth - margin - contentW, margin),
+            y:
+                contentH <= viewportHeight
+                    ? (viewportHeight - contentH) / 2
+                    : clamp(nextY, viewportHeight - margin - contentH, margin),
         };
     }
 

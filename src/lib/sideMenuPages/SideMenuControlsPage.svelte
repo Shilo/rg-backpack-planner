@@ -19,6 +19,7 @@
         MouseMiddleClickIcon,
         MouseRightClickIcon,
         MouseScrollIcon,
+        SquaresFourIcon,
     } from "phosphor-svelte";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
@@ -449,6 +450,19 @@
                             </p>
                             <p class="control-desc">
                                 {$t("controls.keyboardScreenshotDescription")}
+                            </p>
+                        </div>
+                    </li>
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <SquaresFourIcon />
+                        </span>
+                        <div class="control-text">
+                            <p class="control-label">
+                                {$t("controls.keyboardCycleTabsLabel")}
+                            </p>
+                            <p class="control-desc">
+                                {$t("controls.keyboardCycleTabsDescription")}
                             </p>
                         </div>
                     </li>

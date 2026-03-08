@@ -4,6 +4,15 @@
  * Three-tree capture prepares all clones sequentially then runs the three
  * toBlob calls in parallel.
  *
+ * Library used:
+ * - @zumer/snapdom (DOM -> image capture)
+ *   npm: https://www.npmjs.com/package/@zumer/snapdom
+ *   source: https://github.com/zumerlab/snapdom
+ *   docs/demo: https://zumerlab.github.io/snapdom/
+ *   This file intentionally does pre-capture stabilization + style inlining
+ *   before calling snapdom, because raw DOM capture can miss dynamic styles,
+ *   pseudo elements, and timing-sensitive paint state in this tree UI.
+ *
  * --- PROBLEMS (why capture glitches without the fixes below) ---
  *
  * 1. Capturing before tree is ready: tab switch remounts Tree; DOM can be
@@ -49,6 +58,10 @@
  * 12. Transitions/animations during capture: can cause wrong or partial frames;
  *     we add class "snapdom-capture" to html (see app.css) to disable them.
  *
+ * 13. Exported tree bounds drifted toward top-right: fixed root-centered constants
+ *     did not account for asymmetric world bounds, so Guardian/Cannon could look
+ *     offset and center-node position appeared inconsistent after level changes.
+ *
  * --- FIXES (where they live in this file) ---
  *
  * - waitForStableTreeCanvas: wait until canvas exists, correct tab active,
@@ -92,9 +105,32 @@
  *
  * - withCaptureState: increment capture count, add "snapdom-capture" to
  *   documentElement on first entry, remove on last exit. Avoids (12).
+ *
+ * - buildCenteredCaptureBounds: compute worst-case export bounds from baseTree via
+ *   getTreeWorldBounds(showSkillName+showTier), then offset by world-bounds center
+ *   (boundsCenterX/Y) so rendered bounds are centered in the capture canvas.
+ *   Avoids (13). Verified by test/captureServiceCenteredBounds.test.ts and
+ *   Playwright metric check of alpha bounds center drift.
+ *
+ * --- KNOWN UNFIXED ISSUES (as of current implementation) ---
+ *
+ * A. Residual per-tree drift remains in some states (~1-6px): even with world-bounds
+ *    centering, captured alpha bounds can land slightly off center. This appears to
+ *    come from snapdom rasterization/subpixel behavior (SVG stroke/filter + pseudo
+ *    materialization), not from tree world-bounds math itself.
+ *
+ * B. Level-state-sensitive visual artifacts can still occur: certain node level
+ *    combinations (especially involving leaf/hex nodes) may produce occasional ring/
+ *    halo artifacts in the exported bitmap. Existing guards reduce this, but do not
+ *    fully eliminate it in all captured states.
+ *
+ * C. Regeneration race UX: if tabs are switched while compose capture is regenerating,
+ *    the viewer can briefly show loading/transition frames before the final blob for
+ *    that tab is available.
  */
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
+import { baseTree } from "../../config/baseTree";
 import {
     tabsBridge,
     captureInProgressCount,
@@ -102,14 +138,65 @@ import {
     decrementCapture,
     type TabsCaptureBridge,
 } from "./captureBridge";
-import { TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
+import { getTreeWorldBounds, TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
 
-const TREE_VISIBLE_BOUNDS = {
-    centerNode: { x: 295, y: 356 },
-    width: 701,
-    height: 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX,
-    // Slightly under actual (703×696); snapdom adds ~1px around the captured area
+type TreeCaptureBounds = {
+    centerNode: { x: number; y: number };
+    width: number;
+    height: number;
 };
+
+const CAPTURE_BOUNDS_PIXEL_BUFFER_PX = 2;
+
+function buildCenteredCaptureBounds(): TreeCaptureBounds {
+    // Capture bounds are derived from the shared tree layout using worst-case
+    // badge visibility (names + tier badge lines) so all level states stay
+    // stable and never clip.
+    const nodes = baseTree.map((node) => ({
+        x: node.x,
+        y: node.y,
+        radius: node.radius,
+        maxLevel: node.maxLevel,
+        skillId: node.skillId,
+        level: 1,
+    }));
+
+    const bounds = getTreeWorldBounds(nodes, {
+        showSkillName: true,
+        showTier: true,
+    });
+
+    if (!bounds) {
+        // Fallback mirrors prior capture dimensions but keeps center centered.
+        const fallbackHeight = 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX;
+        return {
+            centerNode: {
+                x: Math.ceil(701 / 2),
+                y: Math.ceil(fallbackHeight / 2),
+            },
+            width: 701,
+            height: fallbackHeight,
+        };
+    }
+
+    const halfWidth = Math.max(Math.abs(bounds.minX), Math.abs(bounds.maxX));
+    const halfHeight = Math.max(Math.abs(bounds.minY), Math.abs(bounds.maxY));
+    const boundsCenterX = (bounds.minX + bounds.maxX) / 2;
+    const boundsCenterY = (bounds.minY + bounds.maxY) / 2;
+    const width = Math.ceil(halfWidth * 2) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX;
+    const height = Math.ceil(halfHeight * 2) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX;
+
+    return {
+        centerNode: {
+            x: Math.ceil(width / 2 - boundsCenterX),
+            y: Math.ceil(height / 2 - boundsCenterY),
+        },
+        width,
+        height,
+    };
+}
+
+const TREE_VISIBLE_BOUNDS = buildCenteredCaptureBounds();
 
 /** Max iterations before giving up waiting for tree DOM to settle (tab switch). */
 const CAPTURE_READY_MAX_FRAMES = 6;
@@ -265,7 +352,6 @@ function normalizeBadgeAnchorScale(root: HTMLElement) {
     root.querySelectorAll<HTMLElement>(".node-badge-icon-stack").forEach(
         (stack) => {
             stack.style.setProperty("--node-badge-scale", "1");
-            stack.style.transform = "none";
         },
     );
 }
@@ -280,7 +366,7 @@ function removeTransientNodeFlashOverlays(clone: HTMLElement) {
             if (parent) {
                 try {
                     parent.removeChild(el);
-                } catch (_) {}
+                } catch (_) { }
             }
         }
     });
@@ -438,7 +524,7 @@ async function prepareTreeCloneInParent(
     } catch (_) {
         try {
             while (parent.firstChild) parent.removeChild(parent.firstChild);
-        } catch (_) {}
+        } catch (_) { }
         parent.appendChild(clone);
     }
 
@@ -464,7 +550,7 @@ async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
                 while (parent.firstChild) {
                     parent.removeChild(parent.firstChild);
                 }
-            } catch (_) {}
+            } catch (_) { }
         }
     }
 }
@@ -580,11 +666,11 @@ function clearCanvasAndImages(
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvas.width = 0;
         canvas.height = 0;
-    } catch (_) {}
+    } catch (_) { }
     for (const img of imgs) {
         try {
             if (img) img.src = "";
-        } catch (_) {}
+        } catch (_) { }
     }
 }
 
@@ -658,7 +744,7 @@ async function captureThreeTreeBlobs(
         for (const parent of parents) {
             try {
                 document.body.removeChild(parent);
-            } catch (_) {}
+            } catch (_) { }
         }
     }
 }

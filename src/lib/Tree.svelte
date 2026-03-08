@@ -52,7 +52,7 @@
     } from "./globalLeafCap";
     import { getTreeViewportPadding, getTreeWorldBounds } from "./treeLayout";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
-    import { t } from "svelte-whisper";
+    import { locale, t } from "svelte-whisper";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -96,7 +96,7 @@
             return { minScale: 0.1, maxScale: 2.2 };
         }
 
-        const bounds = getWorldBounds();
+        const bounds = getWorldBounds(1);
         if (!bounds) {
             return { minScale: 0.1, maxScale: 2.2 };
         }
@@ -957,9 +957,8 @@
         // Ensure viewport has valid dimensions
         if (rect.width <= 0 || rect.height <= 0) return null;
         // Include node radius plus badge overhang in world bounds.
-        const bounds = getWorldBounds();
-        if (!bounds) return null;
-        const { minX, minY, width, height } = bounds;
+        const baseBounds = getWorldBounds(1);
+        if (!baseBounds) return null;
 
         const padding = getTreeViewportPadding({
             showSkillName: $showSkillName,
@@ -972,13 +971,42 @@
         );
         const paddedCenterX = padding.horizontal + availableW / 2;
         const paddedCenterY = padding.top + availableH / 2;
-        // Calculate scale needed to fit all nodes in viewport (100% base)
-        const fitScale = Math.min(availableW / width, availableH / height);
         const isCloseUpZoom = $treeZoomScale === TreeZoomLevel.CloseUp;
         const zoomMultiplier =
             getTreeZoomScaleValue($treeZoomScale) /
             getTreeZoomScaleValue(TreeZoomLevel.Fit);
-        const nextScale = clamp(fitScale * zoomMultiplier, minScale, maxScale);
+        // Refine fit scale using the candidate scale so horizontal bounds can
+        // account for badge non-shrinking behavior when zoomed out.
+        let nextScale = clamp(
+            Math.min(
+                availableW / baseBounds.width,
+                availableH / baseBounds.height,
+            ) * zoomMultiplier,
+            minScale,
+            maxScale,
+        );
+        let bounds = baseBounds;
+        for (let i = 0; i < 2; i++) {
+            const scaledBounds = getWorldBounds(nextScale);
+            if (!scaledBounds) break;
+            bounds = scaledBounds;
+            const refinedScale = clamp(
+                Math.min(
+                    availableW / scaledBounds.width,
+                    availableH / scaledBounds.height,
+                ) * zoomMultiplier,
+                minScale,
+                maxScale,
+            );
+            if (Math.abs(refinedScale - nextScale) < 1e-3) {
+                nextScale = refinedScale;
+                break;
+            }
+            nextScale = refinedScale;
+        }
+
+        bounds = getWorldBounds(nextScale) ?? bounds;
+        const { minX, minY, width, height } = bounds;
         const centerX = isCloseUpZoom ? 0 : minX + width / 2;
         const centerY = isCloseUpZoom ? 0 : minY + height / 2;
         const nextOffsetX = paddedCenterX - centerX * nextScale;
@@ -987,18 +1015,22 @@
         return { offsetX: clamped.x, offsetY: clamped.y, scale: nextScale };
     }
 
-    function getWorldBounds() {
+    function getWorldBounds(badgeScale = scale) {
         const layoutNodes = nodes.map((node) => ({
             x: node.x,
             y: node.y,
             radius: node.radius,
             maxLevel: node.maxLevel,
             skillId: node.skillId,
+            nameLabel:
+                $t(`skills.short.${node.skillId}`) ||
+                $t(`skills.${node.skillId}`),
         }));
 
         return getTreeWorldBounds(layoutNodes, {
             showSkillName: $showSkillName,
             showTier: $showTier,
+            badgeScale,
         });
     }
 
@@ -1010,7 +1042,7 @@
         if (!viewportEl) return { x: nextOffsetX, y: nextOffsetY };
 
         const rect = viewportEl.getBoundingClientRect();
-        const bounds = getWorldBounds();
+        const bounds = getWorldBounds(nextScale);
 
         // Without content bounds fall back to a simple viewport-based clamp
         if (!bounds) {
@@ -1091,6 +1123,7 @@
     let hasSeenInitialTextSize = false;
     let hasSeenInitialShowTier = false;
     let hasSeenInitialShowSkillName = false;
+    let hasSeenInitialLocale = false;
 
     $: if (hasMounted && bottomInset !== lastAppliedBottomInset) {
         lastAppliedBottomInset = bottomInset;
@@ -1148,6 +1181,21 @@
             if (!allowReactiveFocus) return;
             focusTreeInView(false);
         });
+        const unsubscribeLocale = locale.subscribe(() => {
+            if (!hasSeenInitialLocale) {
+                hasSeenInitialLocale = true;
+                return;
+            }
+            if (!$showSkillName) return;
+            if (!allowReactiveFocus) return;
+            // Locale changes can arrive before translated badge text is fully
+            // reflected by `$t`, so defer one frame before recomputing bounds.
+            requestAnimationFrame(() => {
+                if (!$showSkillName) return;
+                if (!allowReactiveFocus) return;
+                focusTreeInView(false);
+            });
+        });
         const initializeView = async () => {
             await tick();
             if (initialViewState) {
@@ -1182,6 +1230,7 @@
             unsubscribeTextSize();
             unsubscribeShowTier();
             unsubscribeShowSkillName();
+            unsubscribeLocale();
         };
     });
 

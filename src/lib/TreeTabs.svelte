@@ -42,6 +42,7 @@
     export let activeFocusViewState: TreeViewState | null = null;
     let bottomInset = 0;
     let tabsBarEl: HTMLDivElement | null = null;
+    let tabsRootEl: HTMLDivElement | null = null;
     let treeRef: {
         focusTreeInView?: (announce?: boolean) => void;
         resetAllNodes?: () => void;
@@ -89,6 +90,29 @@
         return event as MouseEvent;
     }
 
+    function isFormField(el: Element | null): boolean {
+        if (!el || !(el instanceof HTMLElement)) return false;
+        const tag = el.tagName.toLowerCase();
+        if (tag === "input" || tag === "textarea" || tag === "select")
+            return true;
+        if (el.isContentEditable) return true;
+        return !!el.closest("input, textarea, select, [contenteditable='true']");
+    }
+
+    function handleTabKeydown(event: KeyboardEvent) {
+        if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
+        const activeEl = document.activeElement;
+        if (!activeEl || !tabsRootEl.contains(activeEl)) return;
+        if (isFormField(activeEl as Element)) return;
+
+        event.preventDefault();
+        const next = event.shiftKey
+            ? (activeIndex - 1 + tabs.length) % tabs.length
+            : (activeIndex + 1) % tabs.length;
+        setActive(next);
+        void tick().then(() => focusActiveTreeInView(true));
+    }
+
     onMount(() => {
         hasMounted = true;
         // Restore active tab from localStorage (only set index, don't call setActive to avoid interfering with tree positioning)
@@ -101,13 +125,19 @@
         }
         // Mark that initial restore is complete
         isInitialRestore = false;
-        if (!tabsBarEl) return;
+        window.addEventListener("keydown", handleTabKeydown, true);
+        if (!tabsBarEl) {
+            return () => window.removeEventListener("keydown", handleTabKeydown, true);
+        }
         const observer = new ResizeObserver(() => {
             bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
         });
         observer.observe(tabsBarEl);
         bottomInset = tabsBarEl.offsetHeight;
-        return () => observer.disconnect();
+        return () => {
+            window.removeEventListener("keydown", handleTabKeydown, true);
+            observer.disconnect();
+        };
     });
     function clampIndex(index: number) {
         if (index < 0) return 0;
@@ -388,7 +418,7 @@
     }
 </script>
 
-<div class="tabs-root">
+<div class="tabs-root" bind:this={tabsRootEl}>
     <div class="tabs-bar-spacer" bind:this={tabsBarEl} aria-hidden="true"></div>
 
     <div class="hud-safe-area">
