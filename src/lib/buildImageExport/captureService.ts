@@ -102,13 +102,21 @@ import {
     decrementCapture,
     type TabsCaptureBridge,
 } from "./captureBridge";
-import { TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
+import {
+    TREE_BADGE_HORIZONTAL_OVERFLOW_PX,
+    TREE_BADGE_VERTICAL_OVERFLOW_PX,
+} from "../treeLayout";
 
+/** Base content size (slightly under actual 703×696); expanded for badge overflow. */
+const TREE_VISIBLE_BOUNDS_BASE = { width: 701, height: 694 };
+/** Clone must be at (0,0) so it fills the parent; snapdom captures the parent rect. */
 const TREE_VISIBLE_BOUNDS = {
-    centerNode: { x: 295, y: 356 },
-    width: 701,
-    height: 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX,
-    // Slightly under actual (703×696); snapdom adds ~1px around the captured area
+    centerNode: { x: 0, y: 0 },
+    width:
+        TREE_VISIBLE_BOUNDS_BASE.width +
+        2 * TREE_BADGE_HORIZONTAL_OVERFLOW_PX,
+    height:
+        TREE_VISIBLE_BOUNDS_BASE.height + TREE_BADGE_VERTICAL_OVERFLOW_PX,
 };
 
 /** Max iterations before giving up waiting for tree DOM to settle (tab switch). */
@@ -374,6 +382,41 @@ const SNAPDOM_OPTS = {
     ],
 };
 
+/**
+ * Measure content bounds of the clone (all .node-wrapper elements) in the clone's
+ * local coordinate system. Used to fit the tree into the capture rect.
+ */
+function getCloneContentBounds(clone: HTMLElement): {
+    minX: number;
+    minY: number;
+    width: number;
+    height: number;
+} | null {
+    const wrappers = clone.querySelectorAll<HTMLElement>(".node-wrapper");
+    if (wrappers.length === 0) return null;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const el of wrappers) {
+        const left = el.offsetLeft;
+        const top = el.offsetTop;
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        minX = Math.min(minX, left);
+        minY = Math.min(minY, top);
+        maxX = Math.max(maxX, left + w);
+        maxY = Math.max(maxY, top + h);
+    }
+    if (!Number.isFinite(minX)) return null;
+    return {
+        minX,
+        minY,
+        width: maxX - minX,
+        height: maxY - minY,
+    };
+}
+
 /** Prepares a clone of the live tree in parent (paint wait, clone, styles, reflow). Call captureParentAsBlob(parent) after. */
 async function prepareTreeCloneInParent(
     element: HTMLElement,
@@ -396,6 +439,7 @@ async function prepareTreeCloneInParent(
     clone.style.position = "absolute";
     clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
     clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
+    clone.style.transformOrigin = "0 0";
 
     try {
         parent.replaceChildren(clone);
@@ -412,6 +456,15 @@ async function prepareTreeCloneInParent(
     ensureBadgesNotClipped(clone);
 
     await forceReflowAndWaitForPaint(clone);
+
+    const bounds = getCloneContentBounds(clone);
+    if (bounds && bounds.width > 0 && bounds.height > 0) {
+        const scale = Math.min(
+            TREE_VISIBLE_BOUNDS.width / bounds.width,
+            TREE_VISIBLE_BOUNDS.height / bounds.height,
+        );
+        clone.style.transform = `translate(${-bounds.minX}px, ${-bounds.minY}px) scale(${scale})`;
+    }
 }
 
 /** Captures parent's contents to PNG blob. Clears parent in finally to avoid leaking clone nodes. */
