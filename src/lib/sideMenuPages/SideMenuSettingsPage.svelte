@@ -291,6 +291,7 @@
         options={nodePrimaryActionOptions}
         selectedIndex={nodePrimaryActionSelectedIndex}
         onChange={handleNodePrimaryActionChange}
+        tooltipText={$t("settings.nodePrimaryActionTooltip")}
     />
     <SegmentedControl
         label={nodeLevelBehaviorLabel}
@@ -299,17 +300,20 @@
         options={nodeLevelBehaviorOptions}
         selectedIndex={nodeLevelBehaviorSelectedIndex}
         onChange={handleNodeLevelBehaviorChange}
+        tooltipText={$t("settings.nodeLevelBehaviorTooltip")}
     />
     <ToggleSwitch
         checked={$showSkillName}
         label={$t("settings.showSkillName")}
         ariaLabel={$t("settings.showSkillName")}
+        tooltipText={$t("settings.showSkillNameTooltip")}
         onToggle={() => showSkillName.set(!$showSkillName)}
     />
     <ToggleSwitch
         checked={$showTier}
         label={$t("settings.showTier")}
         ariaLabel={$t("settings.showTier")}
+        tooltipText={$t("settings.showTierTooltip")}
         onToggle={() => showTier.set(!$showTier)}
     />
 </SideMenuSection>
@@ -322,6 +326,7 @@
         options={treeZoomOptions}
         selectedIndex={treeZoomSelectedIndex}
         onChange={handleTreeZoomChange}
+        tooltipText={$t("settings.treeZoomTooltip")}
     />
     <Button
         on:click={() => {
@@ -387,6 +392,7 @@
         checked={$hapticsEnabled}
         label={$t("settings.haptics")}
         ariaLabel={$t("settings.haptics")}
+        tooltipText={$t("settings.hapticsTooltip")}
         onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
     />
     <TextSizeSliderSetting />

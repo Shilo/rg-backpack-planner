@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
+    import { tooltip } from "./tooltip";
 
     type SegmentOption = {
         index: number;
@@ -14,6 +15,7 @@
     export let icon: Component | null = null;
     export let iconClass = "segmented-control__icon";
     export let onChange: ((index: number) => void) | null = null;
+    export let tooltipText: string | undefined = undefined;
 
     const normalizeLabel = (value: string, index: number) => {
         const trimmed = value.trim();
@@ -50,6 +52,7 @@
     class="segmented-control"
     role="radiogroup"
     aria-label={ariaLabel ?? (label || undefined)}
+    use:tooltip={tooltipText}
 >
     {#if label}
         <div class="segmented-control__header">

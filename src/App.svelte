@@ -169,6 +169,10 @@
 
     function handleTouchStart(event: TouchEvent) {
         if (!isMenuOpen || event.touches.length !== 1) return;
+        const el = event.target as HTMLElement | null;
+        if (el?.closest(".slider-setting__body")) {
+            return;
+        }
         const touch = event.touches[0];
         swipeStartX = touch.clientX;
         swipeStartY = touch.clientY;

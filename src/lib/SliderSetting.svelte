@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
+    import { LONG_PRESS_MS } from "./longPress";
+    import { tooltip } from "./tooltip";
 
     export let label = "";
     export let ariaLabel: string | undefined = undefined;
@@ -15,6 +17,18 @@
     /** Optional notch index to show as default (drawn taller). */
     export let defaultNotchIndex: number | undefined = undefined;
     export let onChange: ((value: number) => void) | null = null;
+    export let tooltipText: string | undefined = undefined;
+
+    const DRAG_THRESHOLD_PX = 5;
+
+    let inputEl: HTMLInputElement | undefined = undefined;
+    /** Ignore input events until the user has moved (drag) or lifted (tap). */
+    let allowInput = true;
+    let hasMoved = false;
+    let tapClientX: number | null = null;
+    let downClientX = 0;
+    let downClientY = 0;
+    let downAt = 0;
 
     $: notchCount = Math.round((max - min) / step) + 1;
     $: notches = Array.from({ length: notchCount }, (_, i) => i);
@@ -25,12 +39,75 @@
         Math.min(max, min + Math.round((value - min) / step) * step),
     );
 
+    function valueFromClientX(clientX: number): number {
+        if (!inputEl) return value;
+        const rect = inputEl.getBoundingClientRect();
+        const width = rect.width;
+        if (width <= 0) return value;
+        const t = Math.max(0, Math.min(1, (clientX - rect.left) / width));
+        const raw = min + t * (max - min);
+        const stepped = min + Math.round((raw - min) / step) * step;
+        return Math.max(min, Math.min(max, stepped));
+    }
+
+    function applyValue(next: number) {
+        if (next === value) return;
+        triggerHaptic();
+        onChange?.(next);
+    }
+
+    function handlePointerDown(e: PointerEvent) {
+        allowInput = false;
+        hasMoved = false;
+        tapClientX = e.clientX;
+        downClientX = e.clientX;
+        downClientY = e.clientY;
+        downAt = Date.now();
+        (e.currentTarget as HTMLInputElement).setPointerCapture(e.pointerId);
+    }
+
+    function handlePointerMove(e: PointerEvent) {
+        const dx = e.clientX - downClientX;
+        const dy = e.clientY - downClientY;
+        if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD_PX) {
+            hasMoved = true;
+            allowInput = true;
+        }
+    }
+
+    function handlePointerUp() {
+        const pressDuration = Date.now() - downAt;
+        const isLongPress = pressDuration >= LONG_PRESS_MS;
+        if (
+            !hasMoved &&
+            tapClientX !== null &&
+            onChange &&
+            !isLongPress
+        ) {
+            const next = valueFromClientX(tapClientX);
+            applyValue(next);
+        }
+        allowInput = true;
+        hasMoved = false;
+        tapClientX = null;
+    }
+
+    function handlePointerCancel() {
+        allowInput = true;
+        hasMoved = false;
+        tapClientX = null;
+    }
+
     function handleInput(event: Event) {
         const target = event.target as HTMLInputElement;
         const raw = Number(target.value);
         const stepped = min + Math.round((raw - min) / step) * step;
         const clamped = Math.max(min, Math.min(max, stepped));
         target.value = String(clamped);
+        if (!allowInput) {
+            target.value = String(snappedValue);
+            return;
+        }
         if (clamped !== value) {
             triggerHaptic();
             onChange?.(clamped);
@@ -38,7 +115,12 @@
     }
 </script>
 
-<div class="slider-setting" role="group" aria-label={ariaLabel ?? label}>
+<div
+    class="slider-setting"
+    role="group"
+    aria-label={ariaLabel ?? label}
+    use:tooltip={tooltipText}
+>
     {#if label || icon}
         <div class="slider-setting__header">
             {#if icon}
@@ -66,11 +148,16 @@
         <input
             type="range"
             class="slider-setting__input"
+            bind:this={inputEl}
             {min}
             {max}
             {step}
             value={snappedValue}
             on:input={handleInput}
+            on:pointerdown={handlePointerDown}
+            on:pointermove={handlePointerMove}
+            on:pointerup={handlePointerUp}
+            on:pointercancel={handlePointerCancel}
             aria-valuemin={min}
             aria-valuemax={max}
             aria-valuenow={value}
@@ -188,6 +275,8 @@
         background: transparent;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
+        /* Let vertical touch gestures scroll the page instead of dragging the slider */
+        touch-action: pan-y;
     }
 
     .slider-setting__input:focus {

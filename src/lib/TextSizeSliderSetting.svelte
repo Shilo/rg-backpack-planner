@@ -35,4 +35,5 @@
     defaultNotchIndex={DEFAULT_TEXT_SIZE_NOTCH}
     formatValue={formatTextSizeLabel}
     onChange={handleTextSizeChange}
+    tooltipText={$t("settings.textSizeTooltip")}
 />
