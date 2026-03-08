@@ -173,7 +173,8 @@ textarea,
     font-size: var(--font-base);
     letter-spacing: var(--tracking);
     width: max-content;
-    max-width: min(240px, calc(100vw - 2 * 8px));
+    max-width: min(calc(240px * var(--text-scale, 1)), calc(var(--tooltip-max-vw, 85) * 1vw), calc(100vw - 2 * 8px));
+    max-height: calc(var(--tooltip-max-vh, 85) * 1vh);
     text-align: center;
     white-space: pre-line;
     overflow-wrap: break-word;

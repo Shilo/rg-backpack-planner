@@ -246,14 +246,16 @@
         grid-template-columns:
             minmax(0, 44px)
             minmax(0, 44px)
-            minmax(20px, 1fr)
+            minmax(5ch, 1fr)
             minmax(0, 44px)
-            minmax(0, 60px);
+            minmax(0, max-content);
         gap: var(--spacing-md);
         align-items: stretch;
     }
 
     .modal-input {
+        display: block;
+        box-sizing: border-box;
         min-width: 0;
         width: 100%;
         min-height: 44px;
@@ -308,7 +310,8 @@
     .stepper-wide {
         width: 100%;
         min-width: 0;
-        padding: var(--spacing-sm);
+        padding-inline: var(--spacing-md);
+        padding-block: var(--spacing-sm);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

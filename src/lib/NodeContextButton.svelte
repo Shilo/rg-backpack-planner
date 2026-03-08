@@ -5,7 +5,7 @@
     import { showToast } from "./toast";
     import { formatNumber } from "./mathUtil";
 
-    export let icon: Component;
+    export let icon: Component | null = null;
     export let label: string;
     export let crystalValue: number | null = null;
     export let positive = false;
@@ -31,10 +31,12 @@
         }
     }}
 >
-    <span class="btn-grid" class:has-crystal={crystalValue != null}>
-        <span class="icon-cell action-icon">
-            <svelte:component this={icon} size={18} aria-hidden="true" />
-        </span>
+    <span class="btn-grid" class:has-crystal={crystalValue != null} class:has-icon={icon != null}>
+        {#if icon}
+            <span class="icon-cell action-icon">
+                <svelte:component this={icon} size={18} aria-hidden="true" />
+            </span>
+        {/if}
         <span class="action-label">{label}</span>
         {#if crystalValue != null}
             <span class="icon-cell crystal-icon">
@@ -102,9 +104,13 @@
 
     .btn-grid {
         display: grid;
-        grid-template-columns: 18px 1fr;
+        grid-template-columns: 1fr;
         gap: 0 var(--spacing-sm);
         align-items: center;
+    }
+
+    .btn-grid.has-icon {
+        grid-template-columns: 18px 1fr;
     }
 
     .btn-grid.has-crystal {
