@@ -63,9 +63,31 @@ function preserveTreeLinkStrokeStyles(
     }
 }
 
+/** CSS custom properties that drive node/wrapper/pseudo-element colors (Node.svelte). */
+const NODE_WRAPPER_COLOR_VARIABLES = [
+    "--hex-fill",
+    "--hex-border-color",
+    "--hex-border-width",
+    "--node-icon-color",
+    "--border-color",
+    "--border-color-locked",
+    "--border-color-active",
+    "--border-color-maxed",
+    "--bg-locked",
+    "--bg-available",
+    "--bg-active",
+    "--bg-maxed",
+    "--badge-bg",
+    "--text-color",
+    "--text-color-active",
+    "--text-color-maxed",
+    "--text-color-locked",
+];
+
 function preserveNodeVisualStyles(original: HTMLElement, clone: HTMLElement) {
     // Read from original (correct cascade); write to clone so clone has correct
-    // colors/effects when snapdom runs.
+    // colors/effects when snapdom runs. Inline all color-driving variables so
+    // the clone does not depend on stylesheet cascade (avoids whiteish capture).
     const nodeStyleProperties = [
         "background-color",
         "border-color",
@@ -82,6 +104,13 @@ function preserveNodeVisualStyles(original: HTMLElement, clone: HTMLElement) {
         "--hex-border-width",
         "--hex-fill",
         "--icon-scale",
+        "--bg-locked",
+        "--bg-available",
+        "--bg-active",
+        "--node-icon-color",
+        "--border-color",
+        "--border-color-locked",
+        "--border-color-active",
     ];
     const badgeStyleProperties = [
         "background-color",
@@ -103,7 +132,11 @@ function preserveNodeVisualStyles(original: HTMLElement, clone: HTMLElement) {
     const cloneWrappers = clone.querySelectorAll<HTMLElement>(".node-wrapper");
     for (let i = 0; i < origWrappers.length && i < cloneWrappers.length; i++) {
         const computed = getComputedStyle(origWrappers[i]);
-        setInlineStyleFromComputed(cloneWrappers[i], computed, "filter");
+        const cloneWrapper = cloneWrappers[i];
+        setInlineStyleFromComputed(cloneWrapper, computed, "filter");
+        NODE_WRAPPER_COLOR_VARIABLES.forEach((property) =>
+            setInlineStyleFromComputed(cloneWrapper, computed, property),
+        );
     }
 
     const origNodes = original.querySelectorAll<HTMLElement>(".button.node");
@@ -147,6 +180,13 @@ function waitForAnimationFrame(): Promise<void> {
     return new Promise((resolve) => {
         window.requestAnimationFrame(() => resolve());
     });
+}
+
+/** Wait for n animation frames so the browser can commit paint (e.g. before reading getComputedStyle). */
+async function waitForPaintFrames(n: number): Promise<void> {
+    for (let i = 0; i < n; i++) {
+        await waitForAnimationFrame();
+    }
 }
 
 /** Force reflow then wait for two animation frames (layout then paint) before capture. */
@@ -216,6 +256,9 @@ async function captureElementAsPng(
     }
 
     try {
+        // Wait for the live tree to be painted before reading styles (avoids whiteish/partial color).
+        await waitForPaintFrames(3);
+
         // Clone the element
         const clone = element.cloneNode(true) as HTMLElement;
 
@@ -251,6 +294,7 @@ async function captureElementAsPng(
         normalizeBadgeAnchorScale(clone);
 
         await forceReflowAndWaitForPaint(clone);
+        await waitForAnimationFrame();
 
         try {
             return await snapdom.toBlob(parent, {
