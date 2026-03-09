@@ -25,9 +25,9 @@ if (
     );
 }
 
-if (!/const CAPTURE_BOUNDS_PIXEL_BUFFER_PX = 2;/.test(source)) {
+if (!/CAPTURE_BOUNDS_CROP_PX/.test(source)) {
     throw new Error(
-        "captureService should include a small pixel buffer when building export bounds.",
+        "captureService should define CAPTURE_BOUNDS_CROP_PX for bounds control.",
     );
 }
 

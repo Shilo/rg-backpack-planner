@@ -121,8 +121,57 @@
         return true;
     }
 
+    const FOCUSABLE_SELECTOR =
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    function getFocusables(container: Element): HTMLElement[] {
+        const nodes = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        return Array.from(nodes).filter(
+            (el) =>
+                el.offsetParent !== null &&
+                getComputedStyle(el).visibility !== "hidden",
+        );
+    }
+
+    function handleModalTabKeydown(event: KeyboardEvent) {
+        if (event.key !== "Tab" || !$modalStore) return;
+        const backdrop = document.querySelector(".modal-backdrop");
+        if (!backdrop || !backdrop.contains(document.activeElement)) return;
+
+        const focusables = getFocusables(backdrop);
+        if (focusables.length === 0) return;
+
+        const active = document.activeElement;
+        const currentIndex =
+            active instanceof HTMLElement
+                ? focusables.indexOf(active)
+                : -1;
+
+        let nextIndex: number;
+        if (event.shiftKey) {
+            nextIndex =
+                currentIndex <= 0
+                    ? focusables.length - 1
+                    : currentIndex - 1;
+        } else {
+            nextIndex =
+                currentIndex < 0 || currentIndex >= focusables.length - 1
+                    ? 0
+                    : currentIndex + 1;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        focusables[nextIndex]?.focus();
+    }
+
     function handleKeydown(event: KeyboardEvent) {
         if (!$modalStore) return;
+
+        if (event.key === "Tab") {
+            handleModalTabKeydown(event);
+            return;
+        }
 
         if (event.key === "Escape") {
             event.preventDefault();

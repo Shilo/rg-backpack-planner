@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import {
         ChartBarIcon,
         GameControllerIcon,
@@ -19,6 +20,8 @@
         type SideMenuTab,
     } from "./sideMenuActiveTabStore";
     import { t } from "svelte-whisper";
+    import { isFormField } from "./domUtil";
+    import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
 
     let sideMenuTabs: TabBarItem[] = [];
     $: sideMenuTabs = [
@@ -81,6 +84,26 @@
     $: if (activeTab && scrollContentElement) {
         scrollContentElement.scrollTop = 0;
     }
+
+    function handleTabKeydown(event: KeyboardEvent) {
+        if (!isOpen || event.key !== "Tab" || sideMenuTabs.length <= 1) return;
+        if ($isComposeScreenshotOpen) return;
+        if (isFormField(document.activeElement)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const currentIndex = sideMenuTabs.findIndex((t) => t.id === activeTab);
+        const nextIndex =
+            (currentIndex + (event.shiftKey ? -1 : 1) + sideMenuTabs.length) %
+            sideMenuTabs.length;
+        openTab(sideMenuTabs[nextIndex].id as SideMenuTab, true);
+        triggerHaptic();
+    }
+
+    onMount(() => {
+        window.addEventListener("keydown", handleTabKeydown, true);
+        return () =>
+            window.removeEventListener("keydown", handleTabKeydown, true);
+    });
 </script>
 
 <button

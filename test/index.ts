@@ -53,6 +53,7 @@ const TEST_FILES = [
     "captureServiceCenteredBounds.test.ts",
     "captureServiceBadgeTypographyStyles.test.ts",
     "captureServiceRenderStability.test.ts",
+    "captureServiceStyleParity.test.ts",
     "captureServiceTransformFallbacks.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "modalHostKeyboardBackdropGuard.test.ts",

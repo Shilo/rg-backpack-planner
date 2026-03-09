@@ -39,7 +39,7 @@ if (!/function preserveNodeVisualStyles\(/.test(captureServiceNormalized)) {
     );
 }
 
-if (!/preserveNodeVisualStyles\(\s*clone\s*\)/.test(captureServiceNormalized)) {
+if (!/preserveNodeVisualStyles\([^)]*clone\s*\)/.test(captureServiceNormalized)) {
     throw new Error(
         "captureService should preserve computed node styles on the cloned tree before exporting.",
     );
