@@ -158,6 +158,17 @@
  *    halo artifacts in the exported bitmap. Existing guards reduce this, but do not
  *    fully eliminate it in all captured states.
  *
+ * --- FIXES (continued) ---
+ *
+ * - buildCaptureBoundsFromTabs: when bridge provides getTabs + getTreeLevels, compute
+ *   bounds from actual nodes + levels per tab (union across tabs). Fixes wrong center
+ *   position and node offset when all global nodes are at level 10+ (bounds previously
+ *   used synthetic level=5 for all, causing mismatch with actual badge layout).
+ *
+ * - addHexagonPseudoSpanStyleFix: SnapDOM materializes hexagon ::before/::after as spans
+ *   that can inherit wrong region colors (e.g. red circle behind blue final_damage node).
+ *   Force correct --hex-border-color and --hex-fill on those spans.
+ *
  * C. Regeneration race UX: if tabs are switched while compose capture is regenerating,
  *    the viewer can briefly show loading/transition frames before the final blob for
  *    that tab is available.
@@ -174,7 +185,12 @@ import {
     decrementCapture,
     type TabsCaptureBridge,
 } from "./captureBridge";
-import { getTreeWorldBounds, TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
+import {
+    getTreeWorldBounds,
+    TREE_BADGE_VERTICAL_OVERFLOW_PX,
+    type TreeWorldBounds,
+} from "../treeLayout";
+import type { LevelsByIndex } from "../../types/tree";
 
 type TreeCaptureBounds = {
     centerNode: { x: number; y: number };
@@ -186,6 +202,93 @@ type TreeCaptureBounds = {
 const CAPTURE_BOUNDS_CROP_PX = 0;
 /** Buffer to prevent name badge clipping (e.g. "GLOBAL HP") - treeLayout can underestimate. */
 const CAPTURE_BOUNDS_EDGE_BUFFER_PX = 12;
+
+function buildCaptureBoundsFromTabs(
+    tabs: { nodes: { x: number; y: number; radius?: number; maxLevel?: number; skillId?: string | null }[] }[],
+    levelsByTab: LevelsByIndex[],
+): TreeCaptureBounds {
+    let translate: (key: string) => string;
+    try {
+        translate = get(t);
+    } catch {
+        translate = () => "";
+    }
+
+    let unionBounds: TreeWorldBounds | null = null;
+
+    for (let tabIndex = 0; tabIndex < tabs.length && tabIndex < levelsByTab.length; tabIndex++) {
+        const tab = tabs[tabIndex];
+        const levels = levelsByTab[tabIndex] ?? [];
+        // #region agent log
+        const globalIndices = tab.nodes.map((n,i)=>(n.skillId?.startsWith("global_")||n.skillId?.startsWith("final_"))?i:-1).filter(i=>i>=0);
+        const globalLevels = globalIndices.map(i=>levels[i]);
+        fetch("http://127.0.0.1:7778/ingest/3fa92bd6-575d-4985-ab8d-85d682deadfb",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"bfcb51"},body:JSON.stringify({sessionId:"bfcb51",location:"captureService.ts:buildCaptureBoundsFromTabs",message:"levels per tab",data:{tabIndex,levelsLen:levels.length,globalIndices,globalLevels,sumLevels:levels.reduce((a,b)=>a+(b??0),0)},hypothesisId:"E",timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        const nodes = tab.nodes.map((node, i) => {
+            const maxLevel = node.maxLevel ?? 1;
+            const level = levels[i] ?? (maxLevel > 1 ? 5 : 1);
+            const nameLabel =
+                node.skillId != null
+                    ? translate(`skills.short.${node.skillId}`) ||
+                      translate(`skills.${node.skillId}`)
+                    : undefined;
+            return {
+                x: node.x,
+                y: node.y,
+                radius: node.radius,
+                maxLevel,
+                skillId: node.skillId,
+                level,
+                nameLabel: nameLabel || undefined,
+            };
+        });
+
+        const bounds = getTreeWorldBounds(nodes, {
+            showSkillName: true,
+            showTier: true,
+        });
+
+        if (bounds) {
+            if (!unionBounds) {
+                unionBounds = { ...bounds };
+            } else {
+                unionBounds = {
+                    minX: Math.min(unionBounds.minX, bounds.minX),
+                    maxX: Math.max(unionBounds.maxX, bounds.maxX),
+                    minY: Math.min(unionBounds.minY, bounds.minY),
+                    maxY: Math.max(unionBounds.maxY, bounds.maxY),
+                    width: 0,
+                    height: 0,
+                };
+                unionBounds.width = unionBounds.maxX - unionBounds.minX;
+                unionBounds.height = unionBounds.maxY - unionBounds.minY;
+            }
+        }
+    }
+
+    if (!unionBounds) {
+        return buildCenteredCaptureBounds();
+    }
+
+    const width =
+        Math.ceil(unionBounds.width) +
+        CAPTURE_BOUNDS_EDGE_BUFFER_PX * 2 -
+        CAPTURE_BOUNDS_CROP_PX * 2;
+    const height =
+        Math.ceil(unionBounds.height) +
+        CAPTURE_BOUNDS_EDGE_BUFFER_PX * 2 -
+        CAPTURE_BOUNDS_CROP_PX * 2;
+    const edgeOffset = CAPTURE_BOUNDS_EDGE_BUFFER_PX - CAPTURE_BOUNDS_CROP_PX;
+    const centerNode = { x: edgeOffset - unionBounds.minX, y: edgeOffset - unionBounds.minY };
+    // #region agent log
+    fetch("http://127.0.0.1:7778/ingest/3fa92bd6-575d-4985-ab8d-85d682deadfb",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"bfcb51"},body:JSON.stringify({sessionId:"bfcb51",location:"captureService.ts:buildCaptureBoundsFromTabs",message:"union bounds",data:{minX:unionBounds.minX,minY:unionBounds.minY,maxX:unionBounds.maxX,maxY:unionBounds.maxY,edgeOffset,centerNode,width,height},hypothesisId:"B",timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    return {
+        centerNode,
+        width: Math.max(1, width),
+        height: Math.max(1, height),
+    };
+}
 
 function buildCenteredCaptureBounds(): TreeCaptureBounds {
     // Capture bounds are derived from the shared tree layout using worst-case
@@ -256,9 +359,29 @@ function buildCenteredCaptureBounds(): TreeCaptureBounds {
     };
 }
 
-/** Computes bounds at call time so current font size and locale are used. */
-function getTreeVisibleBounds(): TreeCaptureBounds {
-    return buildCenteredCaptureBounds();
+/**
+ * Computes bounds at call time. When bridge provides getTabs + getTreeLevels,
+ * uses actual nodes + levels for accurate bounds (fixes level-sensitive capture
+ * issues when all globals are at 10+). Falls back to baseTree otherwise.
+ */
+function getTreeVisibleBounds(bridge?: TabsCaptureBridge | null): TreeCaptureBounds {
+    const tabs = bridge?.getTabs?.();
+    const levelsByTab = bridge?.getTreeLevels?.();
+    // #region agent log
+    fetch("http://127.0.0.1:7778/ingest/3fa92bd6-575d-4985-ab8d-85d682deadfb",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"bfcb51"},body:JSON.stringify({sessionId:"bfcb51",location:"captureService.ts:getTreeVisibleBounds",message:"bounds source",data:{hasTabs:!!tabs,hasLevels:!!levelsByTab,tabsLen:tabs?.length??0,levelsLen:levelsByTab?.length??0,levelsSample:levelsByTab?.[0]?.slice?.(0,10)??null},hypothesisId:"A",timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (tabs && levelsByTab && tabs.length > 0) {
+        const result = buildCaptureBoundsFromTabs(tabs, levelsByTab);
+        // #region agent log
+        fetch("http://127.0.0.1:7778/ingest/3fa92bd6-575d-4985-ab8d-85d682deadfb",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"bfcb51"},body:JSON.stringify({sessionId:"bfcb51",location:"captureService.ts:getTreeVisibleBounds",message:"bounds from tabs",data:{centerNode:result.centerNode,width:result.width,height:result.height},hypothesisId:"B",timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return result;
+    }
+    const fallback = buildCenteredCaptureBounds();
+    // #region agent log
+    fetch("http://127.0.0.1:7778/ingest/3fa92bd6-575d-4985-ab8d-85d682deadfb",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"bfcb51"},body:JSON.stringify({sessionId:"bfcb51",location:"captureService.ts:getTreeVisibleBounds",message:"bounds from baseTree fallback",data:{centerNode:fallback.centerNode,width:fallback.width,height:fallback.height},hypothesisId:"B",timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    return fallback;
 }
 
 /** Initial value for tests; capture flow uses getTreeVisibleBounds() for accuracy. */
@@ -455,6 +578,25 @@ function addSnapdomPseudoElementGuardStyle(clone: HTMLElement) {
     clone.appendChild(style);
 }
 
+/**
+ * SnapDOM can materialize hexagon ::before/::after with wrong region colors (e.g. red
+ * circle behind blue final_damage node). Force correct styles on those spans so they
+ * inherit the node's --hex-border-color and --hex-fill from their parent.
+ */
+function addHexagonPseudoSpanStyleFix(clone: HTMLElement) {
+    const style = document.createElement("style");
+    style.setAttribute("data-hexagon-pseudo-fix", "true");
+    style.textContent = `
+.node-wrapper-hex .button.node span[data-snapdom-pseudo="::before"] {
+    background: var(--hex-border-color) !important;
+}
+.node-wrapper-hex .button.node span[data-snapdom-pseudo="::after"] {
+    background: var(--hex-fill) !important;
+}
+`;
+    clone.appendChild(style);
+}
+
 /** Copy runtime background styles from live tree to offscreen parent so captured trees keep visual context. */
 function syncCaptureBackground(parent: HTMLElement, element: HTMLElement) {
     const computed = getComputedStyle(element);
@@ -603,6 +745,7 @@ async function prepareTreeCloneInParent(
     clone.style.position = "absolute";
     clone.style.left = `${bounds.centerNode.x}px`;
     clone.style.top = `${bounds.centerNode.y}px`;
+    clone.style.transformOrigin = "0 0";
 
     try {
         parent.replaceChildren(clone);
@@ -618,9 +761,23 @@ async function prepareTreeCloneInParent(
     normalizeBadgeAnchorScale(clone);
     removeTransientNodeFlashOverlays(clone);
     addSnapdomPseudoElementGuardStyle(clone);
+    addHexagonPseudoSpanStyleFix(clone);
     ensureBadgesNotClipped(clone);
 
     await forceReflowAndWaitForPaint(clone);
+
+    // #region agent log
+    (()=>{
+        const wrappers=clone.querySelectorAll(".node-wrapper");
+        const root=clone.querySelector(".root-wrapper");
+        const first=wrappers[0];
+        const origWrappers=element.querySelectorAll(".node-wrapper");
+        const origFirst=origWrappers[0];
+        const parentRect=parent.getBoundingClientRect();
+        const cloneRect=clone.getBoundingClientRect();
+        fetch("http://127.0.0.1:7778/ingest/3fa92bd6-575d-4985-ab8d-85d682deadfb",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"bfcb51"},body:JSON.stringify({sessionId:"bfcb51",location:"captureService.ts:prepareTreeCloneInParent",message:"clone layout",data:{boundsCenterNode:bounds.centerNode,boundsWidth:bounds.width,boundsHeight:bounds.height,cloneLeft:clone.style.left,cloneTop:clone.style.top,parentW:parentRect.width,parentH:parentRect.height,cloneW:cloneRect.width,cloneH:cloneRect.height,firstWrapperLeft:first?getComputedStyle(first as HTMLElement).left:null,firstWrapperTop:first?getComputedStyle(first as HTMLElement).top:null,origFirstLeft:origFirst?getComputedStyle(origFirst as HTMLElement).left:null,origFirstTop:origFirst?getComputedStyle(origFirst as HTMLElement).top:null,rootLeft:root?getComputedStyle(root as HTMLElement).left:null,rootTop:root?getComputedStyle(root as HTMLElement).top:null,wrapperCount:wrappers.length},hypothesisId:"C,D",timestamp:Date.now()})}).catch(()=>{});
+    })();
+    // #endregion
 }
 
 /** Captures parent's contents to PNG blob. Clears parent in finally to avoid leaking clone nodes. */
@@ -643,6 +800,7 @@ async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
 async function captureElementAsPng(
     element: HTMLElement | null | undefined,
     parent: HTMLElement,
+    bridge?: TabsCaptureBridge | null,
 ): Promise<Blob | null> {
     if (!element || !parent) {
         console.error("Capture element is null");
@@ -650,7 +808,7 @@ async function captureElementAsPng(
     }
 
     try {
-        const bounds = getTreeVisibleBounds();
+        const bounds = getTreeVisibleBounds(bridge);
         await prepareTreeCloneInParent(element, parent, bounds);
         return await captureParentAsBlob(parent);
     } catch (error) {
@@ -868,7 +1026,7 @@ export async function captureTreeImageByIndex(
         }
 
         const element = await waitForStableTreeCanvas(bridge, tabIndex);
-        return await captureElementAsPng(element, parent);
+        return await captureElementAsPng(element, parent, bridge);
     });
 }
 
@@ -878,7 +1036,7 @@ type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 async function captureThreeTreeBlobs(
     bridge: TabsCaptureBridge,
 ): Promise<ThreeTreeBlobs> {
-    const bounds = getTreeVisibleBounds();
+    const bounds = getTreeVisibleBounds(bridge);
     const parents: HTMLElement[] = [];
     for (let i = 0; i < NUM_TREES; i++) {
         parents.push(createAndAttachOffscreenParent(bounds));

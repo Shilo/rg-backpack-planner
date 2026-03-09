@@ -1,7 +1,13 @@
+import type { TabConfig } from "../../types/tree";
+import type { LevelsByIndex } from "../../types/tree";
+
 export type TabsCaptureBridge = {
     setActive: (index: number) => void;
     getActive: () => number;
     getTreeCanvas: () => HTMLDivElement | null | undefined;
+    /** Optional: when provided, capture uses actual nodes + levels for accurate bounds. */
+    getTabs?: () => TabConfig[];
+    getTreeLevels?: () => LevelsByIndex[];
 };
 
 export let tabsBridge: TabsCaptureBridge | null = null;

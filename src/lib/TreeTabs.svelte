@@ -6,6 +6,7 @@
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
     import { onMount, tick } from "svelte";
+    import { get } from "svelte/store";
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
@@ -498,6 +499,8 @@
             setActive,
             getActive: () => activeIndex,
             getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
+            getTabs: () => tabs,
+            getTreeLevels: () => get(treeLevels),
         }}
     >
         {#if tabs[activeIndex]}
