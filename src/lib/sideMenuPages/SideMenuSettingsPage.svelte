@@ -51,6 +51,7 @@
     } from "../nodeLevelBehaviorStore";
     import { showTier } from "../showTierStore";
     import { showSkillName } from "../showSkillNameStore";
+    import { showLevelSplash } from "../splashTextStore";
     import { textSize } from "../textSizeStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -191,6 +192,7 @@
                 nodeLevelBehavior.resetToDefault();
                 showTier.resetToDefault();
                 showSkillName.resetToDefault();
+                showLevelSplash.resetToDefault();
                 hapticsEnabled.resetToDefault();
                 treeZoomScale.resetToDefault();
                 textSize.resetToDefault();
@@ -315,6 +317,13 @@
         ariaLabel={$t("settings.showTier")}
         tooltipText={$t("settings.showTierTooltip")}
         onToggle={() => showTier.set(!$showTier)}
+    />
+    <ToggleSwitch
+        checked={$showLevelSplash}
+        label={$t("settings.showLevelSplash")}
+        ariaLabel={$t("settings.showLevelSplash")}
+        tooltipText={$t("settings.showLevelSplashTooltip")}
+        onToggle={() => showLevelSplash.set(!$showLevelSplash)}
     />
 </SideMenuSection>
 

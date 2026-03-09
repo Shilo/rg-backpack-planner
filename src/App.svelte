@@ -9,6 +9,7 @@
     import PreviewBuildIndicator from "./lib/PreviewBuildIndicator.svelte";
     import Tooltip from "./lib/Tooltip.svelte";
     import Toasts from "./lib/Toasts.svelte";
+    import LevelUpSplash from "./lib/LevelUpSplash.svelte";
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
@@ -531,6 +532,7 @@
     </main>
     <ComposeScreenshot />
     <Toasts />
+    <LevelUpSplash />
     <ModalHost />
     <Tooltip />
 </div>

@@ -115,6 +115,8 @@
         "nodeLevelBehaviorTooltip": "Solo: one node. Sync: node and lineage together",
         "showTier": "Show tier badge",
         "showTierTooltip": "Show or hide tier badge on each node",
+        "showLevelSplash": "Level-up splash",
+        "showLevelSplashTooltip": "Show a brief splash when leveling nodes with level and crystal changes",
         "showSkillName": "Show skill name badge",
         "showSkillNameTooltip": "Show or hide skill name on each node",
         "haptics": "Haptic feedback",

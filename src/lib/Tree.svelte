@@ -44,6 +44,8 @@
         tierUpper,
         tierIndex,
     } from "./tierLeveling";
+    import { getCostRange } from "../config/skillMetadata";
+    import { triggerSplash } from "./splashTextStore";
     import {
         GLOBAL_LEVELED_LEAF_NODE_CAP,
         countGlobalLeveledLeafNodesInTree,
@@ -470,7 +472,21 @@
                 return false;
             }
         }
+
+        let totalLevelDelta = 0;
+        let totalCrystalDelta = 0;
+        for (const d of deltas) {
+            totalLevelDelta += d.delta;
+            const node = nodes[d.index];
+            if (!node) continue;
+            const oldLevel = levels[d.index] ?? 0;
+            const newLevel = oldLevel + d.delta;
+            const cost = getCostRange(node.skillId, oldLevel, newLevel);
+            totalCrystalDelta += d.delta > 0 ? cost : -cost;
+        }
+
         updateLevels(nextLevels);
+        triggerSplash(totalLevelDelta, totalCrystalDelta);
         return true;
     }
 
@@ -552,7 +568,18 @@
     }
 
     export function resetAllNodes() {
+        let totalLevelDelta = 0;
+        let totalCrystalDelta = 0;
+        for (let i = 0; i < nodes.length; i++) {
+            const oldLevel = levels[i] ?? 0;
+            if (oldLevel === 0) continue;
+            totalLevelDelta -= oldLevel;
+            const node = nodes[i];
+            if (!node) continue;
+            totalCrystalDelta -= getCostRange(node.skillId, 0, oldLevel);
+        }
         updateLevels(nodes.map(() => 0));
+        triggerSplash(totalLevelDelta, totalCrystalDelta);
     }
 
     export function getViewState() {
