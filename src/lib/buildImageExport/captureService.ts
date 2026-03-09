@@ -128,7 +128,9 @@
  *    the viewer can briefly show loading/transition frames before the final blob for
  *    that tab is available.
  */
+import { get } from "svelte/store";
 import { tick } from "svelte";
+import { t } from "svelte-whisper";
 import { snapdom } from "@zumer/snapdom";
 import { baseTree } from "../../config/baseTree";
 import {
@@ -151,15 +153,34 @@ const CAPTURE_BOUNDS_PIXEL_BUFFER_PX = 2;
 function buildCenteredCaptureBounds(): TreeCaptureBounds {
     // Capture bounds are derived from the shared tree layout using worst-case
     // badge visibility (names + tier badge lines) so all level states stay
-    // stable and never clip.
-    const nodes = baseTree.map((node) => ({
-        x: node.x,
-        y: node.y,
-        radius: node.radius,
-        maxLevel: node.maxLevel,
-        skillId: node.skillId,
-        level: 1,
-    }));
+    // stable and never clip. Uses current root font size (text size setting)
+    // and translated name labels for accurate badge width/height edge-out.
+    let translate: (key: string) => string;
+    try {
+        translate = get(t);
+    } catch {
+        translate = () => "";
+    }
+
+    const nodes = baseTree.map((node) => {
+        const maxLevel = node.maxLevel ?? 1;
+        // Worst-case level for tier badge: 2 lines when showTier && !isMaxed
+        const level = maxLevel > 1 ? 5 : 1;
+        const nameLabel =
+            node.skillId != null
+                ? translate(`skills.short.${node.skillId}`) ||
+                  translate(`skills.${node.skillId}`)
+                : undefined;
+        return {
+            x: node.x,
+            y: node.y,
+            radius: node.radius,
+            maxLevel,
+            skillId: node.skillId,
+            level,
+            nameLabel: nameLabel || undefined,
+        };
+    });
 
     const bounds = getTreeWorldBounds(nodes, {
         showSkillName: true,
@@ -171,31 +192,37 @@ function buildCenteredCaptureBounds(): TreeCaptureBounds {
         const fallbackHeight = 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX;
         return {
             centerNode: {
-                x: Math.ceil(701 / 2),
-                y: Math.ceil(fallbackHeight / 2),
+                x: CAPTURE_BOUNDS_PIXEL_BUFFER_PX,
+                y: CAPTURE_BOUNDS_PIXEL_BUFFER_PX,
             },
             width: 701,
             height: fallbackHeight,
         };
     }
 
-    const halfWidth = Math.max(Math.abs(bounds.minX), Math.abs(bounds.maxX));
-    const halfHeight = Math.max(Math.abs(bounds.minY), Math.abs(bounds.maxY));
-    const boundsCenterX = (bounds.minX + bounds.maxX) / 2;
-    const boundsCenterY = (bounds.minY + bounds.maxY) / 2;
-    const width = Math.ceil(halfWidth * 2) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX;
-    const height = Math.ceil(halfHeight * 2) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX;
+    // Use tight content bounds (no viewport padding). treeLayout's getTreeWorldBounds
+    // returns raw content bounds; viewport edge spacing is for in-app layout only.
+    const width =
+        Math.ceil(bounds.width) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX * 2;
+    const height =
+        Math.ceil(bounds.height) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX * 2;
 
     return {
         centerNode: {
-            x: Math.ceil(width / 2 - boundsCenterX),
-            y: Math.ceil(height / 2 - boundsCenterY),
+            x: CAPTURE_BOUNDS_PIXEL_BUFFER_PX - bounds.minX,
+            y: CAPTURE_BOUNDS_PIXEL_BUFFER_PX - bounds.minY,
         },
         width,
         height,
     };
 }
 
+/** Computes bounds at call time so current font size and locale are used. */
+function getTreeVisibleBounds(): TreeCaptureBounds {
+    return buildCenteredCaptureBounds();
+}
+
+/** Initial value for tests; capture flow uses getTreeVisibleBounds() for accuracy. */
 const TREE_VISIBLE_BOUNDS = buildCenteredCaptureBounds();
 
 /** Max iterations before giving up waiting for tree DOM to settle (tab switch). */
@@ -516,6 +543,7 @@ const SNAPDOM_OPTS = {
 async function prepareTreeCloneInParent(
     element: HTMLElement,
     parent: HTMLElement,
+    bounds: TreeCaptureBounds,
 ): Promise<void> {
     await waitForPaintFrames(PRE_CLONE_PAINT_FRAMES);
 
@@ -529,13 +557,13 @@ async function prepareTreeCloneInParent(
     clone.style.inset = "auto";
     clone.style.right = "auto";
     clone.style.bottom = "auto";
-    clone.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
-    clone.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
+    clone.style.width = `${bounds.width}px`;
+    clone.style.height = `${bounds.height}px`;
     clone.style.pointerEvents = "none";
     clone.style.overflow = "visible";
     clone.style.position = "absolute";
-    clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
-    clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
+    clone.style.left = `${bounds.centerNode.x}px`;
+    clone.style.top = `${bounds.centerNode.y}px`;
 
     try {
         parent.replaceChildren(clone);
@@ -583,7 +611,8 @@ async function captureElementAsPng(
     }
 
     try {
-        await prepareTreeCloneInParent(element, parent);
+        const bounds = getTreeVisibleBounds();
+        await prepareTreeCloneInParent(element, parent, bounds);
         return await captureParentAsBlob(parent);
     } catch (error) {
         console.error("Failed to capture tree as PNG:", error);
@@ -591,13 +620,13 @@ async function captureElementAsPng(
     }
 }
 
-function createAndAttachOffscreenParent() {
+function createAndAttachOffscreenParent(bounds: TreeCaptureBounds) {
     const parent = document.createElement("div");
     parent.style.position = "absolute";
     parent.style.left = "-9999px";
     parent.style.top = "-9999px";
-    parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
-    parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
+    parent.style.width = `${bounds.width}px`;
+    parent.style.height = `${bounds.height}px`;
     parent.style.overflow = "visible";
     parent.style.backgroundColor = "transparent";
     parent.style.pointerEvents = "none";
@@ -732,9 +761,10 @@ type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 async function captureThreeTreeBlobs(
     bridge: TabsCaptureBridge,
 ): Promise<ThreeTreeBlobs> {
+    const bounds = getTreeVisibleBounds();
     const parents: HTMLElement[] = [];
     for (let i = 0; i < NUM_TREES; i++) {
-        parents.push(createAndAttachOffscreenParent());
+        parents.push(createAndAttachOffscreenParent(bounds));
     }
     const currentIndex = bridge.getActive();
     const prepared = new Array<boolean>(NUM_TREES).fill(false);
@@ -747,7 +777,7 @@ async function captureThreeTreeBlobs(
             }
             const element = await waitForStableTreeCanvas(bridge, i);
             if (!element) continue;
-            await prepareTreeCloneInParent(element, parents[i]);
+            await prepareTreeCloneInParent(element, parents[i], bounds);
             prepared[i] = true;
         }
 
