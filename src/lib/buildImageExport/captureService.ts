@@ -62,6 +62,24 @@
  *     did not account for asymmetric world bounds, so Guardian/Cannon could look
  *     offset and center-node position appeared inconsistent after level changes.
  *
+ * 14. Name badge left clipping: treeLayout's getNameBadgeWidthPx can underestimate
+ *     rendered extent (e.g. "GLOBAL HP" clipped ~10px on left). Badge alignment
+ *     and font metrics may differ from treeLayout's canvas measureText.
+ *
+ * 15. Captured trees lose background context: offscreen parent without runtime
+ *     background styles can render differently than live tree (mobile parity).
+ *
+ * 16. Bounds not reactive to settings: capture used fixed bounds; treeLayout
+ *     changes with showSkillName, showTier, font size, locale. Need nameLabel
+ *     from i18n and worst-case tier badge (2 lines) for accurate bounds.
+ *
+ * 17. Aggressive crop clips content: cropping to "zero padding" (40px crop)
+ *     clipped right and bottom badge bounds. treeLayout bounds are not always
+ *     conservative on all sides.
+ *
+ * 18. Padding vs clipping tradeoff: zero buffer clips badges; large buffer adds
+ *     unwanted padding. Need buffer during capture, then crop transparent pixels.
+ *
  * --- FIXES (where they live in this file) ---
  *
  * - waitForStableTreeCanvas: wait until canvas exists, correct tab active,
@@ -107,10 +125,26 @@
  *   documentElement on first entry, remove on last exit. Avoids (12).
  *
  * - buildCenteredCaptureBounds: compute worst-case export bounds from baseTree via
- *   getTreeWorldBounds(showSkillName+showTier), then offset by world-bounds center
- *   (boundsCenterX/Y) so rendered bounds are centered in the capture canvas.
- *   Avoids (13). Verified by test/captureServiceCenteredBounds.test.ts and
- *   Playwright metric check of alpha bounds center drift.
+ *   getTreeWorldBounds(showSkillName+showTier), use tight content bounds
+ *   (bounds.width/height not symmetric halfWidth*2), offset for positioning.
+ *   Avoids (13). Verified by test/captureServiceCenteredBounds.test.ts.
+ *
+ * - CAPTURE_BOUNDS_EDGE_BUFFER_PX = 12: expand bounds on all sides so name badges
+ *   (e.g. "GLOBAL HP") are not clipped. Avoids (14).
+ *
+ * - syncCaptureBackground(parent, element): copy runtime background styles from
+ *   live tree to offscreen parent before capture. Avoids (15).
+ *
+ * - buildCenteredCaptureBounds: use nameLabel from i18n (translate), worst-case
+ *   level for tier badge (2 lines when showTier && !isMaxed), getTreeVisibleBounds
+ *   at capture time for current font size and locale. Avoids (16).
+ *
+ * - CAPTURE_BOUNDS_CROP_PX = 0: no crop; use full treeLayout bounds to avoid
+ *   right/bottom clipping. Avoids (17).
+ *
+ * - cropBlobToContent: after capture, crop each tree blob to bounding box of
+ *   non-transparent pixels (getImageContentBounds). Combined image has minimal
+ *   padding with no clipping. Avoids (18).
  *
  * --- KNOWN UNFIXED ISSUES (as of current implementation) ---
  *
