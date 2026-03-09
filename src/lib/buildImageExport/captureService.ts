@@ -150,6 +150,8 @@ type TreeCaptureBounds = {
 
 /** No crop: use full treeLayout bounds to avoid clipping right/bottom badge content. */
 const CAPTURE_BOUNDS_CROP_PX = 0;
+/** Buffer to prevent name badge clipping (e.g. "GLOBAL HP") - treeLayout can underestimate. */
+const CAPTURE_BOUNDS_EDGE_BUFFER_PX = 12;
 
 function buildCenteredCaptureBounds(): TreeCaptureBounds {
     // Capture bounds are derived from the shared tree layout using worst-case
@@ -197,18 +199,26 @@ function buildCenteredCaptureBounds(): TreeCaptureBounds {
         };
     }
 
-    // Use tight content bounds. Crop to eliminate padding from treeLayout's
-    // conservative overflow estimates; image edges align with badge bounds.
-    const width = Math.max(1, Math.ceil(bounds.width) - CAPTURE_BOUNDS_CROP_PX * 2);
-    const height = Math.max(1, Math.ceil(bounds.height) - CAPTURE_BOUNDS_CROP_PX * 2);
+    // Expand bounds by edge buffer to prevent name badge clipping (e.g. "GLOBAL HP"
+    // on left) - treeLayout width/overflow can underestimate rendered extent.
+    const width =
+        Math.ceil(bounds.width) +
+        CAPTURE_BOUNDS_EDGE_BUFFER_PX * 2 -
+        CAPTURE_BOUNDS_CROP_PX * 2;
+    const height =
+        Math.ceil(bounds.height) +
+        CAPTURE_BOUNDS_EDGE_BUFFER_PX * 2 -
+        CAPTURE_BOUNDS_CROP_PX * 2;
+
+    const edgeOffset = CAPTURE_BOUNDS_EDGE_BUFFER_PX - CAPTURE_BOUNDS_CROP_PX;
 
     return {
         centerNode: {
-            x: CAPTURE_BOUNDS_CROP_PX - bounds.minX,
-            y: CAPTURE_BOUNDS_CROP_PX - bounds.minY,
+            x: edgeOffset - bounds.minX,
+            y: edgeOffset - bounds.minY,
         },
-        width,
-        height,
+        width: Math.max(1, width),
+        height: Math.max(1, height),
     };
 }
 
