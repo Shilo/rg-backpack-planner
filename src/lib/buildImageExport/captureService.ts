@@ -660,16 +660,94 @@ async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     });
 }
 
+/** Bounding box of non-transparent pixels (alpha > 0). */
+function getImageContentBounds(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+): { x: number; y: number; width: number; height: number } | null {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    let minX = width;
+    let minY = height;
+    let maxX = -1;
+    let maxY = -1;
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * 4;
+            if (data[i + 3] > 0) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+        }
+    }
+
+    if (maxX < minX || maxY < minY) return null;
+    return {
+        x: minX,
+        y: minY,
+        width: maxX - minX + 1,
+        height: maxY - minY + 1,
+    };
+}
+
+/** Crop blob to non-transparent content bounds. */
+async function cropBlobToContent(blob: Blob): Promise<Blob | null> {
+    const img = await blobToImage(blob);
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return blob;
+
+    ctx.drawImage(img, 0, 0);
+    const bounds = getImageContentBounds(ctx, img.width, img.height);
+    img.src = "";
+
+    if (!bounds || bounds.width <= 0 || bounds.height <= 0) return blob;
+
+    const cropped = document.createElement("canvas");
+    cropped.width = bounds.width;
+    cropped.height = bounds.height;
+    const cropCtx = cropped.getContext("2d", { alpha: true });
+    if (!cropCtx) return blob;
+
+    cropCtx.drawImage(
+        canvas,
+        bounds.x,
+        bounds.y,
+        bounds.width,
+        bounds.height,
+        0,
+        0,
+        bounds.width,
+        bounds.height,
+    );
+
+    return new Promise((resolve) => {
+        cropped.toBlob((b) => resolve(b ?? blob), "image/png");
+    });
+}
+
 async function combineTreeImagesHorizontally(
     tree1Blob: Blob,
     tree2Blob: Blob,
     tree3Blob: Blob,
 ): Promise<Blob | null> {
     try {
+        const [cropped1, cropped2, cropped3] = await Promise.all([
+            cropBlobToContent(tree1Blob),
+            cropBlobToContent(tree2Blob),
+            cropBlobToContent(tree3Blob),
+        ]);
+
         const [img1, img2, img3] = await Promise.all([
-            blobToImage(tree1Blob),
-            blobToImage(tree2Blob),
-            blobToImage(tree3Blob),
+            blobToImage(cropped1 ?? tree1Blob),
+            blobToImage(cropped2 ?? tree2Blob),
+            blobToImage(cropped3 ?? tree3Blob),
         ]);
 
         const spacing = 32; // half node size between trees, no outer padding
