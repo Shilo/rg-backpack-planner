@@ -115,6 +115,17 @@
         setActive(next);
     }
 
+    function handleBackspaceKeydown(event: KeyboardEvent) {
+        if (event.key !== "Backspace" || !tabsRootEl) return;
+        if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
+            return;
+        const levels = $treeLevels[activeIndex] ?? [];
+        if (sumLevels(levels) === 0) return;
+        if (event.repeat) return;
+        event.preventDefault();
+        openResetModalForActiveTab();
+    }
+
     onMount(() => {
         hasMounted = true;
         // Restore active tab from localStorage (only set index, don't call setActive to avoid interfering with tree positioning)
@@ -128,9 +139,12 @@
         // Mark that initial restore is complete
         isInitialRestore = false;
         window.addEventListener("keydown", handleTabKeydown, true);
+        window.addEventListener("keydown", handleBackspaceKeydown, true);
         if (!tabsBarEl) {
-            return () =>
+            return () => {
                 window.removeEventListener("keydown", handleTabKeydown, true);
+                window.removeEventListener("keydown", handleBackspaceKeydown, true);
+            };
         }
         const observer = new ResizeObserver(() => {
             bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
@@ -139,6 +153,7 @@
         bottomInset = tabsBarEl.offsetHeight;
         return () => {
             window.removeEventListener("keydown", handleTabKeydown, true);
+            window.removeEventListener("keydown", handleBackspaceKeydown, true);
             observer.disconnect();
         };
     });
@@ -489,7 +504,6 @@
                     levelsById={$treeLevels[activeIndex] ?? null}
                     globalLeveledLeafNodesOutsideTreeCount={globalLeveledLeafNodesOutsideActiveTreeCount}
                     onLevelsChange={handleLevelsChange}
-                    onRequestReset={openResetModalForActiveTab}
                     {bottomInset}
                     gesturesDisabled={!!tabContextMenu}
                     initialViewState={lastViewState}
