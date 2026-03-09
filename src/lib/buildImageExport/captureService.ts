@@ -148,7 +148,8 @@ type TreeCaptureBounds = {
     height: number;
 };
 
-const CAPTURE_BOUNDS_PIXEL_BUFFER_PX = 2;
+/** Crop to badge bounds: treeLayout overflows are conservative, trim to eliminate padding. */
+const CAPTURE_BOUNDS_CROP_PX = 40;
 
 function buildCenteredCaptureBounds(): TreeCaptureBounds {
     // Capture bounds are derived from the shared tree layout using worst-case
@@ -188,29 +189,23 @@ function buildCenteredCaptureBounds(): TreeCaptureBounds {
     });
 
     if (!bounds) {
-        // Fallback mirrors prior capture dimensions but keeps center centered.
         const fallbackHeight = 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX;
         return {
-            centerNode: {
-                x: CAPTURE_BOUNDS_PIXEL_BUFFER_PX,
-                y: CAPTURE_BOUNDS_PIXEL_BUFFER_PX,
-            },
+            centerNode: { x: 0, y: 0 },
             width: 701,
             height: fallbackHeight,
         };
     }
 
-    // Use tight content bounds (no viewport padding). treeLayout's getTreeWorldBounds
-    // returns raw content bounds; viewport edge spacing is for in-app layout only.
-    const width =
-        Math.ceil(bounds.width) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX * 2;
-    const height =
-        Math.ceil(bounds.height) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX * 2;
+    // Use tight content bounds. Crop to eliminate padding from treeLayout's
+    // conservative overflow estimates; image edges align with badge bounds.
+    const width = Math.max(1, Math.ceil(bounds.width) - CAPTURE_BOUNDS_CROP_PX * 2);
+    const height = Math.max(1, Math.ceil(bounds.height) - CAPTURE_BOUNDS_CROP_PX * 2);
 
     return {
         centerNode: {
-            x: CAPTURE_BOUNDS_PIXEL_BUFFER_PX - bounds.minX,
-            y: CAPTURE_BOUNDS_PIXEL_BUFFER_PX - bounds.minY,
+            x: CAPTURE_BOUNDS_CROP_PX - bounds.minX,
+            y: CAPTURE_BOUNDS_CROP_PX - bounds.minY,
         },
         width,
         height,
