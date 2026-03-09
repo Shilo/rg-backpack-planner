@@ -33,3 +33,4 @@
 - **Lint/check**: `npm run check` runs `svelte-check` + `tsc`. There is no separate ESLint config.
 - **Tests**: `npm test` runs type checks then `tsx test/index.ts`. All suite output is mirrored to `test/index.output.log`. The runner halts instantly (exit code 1) upon the first test failure, and only prints the success summary if all tests pass. Per repo convention, do not run `npm run test:ui:tier` unless explicitly asked.
 - **Build**: `npm run build` produces `dist/` and copies `index.html` to `404.html` for SPA routing on GitHub Pages.
+- **Skills**: Project skills live in `.skills/` at repo root (e.g. `regenerate-locales`, `app-store-changelog`). Use them when the user asks to regenerate locales/translations or to generate release notes / changelog / "What's New".

@@ -426,6 +426,11 @@
         };
         window.addEventListener("keydown", handleKeyDown);
 
+        function handleCloseSideMenu() {
+            closeMenu();
+        }
+        document.addEventListener("closeSideMenu", handleCloseSideMenu);
+
         let hasRunVersionCheck = false;
 
         async function runInitialization() {
@@ -471,6 +476,9 @@
             unsubscribeTreeLevels?.();
             unsubscribeTechCrystals?.();
 
+            if (typeof document !== "undefined") {
+                document.removeEventListener("closeSideMenu", handleCloseSideMenu);
+            }
             if (typeof window !== "undefined") {
                 window.removeEventListener("hashchange", handleHashchange);
                 window.removeEventListener("keydown", handleKeyDown);
@@ -526,6 +534,7 @@
             bind:activeViewState={activeTreeViewState}
             bind:activeFocusViewState={activeTreeFocusViewState}
             {tabs}
+            isMenuOpen={isMenuOpen}
             onMenuClick={toggleMenu}
         />
     </main>

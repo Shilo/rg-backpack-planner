@@ -31,6 +31,7 @@
     } from "./treeLevelsStore";
     import { openResetTreeModal } from "./resetTreeModal";
     import { isKeyboardShortcutTarget } from "./domUtil";
+    import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
@@ -39,6 +40,8 @@
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
+    /** When true, Tab key cycles side menu tabs instead of tree tabs. */
+    export let isMenuOpen = false;
     export let activeLabel = "";
     export let activeIndex = 0;
     export let activeViewState: TreeViewState | null = null;
@@ -97,6 +100,7 @@
 
     function handleTabKeydown(event: KeyboardEvent) {
         if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
+        if (isMenuOpen || $isComposeScreenshotOpen) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
             return;
 
