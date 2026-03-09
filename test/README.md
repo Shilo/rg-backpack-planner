@@ -2,12 +2,14 @@
 
 This folder contains the repo's hand-written Node/TS test runners.
 
-Primary entry points:
+## Entry Points
 
-- `test/index.ts` (full default suite)
-- `test/tierLeveling.test.ts` (tier contract CLI suite)
-- `test/tierLeveling.ui.test.ts` (headed Playwright tier contract UI suite)
-- `test/encoder.test.ts` (build-data codec suite)
+- **`test/index.ts`** — Full default suite (orchestrates all tests). Run via `npm test`.
+- **`test/tierLeveling.test.ts`** — Tier contract CLI suite
+- **`test/tierLeveling.ui.test.ts`** — Headed Playwright tier contract UI suite (run via `npm run test:ui:tier`)
+- **`test/encoder.test.ts`** — Build-data codec suite
+
+The default suite includes 80+ test files covering utilities, state, serialization, storage, presets, sharing, UI interactions, tree behavior, capture/screenshot, modals, and service worker.
 
 ## Quick Start
 
@@ -58,7 +60,7 @@ Key behavior:
 
 Tier expectations are centralized in:
 
-- `README.md` (behavior contract)
+- `docs/behavior-contracts.md` (full behavior contract)
 - `test/tierLeveling.shared.ts` (shared expected scenarios/helpers)
 
 Tier suites validate the same contract in two ways:
@@ -141,5 +143,4 @@ Update this folder when you change:
 - build-name encoding/decoding behavior
 - accepted/rejected malformed input cases
 
-When behavior changes intentionally, keep expectations explicit in
-`test/tierLeveling.shared.ts` so regressions are obvious.
+When behavior changes intentionally, update `docs/behavior-contracts.md` if the contract changes, and keep expectations explicit in `test/tierLeveling.shared.ts` so regressions are obvious.
