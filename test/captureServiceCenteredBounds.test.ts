@@ -27,7 +27,7 @@ if (
 
 if (!/CAPTURE_BOUNDS_CROP_PX/.test(source)) {
     throw new Error(
-        "captureService should crop bounds so image edges align with badge bounds.",
+        "captureService should define CAPTURE_BOUNDS_CROP_PX for bounds control.",
     );
 }
 

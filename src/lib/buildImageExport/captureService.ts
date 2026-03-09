@@ -148,8 +148,8 @@ type TreeCaptureBounds = {
     height: number;
 };
 
-/** Crop to badge bounds: treeLayout overflows are conservative, trim to eliminate padding. */
-const CAPTURE_BOUNDS_CROP_PX = 40;
+/** No crop: use full treeLayout bounds to avoid clipping right/bottom badge content. */
+const CAPTURE_BOUNDS_CROP_PX = 0;
 
 function buildCenteredCaptureBounds(): TreeCaptureBounds {
     // Capture bounds are derived from the shared tree layout using worst-case
