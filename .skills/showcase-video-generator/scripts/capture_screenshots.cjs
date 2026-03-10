@@ -23,24 +23,19 @@ async function run() {
     const clickByText = async (text, selector = 'button') => {
         console.log(`Attempting to click "${text}"...`);
         try {
-            await page.waitForSelector(selector, { timeout: 5000 });
-            const success = await page.evaluate((t, s) => {
-                const elements = Array.from(document.querySelectorAll(s));
-                const target = elements.find(el => {
-                    const content = el.textContent.trim().toLowerCase();
-                    return content.includes(t.toLowerCase());
-                });
-                if (target) {
-                    target.click();
-                    return true;
-                }
-                return false;
-            }, text, selector);
-
-            if (!success) throw new Error(`Not found by evaluate search`);
+            const locator = page.locator(selector).filter({ hasText: new RegExp(`^${text}$`, 'i') }).first();
+            // If exact match doesn't work, try partial
+            const count = await locator.count();
+            if (count === 0) {
+                console.log(`Exact match for "${text}" not found, trying partial...`);
+                await page.locator(selector).filter({ hasText: new RegExp(text, 'i') }).first().click({ timeout: 10000 });
+            } else {
+                await locator.click({ timeout: 10000 });
+            }
             console.log(`Clicked "${text}"`);
         } catch (e) {
             console.log(`[FAILED] clickByText("${text}"): ${e.message}`);
+            await page.screenshot({ path: path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', 'debug_fail.png') });
             throw e;
         }
     };
@@ -64,10 +59,12 @@ async function run() {
         await shot('mobile_mid_build.png');
 
         // 3. Capture Settings Menu
-        console.log('Opening Settings Menu...');
-        await page.click('.menu-button', { timeout: 3000 });
-        await page.waitForTimeout(1000);
-        await clickByText('Settings');
+        console.log('Opening Side Menu...');
+        await page.click('.menu-button', { timeout: 5000 });
+        await page.waitForSelector('.side-menu.open', { timeout: 5000 });
+
+        console.log('Switching to Settings Tab...');
+        await clickByText('Settings', '.tab-bar__tab-button');
         await page.waitForTimeout(1000);
         await shot('mobile_settings.png');
 

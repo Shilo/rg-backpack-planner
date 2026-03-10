@@ -1,5 +1,5 @@
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Sequence, staticFile } from 'remotion';
-import { Layout, Share2, BarChart3, Binary, Zap, Settings, MousePointer2, Calculator, Save, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Layout, Share2, BarChart3, Binary, Zap, Settings, MousePointer2, Calculator, Save, Smartphone, CheckCircle2, Link } from 'lucide-react';
 
 const Title: React.FC<{ text: string; frame: number; start: number; color?: string; align?: 'left' | 'center' }> = ({ text, frame, start, color = 'white', align = 'center' }) => {
     // If it's the very first frame and we are at start, show it immediately without animation
@@ -66,8 +66,9 @@ const FeatureList: React.FC<{ items: string[]; frame: number; start: number }> =
 };
 
 const MobileFrame: React.FC<{ file: string; frame: number; start: number }> = ({ file, frame, start }) => {
-    const opacity = interpolate(frame, [start, start + 15], [0, 1], { extrapolateRight: 'clamp' });
-    const scale = spring({ frame: frame - start, fps: 30, config: { damping: 10 } });
+    const isFirstFrame = frame === 0 && start === 0;
+    const opacity = isFirstFrame ? 1 : interpolate(frame, [start, start + 15], [0, 1], { extrapolateRight: 'clamp' });
+    const scale = isFirstFrame ? 1 : spring({ frame: frame - start, fps: 30, config: { damping: 10 } });
 
     return (
         <div style={{
@@ -107,28 +108,41 @@ export const Showcase: React.FC = () => {
         >
             {/* Intro Scene (0-90) - STATIC START */}
             <Sequence durationInFrames={90}>
-                <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px' }}>
+                <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px', backgroundColor: '#0f172a' }}>
+                    <div style={{ flex: 1, paddingRight: '60px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '40px' }}>
                         <img
                             src={staticFile("icon.svg")}
                             style={{
-                                width: '200px',
-                                height: '200px',
+                                width: '150px',
+                                height: '150px',
                                 transform: frame === 0 ? 'scale(1)' : `scale(${spring({ frame, fps: 30, config: { damping: 12 } })})`
                             }}
                         />
-                        <div style={{ textAlign: 'center' }}>
-                            <Title text="Backpack Planner" frame={frame} start={0} color="#06b6d4" />
+                        <div style={{ textAlign: 'left' }}>
+                            <Title text="Backpack Planner" frame={frame} start={0} color="#06b6d4" align="left" />
                             <p style={{
-                                fontSize: '40px',
+                                fontSize: '48px',
+                                fontWeight: 'bold',
+                                color: 'white',
+                                opacity: frame === 0 ? 1 : interpolate(frame, [10, 25], [0, 1]),
+                                margin: '-20px 0 20px 0'
+                            }}>
+                                for Run! Goddess
+                            </p>
+                            <p style={{
+                                fontSize: '32px',
                                 opacity: frame === 0 ? 1 : interpolate(frame, [20, 40], [0, 1]),
                                 transform: `translateY(${frame === 0 ? 0 : interpolate(frame, [20, 40], [20, 0], { extrapolateRight: 'clamp' })}px)`,
-                                maxWidth: '800px',
-                                lineHeight: '1.4'
+                                maxWidth: '600px',
+                                lineHeight: '1.4',
+                                color: '#94a3b8'
                             }}>
-                                Plan and share Backpack Tech builds for Run! Goddess
+                                Plan and share professional Backpack Tech builds.
                             </p>
                         </div>
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <MobileFrame file="mobile_late_pve.png" frame={frame} start={0} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
@@ -140,7 +154,7 @@ export const Showcase: React.FC = () => {
                         <Title text="Plan Your Builds" frame={frame} start={100} align="left" />
                         <FeatureList
                             items={[
-                                "Optimize Late PvE Builds",
+                                "Optimize for Late Game PvE and PvP",
                                 "Manage All Skill Trees",
                                 "Refine Your Strategy"
                             ]}
@@ -185,15 +199,22 @@ export const Showcase: React.FC = () => {
                         <Title text="Build & Optimize Now" frame={frame} start={400} align="left" color="#06b6d4" />
                         <FeatureList
                             items={[
-                                "Custom Dark/Light Themes",
-                                "Instant Build Sharing",
+                                "Multiple Build Presets",
+                                "Preview and Share Builds",
                                 "Works Offline & Everywhere"
                             ]}
                             frame={frame}
                             start={420}
                         />
-                        <div style={{ marginTop: '60px', opacity: interpolate(frame, [450, 470], [0, 1]) }}>
-                            <p style={{ fontSize: '48px', fontWeight: 'bold' }}>https://rgbp.app</p>
+                        <div style={{
+                            marginTop: '60px',
+                            opacity: interpolate(frame, [450, 470], [0, 1]),
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '16px'
+                        }}>
+                            <Link size={48} color="#06b6d4" />
+                            <p style={{ fontSize: '48px', fontWeight: 'bold', margin: 0 }}>rgbp.app</p>
                         </div>
                     </div>
                     <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
