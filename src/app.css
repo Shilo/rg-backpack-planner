@@ -92,6 +92,16 @@ html.snapdom-capture *::after {
     animation: none !important;
 }
 
+/* Capture-only normalization: keep badge text single-line and
+   disable zoom-compensation scaling so exports stay stable across viewport sizes. */
+html.snapdom-capture .node-badge-icon-stack {
+    --node-badge-scale: 1 !important;
+}
+
+html.snapdom-capture .node-badge {
+    white-space: nowrap !important;
+}
+
 button {
     font: inherit;
     user-select: none;
