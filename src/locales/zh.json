@@ -52,7 +52,8 @@
             "mouse": "鼠标",
             "keyboard": "键盘",
             "hud": "HUD (抬头显示)",
-            "controlsTab": "侧边栏操作标签页"
+            "controlsTab": "侧边栏操作标签页",
+            "instructions": "说明"
         }
     },
     "trees": {
@@ -60,7 +61,19 @@
         "vanguard": "先锋",
         "cannon": "火炮",
         "named": "{label} 树",
-        "generic": "树"
+        "generic": "树",
+        "rules": [
+            "通过消耗科技水晶来激活或升级背包科技。",
+            "达到前置节点的特定等级可解锁下一层级。",
+            "选择分支后，必须先解锁其中的终极技能，然后才能选择同页面的另一个分支。",
+            "每个职业有3个分支，总共9个终极技能，玩家只能选择其中3个学习。",
+            "重置将退还当前页面消耗的所有科技水晶。重置次数无限制。"
+        ],
+        "description": {
+            "guardian": "拥有**技能暴击**、**穿透抗性**和**晕眩**效果。",
+            "vanguard": "专注于**穿透伤害**、**反击抗性**和**暴击**。",
+            "cannon": "核心是**技能暴击抗性**、**晕眩免疫**和**伤害反弹**。"
+        }
     },
     "skills": {
         "attack_boost": "攻击加成",
@@ -156,6 +169,7 @@
         "defaultTitle": "菜单",
         "tabActions": "{tabLabel} 树",
         "previewBuildOptions": "预览构建选项",
+        "techCrystalsLabel": "科技水晶:",
         "levelsLabel": "等级:"
     },
     "nodeMenu": {
@@ -421,8 +435,8 @@
         "touchMenuSwipeDescription": "关闭侧边菜单",
         "keyboardScreenshotLabel": "F9 - 分享截图",
         "keyboardScreenshotDescription": "预览并分享技能树图像",
-        "keyboardCycleTabsLabel": "Tab - 在当前上下文中切换标签",
-        "keyboardCycleTabsDescription": "主界面：在 Guardian、Vanguard、Cannon 技能树之间切换。本菜单内：在统计、设置、操作之间切换。分享/拼图弹窗内：切换该弹窗的标签。",
+        "keyboardCycleTabsLabel": "Tab - 切换标签",
+        "keyboardCycleTabsDescription": "切换当前视图中的标签页",
         "keyboardBackspaceResetLabel": "Backspace - 重置当前技能树",
         "keyboardBackspaceResetDescription": "当前技能树有等级时打开重置确认。",
         "hudTechCrystalsLabel": "科技水晶 (货币)",

@@ -52,7 +52,8 @@
             "mouse": "Mouse",
             "keyboard": "Keyboard",
             "hud": "HUD (Heads-Up Display)",
-            "controlsTab": "Side menu Controls Tab"
+            "controlsTab": "Side menu Controls Tab",
+            "instructions": "Instructions"
         }
     },
     "trees": {
@@ -60,7 +61,19 @@
         "vanguard": "Vanguard",
         "cannon": "Cannon",
         "named": "{label} tree",
-        "generic": "tree"
+        "generic": "tree",
+        "rules": [
+            "Activate or upgrade Backpack Tech by spending Tech Crystals.",
+            "Reaching a certain level in prerequisite nodes unlocks the next tier.",
+            "After choosing a branch, you must unlock its ultimate skill before selecting another branch on the same page.",
+            "Each class has 3 branches, totaling 9 ultimate skills, and players may choose only 3 to learn.",
+            "Resets refund all Tech Crystals spent on the current page and are unlimited."
+        ],
+        "description": {
+            "guardian": "Features **Skill Critical Hits**, **Pierce Resistance**, and **Stun** effects.",
+            "vanguard": "Focuses on **Pierce Damage**, **Counterattack Resistance**, and **Critical Hits**.",
+            "cannon": "Centers on **Skill Crit Resistance**, **Ignore Stun**, and **Damage Reflection**."
+        }
     },
     "skills": {
         "attack_boost": "Attack Boost",
@@ -163,6 +176,7 @@
         "defaultTitle": "Menu",
         "tabActions": "{tabLabel} Tree",
         "previewBuildOptions": "Preview build options",
+        "techCrystalsLabel": "Tech Crystals:",
         "levelsLabel": "Levels:"
     },
     "nodeMenu": {
@@ -428,8 +442,8 @@
         "touchMenuSwipeDescription": "Close side menu",
         "keyboardScreenshotLabel": "F9 - Share screenshot",
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
-        "keyboardCycleTabsLabel": "Tab - Cycle tabs in current context",
-        "keyboardCycleTabsDescription": "On the main screen: switch between Guardian, Vanguard, and Cannon trees. In this menu: switch between Statistics, Settings, and Controls. In the share/compose modal: switch that modal's tabs.",
+        "keyboardCycleTabsLabel": "Tab - Cycle tabs",
+        "keyboardCycleTabsDescription": "Switch between tabs on the current view",
         "keyboardBackspaceResetLabel": "Backspace - Reset active tree",
         "keyboardBackspaceResetDescription": "Open reset confirmation for the current tree when it has levels.",
         "hudTechCrystalsLabel": "Tech Crystals (Currency)",

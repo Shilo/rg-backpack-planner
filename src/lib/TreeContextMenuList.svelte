@@ -80,6 +80,11 @@
         (sum, val) => sum + (val ?? 0),
         0,
     );
+
+    function parseDescription(text: string): string {
+        if (!text) return "";
+        return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    }
 </script>
 
 {#if !hideStats}
@@ -103,6 +108,12 @@
             </div>
         </div>
     </div>
+
+    {#if tabId && $t(`trees.description.${tabId}`)}
+        <div class="tree-desc">
+            {@html parseDescription($t(`trees.description.${tabId}`))}
+        </div>
+    {/if}
 
     <div class="tree-stats">
         <div class="meta-row">
@@ -131,20 +142,22 @@
     </div>
 {/if}
 
-<ResetTreeButton
-    {onReset}
-    {levelsById}
-    treeLabel={tabLabel}
-    onPress={onButtonPress}
-/>
-{#if !hideViewOptions}
-    <FocusInViewButton
-        {onFocusInView}
+<div class="menu-actions">
+    <ResetTreeButton
+        {onReset}
+        {levelsById}
+        treeLabel={tabLabel}
         onPress={onButtonPress}
-        {viewState}
-        {focusViewState}
     />
-{/if}
+    {#if !hideViewOptions}
+        <FocusInViewButton
+            {onFocusInView}
+            onPress={onButtonPress}
+            {viewState}
+            {focusViewState}
+        />
+    {/if}
+</div>
 
 <style>
     .info-header {
@@ -153,6 +166,28 @@
         align-items: center;
         width: 100%;
         margin-bottom: var(--spacing-sm);
+    }
+
+    .tree-desc {
+        font-size: var(--font-xs);
+        line-height: 1.4;
+        color: var(--text-muted);
+        margin-bottom: var(--spacing-md);
+        padding: var(--spacing-sm);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 4px;
+        border-left: 2px solid var(--accent);
+    }
+
+    .tree-desc :global(strong) {
+        color: var(--text);
+        font-weight: var(--weight-bold);
+    }
+
+    .menu-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
     }
 
     .node-icon-wrapper {

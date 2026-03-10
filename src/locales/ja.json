@@ -52,7 +52,8 @@
             "mouse": "マウス",
             "keyboard": "キーボード",
             "hud": "HUD (ヘッドアップディスプレイ)",
-            "controlsTab": "サイドメニューの操作タブ"
+            "controlsTab": "サイドメニューの操作タブ",
+            "instructions": "説明"
         }
     },
     "trees": {
@@ -60,7 +61,19 @@
         "vanguard": "ヴァンガード",
         "cannon": "キャノン",
         "named": "{label}ツリー",
-        "generic": "ツリー"
+        "generic": "ツリー",
+        "rules": [
+            "テッククリスタルを消費して、バックパックテックを活性化またはアップグレードできます。",
+            "前提ノードが一定のレベルに達すると、次のティアが解放されます。",
+            "分枝を選択した後、同じページの別の分枝を選択する前に、その究極スキルを解放する必要があります。",
+            "各クラスには3つの分枝（計9つの究極スキル）があり、プレイヤーはその中から3つだけを選択して習得できます。",
+            "リセットすると、現在のページで消費されたすべてのテッククリスタルが払い戻されます。リセットは無制限です。"
+        ],
+        "description": {
+            "guardian": "**スキル会心**、**貫通耐性**、**気絶**効果を特徴とします。",
+            "vanguard": "**貫通ダメージ**、**反撃耐性**、**会心**に焦点を当てています。",
+            "cannon": "**スキル会心耐性**、**気絶無効**、**ダメージ反射**が中心です。"
+        }
     },
     "skills": {
         "attack_boost": "攻撃力ブースト",
@@ -156,6 +169,7 @@
         "defaultTitle": "メニュー",
         "tabActions": "{tabLabel} ツリー",
         "previewBuildOptions": "ビルドオプションをプレビュー",
+        "techCrystalsLabel": "テッククリスタル:",
         "levelsLabel": "レベル:"
     },
     "nodeMenu": {
@@ -421,8 +435,8 @@
         "touchMenuSwipeDescription": "サイドメニューを閉じる",
         "keyboardScreenshotLabel": "F9 - スクリーンショットを共有",
         "keyboardScreenshotDescription": "ツリー画像のプレビューと共有",
-        "keyboardCycleTabsLabel": "Tab - 現在のコンテキストでタブを切り替え",
-        "keyboardCycleTabsDescription": "メイン画面では Guardian、Vanguard、Cannon のツリーを切り替え。このメニュー内では統計・設定・操作を切り替え。共有／コンポーズモーダル内ではそのモーダルのタブを切り替え。",
+        "keyboardCycleTabsLabel": "Tab - タブを切り替え",
+        "keyboardCycleTabsDescription": "現在のビューのタブを切り替えます",
         "keyboardBackspaceResetLabel": "Backspace - 表示中のツリーをリセット",
         "keyboardBackspaceResetDescription": "現在のツリーにレベルがある場合、リセット確認を開く。",
         "hudTechCrystalsLabel": "テッククリスタル (通貨)",

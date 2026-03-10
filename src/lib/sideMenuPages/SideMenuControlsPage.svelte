@@ -24,6 +24,8 @@
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
+    import Accordion from "../Accordion.svelte";
+    import NumberedList from "../NumberedList.svelte";
     import InstallPwaButton, {
         subscribeInstallState,
     } from "../buttons/InstallPwaButton.svelte";
@@ -267,6 +269,16 @@
                 </div>
             </div>
         </SideMenuSection>
+        <div class="instructions-accordion">
+            <Accordion
+                title={$t("sideMenu.sections.instructions")}
+                isOpen={false}
+            >
+                <NumberedList
+                    items={[0, 1, 2, 3, 4].map((i) => $t(`trees.rules.${i}`))}
+                />
+            </Accordion>
+        </div>
         {#if showTouch}
             <SideMenuSection title={$t("sideMenu.sections.touch")}>
                 <ul class="control-list">
