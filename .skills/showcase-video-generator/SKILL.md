@@ -1,3 +1,8 @@
+---
+name: showcase-video-generator
+description: Generate, update, or refine the promotional showcase video for the Backpack Planner using Remotion and Playwright. Make sure to use this skill whenever the user mentions creating a video, generating a showcase, updating the promotional video, capturing fresh screenshots, or working with the Remotion project for the app.
+---
+
 # Showcase Video Generator (Mixed-Device Layout)
 
 This skill automates the creation of a professional 1080p landscape showcase video for the Backpack Planner app, utilizing a mix of mobile portrait and desktop landscape screenshots.
@@ -51,3 +56,10 @@ npm run build
 - **Instant Impact**: Frame 0 must contain the icon, description, URL, and a high-tier build screenshot.
 - **Late-Game Focus**: Highlight complex builds (Late PvP/PvE) to demonstrate the app's power.
 - **Premium Finish**: Use cyan accents (#06b6d4) and consistent typography (Outfit/Inter).
+
+## Latest Results
+- **Intro**: Split title layout displaying Late PvE build from frame 0.
+- **Plan**: Desktop landscape showing Late PvP build with "Optimize for Late Game PvE and PvP" copy.
+- **Stats**: Mobile snapshot showing Late PvE build statistics.
+- **Outro**: Perfectly clean mobile settings screenshot with active, enabled buttons (achieved via authentic Clone sequence).
+- Output video: `showcase-video/out/video.mp4`.
