@@ -4,39 +4,16 @@ const path = require('path');
 async function run() {
     console.log('Starting Playwright (Mobile-First Focus)...');
 
-    // Use iPhone 14 / Pro Max resolution as a standard popular mobile size
     const mobileDevice = devices['iPhone 14 Pro Max'];
     const browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext({
-        ...mobileDevice,
-        viewport: { width: 393, height: 852 },
-        deviceScaleFactor: 3
-    });
-    const page = await context.newPage();
 
-    const shot = async (name, p_page = page) => {
+    let mPage;
+    let desktopContext;
+
+    const shot = async (name, p_page) => {
         const p = path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', name);
         await p_page.screenshot({ path: p });
         console.log(`[SUCCESS] Saved ${name}`);
-    };
-
-    const clickByText = async (targetPage, text, selector = 'button') => {
-        console.log(`Attempting to click "${text}"...`);
-        try {
-            const locator = targetPage.locator(selector).filter({ hasText: new RegExp(`^${text}$`, 'i') }).first();
-            const count = await locator.count();
-            if (count === 0) {
-                console.log(`Exact match for "${text}" not found, trying partial...`);
-                await targetPage.locator(selector).filter({ hasText: new RegExp(text, 'i') }).first().click({ timeout: 10000 });
-            } else {
-                await locator.click({ timeout: 10000 });
-            }
-            console.log(`Clicked "${text}"`);
-        } catch (e) {
-            console.log(`[FAILED] clickByText("${text}"): ${e.message}`);
-            await targetPage.screenshot({ path: path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', 'debug_fail.png') });
-            throw e;
-        }
     };
 
     const urlBase = 'http://localhost:5173/#';
@@ -48,14 +25,13 @@ async function run() {
     };
 
     try {
-        // 1. Capture Mobile Assets
         console.log(`--- CAPTURING MOBILE ---`);
         const mobileContext = await browser.newContext({
-            ...devices['iPhone 14 Pro Max'],
+            ...mobileDevice,
             viewport: { width: 393, height: 852 },
             deviceScaleFactor: 3
         });
-        const mPage = await mobileContext.newPage();
+        mPage = await mobileContext.newPage();
 
         console.log(`Navigating to Late PvE (Mobile)...`);
         await mPage.goto(`${urlBase}${hashes.late_pve}`, { waitUntil: 'networkidle' });
@@ -70,46 +46,63 @@ async function run() {
         console.log(`Capturing Statistics for Late PvE (Mobile)...`);
         await mPage.goto(`${urlBase}${hashes.late_pve}`, { waitUntil: 'networkidle' });
         await mPage.waitForTimeout(3000);
-        await mPage.click('.menu-button', { timeout: 5000 });
-        await mPage.waitForSelector('.side-menu.open', { timeout: 5000 });
-        await clickByText(mPage, 'Statistics', '.tab-bar__tab-button');
-        await mPage.waitForTimeout(1000);
-        await shot('mobile_stats.png', mPage);
-
-        console.log(`Capturing Settings for Outro (Mobile - Late PvP)...`);
-        // Clear state to avoid session pollution
-        await mPage.evaluate(() => localStorage.clear());
-        await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
-        await mPage.waitForTimeout(5000);
-
         await mPage.click('.menu-button', { timeout: 10000 });
         await mPage.waitForSelector('.side-menu.open', { timeout: 10000 });
 
-        console.log(`Cleaning UI...`);
-        await mPage.evaluate(() => {
-            const sections = Array.from(document.querySelectorAll('.side-menu-section, .preview-section'));
-            for (const s of sections) {
-                if (s.textContent.includes('PREVIEW BUILD') || s.classList.contains('preview-section')) {
-                    s.remove();
-                }
-            }
-            // Also hide any floating preview indicators
-            const previews = document.querySelectorAll('[class*="preview"], .preview-indicator, .preview-banner');
-            previews.forEach(p => {
-                if (p instanceof HTMLElement) p.style.display = 'none';
-            });
-        });
+        console.log('Switching to Statistics tab (Index 0)...');
+        await mPage.locator('.tab-bar__tab-button').nth(0).click({ timeout: 5000 });
+        await mPage.waitForTimeout(1000);
+        await shot('mobile_stats.png', mPage);
 
-        console.log(`Switching to Settings tab...`);
-        await clickByText(mPage, 'Settings', '.tab-bar__tab-button');
+        console.log(`Capturing Settings for Outro (Mobile - Authentic Clone Sequence)...`);
+        // Navigate to Late PvP
+        await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
+        await mPage.waitForTimeout(5000);
+
+        // Open menu
+        await mPage.click('.menu-button', { timeout: 10000 });
+        await mPage.waitForSelector('.side-menu.open', { timeout: 10000 });
+
+        // Switch to Settings tab (Index 1)
+        console.log('Switching to Settings tab (Index 1)...');
+        await mPage.locator('.tab-bar__tab-button').nth(1).click({ timeout: 5000 });
+        await mPage.waitForTimeout(2000);
+
+        // Find and click "Clone" button (case-insensitive)
+        console.log('Clicking Clone button...');
+        const cloneButton = mPage.locator('.side-menu button').filter({ hasText: /clone/i }).first();
+        await cloneButton.click({ timeout: 10000 });
+
+        // Wait for modal and confirm
+        console.log('Waiting for modal confirmation...');
+        const confirmButton = mPage.locator('button[data-modal-confirm]');
+        await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
+        await confirmButton.click();
+
+        // Wait for reload (URL will change to base # without the share data)
+        console.log('Waiting for reload and navigation...');
+        try {
+            await mPage.waitForNavigation({ waitUntil: 'networkidle', timeout: 20000 });
+        } catch (e) {
+            console.log('Navigation wait timeout (continuing anyway):', e.message);
+        }
         await mPage.waitForTimeout(3000);
+
+        // Re-open menu to take the final clean screenshot
+        console.log('Re-opening menu for final clean screenshot...');
+        await mPage.click('.menu-button', { timeout: 10000 });
+        await mPage.waitForSelector('.side-menu.open', { timeout: 10000 });
+
+        // Ensure we are on Settings tab (Index 1) - persisting from last session hopefully, but double check
+        await mPage.locator('.tab-bar__tab-button').nth(1).click({ timeout: 5000 });
+        await mPage.waitForTimeout(1000);
+
         await shot('mobile_settings.png', mPage);
 
         await mobileContext.close();
 
-        // 2. Capture Desktop Assets
         console.log(`--- CAPTURING DESKTOP ---`);
-        const desktopContext = await browser.newContext({
+        desktopContext = await browser.newContext({
             viewport: { width: 1920, height: 1080 },
             deviceScaleFactor: 2
         });
@@ -124,6 +117,11 @@ async function run() {
 
     } catch (e) {
         console.error('Fatal error during capture:', e);
+        if (mPage) {
+            const errorPath = path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', 'mobile_error_debug.png');
+            await mPage.screenshot({ path: errorPath });
+            console.log(`Saved error diagnostic to mobile_error_debug.png`);
+        }
     } finally {
         await browser.close();
     }
