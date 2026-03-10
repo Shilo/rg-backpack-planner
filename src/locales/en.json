@@ -189,6 +189,7 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Tech Crystals\nspent",
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
+        "spentLabel": "Tech Crystals spent:",
         "changeOwnedTooltip": "Change {subject} Tech Crystal owned (budget)",
         "ownedModalTitle": "TECH CRYSTALS OWNED",
         "ownedModalTitleWithSubject": "TECH CRYSTALS OWNED ({subject})",

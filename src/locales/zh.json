@@ -182,6 +182,7 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "科技水晶\n已消耗",
         "displayTooltipSpentOwned": "科技水晶\n已消耗 / 拥有",
+        "spentLabel": "科技水晶已消耗:",
         "changeOwnedTooltip": "更改 {subject} 拥有的科技水晶 (预算)",
         "ownedModalTitle": "拥有的科技水晶",
         "ownedModalTitleWithSubject": "拥有的科技水晶 ({subject})",
