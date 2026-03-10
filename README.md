@@ -9,12 +9,9 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
 ---
 
-<a href="https://rgbp.app">
-  <img src="showcase-video/out/snapshot.png" alt="Backpack Planner Preview" width="100%" />
-</a>
+[![Backpack Planner Preview](showcase-video/out/snapshot.png)](https://rgbp.app)
 
-**Watch the full showcase video:**  
-<video src="showcase-video/out/video.mp4" controls="controls" width="100%"></video>
+[**Watch the full showcase video**](showcase-video/out/video.mp4)
 
 ---
 
