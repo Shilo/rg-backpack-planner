@@ -163,7 +163,6 @@
         "defaultTitle": "Menu",
         "tabActions": "{tabLabel} Tree",
         "previewBuildOptions": "Preview build options",
-        "techCrystalsLabel": "Tech Crystals:",
         "levelsLabel": "Levels:"
     },
     "nodeMenu": {
@@ -190,7 +189,6 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Tech Crystals\nspent",
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
-        "spentLabel": "Tech Crystals spent:",
         "changeOwnedTooltip": "Change {subject} Tech Crystal owned (budget)",
         "ownedModalTitle": "TECH CRYSTALS OWNED",
         "ownedModalTitleWithSubject": "TECH CRYSTALS OWNED ({subject})",

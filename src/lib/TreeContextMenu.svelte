@@ -35,21 +35,35 @@
     {x}
     {y}
     {isOpen}
-    {title}
+    title=""
     ariaLabel={title}
     {onClose}
     ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
 >
-    <TreeContextMenuList
-        onFocusInView={() => onFocusInView?.(menuTabId)}
-        onReset={() => onReset?.(menuTabId)}
-        onButtonPress={onClose}
-        {tabLabel}
-        {hideViewOptions}
-        {levelsById}
-        {viewState}
-        {focusViewState}
-        {tabIndex}
-        {nodes}
-    />
+    <div class="menu-content">
+        <TreeContextMenuList
+            onFocusInView={() => onFocusInView?.(menuTabId)}
+            onReset={() => onReset?.(menuTabId)}
+            onButtonPress={onClose}
+            {tabId}
+            {tabLabel}
+            {hideViewOptions}
+            {levelsById}
+            {viewState}
+            {focusViewState}
+            {tabIndex}
+            {nodes}
+        />
+    </div>
 </ContextMenu>
+
+<style>
+    .menu-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        width: min-content;
+        min-width: 15rem;
+        align-items: stretch;
+    }
+</style>

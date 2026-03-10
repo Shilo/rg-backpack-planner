@@ -156,7 +156,6 @@
         "defaultTitle": "メニュー",
         "tabActions": "{tabLabel} ツリー",
         "previewBuildOptions": "ビルドオプションをプレビュー",
-        "techCrystalsLabel": "テッククリスタル:",
         "levelsLabel": "レベル:"
     },
     "nodeMenu": {
@@ -183,7 +182,6 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "テッククリスタル\n消費",
         "displayTooltipSpentOwned": "テッククリスタル\n消費 / 所持",
-        "spentLabel": "テッククリスタル消費量:",
         "changeOwnedTooltip": "{subject} 所持テッククリスタル (予算) を変更",
         "ownedModalTitle": "所持テッククリスタル",
         "ownedModalTitleWithSubject": "所持テッククリスタル ({subject})",
