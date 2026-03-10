@@ -116,7 +116,7 @@
         "pierce_resistance": "Reduces the chance of receiving **pierce damage**.",
         "stun": "Basic attacks and skills have a chance to **stun** enemies.",
         "pierce_damage": "Basic attacks and skills have a chance to **penetrate** enemy defenses, dealing extra damage.",
-        "counterattack_resistance": "Reduces the chance of receiving **damage reflection** effect.",
+        "counterattack_resistance": "Reduces the chance of receiving a **counterattack**.",
         "critical_hit": "Basic attacks have a chance to deal a **critical hit**, dealing damage higher than usual.",
         "skill_crit_resistance": "Reduces the chance of receiving a **skill critical hit**.",
         "ignore_stun": "Reduces the chance of being **stunned**.",
