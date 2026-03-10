@@ -102,6 +102,26 @@
             "damage_reflection_chance": "ダメ反射"
         }
     },
+    "skillsDesc": {
+        "attack_boost": "",
+        "hp_boost": "",
+        "defense_boost": "",
+        "ignore_dodge": "Reduces the chance of your attacks being dodged by enemies.",
+        "dodge": "There is a chance to completely dodge an enemy's attack.",
+        "global_def": "",
+        "global_hp": "",
+        "final_damage_boost": "",
+        "global_atk": "",
+        "skill_crit": "Skills have a chance to deal a critical hit, dealing damage higher than usual.",
+        "pierce_resistance": "Reduces the chance of receiving pierce damage.",
+        "stun": "Basic attacks and skills have a chance to stun enemies.",
+        "pierce_damage": "Basic attacks and skills have a chance to penetrate enemy defenses, dealing extra damage.",
+        "counterattack_resistance": "Reduces the chance of receiving damage reflection effect.",
+        "critical_hit": "Basic attacks have a chance to deal a critical hit, dealing damage higher than usual.",
+        "skill_crit_resistance": "Reduces the chance of receiving a skill critical hit.",
+        "ignore_stun": "Reduces the chance of being stunned.",
+        "damage_reflection_chance": "When attacked, there is a chance to deal extra damage to the attacker based on the damage reflection ratio and ATK."
+    },
     "settings": {
         "languageLabel": "言語",
         "languageTooltip": "アプリケーションの言語を選択",

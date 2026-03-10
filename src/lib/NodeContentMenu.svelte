@@ -15,7 +15,6 @@
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import {
         getSkillLevelInfo,
-        getSkillDescKey,
         getCostRange,
     } from "../config/skillMetadata";
     import { t } from "svelte-whisper";
@@ -44,7 +43,6 @@
 
     $: levelInfo =
         skillId !== null ? getSkillLevelInfo(skillId, level, maxLevel) : null;
-    $: descKey = skillId !== null ? getSkillDescKey(skillId) : null;
     $: tierTargetLevel =
         maxLevel > 0
             ? nextTierTargetLevel(level, maxLevel as Node["maxLevel"])
@@ -126,8 +124,8 @@
                 <span class="skill-name"
                     >{skillId ? $t(`skills.${skillId}`) : "Node"}</span
                 >
-                {#if descKey}
-                    <p class="skill-desc">{descKey}</p>
+                {#if skillId && $t(`skillsDesc.${skillId}`)}
+                    <p class="skill-desc">{$t(`skillsDesc.${skillId}`)}</p>
                 {/if}
             </div>
         </div>
