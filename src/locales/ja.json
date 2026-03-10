@@ -115,7 +115,7 @@
         "skill_crit": "Skills have a chance to deal a **critical hit**, dealing damage higher than usual.",
         "pierce_resistance": "Reduces the chance of receiving **pierce damage**.",
         "stun": "Basic attacks and skills have a chance to **stun** enemies.",
-        "pierce_damage": "Basic attacks and skills have a chance to **penetrate** enemy defenses, dealing extra damage.",
+        "pierce_damage": "Basic attacks and skills have a chance to **pierce** enemies, dealing an additional instance of damage.",
         "counterattack_resistance": "Reduces the chance of receiving a **counterattack**.",
         "critical_hit": "Basic attacks have a chance to deal a **critical hit**, dealing damage higher than usual.",
         "skill_crit_resistance": "Reduces the chance of receiving a **skill critical hit**.",
