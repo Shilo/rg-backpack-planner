@@ -431,5 +431,6 @@
 
     .button-grid.stacked {
         grid-template-columns: 1fr;
+        min-width: 15rem;
     }
 </style>
