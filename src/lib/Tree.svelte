@@ -51,6 +51,7 @@
         shouldBlockIncrementForGlobalLeafCap,
     } from "./globalLeafCap";
     import { getTreeViewportPadding, getTreeWorldBounds } from "./treeLayout";
+    import { TREE_ROOT_X, TREE_ROOT_Y } from "../config/baseTree";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { locale, t } from "svelte-whisper";
 
@@ -67,6 +68,8 @@
         | null = null;
     export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
         null;
+    export let rootX = TREE_ROOT_X;
+    export let rootY = TREE_ROOT_Y;
 
     let levels: LevelsByIndex = [];
     let contextMenu: { index: NodeIndex | null; x: number; y: number } | null =
@@ -304,8 +307,8 @@
     let regionCache = new Map<number, NodeRegion>();
 
     function getBaseRegionFromPosition(node: NodeType): NodeRegion {
-        if (node.x > 0) return "right";
-        if (node.y < 0) return "top-left";
+        if (node.x > rootX) return "right";
+        if (node.y < rootY) return "top-left";
         return "bottom-left";
     }
 
@@ -1007,8 +1010,8 @@
 
         bounds = getWorldBounds(nextScale) ?? bounds;
         const { minX, minY, width, height } = bounds;
-        const centerX = isCloseUpZoom ? 0 : minX + width / 2;
-        const centerY = isCloseUpZoom ? 0 : minY + height / 2;
+        const centerX = isCloseUpZoom ? rootX : minX + width / 2;
+        const centerY = isCloseUpZoom ? rootY : minY + height / 2;
         const nextOffsetX = paddedCenterX - centerX * nextScale;
         const nextOffsetY = paddedCenterY - centerY * nextScale;
         const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -1279,8 +1282,8 @@
                     {#each renderLinks as link}
                         <line
                             class={`tree-link ${link.state} region-${link.region}`}
-                            x1={link.fromNode ? link.fromNode.x : 0}
-                            y1={link.fromNode ? link.fromNode.y : 0}
+                            x1={link.fromNode ? link.fromNode.x : rootX}
+                            y1={link.fromNode ? link.fromNode.y : rootY}
                             x2={link.toNode.x}
                             y2={link.toNode.y}
                         />
@@ -1288,6 +1291,8 @@
                 </svg>
 
                 <RootNode
+                    x={rootX}
+                    y={rootY}
                     {onOpenTreeContextMenu}
                     onFocusView={() => focusTreeInView(true)}
                 />

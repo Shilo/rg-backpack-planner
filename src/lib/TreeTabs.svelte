@@ -499,6 +499,7 @@
             setActive,
             getActive: () => activeIndex,
             getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
+            focusActiveTreeInView: () => treeRef?.focusTreeInView?.(false),
             getTabs: () => tabs,
             getTreeLevels: () => get(treeLevels),
         }}

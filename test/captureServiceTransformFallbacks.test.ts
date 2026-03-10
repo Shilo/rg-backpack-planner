@@ -5,60 +5,32 @@ const captureServicePath = resolve("src/lib/buildImageExport/captureService.ts")
 const source = readFileSync(captureServicePath, "utf8");
 const normalized = source.replace(/\s+/g, " ");
 
-if (!/function removeTransientNodeFlashOverlays\(/.test(source)) {
+if (/cloneNode\(\s*true\s*\)/.test(normalized)) {
     throw new Error(
-        "captureService should define removeTransientNodeFlashOverlays() to prevent capture-only flash artifacts.",
+        "captureService should avoid clone-based capture paths.",
     );
 }
 
-if (!/function addSnapdomPseudoElementGuardStyle\(/.test(source)) {
+if (!/function withCaptureState<\w+>\(/.test(source)) {
     throw new Error(
-        "captureService should define addSnapdomPseudoElementGuardStyle() to prevent pseudo-element duplication artifacts.",
+        "captureService should wrap exports with capture state toggling.",
     );
 }
 
-if (!/\.node-badge-icon-stack/.test(source)) {
+if (!/rootEl\?\.classList\.add\("snapdom-capture"\)/.test(normalized)) {
     throw new Error(
-        "captureService should target .node-badge-icon-stack when normalizing badge scale for capture clones.",
+        "captureService should mark document root during capture to stabilize transitions.",
     );
 }
 
-if (
-    !/removeTransientNodeFlashOverlays\(\s*clone\s*\)/.test(normalized)
-) {
+if (!/rootEl\?\.classList\.remove\("snapdom-capture"\)/.test(normalized)) {
     throw new Error(
-        "prepareTreeCloneInParent should remove transient node flash overlays from the capture clone.",
-    );
-}
-
-if (
-    !/addSnapdomPseudoElementGuardStyle\(\s*clone\s*\)/.test(normalized)
-) {
-    throw new Error(
-        "prepareTreeCloneInParent should inject the pseudo-element guard style into the capture clone.",
+        "captureService should remove capture state class after capture completes.",
     );
 }
 
 if (!/cache:\s*"disabled"\s+as const/.test(source)) {
     throw new Error(
-        "captureService should disable snapdom cache for deterministic export snapshots.",
-    );
-}
-
-if (!/data-snapdom-pseudo="::before"/.test(source)) {
-    throw new Error(
-        "captureService pseudo guard style should target snapdom generated ::before pseudo spans.",
-    );
-}
-
-if (!/data-snapdom-pseudo="::after"/.test(source)) {
-    throw new Error(
-        "captureService pseudo guard style should target snapdom generated ::after pseudo spans.",
-    );
-}
-
-if (!/querySelectorAll<HTMLElement>\(\"\.node-flash\"\)/.test(source)) {
-    throw new Error(
-        "captureService should remove .node-flash overlays from the capture clone.",
+        "captureService should disable snapdom cache for deterministic exports.",
     );
 }

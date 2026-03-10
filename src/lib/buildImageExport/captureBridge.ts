@@ -5,6 +5,8 @@ export type TabsCaptureBridge = {
     setActive: (index: number) => void;
     getActive: () => number;
     getTreeCanvas: () => HTMLDivElement | null | undefined;
+    /** Optional: force active tree to fit in viewport before capture. */
+    focusActiveTreeInView?: () => void;
     /** Optional: when provided, capture uses actual nodes + levels for accurate bounds. */
     getTabs?: () => TabConfig[];
     getTreeLevels?: () => LevelsByIndex[];

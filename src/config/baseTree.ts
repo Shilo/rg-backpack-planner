@@ -1,10 +1,24 @@
 import type { Tree, BranchSkillIds } from "../types/tree";
 
+export const TREE_TOP_LEFT_OFFSET_X = 270;
+export const TREE_TOP_LEFT_OFFSET_Y = 318;
+export const TREE_ROOT_X = TREE_TOP_LEFT_OFFSET_X;
+export const TREE_ROOT_Y = TREE_TOP_LEFT_OFFSET_Y;
+
+function toTopLeftOrigin(tree: Tree): Tree {
+    return tree.map((node) => ({
+        ...node,
+        x: node.x + TREE_TOP_LEFT_OFFSET_X,
+        y: node.y + TREE_TOP_LEFT_OFFSET_Y,
+    }));
+}
+
 export const createTree = (
     yellowBranchSkillIds: BranchSkillIds,
     orangeBranchSkillIds: BranchSkillIds,
     blueBranchSkillIds: BranchSkillIds,
-): Tree => [
+): Tree =>
+    toTopLeftOrigin([
     // Yellow Branch
     // Tier 1
     // Index 0
@@ -290,7 +304,7 @@ export const createTree = (
         x: 368,
         y: -3,
     },
-];
+]);
 
 /** Base tree structure used by encoder (same layout as all trees; branch IDs arbitrary). */
 export const baseTree: Tree = createTree(

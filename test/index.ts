@@ -74,6 +74,7 @@ const TEST_FILES = [
     "nodeLevelBehaviorSetting.test.ts",
     "showTierSetting.test.ts",
     "treeLinkParentLevelColor.test.ts",
+    "treeTopLeftOrigin.test.ts",
     "fullscreenModalBackground.test.ts",
     "imageViewerLayout.test.ts",
     "imageViewerClampAtFit.test.ts",

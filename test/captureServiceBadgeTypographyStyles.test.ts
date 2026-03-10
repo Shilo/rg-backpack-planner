@@ -4,20 +4,14 @@ import { resolve } from "node:path";
 const captureServicePath = resolve("src/lib/buildImageExport/captureService.ts");
 const source = readFileSync(captureServicePath, "utf8");
 
-const requiredBadgeProperties = [
-    "font-family",
-    "font-size",
-    "font-weight",
-    "line-height",
-    "letter-spacing",
-    "font-variant-numeric",
-];
+if (!/const CROP_PADDING_PX = \d+;/.test(source)) {
+    throw new Error(
+        "captureService should keep a crop padding buffer so edge badge pixels are not clipped.",
+    );
+}
 
-for (const property of requiredBadgeProperties) {
-    const pattern = new RegExp(`"${property}"`);
-    if (!pattern.test(source)) {
-        throw new Error(
-            `captureService should preserve node badge typography property: ${property}`,
-        );
-    }
+if (!/if \(data\[i \+ 3\] > 0\)/.test(source.replace(/\s+/g, " "))) {
+    throw new Error(
+        "captureService should detect content bounds from alpha pixels before cropping.",
+    );
 }
