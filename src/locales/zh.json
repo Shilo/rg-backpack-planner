@@ -185,7 +185,8 @@
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "重置",
-        "resetToast": "重置节点"
+        "resetToast": "重置节点",
+        "leveledLeafCapWarning": "最多只能学习 {cap} 个最终伤节点。"
     },
     "tree": {
         "focusedInViewToast": "已聚焦视图中的技能树",

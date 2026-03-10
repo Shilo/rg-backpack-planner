@@ -185,7 +185,8 @@
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "リセット",
-        "resetToast": "ノードをリセット"
+        "resetToast": "ノードをリセット",
+        "leveledLeafCapWarning": "最大{cap}個の最終ダメノードを習得できます。"
     },
     "tree": {
         "focusedInViewToast": "ツリーを画面に合わせました",

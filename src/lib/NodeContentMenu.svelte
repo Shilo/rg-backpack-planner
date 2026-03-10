@@ -6,11 +6,13 @@
         CaretDoubleUpIcon,
         CaretLineUpIcon,
         CaretUpIcon,
+        Warning,
     } from "phosphor-svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
     import { formatNumber } from "./mathUtil";
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
+    import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import { getSkillLevelInfo, getCostRange } from "../config/skillMetadata";
@@ -104,6 +106,11 @@
         const completed = Math.floor(level / size);
         return Math.min(totalTiers, completed);
     })();
+
+    $: showCapWarning =
+        skillId === "final_damage_boost" &&
+        level === 0 &&
+        isGlobalIncrementLocked;
 </script>
 
 <ContextMenu
@@ -145,6 +152,19 @@
                 {/if}
             </div>
         </div>
+
+        {#if showCapWarning}
+            <div class="warning-row">
+                <div class="warning-icon">
+                    <Warning weight="bold" />
+                </div>
+                <span class="warning-text">
+                    {$t("nodeMenu.leveledLeafCapWarning", {
+                        cap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                    })}
+                </span>
+            </div>
+        {/if}
 
         {#if skillId && $t(`skillsDesc.${skillId}`)}
             <div class="skill-desc">
@@ -364,6 +384,45 @@
     .skill-desc :global(strong) {
         color: var(--accent-light, #fff);
         font-weight: var(--weight-bold, bold);
+    }
+
+    .warning-row {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .warning-icon {
+        color: #ef4444;
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+    }
+
+    .warning-icon :global(svg) {
+        width: 100%;
+        height: 100%;
+    }
+
+    .warning-text {
+        flex: 1;
+        font-size: var(--font-sm);
+        color: #fca5a5;
+        line-height: 1.4;
+        font-weight: var(--weight-medium, 500);
+        word-break: break-word;
+        white-space: normal;
+        min-width: 0;
     }
 
     .meta-row {

@@ -17,6 +17,8 @@
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import type { SkillId } from "../types/tree";
 
+    import { SKILL_METADATA } from "../config/skillMetadata";
+
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
     export let onButtonPress: (() => void) | null = null;
@@ -101,23 +103,31 @@
 
         return specialSkills.map((skillId) => {
             let currentTotal = 0;
-            let maxTotal = 0;
 
             nodes.forEach((node, idx) => {
                 if (node.skillId === skillId) {
                     currentTotal += levelsById?.[idx] ?? 0;
-                    maxTotal += node.maxLevel;
                 }
             });
 
+            const metadata = SKILL_METADATA[skillId];
+            const currentValue = metadata
+                ? metadata.getTotalValue(currentTotal)
+                : 0;
+
             return {
                 id: skillId,
-                current: currentTotal,
-                max: maxTotal,
+                currentValue,
                 icon: SKILL_NODE_ICONS[skillId],
             };
         });
     })();
+
+    function formatBonusValue(v: number): string {
+        if (v === 0) return "0";
+        if (Number.isInteger(v)) return formatNumber(v);
+        return String(parseFloat(v.toPrecision(3)));
+    }
 </script>
 
 {#if !hideStats}
@@ -153,9 +163,7 @@
                         >{$t(`skills.short.${skill.id}`)}</span
                     >
                     <span class="meta-value">
-                        {formatNumber(skill.current)}<span class="meta-sep"
-                            >/</span
-                        >{formatNumber(skill.max)}
+                        {formatBonusValue(skill.currentValue * 100)}%
                     </span>
                 </div>
             {/each}

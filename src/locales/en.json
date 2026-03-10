@@ -192,7 +192,8 @@
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "Reset",
-        "resetToast": "Reset node"
+        "resetToast": "Reset node",
+        "leveledLeafCapWarning": "Maximum of {cap} Final Damage nodes can be leveled."
     },
     "tree": {
         "focusedInViewToast": "Focused tree in view",
