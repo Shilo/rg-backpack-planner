@@ -190,7 +190,7 @@ export const Showcase: React.FC = () => {
                         <Title text="Plan Your Builds" frame={frame} start={100} align="left" />
                         <FeatureList
                             items={[
-                                "Optimize for Late Game PvP",
+                                "Optimize for Late Game PvE and PvP",
                                 "Manage All Skill Trees",
                                 "Refine Your Strategy"
                             ]}
@@ -220,7 +220,7 @@ export const Showcase: React.FC = () => {
                         />
                     </div>
                     <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                        <MobileFrame file="mobile_mid_pve.png" frame={frame} start={260} />
+                        <MobileFrame file="mobile_stats.png" frame={frame} start={260} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
@@ -253,8 +253,8 @@ export const Showcase: React.FC = () => {
                             <p style={{ fontSize: '48px', fontWeight: 'bold', margin: 0 }}>rgbp.app</p>
                         </div>
                     </div>
-                    <div style={{ flex: 1.5, display: 'flex', justifyContent: 'center' }}>
-                        <DesktopFrame file="desktop_settings.png" frame={frame} start={410} />
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <MobileFrame file="mobile_settings.png" frame={frame} start={410} />
                     </div>
                 </AbsoluteFill>
             </Sequence>

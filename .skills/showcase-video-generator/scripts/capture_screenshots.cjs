@@ -67,6 +67,44 @@ async function run() {
         await mPage.waitForTimeout(3000);
         await shot('mobile_mid_pve.png', mPage);
 
+        console.log(`Capturing Statistics for Late PvE (Mobile)...`);
+        await mPage.goto(`${urlBase}${hashes.late_pve}`, { waitUntil: 'networkidle' });
+        await mPage.waitForTimeout(3000);
+        await mPage.click('.menu-button', { timeout: 5000 });
+        await mPage.waitForSelector('.side-menu.open', { timeout: 5000 });
+        await clickByText(mPage, 'Statistics', '.tab-bar__tab-button');
+        await mPage.waitForTimeout(1000);
+        await shot('mobile_stats.png', mPage);
+
+        console.log(`Capturing Settings for Outro (Mobile - Late PvP)...`);
+        // Clear state to avoid session pollution
+        await mPage.evaluate(() => localStorage.clear());
+        await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
+        await mPage.waitForTimeout(5000);
+
+        await mPage.click('.menu-button', { timeout: 10000 });
+        await mPage.waitForSelector('.side-menu.open', { timeout: 10000 });
+
+        console.log(`Cleaning UI...`);
+        await mPage.evaluate(() => {
+            const sections = Array.from(document.querySelectorAll('.side-menu-section, .preview-section'));
+            for (const s of sections) {
+                if (s.textContent.includes('PREVIEW BUILD') || s.classList.contains('preview-section')) {
+                    s.remove();
+                }
+            }
+            // Also hide any floating preview indicators
+            const previews = document.querySelectorAll('[class*="preview"], .preview-indicator, .preview-banner');
+            previews.forEach(p => {
+                if (p instanceof HTMLElement) p.style.display = 'none';
+            });
+        });
+
+        console.log(`Switching to Settings tab...`);
+        await clickByText(mPage, 'Settings', '.tab-bar__tab-button');
+        await mPage.waitForTimeout(3000);
+        await shot('mobile_settings.png', mPage);
+
         await mobileContext.close();
 
         // 2. Capture Desktop Assets
@@ -81,15 +119,6 @@ async function run() {
         await dPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
         await dPage.waitForTimeout(3000);
         await shot('desktop_late_pvp.png', dPage);
-
-        console.log(`Opening Settings on Desktop (Full Tier Background)...`);
-        await dPage.goto(`${urlBase}${hashes.full_tier}`, { waitUntil: 'networkidle' });
-        await dPage.waitForTimeout(2000);
-        await dPage.click('.menu-button', { timeout: 5000 });
-        await dPage.waitForSelector('.side-menu.open', { timeout: 5000 });
-        await clickByText(dPage, 'Settings', '.tab-bar__tab-button');
-        await dPage.waitForTimeout(1000);
-        await shot('desktop_settings.png', dPage);
 
         await desktopContext.close();
 
