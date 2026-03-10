@@ -66,12 +66,7 @@
             "After choosing a branch, you must unlock its ultimate skill before selecting another branch on the same page.",
             "Each class has 3 branches, totaling 9 ultimate skills, and players may choose only 3 to learn.",
             "Resets refund all Tech Crystals spent on the current page and are unlimited."
-        ],
-        "description": {
-            "guardian": "Features **Skill Critical Hits**, **Pierce Resistance**, and **Stun** effects.",
-            "vanguard": "Focuses on **Pierce Damage**, **Counterattack Resistance**, and **Critical Hits**.",
-            "cannon": "Centers on **Skill Crit Resistance**, **Ignore Stun**, and **Damage Reflection**."
-        }
+        ]
     },
     "skills": {
         "attack_boost": "Attack Boost",
