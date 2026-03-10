@@ -9,6 +9,15 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
 ---
 
+<a href="https://rgbp.app">
+  <img src="showcase-video/out/snapshot.png" alt="Backpack Planner Preview" width="100%" />
+</a>
+
+**Watch the full showcase video:**  
+<video src="showcase-video/out/video.mp4" controls="controls" width="100%"></video>
+
+---
+
 ## What is Backpack Planner?
 
 Backpack Planner helps you plan and optimize your Backpack Tech builds for *Run! Goddess*. Whether you’re leveling Guardian, Vanguard, or Cannon trees, you can experiment with different setups, track your Tech Crystal costs, and share builds with friends—all in one place.
