@@ -14,64 +14,88 @@ async function run() {
     });
     const page = await context.newPage();
 
-    const shot = async (name) => {
+    const shot = async (name, p_page = page) => {
         const p = path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', name);
-        await page.screenshot({ path: p });
+        await p_page.screenshot({ path: p });
         console.log(`[SUCCESS] Saved ${name}`);
     };
 
-    const clickByText = async (text, selector = 'button') => {
+    const clickByText = async (targetPage, text, selector = 'button') => {
         console.log(`Attempting to click "${text}"...`);
         try {
-            const locator = page.locator(selector).filter({ hasText: new RegExp(`^${text}$`, 'i') }).first();
-            // If exact match doesn't work, try partial
+            const locator = targetPage.locator(selector).filter({ hasText: new RegExp(`^${text}$`, 'i') }).first();
             const count = await locator.count();
             if (count === 0) {
                 console.log(`Exact match for "${text}" not found, trying partial...`);
-                await page.locator(selector).filter({ hasText: new RegExp(text, 'i') }).first().click({ timeout: 10000 });
+                await targetPage.locator(selector).filter({ hasText: new RegExp(text, 'i') }).first().click({ timeout: 10000 });
             } else {
                 await locator.click({ timeout: 10000 });
             }
             console.log(`Clicked "${text}"`);
         } catch (e) {
             console.log(`[FAILED] clickByText("${text}"): ${e.message}`);
-            await page.screenshot({ path: path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', 'debug_fail.png') });
+            await targetPage.screenshot({ path: path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', 'debug_fail.png') });
             throw e;
         }
     };
 
+    const urlBase = 'http://localhost:5173/#';
+    const hashes = {
+        late_pve: ",k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7",
+        late_pvp: "k'4..k.k..a,k'7.a.a.1;k..k.'2.k.k..a,k'7.a.a.1;k'4..k.k..a,k'7.a.a.1;aox",
+        mid_pve: ",k..k.'2.k.k..a:3;;;37W",
+        full_tier: "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1"
+    };
+
     try {
-        // Late PvE build from package.json: |,k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7
-        const latePveHash = ",k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7";
-        const midBuildHash = ",k'3.a.a.1.1.1,k.k..k.k.'2.a:3;;;9W7"; // Hypothetical mid-build hash
-        const urlBase = 'http://localhost:5173/#';
+        // 1. Capture Mobile Assets
+        console.log(`--- CAPTURING MOBILE ---`);
+        const mobileContext = await browser.newContext({
+            ...devices['iPhone 14 Pro Max'],
+            viewport: { width: 393, height: 852 },
+            deviceScaleFactor: 3
+        });
+        const mPage = await mobileContext.newPage();
 
-        // 1. Capture Late PvE (Initial)
-        console.log(`Navigating to Late PvE build...`);
-        await page.goto(`${urlBase}${latePveHash}`, { waitUntil: 'networkidle', timeout: 30000 });
-        await page.waitForTimeout(5000);
-        await shot('mobile_late_pve.png');
+        console.log(`Navigating to Late PvE (Mobile)...`);
+        await mPage.goto(`${urlBase}${hashes.late_pve}`, { waitUntil: 'networkidle' });
+        await mPage.waitForTimeout(3000);
+        await shot('mobile_late_pve.png', mPage);
 
-        // 2. Capture Mid-Game Build
-        console.log(`Navigating to Mid-Game build...`);
-        await page.goto(`${urlBase}${midBuildHash}`, { waitUntil: 'networkidle', timeout: 30000 });
-        await page.waitForTimeout(5000);
-        await shot('mobile_mid_build.png');
+        console.log(`Navigating to Mid-Game PvE (Mobile)...`);
+        await mPage.goto(`${urlBase}${hashes.mid_pve}`, { waitUntil: 'networkidle' });
+        await mPage.waitForTimeout(3000);
+        await shot('mobile_mid_pve.png', mPage);
 
-        // 3. Capture Settings Menu
-        console.log('Opening Side Menu...');
-        await page.click('.menu-button', { timeout: 5000 });
-        await page.waitForSelector('.side-menu.open', { timeout: 5000 });
+        await mobileContext.close();
 
-        console.log('Switching to Settings Tab...');
-        await clickByText('Settings', '.tab-bar__tab-button');
-        await page.waitForTimeout(1000);
-        await shot('mobile_settings.png');
+        // 2. Capture Desktop Assets
+        console.log(`--- CAPTURING DESKTOP ---`);
+        const desktopContext = await browser.newContext({
+            viewport: { width: 1920, height: 1080 },
+            deviceScaleFactor: 2
+        });
+        const dPage = await desktopContext.newPage();
+
+        console.log(`Navigating to Late PvP (Desktop)...`);
+        await dPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
+        await dPage.waitForTimeout(3000);
+        await shot('desktop_late_pvp.png', dPage);
+
+        console.log(`Opening Settings on Desktop (Full Tier Background)...`);
+        await dPage.goto(`${urlBase}${hashes.full_tier}`, { waitUntil: 'networkidle' });
+        await dPage.waitForTimeout(2000);
+        await dPage.click('.menu-button', { timeout: 5000 });
+        await dPage.waitForSelector('.side-menu.open', { timeout: 5000 });
+        await clickByText(dPage, 'Settings', '.tab-bar__tab-button');
+        await dPage.waitForTimeout(1000);
+        await shot('desktop_settings.png', dPage);
+
+        await desktopContext.close();
 
     } catch (e) {
         console.error('Fatal error during capture:', e);
     } finally {
-        console.log('Closing browser...');
         await browser.close();
     }
 }

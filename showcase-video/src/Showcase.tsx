@@ -94,6 +94,32 @@ const MobileFrame: React.FC<{ file: string; frame: number; start: number }> = ({
     );
 };
 
+const DesktopFrame: React.FC<{ file: string; frame: number; start: number }> = ({ file, frame, start }) => {
+    const opacity = interpolate(frame, [start, start + 15], [0, 1], { extrapolateRight: 'clamp' });
+    const scale = spring({ frame: frame - start, fps: 30, config: { damping: 10 } });
+
+    return (
+        <div style={{
+            opacity,
+            transform: `scale(${scale})`,
+            width: '800px',
+            height: '450px',
+            filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.5))'
+        }}>
+            <img
+                src={staticFile(file)}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '20px',
+                    border: '8px solid #1e293b',
+                    objectFit: 'cover'
+                }}
+            />
+        </div>
+    );
+};
+
 export const Showcase: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps, width, height } = useVideoConfig();
@@ -127,7 +153,7 @@ export const Showcase: React.FC = () => {
                                 opacity: frame === 0 ? 1 : interpolate(frame, [10, 25], [0, 1]),
                                 margin: '-20px 0 20px 0'
                             }}>
-                                for Run! Goddess
+                                For Run! Goddess
                             </p>
                             <p style={{
                                 fontSize: '32px',
@@ -137,8 +163,18 @@ export const Showcase: React.FC = () => {
                                 lineHeight: '1.4',
                                 color: '#94a3b8'
                             }}>
-                                Plan and share professional Backpack Tech builds.
+                                Plan and share optimized Backpack Tech builds.
                             </p>
+                            <div style={{
+                                marginTop: '30px',
+                                opacity: frame === 0 ? 1 : interpolate(frame, [30, 50], [0, 1]),
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px'
+                            }}>
+                                <Link size={36} color="#06b6d4" />
+                                <p style={{ fontSize: '36px', fontWeight: 'bold', margin: 0, color: 'white' }}>rgbp.app</p>
+                            </div>
                         </div>
                     </div>
                     <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
@@ -147,14 +183,14 @@ export const Showcase: React.FC = () => {
                 </AbsoluteFill>
             </Sequence>
 
-            {/* Plan Your Builds: Late PvE (90-240) */}
+            {/* Plan Your Builds: Late PvP (90-240) */}
             <Sequence from={90} durationInFrames={150}>
                 <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px' }}>
                     <div style={{ flex: 1, paddingRight: '60px' }}>
                         <Title text="Plan Your Builds" frame={frame} start={100} align="left" />
                         <FeatureList
                             items={[
-                                "Optimize for Late Game PvE and PvP",
+                                "Optimize for Late Game PvP",
                                 "Manage All Skill Trees",
                                 "Refine Your Strategy"
                             ]}
@@ -162,8 +198,8 @@ export const Showcase: React.FC = () => {
                             start={120}
                         />
                     </div>
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                        <MobileFrame file="mobile_late_pve.png" frame={frame} start={110} />
+                    <div style={{ flex: 1.5, display: 'flex', justifyContent: 'center' }}>
+                        <DesktopFrame file="desktop_late_pvp.png" frame={frame} start={110} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
@@ -184,7 +220,7 @@ export const Showcase: React.FC = () => {
                         />
                     </div>
                     <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                        <MobileFrame file="mobile_mid_build.png" frame={frame} start={260} />
+                        <MobileFrame file="mobile_mid_pve.png" frame={frame} start={260} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
@@ -200,7 +236,7 @@ export const Showcase: React.FC = () => {
                         <FeatureList
                             items={[
                                 "Multiple Build Presets",
-                                "Preview and Share Builds",
+                                "Share and Preview Builds",
                                 "Works Offline & Everywhere"
                             ]}
                             frame={frame}
@@ -217,8 +253,8 @@ export const Showcase: React.FC = () => {
                             <p style={{ fontSize: '48px', fontWeight: 'bold', margin: 0 }}>rgbp.app</p>
                         </div>
                     </div>
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                        <MobileFrame file="mobile_settings.png" frame={frame} start={410} />
+                    <div style={{ flex: 1.5, display: 'flex', justifyContent: 'center' }}>
+                        <DesktopFrame file="desktop_settings.png" frame={frame} start={410} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
