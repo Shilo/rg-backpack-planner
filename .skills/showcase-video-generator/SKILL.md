@@ -5,21 +5,24 @@ This skill automates the creation of a professional 1080p landscape showcase vid
 ## Workflow
 
 1.  **Capture Assets**: Run the capture script to record assets for both devices:
-    - **Mobile**: iPhone 14 Pro Max (393x852) @ 3x scale. Includes **Statistics** and **Settings** views.
+    - **Mobile**: iPhone 14 Pro Max (393x852) @ 3x scale. Uses **Index-based Navigation** to switch between **Statistics** and **Settings** tabs reliably.
     - **Desktop**: 1080p (1920x1080) @ 2x scale. Used for high-impact build planning.
-2.  **Advanced Cleaning**: The capture script uses `mPage.evaluate` to programmatically remove "PREVIEW BUILD" DOM elements, ensuring a professional "Active Build" look for the outro.
-3.  **Update Remotion**:
+2.  **Authentic Flow**: The capture script performs a real **Clone** and **Confirm** sequence in Settings to genuinely exit "Preview" mode. This ensures all UI buttons (Share, Presets, etc.) are enabled and professional.
+3.  **CSS Injection**: Uses `addStyleTag` as a fallback or surgical tool to hide specific HUD elements (like preview banners) that might persist across transitions.
+4.  **Update Remotion**:
     - Resolution: **1920x1080** (Landscape).
     - Layout: **Split-screen** (Text left, Media right).
     - Transitions: Switch between `MobileFrame` and `DesktopFrame` per slide.
-4.  **Render**: Use the Remotion CLI to render the final MP4.
+5.  **Render**: Use the Remotion CLI to render the final MP4.
 
 ## Core Components
 
 ### 1. Capture Script
 Located at `.skills/showcase-video-generator/scripts/capture_screenshots.cjs`.
 - Automatically toggles between mobile and desktop contexts.
-- **UI Cleaning**: Programmatically removes preview-related sections from the DOM before capture.
+- **Robust Navigation**: Uses `.nth(i).click()` on tab buttons to avoid localization/capitalization issues with text-based selectors.
+- **State Management**: Clears `localStorage` and performs authentic build cloning to reset the app to a "Personal" state for the outro.
+- **UI Cleaning**: Inject CSS surgically to hide temporary HUD indicators or persistent preview banners.
 - Saves mixed assets (`mobile_*.png`, `desktop_*.png`) to `showcase-video/public/`.
 
 ### 2. Remotion Project
@@ -42,7 +45,8 @@ npm run build
 ```
 
 ## Guiding Principles
-- **Clean Interface**: Always use DOM cleaning for settings screenshots to avoid "PREVIEW" banners.
+- **Enabled Interface**: Always perform a real "Clone" sequence for settings screenshots to ensure buttons are active and branding is legitimate.
+- **Index Navigation**: Use indices for navigation items to ensure scripts work across different localization settings.
 - **Mixed Variety**: Alternate between mobile and desktop frames to show responsiveness.
 - **Instant Impact**: Frame 0 must contain the icon, description, URL, and a high-tier build screenshot.
 - **Late-Game Focus**: Highlight complex builds (Late PvP/PvE) to demonstrate the app's power.
