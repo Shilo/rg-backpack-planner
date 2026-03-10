@@ -17,7 +17,6 @@
     "common": {
         "cancel": "取消",
         "clone": "克隆",
-        "save": "保存",
         "paste": "粘贴",
         "share": "分享",
         "close": "关闭",
@@ -44,7 +43,6 @@
             "build": "构建",
             "node": "节点",
             "view": "视图",
-            "tree": "树",
             "lookAndFeel": "外观与触感",
             "application": "应用",
             "statistics": "统计",
@@ -166,16 +164,9 @@
         "shareButton": "分享"
     },
     "contextMenu": {
-        "defaultTitle": "菜单",
-        "tabActions": "{tabLabel} 树",
-        "previewBuildOptions": "预览构建选项",
-        "techCrystalsLabel": "科技水晶:",
-        "levelsLabel": "等级:"
+        "previewBuildOptions": "预览构建选项"
     },
     "nodeMenu": {
-        "bonus": "奖励",
-        "nextLevelCost": "下一级消耗",
-        "totalSpent": "累计消耗",
         "level": "等级",
         "tier": "阶级 (Tier)",
         "max": "最高",
@@ -226,7 +217,6 @@
         "renameModalMessage": "输入该构建预设的新名称",
         "presetNameLabel": "预设名称",
         "renameConfirmLabel": "重命名",
-        "cloneModalTitle": "克隆构建预设",
         "cloneModalMessage": "从 \"{originalName}\" 创建一个名为 \"{name}\" 的新预设？",
         "deleteModalTitle": "删除构建预设",
         "deleteModalMessage": "确定要移除 \"{name}\" 预设吗？",
@@ -273,8 +263,6 @@
         "copyErrorToast": "无法复制截图",
         "downloadedToast": "截图已下载",
         "shareErrorToast": "无法分享截图",
-        "copyTooltip": "复制到剪贴板",
-        "downloadTooltip": "下载为 PNG",
         "shareTooltip": "通过应用分享",
         "refreshTooltip": "重新生成截图"
     },
@@ -300,7 +288,6 @@
         "clonePreviewBuildTooltip": "将预览构建复制到个人构建",
         "cloneModalTitle": "克隆预览构建",
         "cloneModalMessage": "从预览构建创建一个名为 \"{name}\" 的新预设。",
-        "failedCloneToast": "克隆构建失败",
         "invalidBuildDataToast": "构建数据无效",
         "invalidShareLinkToast": "分享链接无效",
         "viewingBuildToast": "正在查看 {name} 构建",

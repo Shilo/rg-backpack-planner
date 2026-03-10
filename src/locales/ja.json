@@ -17,7 +17,6 @@
     "common": {
         "cancel": "キャンセル",
         "clone": "複製",
-        "save": "保存",
         "paste": "貼り付け",
         "share": "共有",
         "close": "閉じる",
@@ -44,7 +43,6 @@
             "build": "ビルド",
             "node": "ノード",
             "view": "表示",
-            "tree": "ツリー",
             "lookAndFeel": "見た目と使い心地",
             "application": "アプリケーション",
             "statistics": "統計",
@@ -166,16 +164,9 @@
         "shareButton": "共有"
     },
     "contextMenu": {
-        "defaultTitle": "メニュー",
-        "tabActions": "{tabLabel} ツリー",
-        "previewBuildOptions": "ビルドオプションをプレビュー",
-        "techCrystalsLabel": "テッククリスタル:",
-        "levelsLabel": "レベル:"
+        "previewBuildOptions": "ビルドオプションをプレビュー"
     },
     "nodeMenu": {
-        "bonus": "ボーナス",
-        "nextLevelCost": "次レベルのコスト",
-        "totalSpent": "合計消費",
         "level": "レベル",
         "tier": "ティア",
         "max": "最大",
@@ -226,7 +217,6 @@
         "renameModalMessage": "このビルドプリセットの新しい名前を入力してください",
         "presetNameLabel": "プリセット名",
         "renameConfirmLabel": "名前変更",
-        "cloneModalTitle": "ビルドプリセットの複製",
         "cloneModalMessage": "\"{originalName}\" から \"{name}\" という名前の新しいプリセットを作成しますか？",
         "deleteModalTitle": "ビルドプリセットの削除",
         "deleteModalMessage": "プリセット \"{name}\" を削除してもよろしいですか？",
@@ -273,8 +263,6 @@
         "copyErrorToast": "スクリーンショットをコピーできません",
         "downloadedToast": "スクリーンショットをダウンロードしました",
         "shareErrorToast": "スクリーンショットを共有できません",
-        "copyTooltip": "クリップボードにコピー",
-        "downloadTooltip": "PNGとしてダウンロード",
         "shareTooltip": "アプリで共有",
         "refreshTooltip": "スクリーンショットを再生成"
     },
@@ -300,7 +288,6 @@
         "clonePreviewBuildTooltip": "プレビュービルドを自分のビルドにコピー",
         "cloneModalTitle": "プレビュービルドの複製",
         "cloneModalMessage": "プレビュービルドから \"{name}\" という名前のプリセットを作成します。",
-        "failedCloneToast": "ビルドの複製に失敗しました",
         "invalidBuildDataToast": "ビルドデータが無効です",
         "invalidShareLinkToast": "共有リンクが無効です",
         "viewingBuildToast": "ビルド \"{name}\" を表示中",

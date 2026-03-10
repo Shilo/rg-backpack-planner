@@ -17,7 +17,6 @@
     "common": {
         "cancel": "Cancel",
         "clone": "Clone",
-        "save": "Save",
         "paste": "Paste",
         "share": "Share",
         "close": "Close",
@@ -44,7 +43,6 @@
             "build": "Build",
             "node": "Node",
             "view": "View",
-            "tree": "Tree",
             "lookAndFeel": "Look and feel",
             "application": "Application",
             "statistics": "Statistics",
@@ -173,16 +171,9 @@
         "shareButton": "Share"
     },
     "contextMenu": {
-        "defaultTitle": "Menu",
-        "tabActions": "{tabLabel} Tree",
-        "previewBuildOptions": "Preview build options",
-        "techCrystalsLabel": "Tech Crystals:",
-        "levelsLabel": "Levels:"
+        "previewBuildOptions": "Preview build options"
     },
     "nodeMenu": {
-        "bonus": "Bonus",
-        "nextLevelCost": "Next Level Cost",
-        "totalSpent": "Total Spent",
         "level": "Level",
         "tier": "Tier",
         "max": "Max",
@@ -233,7 +224,6 @@
         "renameModalMessage": "Type a new name for this build preset",
         "presetNameLabel": "Preset name",
         "renameConfirmLabel": "Rename",
-        "cloneModalTitle": "Clone Build Preset",
         "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\"?",
         "deleteModalTitle": "Delete build preset",
         "deleteModalMessage": "Are you sure you want to remove \"{name}\" preset?",
@@ -280,8 +270,6 @@
         "copyErrorToast": "Unable to copy screenshot",
         "downloadedToast": "Screenshot downloaded",
         "shareErrorToast": "Unable to share screenshot",
-        "copyTooltip": "Copy to clipboard",
-        "downloadTooltip": "Download as PNG",
         "shareTooltip": "Share via app",
         "refreshTooltip": "Regenerate screenshots"
     },
@@ -307,7 +295,6 @@
         "clonePreviewBuildTooltip": "Copy preview build to personal build",
         "cloneModalTitle": "CLONE PREVIEW BUILD",
         "cloneModalMessage": "Create a new preset named \"{name}\" from the preview build.",
-        "failedCloneToast": "Failed to clone build",
         "invalidBuildDataToast": "Invalid build data",
         "invalidShareLinkToast": "Invalid share link",
         "viewingBuildToast": "Viewing {name} build",
