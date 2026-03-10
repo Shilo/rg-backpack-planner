@@ -1,22 +1,27 @@
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Sequence, staticFile } from 'remotion';
 import { Layout, Share2, BarChart3, Binary, Zap, Settings, MousePointer2, Calculator, Save, Smartphone, CheckCircle2 } from 'lucide-react';
 
-const Title: React.FC<{ text: string; frame: number; start: number; color?: string }> = ({ text, frame, start, color = 'white' }) => {
-    const opacity = frame < start ? 0 : interpolate(frame, [start, start + 15], [0.1, 1], {
+const Title: React.FC<{ text: string; frame: number; start: number; color?: string; align?: 'left' | 'center' }> = ({ text, frame, start, color = 'white', align = 'center' }) => {
+    // If it's the very first frame and we are at start, show it immediately without animation
+    const isFirstFrame = frame === 0 && start === 0;
+
+    const opacity = isFirstFrame ? 1 : interpolate(frame, [start, start + 15], [0, 1], {
+        extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
     });
-    const translateY = interpolate(frame, [start, start + 15], [frame <= start ? 0 : 20, 0], {
+    const translateY = isFirstFrame ? 0 : interpolate(frame, [start, start + 15], [20, 0], {
+        extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
     });
 
     return (
         <h1 style={{
-            opacity: frame <= start ? 1 : opacity,
-            transform: `translateY(${frame <= start ? 0 : translateY}px)`,
-            fontSize: '60px',
+            opacity,
+            transform: `translateY(${translateY}px)`,
+            fontSize: '70px',
             fontWeight: 'bold',
             color,
-            textAlign: 'center',
+            textAlign: align,
             marginBottom: '40px',
             lineHeight: '1.1'
         }}>
@@ -27,28 +32,32 @@ const Title: React.FC<{ text: string; frame: number; start: number; color?: stri
 
 const FeatureList: React.FC<{ items: string[]; frame: number; start: number }> = ({ items, frame, start }) => {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', padding: '0 40px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {items.map((item, i) => {
-                const itemStart = start + (i * 15);
+                const itemStart = start + (i * 12);
                 const opacity = interpolate(frame, [itemStart, itemStart + 15], [0, 1], {
+                    extrapolateLeft: 'clamp',
                     extrapolateRight: 'clamp',
                 });
-                const scale = spring({ frame: frame - itemStart, fps: 30, config: { damping: 12 } });
+                const translateX = interpolate(frame, [itemStart, itemStart + 15], [-30, 0], {
+                    extrapolateLeft: 'clamp',
+                    extrapolateRight: 'clamp',
+                });
 
                 return (
                     <div key={i} style={{
                         opacity,
-                        transform: `scale(${scale})`,
+                        transform: `translateX(${translateX}px)`,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '20px',
-                        background: 'rgba(30, 41, 59, 0.5)',
-                        padding: '20px',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                        gap: '24px',
+                        background: 'rgba(30, 41, 59, 0.4)',
+                        padding: '24px',
+                        borderRadius: '20px',
+                        border: '1px solid rgba(255, 255, 255, 0.08)'
                     }}>
-                        <CheckCircle2 size={32} color="#06b6d4" />
-                        <span style={{ fontSize: '28px', fontWeight: '500' }}>{item}</span>
+                        <CheckCircle2 size={36} color="#06b6d4" />
+                        <span style={{ fontSize: '32px', fontWeight: '500' }}>{item}</span>
                     </div>
                 );
             })}
@@ -56,26 +65,28 @@ const FeatureList: React.FC<{ items: string[]; frame: number; start: number }> =
     );
 };
 
-const AppShot: React.FC<{ file: string; frame: number; start: number }> = ({ file, frame, start }) => {
+const MobileFrame: React.FC<{ file: string; frame: number; start: number }> = ({ file, frame, start }) => {
     const opacity = interpolate(frame, [start, start + 15], [0, 1], { extrapolateRight: 'clamp' });
-    const translateY = interpolate(frame, [start, start + 20], [100, 0], { extrapolateRight: 'clamp' });
+    const scale = spring({ frame: frame - start, fps: 30, config: { damping: 10 } });
 
     return (
         <div style={{
             opacity,
-            transform: `translateY(${translateY}px)`,
-            width: '80%',
-            margin: '0 auto',
-            position: 'relative',
-            zIndex: 1
+            transform: `scale(${scale})`,
+            height: '850px',
+            width: '400px',
+            display: 'flex',
+            justifyContent: 'center',
+            filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.5))'
         }}>
             <img
                 src={staticFile(file)}
                 style={{
-                    width: '100%',
-                    borderRadius: '40px',
-                    boxShadow: '0 40px 100px rgba(0,0,0,0.8)',
-                    border: '8px solid #1e293b'
+                    height: '100%',
+                    width: 'auto',
+                    borderRadius: '48px',
+                    border: '12px solid #1e293b',
+                    objectFit: 'contain'
                 }}
             />
         </div>
@@ -92,24 +103,41 @@ export const Showcase: React.FC = () => {
                 backgroundColor: '#0f172a',
                 color: 'white',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
-                display: 'flex',
-                flexDirection: 'column'
             }}
         >
-            {/* Intro Scene (0-90) */}
+            {/* Intro Scene (0-90) - STATIC START */}
             <Sequence durationInFrames={90}>
-                <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', padding: '0 40px' }}>
-                    <Title text="Backpack Planner" frame={frame} start={0} color="#06b6d4" />
-                    <Title text="The Ultimate Mobile Guide" frame={frame} start={20} />
+                <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px' }}>
+                        <img
+                            src={staticFile("icon.svg")}
+                            style={{
+                                width: '200px',
+                                height: '200px',
+                                transform: frame === 0 ? 'scale(1)' : `scale(${spring({ frame, fps: 30, config: { damping: 12 } })})`
+                            }}
+                        />
+                        <div style={{ textAlign: 'center' }}>
+                            <Title text="Backpack Planner" frame={frame} start={0} color="#06b6d4" />
+                            <p style={{
+                                fontSize: '40px',
+                                opacity: frame === 0 ? 1 : interpolate(frame, [20, 40], [0, 1]),
+                                transform: `translateY(${frame === 0 ? 0 : interpolate(frame, [20, 40], [20, 0], { extrapolateRight: 'clamp' })}px)`,
+                                maxWidth: '800px',
+                                lineHeight: '1.4'
+                            }}>
+                                Plan and share Backpack Tech builds for Run! Goddess
+                            </p>
+                        </div>
+                    </div>
                 </AbsoluteFill>
             </Sequence>
 
-            {/* Plan Your Builds: Late PvE (90-210) */}
-            <Sequence from={90} durationInFrames={120}>
-                <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', paddingTop: '80px' }}>
-                    <Title text="Plan Your Builds" frame={frame} start={100} />
-                    <AppShot file="mobile_late_pve.png" frame={frame} start={110} />
-                    <div style={{ marginTop: '60px' }}>
+            {/* Plan Your Builds: Late PvE (90-240) */}
+            <Sequence from={90} durationInFrames={150}>
+                <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px' }}>
+                    <div style={{ flex: 1, paddingRight: '60px' }}>
+                        <Title text="Plan Your Builds" frame={frame} start={100} align="left" />
                         <FeatureList
                             items={[
                                 "Optimize Late PvE Builds",
@@ -117,18 +145,20 @@ export const Showcase: React.FC = () => {
                                 "Refine Your Strategy"
                             ]}
                             frame={frame}
-                            start={130}
+                            start={120}
                         />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <MobileFrame file="mobile_late_pve.png" frame={frame} start={110} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
 
-            {/* Track Tech Crystals (210-330) */}
-            <Sequence from={210} durationInFrames={120}>
-                <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', paddingTop: '80px' }}>
-                    <Title text="Tech Crystals" frame={frame} start={220} />
-                    <AppShot file="mobile_mid_build.png" frame={frame} start={230} />
-                    <div style={{ marginTop: '60px' }}>
+            {/* Track Tech Crystals (240-390) */}
+            <Sequence from={240} durationInFrames={150}>
+                <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px' }}>
+                    <div style={{ flex: 1, paddingRight: '60px' }}>
+                        <Title text="Tech Crystals" frame={frame} start={250} align="left" />
                         <FeatureList
                             items={[
                                 "Track Tech Crystal Costs",
@@ -136,56 +166,38 @@ export const Showcase: React.FC = () => {
                                 "Analyze Your Stats"
                             ]}
                             frame={frame}
-                            start={250}
+                            start={270}
                         />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <MobileFrame file="mobile_mid_build.png" frame={frame} start={260} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
 
-            {/* Fully Customizable (330-450) */}
-            <Sequence from={330} durationInFrames={120}>
-                <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', paddingTop: '80px' }}>
-                    <Title text="Personalize" frame={frame} start={340} />
-                    <AppShot file="mobile_settings.png" frame={frame} start={350} />
-                    <div style={{ marginTop: '60px' }}>
+            {/* Outro (390+) */}
+            <Sequence from={390}>
+                <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px' }}>
+                    <div style={{ flex: 1, paddingRight: '60px' }}>
+                        <div style={{ marginBottom: '40px' }}>
+                            <img src={staticFile("icon.svg")} style={{ width: '120px' }} />
+                        </div>
+                        <Title text="Build & Optimize Now" frame={frame} start={400} align="left" color="#06b6d4" />
                         <FeatureList
                             items={[
                                 "Custom Dark/Light Themes",
-                                "Adjust UI & Node Labels",
-                                "Localized Experience"
+                                "Instant Build Sharing",
+                                "Works Offline & Everywhere"
                             ]}
                             frame={frame}
-                            start={370}
+                            start={420}
                         />
+                        <div style={{ marginTop: '60px', opacity: interpolate(frame, [450, 470], [0, 1]) }}>
+                            <p style={{ fontSize: '48px', fontWeight: 'bold' }}>https://rgbp.app</p>
+                        </div>
                     </div>
-                </AbsoluteFill>
-            </Sequence>
-
-            {/* Outro (450+) */}
-            <Sequence from={450}>
-                <AbsoluteFill
-                    style={{
-                        backgroundColor: 'rgba(15, 23, 42, 0.98)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        padding: '0 40px'
-                    }}
-                >
-                    <div style={{ transform: `scale(${spring({ frame: frame - 460, fps: 30 })})`, marginBottom: '20px' }}>
-                        <img src={staticFile("icon.svg")} style={{ width: '180px', height: '180px' }} />
-                    </div>
-
-                    <div style={{ marginTop: '20px', marginBottom: '40px' }}>
-                        <Title text="Build & Optimize Now" frame={frame} start={470} color="#06b6d4" />
-                    </div>
-
-                    <div style={{ transform: `translateY(${interpolate(frame, [480, 500], [50, 0], { extrapolateRight: 'clamp' })}px)`, opacity: interpolate(frame, [480, 500], [0, 1]) }}>
-                        <AppShot file="mobile_late_pve.png" frame={frame} start={480} />
-                    </div>
-
-                    <div style={{ marginTop: '60px', opacity: interpolate(frame, [500, 520], [0, 1]) }}>
-                        <p style={{ fontSize: '36px', fontWeight: 'bold' }}>https://rgbp.app</p>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <MobileFrame file="mobile_settings.png" frame={frame} start={410} />
                     </div>
                 </AbsoluteFill>
             </Sequence>

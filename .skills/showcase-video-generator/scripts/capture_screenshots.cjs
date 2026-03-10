@@ -9,7 +9,8 @@ async function run() {
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({
         ...mobileDevice,
-        viewport: { width: 393, height: 852 } // standard iPhone 14 Pro resolution
+        viewport: { width: 393, height: 852 },
+        deviceScaleFactor: 3
     });
     const page = await context.newPage();
 
