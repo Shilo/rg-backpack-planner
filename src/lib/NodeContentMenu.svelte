@@ -13,10 +13,7 @@
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
-    import {
-        getSkillLevelInfo,
-        getCostRange,
-    } from "../config/skillMetadata";
+    import { getSkillLevelInfo, getCostRange } from "../config/skillMetadata";
     import { t } from "svelte-whisper";
 
     export let nodeIndex: NodeIndex | null = null;
@@ -39,6 +36,11 @@
         if (v === 0) return "0";
         if (Number.isInteger(v)) return formatNumber(v);
         return String(parseFloat(v.toPrecision(3)));
+    }
+
+    function parseDescription(text: string): string {
+        if (!text) return "";
+        return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     }
 
     $: levelInfo =
@@ -113,36 +115,40 @@
     {onClose}
     anchorBelow={true}
 >
-    <div class="node-info">
+    <div class="menu-content">
         <div class="info-header">
             {#if nodeIcon}
-                <span class="node-icon">
+                <div class="node-icon-wrapper">
                     <svelte:component this={nodeIcon} />
-                </span>
+                </div>
             {/if}
             <div class="info-header-text">
                 <span class="skill-name"
                     >{skillId ? $t(`skills.${skillId}`) : "Node"}</span
                 >
-                {#if skillId && $t(`skillsDesc.${skillId}`)}
-                    <p class="skill-desc">{$t(`skillsDesc.${skillId}`)}</p>
+                {#if levelInfo}
+                    <div class="bonus-display">
+                        <span class="bonus-current"
+                            >{formatBonusValue(
+                                levelInfo.totalValue * 100,
+                            )}%</span
+                        >
+                        {#if levelInfo.nextTotalValue !== null}
+                            <span class="bonus-arrow">→</span>
+                            <span class="bonus-next"
+                                >{formatBonusValue(
+                                    levelInfo.nextTotalValue * 100,
+                                )}%</span
+                            >
+                        {/if}
+                    </div>
                 {/if}
             </div>
         </div>
 
-        {#if levelInfo}
-            <div class="bonus-display">
-                <span class="bonus-current"
-                    >{formatBonusValue(levelInfo.totalValue * 100)}%</span
-                >
-                {#if levelInfo.nextTotalValue !== null}
-                    <span class="bonus-arrow">→</span>
-                    <span class="bonus-next"
-                        >{formatBonusValue(
-                            levelInfo.nextTotalValue * 100,
-                        )}%</span
-                    >
-                {/if}
+        {#if skillId && $t(`skillsDesc.${skillId}`)}
+            <div class="skill-desc">
+                {@html parseDescription($t(`skillsDesc.${skillId}`))}
             </div>
         {/if}
 
@@ -176,6 +182,7 @@
             {/if}
         </div>
     </div>
+
     <div class="button-grid" class:stacked={isSingleLevel}>
         {#if !isSingleLevel}
             <NodeContextButton
@@ -262,9 +269,7 @@
 </ContextMenu>
 
 <style>
-    .node-info {
-        padding: var(--spacing-lg);
-        border-bottom: var(--border-width) solid var(--border-subtle);
+    .menu-content {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
@@ -273,21 +278,30 @@
     .info-header {
         display: flex;
         gap: var(--spacing-md);
-        align-items: stretch;
+        align-items: center;
+        width: 100%;
     }
 
-    .node-icon {
-        width: 2.5em;
+    .node-icon-wrapper {
+        width: 3rem;
+        height: 3rem;
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        background: var(--bg-raised, rgba(0, 0, 0, 0.2));
+        border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+        border-radius: 6px;
+        padding: var(--spacing-xs, 4px);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    .node-icon :global(svg) {
+    .node-icon-wrapper :global(svg) {
         width: 100%;
         height: 100%;
-        opacity: var(--opacity-disabled);
+        opacity: 0.85;
+        color: var(--accent-light, #fff);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
     }
 
     .info-header-text {
@@ -295,52 +309,62 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 0;
+        justify-content: center;
+        gap: 4px;
     }
 
     .skill-name {
-        font-size: var(--font-base);
-        font-weight: var(--weight-bold);
-        color: var(--text);
-        letter-spacing: var(--tracking);
-    }
-
-    .skill-desc {
-        margin: 0;
-        font-size: var(--font-xs);
-        color: var(--text-muted);
-        line-height: var(--leading);
+        font-size: var(--font-base, 1rem);
+        font-weight: var(--weight-bold, bold);
+        color: var(--text, #fff);
+        letter-spacing: var(--tracking, normal);
+        line-height: 1.2;
     }
 
     .bonus-display {
         display: flex;
-        align-items: baseline;
-        justify-content: center;
-        gap: var(--spacing-md);
-        padding: var(--spacing-md) 0;
+        align-items: center;
+        gap: var(--spacing-sm, 8px);
+        padding: 0;
     }
 
     .bonus-current {
-        font-size: var(--font-lg);
-        font-weight: var(--weight-bold);
-        color: var(--text);
+        font-size: var(--font-sm, 0.875rem);
+        font-weight: var(--weight-bold, bold);
+        color: var(--text-muted, #aaa);
+        font-variant-numeric: tabular-nums;
     }
 
     .bonus-arrow {
-        font-size: var(--font-sm);
-        color: var(--text-disabled);
+        font-size: var(--font-xs, 0.75rem);
+        color: var(--text-disabled, #666);
     }
 
     .bonus-next {
-        font-size: var(--font-lg);
-        font-weight: var(--weight-bold);
-        color: var(--accent-light);
+        font-size: var(--font-sm, 0.875rem);
+        font-weight: var(--weight-bold, bold);
+        color: var(--accent-light, #0ff);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .skill-desc {
+        margin-top: 4px;
+        font-size: var(--font-xs, 0.75rem);
+        color: var(--text-muted, #aaa);
+        line-height: var(--leading, 1.4);
+        width: 100%;
+    }
+
+    .skill-desc :global(strong) {
+        color: var(--accent-light, #fff);
+        font-weight: var(--weight-bold, bold);
     }
 
     .meta-row {
         display: flex;
         justify-content: space-between;
         gap: var(--spacing-lg);
+        width: 100%;
     }
 
     .meta-item {
@@ -392,9 +416,9 @@
     .button-grid {
         display: grid;
         grid-template-columns:
-            minmax(5ch, 1fr)
-            minmax(7ch, max-content)
-            minmax(9ch, max-content);
+            minmax(8.5ch, 1fr)
+            minmax(calc(10ch - 5px), max-content)
+            minmax(calc(10ch + 5px), max-content);
         gap: var(--spacing-md);
     }
 

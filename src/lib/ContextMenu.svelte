@@ -134,13 +134,15 @@
 
     export function updatePosition() {
         if (!menuEl) {
-            const adjustedY = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedY =
+                y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             displayX = x + dragOffset.x;
             displayY = adjustedY + dragOffset.y;
             return;
         }
 
-        const adjustedY = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+        const adjustedY =
+            y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
         const baseX = x + dragOffset.x;
         const baseY = adjustedY + dragOffset.y;
 
@@ -190,7 +192,9 @@
 
         const rect = menuEl.getBoundingClientRect();
         const menuCenterX = rect.left + rect.width / 2;
-        const menuCenterY = anchorBelow ? rect.top : rect.top + rect.height * 0.1;
+        const menuCenterY = anchorBelow
+            ? rect.top
+            : rect.top + rect.height * 0.1;
 
         dragStart = {
             x: event.clientX,
@@ -232,7 +236,8 @@
             const newMenuY = dragStart.menuY + dy;
 
             // Calculate offset from original position
-            const adjustedY = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedY =
+                y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             dragOffset.x = newMenuX - x;
             dragOffset.y = newMenuY - adjustedY;
 
@@ -240,7 +245,8 @@
             updatePosition();
 
             // After clamping, update dragOffset to reflect the actual clamped position
-            const adjustedYBase = y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedYBase =
+                y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
             dragOffset.x = displayX - x;
             dragOffset.y = displayY - adjustedYBase;
         }
@@ -299,7 +305,9 @@
         tick().then(updatePosition);
     }
 
-    $: transformOrigin = anchorBelow ? "translate(-50%, 0)" : "translate(-50%, -10%)";
+    $: transformOrigin = anchorBelow
+        ? "translate(-50%, 0)"
+        : "translate(-50%, -10%)";
 
     // Reset when menu closes
     $: if (!isOpen && wasOpen) {
@@ -358,7 +366,6 @@
         display: grid;
         gap: var(--spacing-md);
         z-index: var(--z-index-context-menu);
-        width: max-content;
         max-width: calc(100vw - 16px);
         cursor: move;
         touch-action: none;
