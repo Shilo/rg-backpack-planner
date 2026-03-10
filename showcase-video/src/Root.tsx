@@ -9,8 +9,8 @@ export const Root: React.FC = () => {
                 component={Showcase}
                 durationInFrames={540} // 18 seconds at 30 fps
                 fps={30}
-                width={1920}
-                height={1080}
+                width={1080}
+                height={1920}
             />
         </>
     );
