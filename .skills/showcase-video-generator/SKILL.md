@@ -1,30 +1,29 @@
-# Showcase Video Generator (Mobile-First)
+# Showcase Video Generator (Landscape Split-Layout)
 
-This skill automates the creation of a polished, user-facing showcase video for the Backpack Planner web app, optimized for mobile viewing (9:16).
+This skill automates the creation of a professional 1080p landscape showcase video for the Backpack Planner app, featuring mobile portrait screenshots in a split-screen design.
 
 ## Workflow
 
-1.  **Capture Assets**: Run the capture script to record portrait screenshots (390x844).
-2.  **Update Remotion**: Ensure `showcase-video/src/Showcase.tsx` uses 9:16 aspect ratio and high-level, 3-step benefit-driven copy.
+1.  **Capture Assets**: Run the capture script to record high-res portrait screenshots (deviceScaleFactor: 3).
+2.  **Update Remotion**:
+    - Resolution: **1920x1080** (Landscape).
+    - Layout: **Split-screen** (Text/Features on the left, Mobile Portrait on the right).
+    - Intro: Must show app icon and description at **Frame 0** (no initial delay).
 3.  **Render**: Use the Remotion CLI to render the final MP4.
 
 ## Core Components
 
 ### 1. Capture Script
 Located at `.skills/showcase-video-generator/scripts/capture_screenshots.cjs`.
-This script uses Playwright to:
-- Navigate to the local dev server with a mobile viewport (390x844).
-- Capture **three distinct states**:
-    1. **Late PvE** build (initial showcase).
-    2. **Mid-Game** build (secondary showcase).
-    3. **Settings Menu** (to demonstrate customization).
-- Save high-quality screenshots to `showcase-video/public/`.
+- Uses Playwright with a mobile viewport (393x852).
+- Captures the **entire screen** including bottom navigation bars.
+- Saves assets to `showcase-video/public/`.
 
 ### 2. Remotion Project
 Located in `showcase-video/`.
-- Vertical 9:16 composition.
-- Slide structure: Each scene must feature **3 distinct points/steps**.
-- **Terminological Accuracy**: Always use "Tech Crystals" (capitalized, plural).
+- `Showcase.tsx`: Implements the split-screen logic and smooth text entry animations.
+- **Three-Step Logic**: Every feature slide must break down value into 3 distinct points.
+- **Terminology**: Always use "Tech Crystals" (capitalized, plural).
 
 ## Commands
 
@@ -40,7 +39,7 @@ npm run build
 ```
 
 ## Guiding Principles
-- **Mobile First**: Design for small screens. Keep text large and icons bold.
-- **Three-Step Logic**: Every feature slide should break down value into 3 easy-to-digest steps.
-- **Tech Crystals Only**: Never use "Crystals" in isolation; always "Tech Crystals".
-- **Visual Variety**: Show different builds and the settings menu to demonstrate app depth.
+- **Instant Impact**: Ensure Frame 0 is visually complete (Icon + App Description) for thumbnails.
+- **Visual Depth**: Use mobile portrait screenshots to show real-world app usage.
+- **Fluidity**: Maintain smooth `spring` and `interpolate` transitions for all text and assets.
+- **High-Level Focus**: Explain user benefits (Plan, Track, Share) rather than UI mechanics.
