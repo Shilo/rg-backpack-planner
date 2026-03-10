@@ -14,6 +14,9 @@
     import { formatNumber } from "./mathUtil";
     import { t } from "svelte-whisper";
 
+    import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
+    import type { SkillId } from "../types/tree";
+
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
     export let onButtonPress: (() => void) | null = null;
@@ -81,10 +84,40 @@
         0,
     );
 
-    function parseDescription(text: string): string {
-        if (!text) return "";
-        return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    }
+    const SPECIAL_SKILLS_BY_TAB: Record<string, SkillId[]> = {
+        guardian: ["skill_crit", "pierce_resistance", "stun"],
+        vanguard: ["pierce_damage", "counterattack_resistance", "critical_hit"],
+        cannon: [
+            "skill_crit_resistance",
+            "ignore_stun",
+            "damage_reflection_chance",
+        ],
+    };
+
+    $: specialSkills = tabId ? (SPECIAL_SKILLS_BY_TAB[tabId] ?? []) : [];
+
+    $: specialSkillsSummary = (() => {
+        if (!specialSkills.length || !nodes.length) return [];
+
+        return specialSkills.map((skillId) => {
+            let currentTotal = 0;
+            let maxTotal = 0;
+
+            nodes.forEach((node, idx) => {
+                if (node.skillId === skillId) {
+                    currentTotal += levelsById?.[idx] ?? 0;
+                    maxTotal += node.maxLevel;
+                }
+            });
+
+            return {
+                id: skillId,
+                current: currentTotal,
+                max: maxTotal,
+                icon: SKILL_NODE_ICONS[skillId],
+            };
+        });
+    })();
 </script>
 
 {#if !hideStats}
@@ -109,9 +142,23 @@
         </div>
     </div>
 
-    {#if tabId && $t(`trees.description.${tabId}`)}
-        <div class="tree-desc">
-            {@html parseDescription($t(`trees.description.${tabId}`))}
+    {#if specialSkillsSummary.length > 0}
+        <div class="special-skills-list">
+            {#each specialSkillsSummary as skill}
+                <div class="special-skill-item">
+                    <span class="skill-icon-mini">
+                        <svelte:component this={skill.icon} />
+                    </span>
+                    <span class="meta-label"
+                        >{$t(`skills.short.${skill.id}`)}</span
+                    >
+                    <span class="meta-value">
+                        {formatNumber(skill.current)}<span class="meta-sep"
+                            >/</span
+                        >{formatNumber(skill.max)}
+                    </span>
+                </div>
+            {/each}
         </div>
     {/if}
 
@@ -168,20 +215,59 @@
         margin-bottom: var(--spacing-sm);
     }
 
-    .tree-desc {
-        font-size: var(--font-xs);
-        line-height: 1.4;
-        color: var(--text-muted);
+    .special-skills-list {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: var(--spacing-md);
         margin-bottom: var(--spacing-md);
-        padding: var(--spacing-sm);
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 4px;
-        border-left: 2px solid var(--accent);
+        padding: 0;
+        background: none;
+        border: none;
+        font-size: var(--font-base);
+        color: var(--text-muted);
+        line-height: normal;
+        align-items: center;
     }
 
-    .tree-desc :global(strong) {
+    .special-skill-item {
+        display: contents;
+    }
+
+    .skill-icon-mini {
+        width: 19px;
+        height: 19px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-light);
+        grid-column: 1;
+    }
+
+    .special-skill-item :global(.meta-label) {
+        grid-column: 2;
+        font-size: inherit;
+        color: inherit;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .special-skill-item :global(.meta-value) {
+        grid-column: 3;
+        font-size: inherit;
         color: var(--text);
         font-weight: var(--weight-bold);
+        font-variant-numeric: tabular-nums;
+        justify-self: end;
+    }
+
+    .special-skill-item :global(.meta-sep) {
+        opacity: var(--opacity-disabled);
+        margin: 0 1px;
+    }
+
+    .skill-icon-mini :global(svg) {
+        width: 100%;
+        height: 100%;
     }
 
     .menu-actions {
