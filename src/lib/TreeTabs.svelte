@@ -5,7 +5,12 @@
 
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
-    import { GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
+    import {
+        GuardianIcon,
+        VanguardIcon,
+        CannonIcon,
+        TechCrystalIcon,
+    } from "./customIcons";
     import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
     import { get } from "svelte/store";
@@ -39,6 +44,8 @@
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
+    import { techCrystalsSpentByTree } from "./techCrystalStore";
+    import { formatNumber } from "./mathUtil";
     import { t } from "svelte-whisper";
 
     export let tabs: TabConfig[] = [];
@@ -487,6 +494,10 @@
                         on:pointerleave={clearTabPress}
                     >
                         <span class="tab-label">{tab.label}</span>
+                        <span class="tree-tab-crystals">
+                            <TechCrystalIcon size={12} weight="fill" />
+                            {formatNumber($techCrystalsSpentByTree[index] || 0)}
+                        </span>
                     </Button>
                 {/each}
             </div>
@@ -650,20 +661,26 @@
         display: contents;
     }
 
-    /* Tighter label tracking as tab narrows. */
-    @container tab (max-width: 130px) {
+    /* Tighter label tracking as tab narrows. (130px -> 8.125rem) */
+    @container tab (max-width: 8.125rem) {
         .tab-label {
             letter-spacing: 0.02em;
         }
     }
 
-    @container tab (max-width: 75px) {
+    @container tab (max-width: 4.6875rem) {
         :global(.tree-tab-icon) {
             display: none !important;
         }
     }
 
-    @container tab (max-width: 95px) {
+    @container tab (max-width: 11rem) {
+        .tree-tab-crystals {
+            display: none !important;
+        }
+    }
+
+    @container tab (max-width: 5.9375rem) {
         .tab-label {
             letter-spacing: 0.01em;
         }
@@ -687,6 +704,27 @@
         overflow-wrap: anywhere;
         word-break: break-word;
         text-wrap: balance;
+    }
+
+    .tree-tab-crystals {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 0.85em;
+        color: var(--text-muted);
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
+        padding: 2px 4px;
+        border-radius: var(--radius-sm);
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    :global(.tab-buttons button.active .tree-tab-crystals) {
+        background: color-mix(in srgb, var(--bg) 60%, transparent);
+    }
+
+    :global(.tree-tab-crystals svg) {
+        color: var(--accent);
     }
 
     :global(.tab-buttons button.active) {
