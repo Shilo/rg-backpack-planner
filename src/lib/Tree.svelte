@@ -355,7 +355,32 @@
         toNode: NodeType;
         state: NodeState;
         region: NodeRegion;
+        strokeStyle: string;
     };
+
+    // SVG <line> elements need stroke/filter as inline styles because snapdom
+    // (DOM-to-image) ignores CSS stylesheet rules on SVG elements. The CSS rules
+    // in the style block still apply for live rendering; the inline style acts as a
+    // fallback so captured screenshots have correct line colors and brightness.
+    const REGION_STROKE_COLOR: Record<NodeRegion, string> = {
+        "top-left": "var(--region-orange-accent)",
+        "bottom-left": "var(--region-yellow-accent)",
+        right: "var(--region-blue-accent)",
+    };
+
+    function getLinkStrokeStyle(state: NodeState, region: NodeRegion): string {
+        const color =
+            state === "locked"
+                ? "var(--node-locked-border)"
+                : REGION_STROKE_COLOR[region];
+        const filter =
+            state === "locked"
+                ? "var(--node-brightness-locked)"
+                : state === "available"
+                  ? "var(--node-brightness-available)"
+                  : "none";
+        return `stroke: ${color}; filter: ${filter};`;
+    }
 
     let renderNodes: RenderNode[] = [];
     let renderLinks: RenderLink[] = [];
@@ -413,6 +438,7 @@
                     toNode: to.node,
                     state,
                     region: to.region,
+                    strokeStyle: getLinkStrokeStyle(state, to.region),
                 };
             })
             .filter((link): link is RenderLink => link !== null);
@@ -1280,6 +1306,8 @@
                             y1={link.fromNode ? link.fromNode.y : rootY}
                             x2={link.toNode.x}
                             y2={link.toNode.y}
+                            stroke-width="4"
+                            style={link.strokeStyle}
                         />
                     {/each}
                 </svg>
@@ -1377,11 +1405,13 @@
         overflow: visible;
     }
 
+    /* stroke, stroke-width, and filter are also set as inline styles / SVG
+       attributes on each <line> (see getLinkStrokeStyle) so snapdom in
+       captureService.ts can capture them. These CSS rules are kept as fallback. */
     .tree-links .tree-link {
         stroke-width: 4;
         stroke: var(--link-color);
         filter: none;
-        transition: stroke-opacity 0.2s;
     }
 
     .tree-links .tree-link.region-top-left {
