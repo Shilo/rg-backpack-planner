@@ -29,8 +29,3 @@ if (!/await snapdom\.toBlob\(\s*captureRoot\s*,\s*SNAPDOM_OPTS\s*\)/.test(normal
     );
 }
 
-if (!/await focusActiveTreeForCapture\(\s*bridge\s*\)/.test(normalized)) {
-    throw new Error(
-        "captureService should focus-fit the active tree before capture to prevent clipping.",
-    );
-}

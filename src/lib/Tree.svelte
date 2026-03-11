@@ -596,6 +596,12 @@
         }
     }
 
+    export function restoreViewState(view: TreeViewState | null) {
+        if (!view) return;
+        setViewState(view);
+        allowReactiveFocus = false;
+    }
+
     export function triggerFade() {
         fadeKey += 1;
     }
@@ -978,7 +984,7 @@
         return Math.min(Math.max(value, min), max);
     }
 
-    function computeFocusViewState(): TreeViewState | null {
+    function computeFocusViewState(overrideZoom?: TreeZoomLevel): TreeViewState | null {
         if (!viewportEl || nodes.length === 0) return null;
         const rect = viewportEl.getBoundingClientRect();
         // Ensure viewport has valid dimensions
@@ -995,9 +1001,10 @@
         );
         const paddedCenterX = padding.horizontal + availableW / 2;
         const paddedCenterY = padding.top + availableH / 2;
-        const isCloseUpZoom = $treeZoomScale === TreeZoomLevel.CloseUp;
+        const zoomLevel = overrideZoom ?? $treeZoomScale;
+        const isCloseUpZoom = zoomLevel === TreeZoomLevel.CloseUp;
         const zoomMultiplier =
-            getTreeZoomScaleValue($treeZoomScale) /
+            getTreeZoomScaleValue(zoomLevel) /
             getTreeZoomScaleValue(TreeZoomLevel.Fit);
         // Refine fit scale using the candidate scale so horizontal bounds can
         // account for badge non-shrinking behavior when zoomed out.
@@ -1136,6 +1143,18 @@
         return true;
     }
 
+    // Focuses the tree at Fit scale regardless of the user's zoom setting.
+    // Used by capture so the full tree is always visible in the exported image.
+    export function focusTreeInViewForCapture() {
+        const next = computeFocusViewState(TreeZoomLevel.Fit);
+        if (!next) return;
+        offsetX = next.offsetX;
+        offsetY = next.offsetY;
+        scale = next.scale;
+        // Do NOT set allowReactiveFocus — capture applies a temporary transform
+        // that will be restored by restoreViewState after capture completes.
+    }
+
     export function getFocusViewState() {
         return focusViewState ?? computeFocusViewState();
     }
@@ -1239,7 +1258,7 @@
                 const rect = viewportEl.getBoundingClientRect();
                 viewportSize = { width: rect.width, height: rect.height };
             }
-            focusTreeInView();
+            if (allowReactiveFocus) focusTreeInView();
         };
         window.addEventListener("resize", handleResize, { passive: true });
 

@@ -100,6 +100,10 @@ async function waitForStableTreeCanvas(
         }
     }
 
+    // Best-effort fallback: frame budget exhausted without achieving stability.
+    // Return the canvas anyway so capture can still produce something rather than
+    // failing silently. In practice this path is only hit on very slow devices or
+    // during rapid tab switches; the resulting image may be slightly misaligned.
     const fallback = bridge.getTreeCanvas();
     return fallback && fallback.isConnected ? fallback : null;
 }
@@ -119,11 +123,16 @@ async function captureLiveTreeBlob(
         await tick();
     }
 
-    await focusActiveTreeForCapture(bridge);
+    // Wait for tree to fully settle (including Tree.onMount.initializeView) BEFORE
+    // calling focusActiveTreeForCapture. Without this order, initializeView — which has
+    // its own async tick — can finish after focusActiveTreeForCapture and override the
+    // focus-fit transform with the user's saved view state, causing zoom/pan/quality bugs.
     const treeCanvas = await waitForStableTreeCanvas(bridge, tabIndex);
     if (!treeCanvas) {
         return null;
     }
+
+    await focusActiveTreeForCapture(bridge);
 
     const captureRoot =
         treeCanvas.parentElement instanceof HTMLElement
@@ -370,6 +379,7 @@ async function captureThreeTreeBlobs(
     bridge: TreeBridge,
 ): Promise<ThreeTreeBlobs> {
     const currentIndex = bridge.getActive();
+    const savedViewState = bridge.getViewState?.() ?? null;
     try {
         const results: (Blob | null)[] = [];
         for (let i = 0; i < NUM_TREES; i += 1) {
@@ -377,9 +387,17 @@ async function captureThreeTreeBlobs(
         }
         return [results[0] ?? null, results[1] ?? null, results[2] ?? null];
     } finally {
-        bridge.setActive(currentIndex);
+        if (savedViewState && bridge.restoreAfterCapture) {
+            // Full restore: original tab + user's view state both recovered.
+            bridge.restoreAfterCapture(currentIndex, savedViewState);
+        } else {
+            // Degraded fallback: restore tab only. Taken when bridge.getViewState was
+            // not yet registered at capture start (tree unmounted) or bridge is stale.
+            bridge.setActive(currentIndex);
+        }
         await tick();
-        await focusActiveTreeForCapture(bridge);
+        // focusActiveTreeForCapture is intentionally NOT called here — calling it would
+        // override the just-restored user view state (secondary modal-reset bug).
     }
 }
 

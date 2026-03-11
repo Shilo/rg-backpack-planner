@@ -1,8 +1,12 @@
+import type { TreeViewState } from "../Tree.svelte";
+
 export type TreeBridge = {
     setActive: (index: number) => void;
     getActive: () => number;
     getTreeCanvas: () => HTMLDivElement | null | undefined;
     focusActiveTreeInView?: () => void;
+    getViewState?: () => TreeViewState | null;
+    restoreAfterCapture?: (index: number, viewState: TreeViewState) => void;
 };
 
 export let treeBridge: TreeBridge | null = null;

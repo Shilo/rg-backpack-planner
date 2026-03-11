@@ -68,12 +68,14 @@
     let tabsRootEl: HTMLDivElement | null = null;
     let treeRef: {
         focusTreeInView?: (announce?: boolean) => void;
+        focusTreeInViewForCapture?: () => void;
         resetAllNodes?: () => void;
         triggerFade?: () => void;
         cancelGestures?: () => void;
         getViewState?: () => TreeViewState;
         getFocusViewState?: () => TreeViewState | null;
         getTreeCanvas?: () => HTMLDivElement | null;
+        restoreViewState?: (view: TreeViewState | null) => void;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -472,12 +474,30 @@
         setTreeLevels(activeIndex, [...nextLevels]);
     }
 
+    function restoreAfterCapture(index: number, viewState: TreeViewState) {
+        if (index === activeIndex) {
+            treeRef?.restoreViewState?.(viewState);
+            return;
+        }
+        // Set lastViewState BEFORE switching so Tree remounts with the correct initialViewState.
+        lastViewState = viewState;
+        activeIndex = clampIndex(index);
+        if (!isInitialRestore) {
+            const tab = tabs[activeIndex];
+            if (tab) activeTabId.set(tab.id);
+        }
+    }
+
     function bridgeAction(_node: HTMLElement) {
         const bridge = {
             setActive,
             getActive: () => activeIndex,
             getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
-            focusActiveTreeInView: () => treeRef?.focusTreeInView?.(false),
+            focusActiveTreeInView: () => treeRef?.focusTreeInViewForCapture
+                ? treeRef.focusTreeInViewForCapture()
+                : treeRef?.focusTreeInView?.(false),
+            getViewState: () => treeRef?.getViewState?.() ?? null,
+            restoreAfterCapture,
         };
         registerTreeBridge(bridge);
         return { destroy: () => unregisterTreeBridge(bridge) };
