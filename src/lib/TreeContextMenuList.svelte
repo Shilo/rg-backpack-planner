@@ -22,6 +22,7 @@
     import { uniqueSkillIds as guardianSkillIds } from "../config/guardianTree";
     import { uniqueSkillIds as vanguardSkillIds } from "../config/vanguardTree";
     import { uniqueSkillIds as cannonSkillIds } from "../config/cannonTree";
+    import { sortByDisplayOrder } from "./skillBonusStore";
 
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
@@ -91,9 +92,9 @@
     );
 
     const SPECIAL_SKILLS_BY_TAB: Record<string, SkillId[]> = {
-        guardian: guardianSkillIds,
-        vanguard: vanguardSkillIds,
-        cannon: cannonSkillIds,
+        guardian: sortByDisplayOrder(guardianSkillIds),
+        vanguard: sortByDisplayOrder(vanguardSkillIds),
+        cannon: sortByDisplayOrder(cannonSkillIds),
     };
 
     $: specialSkills = tabId ? (SPECIAL_SKILLS_BY_TAB[tabId] ?? []) : [];
