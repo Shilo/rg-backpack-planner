@@ -110,7 +110,7 @@ async function bootCaptureUiSession(): Promise<CaptureUiSession> {
     try {
         await waitForServer(DEV_SERVER_URL, DEV_SERVER_START_TIMEOUT_MS);
 
-        const browser = await chromium.launch({ headless: true });
+        const browser = await chromium.launch({ headless: false });
         const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
 
         await context.addInitScript((version: string) => {
@@ -461,8 +461,9 @@ const scenarios: Scenario[] = [
     {
         name: "Switch tabs then open compose → all 3 tree images non-null",
         async run(page) {
-            // Switch to the last tab and back to exercise tab switching
-            const tabButtons = page.locator(".tab-bar__tab-button");
+            // Switch to the last tab and back to exercise tab switching.
+            // Scope to .tab-buttons to avoid matching side menu tab buttons (same class, off-screen).
+            const tabButtons = page.locator(".tab-buttons .tab-bar__tab-button");
             const tabCount = await tabButtons.count();
             if (tabCount >= 3) {
                 await tabButtons.nth(2).click();
