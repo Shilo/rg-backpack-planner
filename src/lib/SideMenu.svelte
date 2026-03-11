@@ -7,9 +7,6 @@
     } from "phosphor-svelte";
     import BottomNavBar from "./BottomNavBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
-    import SideMenuSettingsPage from "./sideMenuPages/SideMenuSettingsPage.svelte";
-    import SideMenuStatisticsPage from "./sideMenuPages/SideMenuStatisticsPage.svelte";
-    import SideMenuControlsPage from "./sideMenuPages/SideMenuControlsPage.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import type { TreeViewState } from "./Tree.svelte";
     import { get } from "svelte/store";
@@ -55,9 +52,24 @@
     export let activeTreeIndex = 0;
     export let activeTreeViewState: TreeViewState | null = null;
     export let activeTreeFocusViewState: TreeViewState | null = null;
+    let SideMenuSettingsPage: any = null;
+    let SideMenuStatisticsPage: any = null;
+    let SideMenuControlsPage: any = null;
+
+    async function loadTabPage(tab: SideMenuTab): Promise<void> {
+        if (tab === "settings" && !SideMenuSettingsPage) {
+            SideMenuSettingsPage = (await import("./sideMenuPages/SideMenuSettingsPage.svelte")).default;
+        } else if (tab === "statistics" && !SideMenuStatisticsPage) {
+            SideMenuStatisticsPage = (await import("./sideMenuPages/SideMenuStatisticsPage.svelte")).default;
+        } else if (tab === "controls" && !SideMenuControlsPage) {
+            SideMenuControlsPage = (await import("./sideMenuPages/SideMenuControlsPage.svelte")).default;
+        }
+    }
+
     // Use get() for one-time init instead of $sideMenuActiveTab auto-subscription.
     // Tab changes are driven by direct assignment in handleSideMenuTabChange/openTab.
     let activeTab: SideMenuTab = get(sideMenuActiveTab);
+    $: void loadTabPage(activeTab);
     let scrollContentElement: HTMLElement | null = null;
 
     export function openTab(tab: SideMenuTab, persist: boolean = true) {
@@ -123,8 +135,9 @@
     <div class="side-menu__scroll-area">
         <nav class="side-menu__content" bind:this={scrollContentElement}>
             <div class="side-menu__content-inner">
-                {#if activeTab === "settings"}
-                    <SideMenuSettingsPage
+                {#if activeTab === "settings" && SideMenuSettingsPage}
+                    <svelte:component
+                        this={SideMenuSettingsPage}
                         {activeTreeName}
                         {activeTreeIndex}
                         {activeTreeViewState}
@@ -134,10 +147,10 @@
                         {onResetTree}
                         {onFocusInView}
                     />
-                {:else if activeTab === "statistics"}
-                    <SideMenuStatisticsPage />
-                {:else if activeTab === "controls"}
-                    <SideMenuControlsPage />
+                {:else if activeTab === "statistics" && SideMenuStatisticsPage}
+                    <svelte:component this={SideMenuStatisticsPage} />
+                {:else if activeTab === "controls" && SideMenuControlsPage}
+                    <svelte:component this={SideMenuControlsPage} />
                 {/if}
             </div>
         </nav>
