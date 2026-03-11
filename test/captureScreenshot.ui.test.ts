@@ -174,8 +174,13 @@ async function waitForComposeImageLoaded(page: Page): Promise<void> {
     });
 }
 
+async function openComposeScreenshotViaKeyboard(page: Page): Promise<void> {
+    await page.keyboard.press("F9");
+    await page.waitForSelector(".fullscreen-modal", { state: "visible" });
+}
+
 async function closeComposeScreenshot(page: Page): Promise<void> {
-    await page.click(".bottom-nav-bar__close-button");
+    await page.locator(".fullscreen-modal .bottom-nav-bar__close-button").click();
     await page.waitForSelector(".fullscreen-modal", { state: "detached" });
 }
 
@@ -410,7 +415,8 @@ const scenarios: Scenario[] = [
             await page.goto(APP_URL);
             await waitForTreeReady(page);
 
-            await openComposeScreenshot(page);
+            // Use keyboard shortcut — menu button labels are localized and won't match English
+            await openComposeScreenshotViaKeyboard(page);
             await waitForComposeImageLoaded(page);
             const imageCount = await page.locator(".image-viewer__img").count();
             assert.ok(imageCount > 0, "Expected image with Japanese locale");
@@ -426,7 +432,8 @@ const scenarios: Scenario[] = [
             await page.goto(APP_URL);
             await waitForTreeReady(page);
 
-            await openComposeScreenshot(page);
+            // Use keyboard shortcut — menu button labels are localized and won't match English
+            await openComposeScreenshotViaKeyboard(page);
             await waitForComposeImageLoaded(page);
             const imageCount = await page.locator(".image-viewer__img").count();
             assert.ok(imageCount > 0, "Expected image with Chinese locale");
