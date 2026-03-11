@@ -6,9 +6,6 @@ import { THEME_BG } from "./scripts/theme-defaults.ts";
 // https://vite.dev/config/
 export default defineConfig({
     base: "/",
-    build: {
-        chunkSizeWarningLimit: 600, // raised from 500 kB default; index bundle is ~550 kB pre-gzip (149 kB gzipped)
-    },
     plugins: [
         svelte(),
         VitePWA({
