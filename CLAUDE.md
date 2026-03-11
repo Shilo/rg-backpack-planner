@@ -1,16 +1,27 @@
 # Repo Guide
 
-- Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech builds.
-- Main code: `src/lib/`; stores: `src/lib/*Store.ts`; tree data: `src/config/`; static assets: `public/`; tests: `test/`.
+Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech builds.
+
+## Project Structure
+
+- **`src/lib/`** — Components, stores, build-data logic, helpers
+- **`src/lib/*Store.ts`** — Svelte stores
+- **`src/config/`** — Tree definitions (guardian, vanguard, cannon) and shared metadata
+- **`src/lib/buildData/`** — Encoder/decoder and URL handling for share links
+- **`src/locales/`** — i18n (en, ja, zh)
+- **`public/`** — Static assets, icons, manifest inputs
+- **`scripts/`** — Build helpers (copy-404, bump-version, generate-pwa-icons)
+- **`test/`** — CLI test suites; see [test/README.md](test/README.md)
+- **`docs/`** — Behavior contracts, plans; see [docs/behavior-contracts.md](docs/behavior-contracts.md)
 
 ## Commands
 
-- `npm run dev` - Vite dev server
-- `npm run build` - production build + copy `index.html` to `404.html`
-- `npm run preview` - preview `dist/`
-- `npm run check` - `svelte-check` + TypeScript
-- `npm test` - checks + test suite
-- `npm run pwa:assets` - regenerate PWA assets from `public/icon.svg`
+- `npm run dev` — Vite dev server
+- `npm run build` — production build + copy `index.html` to `404.html`
+- `npm run preview` — preview `dist/`
+- `npm run check` — svelte-check + TypeScript
+- `npm test` — checks + test suite
+- `npm run pwa:assets` — regenerate PWA assets from `public/icon.svg`
 
 ## Conventions
 
@@ -18,6 +29,7 @@
 - Components/types: PascalCase.
 - Stores: camelCase with `Store` suffix.
 - Constants: `SCREAMING_SNAKE_CASE`.
+- **No backwards compatibility**: Prioritize code quality over backwards compatibility. Never add unused parameters, legacy code paths, shims, or compatibility wrappers. If an API changes, update all callers. Delete dead code immediately.
 
 ## Notes
 

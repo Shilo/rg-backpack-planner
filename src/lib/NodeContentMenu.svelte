@@ -6,18 +6,16 @@
         CaretDoubleUpIcon,
         CaretLineUpIcon,
         CaretUpIcon,
+        Warning,
     } from "phosphor-svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
     import { formatNumber } from "./mathUtil";
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
+    import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
     import type { Node, NodeIndex, SkillId } from "../types/tree";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
-    import {
-        getSkillLevelInfo,
-        getSkillDescKey,
-        getCostRange,
-    } from "../config/skillMetadata";
+    import { getSkillLevelInfo, getCostRange } from "../config/skillMetadata";
     import { t } from "svelte-whisper";
 
     export let nodeIndex: NodeIndex | null = null;
@@ -42,9 +40,13 @@
         return String(parseFloat(v.toPrecision(3)));
     }
 
+    function parseDescription(text: string): string {
+        if (!text) return "";
+        return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    }
+
     $: levelInfo =
         skillId !== null ? getSkillLevelInfo(skillId, level, maxLevel) : null;
-    $: descKey = skillId !== null ? getSkillDescKey(skillId) : null;
     $: tierTargetLevel =
         maxLevel > 0
             ? nextTierTargetLevel(level, maxLevel as Node["maxLevel"])
@@ -104,6 +106,11 @@
         const completed = Math.floor(level / size);
         return Math.min(totalTiers, completed);
     })();
+
+    $: showCapWarning =
+        skillId === "final_damage_boost" &&
+        level === 0 &&
+        isGlobalIncrementLocked;
 </script>
 
 <ContextMenu
@@ -115,36 +122,53 @@
     {onClose}
     anchorBelow={true}
 >
-    <div class="node-info">
+    <div class="menu-content">
         <div class="info-header">
             {#if nodeIcon}
-                <span class="node-icon">
+                <div class="node-icon-wrapper">
                     <svelte:component this={nodeIcon} />
-                </span>
+                </div>
             {/if}
             <div class="info-header-text">
                 <span class="skill-name"
                     >{skillId ? $t(`skills.${skillId}`) : "Node"}</span
                 >
-                {#if descKey}
-                    <p class="skill-desc">{descKey}</p>
+                {#if levelInfo}
+                    <div class="bonus-display">
+                        <span class="bonus-current"
+                            >{formatBonusValue(
+                                levelInfo.totalValue * 100,
+                            )}%</span
+                        >
+                        {#if levelInfo.nextTotalValue !== null}
+                            <span class="bonus-arrow">→</span>
+                            <span class="bonus-next"
+                                >{formatBonusValue(
+                                    levelInfo.nextTotalValue * 100,
+                                )}%</span
+                            >
+                        {/if}
+                    </div>
                 {/if}
             </div>
         </div>
 
-        {#if levelInfo}
-            <div class="bonus-display">
-                <span class="bonus-current"
-                    >{formatBonusValue(levelInfo.totalValue * 100)}%</span
-                >
-                {#if levelInfo.nextTotalValue !== null}
-                    <span class="bonus-arrow">→</span>
-                    <span class="bonus-next"
-                        >{formatBonusValue(
-                            levelInfo.nextTotalValue * 100,
-                        )}%</span
-                    >
-                {/if}
+        {#if showCapWarning}
+            <div class="warning-row">
+                <div class="warning-icon">
+                    <Warning weight="bold" />
+                </div>
+                <span class="warning-text">
+                    {$t("nodeMenu.leveledLeafCapWarning", {
+                        cap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                    })}
+                </span>
+            </div>
+        {/if}
+
+        {#if skillId && $t(`skillsDesc.${skillId}`)}
+            <div class="skill-desc">
+                {@html parseDescription($t(`skillsDesc.${skillId}`))}
             </div>
         {/if}
 
@@ -177,119 +201,129 @@
                 <div class="progress-ticks"></div>
             {/if}
         </div>
-    </div>
-    <div class="button-grid" class:stacked={isSingleLevel}>
-        {#if !isSingleLevel}
+
+        <div class="button-grid" class:stacked={isSingleLevel}>
+            {#if !isSingleLevel}
+                <NodeContextButton
+                    icon={CaretUpIcon}
+                    label={$t("nodeMenu.incrementOne")}
+                    crystalValue={actionCosts?.increment1 ?? null}
+                    positive
+                    disabled={nodeIndex === null ||
+                        level >= maxLevel ||
+                        isGlobalIncrementLocked}
+                    onClick={() => {
+                        if (nodeIndex !== null && onIncrement)
+                            onIncrement(nodeIndex);
+                    }}
+                />
+                <NodeContextButton
+                    icon={CaretDoubleUpIcon}
+                    label={$t("nodeMenu.incrementTen")}
+                    crystalValue={actionCosts?.increment10 ?? null}
+                    positive
+                    disabled={nodeIndex === null ||
+                        level >= maxLevel ||
+                        isGlobalIncrementLocked}
+                    onClick={() => {
+                        if (nodeIndex !== null && onIncrementBy10)
+                            onIncrementBy10(nodeIndex);
+                    }}
+                />
+            {/if}
             <NodeContextButton
-                icon={CaretUpIcon}
-                label={$t("nodeMenu.incrementOne")}
-                crystalValue={actionCosts?.increment1 ?? null}
+                icon={CaretLineUpIcon}
+                label={tierTargetLevel >= maxLevel
+                    ? $t("nodeMenu.max")
+                    : $t("nodeMenu.incrementTier")}
+                crystalValue={actionCosts?.incrementTier ?? null}
                 positive
                 disabled={nodeIndex === null ||
                     level >= maxLevel ||
                     isGlobalIncrementLocked}
                 onClick={() => {
-                    if (nodeIndex !== null && onIncrement)
-                        onIncrement(nodeIndex);
+                    if (nodeIndex !== null && onIncrementTier)
+                        onIncrementTier(nodeIndex);
                 }}
             />
+            {#if !isSingleLevel}
+                <NodeContextButton
+                    icon={CaretDownIcon}
+                    label={$t("nodeMenu.decrementOne")}
+                    crystalValue={actionCosts?.decrement1 ?? null}
+                    negative
+                    disabled={nodeIndex === null || level <= 0}
+                    onClick={() => {
+                        if (nodeIndex !== null && onDecrement)
+                            onDecrement(nodeIndex);
+                    }}
+                />
+                <NodeContextButton
+                    icon={CaretDoubleDownIcon}
+                    label={$t("nodeMenu.decrementTen")}
+                    crystalValue={actionCosts?.decrement10 ?? null}
+                    negative
+                    disabled={nodeIndex === null || level <= 0}
+                    onClick={() => {
+                        if (nodeIndex !== null && onDecrementBy10)
+                            onDecrementBy10(nodeIndex);
+                    }}
+                />
+            {/if}
             <NodeContextButton
-                icon={CaretDoubleUpIcon}
-                label={$t("nodeMenu.incrementTen")}
-                crystalValue={actionCosts?.increment10 ?? null}
-                positive
-                disabled={nodeIndex === null ||
-                    level >= maxLevel ||
-                    isGlobalIncrementLocked}
-                onClick={() => {
-                    if (nodeIndex !== null && onIncrementBy10)
-                        onIncrementBy10(nodeIndex);
-                }}
-            />
-        {/if}
-        <NodeContextButton
-            icon={CaretLineUpIcon}
-            label={tierTargetLevel >= maxLevel
-                ? $t("nodeMenu.max")
-                : $t("nodeMenu.incrementTier")}
-            crystalValue={actionCosts?.incrementTier ?? null}
-            positive
-            disabled={nodeIndex === null ||
-                level >= maxLevel ||
-                isGlobalIncrementLocked}
-            onClick={() => {
-                if (nodeIndex !== null && onIncrementTier)
-                    onIncrementTier(nodeIndex);
-            }}
-        />
-        {#if !isSingleLevel}
-            <NodeContextButton
-                icon={CaretDownIcon}
-                label={$t("nodeMenu.decrementOne")}
-                crystalValue={actionCosts?.decrement1 ?? null}
+                icon={ArrowCounterClockwiseIcon}
+                label={$t("nodeMenu.reset")}
+                crystalValue={actionCosts?.reset ?? null}
                 negative
                 disabled={nodeIndex === null || level <= 0}
+                toastMessage={nodeIndex !== null && onReset
+                    ? $t("nodeMenu.resetToast")
+                    : undefined}
+                toastNegative
                 onClick={() => {
-                    if (nodeIndex !== null && onDecrement)
-                        onDecrement(nodeIndex);
+                    if (nodeIndex !== null && onReset) onReset(nodeIndex);
                 }}
             />
-            <NodeContextButton
-                icon={CaretDoubleDownIcon}
-                label={$t("nodeMenu.decrementTen")}
-                crystalValue={actionCosts?.decrement10 ?? null}
-                negative
-                disabled={nodeIndex === null || level <= 0}
-                onClick={() => {
-                    if (nodeIndex !== null && onDecrementBy10)
-                        onDecrementBy10(nodeIndex);
-                }}
-            />
-        {/if}
-        <NodeContextButton
-            icon={ArrowCounterClockwiseIcon}
-            label={$t("nodeMenu.reset")}
-            crystalValue={actionCosts?.reset ?? null}
-            negative
-            disabled={nodeIndex === null || level <= 0}
-            toastMessage={nodeIndex !== null && onReset
-                ? $t("nodeMenu.resetToast")
-                : undefined}
-            toastNegative
-            onClick={() => {
-                if (nodeIndex !== null && onReset) onReset(nodeIndex);
-            }}
-        />
+        </div>
     </div>
 </ContextMenu>
 
 <style>
-    .node-info {
-        padding: var(--spacing-lg);
-        border-bottom: var(--border-width) solid var(--border-subtle);
+    .menu-content {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
+        width: min-content;
+        align-items: stretch;
     }
 
     .info-header {
         display: flex;
         gap: var(--spacing-md);
-        align-items: stretch;
+        align-items: center;
+        width: 100%;
     }
 
-    .node-icon {
-        width: 2.5em;
+    .node-icon-wrapper {
+        width: 3rem;
+        height: 3rem;
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        background: var(--bg-raised, rgba(0, 0, 0, 0.2));
+        border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+        border-radius: 6px;
+        padding: var(--spacing-xs, 4px);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    .node-icon :global(svg) {
+    .node-icon-wrapper :global(svg) {
         width: 100%;
         height: 100%;
-        opacity: var(--opacity-disabled);
+        opacity: 0.85;
+        color: var(--accent-light, #fff);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
     }
 
     .info-header-text {
@@ -297,52 +331,105 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 0;
+        justify-content: center;
+        gap: 4px;
     }
 
     .skill-name {
-        font-size: var(--font-base);
-        font-weight: var(--weight-bold);
-        color: var(--text);
-        letter-spacing: var(--tracking);
-    }
-
-    .skill-desc {
-        margin: 0;
-        font-size: var(--font-xs);
-        color: var(--text-muted);
-        line-height: var(--leading);
+        font-size: var(--font-base, 1rem);
+        font-weight: var(--weight-bold, bold);
+        color: var(--text, #fff);
+        letter-spacing: var(--tracking, normal);
+        line-height: 1.2;
+        word-break: break-word;
+        overflow-wrap: anywhere;
     }
 
     .bonus-display {
         display: flex;
-        align-items: baseline;
-        justify-content: center;
-        gap: var(--spacing-md);
-        padding: var(--spacing-md) 0;
+        align-items: center;
+        gap: var(--spacing-sm, 8px);
+        padding: 0;
     }
 
     .bonus-current {
-        font-size: var(--font-lg);
-        font-weight: var(--weight-bold);
-        color: var(--text);
+        font-size: var(--font-sm, 0.875rem);
+        font-weight: var(--weight-bold, bold);
+        color: var(--text-muted, #aaa);
+        font-variant-numeric: tabular-nums;
     }
 
     .bonus-arrow {
-        font-size: var(--font-sm);
-        color: var(--text-disabled);
+        font-size: var(--font-xs, 0.75rem);
+        color: var(--text-disabled, #666);
     }
 
     .bonus-next {
-        font-size: var(--font-lg);
-        font-weight: var(--weight-bold);
-        color: var(--accent-light);
+        font-size: var(--font-sm, 0.875rem);
+        font-weight: var(--weight-bold, bold);
+        color: var(--accent-light, #0ff);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .skill-desc {
+        margin-top: 4px;
+        font-size: var(--font-xs, 0.75rem);
+        color: var(--text-muted, #aaa);
+        line-height: var(--leading, 1.4);
+        width: 100%;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .skill-desc :global(strong) {
+        color: var(--accent-light, #fff);
+        font-weight: var(--weight-bold, bold);
+    }
+
+    .warning-row {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .warning-icon {
+        color: #ef4444;
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+    }
+
+    .warning-icon :global(svg) {
+        width: 100%;
+        height: 100%;
+    }
+
+    .warning-text {
+        flex: 1;
+        font-size: var(--font-sm);
+        color: #fca5a5;
+        line-height: 1.4;
+        font-weight: var(--weight-medium, 500);
+        word-break: break-word;
+        white-space: normal;
+        min-width: 0;
     }
 
     .meta-row {
         display: flex;
         justify-content: space-between;
         gap: var(--spacing-lg);
+        width: 100%;
     }
 
     .meta-item {
@@ -393,14 +480,16 @@
 
     .button-grid {
         display: grid;
+        width: max-content;
         grid-template-columns:
-            minmax(5ch, 1fr)
-            minmax(7ch, max-content)
-            minmax(9ch, max-content);
+            minmax(8.5ch, 1fr)
+            minmax(calc(10ch - 5px), max-content)
+            minmax(calc(10ch + 5px), max-content);
         gap: var(--spacing-md);
     }
 
     .button-grid.stacked {
         grid-template-columns: 1fr;
+        min-width: 15rem;
     }
 </style>

@@ -1,9 +1,12 @@
 <script module lang="ts">
     import { writable } from "svelte/store";
 
-    const isComposeScreenshotOpen = writable(false);
+    export const isComposeScreenshotOpen = writable(false);
 
     export function openComposeScreenshot() {
+        if (typeof document !== "undefined") {
+            document.dispatchEvent(new CustomEvent("closeSideMenu"));
+        }
         isComposeScreenshotOpen.set(true);
     }
 

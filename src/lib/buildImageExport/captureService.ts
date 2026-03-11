@@ -1,405 +1,39 @@
-/**
- * Tree screenshot capture for export/share. Clones the live tree canvas into
- * an offscreen parent, inlines computed styles, then uses snapdom.toBlob.
- * Three-tree capture prepares all clones sequentially then runs the three
- * toBlob calls in parallel.
- *
- * Library used:
- * - @zumer/snapdom (DOM -> image capture)
- *   npm: https://www.npmjs.com/package/@zumer/snapdom
- *   source: https://github.com/zumerlab/snapdom
- *   docs/demo: https://zumerlab.github.io/snapdom/
- *   This file intentionally does pre-capture stabilization + style inlining
- *   before calling snapdom, because raw DOM capture can miss dynamic styles,
- *   pseudo elements, and timing-sensitive paint state in this tree UI.
- *
- * --- PROBLEMS (why capture glitches without the fixes below) ---
- *
- * 1. Capturing before tree is ready: tab switch remounts Tree; DOM can be
- *    incomplete or mid-paint so we get partial/missing nodes or wrong layout.
- *
- * 2. Reading getComputedStyle too early: if we clone and read styles as soon
- *    as the tree is "stable" (same signature 2 frames), the live tree may not
- *    have painted yet → we bake initial/transparent colors into the clone →
- *    nodes look whiteish or partially colored.
- *
- * 3. Clone depends on stylesheet cascade: node colors come from CSS variables
- *    (--hex-fill, --bg-available, etc.). If snapdom's pipeline loses full
- *    stylesheet context, those variables resolve to initial/transparent →
- *    whiteish nodes.
- *
- * 4. Snapdom can miss CSS for SVG: tree links (.tree-link) use cascade for
- *    stroke/filter; in the clone/snapdom path they can render wrong or missing.
- *
- * 5. Badge anchor scale vs live zoom: badge position uses transform scale; if
- *    we don't normalize to scale(1) on the clone, badges can be mispositioned.
- *
- * 6. Clone positioning conflict: .tree-canvas uses inset positioning; if we
- *    don't reset clone inset/right/bottom to auto and set explicit left/top,
- *    we get stretch/cropping drift across browsers.
- *
- * 7. Offscreen parent background: must be explicitly transparent for mobile
- *    parity (some browsers treat unset background differently).
- *
- * 8. Combined PNG transparency: canvas must use getContext("2d", { alpha: true })
- *    so the stitched image preserves transparency.
- *
- * 9. Name badges clipped: badges sit outside the node circle (sibling of
- *    .button.node). During capture the wrapper/badge-stack can be treated as
- *    a clipping region so badge text is cut off by the circle.
- *
- * 10. Unprepared parent: if waitForStableTreeCanvas returns null for a tab,
- *     we must not run toBlob on that parent (it's empty) or we get a blank
- *     blob; we track prepared[i] and return null for that slot instead.
- *
- * 11. Speed: three sequential toBlob calls (one per tree) were slow; we now
- *     prepare all three clones then run the three toBlob calls in parallel.
- *
- * 12. Transitions/animations during capture: can cause wrong or partial frames;
- *     we add class "snapdom-capture" to html (see app.css) to disable them.
- *
- * 13. Exported tree bounds drifted toward top-right: fixed root-centered constants
- *     did not account for asymmetric world bounds, so Guardian/Cannon could look
- *     offset and center-node position appeared inconsistent after level changes.
- *
- * --- FIXES (where they live in this file) ---
- *
- * - waitForStableTreeCanvas: wait until canvas exists, correct tab active,
- *   at least one .button.node, and signature (transform + node/link counts)
- *   unchanged for 2 consecutive frames; max 6 iterations. Avoids (1).
- *
- * - waitForPaintFrames(2) before cloning (PRE_CLONE_PAINT_FRAMES): so we read
- *   getComputedStyle after the live tree has painted. Avoids (2).
- *
- * - preserveNodeVisualStyles: copy computed colors and all color-driving CSS
- *   variables from original to clone (wrappers, .button.node, .node-badge).
- *   Avoids (3).
- *
- * - preserveTreeLinkStrokeStyles: copy stroke/strokeOpacity/strokeWidth/filter
- *   from each .tree-link to clone. Avoids (4).
- *
- * - normalizeBadgeAnchorScale: set transform scale(1) on badge anchors in
- *   clone. Avoids (5).
- *
- * - Clone style reset in prepareTreeCloneInParent: transform/transition/
- *   animation none; inset/right/bottom auto; explicit width/height; overflow
- *   visible; position absolute with left/top. Avoids (6).
- *
- * - createAndAttachOffscreenParent: overflow visible, backgroundColor
- *   "transparent", isolation isolate. Avoids (7).
- *
- * - combineTreeImagesHorizontally: getContext("2d", { alpha: true }).
- *   Avoids (8).
- *
- * - ensureBadgesNotClipped: set overflow "visible" on .node-wrapper and
- *   .node-badge-icon-stack in clone so badges above the circle aren't clipped.
- *   Avoids (9).
- *
- * - captureThreeTreeBlobs: prepared[i] only set after successful prepare;
- *   only call captureParentAsBlob(parent) when prepared[i]; otherwise resolve
- *   null. Avoids (10).
- *
- * - captureThreeTreeBlobs: prepare all three clones in a loop (tab switch +
- *   wait + prepare per tab), then Promise.all([captureParentAsBlob(p0), ...]).
- *   Avoids (11).
- *
- * - withCaptureState: increment capture count, add "snapdom-capture" to
- *   documentElement on first entry, remove on last exit. Avoids (12).
- *
- * - buildCenteredCaptureBounds: compute worst-case export bounds from baseTree via
- *   getTreeWorldBounds(showSkillName+showTier), then offset by world-bounds center
- *   (boundsCenterX/Y) so rendered bounds are centered in the capture canvas.
- *   Avoids (13). Verified by test/captureServiceCenteredBounds.test.ts and
- *   Playwright metric check of alpha bounds center drift.
- *
- * --- KNOWN UNFIXED ISSUES (as of current implementation) ---
- *
- * A. Residual per-tree drift remains in some states (~1-6px): even with world-bounds
- *    centering, captured alpha bounds can land slightly off center. This appears to
- *    come from snapdom rasterization/subpixel behavior (SVG stroke/filter + pseudo
- *    materialization), not from tree world-bounds math itself.
- *
- * B. Level-state-sensitive visual artifacts can still occur: certain node level
- *    combinations (especially involving leaf/hex nodes) may produce occasional ring/
- *    halo artifacts in the exported bitmap. Existing guards reduce this, but do not
- *    fully eliminate it in all captured states.
- *
- * C. Regeneration race UX: if tabs are switched while compose capture is regenerating,
- *    the viewer can briefly show loading/transition frames before the final blob for
- *    that tab is available.
- */
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
-import { baseTree } from "../../config/baseTree";
-import {
-    tabsBridge,
-    captureInProgressCount,
-    incrementCapture,
-    decrementCapture,
-    type TabsCaptureBridge,
-} from "./captureBridge";
-import { getTreeWorldBounds, TREE_BADGE_VERTICAL_OVERFLOW_PX } from "../treeLayout";
+import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
+import "./captureStyles.css";
 
-type TreeCaptureBounds = {
-    centerNode: { x: number; y: number };
-    width: number;
-    height: number;
-};
+let captureInProgressCount = 0;
 
-const CAPTURE_BOUNDS_PIXEL_BUFFER_PX = 2;
-
-function buildCenteredCaptureBounds(): TreeCaptureBounds {
-    // Capture bounds are derived from the shared tree layout using worst-case
-    // badge visibility (names + tier badge lines) so all level states stay
-    // stable and never clip.
-    const nodes = baseTree.map((node) => ({
-        x: node.x,
-        y: node.y,
-        radius: node.radius,
-        maxLevel: node.maxLevel,
-        skillId: node.skillId,
-        level: 1,
-    }));
-
-    const bounds = getTreeWorldBounds(nodes, {
-        showSkillName: true,
-        showTier: true,
-    });
-
-    if (!bounds) {
-        // Fallback mirrors prior capture dimensions but keeps center centered.
-        const fallbackHeight = 694 + TREE_BADGE_VERTICAL_OVERFLOW_PX;
-        return {
-            centerNode: {
-                x: Math.ceil(701 / 2),
-                y: Math.ceil(fallbackHeight / 2),
-            },
-            width: 701,
-            height: fallbackHeight,
-        };
-    }
-
-    const halfWidth = Math.max(Math.abs(bounds.minX), Math.abs(bounds.maxX));
-    const halfHeight = Math.max(Math.abs(bounds.minY), Math.abs(bounds.maxY));
-    const boundsCenterX = (bounds.minX + bounds.maxX) / 2;
-    const boundsCenterY = (bounds.minY + bounds.maxY) / 2;
-    const width = Math.ceil(halfWidth * 2) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX;
-    const height = Math.ceil(halfHeight * 2) + CAPTURE_BOUNDS_PIXEL_BUFFER_PX;
-
-    return {
-        centerNode: {
-            x: Math.ceil(width / 2 - boundsCenterX),
-            y: Math.ceil(height / 2 - boundsCenterY),
-        },
-        width,
-        height,
-    };
+function incrementCapture() {
+    captureInProgressCount++;
 }
 
-const TREE_VISIBLE_BOUNDS = buildCenteredCaptureBounds();
+function decrementCapture() {
+    captureInProgressCount--;
+}
 
-/** Max iterations before giving up waiting for tree DOM to settle (tab switch). */
-const CAPTURE_READY_MAX_FRAMES = 6;
-/** Consecutive frames with same signature required before we consider tree ready. */
-const CAPTURE_STABLE_FRAME_COUNT = 2;
 const NUM_TREES = 3;
+const CAPTURE_READY_MAX_FRAMES = 24;
+const CAPTURE_STABLE_FRAME_COUNT = 2;
+const COMBINED_TREE_SPACING_PX = 32;
+const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 
-function setInlineStyleFromComputed(
-    element: HTMLElement,
-    computed: CSSStyleDeclaration,
-    property: string,
-) {
-    const value = computed.getPropertyValue(property);
-    if (!value) return;
-    element.style.setProperty(property, value);
-}
-
-function preserveTreeLinkStrokeStyles(
-    original: HTMLElement,
-    clone: HTMLElement,
-) {
-    // Read from original (correct cascade); write to clone. Ensures SVG link stroke
-    // styles survive capture (snapdom can miss CSS for SVG).
-    const origLines = original.querySelectorAll<SVGLineElement>(".tree-link");
-    const cloneLines = clone.querySelectorAll<SVGLineElement>(".tree-link");
-    for (let i = 0; i < origLines.length && i < cloneLines.length; i++) {
-        const orig = origLines[i];
-        const line = cloneLines[i];
-        const computed = getComputedStyle(orig);
-        const stroke = computed.stroke;
-        const strokeOpacity = computed.strokeOpacity;
-        const widthValue = Number.parseFloat(computed.strokeWidth);
-        const strokeWidth =
-            Number.isFinite(widthValue) && widthValue > 0
-                ? `${widthValue}px`
-                : "4px";
-        const filter = computed.filter;
-
-        if (stroke && stroke !== "none") {
-            line.style.stroke = stroke;
-        }
-        line.style.strokeWidth = strokeWidth;
-        if (strokeOpacity && strokeOpacity !== "1") {
-            line.style.strokeOpacity = strokeOpacity;
-        }
-        if (filter && filter !== "none") {
-            line.style.filter = filter;
-        }
-    }
-}
-
-/** CSS custom properties that drive node/wrapper/pseudo-element colors (Node.svelte). */
-const NODE_WRAPPER_COLOR_VARIABLES = [
-    "--hex-fill",
-    "--hex-border-color",
-    "--hex-border-width",
-    "--node-icon-color",
-    "--border-color",
-    "--border-color-locked",
-    "--border-color-active",
-    "--border-color-maxed",
-    "--bg-locked",
-    "--bg-available",
-    "--bg-active",
-    "--bg-maxed",
-    "--badge-bg",
-    "--text-color",
-    "--text-color-active",
-    "--text-color-maxed",
-    "--text-color-locked",
-];
-
-function preserveNodeVisualStyles(original: HTMLElement, clone: HTMLElement) {
-    // Read from original (correct cascade); write to clone so clone has correct
-    // colors/effects when snapdom runs. Inline all color-driving variables so
-    // the clone does not depend on stylesheet cascade (avoids whiteish capture).
-    const nodeStyleProperties = [
-        "background-color",
-        "border-color",
-        "border-width",
-        "border-style",
-        "box-shadow",
-        "clip-path",
-        "color",
-        "filter",
-        "opacity",
-    ];
-    const nodeVariableProperties = [
-        "--hex-border-color",
-        "--hex-border-width",
-        "--hex-fill",
-        "--icon-scale",
-        "--bg-locked",
-        "--bg-available",
-        "--bg-active",
-        "--node-icon-color",
-        "--border-color",
-        "--border-color-locked",
-        "--border-color-active",
-    ];
-    const badgeStyleProperties = [
-        "background-color",
-        "border-color",
-        "border-width",
-        "border-style",
-        "box-shadow",
-        "color",
-        "filter",
-        "font-family",
-        "font-size",
-        "font-weight",
-        "line-height",
-        "letter-spacing",
-        "font-variant-numeric",
-    ];
-
-    const origWrappers = original.querySelectorAll<HTMLElement>(".node-wrapper");
-    const cloneWrappers = clone.querySelectorAll<HTMLElement>(".node-wrapper");
-    for (let i = 0; i < origWrappers.length && i < cloneWrappers.length; i++) {
-        const computed = getComputedStyle(origWrappers[i]);
-        const cloneWrapper = cloneWrappers[i];
-        setInlineStyleFromComputed(cloneWrapper, computed, "filter");
-        NODE_WRAPPER_COLOR_VARIABLES.forEach((property) =>
-            setInlineStyleFromComputed(cloneWrapper, computed, property),
-        );
-    }
-
-    const origNodes = original.querySelectorAll<HTMLElement>(".button.node");
-    const cloneNodes = clone.querySelectorAll<HTMLElement>(".button.node");
-    for (let i = 0; i < origNodes.length && i < cloneNodes.length; i++) {
-        const computed = getComputedStyle(origNodes[i]);
-        const node = cloneNodes[i];
-        nodeStyleProperties.forEach((property) =>
-            setInlineStyleFromComputed(node, computed, property),
-        );
-        nodeVariableProperties.forEach((property) =>
-            setInlineStyleFromComputed(node, computed, property),
-        );
-    }
-
-    const origBadges = original.querySelectorAll<HTMLElement>(".node-badge");
-    const cloneBadges = clone.querySelectorAll<HTMLElement>(".node-badge");
-    for (let i = 0; i < origBadges.length && i < cloneBadges.length; i++) {
-        const computed = getComputedStyle(origBadges[i]);
-        badgeStyleProperties.forEach((property) =>
-            setInlineStyleFromComputed(cloneBadges[i], computed, property),
-        );
-    }
-}
-
-function normalizeBadgeAnchorScale(root: HTMLElement) {
-    // Node.svelte uses .node-badge-icon-stack + --node-badge-scale.
-    root.querySelectorAll<HTMLElement>(".node-badge-icon-stack").forEach(
-        (stack) => {
-            stack.style.setProperty("--node-badge-scale", "1");
-        },
-    );
-}
-
-/** NodeFlash animation can be frozen by capture animation disabling and appear as artifacts. */
-function removeTransientNodeFlashOverlays(clone: HTMLElement) {
-    clone.querySelectorAll<HTMLElement>(".node-flash").forEach((el) => {
-        try {
-            el.remove();
-        } catch (_) {
-            const parent = el.parentElement;
-            if (parent) {
-                try {
-                    parent.removeChild(el);
-                } catch (_) { }
-            }
-        }
-    });
-}
-
-/**
- * SnapDOM materializes pseudo-elements as child spans.
- * Hide native pseudo-elements when those spans exist to avoid duplicate/offset artifacts.
- */
-function addSnapdomPseudoElementGuardStyle(clone: HTMLElement) {
-    const style = document.createElement("style");
-    style.setAttribute("data-snapdom-pseudo-guard", "true");
-    style.textContent = `
-*:has(> span[data-snapdom-pseudo="::before"])::before,
-*:has(> span[data-snapdom-pseudo="::after"])::after {
-    content: none !important;
-    display: none !important;
-}
-`;
-    clone.appendChild(style);
-}
-
-/** Ensure node wrappers and badge stack never clip badges that sit outside the circle. */
-function ensureBadgesNotClipped(clone: HTMLElement) {
-    clone.querySelectorAll<HTMLElement>(".node-wrapper").forEach((el) => {
-        el.style.overflow = "visible";
-    });
-    clone.querySelectorAll<HTMLElement>(".node-badge-icon-stack").forEach(
-        (el) => {
-            el.style.overflow = "visible";
-        },
-    );
-}
+const SNAPDOM_OPTS = {
+    type: "png" as const,
+    backgroundColor: "transparent",
+    cache: "disabled" as const,
+    outerTransforms: false,
+    outerShadows: true,
+    exclude: [
+        ".tree-context-menu",
+        ".tooltip",
+        ".context-menu",
+        "[role='tooltip']",
+        ".modal",
+        ".overlay",
+    ],
+};
 
 function waitForAnimationFrame(): Promise<void> {
     if (
@@ -413,40 +47,36 @@ function waitForAnimationFrame(): Promise<void> {
     });
 }
 
-/** Wait for n animation frames so the browser can commit paint (e.g. before reading getComputedStyle). */
-async function waitForPaintFrames(n: number): Promise<void> {
-    for (let i = 0; i < n; i++) {
+async function waitForPaintFrames(count: number): Promise<void> {
+    for (let i = 0; i < count; i += 1) {
         await waitForAnimationFrame();
     }
 }
 
-/** rAFs to wait after stability before cloning so live tree is fully painted. */
-const PRE_CLONE_PAINT_FRAMES = 2;
-
-/** Force reflow then wait for two animation frames (layout then paint) before toBlob. */
-async function forceReflowAndWaitForPaint(element: HTMLElement): Promise<void> {
-    void element.offsetHeight;
-    await waitForAnimationFrame();
-    await waitForAnimationFrame();
-}
-
 function getTreeCanvasSignature(element: HTMLElement): string {
+    const rect = element.getBoundingClientRect();
+    // Include tree-root opacity to detect in-progress Svelte in:fade transitions, which
+    // operate via inline style.opacity and are not suppressed by animation: none !important.
+    const treeRoot = element.closest(".tree-root") as HTMLElement | null;
+    const opacity = treeRoot ? getComputedStyle(treeRoot).opacity : "1";
     return [
         element.style.transform,
-        element.childElementCount,
+        Math.round(rect.width),
+        Math.round(rect.height),
         element.querySelectorAll(".node-wrapper").length,
         element.querySelectorAll(".tree-link").length,
+        opacity,
     ].join("|");
 }
 
 async function waitForStableTreeCanvas(
-    bridge: TabsCaptureBridge,
+    bridge: TreeBridge,
     tabIndex: number,
 ): Promise<HTMLElement | null> {
     let stableFrames = 0;
     let previousSignature = "";
 
-    for (let frame = 0; frame < CAPTURE_READY_MAX_FRAMES; frame++) {
+    for (let frame = 0; frame < CAPTURE_READY_MAX_FRAMES; frame += 1) {
         await tick();
         await waitForAnimationFrame();
 
@@ -456,7 +86,6 @@ async function waitForStableTreeCanvas(
             element.isConnected &&
             bridge.getActive() === tabIndex &&
             !!element.querySelector(".button.node");
-
         if (!isReady || !element) {
             stableFrames = 0;
             previousSignature = "";
@@ -467,8 +96,8 @@ async function waitForStableTreeCanvas(
         if (signature === previousSignature) {
             stableFrames += 1;
         } else {
-            stableFrames = 1;
             previousSignature = signature;
+            stableFrames = 1;
         }
 
         if (stableFrames >= CAPTURE_STABLE_FRAME_COUNT) {
@@ -476,136 +105,193 @@ async function waitForStableTreeCanvas(
         }
     }
 
+    // Best-effort fallback: frame budget exhausted without achieving stability.
+    // Return the canvas anyway so capture can still produce something rather than
+    // failing silently. In practice this path is only hit on very slow devices or
+    // during rapid tab switches; the resulting image may be slightly misaligned.
     const fallback = bridge.getTreeCanvas();
     return fallback && fallback.isConnected ? fallback : null;
 }
 
-const SNAPDOM_OPTS = {
-    type: "png" as const,
-    backgroundColor: "transparent",
-    cache: "disabled" as const,
-    outerTransforms: false,
-    outerShadows: false,
-    exclude: [
-        ".tree-context-menu",
-        ".tooltip",
-        ".context-menu",
-        "[role='tooltip']",
-        ".modal",
-        ".overlay",
-    ],
-};
-
-/** Prepares a clone of the live tree in parent (paint wait, clone, styles, reflow). Call captureParentAsBlob(parent) after. */
-async function prepareTreeCloneInParent(
-    element: HTMLElement,
-    parent: HTMLElement,
-): Promise<void> {
-    await waitForPaintFrames(PRE_CLONE_PAINT_FRAMES);
-
-    const clone = element.cloneNode(true) as HTMLElement;
-
-    clone.style.transform = "none";
-    clone.style.transition = "none";
-    clone.style.animation = "none";
-    clone.style.inset = "auto";
-    clone.style.right = "auto";
-    clone.style.bottom = "auto";
-    clone.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
-    clone.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
-    clone.style.pointerEvents = "none";
-    clone.style.overflow = "visible";
-    clone.style.position = "absolute";
-    clone.style.left = `${TREE_VISIBLE_BOUNDS.centerNode.x}px`;
-    clone.style.top = `${TREE_VISIBLE_BOUNDS.centerNode.y}px`;
-
-    try {
-        parent.replaceChildren(clone);
-    } catch (_) {
-        try {
-            while (parent.firstChild) parent.removeChild(parent.firstChild);
-        } catch (_) { }
-        parent.appendChild(clone);
-    }
-
-    preserveTreeLinkStrokeStyles(element, clone);
-    preserveNodeVisualStyles(element, clone);
-    normalizeBadgeAnchorScale(clone);
-    removeTransientNodeFlashOverlays(clone);
-    addSnapdomPseudoElementGuardStyle(clone);
-    ensureBadgesNotClipped(clone);
-
-    await forceReflowAndWaitForPaint(clone);
+async function focusActiveTreeForCapture(bridge: TreeBridge) {
+    bridge.focusActiveTreeInView?.();
+    await tick();
+    await waitForPaintFrames(2);
 }
 
-/** Captures parent's contents to PNG blob. Clears parent in finally to avoid leaking clone nodes. */
-async function captureParentAsBlob(parent: HTMLElement): Promise<Blob | null> {
-    try {
-        return await snapdom.toBlob(parent, SNAPDOM_OPTS);
-    } finally {
-        try {
-            parent.replaceChildren();
-        } catch (_) {
-            try {
-                while (parent.firstChild) {
-                    parent.removeChild(parent.firstChild);
-                }
-            } catch (_) { }
-        }
-    }
-}
-
-async function captureElementAsPng(
-    element: HTMLElement | null | undefined,
-    parent: HTMLElement,
+async function captureLiveTreeBlob(
+    bridge: TreeBridge,
+    tabIndex: number,
 ): Promise<Blob | null> {
-    if (!element || !parent) {
-        console.error("Capture element is null");
+    if (bridge.getActive() !== tabIndex) {
+        bridge.setActive(tabIndex);
+        await tick();
+    }
+
+    // Wait for tree to fully settle (including Tree.onMount.initializeView) BEFORE
+    // calling focusActiveTreeForCapture. Without this order, initializeView — which has
+    // its own async tick — can finish after focusActiveTreeForCapture and override the
+    // focus-fit transform with the user's saved view state, causing zoom/pan/quality bugs.
+    const treeCanvas = await waitForStableTreeCanvas(bridge, tabIndex);
+    if (!treeCanvas) {
         return null;
     }
+
+    await focusActiveTreeForCapture(bridge);
+
+    const captureRoot =
+        treeCanvas.parentElement instanceof HTMLElement
+            ? treeCanvas.parentElement
+            : treeCanvas;
 
     try {
-        await prepareTreeCloneInParent(element, parent);
-        return await captureParentAsBlob(parent);
+        const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
+        return await cropBlobToContent(blob);
     } catch (error) {
-        console.error("Failed to capture tree as PNG:", error);
+        console.error("Failed to capture tree image:", error);
         return null;
     }
-}
-
-function createAndAttachOffscreenParent() {
-    const parent = document.createElement("div");
-    parent.style.position = "absolute";
-    parent.style.left = "-9999px";
-    parent.style.top = "-9999px";
-    parent.style.width = `${TREE_VISIBLE_BOUNDS.width}px`;
-    parent.style.height = `${TREE_VISIBLE_BOUNDS.height}px`;
-    parent.style.overflow = "visible";
-    parent.style.backgroundColor = "transparent";
-    parent.style.pointerEvents = "none";
-    parent.style.isolation = "isolate";
-
-    document.body.appendChild(parent);
-    return parent;
 }
 
 async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
         const url = URL.createObjectURL(blob);
-        const img = new Image();
-
-        img.onload = () => {
+        const image = new Image();
+        image.onload = () => {
             URL.revokeObjectURL(url);
-            resolve(img);
+            resolve(image);
         };
-
-        img.onerror = () => {
+        image.onerror = () => {
             URL.revokeObjectURL(url);
             reject(new Error("Failed to load image from blob"));
         };
-
-        img.src = url;
+        image.src = url;
     });
+}
+
+function getImageIntrinsicSize(image: HTMLImageElement) {
+    return {
+        width: image.naturalWidth || image.width,
+        height: image.naturalHeight || image.height,
+    };
+}
+
+function getImageContentBounds(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+) {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    let minX = width;
+    let minY = height;
+    let maxX = -1;
+    let maxY = -1;
+
+    for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+            const i = (y * width + x) * 4;
+            if (data[i + 3] > 0) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+        }
+    }
+
+    if (maxX < minX || maxY < minY) {
+        return null;
+    }
+
+    return {
+        x: minX,
+        y: minY,
+        width: maxX - minX + 1,
+        height: maxY - minY + 1,
+    };
+}
+
+async function cropBlobToContent(blob: Blob): Promise<Blob | null> {
+    const image = await blobToImage(blob);
+    const { width: imageWidth, height: imageHeight } = getImageIntrinsicSize(
+        image,
+    );
+    const canvas = document.createElement("canvas");
+    canvas.width = imageWidth;
+    canvas.height = imageHeight;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) {
+        return blob;
+    }
+
+    ctx.drawImage(image, 0, 0);
+    const contentBounds = getImageContentBounds(ctx, imageWidth, imageHeight);
+    image.src = "";
+
+    if (!contentBounds) {
+        return blob;
+    }
+
+    const paddedX = Math.max(0, contentBounds.x - CROP_PADDING_PX);
+    const paddedY = Math.max(0, contentBounds.y - CROP_PADDING_PX);
+    const paddedRight = Math.min(
+        imageWidth,
+        contentBounds.x + contentBounds.width + CROP_PADDING_PX,
+    );
+    const paddedBottom = Math.min(
+        imageHeight,
+        contentBounds.y + contentBounds.height + CROP_PADDING_PX,
+    );
+    const paddedWidth = Math.max(1, paddedRight - paddedX);
+    const paddedHeight = Math.max(1, paddedBottom - paddedY);
+
+    const croppedCanvas = document.createElement("canvas");
+    croppedCanvas.width = paddedWidth;
+    croppedCanvas.height = paddedHeight;
+    const croppedCtx = croppedCanvas.getContext("2d", { alpha: true });
+    if (!croppedCtx) {
+        return blob;
+    }
+
+    croppedCtx.drawImage(
+        canvas,
+        paddedX,
+        paddedY,
+        paddedWidth,
+        paddedHeight,
+        0,
+        0,
+        paddedWidth,
+        paddedHeight,
+    );
+
+    return new Promise((resolve) => {
+        croppedCanvas.toBlob((result) => resolve(result ?? blob), "image/png");
+    });
+}
+
+function clearCanvasAndImages(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    ...images: (HTMLImageElement | null)[]
+) {
+    try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.width = 0;
+        canvas.height = 0;
+    } catch (_) {
+        // no-op
+    }
+    for (const image of images) {
+        try {
+            if (image) {
+                image.src = "";
+            }
+        } catch (_) {
+            // no-op
+        }
+    }
 }
 
 async function combineTreeImagesHorizontally(
@@ -619,58 +305,58 @@ async function combineTreeImagesHorizontally(
             blobToImage(tree2Blob),
             blobToImage(tree3Blob),
         ]);
-
-        const spacing = 32; // half node size between trees, no outer padding
-        const maxHeight = Math.max(img1.height, img2.height, img3.height);
-        const totalWidth = img1.width + img2.width + img3.width + spacing * 2;
+        const size1 = getImageIntrinsicSize(img1);
+        const size2 = getImageIntrinsicSize(img2);
+        const size3 = getImageIntrinsicSize(img3);
+        const maxHeight = Math.max(size1.height, size2.height, size3.height);
+        const totalWidth =
+            size1.width +
+            size2.width +
+            size3.width +
+            COMBINED_TREE_SPACING_PX * 2;
         const canvas = document.createElement("canvas");
         canvas.width = totalWidth;
         canvas.height = maxHeight;
 
         const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) {
-            console.error("Failed to get 2D context from canvas");
             return null;
         }
 
-        let xOffset = 0;
-        ctx.drawImage(img1, xOffset, (maxHeight - img1.height) / 2);
-        xOffset += img1.width + spacing;
-        ctx.drawImage(img2, xOffset, (maxHeight - img2.height) / 2);
-        xOffset += img2.width + spacing;
-        ctx.drawImage(img3, xOffset, (maxHeight - img3.height) / 2);
+        let x = 0;
+        ctx.drawImage(
+            img1,
+            x,
+            (maxHeight - size1.height) / 2,
+            size1.width,
+            size1.height,
+        );
+        x += size1.width + COMBINED_TREE_SPACING_PX;
+        ctx.drawImage(
+            img2,
+            x,
+            (maxHeight - size2.height) / 2,
+            size2.width,
+            size2.height,
+        );
+        x += size2.width + COMBINED_TREE_SPACING_PX;
+        ctx.drawImage(
+            img3,
+            x,
+            (maxHeight - size3.height) / 2,
+            size3.width,
+            size3.height,
+        );
 
         return new Promise((resolve) => {
             canvas.toBlob((blob) => {
-                if (!blob) {
-                    clearCanvasAndImages(ctx, canvas, img1, img2, img3);
-                    resolve(null);
-                    return;
-                }
                 clearCanvasAndImages(ctx, canvas, img1, img2, img3);
-                resolve(blob);
+                resolve(blob ?? null);
             }, "image/png");
         });
     } catch (error) {
         console.error("Failed to combine tree images:", error);
         return null;
-    }
-}
-
-function clearCanvasAndImages(
-    ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement,
-    ...imgs: (HTMLImageElement | null)[]
-): void {
-    try {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = 0;
-        canvas.height = 0;
-    } catch (_) { }
-    for (const img of imgs) {
-        try {
-            if (img) img.src = "";
-        } catch (_) { }
     }
 }
 
@@ -680,77 +366,48 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
     const isFirstCall = captureInProgressCount === 0;
     incrementCapture();
     if (isFirstCall) {
-        rootEl?.classList.add("snapdom-capture");
+        rootEl?.classList.add(SNAPDOM_CAPTURE_CLASS);
     }
     try {
         return await callback();
     } finally {
         decrementCapture();
         if (captureInProgressCount === 0) {
-            rootEl?.classList.remove("snapdom-capture");
+            rootEl?.classList.remove(SNAPDOM_CAPTURE_CLASS);
         }
     }
-}
-
-export async function captureTreeImageByIndex(
-    tabIndex: number,
-    bridge: TabsCaptureBridge,
-    parent: HTMLElement,
-): Promise<Blob | null> {
-    return withCaptureState(async () => {
-        if (tabIndex !== bridge.getActive()) {
-            bridge.setActive(tabIndex);
-            await tick();
-        }
-
-        const element = await waitForStableTreeCanvas(bridge, tabIndex);
-        return await captureElementAsPng(element, parent);
-    });
 }
 
 type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 
-/** Prepare all three tree clones (sequential tab switch + wait), then run the three toBlob calls in parallel. */
 async function captureThreeTreeBlobs(
-    bridge: TabsCaptureBridge,
+    bridge: TreeBridge,
 ): Promise<ThreeTreeBlobs> {
-    const parents: HTMLElement[] = [];
-    for (let i = 0; i < NUM_TREES; i++) {
-        parents.push(createAndAttachOffscreenParent());
-    }
     const currentIndex = bridge.getActive();
-    const prepared = new Array<boolean>(NUM_TREES).fill(false);
-
+    const savedViewState = bridge.getViewState?.() ?? null;
     try {
-        for (let i = 0; i < NUM_TREES; i++) {
-            if (i !== bridge.getActive()) {
-                bridge.setActive(i);
-                await tick();
-            }
-            const element = await waitForStableTreeCanvas(bridge, i);
-            if (!element) continue;
-            await prepareTreeCloneInParent(element, parents[i]);
-            prepared[i] = true;
+        const results: (Blob | null)[] = [];
+        for (let i = 0; i < NUM_TREES; i += 1) {
+            results.push(await captureLiveTreeBlob(bridge, i));
         }
-
-        const blobs = await Promise.all(
-            parents.map((parent, i) =>
-                prepared[i] ? captureParentAsBlob(parent) : Promise.resolve(null),
-            ),
-        );
-        return [blobs[0] ?? null, blobs[1] ?? null, blobs[2] ?? null];
+        return [results[0] ?? null, results[1] ?? null, results[2] ?? null];
     } finally {
-        bridge.setActive(currentIndex);
-        for (const parent of parents) {
-            try {
-                document.body.removeChild(parent);
-            } catch (_) { }
+        if (savedViewState && bridge.restoreAfterCapture) {
+            // Full restore: original tab + user's view state both recovered.
+            bridge.restoreAfterCapture(currentIndex, savedViewState);
+        } else {
+            // Degraded fallback: restore tab only. Taken when bridge.getViewState was
+            // not yet registered at capture start (tree unmounted) or bridge is stale.
+            bridge.setActive(currentIndex);
         }
+        await tick();
+        // focusActiveTreeForCapture is intentionally NOT called here — calling it would
+        // override the just-restored user view state (secondary modal-reset bug).
     }
 }
 
 export async function captureCombinedTreesImage(): Promise<Blob | null> {
-    const bridge = tabsBridge;
+    const bridge = treeBridge;
     if (!bridge) return null;
 
     return withCaptureState(async () => {
@@ -766,7 +423,7 @@ export type CaptureAllResult = {
 };
 
 export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
-    const bridge = tabsBridge;
+    const bridge = treeBridge;
     if (!bridge) return null;
 
     return withCaptureState(async () => {
@@ -779,4 +436,3 @@ export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
         return { combined, trees };
     });
 }
-

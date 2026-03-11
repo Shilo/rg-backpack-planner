@@ -5,18 +5,14 @@
  * - Coordinates are in tree world-space; node circle size is derived from
  *   `radius * TREE_NODE_RADIUS_UNIT_PX`.
  * - `getTreeWorldBounds([], ...)` returns `null`.
- * - Legacy mode (`options` omitted in `getTreeWorldBounds`):
- *   uses node circle bounds plus fixed vertical badge overflow
- *   (`TREE_BADGE_VERTICAL_OVERFLOW_PX`) and no extra horizontal badge width.
- * - Options mode (`showSkillName` / `showTier`):
- *   top overflow comes from name badge height when skill names are shown;
+ * - Top overflow comes from name badge height when skill names are shown;
  *   bottom overflow comes from level badge height (1 or 2 lines depending on
  *   `showTier` and whether the node is maxed). Level badge is hidden for
  *   `level <= 0`.
- * - Horizontal overflow in options mode comes from name badge width:
- *   width is measured from `nameLabel` (canvas when available, fallback
- *   heuristic otherwise), clamped to Node badge limits, and expanded beyond
- *   node radius on both left/right sides.
+ * - Horizontal overflow comes from name badge width: width is measured from
+ *   `nameLabel` (canvas when available, fallback heuristic otherwise),
+ *   clamped to Node badge limits, and expanded beyond node radius on both
+ *   left/right sides.
  * - `badgeScale` lets bounds reflect non-shrinking badges while zoomed out:
  *   for scales < 1, world-space badge width is inflated by `1 / scale`; for
  *   scales >= 1, no extra inflation is applied.
@@ -25,12 +21,8 @@
  * - Root font size and viewport edge spacing are read from CSS when DOM exists;
  *   SSR/non-DOM paths use sane fallbacks.
  * - Name badge width measurements are cached by `{fontSize}|{label}`.
- *
- * `getTreeViewportPadding` behavior:
- * - Legacy mode (`options` omitted): horizontal base padding and legacy
- *   vertical padding (`base + badgeOverflow`).
- * - Options mode: symmetric edge spacing from CSS variable `--spacing-lg`
- *   (with fallback), applied to top/bottom/left/right.
+ * - `getTreeViewportPadding`: symmetric edge spacing from CSS variable
+ *   `--spacing-lg` (with fallback), applied to top/bottom/left/right.
  */
 export type TreeLayoutNode = {
     x: number;
@@ -58,12 +50,6 @@ export type TreeViewportPadding = {
     bottom: number;
 };
 
-export type TreeViewportPaddingOptions = {
-    showSkillName: boolean;
-    showTier: boolean;
-    hasLeveledNodes?: boolean;
-};
-
 export type TreeWorldBoundsOptions = {
     showSkillName: boolean;
     showTier: boolean;
@@ -71,8 +57,6 @@ export type TreeWorldBoundsOptions = {
 };
 
 export const TREE_NODE_RADIUS_UNIT_PX = 32;
-export const TREE_BASE_VIEWPORT_PADDING_PX = 10;
-export const TREE_BADGE_VERTICAL_OVERFLOW_PX = 10;
 export const TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX = 12;
 
 const DEFAULT_ROOT_FONT_SIZE_PX = 16;
@@ -245,20 +229,7 @@ function getLevelBadgeOverflowPx(
     });
 }
 
-export function getTreeViewportPadding(
-    options?: TreeViewportPaddingOptions,
-): TreeViewportPadding {
-    if (!options) {
-        const legacyVerticalPadding =
-            TREE_BASE_VIEWPORT_PADDING_PX + TREE_BADGE_VERTICAL_OVERFLOW_PX;
-        return {
-            horizontal: TREE_BASE_VIEWPORT_PADDING_PX,
-            vertical: legacyVerticalPadding,
-            top: legacyVerticalPadding,
-            bottom: legacyVerticalPadding,
-        };
-    }
-
+export function getTreeViewportPadding(): TreeViewportPadding {
     const edgeSpacing = getTreeViewportEdgeSpacingPx();
     return {
         horizontal: edgeSpacing,
@@ -270,7 +241,7 @@ export function getTreeViewportPadding(
 
 export function getTreeWorldBounds(
     nodes: ReadonlyArray<TreeLayoutNode>,
-    options?: TreeWorldBoundsOptions,
+    options: TreeWorldBoundsOptions,
 ): TreeWorldBounds | null {
     if (nodes.length === 0) {
         return null;
@@ -278,15 +249,6 @@ export function getTreeWorldBounds(
 
     const nodeBounds = nodes.map((node) => {
         const radiusPx = (node.radius ?? 1) * TREE_NODE_RADIUS_UNIT_PX;
-        if (!options) {
-            return {
-                minX: node.x - radiusPx,
-                maxX: node.x + radiusPx,
-                minY: node.y - radiusPx - TREE_BADGE_VERTICAL_OVERFLOW_PX,
-                maxY: node.y + radiusPx + TREE_BADGE_VERTICAL_OVERFLOW_PX,
-            };
-        }
-
         const badgeScale =
             Number.isFinite(options.badgeScale) && (options.badgeScale ?? 0) > 0
                 ? (options.badgeScale as number)

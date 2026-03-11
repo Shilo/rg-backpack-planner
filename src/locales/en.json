@@ -17,7 +17,6 @@
     "common": {
         "cancel": "Cancel",
         "clone": "Clone",
-        "save": "Save",
         "paste": "Paste",
         "share": "Share",
         "close": "Close",
@@ -44,7 +43,6 @@
             "build": "Build",
             "node": "Node",
             "view": "View",
-            "tree": "Tree",
             "lookAndFeel": "Look and feel",
             "application": "Application",
             "statistics": "Statistics",
@@ -52,7 +50,8 @@
             "mouse": "Mouse",
             "keyboard": "Keyboard",
             "hud": "HUD (Heads-Up Display)",
-            "controlsTab": "Side menu Controls Tab"
+            "controlsTab": "Side menu Controls Tab",
+            "instructions": "Instructions"
         }
     },
     "trees": {
@@ -60,7 +59,14 @@
         "vanguard": "Vanguard",
         "cannon": "Cannon",
         "named": "{label} tree",
-        "generic": "tree"
+        "generic": "tree",
+        "rules": [
+            "Activate or upgrade Backpack Tech by spending Tech Crystals.",
+            "Reaching a certain level in prerequisite nodes unlocks the next tier.",
+            "After choosing a branch, you must unlock its ultimate skill before selecting another branch on the same page.",
+            "Each class has 3 branches, totaling 9 ultimate skills, and players may choose only 3 to learn.",
+            "Resets refund all Tech Crystals spent on the current page and are unlimited."
+        ]
     },
     "skills": {
         "attack_boost": "Attack Boost",
@@ -102,6 +108,26 @@
             "damage_reflection_chance": "Dmg Reflection"
         }
     },
+    "skillsDesc": {
+        "attack_boost": "**Base Attack** is increased by an additive modifier.",
+        "hp_boost": "**Base Health** is increased by an additive modifier.",
+        "defense_boost": "**Base Defense** is increased by an additive modifier.",
+        "ignore_dodge": "Reduces the chance of your attacks being **dodged** by enemies.",
+        "dodge": "There is a chance to completely **dodge** an enemy's attack.",
+        "global_def": "**Overall Defense** is increased by a multiplicative modifier.",
+        "global_hp": "**Overall Health** is increased by a multiplicative modifier.",
+        "final_damage_boost": "**Overall damage** is increased by the absolute final multiplicative modifier.",
+        "global_atk": "**Overall Attack** is increased by a multiplicative modifier.",
+        "skill_crit": "Skills have a chance to deal a **critical hit**, dealing damage higher than usual.",
+        "pierce_resistance": "Reduces the chance of receiving **pierce damage**.",
+        "stun": "Basic attacks and skills have a chance to **stun** enemies.",
+        "pierce_damage": "Basic attacks and skills have a chance to **pierce** enemies, dealing an additional instance of damage.",
+        "counterattack_resistance": "Reduces the chance of receiving a **counterattack**.",
+        "critical_hit": "Basic attacks have a chance to deal a **critical hit**, dealing damage higher than usual.",
+        "skill_crit_resistance": "Reduces the chance of receiving a **skill critical hit**.",
+        "ignore_stun": "Reduces the chance of being **stunned**.",
+        "damage_reflection_chance": "When attacked, deals extra damage to the attacker based on the **damage reflection** ratio and Attack."
+    },
     "settings": {
         "languageLabel": "Language",
         "languageTooltip": "Choose application language",
@@ -140,16 +166,9 @@
         "shareButton": "Share"
     },
     "contextMenu": {
-        "defaultTitle": "Menu",
-        "tabActions": "{tabLabel} Tree",
-        "previewBuildOptions": "Preview build options",
-        "techCrystalsLabel": "Tech Crystals:",
-        "levelsLabel": "Levels:"
+        "previewBuildOptions": "Preview build options"
     },
     "nodeMenu": {
-        "bonus": "Bonus",
-        "nextLevelCost": "Next Level Cost",
-        "totalSpent": "Total Spent",
         "level": "Level",
         "tier": "Tier",
         "max": "Max",
@@ -159,7 +178,8 @@
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "Reset",
-        "resetToast": "Reset node"
+        "resetToast": "Reset node",
+        "leveledLeafCapWarning": "Maximum of {cap} Final Damage nodes can be leveled."
     },
     "tree": {
         "focusedInViewToast": "Focused tree in view",
@@ -199,7 +219,6 @@
         "renameModalMessage": "Type a new name for this build preset",
         "presetNameLabel": "Preset name",
         "renameConfirmLabel": "Rename",
-        "cloneModalTitle": "Clone Build Preset",
         "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\"?",
         "deleteModalTitle": "Delete build preset",
         "deleteModalMessage": "Are you sure you want to remove \"{name}\" preset?",
@@ -246,10 +265,11 @@
         "copyErrorToast": "Unable to copy screenshot",
         "downloadedToast": "Screenshot downloaded",
         "shareErrorToast": "Unable to share screenshot",
-        "copyTooltip": "Copy to clipboard",
-        "downloadTooltip": "Download as PNG",
         "shareTooltip": "Share via app",
-        "refreshTooltip": "Regenerate screenshots"
+        "refreshTooltip": "Regenerate screenshots",
+        "tabs": {
+            "all": "View all trees"
+        }
     },
     "preview": {
         "title": "Preview",
@@ -273,7 +293,6 @@
         "clonePreviewBuildTooltip": "Copy preview build to personal build",
         "cloneModalTitle": "CLONE PREVIEW BUILD",
         "cloneModalMessage": "Create a new preset named \"{name}\" from the preview build.",
-        "failedCloneToast": "Failed to clone build",
         "invalidBuildDataToast": "Invalid build data",
         "invalidShareLinkToast": "Invalid share link",
         "viewingBuildToast": "Viewing {name} build",
@@ -409,8 +428,8 @@
         "touchMenuSwipeDescription": "Close side menu",
         "keyboardScreenshotLabel": "F9 - Share screenshot",
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
-        "keyboardCycleTabsLabel": "Tab - Cycle tree tabs",
-        "keyboardCycleTabsDescription": "Switch between Guardian, Vanguard, and Cannon trees.",
+        "keyboardCycleTabsLabel": "Tab - Cycle tabs",
+        "keyboardCycleTabsDescription": "Switch between tabs on the current view",
         "keyboardBackspaceResetLabel": "Backspace - Reset active tree",
         "keyboardBackspaceResetDescription": "Open reset confirmation for the current tree when it has levels.",
         "hudTechCrystalsLabel": "Tech Crystals (Currency)",

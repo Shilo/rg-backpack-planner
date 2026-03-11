@@ -85,13 +85,6 @@ html.theme-transitioning *::after {
         stroke 0.3s ease !important;
 }
 
-html.snapdom-capture *,
-html.snapdom-capture *::before,
-html.snapdom-capture *::after {
-    transition: none !important;
-    animation: none !important;
-}
-
 button {
     font: inherit;
     user-select: none;

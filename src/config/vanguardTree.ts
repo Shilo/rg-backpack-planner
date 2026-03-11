@@ -1,10 +1,12 @@
 import { createTree } from "./baseTree";
+import type { SkillId } from "../types/tree";
+export const vanguardSkillIds: SkillId[] = ["pierce_damage", "counterattack_resistance", "critical_hit"];
 
 export const vanguardTree = createTree(
     // Yellow Branch
-    ["pierce_damage", "counterattack_resistance"],
+    [vanguardSkillIds[0], vanguardSkillIds[1]],
     // Orange Branch
-    ["pierce_damage", "critical_hit"],
+    [vanguardSkillIds[0], vanguardSkillIds[2]],
     // Blue Branch
-    ["pierce_damage", "counterattack_resistance"],
+    [vanguardSkillIds[0], vanguardSkillIds[1]],
 );

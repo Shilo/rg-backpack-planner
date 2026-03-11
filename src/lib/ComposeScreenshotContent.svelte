@@ -8,6 +8,7 @@
         SquaresFourIcon,
         ArrowClockwiseIcon,
     } from "phosphor-svelte";
+    import { GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
     import FullscreenModal from "./FullscreenModal.svelte";
     import ImageViewer from "./ImageViewer.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
@@ -49,9 +50,9 @@
             icon: SquaresFourIcon,
             tooltip: $t("compose.tabs.all"),
         },
-        { id: "guardian", label: $t("trees.guardian") },
-        { id: "vanguard", label: $t("trees.vanguard") },
-        { id: "cannon", label: $t("trees.cannon") },
+        { id: "guardian", label: $t("trees.guardian"), icon: GuardianIcon },
+        { id: "vanguard", label: $t("trees.vanguard"), icon: VanguardIcon },
+        { id: "cannon", label: $t("trees.cannon"), icon: CannonIcon },
     ];
 
     $: currentBlob =

@@ -1,0 +1,22 @@
+# Backpack Planner Development Rules
+
+You are an expert in Svelte 5, TypeScript, and PWA development. When working on the Backpack Planner app, follow these rules:
+
+## Architecture
+- Components are in `src/lib/`.
+- Logic for build data encoding/decoding is in `src/lib/buildData/`.
+- Tree definitions are in `src/config/`.
+- Use Svelte 5 runes (`$state`, `$derived`, `$effect`) for reactivity.
+
+## Styling
+- Use Vanilla CSS in `<style>` blocks.
+- Follow the existing dark theme: slate backgrounds, cyan/orange accents.
+- Ensure all interactive elements have unique IDs for testing.
+
+## Sharing Logic
+- Build data is encoded into the URL hash.
+- Keep the share format compact as defined in `src/lib/buildData/`.
+
+## Testing
+- Run tests with `npm test`.
+- New features must include tests for propagation logic if applicable.

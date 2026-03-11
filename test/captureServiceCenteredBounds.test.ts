@@ -5,34 +5,32 @@ const captureServicePath = resolve("src/lib/buildImageExport/captureService.ts")
 const source = readFileSync(captureServicePath, "utf8");
 const normalized = source.replace(/\s+/g, " ");
 
-if (!/import \{ baseTree \} from "\.\.\/\.\.\/config\/baseTree";/.test(source)) {
+if (/cloneNode\(\s*true\s*\)/.test(normalized)) {
     throw new Error(
-        "captureService should derive capture bounds from baseTree coordinates.",
+        "captureService should not clone the tree DOM anymore.",
     );
 }
 
-if (!/function buildCenteredCaptureBounds\(\): TreeCaptureBounds/.test(source)) {
-    throw new Error("captureService should define buildCenteredCaptureBounds().");
-}
-
-if (
-    !/getTreeWorldBounds\(nodes, \{ showSkillName: true, showTier: true,? \}\)/.test(
-        normalized,
-    )
-) {
+if (/createAndAttachOffscreenParent\(/.test(normalized)) {
     throw new Error(
-        "captureService should derive bounds using getTreeWorldBounds with skill name and tier badges enabled.",
+        "captureService should not rely on offscreen parent containers for capture.",
     );
 }
 
-if (!/const CAPTURE_BOUNDS_PIXEL_BUFFER_PX = 2;/.test(source)) {
+if (!/await cropBlobToContent\(\s*blob\s*\)/.test(normalized)) {
     throw new Error(
-        "captureService should include a small pixel buffer when building export bounds.",
+        "captureService should crop captures to non-transparent content after snapdom export.",
     );
 }
 
-if (!/const TREE_VISIBLE_BOUNDS = buildCenteredCaptureBounds\(\);/.test(source)) {
+if (!/function captureThreeTreeBlobs\(/.test(source)) {
     throw new Error(
-        "captureService should initialize TREE_VISIBLE_BOUNDS from buildCenteredCaptureBounds().",
+        "captureService should define captureThreeTreeBlobs() for compose exports.",
+    );
+}
+
+if (!/for \(let i = 0; i < NUM_TREES; i \+= 1\)/.test(normalized)) {
+    throw new Error(
+        "captureService should capture each tree tab with a simple sequential loop.",
     );
 }

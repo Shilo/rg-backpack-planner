@@ -5,20 +5,20 @@ const captureServicePath = resolve("src/lib/buildImageExport/captureService.ts")
 const source = readFileSync(captureServicePath, "utf8");
 const normalized = source.replace(/\s+/g, " ");
 
-if (!/TREE_BADGE_VERTICAL_OVERFLOW_PX/.test(source)) {
+if (!/function getImageContentBounds\(/.test(source)) {
     throw new Error(
-        "captureService should use shared tree badge overflow constants for export bounds.",
+        "captureService should compute non-transparent image bounds before trimming.",
     );
 }
 
-if (!/from "\.\.\/treeLayout"/.test(source)) {
+if (!/function cropBlobToContent\(/.test(source)) {
     throw new Error(
-        "captureService should import badge overflow constants from treeLayout.",
+        "captureService should crop tree captures to content bounds.",
     );
 }
 
-if (!/const fallbackHeight = 694 \+ TREE_BADGE_VERTICAL_OVERFLOW_PX/.test(normalized)) {
+if (!/canvas\.getContext\("2d", \{ alpha: true \}\)/.test(normalized)) {
     throw new Error(
-        "captureService fallback export height should include bottom badge overflow padding.",
+        "captureService should use alpha-enabled canvas contexts so transparency and edge pixels are preserved.",
     );
 }

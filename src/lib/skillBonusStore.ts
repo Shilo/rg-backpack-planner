@@ -7,31 +7,44 @@ import { activeTabs } from "./techCrystalStore";
 /**
  * Fixed display order for skills in the Backpack Bonus section.
  * Ordered from leaf nodes (tier 5) to root nodes (tier 1).
+ * Also briefly ordered by effectiveness.
  */
 export const SKILL_DISPLAY_ORDER: readonly SkillId[] = [
-    // Tier 5 - leaf
+    // Ultimate - leaf
     "final_damage_boost",
-    // Tier 4 - globals
+    // Global
     "global_atk",
     "global_def",
     "global_hp",
-    // Tier 3 - class-specific + utility
-    "skill_crit",
-    "pierce_resistance",
-    "stun",
-    "pierce_damage",
-    "counterattack_resistance",
+    // Class-specific + utility
     "critical_hit",
-    "skill_crit_resistance",
-    "ignore_stun",
-    "damage_reflection_chance",
+    "skill_crit",
+    "pierce_damage",
+    "stun",
     "dodge",
     "ignore_dodge",
-    // Tiers 1-2 - stat nodes
+    "skill_crit_resistance",
+    "pierce_resistance",
+    "ignore_stun",
+    "damage_reflection_chance",
+    "counterattack_resistance", // Potentially useless (no benefit)
+    // Basic stats
     "attack_boost",
     "hp_boost",
     "defense_boost",
 ];
+
+/**
+ * Sorts an array of skill IDs according to SKILL_DISPLAY_ORDER.
+ * Skills not present in the order list are placed at the end.
+ */
+export function sortByDisplayOrder(skillIds: SkillId[]): SkillId[] {
+    const orderIndex = new Map(SKILL_DISPLAY_ORDER.map((id, i) => [id, i]));
+    return [...skillIds].sort(
+        (a, b) =>
+            (orderIndex.get(a) ?? Infinity) - (orderIndex.get(b) ?? Infinity),
+    );
+}
 
 /**
  * Computes aggregated skill bonuses across all trees.
