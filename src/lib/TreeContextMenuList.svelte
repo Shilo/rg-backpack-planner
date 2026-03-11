@@ -19,6 +19,10 @@
 
     import { SKILL_METADATA } from "../config/skillMetadata";
 
+    import { uniqueSkillIds as guardianSkillIds } from "../config/guardianTree";
+    import { uniqueSkillIds as vanguardSkillIds } from "../config/vanguardTree";
+    import { uniqueSkillIds as cannonSkillIds } from "../config/cannonTree";
+
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
     export let onButtonPress: (() => void) | null = null;
@@ -87,13 +91,9 @@
     );
 
     const SPECIAL_SKILLS_BY_TAB: Record<string, SkillId[]> = {
-        guardian: ["skill_crit", "pierce_resistance", "stun"],
-        vanguard: ["pierce_damage", "counterattack_resistance", "critical_hit"],
-        cannon: [
-            "skill_crit_resistance",
-            "ignore_stun",
-            "damage_reflection_chance",
-        ],
+        guardian: guardianSkillIds,
+        vanguard: vanguardSkillIds,
+        cannon: cannonSkillIds,
     };
 
     $: specialSkills = tabId ? (SPECIAL_SKILLS_BY_TAB[tabId] ?? []) : [];
