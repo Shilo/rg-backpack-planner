@@ -266,7 +266,10 @@
         "downloadedToast": "Screenshot downloaded",
         "shareErrorToast": "Unable to share screenshot",
         "shareTooltip": "Share via app",
-        "refreshTooltip": "Regenerate screenshots"
+        "refreshTooltip": "Regenerate screenshots",
+        "tabs": {
+            "all": "View all trees"
+        }
     },
     "preview": {
         "title": "Preview",

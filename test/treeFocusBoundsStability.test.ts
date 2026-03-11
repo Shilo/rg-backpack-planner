@@ -5,9 +5,9 @@ const treePath = resolve("src/lib/Tree.svelte");
 const source = readFileSync(treePath, "utf8");
 const normalized = source.replace(/\s+/g, " ");
 
-if (/getTreeViewportPadding\(\{[^}]*hasLeveledNodes/.test(normalized)) {
+if (/getTreeViewportPadding\(\{/.test(normalized)) {
     throw new Error(
-        "Tree focus-fit padding should not depend on current leveled-node state, or center position drifts during leveling.",
+        "Tree focus-fit padding should use getTreeViewportPadding() with no arguments.",
     );
 }
 

@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { HexagonIcon } from "phosphor-svelte";
+    import { TechCrystalIcon } from "./customIcons";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
 
     const ROOT_SIZE = 32;
 
+    export let x = 0;
+    export let y = 0;
     export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
         null;
     export let onFocusView: (() => void) | null = null;
@@ -25,7 +27,7 @@
 <div
     class="root-wrapper"
     data-node-id="root"
-    style="left: 0px; top: 0px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px"
+    style="left: {x}px; top: {y}px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px"
     on:keydown={handleKeydown}
     role="button"
     tabindex="0"
@@ -33,7 +35,7 @@
 >
     <Button
         class="root-node"
-        icon={HexagonIcon}
+        icon={TechCrystalIcon}
         iconClass="root-node-icon"
         iconWeight="fill"
         style="width: 100%; height: 100%;"

@@ -43,14 +43,15 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Test UI: Node Level",
+            "name": "Test UI",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
-                "test:ui:tier"
+                "test:ui"
             ],
+            "preLaunchTask": "npm: build",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },

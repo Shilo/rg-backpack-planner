@@ -29,6 +29,7 @@ Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech bu
 - Components/types: PascalCase.
 - Stores: camelCase with `Store` suffix.
 - Constants: `SCREAMING_SNAKE_CASE`.
+- **No backwards compatibility**: Prioritize code quality over backwards compatibility. Never add unused parameters, legacy code paths, shims, or compatibility wrappers. If an API changes, update all callers. Delete dead code immediately.
 
 ## Notes
 

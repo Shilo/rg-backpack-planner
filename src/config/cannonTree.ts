@@ -1,10 +1,12 @@
 import { createTree } from "./baseTree";
+import type { SkillId } from "../types/tree";
+export const cannonSkillIds: SkillId[] = ["skill_crit_resistance", "ignore_stun", "damage_reflection_chance"];
 
 export const cannonTree = createTree(
     // Yellow Branch
-    ["skill_crit_resistance", "ignore_stun"],
+    [cannonSkillIds[0], cannonSkillIds[1]],
     // Orange Branch
-    ["skill_crit_resistance", "damage_reflection_chance"],
+    [cannonSkillIds[0], cannonSkillIds[2]],
     // Blue Branch
-    ["damage_reflection_chance", "ignore_stun"],
+    [cannonSkillIds[2], cannonSkillIds[1]],
 );

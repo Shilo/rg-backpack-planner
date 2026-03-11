@@ -134,8 +134,7 @@
     }
 
     function clampOffsets(nextX: number, nextY: number, s: number) {
-        if (!viewportWidth || !viewportHeight)
-            return { x: nextX, y: nextY };
+        if (!viewportWidth || !viewportHeight) return { x: nextX, y: nextY };
         const margin = 48;
         const contentW = naturalWidth * s;
         const contentH = naturalHeight * s;
@@ -286,10 +285,8 @@
                 maxScale,
             );
             scale = nextScale;
-            const nextX =
-                centerX - rect.left - pinchStart.worldX * scale;
-            const nextY =
-                centerY - rect.top - pinchStart.worldY * scale;
+            const nextX = centerX - rect.left - pinchStart.worldX * scale;
+            const nextY = centerY - rect.top - pinchStart.worldY * scale;
             const clamped = clampOffsets(nextX, nextY, nextScale);
             offsetX = clamped.x;
             offsetY = clamped.y;

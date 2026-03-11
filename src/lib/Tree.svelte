@@ -51,6 +51,7 @@
         shouldBlockIncrementForGlobalLeafCap,
     } from "./globalLeafCap";
     import { getTreeViewportPadding, getTreeWorldBounds } from "./treeLayout";
+    import { TREE_ROOT_X, TREE_ROOT_Y } from "../config/baseTree";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { locale, t } from "svelte-whisper";
 
@@ -67,6 +68,8 @@
         | null = null;
     export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
         null;
+    export let rootX = TREE_ROOT_X;
+    export let rootY = TREE_ROOT_Y;
 
     let levels: LevelsByIndex = [];
     let contextMenu: { index: NodeIndex | null; x: number; y: number } | null =
@@ -102,10 +105,7 @@
         }
 
         const rect = viewportEl.getBoundingClientRect();
-        const padding = getTreeViewportPadding({
-            showSkillName: $showSkillName,
-            showTier: $showTier,
-        });
+        const padding = getTreeViewportPadding();
         const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
         const availableH = Math.max(
             rect.height - bottomInset - padding.top - padding.bottom,
@@ -304,8 +304,8 @@
     let regionCache = new Map<number, NodeRegion>();
 
     function getBaseRegionFromPosition(node: NodeType): NodeRegion {
-        if (node.x > 0) return "right";
-        if (node.y < 0) return "top-left";
+        if (node.x > rootX) return "right";
+        if (node.y < rootY) return "top-left";
         return "bottom-left";
     }
 
@@ -355,7 +355,33 @@
         toNode: NodeType;
         state: NodeState;
         region: NodeRegion;
+        strokeStyle: string;
     };
+
+    // SVG <line> elements need stroke/filter as inline styles because snapdom
+    // (DOM-to-image) ignores CSS stylesheet rules on SVG elements. The CSS rules
+    // in the style block still apply for live rendering; the inline style acts as a
+    // fallback so captured screenshots have correct line colors and brightness.
+    const REGION_STROKE_COLOR: Record<NodeRegion, string> = {
+        "top-left": "var(--region-orange-accent)",
+        "bottom-left": "var(--region-yellow-accent)",
+        right: "var(--region-blue-accent)",
+    };
+
+    function getLinkStrokeStyle(state: NodeState, region: NodeRegion): string {
+        if (state === "locked") {
+            return `stroke: var(--node-locked-border); filter: var(--node-brightness-locked);`;
+        }
+        if (state === "available") {
+            // --capture-link-stroke/filter are only defined during capture
+            // (html.snapdom-capture in app.css), overriding to locked style.
+            // During normal rendering the fallback (region accent) is used.
+            const color = `var(--capture-link-stroke, ${REGION_STROKE_COLOR[region]})`;
+            const filter = `var(--capture-link-filter, var(--node-brightness-available))`;
+            return `stroke: ${color}; filter: ${filter};`;
+        }
+        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: none;`;
+    }
 
     let renderNodes: RenderNode[] = [];
     let renderLinks: RenderLink[] = [];
@@ -413,6 +439,7 @@
                     toNode: to.node,
                     state,
                     region: to.region,
+                    strokeStyle: getLinkStrokeStyle(state, to.region),
                 };
             })
             .filter((link): link is RenderLink => link !== null);
@@ -567,6 +594,12 @@
             offsetX = clamped.x;
             offsetY = clamped.y;
         }
+    }
+
+    export function restoreViewState(view: TreeViewState | null) {
+        if (!view) return;
+        setViewState(view);
+        allowReactiveFocus = false;
     }
 
     export function triggerFade() {
@@ -951,7 +984,7 @@
         return Math.min(Math.max(value, min), max);
     }
 
-    function computeFocusViewState(): TreeViewState | null {
+    function computeFocusViewState(overrideZoom?: TreeZoomLevel): TreeViewState | null {
         if (!viewportEl || nodes.length === 0) return null;
         const rect = viewportEl.getBoundingClientRect();
         // Ensure viewport has valid dimensions
@@ -960,10 +993,7 @@
         const baseBounds = getWorldBounds(1);
         if (!baseBounds) return null;
 
-        const padding = getTreeViewportPadding({
-            showSkillName: $showSkillName,
-            showTier: $showTier,
-        });
+        const padding = getTreeViewportPadding();
         const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
         const availableH = Math.max(
             rect.height - bottomInset - padding.top - padding.bottom,
@@ -971,9 +1001,10 @@
         );
         const paddedCenterX = padding.horizontal + availableW / 2;
         const paddedCenterY = padding.top + availableH / 2;
-        const isCloseUpZoom = $treeZoomScale === TreeZoomLevel.CloseUp;
+        const zoomLevel = overrideZoom ?? $treeZoomScale;
+        const isCloseUpZoom = zoomLevel === TreeZoomLevel.CloseUp;
         const zoomMultiplier =
-            getTreeZoomScaleValue($treeZoomScale) /
+            getTreeZoomScaleValue(zoomLevel) /
             getTreeZoomScaleValue(TreeZoomLevel.Fit);
         // Refine fit scale using the candidate scale so horizontal bounds can
         // account for badge non-shrinking behavior when zoomed out.
@@ -1007,8 +1038,8 @@
 
         bounds = getWorldBounds(nextScale) ?? bounds;
         const { minX, minY, width, height } = bounds;
-        const centerX = isCloseUpZoom ? 0 : minX + width / 2;
-        const centerY = isCloseUpZoom ? 0 : minY + height / 2;
+        const centerX = isCloseUpZoom ? rootX : minX + width / 2;
+        const centerY = isCloseUpZoom ? rootY : minY + height / 2;
         const nextOffsetX = paddedCenterX - centerX * nextScale;
         const nextOffsetY = paddedCenterY - centerY * nextScale;
         const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
@@ -1110,6 +1141,18 @@
             showToast($t("tree.focusedInViewToast"));
         }
         return true;
+    }
+
+    // Focuses the tree at Fit scale regardless of the user's zoom setting.
+    // Used by capture so the full tree is always visible in the exported image.
+    export function focusTreeInViewForCapture() {
+        const next = computeFocusViewState(TreeZoomLevel.Fit);
+        if (!next) return;
+        offsetX = next.offsetX;
+        offsetY = next.offsetY;
+        scale = next.scale;
+        // Do NOT set allowReactiveFocus — capture applies a temporary transform
+        // that will be restored by restoreViewState after capture completes.
     }
 
     export function getFocusViewState() {
@@ -1215,7 +1258,7 @@
                 const rect = viewportEl.getBoundingClientRect();
                 viewportSize = { width: rect.width, height: rect.height };
             }
-            focusTreeInView();
+            if (allowReactiveFocus) focusTreeInView();
         };
         window.addEventListener("resize", handleResize, { passive: true });
 
@@ -1279,15 +1322,19 @@
                     {#each renderLinks as link}
                         <line
                             class={`tree-link ${link.state} region-${link.region}`}
-                            x1={link.fromNode ? link.fromNode.x : 0}
-                            y1={link.fromNode ? link.fromNode.y : 0}
+                            x1={link.fromNode ? link.fromNode.x : rootX}
+                            y1={link.fromNode ? link.fromNode.y : rootY}
                             x2={link.toNode.x}
                             y2={link.toNode.y}
+                            stroke-width="4"
+                            style={link.strokeStyle}
                         />
                     {/each}
                 </svg>
 
                 <RootNode
+                    x={rootX}
+                    y={rootY}
                     {onOpenTreeContextMenu}
                     onFocusView={() => focusTreeInView(true)}
                 />
@@ -1378,11 +1425,13 @@
         overflow: visible;
     }
 
+    /* stroke, stroke-width, and filter are also set as inline styles / SVG
+       attributes on each <line> (see getLinkStrokeStyle) so snapdom in
+       captureService.ts can capture them. These CSS rules are kept as fallback. */
     .tree-links .tree-link {
         stroke-width: 4;
         stroke: var(--link-color);
         filter: none;
-        transition: stroke-opacity 0.2s;
     }
 
     .tree-links .tree-link.region-top-left {

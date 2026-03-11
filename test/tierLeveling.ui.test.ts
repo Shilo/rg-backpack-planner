@@ -1,3 +1,8 @@
+// Server: Vite dev server on port 5174.
+// Requires dev server (not preview) because tests dynamically import treeLevelsStore.ts
+// from the browser via page.evaluate(). Only the dev server can transform and serve
+// TypeScript source files on demand. Port 5174 avoids conflict with the preview server
+// (port 4173) used by captureScreenshot.ui.test.ts.
 import assert from "node:assert/strict";
 import { appendFileSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
@@ -20,7 +25,7 @@ import {
     type DirectionalScenarioCase,
 } from "./tierLeveling.shared.ts";
 
-const DEV_SERVER_URL = "http://127.0.0.1:4173";
+const DEV_SERVER_URL = "http://127.0.0.1:5174";
 const APP_URL = `${DEV_SERVER_URL}/rg-backpack-planner/`;
 const TREE_LEVELS_STORE_MODULE_URL = new URL(
     "/src/lib/treeLevelsStore.ts",
@@ -96,7 +101,7 @@ async function bootTierUiSession(): Promise<TierUiSession> {
     const devServer =
         process.platform === "win32"
             ? spawn(
-                  "npm run dev -- --host 127.0.0.1 --port 4173 --strictPort",
+                  "npm run dev -- --host 127.0.0.1 --port 5174 --strictPort",
                   {
                       cwd: process.cwd(),
                       shell: true,
@@ -112,7 +117,7 @@ async function bootTierUiSession(): Promise<TierUiSession> {
                       "--host",
                       "127.0.0.1",
                       "--port",
-                      "4173",
+                      "5174",
                       "--strictPort",
                   ],
                   {

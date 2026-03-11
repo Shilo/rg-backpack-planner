@@ -29,7 +29,9 @@
         "build": "vite build && node scripts/copy-404.cjs",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+        "test:ui": "npm run test:ui:tier && npm run test:ui:capture",
         "test:ui:tier": "tsx test/tierLeveling.ui.test.ts",
+        "test:ui:capture": "tsx test/captureScreenshot.ui.test.ts",
         "test": "npm run check && tsx test/index.ts",
         "pwa:assets": "node scripts/generate-pwa-icons.mjs",
         "update": "npx npm-check-updates -u && npm install svelte-whisper@github:Shilo/svelte-whisper && npm install"

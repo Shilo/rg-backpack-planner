@@ -7,58 +7,37 @@ const normalized = source.replace(/\s+/g, " ");
 
 if (!/function waitForStableTreeCanvas\(/.test(source)) {
     throw new Error(
-        "captureService should define waitForStableTreeCanvas() to avoid capturing before tab render settles.",
+        "captureService should define waitForStableTreeCanvas() before snapshotting.",
     );
 }
 
-if (
-    !/waitForStableTreeCanvas\(\s*bridge\s*,\s*tabIndex\s*\)/.test(
-        normalized,
-    )
-) {
+if (!/const CAPTURE_READY_MAX_FRAMES = \d+;/.test(source)) {
     throw new Error(
-        "captureTreeImageByIndex should await waitForStableTreeCanvas(bridge, tabIndex) before cloning.",
+        "captureService should guard readiness with a max frame budget.",
     );
 }
 
-if (!/clone\.style\.inset\s*=\s*"auto"/.test(normalized)) {
+if (!/await waitForStableTreeCanvas\(\s*bridge\s*,\s*tabIndex\s*\)/.test(normalized)) {
     throw new Error(
-        "captureService should clear clone inset so left/top offsets do not conflict with .tree-canvas inset styles.",
+        "captureService should wait for stable tree DOM before calling snapdom.",
     );
 }
 
-if (!/clone\.style\.right\s*=\s*"auto"/.test(normalized)) {
+if (!/await snapdom\.toBlob\(\s*captureRoot\s*,\s*SNAPDOM_OPTS\s*\)/.test(normalized)) {
     throw new Error(
-        "captureService should clear clone right positioning to avoid stretch/cropping drift across browsers.",
+        "captureService should capture the live tree viewport/canvas directly with snapdom.toBlob.",
     );
 }
 
-if (!/clone\.style\.bottom\s*=\s*"auto"/.test(normalized)) {
+if (!/closest\(\s*["']\.tree-root["']\s*\)/.test(normalized)) {
     throw new Error(
-        "captureService should clear clone bottom positioning to avoid stretch/cropping drift across browsers.",
+        "getTreeCanvasSignature should locate the .tree-root ancestor to check its opacity.",
     );
 }
 
-if (!/function normalizeBadgeAnchorScale\(/.test(source)) {
+if (!/getComputedStyle\([^)]+\)\.opacity/.test(normalized)) {
     throw new Error(
-        "captureService should normalize badge anchor scale so badge placement does not race against live zoom state.",
+        "getTreeCanvasSignature should include tree-root computed opacity in the signature to detect in-progress Svelte fade transitions.",
     );
 }
 
-if (!/normalizeBadgeAnchorScale\(\s*clone\s*\)/.test(normalized)) {
-    throw new Error(
-        "captureService should normalize badge anchors on the capture clone before exporting.",
-    );
-}
-
-if (!/parent\.style\.backgroundColor\s*=\s*"transparent"/.test(normalized)) {
-    throw new Error(
-        "captureService should explicitly force transparent offscreen parent background for mobile parity.",
-    );
-}
-
-if (!/canvas\.getContext\(\s*"2d"\s*,\s*\{\s*alpha:\s*true\s*\}\s*\)/.test(normalized)) {
-    throw new Error(
-        "captureService should request a 2D context with alpha enabled so combined PNG transparency is preserved.",
-    );
-}

@@ -5,42 +5,40 @@ const captureServicePath = resolve("src/lib/buildImageExport/captureService.ts")
 const captureServiceSource = readFileSync(captureServicePath, "utf8");
 const captureServiceNormalized = captureServiceSource.replace(/\s+/g, " ");
 
-if (/clone\.style\.filter\s*=\s*"none"/.test(captureServiceNormalized)) {
+const captureStylesPath = resolve("src/lib/buildImageExport/captureStyles.css");
+const captureStylesSource = readFileSync(captureStylesPath, "utf8");
+const captureStylesNormalized = captureStylesSource.replace(/\s+/g, " ");
+
+if (/preserveNodeVisualStyles\(/.test(captureServiceNormalized)) {
     throw new Error(
-        "captureService should not clear clone filter styles, because that alters runtime visual parity.",
+        "captureService should not manually rewrite node styles when capturing live DOM.",
     );
 }
 
-if (/clone\.style\.boxShadow\s*=\s*"none"/.test(captureServiceNormalized)) {
+if (/preserveTreeLinkStrokeStyles\(/.test(captureServiceNormalized)) {
     throw new Error(
-        "captureService should not clear clone box shadows, because that alters runtime visual parity.",
+        "captureService should not manually rewrite link styles when capturing live DOM.",
     );
 }
 
-if (!/function syncCaptureBackground\(/.test(captureServiceNormalized)) {
+if (!/const treeCanvas = await waitForStableTreeCanvas\(/.test(captureServiceNormalized)) {
     throw new Error(
-        "captureService should define syncCaptureBackground() so captured trees keep runtime background context.",
+        "captureService should capture from the current live tree canvas element.",
     );
 }
 
 if (
-    !/syncCaptureBackground\(\s*parent\s*,\s*element\s*\)/.test(
+    !/exclude:\s*\[[^\]]*"\.tooltip"[^]*"\.overlay"[^]*\]/.test(
         captureServiceNormalized,
     )
 ) {
     throw new Error(
-        "captureService should apply runtime background styles to the offscreen capture parent.",
+        "captureService should exclude transient overlays/tooltips from snapdom capture.",
     );
 }
 
-if (!/function preserveNodeVisualStyles\(/.test(captureServiceNormalized)) {
+if (!/html\.snapdom-capture\s+\.node-flash\s*\{[^}]*display:\s*none\s*!important/.test(captureStylesNormalized)) {
     throw new Error(
-        "captureService should define preserveNodeVisualStyles() for node border/fill parity.",
-    );
-}
-
-if (!/preserveNodeVisualStyles\([^)]*clone\s*\)/.test(captureServiceNormalized)) {
-    throw new Error(
-        "captureService should preserve computed node styles on the cloned tree before exporting.",
+        "captureStyles.css should hide .node-flash elements during capture (display: none !important) to prevent mid-animation flash artifacts.",
     );
 }

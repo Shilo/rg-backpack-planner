@@ -1,9 +1,5 @@
 <script lang="ts">
     import {
-        HexagonIcon,
-        ShieldIcon,
-        SwordIcon,
-        TargetIcon,
         TreeIcon,
     } from "phosphor-svelte";
     import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
@@ -19,6 +15,12 @@
 
     import { SKILL_METADATA } from "../config/skillMetadata";
 
+    import { guardianSkillIds } from "../config/guardianTree";
+    import { vanguardSkillIds } from "../config/vanguardTree";
+    import { cannonSkillIds } from "../config/cannonTree";
+    import { TechCrystalIcon, GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
+    import { sortByDisplayOrder } from "./skillBonusStore";
+
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
     export let onButtonPress: (() => void) | null = null;
@@ -33,9 +35,9 @@
     export let nodes: Node[] = [];
 
     $: treeIcon = (() => {
-        if (tabId === "guardian") return ShieldIcon;
-        if (tabId === "vanguard") return SwordIcon;
-        if (tabId === "cannon") return TargetIcon;
+        if (tabId === "guardian") return GuardianIcon;
+        if (tabId === "vanguard") return VanguardIcon;
+        if (tabId === "cannon") return CannonIcon;
         return TreeIcon;
     })();
 
@@ -87,13 +89,9 @@
     );
 
     const SPECIAL_SKILLS_BY_TAB: Record<string, SkillId[]> = {
-        guardian: ["skill_crit", "pierce_resistance", "stun"],
-        vanguard: ["pierce_damage", "counterattack_resistance", "critical_hit"],
-        cannon: [
-            "skill_crit_resistance",
-            "ignore_stun",
-            "damage_reflection_chance",
-        ],
+        guardian: sortByDisplayOrder(guardianSkillIds),
+        vanguard: sortByDisplayOrder(vanguardSkillIds),
+        cannon: sortByDisplayOrder(cannonSkillIds),
     };
 
     $: specialSkills = tabId ? (SPECIAL_SKILLS_BY_TAB[tabId] ?? []) : [];
@@ -141,7 +139,7 @@
             >
             <div class="bonus-display">
                 <span class="bonus-icon"
-                    ><HexagonIcon size={14} weight="fill" /></span
+                    ><TechCrystalIcon size={14} weight="fill" /></span
                 >
                 <span class="bonus-current">
                     {formatNumber(techCrystalsSpent)} / {formatNumber(

@@ -5,15 +5,23 @@
 
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
+    import {
+        GuardianIcon,
+        VanguardIcon,
+        CannonIcon,
+        TechCrystalIcon,
+    } from "./customIcons";
+    import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
-    import { get } from "svelte/store";
+
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
     import {
-        isCaptureInProgress,
-        captureAction,
-    } from "./buildImageExport/captureBridge";
+        registerTreeBridge,
+        unregisterTreeBridge,
+        SNAPDOM_CAPTURE_CLASS,
+    } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -37,10 +45,19 @@
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
+    import { techCrystalsSpentByTree } from "./techCrystalStore";
+    import { formatNumber } from "./mathUtil";
     import { t } from "svelte-whisper";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
+
+    function getTabIcon(id: string): Component | null {
+        if (id === "guardian") return GuardianIcon as unknown as Component;
+        if (id === "vanguard") return VanguardIcon as unknown as Component;
+        if (id === "cannon") return CannonIcon as unknown as Component;
+        return null;
+    }
     /** When true, Tab key cycles side menu tabs instead of tree tabs. */
     export let isMenuOpen = false;
     export let activeLabel = "";
@@ -52,12 +69,14 @@
     let tabsRootEl: HTMLDivElement | null = null;
     let treeRef: {
         focusTreeInView?: (announce?: boolean) => void;
+        focusTreeInViewForCapture?: () => void;
         resetAllNodes?: () => void;
         triggerFade?: () => void;
         cancelGestures?: () => void;
         getViewState?: () => TreeViewState;
         getFocusViewState?: () => TreeViewState | null;
         getTreeCanvas?: () => HTMLDivElement | null;
+        restoreViewState?: (view: TreeViewState | null) => void;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -148,7 +167,11 @@
         if (!tabsBarEl) {
             return () => {
                 window.removeEventListener("keydown", handleTabKeydown, true);
-                window.removeEventListener("keydown", handleBackspaceKeydown, true);
+                window.removeEventListener(
+                    "keydown",
+                    handleBackspaceKeydown,
+                    true,
+                );
             };
         }
         const observer = new ResizeObserver(() => {
@@ -444,8 +467,41 @@
         setActive(index);
     }
 
+    function isCaptureInProgress() {
+        return document.documentElement.classList.contains(SNAPDOM_CAPTURE_CLASS);
+    }
+
     function handleLevelsChange(nextLevels: number[]) {
         setTreeLevels(activeIndex, [...nextLevels]);
+    }
+
+    function restoreAfterCapture(index: number, viewState: TreeViewState) {
+        if (index === activeIndex) {
+            treeRef?.restoreViewState?.(viewState);
+            return;
+        }
+        // Set lastViewState BEFORE switching so Tree remounts with the correct initialViewState.
+        lastViewState = viewState;
+        activeIndex = clampIndex(index);
+        if (!isInitialRestore) {
+            const tab = tabs[activeIndex];
+            if (tab) activeTabId.set(tab.id);
+        }
+    }
+
+    function bridgeAction(_node: HTMLElement) {
+        const bridge = {
+            setActive,
+            getActive: () => activeIndex,
+            getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
+            focusActiveTreeInView: () => treeRef?.focusTreeInViewForCapture
+                ? treeRef.focusTreeInViewForCapture()
+                : treeRef?.focusTreeInView?.(false),
+            getViewState: () => treeRef?.getViewState?.() ?? null,
+            restoreAfterCapture,
+        };
+        registerTreeBridge(bridge);
+        return { destroy: () => unregisterTreeBridge(bridge) };
     }
 </script>
 
@@ -458,7 +514,10 @@
             <div class="tab-buttons">
                 {#each tabs as tab, index}
                     <Button
-                        class={index === activeIndex ? "active" : ""}
+                        class="tab-btn {index === activeIndex ? 'active' : ''}"
+                        icon={getTabIcon(tab.id)}
+                        iconSize={18}
+                        iconClass="tree-tab-icon"
                         on:click={() => onTabClick(index)}
                         on:contextmenu={(event: Event) =>
                             openTabMenu(getMouseEvent(event), tab, index)}
@@ -471,6 +530,10 @@
                         on:pointerleave={clearTabPress}
                     >
                         <span class="tab-label">{tab.label}</span>
+                        <span class="tree-tab-crystals">
+                            <TechCrystalIcon size={12} weight="fill" />
+                            {formatNumber($techCrystalsSpentByTree[index] || 0)}
+                        </span>
                     </Button>
                 {/each}
             </div>
@@ -495,13 +558,7 @@
         on:pointerup={clearBackgroundPress}
         on:pointercancel={clearBackgroundPress}
         on:pointerleave={clearBackgroundPress}
-        use:captureAction={{
-            setActive,
-            getActive: () => activeIndex,
-            getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
-            getTabs: () => tabs,
-            getTreeLevels: () => get(treeLevels),
-        }}
+        use:bridgeAction
     >
         {#if tabs[activeIndex]}
             {#key tabs[activeIndex].id}
@@ -611,14 +668,16 @@
         z-index: var(--z-index-hud);
     }
 
-    :global(.tab-buttons button) {
+    /* Two-class specificity (0,2,0) reliably beats Button.svelte's scoped
+       `button.svelte-hash` (0,1,1), so !important is not needed here. */
+    :global(.tab-buttons .tab-btn) {
         color: var(--text-muted);
-        padding: 2px var(--spacing-sm) !important;
+        padding: 2px var(--spacing-sm);
         min-height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
         letter-spacing: normal;
-        font-size: var(--font-sm) !important;
+        font-size: var(--font-sm);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -629,18 +688,30 @@
         container-name: tab;
     }
 
-    :global(.tab-buttons button .button-text) {
+    :global(.tab-buttons .tab-btn .button-text) {
         display: contents;
     }
 
-    /* Tighter label tracking as tab narrows. */
-    @container tab (max-width: 130px) {
+    /* Tighter label tracking as tab narrows. (130px -> 8.125rem) */
+    @container tab (max-width: 8.125rem) {
         .tab-label {
             letter-spacing: 0.02em;
         }
     }
 
-    @container tab (max-width: 95px) {
+    @container tab (max-width: 4.6875rem) {
+        :global(.tree-tab-icon) {
+            display: none !important;
+        }
+    }
+
+    @container tab (max-width: 11rem) {
+        .tree-tab-crystals {
+            display: none !important;
+        }
+    }
+
+    @container tab (max-width: 5.9375rem) {
         .tab-label {
             letter-spacing: 0.01em;
         }
@@ -657,7 +728,7 @@
         letter-spacing: 0.03em;
         min-width: 0;
         max-width: 100%;
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         display: block;
         text-align: center;
         white-space: normal;
@@ -666,7 +737,28 @@
         text-wrap: balance;
     }
 
-    :global(.tab-buttons button.active) {
+    .tree-tab-crystals {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 0.85em;
+        color: var(--text-muted);
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
+        padding: 2px 4px;
+        border-radius: var(--radius-sm);
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    :global(.tab-buttons .tab-btn.active .tree-tab-crystals) {
+        background: color-mix(in srgb, var(--bg) 60%, transparent);
+    }
+
+    :global(.tree-tab-crystals svg) {
+        color: var(--accent);
+    }
+
+    :global(.tab-buttons .tab-btn.active) {
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
         color: var(--text-muted);
         border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
