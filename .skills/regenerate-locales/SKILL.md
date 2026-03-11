@@ -23,6 +23,7 @@ Translate all non-English locale files in `src/locales/` based on the English so
 - Translate the **values** (the English text), not the keys.
 - Translate naturally and idiomatically for the target language. Avoid overly literal translations.
 - For gaming terminology (skills, stats, UI terms), use the conventions common in that language's gaming community.
+- **CRITICAL RULE FOR `languageNames`**: Do NOT copy `en.json`'s language names (e.g. "English", "Japanese (日本語)"). You MUST use the exact translated names specified in the "Language-specific notes" section below (e.g. "英語 (English)" for ja.json). This is a frequent error, so double-check your `languageNames` output.
 
 ### What NOT to translate
 - **Interpolation placeholders** like `{name}`, `{version}`, `{treeLabel}`, `{subject}`, `{ownerLink}`, `{gameLink}`, etc. -- keep these exactly as-is within the translated text.
