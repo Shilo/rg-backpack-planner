@@ -7,7 +7,7 @@ import { THEME_BG } from "./scripts/theme-defaults.ts";
 export default defineConfig({
     base: "/",
     build: {
-        chunkSizeWarningLimit: 600,
+        chunkSizeWarningLimit: 600, // raised from 500 kB default; index bundle is ~550 kB pre-gzip (149 kB gzipped)
     },
     plugins: [
         svelte(),
