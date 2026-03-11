@@ -3,10 +3,13 @@ import type { Tree, BranchSkillIds } from "../types/tree";
 export const TREE_ROOT_X = 270;
 export const TREE_ROOT_Y = 318;
 
+// This is only used for the encoder, so it doesn't matter what the skill IDs are.
+const DEFAULT_BRANCH_SKILL_IDS: BranchSkillIds = ["attack_boost", "attack_boost"];
+
 export const createTree = (
-    yellowBranchSkillIds: BranchSkillIds,
-    orangeBranchSkillIds: BranchSkillIds,
-    blueBranchSkillIds: BranchSkillIds,
+    yellowBranchSkillIds: BranchSkillIds = DEFAULT_BRANCH_SKILL_IDS,
+    orangeBranchSkillIds: BranchSkillIds = DEFAULT_BRANCH_SKILL_IDS,
+    blueBranchSkillIds: BranchSkillIds = DEFAULT_BRANCH_SKILL_IDS,
 ): Tree =>
     toTopLeftOrigin([
         // Yellow Branch
@@ -296,12 +299,8 @@ export const createTree = (
         },
     ]);
 
-/** Base tree structure used by encoder (same layout as all trees; branch IDs arbitrary). */
-export const baseTree: Tree = createTree(
-    ["skill_crit", "pierce_resistance"],
-    ["stun", "skill_crit"],
-    ["stun", "pierce_resistance"],
-);
+/** Base tree structure used by encoder (same layout as all trees; branch skill IDs are arbitrary). */
+export const baseTree: Tree = createTree();
 
 function toTopLeftOrigin(tree: Tree): Tree {
     return tree.map((node) => ({
