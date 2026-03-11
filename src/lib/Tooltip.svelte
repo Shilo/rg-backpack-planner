@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import { HexagonIcon } from "phosphor-svelte";
+    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
     import { tooltipStore } from "./tooltip";
     import { portal } from "./portal";
     import { textSize } from "./textSizeStore";
@@ -161,7 +161,7 @@
                         class="tooltip-cost-line"
                         class:refund={$tooltipStore.costLineRefund}
                     >
-                        <HexagonIcon
+                        <TechCrystalIcon
                             size={14}
                             weight="fill"
                             class="tooltip-cost-icon"

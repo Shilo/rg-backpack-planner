@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { HexagonIcon } from "phosphor-svelte";
+    import { techCrystalIcon } from "../techCrystalIcon";
     import Button from "../Button.svelte";
     import { formatNumber } from "../mathUtil";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
@@ -33,7 +33,7 @@
     tooltipText={$t("techCrystals.changeOwnedTooltip", {
         subject: resolvedTooltipSubject,
     })}
-    icon={HexagonIcon}
+    icon={techCrystalIcon}
     iconClass="button-icon button-icon-filled"
     iconWeight="fill"
     arrow="right"

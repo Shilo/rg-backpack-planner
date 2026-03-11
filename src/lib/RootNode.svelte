@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { HexagonIcon } from "phosphor-svelte";
+    import { techCrystalIcon } from "./techCrystalIcon";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
 
@@ -35,7 +35,7 @@
 >
     <Button
         class="root-node"
-        icon={HexagonIcon}
+        icon={techCrystalIcon}
         iconClass="root-node-icon"
         iconWeight="fill"
         style="width: 100%; height: 100%;"

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { HexagonIcon } from "phosphor-svelte";
+    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { formatNumber } from "./mathUtil";
@@ -40,7 +40,7 @@
         <span class="action-label">{label}</span>
         {#if crystalValue != null}
             <span class="icon-cell crystal-icon">
-                <HexagonIcon size={14} weight="fill" aria-hidden="true" />
+                <TechCrystalIcon size={14} weight="fill" aria-hidden="true" />
             </span>
             <span class="crystal-value">{formatNumber(crystalValue)}</span>
         {/if}

@@ -12,7 +12,6 @@
         HandGrabbingIcon,
         HandSwipeRightIcon,
         HandTapIcon,
-        HexagonIcon,
         ImageIcon,
         ListIcon,
         MouseLeftClickIcon,
@@ -21,6 +20,7 @@
         MouseScrollIcon,
         SquaresFourIcon,
     } from "phosphor-svelte";
+    import { techCrystalIcon as TechCrystalIcon } from "../techCrystalIcon";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
@@ -516,7 +516,7 @@
                             class="control-icon control-icon-filled"
                             aria-hidden="true"
                         >
-                            <HexagonIcon weight="fill" />
+                            <TechCrystalIcon weight="fill" />
                         </span>
                         <p class="control-label">
                             {$t("controls.hudTechCrystalsLabel")}

@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { HexagonIcon } from "phosphor-svelte";
+import { techCrystalIcon } from "./techCrystalIcon";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned, techCrystalsSpent } from "./techCrystalStore";
 import { tr } from "svelte-whisper";
@@ -18,7 +18,7 @@ export function openTechCrystalsOwnedModal(
                 subject: normalizedSubject,
             })
             : tr("techCrystals.ownedModalTitle"),
-        titleIcon: HexagonIcon,
+        titleIcon: techCrystalIcon,
         titleIconWeight: "fill",
         input: {
             label: tr("techCrystals.ownedModalInput", {
@@ -32,7 +32,7 @@ export function openTechCrystalsOwnedModal(
             inputFooterButton: {
                 label: formatNumber(currentSpent),
                 value: currentSpent,
-                icon: HexagonIcon,
+                icon: techCrystalIcon,
             },
         }),
         onConfirm: (value) => {

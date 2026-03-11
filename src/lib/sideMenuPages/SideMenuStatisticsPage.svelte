@@ -8,8 +8,8 @@
         CopySimpleIcon,
         TrendUpIcon,
         ArrowFatUpIcon,
-        HexagonIcon,
-    } from "phosphor-svelte";
+} from "phosphor-svelte";
+    import { techCrystalIcon as TechCrystalIcon } from "../techCrystalIcon";
     import { formatNumber, formatPercent } from "../mathUtil";
     import {
         treeLevelsTotal,
@@ -56,7 +56,7 @@
             [
                 {
                     text: $t("statistics.techCrystalsSpent"),
-                    icon: HexagonIcon,
+                    icon: TechCrystalIcon,
                     iconWeight: "fill",
                 },
                 "",

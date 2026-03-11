@@ -1,8 +1,8 @@
 <script lang="ts">
     import {
-        HexagonIcon,
         TreeIcon,
     } from "phosphor-svelte";
+    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
     import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
     import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
     import type { TreeViewState } from "./Tree.svelte";
@@ -139,7 +139,7 @@
             >
             <div class="bonus-display">
                 <span class="bonus-icon"
-                    ><HexagonIcon size={14} weight="fill" /></span
+                    ><TechCrystalIcon size={14} weight="fill" /></span
                 >
                 <span class="bonus-current">
                     {formatNumber(techCrystalsSpent)} / {formatNumber(
