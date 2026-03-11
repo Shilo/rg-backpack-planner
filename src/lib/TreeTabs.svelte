@@ -157,7 +157,11 @@
         if (!tabsBarEl) {
             return () => {
                 window.removeEventListener("keydown", handleTabKeydown, true);
-                window.removeEventListener("keydown", handleBackspaceKeydown, true);
+                window.removeEventListener(
+                    "keydown",
+                    handleBackspaceKeydown,
+                    true,
+                );
             };
         }
         const observer = new ResizeObserver(() => {
@@ -635,7 +639,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-sm) !important;
         min-width: 0;
         overflow: hidden;
         container-type: inline-size;
@@ -653,7 +657,7 @@
         }
     }
 
-    @container tab (max-width: 110px) {
+    @container tab (max-width: 75px) {
         :global(.tree-tab-icon) {
             display: none !important;
         }
