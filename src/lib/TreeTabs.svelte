@@ -13,7 +13,7 @@
     } from "./customIcons";
     import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
-    import { get } from "svelte/store";
+
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
@@ -527,8 +527,6 @@
             getActive: () => activeIndex,
             getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
             focusActiveTreeInView: () => treeRef?.focusTreeInView?.(false),
-            getTabs: () => tabs,
-            getTreeLevels: () => get(treeLevels),
         }}
     >
         {#if tabs[activeIndex]}

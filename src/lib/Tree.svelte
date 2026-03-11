@@ -105,10 +105,7 @@
         }
 
         const rect = viewportEl.getBoundingClientRect();
-        const padding = getTreeViewportPadding({
-            showSkillName: $showSkillName,
-            showTier: $showTier,
-        });
+        const padding = getTreeViewportPadding();
         const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
         const availableH = Math.max(
             rect.height - bottomInset - padding.top - padding.bottom,
@@ -963,10 +960,7 @@
         const baseBounds = getWorldBounds(1);
         if (!baseBounds) return null;
 
-        const padding = getTreeViewportPadding({
-            showSkillName: $showSkillName,
-            showTier: $showTier,
-        });
+        const padding = getTreeViewportPadding();
         const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
         const availableH = Math.max(
             rect.height - bottomInset - padding.top - padding.bottom,

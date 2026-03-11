@@ -2,8 +2,6 @@ import assert from "node:assert";
 import {
     getTreeViewportPadding,
     getTreeWorldBounds,
-    TREE_BADGE_VERTICAL_OVERFLOW_PX,
-    TREE_BASE_VIEWPORT_PADDING_PX,
     TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
 } from "../src/lib/treeLayout.ts";
 
@@ -46,78 +44,40 @@ function withMockRootFontSize(fontSizePx: number, run: () => void): void {
 }
 
 const padding = getTreeViewportPadding();
-assert.strictEqual(padding.horizontal, TREE_BASE_VIEWPORT_PADDING_PX);
-assert.strictEqual(
-    padding.vertical,
-    TREE_BASE_VIEWPORT_PADDING_PX + TREE_BADGE_VERTICAL_OVERFLOW_PX,
-);
-assert.strictEqual(padding.top, padding.vertical);
-assert.strictEqual(padding.bottom, padding.vertical);
+assert.strictEqual(padding.horizontal, TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX);
+assert.strictEqual(padding.vertical, TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX);
+assert.strictEqual(padding.top, TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX);
+assert.strictEqual(padding.bottom, TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX);
 
-const noBadgePadding = getTreeViewportPadding({
-    showSkillName: false,
-    showTier: false,
-    hasLeveledNodes: false,
-});
-assert.strictEqual(
-    noBadgePadding.horizontal,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
+const singleNodeBounds = getTreeWorldBounds(
+    [{ x: 0, y: 0, radius: 1 }],
+    { showSkillName: false, showTier: false },
 );
-assert.strictEqual(
-    noBadgePadding.vertical,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
-);
-assert.strictEqual(noBadgePadding.top, TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX);
-assert.strictEqual(
-    noBadgePadding.bottom,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
-);
-
-const tierBadgePadding = getTreeViewportPadding({
-    showSkillName: true,
-    showTier: true,
-    hasLeveledNodes: true,
-});
-assert.strictEqual(
-    tierBadgePadding.top,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
-);
-assert.strictEqual(
-    tierBadgePadding.bottom,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
-);
-assert.strictEqual(
-    tierBadgePadding.vertical,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
-);
-assert.strictEqual(
-    tierBadgePadding.horizontal,
-    TREE_VIEWPORT_EDGE_SPACING_FALLBACK_PX,
-);
-
-const singleNodeBounds = getTreeWorldBounds([{ x: 0, y: 0, radius: 1 }]);
 assert.ok(singleNodeBounds, "Expected single node bounds to exist");
 almostEqual(singleNodeBounds.minX, -32);
 almostEqual(singleNodeBounds.maxX, 32);
-almostEqual(singleNodeBounds.minY, -42);
-almostEqual(singleNodeBounds.maxY, 42);
+almostEqual(singleNodeBounds.minY, -32);
+almostEqual(singleNodeBounds.maxY, 33);
 almostEqual(singleNodeBounds.width, 64);
-almostEqual(singleNodeBounds.height, 84);
+almostEqual(singleNodeBounds.height, 65);
 
-const mixedNodeBounds = getTreeWorldBounds([
-    { x: -20, y: 40, radius: 0.8 },
-    { x: 100, y: -30, radius: 1.2 },
-]);
+const mixedNodeBounds = getTreeWorldBounds(
+    [
+        { x: -20, y: 40, radius: 0.8 },
+        { x: 100, y: -30, radius: 1.2 },
+    ],
+    { showSkillName: false, showTier: false },
+);
 assert.ok(mixedNodeBounds, "Expected mixed-node bounds to exist");
 almostEqual(mixedNodeBounds.minX, -45.6);
 almostEqual(mixedNodeBounds.maxX, 138.4);
-almostEqual(mixedNodeBounds.minY, -78.4);
-almostEqual(mixedNodeBounds.maxY, 75.6);
+almostEqual(mixedNodeBounds.minY, -68.4);
+almostEqual(mixedNodeBounds.maxY, 70.6);
 almostEqual(mixedNodeBounds.width, 184);
-almostEqual(mixedNodeBounds.height, 154);
+almostEqual(mixedNodeBounds.height, 139);
 
 assert.strictEqual(
-    getTreeWorldBounds([]),
+    getTreeWorldBounds([], { showSkillName: false, showTier: false }),
     null,
     "Expected empty-node bounds to be null",
 );

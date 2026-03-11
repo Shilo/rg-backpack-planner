@@ -359,16 +359,6 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
     }
 }
 
-export async function captureTreeImageByIndex(
-    tabIndex: number,
-    bridge: TabsCaptureBridge,
-    _unusedParent?: HTMLElement,
-): Promise<Blob | null> {
-    return withCaptureState(async () => {
-        return await captureLiveTreeBlob(bridge, tabIndex);
-    });
-}
-
 type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 
 async function captureThreeTreeBlobs(
