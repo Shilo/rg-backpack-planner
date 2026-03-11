@@ -102,6 +102,39 @@ html.snapdom-capture .node-badge {
     white-space: nowrap !important;
 }
 
+/* During capture, "available" (unlocked but level 0) nodes should look
+   identical to "locked" — the highlight only helps during interactive planning.
+   Link strokes use CSS variable fallbacks in their inline styles (see
+   getLinkStrokeStyle in Tree.svelte) because snapdom cannot read CSS on SVG. */
+html.snapdom-capture {
+    --capture-link-stroke: var(--node-locked-border);
+    --capture-link-filter: var(--node-brightness-locked);
+}
+
+html.snapdom-capture .node-wrapper.available {
+    --node-icon-color: var(--border-color-locked) !important;
+}
+
+html.snapdom-capture .node-wrapper.available .button.node.available {
+    background: var(--bg-locked) !important;
+    border-color: var(--border-color-locked) !important;
+    color: var(--text-color-locked) !important;
+    filter: var(--filter-locked) !important;
+    --hex-fill: var(--bg-locked);
+    --hex-border-color: var(--border-color-locked);
+}
+
+html.snapdom-capture .node-wrapper.available .node-badge-slot {
+    z-index: calc(var(--z-index-badge) - 1);
+}
+
+/* Hide name badges on unleveled (locked/available) nodes during capture —
+   the name is only useful during interactive planning. */
+html.snapdom-capture .node-wrapper.locked .node-badge-slot-name .node-badge,
+html.snapdom-capture .node-wrapper.available .node-badge-slot-name .node-badge {
+    display: none !important;
+}
+
 button {
     font: inherit;
     user-select: none;

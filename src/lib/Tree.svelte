@@ -369,17 +369,18 @@
     };
 
     function getLinkStrokeStyle(state: NodeState, region: NodeRegion): string {
-        const color =
-            state === "locked"
-                ? "var(--node-locked-border)"
-                : REGION_STROKE_COLOR[region];
-        const filter =
-            state === "locked"
-                ? "var(--node-brightness-locked)"
-                : state === "available"
-                  ? "var(--node-brightness-available)"
-                  : "none";
-        return `stroke: ${color}; filter: ${filter};`;
+        if (state === "locked") {
+            return `stroke: var(--node-locked-border); filter: var(--node-brightness-locked);`;
+        }
+        if (state === "available") {
+            // --capture-link-stroke/filter are only defined during capture
+            // (html.snapdom-capture in app.css), overriding to locked style.
+            // During normal rendering the fallback (region accent) is used.
+            const color = `var(--capture-link-stroke, ${REGION_STROKE_COLOR[region]})`;
+            const filter = `var(--capture-link-filter, var(--node-brightness-available))`;
+            return `stroke: ${color}; filter: ${filter};`;
+        }
+        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: none;`;
     }
 
     let renderNodes: RenderNode[] = [];
