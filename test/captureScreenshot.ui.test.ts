@@ -156,8 +156,10 @@ async function getTreeTransform(page: Page): Promise<string> {
 async function openComposeScreenshot(page: Page): Promise<void> {
     // Click menu button to open side menu
     await page.click('[aria-label="Menu"]');
-    // Click "Share Build" button to open share sub-menu
-    await page.getByRole("button", { name: /Share Build/i }).first().click();
+    // Navigate to Settings tab (Share button lives there, not on the default Statistics tab)
+    await page.getByRole("button", { name: "Settings" }).click();
+    // Click "Share" button to open share sub-menu
+    await page.getByRole("button", { name: /^Share$/i }).first().click();
     // Click "Share screenshot" to open compose modal
     await page.getByRole("button", { name: /Share screenshot/i }).click();
     // Wait for compose modal to appear
