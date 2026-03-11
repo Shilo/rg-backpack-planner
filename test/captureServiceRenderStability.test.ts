@@ -29,3 +29,15 @@ if (!/await snapdom\.toBlob\(\s*captureRoot\s*,\s*SNAPDOM_OPTS\s*\)/.test(normal
     );
 }
 
+if (!/closest\(\s*["']\.tree-root["']\s*\)/.test(normalized)) {
+    throw new Error(
+        "getTreeCanvasSignature should locate the .tree-root ancestor to check its opacity.",
+    );
+}
+
+if (!/getComputedStyle\([^)]+\)\.opacity/.test(normalized)) {
+    throw new Error(
+        "getTreeCanvasSignature should include tree-root computed opacity in the signature to detect in-progress Svelte fade transitions.",
+    );
+}
+

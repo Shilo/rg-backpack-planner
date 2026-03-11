@@ -5,6 +5,10 @@ const captureServicePath = resolve("src/lib/buildImageExport/captureService.ts")
 const captureServiceSource = readFileSync(captureServicePath, "utf8");
 const captureServiceNormalized = captureServiceSource.replace(/\s+/g, " ");
 
+const captureStylesPath = resolve("src/lib/buildImageExport/captureStyles.css");
+const captureStylesSource = readFileSync(captureStylesPath, "utf8");
+const captureStylesNormalized = captureStylesSource.replace(/\s+/g, " ");
+
 if (/preserveNodeVisualStyles\(/.test(captureServiceNormalized)) {
     throw new Error(
         "captureService should not manually rewrite node styles when capturing live DOM.",
@@ -30,5 +34,11 @@ if (
 ) {
     throw new Error(
         "captureService should exclude transient overlays/tooltips from snapdom capture.",
+    );
+}
+
+if (!/html\.snapdom-capture\s+\.node-flash\s*\{[^}]*display:\s*none\s*!important/.test(captureStylesNormalized)) {
+    throw new Error(
+        "captureStyles.css should hide .node-flash elements during capture (display: none !important) to prevent mid-animation flash artifacts.",
     );
 }

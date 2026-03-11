@@ -20,6 +20,7 @@
     import {
         registerTreeBridge,
         unregisterTreeBridge,
+        SNAPDOM_CAPTURE_CLASS,
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
@@ -467,7 +468,7 @@
     }
 
     function isCaptureInProgress() {
-        return document.documentElement.classList.contains("snapdom-capture");
+        return document.documentElement.classList.contains(SNAPDOM_CAPTURE_CLASS);
     }
 
     function handleLevelsChange(nextLevels: number[]) {
@@ -513,7 +514,7 @@
             <div class="tab-buttons">
                 {#each tabs as tab, index}
                     <Button
-                        class={index === activeIndex ? "active" : ""}
+                        class="tab-btn {index === activeIndex ? 'active' : ''}"
                         icon={getTabIcon(tab.id)}
                         iconSize={18}
                         iconClass="tree-tab-icon"
@@ -667,25 +668,27 @@
         z-index: var(--z-index-hud);
     }
 
-    :global(.tab-buttons button) {
+    /* Two-class specificity (0,2,0) reliably beats Button.svelte's scoped
+       `button.svelte-hash` (0,1,1), so !important is not needed here. */
+    :global(.tab-buttons .tab-btn) {
         color: var(--text-muted);
-        padding: 2px var(--spacing-sm) !important;
+        padding: 2px var(--spacing-sm);
         min-height: var(--tab-height);
         border-radius: var(--radius);
         text-transform: uppercase;
         letter-spacing: normal;
-        font-size: var(--font-sm) !important;
+        font-size: var(--font-sm);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: var(--spacing-sm) !important;
+        gap: var(--spacing-sm);
         min-width: 0;
         overflow: hidden;
         container-type: inline-size;
         container-name: tab;
     }
 
-    :global(.tab-buttons button .button-text) {
+    :global(.tab-buttons .tab-btn .button-text) {
         display: contents;
     }
 
@@ -747,7 +750,7 @@
         line-height: 1;
     }
 
-    :global(.tab-buttons button.active .tree-tab-crystals) {
+    :global(.tab-buttons .tab-btn.active .tree-tab-crystals) {
         background: color-mix(in srgb, var(--bg) 60%, transparent);
     }
 
@@ -755,7 +758,7 @@
         color: var(--accent);
     }
 
-    :global(.tab-buttons button.active) {
+    :global(.tab-buttons .tab-btn.active) {
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
         color: var(--text-muted);
         border-color: color-mix(in srgb, var(--accent) 55%, var(--border));

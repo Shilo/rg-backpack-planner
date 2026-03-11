@@ -1,6 +1,6 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
-import { treeBridge, type TreeBridge } from "./treeBridge";
+import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
 import "./captureStyles.css";
 
 let captureInProgressCount = 0;
@@ -17,7 +17,7 @@ const NUM_TREES = 3;
 const CAPTURE_READY_MAX_FRAMES = 24;
 const CAPTURE_STABLE_FRAME_COUNT = 2;
 const COMBINED_TREE_SPACING_PX = 32;
-const CROP_PADDING_PX = 1;
+const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 
 const SNAPDOM_OPTS = {
     type: "png" as const,
@@ -55,12 +55,17 @@ async function waitForPaintFrames(count: number): Promise<void> {
 
 function getTreeCanvasSignature(element: HTMLElement): string {
     const rect = element.getBoundingClientRect();
+    // Include tree-root opacity to detect in-progress Svelte in:fade transitions, which
+    // operate via inline style.opacity and are not suppressed by animation: none !important.
+    const treeRoot = element.closest(".tree-root") as HTMLElement | null;
+    const opacity = treeRoot ? getComputedStyle(treeRoot).opacity : "1";
     return [
         element.style.transform,
         Math.round(rect.width),
         Math.round(rect.height),
         element.querySelectorAll(".node-wrapper").length,
         element.querySelectorAll(".tree-link").length,
+        opacity,
     ].join("|");
 }
 
@@ -361,14 +366,14 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
     const isFirstCall = captureInProgressCount === 0;
     incrementCapture();
     if (isFirstCall) {
-        rootEl?.classList.add("snapdom-capture");
+        rootEl?.classList.add(SNAPDOM_CAPTURE_CLASS);
     }
     try {
         return await callback();
     } finally {
         decrementCapture();
         if (captureInProgressCount === 0) {
-            rootEl?.classList.remove("snapdom-capture");
+            rootEl?.classList.remove(SNAPDOM_CAPTURE_CLASS);
         }
     }
 }

@@ -47,3 +47,10 @@ html.snapdom-capture .node-wrapper.locked .node-badge-slot-name .node-badge,
 html.snapdom-capture .node-wrapper.available .node-badge-slot-name .node-badge {
     display: none !important;
 }
+
+/* Hide mid-animation node flashes during capture. The animation: none rule above
+   freezes any in-flight node-flash at a partial opacity; hiding it entirely avoids
+   the semi-transparent overlay artifact in the exported image. */
+html.snapdom-capture .node-flash {
+    display: none !important;
+}

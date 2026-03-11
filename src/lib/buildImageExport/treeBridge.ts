@@ -1,5 +1,7 @@
 import type { TreeViewState } from "../Tree.svelte";
 
+export const SNAPDOM_CAPTURE_CLASS = "snapdom-capture";
+
 export type TreeBridge = {
     setActive: (index: number) => void;
     getActive: () => number;

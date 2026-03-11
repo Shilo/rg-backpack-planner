@@ -17,13 +17,13 @@ if (!/function withCaptureState<\w+>\(/.test(source)) {
     );
 }
 
-if (!/rootEl\?\.classList\.add\("snapdom-capture"\)/.test(normalized)) {
+if (!/rootEl\?\.classList\.add\(SNAPDOM_CAPTURE_CLASS\)/.test(normalized)) {
     throw new Error(
         "captureService should mark document root during capture to stabilize transitions.",
     );
 }
 
-if (!/rootEl\?\.classList\.remove\("snapdom-capture"\)/.test(normalized)) {
+if (!/rootEl\?\.classList\.remove\(SNAPDOM_CAPTURE_CLASS\)/.test(normalized)) {
     throw new Error(
         "captureService should remove capture state class after capture completes.",
     );
