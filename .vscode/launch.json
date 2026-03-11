@@ -51,6 +51,7 @@
                 "run",
                 "test:ui"
             ],
+            "preLaunchTask": "npm: build",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },

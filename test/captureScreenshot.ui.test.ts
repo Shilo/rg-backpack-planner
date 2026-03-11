@@ -1,3 +1,8 @@
+// Server: Vite preview server on port 4173 (Vite preview default).
+// Requires a production build in dist/ — run "npm run build" or use the "Test UI"
+// launch config (which has preLaunchTask: "npm: build"). Preview is used here because
+// capture tests exercise the fully-built app (CSS inlining, asset bundling) rather than
+// Vite's dev-server transform pipeline.
 import assert from "node:assert/strict";
 import { appendFileSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
