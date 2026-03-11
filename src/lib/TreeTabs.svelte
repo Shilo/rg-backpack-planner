@@ -220,7 +220,7 @@
         const nextId = tabs[activeIndex]?.id ?? "";
         if (hasMounted && nextId && nextId !== lastActiveTabId) {
             lastActiveTabId = nextId;
-            if (!document.documentElement.classList.contains("snapdom-capture")) {
+            if (!isCaptureInProgress()) {
                 void tick().then(() => treeRef?.triggerFade?.());
             }
         }
@@ -462,6 +462,10 @@
             return;
         }
         setActive(index);
+    }
+
+    function isCaptureInProgress() {
+        return document.documentElement.classList.contains("snapdom-capture");
     }
 
     function handleLevelsChange(nextLevels: number[]) {
