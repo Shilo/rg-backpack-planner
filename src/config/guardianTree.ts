@@ -1,13 +1,15 @@
 import { createTree } from "./baseTree";
 import type { SkillId } from "../types/tree";
+import { ShieldIcon } from "phosphor-svelte";
 
-export const uniqueSkillIds: SkillId[] = ["skill_crit", "pierce_resistance", "stun"];
+export const guardianIcon = ShieldIcon;
+export const guardianSkillIds: SkillId[] = ["skill_crit", "pierce_resistance", "stun"];
 
 export const guardianTree = createTree(
     // Yellow Branch
-    [uniqueSkillIds[0], uniqueSkillIds[1]],
+    [guardianSkillIds[0], guardianSkillIds[1]],
     // Orange Branch
-    [uniqueSkillIds[2], uniqueSkillIds[0]],
+    [guardianSkillIds[2], guardianSkillIds[0]],
     // Blue Branch
-    [uniqueSkillIds[2], uniqueSkillIds[1]],
+    [guardianSkillIds[2], guardianSkillIds[1]],
 );

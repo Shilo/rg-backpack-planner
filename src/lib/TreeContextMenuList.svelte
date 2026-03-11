@@ -1,9 +1,6 @@
 <script lang="ts">
     import {
         HexagonIcon,
-        ShieldIcon,
-        SwordIcon,
-        TargetIcon,
         TreeIcon,
     } from "phosphor-svelte";
     import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
@@ -19,9 +16,9 @@
 
     import { SKILL_METADATA } from "../config/skillMetadata";
 
-    import { uniqueSkillIds as guardianSkillIds } from "../config/guardianTree";
-    import { uniqueSkillIds as vanguardSkillIds } from "../config/vanguardTree";
-    import { uniqueSkillIds as cannonSkillIds } from "../config/cannonTree";
+    import { guardianSkillIds, guardianIcon } from "../config/guardianTree";
+    import { vanguardSkillIds, vanguardIcon } from "../config/vanguardTree";
+    import { cannonSkillIds, cannonIcon } from "../config/cannonTree";
     import { sortByDisplayOrder } from "./skillBonusStore";
 
     export let onFocusInView: (() => void) | null = null;
@@ -38,9 +35,9 @@
     export let nodes: Node[] = [];
 
     $: treeIcon = (() => {
-        if (tabId === "guardian") return ShieldIcon;
-        if (tabId === "vanguard") return SwordIcon;
-        if (tabId === "cannon") return TargetIcon;
+        if (tabId === "guardian") return guardianIcon;
+        if (tabId === "vanguard") return vanguardIcon;
+        if (tabId === "cannon") return cannonIcon;
         return TreeIcon;
     })();
 
