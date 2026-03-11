@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { techCrystalIcon } from "./techCrystalIcon";
+import { TechCrystalIcon } from "./customIcons";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned, techCrystalsSpent } from "./techCrystalStore";
 import { tr } from "svelte-whisper";
@@ -18,7 +18,7 @@ export function openTechCrystalsOwnedModal(
                 subject: normalizedSubject,
             })
             : tr("techCrystals.ownedModalTitle"),
-        titleIcon: techCrystalIcon,
+        titleIcon: TechCrystalIcon,
         titleIconWeight: "fill",
         input: {
             label: tr("techCrystals.ownedModalInput", {
@@ -32,7 +32,7 @@ export function openTechCrystalsOwnedModal(
             inputFooterButton: {
                 label: formatNumber(currentSpent),
                 value: currentSpent,
-                icon: techCrystalIcon,
+                icon: TechCrystalIcon,
             },
         }),
         onConfirm: (value) => {

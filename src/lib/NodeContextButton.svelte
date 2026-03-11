@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
+    import { TechCrystalIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { formatNumber } from "./mathUtil";

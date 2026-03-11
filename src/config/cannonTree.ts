@@ -1,8 +1,5 @@
 import { createTree } from "./baseTree";
 import type { SkillId } from "../types/tree";
-import { TargetIcon } from "phosphor-svelte";
-
-export const cannonIcon = TargetIcon;
 export const cannonSkillIds: SkillId[] = ["skill_crit_resistance", "ignore_stun", "damage_reflection_chance"];
 
 export const cannonTree = createTree(

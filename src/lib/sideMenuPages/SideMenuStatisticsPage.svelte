@@ -9,7 +9,7 @@
         TrendUpIcon,
         ArrowFatUpIcon,
 } from "phosphor-svelte";
-    import { techCrystalIcon as TechCrystalIcon } from "../techCrystalIcon";
+    import { TechCrystalIcon } from "../customIcons";
     import { formatNumber, formatPercent } from "../mathUtil";
     import {
         treeLevelsTotal,

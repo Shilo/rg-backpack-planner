@@ -2,7 +2,6 @@
     import {
         TreeIcon,
     } from "phosphor-svelte";
-    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
     import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
     import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
     import type { TreeViewState } from "./Tree.svelte";
@@ -16,9 +15,10 @@
 
     import { SKILL_METADATA } from "../config/skillMetadata";
 
-    import { guardianSkillIds, guardianIcon } from "../config/guardianTree";
-    import { vanguardSkillIds, vanguardIcon } from "../config/vanguardTree";
-    import { cannonSkillIds, cannonIcon } from "../config/cannonTree";
+    import { guardianSkillIds } from "../config/guardianTree";
+    import { vanguardSkillIds } from "../config/vanguardTree";
+    import { cannonSkillIds } from "../config/cannonTree";
+    import { TechCrystalIcon, GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
     import { sortByDisplayOrder } from "./skillBonusStore";
 
     export let onFocusInView: (() => void) | null = null;
@@ -35,9 +35,9 @@
     export let nodes: Node[] = [];
 
     $: treeIcon = (() => {
-        if (tabId === "guardian") return guardianIcon;
-        if (tabId === "vanguard") return vanguardIcon;
-        if (tabId === "cannon") return cannonIcon;
+        if (tabId === "guardian") return GuardianIcon;
+        if (tabId === "vanguard") return VanguardIcon;
+        if (tabId === "cannon") return CannonIcon;
         return TreeIcon;
     })();
 

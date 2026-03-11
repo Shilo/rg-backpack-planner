@@ -1,8 +1,5 @@
 import { createTree } from "./baseTree";
 import type { SkillId } from "../types/tree";
-import { SwordIcon } from "phosphor-svelte";
-
-export const vanguardIcon = SwordIcon;
 export const vanguardSkillIds: SkillId[] = ["pierce_damage", "counterattack_resistance", "critical_hit"];
 
 export const vanguardTree = createTree(

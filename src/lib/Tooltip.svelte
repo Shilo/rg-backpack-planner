@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
+    import { TechCrystalIcon } from "./customIcons";
     import { tooltipStore } from "./tooltip";
     import { portal } from "./portal";
     import { textSize } from "./textSizeStore";

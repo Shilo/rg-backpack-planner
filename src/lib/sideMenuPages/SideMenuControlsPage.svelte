@@ -20,7 +20,7 @@
         MouseScrollIcon,
         SquaresFourIcon,
     } from "phosphor-svelte";
-    import { techCrystalIcon as TechCrystalIcon } from "../techCrystalIcon";
+    import { TechCrystalIcon } from "../customIcons";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";

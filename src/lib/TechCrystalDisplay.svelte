@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { techCrystalIcon as TechCrystalIcon } from "./techCrystalIcon";
+    import { TechCrystalIcon } from "./customIcons";
     import Button from "./Button.svelte";
     import { openTechCrystalsOwnedModal } from "./techCrystalModal";
     import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
