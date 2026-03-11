@@ -32,3 +32,9 @@ if (treeTabsSource.includes('./buildImageExport/captureService')) {
         "TreeTabs.svelte still imports lightweight capture helpers from the heavy capture service",
     );
 }
+
+if (treeTabsSource.includes('./buildImageExport/captureBridge')) {
+    throw new Error(
+        "TreeTabs.svelte should not import from the capture bridge module",
+    );
+}

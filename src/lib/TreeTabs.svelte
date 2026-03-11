@@ -18,9 +18,9 @@
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
     import {
-        isCaptureInProgress,
-        captureAction,
-    } from "./buildImageExport/captureBridge";
+        registerTreeBridge,
+        unregisterTreeBridge,
+    } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import {
         clearLongPress,
@@ -220,7 +220,7 @@
         const nextId = tabs[activeIndex]?.id ?? "";
         if (hasMounted && nextId && nextId !== lastActiveTabId) {
             lastActiveTabId = nextId;
-            if (!isCaptureInProgress()) {
+            if (!document.documentElement.classList.contains("snapdom-capture")) {
                 void tick().then(() => treeRef?.triggerFade?.());
             }
         }
@@ -467,6 +467,17 @@
     function handleLevelsChange(nextLevels: number[]) {
         setTreeLevels(activeIndex, [...nextLevels]);
     }
+
+    function bridgeAction(_node: HTMLElement) {
+        const bridge = {
+            setActive,
+            getActive: () => activeIndex,
+            getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
+            focusActiveTreeInView: () => treeRef?.focusTreeInView?.(false),
+        };
+        registerTreeBridge(bridge);
+        return { destroy: () => unregisterTreeBridge(bridge) };
+    }
 </script>
 
 <div class="tabs-root" bind:this={tabsRootEl}>
@@ -522,12 +533,7 @@
         on:pointerup={clearBackgroundPress}
         on:pointercancel={clearBackgroundPress}
         on:pointerleave={clearBackgroundPress}
-        use:captureAction={{
-            setActive,
-            getActive: () => activeIndex,
-            getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
-            focusActiveTreeInView: () => treeRef?.focusTreeInView?.(false),
-        }}
+        use:bridgeAction
     >
         {#if tabs[activeIndex]}
             {#key tabs[activeIndex].id}

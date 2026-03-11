@@ -1,12 +1,17 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
-import {
-    tabsBridge,
-    captureInProgressCount,
-    incrementCapture,
-    decrementCapture,
-    type TabsCaptureBridge,
-} from "./captureBridge";
+import { treeBridge, type TreeBridge } from "./treeBridge";
+import "./captureStyles.css";
+
+let captureInProgressCount = 0;
+
+function incrementCapture() {
+    captureInProgressCount++;
+}
+
+function decrementCapture() {
+    captureInProgressCount--;
+}
 
 const NUM_TREES = 3;
 const CAPTURE_READY_MAX_FRAMES = 24;
@@ -60,7 +65,7 @@ function getTreeCanvasSignature(element: HTMLElement): string {
 }
 
 async function waitForStableTreeCanvas(
-    bridge: TabsCaptureBridge,
+    bridge: TreeBridge,
     tabIndex: number,
 ): Promise<HTMLElement | null> {
     let stableFrames = 0;
@@ -99,14 +104,14 @@ async function waitForStableTreeCanvas(
     return fallback && fallback.isConnected ? fallback : null;
 }
 
-async function focusActiveTreeForCapture(bridge: TabsCaptureBridge) {
+async function focusActiveTreeForCapture(bridge: TreeBridge) {
     bridge.focusActiveTreeInView?.();
     await tick();
     await waitForPaintFrames(2);
 }
 
 async function captureLiveTreeBlob(
-    bridge: TabsCaptureBridge,
+    bridge: TreeBridge,
     tabIndex: number,
 ): Promise<Blob | null> {
     if (bridge.getActive() !== tabIndex) {
@@ -362,7 +367,7 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
 type ThreeTreeBlobs = [Blob | null, Blob | null, Blob | null];
 
 async function captureThreeTreeBlobs(
-    bridge: TabsCaptureBridge,
+    bridge: TreeBridge,
 ): Promise<ThreeTreeBlobs> {
     const currentIndex = bridge.getActive();
     try {
@@ -379,7 +384,7 @@ async function captureThreeTreeBlobs(
 }
 
 export async function captureCombinedTreesImage(): Promise<Blob | null> {
-    const bridge = tabsBridge;
+    const bridge = treeBridge;
     if (!bridge) return null;
 
     return withCaptureState(async () => {
@@ -395,7 +400,7 @@ export type CaptureAllResult = {
 };
 
 export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
-    const bridge = tabsBridge;
+    const bridge = treeBridge;
     if (!bridge) return null;
 
     return withCaptureState(async () => {
