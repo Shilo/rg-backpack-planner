@@ -366,6 +366,7 @@
         display: grid;
         gap: var(--spacing-md);
         z-index: var(--z-index-context-menu);
+        width: max-content;
         max-width: calc(100vw - 16px);
         cursor: move;
         touch-action: none;
