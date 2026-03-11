@@ -266,7 +266,10 @@
         "downloadedToast": "截图已下载",
         "shareErrorToast": "无法分享截图",
         "shareTooltip": "通过应用分享",
-        "refreshTooltip": "重新生成截图"
+        "refreshTooltip": "重新生成截图",
+        "tabs": {
+            "all": "查看所有技能树"
+        }
     },
     "preview": {
         "title": "预览",

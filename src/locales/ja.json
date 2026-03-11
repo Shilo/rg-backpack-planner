@@ -266,7 +266,10 @@
         "downloadedToast": "スクリーンショットをダウンロードしました",
         "shareErrorToast": "スクリーンショットを共有できません",
         "shareTooltip": "アプリで共有",
-        "refreshTooltip": "スクリーンショットを再生成"
+        "refreshTooltip": "スクリーンショットを再生成",
+        "tabs": {
+            "all": "すべてのツリーを表示"
+        }
     },
     "preview": {
         "title": "プレビュー",

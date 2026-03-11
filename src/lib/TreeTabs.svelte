@@ -5,6 +5,8 @@
 
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
+    import { GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
+    import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
     import { get } from "svelte/store";
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
@@ -41,6 +43,13 @@
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
+
+    function getTabIcon(id: string): Component | null {
+        if (id === "guardian") return GuardianIcon as unknown as Component;
+        if (id === "vanguard") return VanguardIcon as unknown as Component;
+        if (id === "cannon") return CannonIcon as unknown as Component;
+        return null;
+    }
     /** When true, Tab key cycles side menu tabs instead of tree tabs. */
     export let isMenuOpen = false;
     export let activeLabel = "";
@@ -459,6 +468,9 @@
                 {#each tabs as tab, index}
                     <Button
                         class={index === activeIndex ? "active" : ""}
+                        icon={getTabIcon(tab.id)}
+                        iconSize={18}
+                        iconClass="tree-tab-icon"
                         on:click={() => onTabClick(index)}
                         on:contextmenu={(event: Event) =>
                             openTabMenu(getMouseEvent(event), tab, index)}
@@ -641,6 +653,12 @@
         }
     }
 
+    @container tab (max-width: 110px) {
+        :global(.tree-tab-icon) {
+            display: none !important;
+        }
+    }
+
     @container tab (max-width: 95px) {
         .tab-label {
             letter-spacing: 0.01em;
@@ -658,7 +676,7 @@
         letter-spacing: 0.03em;
         min-width: 0;
         max-width: 100%;
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         display: block;
         text-align: center;
         white-space: normal;
