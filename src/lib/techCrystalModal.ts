@@ -9,11 +9,12 @@ export function openTechCrystalsOwnedModal(
     currentOwned: number,
     tooltipSubject?: string,
 ) {
-    const normalizedSubject = tooltipSubject || tr("techCrystals.subjectYour");
+    const defaultSubject = tr("techCrystals.subjectYour");
+    const normalizedSubject = tooltipSubject || defaultSubject;
     const currentSpent = get(techCrystalsSpent);
     openModal({
         type: "input",
-        title: tooltipSubject
+        title: normalizedSubject !== defaultSubject
             ? tr("techCrystals.ownedModalTitleWithSubject", {
                 subject: normalizedSubject,
             })
