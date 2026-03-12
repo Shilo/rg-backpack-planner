@@ -33,7 +33,9 @@ const SNAPDOM_OPTS = {
     backgroundColor: "transparent",
     cache: "disabled" as const,
     outerTransforms: false,
-    outerShadows: true,
+    // Disable on iOS: shadows expand the capture bbox and introduce semi-transparent
+    // fringe pixels that the edge flood-fill can't cleanly remove, leaving halos.
+    outerShadows: !isIOSCaptureBugLikely(),
     exclude: [
         ".tree-context-menu",
         ".tooltip",
