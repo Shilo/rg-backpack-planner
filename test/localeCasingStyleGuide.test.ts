@@ -113,6 +113,7 @@ const KEY_CATEGORIES: Record<string, string> = {
     "modal.resetSettings.confirmLabel":          "button",
     "modal.clearAllData.confirmLabel":           "button",
     "install.buttonLabel":                       "button",
+    "techCrystals.spentLabel":                   "button",
 
     // Modal titles
     "buildPresets.deleteModalTitle":             "modal-title",
