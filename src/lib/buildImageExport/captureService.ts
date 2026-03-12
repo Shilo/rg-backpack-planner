@@ -189,13 +189,9 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        const ios = isIOSCaptureBugLikely();
-        // On iOS, disable outerShadows (shadows bleed outside bbox) and inject a black
-        // background so transparent areas render black instead of iOS Safari's false white.
-        const options = { ...SNAPDOM_OPTS, outerShadows: !ios };
 
-        const doCapture = () => snapdom(captureRoot, options);
-        const result = await (ios
+        const doCapture = () => snapdom(captureRoot, SNAPDOM_OPTS);
+        const result = await (isIOSCaptureBugLikely()
             ? withIOSShadowsAndBackgroundOverride(captureRoot, doCapture)
             : doCapture());
         const canvas = await result.toCanvas();
