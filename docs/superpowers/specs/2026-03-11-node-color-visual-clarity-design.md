@@ -37,9 +37,9 @@ This ensures node colors look the same regardless of theme preset (cyan, blue, r
 | Yellow | 95  | Amber/golden; 57° from orange — distinct for colorblind users |
 | Blue   | 255 | Clean blue; clearly distinct from both warm colors |
 
-OKLCH hue reference: 0=red, 30=red-orange, 38=orange, 95=amber-yellow, 255=blue.
+OKLCH hue reference: 0=red, 30=red-orange, 38=orange, 95=amber-yellow, 175=teal, 255=blue.
 
-Orange (38) and yellow (95) are 57° apart. This is sufficient for colorblind distinction since protanopia/deuteranopia (red-green colorblind) primarily confuse red with green, not orange with yellow. The palette avoids red and green entirely.
+At low chroma (0.11–0.12), the 57° gap between orange and yellow may not be perceptible for colorblind users, especially on wide-gamut AMOLED displays that compress the warm color range. A dedicated colorblind setting (see §5) addresses this by swapping yellow to teal.
 
 ### 3. Chroma Values
 
@@ -67,6 +67,18 @@ Dark accent L=0.63 is the minimum to clear the `--accent-danger` anchor (0.62). 
 | `text-maxed` | 0.85 |
 
 Light mode anchors: accent 0.45, bg-available 0.92, bg-active 0.84, bg-maxed 0.76, text 0.28, text-maxed 0.20.
+
+### 5. Colorblind Setting
+
+At low chroma, both orange (hue 38) and yellow (hue 95) fall in the warm color range. On wide-gamut AMOLED displays (Pixel 8, Samsung Galaxy) with adaptive color profiles, these converge for users with red-green colorblindness — the warm color bucket collapses, making orange and amber indistinguishable.
+
+A "Color-safe tree regions" toggle in **Settings → Look and Feel** replaces yellow's hue with teal (hue 175) when enabled. Teal:
+- Is 137° from orange — crossing the warm/cool boundary that colorblind users can perceive
+- Is 80° from blue — distinct enough to remain a separate region
+- Works for protanopia, deuteranopia, and tritanopia (all major colorblind types)
+- Uses the same chroma and lightness values — no brightness change
+
+Files changed: `src/lib/colorblindTreeColorsStore.ts` (new), `src/lib/themeEngine.ts` (parameter), `src/lib/themeApply.ts` (subscription), `src/lib/sideMenuPages/SideMenuSettingsPage.svelte` (UI), `src/locales/*.json` (i18n).
 
 ---
 
