@@ -22,6 +22,9 @@ const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-
 
 const SNAPDOM_OPTS = {
     type: "png" as const,
+    // Per snapdom docs, backgroundColor is a fallback only for JPG/WebP (which lack alpha).
+    // For PNG it has no effect. On iOS Safari, a white background appears regardless due to
+    // a browser rendering bug (see stripEdgeWhiteBackground below).
     backgroundColor: "transparent",
     cache: "disabled" as const,
     outerTransforms: false,
@@ -120,10 +123,17 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
     await waitForPaintFrames(2);
 }
 
-// iOS Safari renders SVG foreignObject images with a white background when drawn
-// to canvas via drawImage(). This flood-fill removes that false white background
+// iOS Safari renders SVG foreignObject content with a white background when drawn
+// to a canvas via drawImage(). This is a long-standing WebKit rendering bug where
+// the browser fills the foreignObject region with white instead of preserving
+// transparency. Setting snapdom's backgroundColor to "transparent" does not help
+// because the white is injected by Safari during SVG rasterization, after snapdom
+// has already set up the SVG. This flood-fill removes that false white background
 // by making edge-connected white/near-white pixels transparent so that the
 // subsequent cropBlobToContent() can correctly detect actual content bounds.
+// See: https://github.com/bubkoo/html-to-image/issues/361 (same bug in a similar library)
+//      https://bugs.webkit.org/show_bug.cgi?id=156176 (WebKit: foreignObject taints canvas)
+// Fix: https://github.com/zumerlab/snapdom/issues/172 (potential native snapdom fix)
 async function stripEdgeWhiteBackground(blob: Blob): Promise<Blob | null> {
     const image = await blobToImage(blob);
     const { width, height } = getImageIntrinsicSize(image);
