@@ -164,8 +164,8 @@
         "previewButton": "预览",
         "previewButtonTooltip": "预览分享链接、代码或预设构建",
         "shareButton": "分享",
-        "colorblindTreeColors": "Colorblind-safe tree regions",
-        "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow"
+        "colorblindTreeColors": "色觉辅助树",
+        "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"

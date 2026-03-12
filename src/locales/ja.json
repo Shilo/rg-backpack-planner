@@ -164,8 +164,8 @@
         "previewButton": "プレビュー",
         "previewButtonTooltip": "共有リンク、コード、またはプリセットビルドをプレビュー",
         "shareButton": "共有",
-        "colorblindTreeColors": "Colorblind-safe tree regions",
-        "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow"
+        "colorblindTreeColors": "色覚対応ツリー",
+        "colorblindTreeColorsTooltip": "第一色覚・第二色覚・第三色覚異常に対応：オレンジを赤橙色に、黄色をより鮮明な黄色にシフトします"
     },
     "contextMenu": {
         "previewBuildOptions": "ビルドオプションをプレビュー"

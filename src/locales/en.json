@@ -164,7 +164,7 @@
         "previewButton": "Preview",
         "previewButtonTooltip": "Preview share link, code, or premade build",
         "shareButton": "Share",
-        "colorblindTreeColors": "Colorblind-safe tree regions",
+        "colorblindTreeColors": "Colorblind tree",
         "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow"
     },
     "contextMenu": {

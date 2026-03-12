@@ -72,7 +72,7 @@ Light mode anchors: accent 0.45, bg-available 0.92, bg-active 0.84, bg-maxed 0.7
 
 At low chroma, both orange (hue 38) and yellow (hue 95) fall in the warm color range. On wide-gamut AMOLED displays (Pixel 8, Samsung Galaxy) with adaptive color profiles, these converge for colorblind users — the warm color bucket collapses, making orange and amber indistinguishable.
 
-A **"Colorblind-safe tree regions"** toggle in **Settings → Look and Feel** shifts both warm hues when enabled:
+A **"Colorblind tree"** toggle in **Settings → Look and Feel** shifts both warm hues when enabled:
 
 | Region | Default | Colorblind mode |
 |--------|---------|-----------------|
