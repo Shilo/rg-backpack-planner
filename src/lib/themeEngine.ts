@@ -111,6 +111,7 @@ export const SURFACE_L = { dark: 0.24, light: 0.9 } as const;
 export function applyTheme(
     source: ThemeSource,
     mode: "dark" | "light" = "dark",
+    colorblindTreeColors: boolean = false,
 ): void {
     const isDark = mode === "dark";
     const vars: Record<string, string> = {};
@@ -248,10 +249,13 @@ export function applyTheme(
     // Soft, mobile-safe colors — chroma kept at 0.11–0.12 to avoid neon on wide-gamut AMOLED.
     // Orange (hue 38) and amber/yellow (hue 95) are 57° apart for red/green colorblind distinction.
     // Dark accent L=0.63 clears the --accent-danger anchor (0.62) without brightening further.
+    // In colorblind mode, yellow (hue 95) becomes teal (hue 175) — a cool hue that is
+    // perceptually distinct from orange for all colorblind types including protanopia,
+    // deuteranopia, and tritanopia. Teal is 137° from orange and 80° from blue.
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: 38,  chroma: 0.12 }, // warm orange, clearly not red
-        { name: "yellow", hue: 95,  chroma: 0.11 }, // amber/golden, 57° from orange
-        { name: "blue",   hue: 255, chroma: 0.11 }, // clean blue
+        { name: "orange", hue: 38,                          chroma: 0.12 }, // warm orange
+        { name: "yellow", hue: colorblindTreeColors ? 175 : 95, chroma: 0.11 }, // teal or amber
+        { name: "blue",   hue: 255,                         chroma: 0.11 }, // clean blue
     ];
 
     for (const region of regions) {

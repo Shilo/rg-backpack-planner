@@ -163,7 +163,9 @@
         "clearAllDataTooltip": "全データを削除してアプリを再読み込み",
         "previewButton": "プレビュー",
         "previewButtonTooltip": "共有リンク、コード、またはプリセットビルドをプレビュー",
-        "shareButton": "共有"
+        "shareButton": "共有",
+        "colorblindTreeColors": "Color-safe tree regions",
+        "colorblindTreeColorsTooltip": "Use teal instead of yellow for tree regions, for clearer distinction with color blindness"
     },
     "contextMenu": {
         "previewBuildOptions": "ビルドオプションをプレビュー"

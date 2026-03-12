@@ -163,7 +163,9 @@
         "clearAllDataTooltip": "删除所有数据并重新加载应用",
         "previewButton": "预览",
         "previewButtonTooltip": "预览分享链接、代码或预设构建",
-        "shareButton": "分享"
+        "shareButton": "分享",
+        "colorblindTreeColors": "Color-safe tree regions",
+        "colorblindTreeColorsTooltip": "Use teal instead of yellow for tree regions, for clearer distinction with color blindness"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"

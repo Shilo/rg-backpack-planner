@@ -51,6 +51,7 @@
     } from "../nodeLevelBehaviorStore";
     import { showTier } from "../showTierStore";
     import { showSkillName } from "../showSkillNameStore";
+    import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { textSize } from "../textSizeStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -196,6 +197,7 @@
                 textSize.resetToDefault();
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
+                colorblindTreeColors.resetToDefault();
 
                 // Reset locale using the new library helper
                 void resetLocale();
@@ -394,6 +396,13 @@
         ariaLabel={$t("settings.haptics")}
         tooltipText={$t("settings.hapticsTooltip")}
         onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
+    />
+    <ToggleSwitch
+        checked={$colorblindTreeColors}
+        label={$t("settings.colorblindTreeColors")}
+        ariaLabel={$t("settings.colorblindTreeColors")}
+        tooltipText={$t("settings.colorblindTreeColorsTooltip")}
+        onToggle={() => colorblindTreeColors.set(!$colorblindTreeColors)}
     />
     <TextSizeSliderSetting />
 </SideMenuSection>

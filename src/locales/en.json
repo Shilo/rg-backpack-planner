@@ -163,7 +163,9 @@
         "clearAllDataTooltip": "Delete all data and reload the app",
         "previewButton": "Preview",
         "previewButtonTooltip": "Preview share link, code, or premade build",
-        "shareButton": "Share"
+        "shareButton": "Share",
+        "colorblindTreeColors": "Color-safe tree regions",
+        "colorblindTreeColorsTooltip": "Use teal instead of yellow for tree regions, for clearer distinction with color blindness"
     },
     "contextMenu": {
         "previewBuildOptions": "Preview build options"

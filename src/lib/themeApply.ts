@@ -1,6 +1,7 @@
 import { get } from "svelte/store";
 import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
+import { colorblindTreeColors } from "./colorblindTreeColorsStore";
 import { applyTheme, oklchToHex, BG_L, SURFACE_L } from "./themeEngine";
 
 /**
@@ -58,6 +59,7 @@ export function initThemeReactivity(): () => void {
     function apply() {
         const color = get(themeColor);
         const isDark = get(darkMode);
+        const isColorblind = get(colorblindTreeColors);
 
         const neutralC = color.c * (isDark ? 0.14 : 0.12);
         const bgL = isDark ? BG_L.dark : BG_L.light;
@@ -69,7 +71,7 @@ export function initThemeReactivity(): () => void {
         const themeL = bgL * 0.5 + surfaceL * 0.5;
 
         const doApply = () => {
-            applyTheme(color, isDark ? "dark" : "light");
+            applyTheme(color, isDark ? "dark" : "light", isColorblind);
             syncThemeColorMeta(oklchToHex(themeL, neutralC, color.h));
         };
 
@@ -86,9 +88,11 @@ export function initThemeReactivity(): () => void {
     // Subscribe to future changes
     const unsubscribeThemeColor = themeColor.subscribe(apply);
     const unsubscribeDarkMode = darkMode.subscribe(apply);
+    const unsubscribeColorblind = colorblindTreeColors.subscribe(apply);
 
     return () => {
         unsubscribeThemeColor();
         unsubscribeDarkMode();
+        unsubscribeColorblind();
     };
 }
