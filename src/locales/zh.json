@@ -43,15 +43,19 @@
             "build": "构建",
             "node": "节点",
             "view": "视图",
-            "lookAndFeel": "外观",
+            "lookAndFeel": "样式",
             "application": "应用程序",
             "statistics": "统计",
             "touch": "触控",
             "mouse": "鼠标",
             "keyboard": "键盘",
+            "behavior": "行为",
+            "display": "显示",
+            "tree": "树",
             "hud": "HUD（平视显示）",
             "controlsTab": "侧边菜单操作选项卡",
-            "instructions": "使用说明"
+            "instructions": "使用说明",
+            "accessibility": "无障碍"
         }
     },
     "trees": {
@@ -158,7 +162,7 @@
         "reloadWindowTooltip": "刷新页面并加载最新版本",
         "resetSettings": "重置设置",
         "resetSettingsTooltip": "将所有设置恢复为默认值",
-        "clearAllData": "清除所有数据",
+        "clearAllData": "清除所有应用数据",
         "clearAllDataTooltip": "删除所有数据并重新加载应用",
         "previewButton": "预览",
         "previewButtonTooltip": "预览分享链接、代码或预设构建",
@@ -166,7 +170,24 @@
         "uppercaseText": "大写文本",
         "uppercaseTextTooltip": "以大写方式显示所有文本",
         "colorblindTreeColors": "色觉辅助树",
-        "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色"
+        "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色",
+        "pages": {
+            "node": "节点",
+            "nodeDescription": "行为和显示",
+            "appearance": "外观",
+            "appearanceDescription": "样式和树",
+            "general": "通用",
+            "generalDescription": "无障碍、应用程序和存储",
+            "about": "关于应用",
+            "aboutDescription": "信息、链接和说明",
+            "backToSettings": "返回"
+        },
+        "storage": "存储",
+        "advanced": "高级设置",
+        "aboutVersion": "版本",
+        "aboutAuthor": "作者",
+        "aboutSourceCode": "源代码",
+        "aboutGame": "游戏"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"
@@ -347,9 +368,9 @@
             "toast": "设置已恢复为默认值"
         },
         "clearAllData": {
-            "title": "清除所有数据",
-            "message": "删除所有数据并重新加载应用程序。这将重置所有技能树、设置和进度。",
-            "confirmLabel": "清除所有数据"
+            "title": "清除所有应用数据",
+            "message": "删除所有应用数据并重新加载应用程序。这将重置所有技能树、设置和进度。",
+            "confirmLabel": "清除所有应用数据"
         }
     },
     "fullscreen": {

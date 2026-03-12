@@ -43,15 +43,19 @@
             "build": "Build",
             "node": "Node",
             "view": "View",
-            "lookAndFeel": "Look and Feel",
+            "lookAndFeel": "Style",
             "application": "Application",
             "statistics": "Statistics",
             "touch": "Touch",
             "mouse": "Mouse",
             "keyboard": "Keyboard",
+            "behavior": "Behavior",
+            "display": "Display",
+            "tree": "Tree",
             "hud": "HUD (Heads-Up Display)",
             "controlsTab": "Side Menu Controls Tab",
-            "instructions": "Instructions"
+            "instructions": "Instructions",
+            "accessibility": "Accessibility"
         }
     },
     "trees": {
@@ -158,7 +162,7 @@
         "reloadWindowTooltip": "Refresh page and load latest version",
         "resetSettings": "Reset Settings",
         "resetSettingsTooltip": "Restore all settings to defaults",
-        "clearAllData": "Clear All Data",
+        "clearAllData": "Clear All App Data",
         "clearAllDataTooltip": "Delete all data and reload the app",
         "previewButton": "Preview",
         "previewButtonTooltip": "Preview share link, code, or premade build",
@@ -166,7 +170,24 @@
         "uppercaseText": "Uppercase Text",
         "uppercaseTextTooltip": "Display all text in uppercase",
         "colorblindTreeColors": "Colorblind Tree",
-        "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow"
+        "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow",
+        "pages": {
+            "node": "Node",
+            "nodeDescription": "Behavior and Display",
+            "appearance": "Appearance",
+            "appearanceDescription": "Style and Tree",
+            "general": "General",
+            "generalDescription": "Accessibility, Application, and Storage",
+            "about": "About App",
+            "aboutDescription": "Info, Links, and Instructions",
+            "backToSettings": "Back"
+        },
+        "storage": "Storage",
+        "advanced": "Advanced",
+        "aboutVersion": "Version",
+        "aboutAuthor": "Author",
+        "aboutSourceCode": "Source Code",
+        "aboutGame": "Game"
     },
     "contextMenu": {
         "previewBuildOptions": "Preview build options"
@@ -347,9 +368,9 @@
             "toast": "Settings reset to defaults"
         },
         "clearAllData": {
-            "title": "Clear All Data",
-            "message": "Delete all data and reload the application. This will reset all trees, settings, and progress.",
-            "confirmLabel": "Clear All Data"
+            "title": "Clear All App Data",
+            "message": "Delete all app data and reload the application. This will reset all trees, settings, and progress.",
+            "confirmLabel": "Clear All App Data"
         }
     },
     "fullscreen": {

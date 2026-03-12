@@ -80,6 +80,7 @@ const TEST_FILES = [
     "nodeLevelBehaviorSetting.test.ts",
     "showTierSetting.test.ts",
     "uppercaseTextSetting.test.ts",
+    "settingsPaging.test.ts",
     "localeCasingStyleGuide.test.ts",
     "treeLinkParentLevelColor.test.ts",
     "treeTopLeftOrigin.test.ts",

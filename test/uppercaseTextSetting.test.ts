@@ -66,7 +66,7 @@ if (!/cleanupUppercaseText/.test(mainSource)) {
 
 // --- Settings page ---
 
-const settingsPagePath = resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte");
+const settingsPagePath = resolve("src/lib/sideMenuPages/AppearanceSettingsPage.svelte");
 const settingsPageSource = readFileSync(settingsPagePath, "utf8");
 
 if (!/import\s+\{\s*uppercaseText\s*\}\s+from\s+"\.\.\/uppercaseTextStore"/.test(settingsPageSource)) {
@@ -85,8 +85,13 @@ if (!/uppercaseText\.set\(!\$uppercaseText\)/.test(settingsPageSource)) {
     throw new Error("SideMenuSettingsPage toggle should invert uppercaseText store value.");
 }
 
-if (!/uppercaseText\.resetToDefault\(\)/.test(settingsPageSource)) {
-    throw new Error("SideMenuSettingsPage reset should include uppercaseText.resetToDefault().");
+const generalPagePath = resolve("src/lib/sideMenuPages/GeneralSettingsPage.svelte");
+const generalPageSource = readFileSync(generalPagePath, "utf8");
+
+if (!/uppercaseText\.resetToDefault\(\)/.test(generalPageSource)) {
+    throw new Error(
+        "GeneralSettingsPage reset should include uppercaseText.resetToDefault().",
+    );
 }
 
 // --- No bare component-level text-transform: uppercase ---

@@ -146,6 +146,7 @@
                         {onResetAll}
                         {onResetTree}
                         {onFocusInView}
+                        {scrollContentElement}
                     />
                 {:else if activeTab === "statistics" && SideMenuStatisticsPage}
                     <svelte:component this={SideMenuStatisticsPage} />

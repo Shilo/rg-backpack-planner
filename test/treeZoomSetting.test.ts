@@ -84,7 +84,7 @@ if (!/TreeZoomLevel\.CloseUp/.test(treeSource)) {
     throw new Error("Tree should compare close-up mode against TreeZoomLevel enum.");
 }
 
-const settingsPagePath = resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte");
+const settingsPagePath = resolve("src/lib/sideMenuPages/AppearanceSettingsPage.svelte");
 const settingsPageSource = readFileSync(settingsPagePath, "utf8");
 
 if (!/import\s+\{\s*treeZoomScale/.test(settingsPageSource)) {

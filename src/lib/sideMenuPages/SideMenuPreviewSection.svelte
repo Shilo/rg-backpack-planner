@@ -30,8 +30,8 @@
         );
         border-bottom-left-radius: var(--radius);
         border-bottom-right-radius: var(--radius);
-        padding-top: var(--spacing-md);
-        margin-top: 0px !important;
+        padding-top: calc(var(--spacing-md) + var(--safe-top, 0px));
+        margin-top: calc(-1 * (var(--spacing-md) + var(--safe-top, 0px))) !important;
         padding-bottom: var(--spacing-md) !important;
         margin-bottom: -7px;
         padding-left: var(--spacing-md);

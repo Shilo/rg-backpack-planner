@@ -28,7 +28,7 @@ if (!/resetToDefault:\s*\(\)\s*=>\s*\{/.test(showTierStoreSource)) {
     throw new Error("showTierStore should expose resetToDefault().");
 }
 
-const settingsPagePath = resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte");
+const settingsPagePath = resolve("src/lib/sideMenuPages/NodeSettingsPage.svelte");
 const settingsPageSource = readFileSync(settingsPagePath, "utf8");
 
 if (!/import\s+ToggleSwitch\s+from\s+"..\/ToggleSwitch\.svelte"/.test(settingsPageSource)) {
@@ -53,9 +53,12 @@ if (!/showTier\.set\(!\$showTier\)/.test(settingsPageSource)) {
     throw new Error("SideMenuSettingsPage toggle should invert showTier store value.");
 }
 
-if (!/showTier\.resetToDefault\(\)/.test(settingsPageSource)) {
+const generalPagePath = resolve("src/lib/sideMenuPages/GeneralSettingsPage.svelte");
+const generalPageSource = readFileSync(generalPagePath, "utf8");
+
+if (!/showTier\.resetToDefault\(\)/.test(generalPageSource)) {
     throw new Error(
-        "SideMenuSettingsPage reset should include showTier.resetToDefault().",
+        "GeneralSettingsPage reset should include showTier.resetToDefault().",
     );
 }
 

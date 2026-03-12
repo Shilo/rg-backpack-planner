@@ -58,7 +58,7 @@ if (!/DEFAULT_NODE_PRIMARY_ACTION\s*=\s*NodePrimaryAction\.IncrementOne/.test(no
     );
 }
 
-const settingsPagePath = resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte");
+const settingsPagePath = resolve("src/lib/sideMenuPages/NodeSettingsPage.svelte");
 const settingsPageSource = readFileSync(settingsPagePath, "utf8");
 
 if (!/import\s+\{\s*nodePrimaryAction/.test(settingsPageSource)) {

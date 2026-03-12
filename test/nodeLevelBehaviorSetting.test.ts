@@ -63,7 +63,7 @@ if (
     );
 }
 
-const settingsPagePath = resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte");
+const settingsPagePath = resolve("src/lib/sideMenuPages/NodeSettingsPage.svelte");
 const settingsPageSource = readFileSync(settingsPagePath, "utf8");
 
 if (!/import\s+\{\s*nodeLevelBehavior/.test(settingsPageSource)) {
@@ -94,9 +94,12 @@ if (!/isNodeLevelBehavior/.test(settingsPageSource)) {
     );
 }
 
-if (!/nodeLevelBehavior\.resetToDefault\(\)/.test(settingsPageSource)) {
+const generalPagePath = resolve("src/lib/sideMenuPages/GeneralSettingsPage.svelte");
+const generalPageSource = readFileSync(generalPagePath, "utf8");
+
+if (!/nodeLevelBehavior\.resetToDefault\(\)/.test(generalPageSource)) {
     throw new Error(
-        "SideMenuSettingsPage reset should include nodeLevelBehavior.resetToDefault().",
+        "GeneralSettingsPage reset should include nodeLevelBehavior.resetToDefault().",
     );
 }
 
