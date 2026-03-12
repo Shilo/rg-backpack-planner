@@ -253,7 +253,6 @@
         grid-column: 2;
         font-size: inherit;
         color: inherit;
-        text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 
@@ -366,7 +365,6 @@
     .meta-label {
         font-size: var(--font-xs);
         color: var(--text-muted);
-        text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 

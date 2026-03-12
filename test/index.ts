@@ -78,6 +78,7 @@ const TEST_FILES = [
     "nodePrimaryActionSetting.test.ts",
     "nodeLevelBehaviorSetting.test.ts",
     "showTierSetting.test.ts",
+    "uppercaseTextSetting.test.ts",
     "treeLinkParentLevelColor.test.ts",
     "treeTopLeftOrigin.test.ts",
     "fullscreenModalBackground.test.ts",

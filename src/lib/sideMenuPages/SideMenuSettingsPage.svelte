@@ -52,6 +52,7 @@
     import { showTier } from "../showTierStore";
     import { showSkillName } from "../showSkillNameStore";
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
+    import { uppercaseText } from "../uppercaseTextStore";
     import { textSize } from "../textSizeStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -198,6 +199,7 @@
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
                 colorblindTreeColors.resetToDefault();
+                uppercaseText.resetToDefault();
 
                 // Reset locale using the new library helper
                 void resetLocale();
@@ -396,6 +398,13 @@
         ariaLabel={$t("settings.haptics")}
         tooltipText={$t("settings.hapticsTooltip")}
         onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
+    />
+    <ToggleSwitch
+        checked={$uppercaseText}
+        label={$t("settings.uppercaseText")}
+        ariaLabel={$t("settings.uppercaseText")}
+        tooltipText={$t("settings.uppercaseTextTooltip")}
+        onToggle={() => uppercaseText.set(!$uppercaseText)}
     />
     <ToggleSwitch
         checked={$colorblindTreeColors}

@@ -675,7 +675,6 @@
         padding: 2px var(--spacing-sm);
         min-height: var(--tab-height);
         border-radius: var(--radius);
-        text-transform: uppercase;
         letter-spacing: normal;
         font-size: var(--font-sm);
         display: flex;
