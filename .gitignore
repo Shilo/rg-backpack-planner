@@ -41,3 +41,4 @@ docs/plans/
 
 # Claude generated files
 .claude/worktrees/
+.superpowers/
