@@ -17,7 +17,7 @@ function decrementCapture() {
 const NUM_TREES = 3;
 const CAPTURE_READY_MAX_FRAMES = 24;
 const CAPTURE_STABLE_FRAME_COUNT = 2;
-const COMBINED_TREE_SPACING_PX = 16;
+const COMBINED_TREE_SPACING_PX = 0;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 
 
