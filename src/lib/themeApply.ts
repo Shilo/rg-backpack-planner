@@ -3,6 +3,7 @@ import { themeColor } from "./themeColorStore";
 import { darkMode } from "./darkModeStore";
 import { colorblindTreeColors } from "./colorblindTreeColorsStore";
 import { applyTheme, oklchToHex, BG_L, SURFACE_L } from "./themeEngine";
+import { uppercaseText } from "./uppercaseTextStore";
 
 /**
  * Update the browser theme-color meta tag.
@@ -95,4 +96,23 @@ export function initThemeReactivity(): () => void {
         unsubscribeDarkMode();
         unsubscribeColorblind();
     };
+}
+
+/** Subscribe to the uppercaseText store and toggle the .uppercase-text class on <html>. */
+export function initUppercaseTextReactivity(): () => void {
+    function apply() {
+        const isUppercase = get(uppercaseText);
+        if (isUppercase) {
+            document.documentElement.classList.add("uppercase-text");
+        } else {
+            document.documentElement.classList.remove("uppercase-text");
+        }
+    }
+
+    // Apply synchronously to avoid a first-frame flash (same pattern as initThemeReactivity)
+    apply();
+
+    const unsubscribe = uppercaseText.subscribe(apply);
+
+    return unsubscribe;
 }

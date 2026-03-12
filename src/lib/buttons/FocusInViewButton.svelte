@@ -34,5 +34,5 @@
     icon={CubeFocusIcon}
     {disabled}
 >
-    {$t("settings.focusTreeInViewLower")}
+    {$t("settings.focusTreeInView")}
 </Button>

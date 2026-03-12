@@ -1,6 +1,7 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
+import { isIOSCaptureBug, captureWithIOSBackground, getIOSCaptureBg } from "./captureFixIOS";
 import "./captureStyles.css";
 
 let captureInProgressCount = 0;
@@ -16,8 +17,9 @@ function decrementCapture() {
 const NUM_TREES = 3;
 const CAPTURE_READY_MAX_FRAMES = 24;
 const CAPTURE_STABLE_FRAME_COUNT = 2;
-const COMBINED_TREE_SPACING_PX = 32;
+const COMBINED_TREE_SPACING_PX = 0;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
+
 
 const SNAPDOM_OPTS = {
     type: "png" as const,
@@ -119,6 +121,17 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
     await waitForPaintFrames(2);
 }
 
+
+async function canvasToBlob(
+    canvas: HTMLCanvasElement,
+    type = "image/png",
+): Promise<Blob | null> {
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob ?? null), type);
+    });
+}
+
+
 async function captureLiveTreeBlob(
     bridge: TreeBridge,
     tabIndex: number,
@@ -145,8 +158,36 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
-        return await cropBlobToContent(blob);
+        if (!isIOSCaptureBug()) {
+            const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
+            return await cropBlobToContent(blob);
+        }
+
+        const { canvas, bg } = await captureWithIOSBackground(
+            captureRoot,
+            () => snapdom(captureRoot, SNAPDOM_OPTS),
+        );
+        if (!canvas) {
+            return null;
+        }
+
+        const blob = await canvasToBlob(canvas, "image/png");
+        if (!blob) {
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+                clearCanvasAndImages(ctx, canvas);
+            }
+            return null;
+        }
+
+        const finalBlob = await cropBlobToContent(blob, bg.rgb);
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            clearCanvasAndImages(ctx, canvas);
+        }
+
+        return finalBlob;
     } catch (error) {
         console.error("Failed to capture tree image:", error);
         return null;
@@ -180,6 +221,7 @@ function getImageContentBounds(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
+    solidBg?: { r: number; g: number; b: number },
 ) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
@@ -192,10 +234,17 @@ function getImageContentBounds(
         for (let x = 0; x < width; x += 1) {
             const i = (y * width + x) * 4;
             if (data[i + 3] > 0) {
-                minX = Math.min(minX, x);
-                minY = Math.min(minY, y);
-                maxX = Math.max(maxX, x);
-                maxY = Math.max(maxY, y);
+                const isContent = solidBg
+                    ? Math.abs(data[i] - solidBg.r) > 8 ||
+                      Math.abs(data[i + 1] - solidBg.g) > 8 ||
+                      Math.abs(data[i + 2] - solidBg.b) > 8
+                    : true;
+                if (isContent) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
             }
         }
     }
@@ -212,7 +261,10 @@ function getImageContentBounds(
     };
 }
 
-async function cropBlobToContent(blob: Blob): Promise<Blob | null> {
+async function cropBlobToContent(
+    blob: Blob,
+    solidBg?: { r: number; g: number; b: number },
+): Promise<Blob | null> {
     const image = await blobToImage(blob);
     const { width: imageWidth, height: imageHeight } = getImageIntrinsicSize(
         image,
@@ -226,7 +278,7 @@ async function cropBlobToContent(blob: Blob): Promise<Blob | null> {
     }
 
     ctx.drawImage(image, 0, 0);
-    const contentBounds = getImageContentBounds(ctx, imageWidth, imageHeight);
+    const contentBounds = getImageContentBounds(ctx, imageWidth, imageHeight, solidBg);
     image.src = "";
 
     if (!contentBounds) {
@@ -298,6 +350,7 @@ async function combineTreeImagesHorizontally(
     tree1Blob: Blob,
     tree2Blob: Blob,
     tree3Blob: Blob,
+    bgColor?: string,
 ): Promise<Blob | null> {
     try {
         const [img1, img2, img3] = await Promise.all([
@@ -321,6 +374,11 @@ async function combineTreeImagesHorizontally(
         const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) {
             return null;
+        }
+
+        if (bgColor) {
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, totalWidth, maxHeight);
         }
 
         let x = 0;
@@ -413,7 +471,7 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     return withCaptureState(async () => {
         const [b0, b1, b2] = await captureThreeTreeBlobs(bridge);
         if (!b0 || !b1 || !b2) return null;
-        return combineTreeImagesHorizontally(b0, b1, b2);
+        return combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined);
     });
 }
 
@@ -431,7 +489,7 @@ export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
         const [b0, b1, b2] = trees;
         const combined =
             b0 && b1 && b2
-                ? await combineTreeImagesHorizontally(b0, b1, b2)
+                ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined)
                 : null;
         return { combined, trees };
     });

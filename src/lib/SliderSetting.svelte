@@ -218,7 +218,6 @@
         font-size: var(--font-base);
         letter-spacing: var(--tracking);
         color: var(--text-muted);
-        text-transform: uppercase;
     }
 
     .slider-setting__value {

@@ -39,7 +39,7 @@
     pointer-events: auto;
 }
 
-* {
+.uppercase-text * {
     text-transform: uppercase;
 }
 

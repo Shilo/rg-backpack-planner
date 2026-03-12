@@ -556,7 +556,6 @@
         font-weight: 500;
         color: var(--text-muted);
         letter-spacing: var(--tracking);
-        text-transform: uppercase;
         white-space: nowrap;
     }
 
@@ -572,7 +571,6 @@
         font-weight: 500;
         color: var(--text-disabled);
         letter-spacing: var(--tracking);
-        text-transform: uppercase;
         user-select: none;
     }
 

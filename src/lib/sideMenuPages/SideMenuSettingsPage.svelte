@@ -10,6 +10,11 @@
         TrashSimpleIcon,
         EyeIcon,
         GraphIcon,
+        TagIcon,
+        MedalIcon,
+        VibrateIcon,
+        TextAaIcon,
+        PaletteIcon,
     } from "phosphor-svelte";
     import { fade } from "svelte/transition";
     import type { Component } from "svelte";
@@ -52,6 +57,7 @@
     import { showTier } from "../showTierStore";
     import { showSkillName } from "../showSkillNameStore";
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
+    import { uppercaseText } from "../uppercaseTextStore";
     import { textSize } from "../textSizeStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -198,6 +204,7 @@
                 themeColor.resetToDefault();
                 darkMode.resetToDefault();
                 colorblindTreeColors.resetToDefault();
+                uppercaseText.resetToDefault();
 
                 // Reset locale using the new library helper
                 void resetLocale();
@@ -309,6 +316,7 @@
         label={$t("settings.showSkillName")}
         ariaLabel={$t("settings.showSkillName")}
         tooltipText={$t("settings.showSkillNameTooltip")}
+        icon={TagIcon as unknown as Component}
         onToggle={() => showSkillName.set(!$showSkillName)}
     />
     <ToggleSwitch
@@ -316,6 +324,7 @@
         label={$t("settings.showTier")}
         ariaLabel={$t("settings.showTier")}
         tooltipText={$t("settings.showTierTooltip")}
+        icon={MedalIcon as unknown as Component}
         onToggle={() => showTier.set(!$showTier)}
     />
 </SideMenuSection>
@@ -395,6 +404,7 @@
         label={$t("settings.haptics")}
         ariaLabel={$t("settings.haptics")}
         tooltipText={$t("settings.hapticsTooltip")}
+        icon={VibrateIcon as unknown as Component}
         onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
     />
     <ToggleSwitch
@@ -402,7 +412,16 @@
         label={$t("settings.colorblindTreeColors")}
         ariaLabel={$t("settings.colorblindTreeColors")}
         tooltipText={$t("settings.colorblindTreeColorsTooltip")}
+        icon={PaletteIcon as unknown as Component}
         onToggle={() => colorblindTreeColors.set(!$colorblindTreeColors)}
+    />
+    <ToggleSwitch
+        checked={$uppercaseText}
+        label={$t("settings.uppercaseText")}
+        ariaLabel={$t("settings.uppercaseText")}
+        tooltipText={$t("settings.uppercaseTextTooltip")}
+        icon={TextAaIcon as unknown as Component}
+        onToggle={() => uppercaseText.set(!$uppercaseText)}
     />
     <TextSizeSliderSetting />
 </SideMenuSection>

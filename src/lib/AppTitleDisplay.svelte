@@ -62,7 +62,6 @@
         font-weight: var(--weight-bold);
         font-size: var(--font-base) !important;
         letter-spacing: 0.06em;
-        text-transform: uppercase;
         padding: var(--spacing-sm) var(--spacing-lg);
         pointer-events: auto;
         --app-title-display-duration: 2s;

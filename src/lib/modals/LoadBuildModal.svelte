@@ -227,7 +227,6 @@
         font-size: var(--font-base);
         color: var(--text-muted);
         letter-spacing: var(--tracking);
-        text-transform: uppercase;
     }
 
     .modal-input-row {

@@ -389,7 +389,6 @@
         margin: 0;
         font-size: var(--font-base);
         letter-spacing: var(--tracking);
-        text-transform: uppercase;
         color: var(--text-disabled);
         padding-left: var(--spacing-sm);
         overflow-wrap: anywhere;
