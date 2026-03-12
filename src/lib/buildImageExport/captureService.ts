@@ -135,24 +135,7 @@ function isIOSCaptureBugLikely(): boolean {
 //      https://bugs.webkit.org/show_bug.cgi?id=156176 (WebKit: foreignObject taints canvas)
 // Fix: https://github.com/zumerlab/snapdom/issues/172 (potential native snapdom fix)
 const IOS_FALLBACK_BG = "#313338"; // Discord dark mode background
-const NO_SHADOW_CLASS = "snapdom-no-shadow";
-async function withIOSShadowsAndBackgroundOverride<T>(
-    root: HTMLElement,
-    fn: () => Promise<T>,
-): Promise<T> {
-    const style = document.createElement("style");
-    style.textContent =
-        `.${NO_SHADOW_CLASS},.${NO_SHADOW_CLASS} *{box-shadow:none!important;text-shadow:none!important}` +
-        `.${NO_SHADOW_CLASS}{background-color:${IOS_FALLBACK_BG}!important}`;
-    document.head.appendChild(style);
-    root.classList.add(NO_SHADOW_CLASS);
-    try {
-        return await fn();
-    } finally {
-        root.classList.remove(NO_SHADOW_CLASS);
-        style.remove();
-    }
-}
+const IOS_FALLBACK_BG_RGB = { r: 0x31, g: 0x33, b: 0x38 }; // parsed from IOS_FALLBACK_BG
 
 async function canvasToBlob(
     canvas: HTMLCanvasElement,
@@ -195,9 +178,14 @@ async function captureLiveTreeBlob(
             return await cropBlobToContent(blob);
         }
 
-        const doCapture = () => snapdom(captureRoot, SNAPDOM_OPTS);
-        const result = await withIOSShadowsAndBackgroundOverride(captureRoot, doCapture);
-        const canvas = await result.toCanvas();
+        captureRoot.style.setProperty("background-color", IOS_FALLBACK_BG, "important");
+        let canvas: HTMLCanvasElement | null = null;
+        try {
+            const result = await snapdom(captureRoot, SNAPDOM_OPTS);
+            canvas = await result.toCanvas();
+        } finally {
+            captureRoot.style.removeProperty("background-color");
+        }
         if (!canvas) {
             return null;
         }
@@ -211,7 +199,7 @@ async function captureLiveTreeBlob(
             return null;
         }
 
-        const finalBlob = await cropBlobToContent(blob);
+        const finalBlob = await cropBlobToContent(blob, IOS_FALLBACK_BG_RGB);
 
         const ctx = canvas.getContext("2d");
         if (ctx) {
@@ -252,6 +240,7 @@ function getImageContentBounds(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
+    solidBg?: { r: number; g: number; b: number },
 ) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
@@ -263,7 +252,14 @@ function getImageContentBounds(
     for (let y = 0; y < height; y += 1) {
         for (let x = 0; x < width; x += 1) {
             const i = (y * width + x) * 4;
-            if (data[i + 3] > 0) {
+            const isContent = solidBg
+                ? data[i + 3] > 0 && (
+                    Math.abs(data[i] - solidBg.r) > 8 ||
+                    Math.abs(data[i + 1] - solidBg.g) > 8 ||
+                    Math.abs(data[i + 2] - solidBg.b) > 8
+                  )
+                : data[i + 3] > 0;
+            if (isContent) {
                 minX = Math.min(minX, x);
                 minY = Math.min(minY, y);
                 maxX = Math.max(maxX, x);
@@ -284,7 +280,10 @@ function getImageContentBounds(
     };
 }
 
-async function cropBlobToContent(blob: Blob): Promise<Blob | null> {
+async function cropBlobToContent(
+    blob: Blob,
+    solidBg?: { r: number; g: number; b: number },
+): Promise<Blob | null> {
     const image = await blobToImage(blob);
     const { width: imageWidth, height: imageHeight } = getImageIntrinsicSize(
         image,
@@ -298,7 +297,7 @@ async function cropBlobToContent(blob: Blob): Promise<Blob | null> {
     }
 
     ctx.drawImage(image, 0, 0);
-    const contentBounds = getImageContentBounds(ctx, imageWidth, imageHeight);
+    const contentBounds = getImageContentBounds(ctx, imageWidth, imageHeight, solidBg);
     image.src = "";
 
     if (!contentBounds) {
@@ -370,6 +369,7 @@ async function combineTreeImagesHorizontally(
     tree1Blob: Blob,
     tree2Blob: Blob,
     tree3Blob: Blob,
+    bgColor?: string,
 ): Promise<Blob | null> {
     try {
         const [img1, img2, img3] = await Promise.all([
@@ -393,6 +393,11 @@ async function combineTreeImagesHorizontally(
         const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) {
             return null;
+        }
+
+        if (bgColor) {
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, totalWidth, maxHeight);
         }
 
         let x = 0;
@@ -485,7 +490,7 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     return withCaptureState(async () => {
         const [b0, b1, b2] = await captureThreeTreeBlobs(bridge);
         if (!b0 || !b1 || !b2) return null;
-        return combineTreeImagesHorizontally(b0, b1, b2);
+        return combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBugLikely() ? IOS_FALLBACK_BG : undefined);
     });
 }
 
@@ -503,7 +508,7 @@ export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
         const [b0, b1, b2] = trees;
         const combined =
             b0 && b1 && b2
-                ? await combineTreeImagesHorizontally(b0, b1, b2)
+                ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBugLikely() ? IOS_FALLBACK_BG : undefined)
                 : null;
         return { combined, trees };
     });
