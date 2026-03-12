@@ -3,6 +3,7 @@
         CircleIcon,
         EyeIcon,
         GearSixIcon,
+        InfoIcon,
         PaletteIcon,
     } from "phosphor-svelte";
     import Button from "../Button.svelte";
@@ -125,6 +126,13 @@
             description={$t("settings.pages.nodeDescription")}
             onClick={() => onNavigate?.("node")}
             data-page="node"
+        />
+        <SettingsNavButton
+            icon={InfoIcon}
+            title={$t("settings.pages.about")}
+            description={$t("settings.pages.aboutDescription")}
+            onClick={() => onNavigate?.("about")}
+            data-page="about"
         />
     </SideMenuSection>
 </SettingsPage>
