@@ -1,7 +1,7 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
-import { getOSNameKey } from "../systemUtil";
+import { isIOSCaptureBug, captureWithIOSBackground, getIOSCaptureBg } from "./captureFixIOS";
 import "./captureStyles.css";
 
 let captureInProgressCount = 0;
@@ -121,41 +121,6 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
     await waitForPaintFrames(2);
 }
 
-// TODO: Remove this when iOS bug is fixed
-function isIOSCaptureBugLikely(): boolean {
-    return true || getOSNameKey() === "ios";
-}
-
-// iOS Safari renders SVG foreignObject content with a white background due to a
-// long-standing WebKit rendering bug — the browser fills transparent areas with white
-// during SVG rasterization regardless of snapdom's backgroundColor option.
-// Workaround: inject a fallback CSS background on captureRoot so transparent areas render
-// as IOS_FALLBACK_BG rather than iOS white. The exported PNG will have this background on iOS.
-// See: https://github.com/bubkoo/html-to-image/issues/361 (same bug in a similar library)
-//      https://bugs.webkit.org/show_bug.cgi?id=156176 (WebKit: foreignObject taints canvas)
-// Fix: https://github.com/zumerlab/snapdom/issues/172 (potential native snapdom fix)
-// Resolves --bg-modal (with --surface fallback) at runtime so the iOS fallback matches the
-// current theme. Uses a temporary element so the browser converts any CSS value to rgb().
-function getCaptureFallbackBg(): { css: string; rgb: { r: number; g: number; b: number } } {
-    const tmp = document.createElement("div");
-    tmp.style.cssText = "position:absolute;visibility:hidden;background-color:var(--bg-modal,var(--surface))";
-    document.body.appendChild(tmp);
-    const computed = getComputedStyle(tmp).backgroundColor;
-    document.body.removeChild(tmp);
-
-    const match = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (match) {
-        return {
-            css: computed,
-            rgb: {
-                r: parseInt(match[1], 10),
-                g: parseInt(match[2], 10),
-                b: parseInt(match[3], 10),
-            },
-        };
-    }
-    return { css: "black", rgb: { r: 0, g: 0, b: 0 } };
-}
 
 async function canvasToBlob(
     canvas: HTMLCanvasElement,
@@ -193,20 +158,15 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        if (!isIOSCaptureBugLikely()) {
+        if (!isIOSCaptureBug()) {
             const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
             return await cropBlobToContent(blob);
         }
 
-        const fallbackBg = getCaptureFallbackBg();
-        captureRoot.style.setProperty("background-color", fallbackBg.css, "important");
-        let canvas: HTMLCanvasElement | null = null;
-        try {
-            const result = await snapdom(captureRoot, SNAPDOM_OPTS);
-            canvas = await result.toCanvas();
-        } finally {
-            captureRoot.style.removeProperty("background-color");
-        }
+        const { canvas, bg } = await captureWithIOSBackground(
+            captureRoot,
+            () => snapdom(captureRoot, SNAPDOM_OPTS),
+        );
         if (!canvas) {
             return null;
         }
@@ -220,7 +180,7 @@ async function captureLiveTreeBlob(
             return null;
         }
 
-        const finalBlob = await cropBlobToContent(blob, fallbackBg.rgb);
+        const finalBlob = await cropBlobToContent(blob, bg.rgb);
 
         const ctx = canvas.getContext("2d");
         if (ctx) {
@@ -511,7 +471,7 @@ export async function captureCombinedTreesImage(): Promise<Blob | null> {
     return withCaptureState(async () => {
         const [b0, b1, b2] = await captureThreeTreeBlobs(bridge);
         if (!b0 || !b1 || !b2) return null;
-        return combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBugLikely() ? getCaptureFallbackBg().css : undefined);
+        return combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined);
     });
 }
 
@@ -529,7 +489,7 @@ export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
         const [b0, b1, b2] = trees;
         const combined =
             b0 && b1 && b2
-                ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBugLikely() ? getCaptureFallbackBg().css : undefined)
+                ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined)
                 : null;
         return { combined, trees };
     });
