@@ -78,7 +78,7 @@ const RULES: Record<string, StyleRule> = {
     "button":               { casing: "title" },
     "modal-title":          { casing: "title" },
     "section-header":       { casing: "title" },
-    "control-label":        { casing: "sentence" },
+    "control-label":        { casing: "title" },
     "modal-description":    { casing: "sentence", punct: "end" },
     "controls-description": { casing: "sentence", punct: "no-end" },
 };
