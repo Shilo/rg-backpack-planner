@@ -44,20 +44,61 @@ to:
 
 The `.uppercase-text` class is applied to `document.documentElement` (`<html>`).
 
+**Component-level `text-transform: uppercase` declarations must all be removed.** They are redundant when uppercase is on (global rule covers them) but would break the toggle when uppercase is off by forcing uppercase regardless of the user's preference. Remove the following (14 declarations across 13 files):
+
+| File | Line(s) |
+|---|---|
+| `src/lib/AppTitleDisplay.svelte` | 65 |
+| `src/lib/ColorPickerDialog.svelte` | 559, 575 |
+| `src/lib/ContextMenu.svelte` | 392 |
+| `src/lib/PreviewBuildIndicator.svelte` | 120 |
+| `src/lib/SliderSetting.svelte` | 221 |
+| `src/lib/SideMenuSection.svelte` | 34 |
+| `src/lib/TabBar.svelte` | 121 |
+| `src/lib/TreeContextMenuList.svelte` | 256, 369 |
+| `src/lib/TreeTabs.svelte` | 678 |
+| `src/lib/buttons/PreviewBuildsDropdown.svelte` | 142 |
+| `src/lib/modals/InputModal.svelte` | 252 |
+| `src/lib/modals/LoadBuildModal.svelte` | 230 |
+
+**`text-transform: none` overrides stay as-is.** `FabMenu.svelte` (line 79) and `LoadBuildModal.svelte` (line 249) intentionally suppress uppercase for specific elements. When uppercase is on, these correctly override the global rule. When uppercase is off, they are redundant but harmless. Do not remove them.
+
+**Screenshot behavior:** The capture pipeline adds a class to `document.documentElement` during snapdom capture. Since snapdom captures the live DOM, the `.uppercase-text` class will be present or absent on `<html>` depending on the user's toggle, and the scoped CSS rule `.uppercase-text * { text-transform: uppercase }` is included in the capture accordingly. Screenshots therefore respect the user's uppercase setting automatically. This is intentional — no changes to `captureStyles.css` are needed.
+
 ### Reactivity
 
 Add `initUppercaseTextReactivity()` to `src/lib/themeApply.ts`:
 
-- Subscribes to `uppercaseText` store
-- Adds/removes the `uppercase-text` class on `document.documentElement`
-- Called once at app startup alongside `initThemeReactivity()`
-- Returns an unsubscribe function
+- **Applies the class synchronously on call** (before the subscription fires) to avoid a first-frame flash, following the same pattern as `initThemeReactivity()` which calls `apply()` immediately before subscribing
+- Subscribes to `uppercaseText` store; adds `uppercase-text` class when `true`, removes it when `false`
+- Returns an unsubscribe cleanup function
+
+In `src/main.ts`, wire it up alongside `initThemeReactivity()` — call it **before `mount`** at the same location:
+
+```typescript
+const cleanupUppercaseText = initUppercaseTextReactivity();
+```
+
+And include it in the HMR dispose block:
+
+```typescript
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+        unsubLocale();
+        cleanupThemeReactivity();
+        cleanupUppercaseText();          // add this line
+        removeGlobalContextMenuListener();
+        cleanupServiceWorkerAutoUpdate();
+    });
+}
+```
 
 ### Settings UI
 
 In `src/lib/sideMenuPages/SideMenuSettingsPage.svelte`, "Look and Feel" section:
 
 - Add a `ToggleSwitch` for `uppercaseText`, placed above the `colorblindTreeColors` toggle
+- No `icon` prop (consistent with all other `ToggleSwitch` instances in this file)
 - Label: `$t("settings.uppercaseText")`
 - Tooltip: `$t("settings.uppercaseTextTooltip")`
 - `handleResetSettings` includes `uppercaseText.resetToDefault()`
@@ -72,6 +113,8 @@ settings.uppercaseTextTooltip
 English values:
 - `uppercaseText`: `"Uppercase text"`
 - `uppercaseTextTooltip`: `"Display all text in uppercase"`
+
+Japanese and Chinese translations should follow the same patterns used for neighboring settings keys.
 
 ---
 
@@ -112,6 +155,8 @@ English values:
 | `modal.resetSettings.title` | `RESET SETTINGS` | `Reset Settings` |
 | `modal.clearAllData.title` | `CLEAR ALL DATA` | `Clear All Data` |
 
+Note: `preview.loadModalTitle` and `modal.loadBuild.title` are both used but rendered in different locations (preview flow vs. modal host). The duplication is intentional; both are updated to the same value.
+
 **Inconsistent setting/control labels → Sentence case:**
 
 | Key | Before | After |
@@ -119,35 +164,32 @@ English values:
 | `settings.textSize` | `Font Size` | `Font size` |
 | `settings.treeZoom` | `Tree Zoom` | `Tree zoom` |
 | `settings.nodeLevelBehavior` | `Node Level Behavior` | `Node level behavior` |
-| `settings.focusTreeInViewLower` | `Focus tree in view` | *(already correct — used as lowercase variant)* |
 
-**Button labels that are Title Case** (already correct or need verification):
+**Button labels → Title Case (corrections needed):**
 
-| Key | Value | Status |
+| Key | Before | After |
 |---|---|---|
-| `settings.focusTreeInView` | `Focus Tree in View` | ✓ Title Case |
-| `settings.reloadWindow` | `Reload Window` | ✓ Title Case |
-| `settings.resetSettings` | `Reset Settings` | ✓ Title Case |
-| `settings.clearAllData` | `Clear All Data` | ✓ Title Case |
-| `modal.resetTree.confirmLabel` | `Reset {treeLabel}` | ✓ Title Case |
-| `modal.resetTree.buttonLabel` | `Reset {treeName}` | ✓ Title Case |
-| `modal.resetTree.buttonLabelAll` | `Reset all trees` | → `Reset All Trees` |
-| `modal.resetTree.buttonLabelDefault` | `Reset tree` | → `Reset Tree` |
-| `modal.resetTree.confirmLabelDefault` | `Reset` | ✓ Title Case |
+| `modal.resetTree.buttonLabelAll` | `Reset all trees` | `Reset All Trees` |
+| `modal.resetTree.buttonLabelDefault` | `Reset tree` | `Reset Tree` |
 
-### Changes in `ja.json`
+**Already correct (no change):**
 
-Japanese has no uppercase/lowercase distinction. Changes are limited to:
+| Key | Value | Note |
+|---|---|---|
+| `settings.focusTreeInView` | `Focus Tree in View` | Button label ✓ |
+| `settings.focusTreeInViewLower` | `Focus tree in view` | Used in HUD button where lowercase rendering is intentional; excluded from button Title Case rule |
+| `settings.reloadWindow` | `Reload Window` | Button label ✓ |
+| `settings.resetSettings` | `Reset Settings` | Button label ✓ |
+| `settings.clearAllData` | `Clear All Data` | Button label ✓ |
+| `modal.resetTree.confirmLabel` | `Reset {treeLabel}` | Button label ✓ |
+| `modal.resetTree.buttonLabel` | `Reset {treeName}` | Button label ✓ — `{treeName}` is a proper noun supplied at runtime; the static word "Reset" is already Title Case |
+| `modal.resetTree.confirmLabelDefault` | `Reset` | Button label ✓ |
 
-- Punctuation consistency: use full-width parentheses `（）` where the string uses `()` inconsistently
-- Verify spacing around interpolation variables (`{subject}`, `{name}`, etc.) is consistent with surrounding Japanese text
+### Changes in `ja.json` and `zh.json`
 
-### Changes in `zh.json`
+No casing changes (not applicable). No punctuation inconsistencies found — both files already use full-width parentheses `（）` consistently throughout.
 
-Same approach as `ja.json` — no casing changes. Verify:
-
-- Punctuation consistency (`（）` vs `()`)
-- Spacing around interpolation variables
+The only changes to these files are adding the two new i18n keys for the uppercase text setting (`settings.uppercaseText`, `settings.uppercaseTextTooltip`).
 
 ---
 
@@ -157,16 +199,29 @@ Same approach as `ja.json` — no casing changes. Verify:
 |---|---|
 | `src/lib/uppercaseTextStore.ts` | New file |
 | `src/lib/themeApply.ts` | Add `initUppercaseTextReactivity()` |
+| `src/main.ts` | Store cleanup return value; add to HMR dispose block |
 | `src/app.css` | Scope uppercase rule to `.uppercase-text` class |
+| `src/lib/AppTitleDisplay.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/ColorPickerDialog.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/ContextMenu.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/PreviewBuildIndicator.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/SliderSetting.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/SideMenuSection.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/TabBar.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/TreeContextMenuList.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/TreeTabs.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/buttons/PreviewBuildsDropdown.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/modals/InputModal.svelte` | Remove redundant `text-transform: uppercase` |
+| `src/lib/modals/LoadBuildModal.svelte` | Remove redundant `text-transform: uppercase` |
 | `src/lib/sideMenuPages/SideMenuSettingsPage.svelte` | Add toggle, import store, include in reset |
-| `src/locales/en.json` | Casing cleanup throughout |
-| `src/locales/ja.json` | Punctuation consistency |
-| `src/locales/zh.json` | Punctuation consistency |
+| `src/locales/en.json` | Casing cleanup + new i18n keys |
+| `src/locales/ja.json` | New i18n keys only |
+| `src/locales/zh.json` | New i18n keys only |
 
 ---
 
 ## Out of Scope
 
-- No changes to `captureStyles.css` or screenshot export paths
+- No changes to `captureStyles.css`
 - No changes to game data / tree config files
 - No backwards-compatibility shims for the new localStorage key
