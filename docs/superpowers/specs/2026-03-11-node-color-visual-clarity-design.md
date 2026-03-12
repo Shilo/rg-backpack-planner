@@ -12,8 +12,7 @@ The Cursor AI branch attempted to improve tree node colors but introduced four c
 
 1. **Orange hue 18** — maps to red, not orange (too close to OKLCH hue 0 = red)
 2. **Yellow hue 78** — moved *closer* to orange (was 95), opposite of the stated colorblind-safety goal
-3. **Chroma 0.11 uniform** — too low; active/available/locked nodes were muddy and hard to distinguish
-4. **Dark accent L=0.58** — below the system's `--accent-danger` anchor (0.62), making accents visually inconsistent
+3. **Dark accent L=0.58** — below the system's `--accent-danger` anchor (0.62), making accents visually inconsistent
 
 The requirements to meet:
 - Reduce brightness/neon look, especially on mobile
@@ -44,27 +43,28 @@ Orange (38) and yellow (95) are 57° apart. This is sufficient for colorblind di
 
 ### 3. Chroma Values
 
-Each region uses chroma 0.15–0.16 for accent colors. Background variants scale down via multipliers:
+Chroma is kept low (0.11–0.12) to avoid neon appearance on wide-gamut AMOLED Android displays. Modern Android phones use Display P3 or wider, and manufacturers often default to "Vivid" display modes that expand sRGB saturation. Colors that look muted on a calibrated desktop can look eye-bleeding on mobile. Keeping chroma ≤ 0.12 is a safe threshold.
+
+Orange gets a slight bump (0.12 vs 0.11) since the hue correction to 38 is the primary distinction — a tiny chroma boost makes the orange feel present without going vivid.
+
+Background variants scale down via multipliers:
 - `bg-available`: `c × 0.45` — subtle tint, dimmed by `brightness(0.65)` filter
 - `bg-active`: `c × 0.55` — clearly colored
 - `bg-maxed`: `c × 0.60` — slightly richer than active
 
-Background chroma multipliers (dark mode — light mode uses lower values, e.g. `bg-available: c × 0.25`):
+### 4. Dark Mode Lightness
 
-Higher chroma than the Cursor branch (0.11) makes the available state more distinguishable while staying comfortably below neon territory.
+Dark accent L=0.63 is the minimum to clear the `--accent-danger` anchor (0.62). All other dark mode lightness values match the Cursor branch to preserve softness:
 
-### 4. Lightness Anchors Aligned with System Tokens
-
-Dark mode lightness values are chosen to align with the system's existing semantic token anchors, providing visual consistency between node colors and the rest of the UI:
-
-| Variable | Lightness | System Token Reference |
-|----------|-----------|----------------------|
-| `accent` | 0.65 | Midpoint of `--accent-danger` (0.62) and `--accent-success` (0.70) |
-| `bg-available` | 0.22 | `--surface` |
-| `bg-active` | 0.30 | `≈ --bg-raised` (0.28) |
-| `bg-maxed` | 0.38 | `≈ --border` (0.42) |
-| `text` | 0.78 | `--text-muted` |
-| `text-maxed` | 0.88 | `≈ --text` (0.93) |
+| Variable | Lightness |
+|----------|-----------|
+| `accent` | 0.63 |
+| `light` | 0.70 |
+| `bg-available` | 0.22 |
+| `bg-active` | 0.32 |
+| `bg-maxed` | 0.40 |
+| `text` | 0.75 |
+| `text-maxed` | 0.85 |
 
 Light mode anchors: accent 0.45, bg-available 0.92, bg-active 0.84, bg-maxed 0.76, text 0.28, text-maxed 0.20.
 
@@ -76,22 +76,22 @@ All changes are contained in one section of `src/lib/themeEngine.ts` — the `ap
 
 ```typescript
 const regions: { name: string; hue: number; chroma: number }[] = [
-    { name: "orange", hue: 38,  chroma: 0.16 }, // warm orange, clearly not red
-    { name: "yellow", hue: 95,  chroma: 0.15 }, // amber/golden, 57° from orange
-    { name: "blue",   hue: 255, chroma: 0.15 }, // clean blue
+    { name: "orange", hue: 38,  chroma: 0.12 }, // warm orange, clearly not red
+    { name: "yellow", hue: 95,  chroma: 0.11 }, // amber/golden, 57° from orange
+    { name: "blue",   hue: 255, chroma: 0.11 }, // clean blue
 ];
 
 for (const region of regions) {
     const h = region.hue;
     const c = region.chroma;
     if (isDark) {
-        vars[`--region-${region.name}-accent`]       = oklchToHex(0.65, c, h);
-        vars[`--region-${region.name}-light`]        = oklchToHex(0.74, c, h);
+        vars[`--region-${region.name}-accent`]       = oklchToHex(0.63, c, h);
+        vars[`--region-${region.name}-light`]        = oklchToHex(0.70, c, h);
         vars[`--region-${region.name}-bg-available`] = oklchToHex(0.22, c * 0.45, h);
-        vars[`--region-${region.name}-bg-active`]    = oklchToHex(0.30, c * 0.55, h);
-        vars[`--region-${region.name}-bg-maxed`]     = oklchToHex(0.38, c * 0.60, h);
-        vars[`--region-${region.name}-text`]         = oklchToHex(0.78, c * 0.55, h);
-        vars[`--region-${region.name}-text-maxed`]   = oklchToHex(0.88, c * 0.40, h);
+        vars[`--region-${region.name}-bg-active`]    = oklchToHex(0.32, c * 0.55, h);
+        vars[`--region-${region.name}-bg-maxed`]     = oklchToHex(0.40, c * 0.60, h);
+        vars[`--region-${region.name}-text`]         = oklchToHex(0.75, c * 0.55, h);
+        vars[`--region-${region.name}-text-maxed`]   = oklchToHex(0.85, c * 0.40, h);
     } else {
         vars[`--region-${region.name}-accent`]       = oklchToHex(0.45, c, h);
         vars[`--region-${region.name}-light`]        = oklchToHex(0.38, c, h);

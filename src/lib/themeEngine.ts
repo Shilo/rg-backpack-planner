@@ -245,17 +245,13 @@ export function applyTheme(
         : "rgba(0, 0, 0, 0.25)";
 
     // ── Region accent palettes (static, no theme harmonization) ──
-    // Muted but clearly colored — not neon, mobile-friendly.
+    // Soft, mobile-safe colors — chroma kept at 0.11–0.12 to avoid neon on wide-gamut AMOLED.
     // Orange (hue 38) and amber/yellow (hue 95) are 57° apart for red/green colorblind distinction.
-    // Lightness anchors align with the system's token ranges:
-    //   dark accent ~0.65 (midpoint of danger 0.62 / success 0.70)
-    //   dark bg-available 0.22 = --surface; bg-active 0.30 ≈ --bg-raised; bg-maxed 0.38 ≈ --border
-    //   dark text 0.78 = --text-muted; text-maxed 0.88 ≈ --text
-    //   light mode anchors already align with system tokens (unchanged from cursor branch)
+    // Dark accent L=0.63 clears the --accent-danger anchor (0.62) without brightening further.
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: 38,  chroma: 0.16 }, // warm orange, clearly not red
-        { name: "yellow", hue: 95,  chroma: 0.15 }, // amber/golden, 57° from orange
-        { name: "blue",   hue: 255, chroma: 0.15 }, // clean blue
+        { name: "orange", hue: 38,  chroma: 0.12 }, // warm orange, clearly not red
+        { name: "yellow", hue: 95,  chroma: 0.11 }, // amber/golden, 57° from orange
+        { name: "blue",   hue: 255, chroma: 0.11 }, // clean blue
     ];
 
     for (const region of regions) {
@@ -263,30 +259,30 @@ export function applyTheme(
         const c = region.chroma;
 
         if (isDark) {
-            vars[`--region-${region.name}-accent`] = oklchToHex(0.65, c, h);
-            vars[`--region-${region.name}-light`] = oklchToHex(0.74, c, h);
+            vars[`--region-${region.name}-accent`] = oklchToHex(0.63, c, h);
+            vars[`--region-${region.name}-light`] = oklchToHex(0.70, c, h);
             vars[`--region-${region.name}-bg-available`] = oklchToHex(
                 0.22,
                 c * 0.45,
                 h,
             );
             vars[`--region-${region.name}-bg-active`] = oklchToHex(
-                0.30,
+                0.32,
                 c * 0.55,
                 h,
             );
             vars[`--region-${region.name}-bg-maxed`] = oklchToHex(
-                0.38,
+                0.40,
                 c * 0.6,
                 h,
             );
             vars[`--region-${region.name}-text`] = oklchToHex(
-                0.78,
+                0.75,
                 c * 0.55,
                 h,
             );
             vars[`--region-${region.name}-text-maxed`] = oklchToHex(
-                0.88,
+                0.85,
                 c * 0.4,
                 h,
             );
