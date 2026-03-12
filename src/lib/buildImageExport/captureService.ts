@@ -159,15 +159,11 @@ function stripSafariWhiteBackgroundFromCanvas(
     canvas: HTMLCanvasElement,
 ): HTMLCanvasElement {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) {
-        return canvas;
-    }
+    if (!ctx) return canvas;
 
     const width = canvas.width;
     const height = canvas.height;
-    if (!width || !height) {
-        return canvas;
-    }
+    if (!width || !height) return canvas;
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const { data } = imageData;
@@ -185,36 +181,24 @@ function stripSafariWhiteBackgroundFromCanvas(
         data[idx + 3] = 0;
     };
 
-    const seen = new Uint8Array(pixelCount);
     const stack = new Int32Array(pixelCount);
     let stackPtr = 0;
 
     const tryPush = (x: number, y: number) => {
-        if (x < 0 || y < 0 || x >= width || y >= height) {
-            return;
-        }
+        if (x < 0 || y < 0 || x >= width || y >= height) return;
 
         const p = y * width + x;
-        if (seen[p]) {
-            return;
-        }
-
         const idx = p * 4;
         const alpha = data[idx + 3];
 
-        if (alpha < SAFARI_MIN_ALPHA) {
-            return;
-        }
-        if (!isNearWhite(idx, SAFARI_WHITE_THRESHOLD)) {
-            return;
-        }
+        // alpha 0 means either originally transparent or already cleared/visited
+        if (alpha === 0 || alpha < SAFARI_MIN_ALPHA) return;
+        if (!isNearWhite(idx, SAFARI_WHITE_THRESHOLD)) return;
 
-        seen[p] = 1;
         makeTransparent(idx);
         stack[stackPtr++] = p;
     };
 
-    // Seed all edges
     for (let x = 0; x < width; x += 1) {
         tryPush(x, 0);
         tryPush(x, height - 1);
@@ -224,7 +208,6 @@ function stripSafariWhiteBackgroundFromCanvas(
         tryPush(width - 1, y);
     }
 
-    // Flood fill edge-connected white region
     while (stackPtr > 0) {
         const p = stack[--stackPtr];
         const x = p % width;
@@ -236,8 +219,6 @@ function stripSafariWhiteBackgroundFromCanvas(
         tryPush(x, y - 1);
     }
 
-    // Fringe cleanup pass:
-    // Remove pale semi-opaque pixels that touch transparency.
     const snapshot = new Uint8ClampedArray(data);
 
     const alphaAtSnapshot = (p: number) => snapshot[p * 4 + 3];
@@ -260,9 +241,7 @@ function stripSafariWhiteBackgroundFromCanvas(
             const idx = p * 4;
 
             const alpha = snapshot[idx + 3];
-            if (alpha === 0 || alpha > SAFARI_FRINGE_MAX_ALPHA) {
-                continue;
-            }
+            if (alpha === 0 || alpha > SAFARI_FRINGE_MAX_ALPHA) continue;
 
             if (
                 snapshot[idx] < SAFARI_FRINGE_THRESHOLD ||
