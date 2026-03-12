@@ -1,8 +1,20 @@
 import { getOSNameKey } from "../systemUtil";
 
-// TODO: Remove `true ||` when iOS bug is fixed
+function isIPadDesktopModeSafari(): boolean {
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
+        return false;
+    }
+    const platform = navigator.platform.toLowerCase();
+    const userAgent = navigator.userAgent.toLowerCase();
+    return (
+        platform === "macintel" &&
+        navigator.maxTouchPoints > 1 &&
+        userAgent.includes("mobile")
+    );
+}
+
 export function isIOSCaptureBug(): boolean {
-    return true || getOSNameKey() === "ios";
+    return getOSNameKey() === "ios" || isIPadDesktopModeSafari();
 }
 
 export type IosBg = {
@@ -48,13 +60,23 @@ export async function captureWithIOSBackground(
     doCapture: () => Promise<{ toCanvas(): Promise<HTMLCanvasElement | null> }>,
 ): Promise<{ canvas: HTMLCanvasElement | null; bg: IosBg }> {
     const bg = getIOSCaptureBg();
+    const previousColor = root.style.getPropertyValue("background-color");
+    const previousPriority = root.style.getPropertyPriority("background-color");
     root.style.setProperty("background-color", bg.css, "important");
     let canvas: HTMLCanvasElement | null = null;
     try {
         const result = await doCapture();
         canvas = await result.toCanvas();
     } finally {
-        root.style.removeProperty("background-color");
+        if (previousColor) {
+            root.style.setProperty(
+                "background-color",
+                previousColor,
+                previousPriority,
+            );
+        } else {
+            root.style.removeProperty("background-color");
+        }
     }
     return { canvas, bg };
 }

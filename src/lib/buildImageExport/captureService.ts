@@ -233,18 +233,18 @@ function getImageContentBounds(
     for (let y = 0; y < height; y += 1) {
         for (let x = 0; x < width; x += 1) {
             const i = (y * width + x) * 4;
-            const isContent = solidBg
-                ? data[i + 3] > 0 && (
-                    Math.abs(data[i] - solidBg.r) > 8 ||
-                    Math.abs(data[i + 1] - solidBg.g) > 8 ||
-                    Math.abs(data[i + 2] - solidBg.b) > 8
-                )
-                : data[i + 3] > 0;
-            if (isContent) {
-                minX = Math.min(minX, x);
-                minY = Math.min(minY, y);
-                maxX = Math.max(maxX, x);
-                maxY = Math.max(maxY, y);
+            if (data[i + 3] > 0) {
+                const isContent = solidBg
+                    ? Math.abs(data[i] - solidBg.r) > 8 ||
+                      Math.abs(data[i + 1] - solidBg.g) > 8 ||
+                      Math.abs(data[i + 2] - solidBg.b) > 8
+                    : true;
+                if (isContent) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
             }
         }
     }
