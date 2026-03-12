@@ -26,6 +26,7 @@ const SNAPDOM_OPTS = {
     backgroundColor: "transparent",
     cache: "disabled" as const,
     outerTransforms: false,
+    outerShadows: true,
     exclude: [
         ".tree-context-menu",
         ".tooltip",
@@ -189,11 +190,13 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
+        if (!isIOSCaptureBugLikely()) {
+            const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
+            return await cropBlobToContent(blob);
+        }
 
         const doCapture = () => snapdom(captureRoot, SNAPDOM_OPTS);
-        const result = await (isIOSCaptureBugLikely()
-            ? withIOSShadowsAndBackgroundOverride(captureRoot, doCapture)
-            : doCapture());
+        const result = await withIOSShadowsAndBackgroundOverride(captureRoot, doCapture);
         const canvas = await result.toCanvas();
         if (!canvas) {
             return null;
