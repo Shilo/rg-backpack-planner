@@ -424,10 +424,10 @@
         onToggle={() => uppercaseText.set(!$uppercaseText)}
     />
     <TextSizeSliderSetting />
-    <FullscreenToggle />
 </SideMenuSection>
 
 <SideMenuSection title={$t("sideMenu.sections.application")}>
+    <FullscreenToggle />
     <InstallPwaButton title={true} />
     <Button
         on:click={handleReloadWindow}

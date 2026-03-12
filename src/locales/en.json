@@ -58,8 +58,8 @@
         "guardian": "Guardian",
         "vanguard": "Vanguard",
         "cannon": "Cannon",
-        "named": "{label} tree",
-        "generic": "tree",
+        "named": "{label} Tree",
+        "generic": "Tree",
         "rules": [
             "Activate or upgrade Backpack Tech by spending Tech Crystals.",
             "Reaching a certain level in prerequisite nodes unlocks the next tier.",
