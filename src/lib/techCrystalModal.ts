@@ -16,7 +16,7 @@ export function openTechCrystalsOwnedModal(
         type: "input",
         title: normalizedSubject !== defaultSubject
             ? tr("techCrystals.ownedModalTitleWithSubject", {
-                subject: normalizedSubject,
+                subject: normalizedSubject.charAt(0).toUpperCase() + normalizedSubject.slice(1),
             })
             : tr("techCrystals.ownedModalTitle"),
         titleIcon: TechCrystalIcon,
