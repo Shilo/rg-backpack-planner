@@ -12,8 +12,8 @@ try {
     throw new Error("uppercaseTextStore.ts should exist for the uppercase text setting.");
 }
 
-if (!/DEFAULT_UPPERCASE_TEXT\s*=\s*true/.test(storeSource)) {
-    throw new Error("uppercaseTextStore default should be true.");
+if (!/DEFAULT_UPPERCASE_TEXT\s*=\s*false/.test(storeSource)) {
+    throw new Error("uppercaseTextStore default should be false.");
 }
 
 if (!/getItem\("uppercase-text"\)/.test(storeSource)) {

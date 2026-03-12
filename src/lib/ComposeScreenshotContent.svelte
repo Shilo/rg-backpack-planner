@@ -29,6 +29,10 @@
         DEFAULT_SHOW_SKILL_NAME,
     } from "./showSkillNameStore";
     import { textSize, DEFAULT_TEXT_SIZE_NOTCH } from "./textSizeStore";
+    import {
+        uppercaseText,
+        DEFAULT_UPPERCASE_TEXT,
+    } from "./uppercaseTextStore";
     import Button from "./Button.svelte";
 
     export let isOpen = false;
@@ -73,9 +77,11 @@
         const originalShowTier = get(showTier);
         const originalShowSkillName = get(showSkillName);
         const originalTextSizeNotch = get(textSize);
+        const originalUppercaseText = get(uppercaseText);
         showTier.setWithoutPersistence(DEFAULT_SHOW_TIER);
         showSkillName.setWithoutPersistence(DEFAULT_SHOW_SKILL_NAME);
         textSize.setWithoutPersistence(DEFAULT_TEXT_SIZE_NOTCH);
+        uppercaseText.setWithoutPersistence(DEFAULT_UPPERCASE_TEXT);
         try {
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
@@ -98,6 +104,7 @@
             showTier.setWithoutPersistence(originalShowTier);
             showSkillName.setWithoutPersistence(originalShowSkillName);
             textSize.setWithoutPersistence(originalTextSizeNotch);
+            uppercaseText.setWithoutPersistence(originalUppercaseText);
             isLoading = false;
             if (closeRequested) {
                 closeRequested = false;

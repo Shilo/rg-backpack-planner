@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { getItem, setItem, removeItem } from "./storage";
 
-const DEFAULT_UPPERCASE_TEXT = true;
+export const DEFAULT_UPPERCASE_TEXT = false;
 
 function getUppercaseText(): boolean {
     const stored = getItem("uppercase-text");
@@ -20,6 +20,9 @@ function createUppercaseTextStore() {
         subscribe,
         set: (value: boolean) => {
             setUppercaseText(value);
+            set(value);
+        },
+        setWithoutPersistence: (value: boolean) => {
             set(value);
         },
         resetToDefault: () => {

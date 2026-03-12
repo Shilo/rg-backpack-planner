@@ -408,20 +408,20 @@
         onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
     />
     <ToggleSwitch
-        checked={$uppercaseText}
-        label={$t("settings.uppercaseText")}
-        ariaLabel={$t("settings.uppercaseText")}
-        tooltipText={$t("settings.uppercaseTextTooltip")}
-        icon={TextAaIcon as unknown as Component}
-        onToggle={() => uppercaseText.set(!$uppercaseText)}
-    />
-    <ToggleSwitch
         checked={$colorblindTreeColors}
         label={$t("settings.colorblindTreeColors")}
         ariaLabel={$t("settings.colorblindTreeColors")}
         tooltipText={$t("settings.colorblindTreeColorsTooltip")}
         icon={PaletteIcon as unknown as Component}
         onToggle={() => colorblindTreeColors.set(!$colorblindTreeColors)}
+    />
+    <ToggleSwitch
+        checked={$uppercaseText}
+        label={$t("settings.uppercaseText")}
+        ariaLabel={$t("settings.uppercaseText")}
+        tooltipText={$t("settings.uppercaseTextTooltip")}
+        icon={TextAaIcon as unknown as Component}
+        onToggle={() => uppercaseText.set(!$uppercaseText)}
     />
     <TextSizeSliderSetting />
 </SideMenuSection>
