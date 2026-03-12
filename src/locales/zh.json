@@ -163,7 +163,9 @@
         "clearAllDataTooltip": "删除所有数据并重新加载应用",
         "previewButton": "预览",
         "previewButtonTooltip": "预览分享链接、代码或预设构建",
-        "shareButton": "分享"
+        "shareButton": "分享",
+        "colorblindTreeColors": "色觉辅助树",
+        "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"
