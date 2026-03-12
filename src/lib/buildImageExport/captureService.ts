@@ -20,23 +20,10 @@ const CAPTURE_STABLE_FRAME_COUNT = 2;
 const COMBINED_TREE_SPACING_PX = 32;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 
-// Synthetic background injected before iOS capture so that regions which should be
-// transparent get a unique, recognisable color instead of iOS Safari's false white.
-// #FF00FE (near-magenta) is not used anywhere in the tree UI.
-const IOS_CHROMA_R = 255;
-const IOS_CHROMA_G = 0;
-const IOS_CHROMA_B = 254;
-const IOS_CHROMA_TOLERANCE = 10;
-const IOS_CHROMA_CSS = `rgb(${IOS_CHROMA_R},${IOS_CHROMA_G},${IOS_CHROMA_B})`;
-// Any semi-transparent pixel adjacent to a cleared region is treated as fringe.
-const SAFARI_FRINGE_MAX_ALPHA = 220;
 
 const SNAPDOM_OPTS = {
     type: "png" as const,
-    // Per snapdom docs, backgroundColor is a fallback only for JPG/WebP (which lack alpha).
-    // For PNG it has no effect. On iOS Safari, a white background appears regardless due to
-    // a browser rendering bug during SVG foreignObject rasterization.
-    backgroundColor: "#ffffff",
+    backgroundColor: "transparent",
     cache: "disabled" as const,
     outerTransforms: false,
     exclude: [
@@ -138,19 +125,24 @@ function isIOSCaptureBugLikely(): boolean {
     return true || getOSNameKey() === "ios";
 }
 
-// Temporarily injects a stylesheet that suppresses box-shadow and text-shadow on
-// the root and all descendants, then removes it after fn resolves. Used when
-// outerShadows is false so shadow pixels don't bleed outside the capture bbox and
-// confuse the edge flood-fill in stripSafariWhiteBackgroundFromCanvas.
+// iOS Safari renders SVG foreignObject content with a white background due to a
+// long-standing WebKit rendering bug — the browser fills transparent areas with white
+// during SVG rasterization regardless of snapdom's backgroundColor option.
+// Workaround: inject a fallback CSS background on captureRoot so transparent areas render
+// as IOS_FALLBACK_BG rather than iOS white. The exported PNG will have this background on iOS.
+// See: https://github.com/bubkoo/html-to-image/issues/361 (same bug in a similar library)
+//      https://bugs.webkit.org/show_bug.cgi?id=156176 (WebKit: foreignObject taints canvas)
+// Fix: https://github.com/zumerlab/snapdom/issues/172 (potential native snapdom fix)
+const IOS_FALLBACK_BG = "#313338"; // Discord dark mode background
 const NO_SHADOW_CLASS = "snapdom-no-shadow";
-async function withShadowsSuppressed<T>(
+async function withIOSShadowsAndBackgroundOverride<T>(
     root: HTMLElement,
     fn: () => Promise<T>,
 ): Promise<T> {
     const style = document.createElement("style");
     style.textContent =
         `.${NO_SHADOW_CLASS},.${NO_SHADOW_CLASS} *{box-shadow:none!important;text-shadow:none!important}` +
-        `.${NO_SHADOW_CLASS}{background-color:${IOS_CHROMA_CSS}!important}`;
+        `.${NO_SHADOW_CLASS}{background-color:${IOS_FALLBACK_BG}!important}`;
     document.head.appendChild(style);
     root.classList.add(NO_SHADOW_CLASS);
     try {
@@ -170,111 +162,6 @@ async function canvasToBlob(
     });
 }
 
-// iOS Safari renders SVG foreignObject content with a white background when drawn
-// to a canvas via drawImage(). This is a long-standing WebKit rendering bug where
-// the browser fills the foreignObject region with white instead of preserving
-// transparency. Setting snapdom's backgroundColor to "transparent" does not help
-// because the white is injected by Safari during SVG rasterization, after snapdom
-// has already set up the SVG.
-//
-// withShadowsSuppressed injects IOS_CHROMA_CSS as the captureRoot background before
-// the snapdom call, so transparent areas get filled with the chroma key color instead
-// of iOS Safari's white. This function then replaces all chroma key pixels with
-// transparency and removes semi-transparent fringe pixels at content edges.
-// Operates directly on the canvas before PNG encoding to avoid extra round-trips.
-function stripSafariWhiteBackgroundFromCanvas(
-    canvas: HTMLCanvasElement,
-): HTMLCanvasElement {
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return canvas;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    if (!width || !height) return canvas;
-
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const { data } = imageData;
-    const pixelCount = width * height;
-
-    const makeTransparent = (idx: number) => {
-        data[idx] = 0;
-        data[idx + 1] = 0;
-        data[idx + 2] = 0;
-        data[idx + 3] = 0;
-    };
-
-    // Pass 1: Replace all chroma key pixels with transparent.
-    // Works for both edge-connected and interior background regions,
-    // fixing the limitation of the prior edge flood-fill approach.
-    for (let p = 0; p < pixelCount; p++) {
-        const idx = p * 4;
-        if (data[idx + 3] === 0) continue;
-        if (
-            data[idx] >= IOS_CHROMA_R - IOS_CHROMA_TOLERANCE &&
-            data[idx + 1] <= IOS_CHROMA_G + IOS_CHROMA_TOLERANCE &&
-            data[idx + 2] >= IOS_CHROMA_B - IOS_CHROMA_TOLERANCE
-        ) {
-            makeTransparent(idx);
-        }
-    }
-
-    // Pass 2+: Remove fringe pixels adjacent to cleared regions.
-    // Anti-aliasing blends node edge pixels with the chroma key background, producing
-    // two types of fringe:
-    //   a) semi-transparent pixels (alpha ≤ SAFARI_FRINGE_MAX_ALPHA)
-    //   b) fully-opaque pixels whose color was blended with the chroma key, detectable
-    //      via min(R,B) - G > threshold (the "magenta amount" metric). The chroma key
-    //      has no green, so any contamination selectively suppresses G relative to R and B.
-    //      This metric is reliable across all UI colors because all legitimate content
-    //      colors have negative min(R,B)-G scores: red/copper (B≪G → -20), blue (R≪G → -30),
-    //      gold (G≫B → -100), teal (R≪G → -35), dark inactive (R≈G → 0). Threshold=5
-    //      safely catches ~10% chroma key blend without false-positives on any of these.
-    // Run 5 passes to peel multi-pixel fringes on high-dpr captures.
-    const CHROMA_CONTAMINATION_THRESHOLD = 5;
-    const snapshot = new Uint8ClampedArray(data);
-
-    const alphaAtSnapshot = (p: number) => snapshot[p * 4 + 3];
-    // Out-of-bounds neighbors are treated as transparent: canvas edge pixels are
-    // always adjacent to "nothing" and must be checked for fringe contamination.
-    const touchesTransparent = (x: number, y: number) => {
-        if (x === 0 || y === 0 || x === width - 1 || y === height - 1) return true;
-        return (
-            alphaAtSnapshot(y * width + (x - 1)) === 0 ||
-            alphaAtSnapshot(y * width + (x + 1)) === 0 ||
-            alphaAtSnapshot((y - 1) * width + x) === 0 ||
-            alphaAtSnapshot((y + 1) * width + x) === 0
-        );
-    };
-
-    for (let pass = 0; pass < 5; pass += 1) {
-        if (pass > 0) snapshot.set(data);
-        for (let y = 0; y < height; y += 1) {
-            for (let x = 0; x < width; x += 1) {
-                const p = y * width + x;
-                const idx = p * 4;
-
-                if (snapshot[idx + 3] === 0) continue;
-                if (!touchesTransparent(x, y)) continue;
-
-                const alpha = snapshot[idx + 3];
-                const r = snapshot[idx];
-                const g = snapshot[idx + 1];
-                const b = snapshot[idx + 2];
-
-                const isSemiTransparent = alpha <= SAFARI_FRINGE_MAX_ALPHA;
-                const isChromaContaminated =
-                    Math.min(r, b) - g > CHROMA_CONTAMINATION_THRESHOLD;
-
-                if (isSemiTransparent || isChromaContaminated) {
-                    makeTransparent(idx);
-                }
-            }
-        }
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
 
 async function captureLiveTreeBlob(
     bridge: TreeBridge,
@@ -302,23 +189,18 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        // Disable outerShadows on iOS: shadows expand the capture bbox and introduce
-        // semi-transparent fringe pixels that the edge flood-fill can't cleanly remove,
-        // leaving halos.
-        const renderShadows = !isIOSCaptureBugLikely();
-        const options = { ...SNAPDOM_OPTS, outerShadows: renderShadows };
+        const ios = isIOSCaptureBugLikely();
+        // On iOS, disable outerShadows (shadows bleed outside bbox) and inject a black
+        // background so transparent areas render black instead of iOS Safari's false white.
+        const options = { ...SNAPDOM_OPTS, outerShadows: !ios };
 
         const doCapture = () => snapdom(captureRoot, options);
-        const result = await (!renderShadows
-            ? withShadowsSuppressed(captureRoot, doCapture)
+        const result = await (ios
+            ? withIOSShadowsAndBackgroundOverride(captureRoot, doCapture)
             : doCapture());
         const canvas = await result.toCanvas();
         if (!canvas) {
             return null;
-        }
-
-        if (isIOSCaptureBugLikely()) {
-            stripSafariWhiteBackgroundFromCanvas(canvas);
         }
 
         const blob = await canvasToBlob(canvas, "image/png");
