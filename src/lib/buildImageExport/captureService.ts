@@ -30,12 +30,9 @@ const SNAPDOM_OPTS = {
     // Per snapdom docs, backgroundColor is a fallback only for JPG/WebP (which lack alpha).
     // For PNG it has no effect. On iOS Safari, a white background appears regardless due to
     // a browser rendering bug during SVG foreignObject rasterization.
-    backgroundColor: "transparent",
+    backgroundColor: "#ffffff",
     cache: "disabled" as const,
     outerTransforms: false,
-    // Disable on iOS: shadows expand the capture bbox and introduce semi-transparent
-    // fringe pixels that the edge flood-fill can't cleanly remove, leaving halos.
-    outerShadows: !isIOSCaptureBugLikely(),
     exclude: [
         ".tree-context-menu",
         ".tooltip",
@@ -132,7 +129,28 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
 
 // TODO: Remove this when iOS bug is fixed
 function isIOSCaptureBugLikely(): boolean {
-    return getOSNameKey() === "ios";
+    return true || getOSNameKey() === "ios";
+}
+
+// Temporarily injects a stylesheet that suppresses box-shadow and text-shadow on
+// the root and all descendants, then removes it after fn resolves. Used when
+// outerShadows is false so shadow pixels don't bleed outside the capture bbox and
+// confuse the edge flood-fill in stripSafariWhiteBackgroundFromCanvas.
+const NO_SHADOW_CLASS = "snapdom-no-shadow";
+async function withShadowsSuppressed<T>(
+    root: HTMLElement,
+    fn: () => Promise<T>,
+): Promise<T> {
+    const style = document.createElement("style");
+    style.textContent = `.${NO_SHADOW_CLASS},.${NO_SHADOW_CLASS} *{box-shadow:none!important;text-shadow:none!important}`;
+    document.head.appendChild(style);
+    root.classList.add(NO_SHADOW_CLASS);
+    try {
+        return await fn();
+    } finally {
+        root.classList.remove(NO_SHADOW_CLASS);
+        style.remove();
+    }
 }
 
 async function canvasToBlob(
@@ -289,7 +307,16 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        const result = await snapdom(captureRoot, SNAPDOM_OPTS);
+        // Disable outerShadows on iOS: shadows expand the capture bbox and introduce
+        // semi-transparent fringe pixels that the edge flood-fill can't cleanly remove,
+        // leaving halos.
+        const renderShadows = !isIOSCaptureBugLikely();
+        const options = { ...SNAPDOM_OPTS, outerShadows: renderShadows };
+
+        const doCapture = () => snapdom(captureRoot, options);
+        const result = await (!renderShadows
+            ? withShadowsSuppressed(captureRoot, doCapture)
+            : doCapture());
         const canvas = await result.toCanvas();
         if (!canvas) {
             return null;
