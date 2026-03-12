@@ -102,6 +102,7 @@ const KEY_CATEGORIES: Record<string, string> = {
     "settings.nodePrimaryActionTitle":           "control-label",
 
     // Buttons / CTAs
+    "share.shareTo":                             "button",
     "buildPresets.addNew":                       "button",
     "buildPresets.deleteConfirmLabel":            "button",
     "buildPresets.deleteAllConfirmLabel":         "button",

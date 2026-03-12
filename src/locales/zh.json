@@ -152,7 +152,6 @@
         "treeZoomFitOption": "全景（{scale}）",
         "treeZoomCloseUpOption": "近距离（{scale}）",
         "focusTreeInView": "聚焦视图中的技能树",
-        "focusTreeInViewLower": "聚焦视图中的技能树",
         "focusTreeInViewTooltip": "重置缩放和平移以将技能树收入视图",
         "themeModeTooltip": "在深色和浅色主题之间切换",
         "reloadWindow": "重新加载窗口",

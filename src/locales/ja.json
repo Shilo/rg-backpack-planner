@@ -152,7 +152,6 @@
         "treeZoomFitOption": "全体表示（{scale}）",
         "treeZoomCloseUpOption": "拡大表示（{scale}）",
         "focusTreeInView": "ツリーをビューに合わせる",
-        "focusTreeInViewLower": "ツリーをビューに合わせる",
         "focusTreeInViewTooltip": "ズームとパンをリセットしてツリーをビューに収める",
         "themeModeTooltip": "ダークテーマとライトテーマを切り替え",
         "reloadWindow": "ウィンドウを再読み込み",
