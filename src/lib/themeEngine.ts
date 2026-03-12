@@ -249,13 +249,13 @@ export function applyTheme(
     // Soft, mobile-safe colors — chroma kept at 0.11–0.12 to avoid neon on wide-gamut AMOLED.
     // Orange (hue 38) and amber/yellow (hue 95) are 57° apart for red/green colorblind distinction.
     // Dark accent L=0.63 clears the --accent-danger anchor (0.62) without brightening further.
-    // In colorblind mode, yellow (hue 95) becomes teal (hue 175) — a cool hue that is
-    // perceptually distinct from orange for all colorblind types including protanopia,
-    // deuteranopia, and tritanopia. Teal is 137° from orange and 80° from blue.
+    // In colorblind mode: orange shifts to red-orange (hue 20) and yellow to a cleaner
+    // yellow (hue 105), increasing their visual separation and making each color more
+    // distinctly identifiable — helping protanopia, deuteranopia, and tritanopia users.
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: 38,                          chroma: 0.12 }, // warm orange
-        { name: "yellow", hue: colorblindTreeColors ? 175 : 95, chroma: 0.11 }, // teal or amber
-        { name: "blue",   hue: 255,                         chroma: 0.11 }, // clean blue
+        { name: "orange", hue: colorblindTreeColors ? 20 : 38,  chroma: 0.12 }, // red-orange (cb) or warm orange
+        { name: "yellow", hue: colorblindTreeColors ? 105 : 95, chroma: 0.11 }, // yellow (cb) or amber
+        { name: "blue",   hue: 255,                             chroma: 0.11 }, // clean blue
     ];
 
     for (const region of regions) {

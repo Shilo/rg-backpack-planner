@@ -164,8 +164,8 @@
         "previewButton": "预览",
         "previewButtonTooltip": "预览分享链接、代码或预设构建",
         "shareButton": "分享",
-        "colorblindTreeColors": "Color-safe tree regions",
-        "colorblindTreeColorsTooltip": "Use teal instead of yellow for tree regions, for clearer distinction with color blindness"
+        "colorblindTreeColors": "Colorblind-safe tree regions",
+        "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"
