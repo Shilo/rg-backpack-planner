@@ -178,10 +178,16 @@
             "appearanceDescription": "スタイルとツリー",
             "general": "一般",
             "generalDescription": "アクセシビリティ、アプリケーション、ストレージ",
+            "about": "アプリについて",
+            "aboutDescription": "情報、リンク、説明",
             "backToSettings": "戻る"
         },
         "storage": "ストレージ",
-        "advanced": "詳細設定"
+        "advanced": "詳細設定",
+        "aboutVersion": "バージョン",
+        "aboutAuthor": "作者",
+        "aboutSourceCode": "ソースコード",
+        "aboutGame": "ゲーム"
     },
     "contextMenu": {
         "previewBuildOptions": "ビルドオプションをプレビュー"

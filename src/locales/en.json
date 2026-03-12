@@ -178,10 +178,16 @@
             "appearanceDescription": "Style and Tree",
             "general": "General",
             "generalDescription": "Accessibility, Application, and Storage",
+            "about": "About App",
+            "aboutDescription": "Info, Links, and Instructions",
             "backToSettings": "Back"
         },
         "storage": "Storage",
-        "advanced": "Advanced"
+        "advanced": "Advanced",
+        "aboutVersion": "Version",
+        "aboutAuthor": "Author",
+        "aboutSourceCode": "Source Code",
+        "aboutGame": "Game"
     },
     "contextMenu": {
         "previewBuildOptions": "Preview build options"

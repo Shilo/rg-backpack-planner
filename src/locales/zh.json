@@ -178,10 +178,16 @@
             "appearanceDescription": "样式和树",
             "general": "通用",
             "generalDescription": "无障碍、应用程序和存储",
+            "about": "关于应用",
+            "aboutDescription": "信息、链接和说明",
             "backToSettings": "返回"
         },
         "storage": "存储",
-        "advanced": "高级设置"
+        "advanced": "高级设置",
+        "aboutVersion": "版本",
+        "aboutAuthor": "作者",
+        "aboutSourceCode": "源代码",
+        "aboutGame": "游戏"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"
