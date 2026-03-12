@@ -39,7 +39,7 @@
         gap: var(--spacing-md);
         width: 100%;
         min-height: 38px;
-        padding: var(--spacing-sm) var(--spacing-lg);
+        padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-lg);
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
