@@ -1,82 +1,177 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function parseLocale(path: string): Record<string, any> {
     return JSON.parse(readFileSync(resolve(path), "utf8"));
 }
 
-function get(obj: Record<string, any>, path: string): unknown {
-    return path.split(".").reduce((o: any, k: string) => o?.[k], obj);
+function get(obj: Record<string, any>, path: string): string {
+    const value = path.split(".").reduce((o: any, k: string) => o?.[k], obj);
+    if (typeof value !== "string") throw new Error(`Key not found or not a string: "${path}"`);
+    return value;
 }
 
-function assertEq(locale: Record<string, any>, path: string, expected: string, code: string): void {
-    const actual = get(locale, path);
-    if (actual !== expected) {
-        throw new Error(`[${code}] ${path}:\n  expected: "${expected}"\n  got:      "${actual}"`);
+// ---------------------------------------------------------------------------
+// Casing validators
+// ---------------------------------------------------------------------------
+
+/** Prepositions, conjunctions, and articles that stay lowercase in title case
+ *  (unless first or last token in the string). */
+const SMALL_WORDS = new Set([
+    "a", "an", "the", "and", "but", "or", "for", "nor",
+    "on", "at", "to", "by", "in", "of", "up", "as", "is", "it", "its", "via", "vs",
+]);
+
+function isTemplateVar(token: string): boolean {
+    return token.startsWith("{") && token.endsWith("}");
+}
+
+/** Every content word capitalized; small words lowercase except at token edges. */
+function isTitleCase(str: string): boolean {
+    const tokens = str.split(" ");
+    const last = tokens.length - 1;
+    for (let i = 0; i <= last; i++) {
+        const tok = tokens[i];
+        if (isTemplateVar(tok)) continue;
+        const isEdge = i === 0 || i === last;
+        if (SMALL_WORDS.has(tok.toLowerCase()) && !isEdge) {
+            if (tok[0] !== tok[0].toLowerCase()) return false;
+        } else {
+            if (!tok[0] || tok[0] !== tok[0].toUpperCase()) return false;
+        }
+    }
+    return true;
+}
+
+/** First real word capitalized; all subsequent real words lowercase. */
+function isSentenceCase(str: string): boolean {
+    const tokens = str.split(" ");
+    let seenFirst = false;
+    for (const tok of tokens) {
+        if (isTemplateVar(tok)) continue;
+        if (!seenFirst) {
+            seenFirst = true;
+            if (!tok[0] || tok[0] !== tok[0].toUpperCase()) return false;
+        } else {
+            if (tok[0] !== tok[0].toLowerCase()) return false;
+        }
+    }
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// Style rule definitions
+// ---------------------------------------------------------------------------
+
+interface StyleRule {
+    /** Casing to enforce for Latin-script locales; skipped for CJK. */
+    casing?: "title" | "sentence";
+    /** Punctuation rule applied to all locales. */
+    punct?: "end" | "no-end";
+}
+
+const RULES: Record<string, StyleRule> = {
+    "button":               { casing: "title" },
+    "modal-title":          { casing: "title" },
+    "section-header":       { casing: "title" },
+    "control-label":        { casing: "sentence" },
+    "modal-description":    { casing: "sentence", punct: "end" },
+    "controls-description": { casing: "sentence", punct: "no-end" },
+};
+
+/** Period character per locale. */
+const PERIOD: Record<string, string> = { en: ".", ja: "。", zh: "。" };
+
+/** Locales that use non-Latin scripts — casing checks are skipped for these. */
+const CJK_LOCALES = new Set(["ja", "zh"]);
+
+// ---------------------------------------------------------------------------
+// Key manifest: locale key → category
+// ---------------------------------------------------------------------------
+
+const KEY_CATEGORIES: Record<string, string> = {
+    // Section headers
+    "sideMenu.sections.lookAndFeel":             "section-header",
+    "sideMenu.sections.controlsTab":             "section-header",
+
+    // Control labels (SegmentedControl label props)
+    "settings.nodePrimaryActionTitle":           "control-label",
+
+    // Buttons / CTAs
+    "buildPresets.addNew":                       "button",
+    "buildPresets.deleteConfirmLabel":            "button",
+    "buildPresets.deleteAllConfirmLabel":         "button",
+    "share.copyScreenshot":                      "button",
+    "preview.sharePreviewBuild":                 "button",
+    "preview.loadModalConfirmLabel":             "button",
+    "modal.previewBuildLabel":                   "button",
+    "modal.resetSettings.confirmLabel":          "button",
+    "modal.clearAllData.confirmLabel":           "button",
+    "install.buttonLabel":                       "button",
+
+    // Modal titles
+    "buildPresets.deleteModalTitle":             "modal-title",
+    "buildPresets.deleteAllModalTitle":          "modal-title",
+
+    // Modal descriptions (sentence case + period at end)
+    "buildPresets.renameModalMessage":           "modal-description",
+    "buildPresets.newModalMessage":              "modal-description",
+
+    // Controls descriptions (sentence case + no trailing period)
+    "controls.keyboardBackspaceResetDescription": "controls-description",
+    "controls.hudPreviewIndicatorDescription":    "controls-description",
+};
+
+// ---------------------------------------------------------------------------
+// Validation
+// ---------------------------------------------------------------------------
+
+function validateKey(
+    locale: Record<string, any>,
+    key: string,
+    category: string,
+    localeName: string,
+): void {
+    const value = get(locale, key);
+    const rule = RULES[category];
+    const isCJK = CJK_LOCALES.has(localeName);
+
+    if (rule.casing && !isCJK) {
+        if (rule.casing === "title" && !isTitleCase(value)) {
+            throw new Error(`[${localeName}] ${key}: expected Title Case\n  got: "${value}"`);
+        }
+        if (rule.casing === "sentence" && !isSentenceCase(value)) {
+            throw new Error(`[${localeName}] ${key}: expected Sentence case\n  got: "${value}"`);
+        }
+    }
+
+    if (rule.punct) {
+        const period = PERIOD[localeName] ?? ".";
+        if (rule.punct === "end" && !value.endsWith(period)) {
+            throw new Error(`[${localeName}] ${key}: should end with "${period}"\n  got: "${value}"`);
+        }
+        if (rule.punct === "no-end" && value.endsWith(period)) {
+            throw new Error(`[${localeName}] ${key}: should NOT end with "${period}"\n  got: "${value}"`);
+        }
     }
 }
 
-function assertEndsWith(locale: Record<string, any>, path: string, suffix: string, code: string): void {
-    const actual = get(locale, path) as string;
-    if (!actual.endsWith(suffix)) {
-        throw new Error(`[${code}] ${path}: should end with "${suffix}", got "${actual}"`);
+// ---------------------------------------------------------------------------
+// Run
+// ---------------------------------------------------------------------------
+
+const LOCALES: Record<string, Record<string, any>> = {
+    en: parseLocale("src/locales/en.json"),
+    ja: parseLocale("src/locales/ja.json"),
+    zh: parseLocale("src/locales/zh.json"),
+};
+
+for (const [key, category] of Object.entries(KEY_CATEGORIES)) {
+    for (const [localeName, locale] of Object.entries(LOCALES)) {
+        validateKey(locale, key, category, localeName);
     }
 }
-
-function assertNotEndsWith(locale: Record<string, any>, path: string, suffix: string, code: string): void {
-    const actual = get(locale, path) as string;
-    if (actual.endsWith(suffix)) {
-        throw new Error(`[${code}] ${path}: should NOT end with "${suffix}", got "${actual}"`);
-    }
-}
-
-const en = parseLocale("src/locales/en.json");
-const ja = parseLocale("src/locales/ja.json");
-const zh = parseLocale("src/locales/zh.json");
-
-// --- en: Section headers → Title Case ---
-assertEq(en, "sideMenu.sections.lookAndFeel", "Look and Feel", "en");
-assertEq(en, "sideMenu.sections.controlsTab", "Side Menu Controls Tab", "en");
-
-// --- en: Control labels (SegmentedControl) → Sentence case ---
-assertEq(en, "settings.nodePrimaryActionTitle", "Node {primaryAction} action", "en");
-
-// --- en: Buttons → Title Case ---
-assertEq(en, "buildPresets.addNew", "Add New", "en");
-assertEq(en, "buildPresets.deleteConfirmLabel", "Delete Preset", "en");
-assertEq(en, "buildPresets.deleteAllConfirmLabel", "Delete All", "en");
-assertEq(en, "share.copyScreenshot", "Share Screenshot", "en");
-assertEq(en, "preview.sharePreviewBuild", "Share Preview Build", "en");
-assertEq(en, "preview.loadModalConfirmLabel", "Preview Build", "en");
-assertEq(en, "modal.previewBuildLabel", "Preview Build", "en");
-assertEq(en, "modal.resetSettings.confirmLabel", "Reset Settings", "en");
-assertEq(en, "modal.clearAllData.confirmLabel", "Clear All Data", "en");
-assertEq(en, "install.buttonLabel", "Install App on {osName}", "en");
-
-// --- en: Modal titles → Title Case ---
-assertEq(en, "buildPresets.deleteModalTitle", "Delete Build Preset", "en");
-assertEq(en, "buildPresets.deleteAllModalTitle", "Delete All Presets", "en");
-
-// --- en: Modal descriptions → period at end ---
-assertEndsWith(en, "buildPresets.renameModalMessage", ".", "en");
-assertEndsWith(en, "buildPresets.newModalMessage", ".", "en");
-
-// --- en: Controls descriptions → no trailing period ---
-assertNotEndsWith(en, "controls.keyboardBackspaceResetDescription", ".", "en");
-assertNotEndsWith(en, "controls.hudPreviewIndicatorDescription", ".", "en");
-
-// --- ja: Modal descriptions → 。at end ---
-assertEndsWith(ja, "buildPresets.renameModalMessage", "。", "ja");
-assertEndsWith(ja, "buildPresets.newModalMessage", "。", "ja");
-
-// --- ja: Controls descriptions → no trailing 。---
-assertNotEndsWith(ja, "controls.keyboardBackspaceResetDescription", "。", "ja");
-assertNotEndsWith(ja, "controls.hudPreviewIndicatorDescription", "。", "ja");
-
-// --- zh: Modal descriptions → 。at end ---
-assertEndsWith(zh, "buildPresets.renameModalMessage", "。", "zh");
-assertEndsWith(zh, "buildPresets.newModalMessage", "。", "zh");
-
-// --- zh: Controls descriptions → no trailing 。---
-assertNotEndsWith(zh, "controls.keyboardBackspaceResetDescription", "。", "zh");
-assertNotEndsWith(zh, "controls.hudPreviewIndicatorDescription", "。", "zh");
