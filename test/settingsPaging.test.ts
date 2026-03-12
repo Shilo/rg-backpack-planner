@@ -10,6 +10,8 @@ const pageFiles = [
     "src/lib/sideMenuPages/NodeSettingsPage.svelte",
     "src/lib/sideMenuPages/AppearanceSettingsPage.svelte",
     "src/lib/sideMenuPages/GeneralSettingsPage.svelte",
+    "src/lib/sideMenuPages/AboutSettingsPage.svelte",
+    "src/lib/sideMenuPages/SettingsLinkItem.svelte",
 ];
 
 for (const file of pageFiles) {
@@ -45,6 +47,10 @@ if (!/await import\("\.\/GeneralSettingsPage\.svelte"\)/.test(shellSource)) {
     throw new Error("Shell should lazy-import GeneralSettingsPage.svelte.");
 }
 
+if (!/await import\("\.\/AboutSettingsPage\.svelte"\)/.test(shellSource)) {
+    throw new Error("Shell should lazy-import AboutSettingsPage.svelte.");
+}
+
 // --- RootSettingsPage has navigation buttons ---
 
 const rootSource = readFileSync(
@@ -66,6 +72,10 @@ if (!/data-page="appearance"/.test(rootSource)) {
 
 if (!/data-page="general"/.test(rootSource)) {
     throw new Error('RootSettingsPage should have data-page="general" for focus restoration.');
+}
+
+if (!/data-page="about"/.test(rootSource)) {
+    throw new Error('RootSettingsPage should have data-page="about" for focus restoration.');
 }
 
 // --- SettingsPage base component ---
@@ -98,8 +108,8 @@ if (!/dangerZone/.test(generalSource)) {
     throw new Error("GeneralSettingsPage should use the dangerZone slot.");
 }
 
-if (!/settings\.dangerZone/.test(generalSource)) {
-    throw new Error("GeneralSettingsPage should use the settings.dangerZone i18n key.");
+if (!/settings\.storage/.test(generalSource)) {
+    throw new Error("GeneralSettingsPage should use the settings.storage i18n key.");
 }
 
 // --- Locale keys exist ---
@@ -117,6 +127,8 @@ const requiredKeys = [
     "appearanceDescription",
     "general",
     "generalDescription",
+    "about",
+    "aboutDescription",
     "backToSettings",
 ];
 
@@ -133,8 +145,8 @@ for (const localePath of localePaths) {
             );
         }
     }
-    if (!localeData?.settings?.dangerZone) {
-        throw new Error(`${localePath}: settings.dangerZone translation is required.`);
+    if (!localeData?.settings?.storage) {
+        throw new Error(`${localePath}: settings.storage translation is required.`);
     }
     if (!localeData?.settings?.advanced) {
         throw new Error(`${localePath}: settings.advanced translation is required.`);
