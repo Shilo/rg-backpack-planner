@@ -88,6 +88,18 @@
                 {/if}
             </button>
         </div>
+        <ToggleSwitch
+            checked={$uppercaseText}
+            label={$t("settings.uppercaseText")}
+            ariaLabel={$t("settings.uppercaseText")}
+            tooltipText={$t("settings.uppercaseTextTooltip")}
+            icon={TextAaIcon as unknown as Component}
+            onToggle={() => uppercaseText.set(!$uppercaseText)}
+        />
+        <TextSizeSliderSetting />
+    </SideMenuSection>
+
+    <SideMenuSection title={$t("sideMenu.sections.tree")}>
         <SegmentedControl
             label={$t("settings.treeZoom")}
             ariaLabel={$t("settings.treeZoom")}
@@ -105,15 +117,6 @@
             icon={PaletteIcon as unknown as Component}
             onToggle={() => colorblindTreeColors.set(!$colorblindTreeColors)}
         />
-        <ToggleSwitch
-            checked={$uppercaseText}
-            label={$t("settings.uppercaseText")}
-            ariaLabel={$t("settings.uppercaseText")}
-            tooltipText={$t("settings.uppercaseTextTooltip")}
-            icon={TextAaIcon as unknown as Component}
-            onToggle={() => uppercaseText.set(!$uppercaseText)}
-        />
-        <TextSizeSliderSetting />
     </SideMenuSection>
 </SettingsPage>
 

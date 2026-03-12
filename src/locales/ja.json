@@ -43,15 +43,19 @@
             "build": "ビルド",
             "node": "ノード",
             "view": "表示",
-            "lookAndFeel": "外観",
+            "lookAndFeel": "スタイル",
             "application": "アプリケーション",
             "statistics": "統計",
             "touch": "タッチ",
             "mouse": "マウス",
             "keyboard": "キーボード",
+            "behavior": "動作",
+            "display": "表示",
+            "tree": "ツリー",
             "hud": "HUD（ヘッドアップディスプレイ）",
             "controlsTab": "サイドメニュー操作タブ",
-            "instructions": "使い方"
+            "instructions": "使い方",
+            "accessibility": "アクセシビリティ"
         }
     },
     "trees": {
@@ -158,7 +162,7 @@
         "reloadWindowTooltip": "ページを更新して最新バージョンを読み込む",
         "resetSettings": "設定をリセット",
         "resetSettingsTooltip": "全設定をデフォルトに戻す",
-        "clearAllData": "全データを消去",
+        "clearAllData": "全アプリデータを消去",
         "clearAllDataTooltip": "全データを削除してアプリを再読み込み",
         "previewButton": "プレビュー",
         "previewButtonTooltip": "共有リンク、コード、またはプリセットビルドをプレビュー",
@@ -169,14 +173,14 @@
         "colorblindTreeColorsTooltip": "第一色覚・第二色覚・第三色覚異常に対応：オレンジを赤橙色に、黄色をより鮮明な黄色にシフトします",
         "pages": {
             "node": "ノード",
-            "nodeDescription": "プライマリアクション、レベル動作",
+            "nodeDescription": "動作と表示",
             "appearance": "外観",
-            "appearanceDescription": "テーマ、ズーム、文字サイズ",
+            "appearanceDescription": "スタイルとツリー",
             "general": "一般",
-            "generalDescription": "言語、触覚、リセット",
+            "generalDescription": "アクセシビリティ、アプリケーション、ストレージ",
             "backToSettings": "戻る"
         },
-        "dangerZone": "危険ゾーン",
+        "storage": "ストレージ",
         "advanced": "詳細設定"
     },
     "contextMenu": {
@@ -358,9 +362,9 @@
             "toast": "設定をデフォルトにリセットしました"
         },
         "clearAllData": {
-            "title": "全データを消去",
-            "message": "全データを削除してアプリケーションを再読み込みします。全ツリー、設定、進行状況がリセットされます。",
-            "confirmLabel": "全データを消去"
+            "title": "全アプリデータを消去",
+            "message": "全アプリデータを削除してアプリケーションを再読み込みします。全ツリー、設定、進行状況がリセットされます。",
+            "confirmLabel": "全アプリデータを消去"
         }
     },
     "fullscreen": {

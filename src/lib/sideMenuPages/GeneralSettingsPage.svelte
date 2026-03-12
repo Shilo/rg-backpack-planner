@@ -103,7 +103,7 @@
 </script>
 
 <SettingsPage title={$t("settings.pages.general")} {onBack}>
-    <SideMenuSection title={$t("settings.pages.general")}>
+    <SideMenuSection title={$t("sideMenu.sections.accessibility")}>
         <LanguageDropdown />
         <ToggleSwitch
             checked={$hapticsEnabled}
@@ -113,6 +113,9 @@
             icon={VibrateIcon as unknown as Component}
             onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
         />
+    </SideMenuSection>
+
+    <SideMenuSection title={$t("sideMenu.sections.application")}>
         <FullscreenToggle />
         <InstallPwaButton title={true} />
         <Button
@@ -127,7 +130,7 @@
     <svelte:fragment slot="dangerZone">
         <div class="danger-zone">
             <div class="danger-zone-separator"></div>
-            <h3 class="danger-zone-label">{$t("settings.dangerZone")}</h3>
+            <h3 class="danger-zone-label">{$t("settings.storage")}</h3>
             <div class="danger-zone-content">
                 <Button
                     on:click={handleResetSettings}

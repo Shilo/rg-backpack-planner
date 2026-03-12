@@ -1,6 +1,6 @@
 <script lang="ts">
     import {
-        CursorClickIcon,
+        CircleIcon,
         EyeIcon,
         GearSixIcon,
         PaletteIcon,
@@ -81,12 +81,6 @@
             ? $t("trees.named", { label: activeTreeName })
             : $t("trees.generic")}
     >
-        <FocusInViewButton
-            {onFocusInView}
-            onPress={() => onClose?.()}
-            viewState={activeTreeViewState}
-            focusViewState={activeTreeFocusViewState}
-        />
         <ResetTreeButton
             onReset={() => {
                 onResetTree?.();
@@ -102,15 +96,21 @@
             }}
             levelsByTree={$treeLevels}
         />
+        <FocusInViewButton
+            {onFocusInView}
+            onPress={() => onClose?.()}
+            viewState={activeTreeViewState}
+            focusViewState={activeTreeFocusViewState}
+        />
     </SideMenuSection>
 
     <SideMenuSection title={$t("sideMenu.tabs.settings.label")}>
         <SettingsNavButton
-            icon={CursorClickIcon}
-            title={$t("settings.pages.node")}
-            description={$t("settings.pages.nodeDescription")}
-            onClick={() => onNavigate?.("node")}
-            data-page="node"
+            icon={GearSixIcon}
+            title={$t("settings.pages.general")}
+            description={$t("settings.pages.generalDescription")}
+            onClick={() => onNavigate?.("general")}
+            data-page="general"
         />
         <SettingsNavButton
             icon={PaletteIcon}
@@ -120,11 +120,11 @@
             data-page="appearance"
         />
         <SettingsNavButton
-            icon={GearSixIcon}
-            title={$t("settings.pages.general")}
-            description={$t("settings.pages.generalDescription")}
-            onClick={() => onNavigate?.("general")}
-            data-page="general"
+            icon={CircleIcon}
+            title={$t("settings.pages.node")}
+            description={$t("settings.pages.nodeDescription")}
+            onClick={() => onNavigate?.("node")}
+            data-page="node"
         />
     </SideMenuSection>
 </SettingsPage>

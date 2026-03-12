@@ -74,7 +74,7 @@
 </script>
 
 <SettingsPage title={$t("settings.pages.node")} {onBack}>
-    <SideMenuSection title={$t("sideMenu.sections.node")}>
+    <SideMenuSection title={$t("sideMenu.sections.behavior")}>
         <SegmentedControl
             label={nodePrimaryActionLabel}
             ariaLabel={nodePrimaryActionLabel}
@@ -93,6 +93,9 @@
             onChange={handleNodeLevelBehaviorChange}
             tooltipText={$t("settings.nodeLevelBehaviorTooltip")}
         />
+    </SideMenuSection>
+
+    <SideMenuSection title={$t("sideMenu.sections.display")}>
         <ToggleSwitch
             checked={$showSkillName}
             label={$t("settings.showSkillName")}

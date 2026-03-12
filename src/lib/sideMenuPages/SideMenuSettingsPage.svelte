@@ -25,21 +25,15 @@
 
     async function loadPage(page: SettingsPageId): Promise<void> {
         if (page === "root" && !RootPage) {
-            RootPage = (
-                await import("./RootSettingsPage.svelte")
-            ).default;
+            RootPage = (await import("./RootSettingsPage.svelte")).default;
         } else if (page === "node" && !NodePage) {
-            NodePage = (
-                await import("./NodeSettingsPage.svelte")
-            ).default;
+            NodePage = (await import("./NodeSettingsPage.svelte")).default;
         } else if (page === "appearance" && !AppearancePage) {
-            AppearancePage = (
-                await import("./AppearanceSettingsPage.svelte")
-            ).default;
+            AppearancePage = (await import("./AppearanceSettingsPage.svelte"))
+                .default;
         } else if (page === "general" && !GeneralPage) {
-            GeneralPage = (
-                await import("./GeneralSettingsPage.svelte")
-            ).default;
+            GeneralPage = (await import("./GeneralSettingsPage.svelte"))
+                .default;
         }
     }
 
@@ -195,7 +189,9 @@
             class="settings-page-panel incoming"
             class:active={!isTransitioning}
             role="region"
-            aria-label={currentPage === "root" ? undefined : $t(`settings.pages.${currentPage}`)}
+            aria-label={currentPage === "root"
+                ? undefined
+                : $t(`settings.pages.${currentPage}`)}
         >
             <svelte:component
                 this={currentComponent}
@@ -217,6 +213,9 @@
 <style>
     .settings-page-container {
         position: relative;
+    }
+
+    .settings-page-container.transitioning {
         overflow: hidden;
     }
 
