@@ -20,11 +20,16 @@ const CAPTURE_STABLE_FRAME_COUNT = 2;
 const COMBINED_TREE_SPACING_PX = 32;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 
+const SAFARI_WHITE_THRESHOLD = 245;
+const SAFARI_MIN_ALPHA = 8;
+const SAFARI_FRINGE_THRESHOLD = 235;
+const SAFARI_FRINGE_MAX_ALPHA = 220;
+
 const SNAPDOM_OPTS = {
     type: "png" as const,
     // Per snapdom docs, backgroundColor is a fallback only for JPG/WebP (which lack alpha).
     // For PNG it has no effect. On iOS Safari, a white background appears regardless due to
-    // a browser rendering bug (see stripEdgeWhiteBackground below).
+    // a browser rendering bug during SVG foreignObject rasterization.
     backgroundColor: "transparent",
     cache: "disabled" as const,
     outerTransforms: false,
@@ -123,74 +128,158 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
     await waitForPaintFrames(2);
 }
 
+// TODO: Remove this when iOS bug is fixed
+function isIOSCaptureBugLikely(): boolean {
+    return getOSNameKey() === "ios";
+}
+
+async function canvasToBlob(
+    canvas: HTMLCanvasElement,
+    type = "image/png",
+): Promise<Blob | null> {
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob ?? null), type);
+    });
+}
+
 // iOS Safari renders SVG foreignObject content with a white background when drawn
 // to a canvas via drawImage(). This is a long-standing WebKit rendering bug where
 // the browser fills the foreignObject region with white instead of preserving
 // transparency. Setting snapdom's backgroundColor to "transparent" does not help
 // because the white is injected by Safari during SVG rasterization, after snapdom
-// has already set up the SVG. This flood-fill removes that false white background
-// by making edge-connected white/near-white pixels transparent so that the
-// subsequent cropBlobToContent() can correctly detect actual content bounds.
-// See: https://github.com/bubkoo/html-to-image/issues/361 (same bug in a similar library)
-//      https://bugs.webkit.org/show_bug.cgi?id=156176 (WebKit: foreignObject taints canvas)
-// Fix: https://github.com/zumerlab/snapdom/issues/172 (potential native snapdom fix)
-async function stripEdgeWhiteBackground(blob: Blob): Promise<Blob | null> {
-    const image = await blobToImage(blob);
-    const { width, height } = getImageIntrinsicSize(image);
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d", { alpha: true });
+// has already set up the SVG.
+//
+// This function fixes that by operating on the canvas BEFORE PNG encoding:
+// 1) flood-fill edge-connected white/near-white pixels to transparent
+// 2) remove a thin near-white fringe touching transparency, which Safari often leaves
+//
+// This keeps cropBlobToContent() working correctly and avoids blob->image->canvas
+// round-trips that can introduce extra halo pixels.
+function stripSafariWhiteBackgroundFromCanvas(
+    canvas: HTMLCanvasElement,
+): HTMLCanvasElement {
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) {
-        image.src = "";
-        return blob;
+        return canvas;
     }
-    ctx.drawImage(image, 0, 0);
-    image.src = "";
+
+    const width = canvas.width;
+    const height = canvas.height;
+    if (!width || !height) {
+        return canvas;
+    }
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const { data } = imageData;
-    const WHITE_THRESHOLD = 240;
-    const visited = new Uint8Array(width * height);
-    const queue: number[] = [];
+    const pixelCount = width * height;
 
-    for (let x = 0; x < width; x++) {
-        queue.push(x);
-        queue.push((height - 1) * width + x);
+    const isNearWhite = (idx: number, threshold: number) =>
+        data[idx] >= threshold &&
+        data[idx + 1] >= threshold &&
+        data[idx + 2] >= threshold;
+
+    const makeTransparent = (idx: number) => {
+        data[idx] = 0;
+        data[idx + 1] = 0;
+        data[idx + 2] = 0;
+        data[idx + 3] = 0;
+    };
+
+    const seen = new Uint8Array(pixelCount);
+    const stack = new Int32Array(pixelCount);
+    let stackPtr = 0;
+
+    const tryPush = (x: number, y: number) => {
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            return;
+        }
+
+        const p = y * width + x;
+        if (seen[p]) {
+            return;
+        }
+
+        const idx = p * 4;
+        const alpha = data[idx + 3];
+
+        if (alpha < SAFARI_MIN_ALPHA) {
+            return;
+        }
+        if (!isNearWhite(idx, SAFARI_WHITE_THRESHOLD)) {
+            return;
+        }
+
+        seen[p] = 1;
+        makeTransparent(idx);
+        stack[stackPtr++] = p;
+    };
+
+    // Seed all edges
+    for (let x = 0; x < width; x += 1) {
+        tryPush(x, 0);
+        tryPush(x, height - 1);
     }
-    for (let y = 1; y < height - 1; y++) {
-        queue.push(y * width);
-        queue.push(y * width + (width - 1));
+    for (let y = 1; y < height - 1; y += 1) {
+        tryPush(0, y);
+        tryPush(width - 1, y);
     }
 
-    while (queue.length > 0) {
-        const idx = queue.pop()!;
-        if (visited[idx]) continue;
-        visited[idx] = 1;
-        const i = idx * 4;
-        if (
-            data[i + 3] < 128 ||
-            data[i] < WHITE_THRESHOLD ||
-            data[i + 1] < WHITE_THRESHOLD ||
-            data[i + 2] < WHITE_THRESHOLD
-        )
-            continue;
-        data[i + 3] = 0;
-        const x = idx % width;
-        const y = Math.floor(idx / width);
-        if (x > 0) queue.push(idx - 1);
-        if (x < width - 1) queue.push(idx + 1);
-        if (y > 0) queue.push(idx - width);
-        if (y < height - 1) queue.push(idx + width);
+    // Flood fill edge-connected white region
+    while (stackPtr > 0) {
+        const p = stack[--stackPtr];
+        const x = p % width;
+        const y = (p / width) | 0;
+
+        tryPush(x + 1, y);
+        tryPush(x - 1, y);
+        tryPush(x, y + 1);
+        tryPush(x, y - 1);
+    }
+
+    // Fringe cleanup pass:
+    // Remove pale semi-opaque pixels that touch transparency.
+    const snapshot = new Uint8ClampedArray(data);
+
+    const alphaAtSnapshot = (p: number) => snapshot[p * 4 + 3];
+    const touchesTransparent = (x: number, y: number) => {
+        const left = y * width + (x - 1);
+        const right = y * width + (x + 1);
+        const up = (y - 1) * width + x;
+        const down = (y + 1) * width + x;
+        return (
+            alphaAtSnapshot(left) === 0 ||
+            alphaAtSnapshot(right) === 0 ||
+            alphaAtSnapshot(up) === 0 ||
+            alphaAtSnapshot(down) === 0
+        );
+    };
+
+    for (let y = 1; y < height - 1; y += 1) {
+        for (let x = 1; x < width - 1; x += 1) {
+            const p = y * width + x;
+            const idx = p * 4;
+
+            const alpha = snapshot[idx + 3];
+            if (alpha === 0 || alpha > SAFARI_FRINGE_MAX_ALPHA) {
+                continue;
+            }
+
+            if (
+                snapshot[idx] < SAFARI_FRINGE_THRESHOLD ||
+                snapshot[idx + 1] < SAFARI_FRINGE_THRESHOLD ||
+                snapshot[idx + 2] < SAFARI_FRINGE_THRESHOLD
+            ) {
+                continue;
+            }
+
+            if (touchesTransparent(x, y)) {
+                data[idx + 3] = 0;
+            }
+        }
     }
 
     ctx.putImageData(imageData, 0, 0);
-    return new Promise((resolve) => {
-        canvas.toBlob((result) => {
-            clearCanvasAndImages(ctx, canvas);
-            resolve(result ?? blob);
-        }, "image/png");
-    });
+    return canvas;
 }
 
 async function captureLiveTreeBlob(
@@ -219,12 +308,33 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        let blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
-        if (!blob) return null;
-        if (getOSNameKey() === "ios") {
-            blob = (await stripEdgeWhiteBackground(blob)) ?? blob;
+        const result = await snapdom(captureRoot, SNAPDOM_OPTS);
+        const canvas = await result.toCanvas();
+        if (!canvas) {
+            return null;
         }
-        return await cropBlobToContent(blob);
+
+        if (isIOSCaptureBugLikely()) {
+            stripSafariWhiteBackgroundFromCanvas(canvas);
+        }
+
+        const blob = await canvasToBlob(canvas, "image/png");
+        if (!blob) {
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+                clearCanvasAndImages(ctx, canvas);
+            }
+            return null;
+        }
+
+        const finalBlob = await cropBlobToContent(blob);
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            clearCanvasAndImages(ctx, canvas);
+        }
+
+        return finalBlob;
     } catch (error) {
         console.error("Failed to capture tree image:", error);
         return null;
