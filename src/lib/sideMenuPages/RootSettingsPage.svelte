@@ -1,6 +1,6 @@
 <script lang="ts">
     import {
-        CircleIcon,
+        CirclesThreeIcon,
         EyeIcon,
         GearSixIcon,
         InfoIcon,
@@ -121,7 +121,7 @@
             data-page="appearance"
         />
         <SettingsNavButton
-            icon={CircleIcon}
+            icon={CirclesThreeIcon}
             title={$t("settings.pages.node")}
             description={$t("settings.pages.nodeDescription")}
             onClick={() => onNavigate?.("node")}
