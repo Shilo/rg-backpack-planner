@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    export type SettingsPageId = "root" | "node" | "appearance" | "general";
+    export type SettingsPageId = "root" | "node" | "appearance" | "general" | "about";
 </script>
 
 <script lang="ts">
@@ -22,6 +22,7 @@
     let NodePage: any = null;
     let AppearancePage: any = null;
     let GeneralPage: any = null;
+    let AboutPage: any = null;
 
     async function loadPage(page: SettingsPageId): Promise<void> {
         if (page === "root" && !RootPage) {
@@ -34,6 +35,8 @@
         } else if (page === "general" && !GeneralPage) {
             GeneralPage = (await import("./GeneralSettingsPage.svelte"))
                 .default;
+        } else if (page === "about" && !AboutPage) {
+            AboutPage = (await import("./AboutSettingsPage.svelte")).default;
         }
     }
 
@@ -54,7 +57,9 @@
               ? NodePage
               : currentPage === "appearance"
                 ? AppearancePage
-                : GeneralPage;
+                : currentPage === "general"
+                  ? GeneralPage
+                  : AboutPage;
 
     let containerElement: HTMLDivElement | null = null;
 
