@@ -145,6 +145,8 @@
         "nodeLevelBehaviorTooltip": "単独：1つのノードのみ。同期：ノードと系統を同時に",
         "showTier": "ティアバッジを表示",
         "showTierTooltip": "各ノードのティアバッジの表示/非表示",
+        "showLevelSplash": "レベルアップ演出",
+        "showLevelSplashTooltip": "ノードレベル変更時にスプラッシュアニメーションを表示",
         "showSkillName": "スキル名バッジを表示",
         "showSkillNameTooltip": "各ノードのスキル名の表示/非表示",
         "haptics": "触覚フィードバック",

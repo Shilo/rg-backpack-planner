@@ -25,6 +25,7 @@
     import { darkMode } from "../darkModeStore";
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
+    import { showLevelSplash } from "../showLevelSplashStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import { t, resetLocale } from "svelte-whisper";
@@ -53,6 +54,7 @@
                 darkMode.resetToDefault();
                 colorblindTreeColors.resetToDefault();
                 uppercaseText.resetToDefault();
+                showLevelSplash.resetToDefault();
 
                 void resetLocale();
 

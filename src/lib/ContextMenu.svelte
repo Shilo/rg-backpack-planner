@@ -371,6 +371,8 @@
         cursor: move;
         touch-action: none;
         user-select: none;
+        box-shadow: var(--shadow), 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: ctx-menu-enter 0.18s ease both;
     }
 
     .context-menu :global(button),
@@ -404,5 +406,11 @@
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);
         cursor: default;
+        animation: modal-backdrop-in 0.15s ease both;
+    }
+
+    @keyframes ctx-menu-enter {
+        from { opacity: 0; filter: blur(2px); }
+        to { opacity: 1; filter: blur(0); }
     }
 </style>

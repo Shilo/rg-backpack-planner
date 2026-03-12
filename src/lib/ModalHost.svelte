@@ -319,6 +319,7 @@
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
+        animation: modal-backdrop-in 0.2s ease both;
     }
 
     /* Dialog container: centered, scrollable, width from content up to viewport cap */
@@ -340,7 +341,8 @@
                 color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
                 transparent
             );
-        box-shadow: var(--shadow);
+        box-shadow: var(--shadow), 0 8px 32px rgba(0, 0, 0, 0.12);
+        animation: modal-shell-in 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
         padding: 0;
         overflow: auto;
         -webkit-overflow-scrolling: touch;

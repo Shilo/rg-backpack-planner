@@ -43,6 +43,7 @@
     {#each $toastStore as toast (toast.id)}
         <div
             class="toast toast--{toast.tone}"
+            style="--toast-duration: {toast.durationMs}ms"
             role="button"
             tabindex="0"
             on:click={() => {
@@ -93,12 +94,30 @@
         color: var(--text-muted);
         font-size: var(--font-base);
         line-height: var(--leading);
+        animation: toast-enter 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
     }
 
     .toast--negative {
         background: var(--danger-bg);
         border-color: var(--danger-border);
         color: var(--danger-text);
+    }
+
+    .toast::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        background: var(--border-subtle);
+        animation: toast-progress var(--toast-duration, 3s) linear forwards;
+    }
+
+    .toast--negative::after {
+        background: var(--danger-border);
     }
 
     .toast__message {

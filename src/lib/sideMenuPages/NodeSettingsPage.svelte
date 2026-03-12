@@ -4,6 +4,7 @@
         GraphIcon,
         TagIcon,
         MedalIcon,
+        SparkleIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
     import SettingsPage from "./SettingsPage.svelte";
@@ -19,6 +20,7 @@
         isNodeLevelBehavior,
     } from "../nodeLevelBehaviorStore";
     import { showTier } from "../showTierStore";
+    import { showLevelSplash } from "../showLevelSplashStore";
     import { showSkillName } from "../showSkillNameStore";
     import { onMount } from "svelte";
     import { t } from "svelte-whisper";
@@ -111,6 +113,14 @@
             tooltipText={$t("settings.showTierTooltip")}
             icon={MedalIcon as unknown as Component}
             onToggle={() => showTier.set(!$showTier)}
+        />
+        <ToggleSwitch
+            checked={$showLevelSplash}
+            label={$t("settings.showLevelSplash")}
+            ariaLabel={$t("settings.showLevelSplash")}
+            tooltipText={$t("settings.showLevelSplashTooltip")}
+            icon={SparkleIcon as unknown as Component}
+            onToggle={() => showLevelSplash.set(!$showLevelSplash)}
         />
     </SideMenuSection>
 </SettingsPage>

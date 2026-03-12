@@ -145,6 +145,8 @@
         "nodeLevelBehaviorTooltip": "单独：仅一个节点。同步：节点和谱系一起",
         "showTier": "显示阶级徽章",
         "showTierTooltip": "显示或隐藏每个节点上的阶级徽章",
+        "showLevelSplash": "升级特效",
+        "showLevelSplashTooltip": "节点升级时显示动画效果",
         "showSkillName": "显示技能名称徽章",
         "showSkillNameTooltip": "显示或隐藏每个节点上的技能名称",
         "haptics": "触觉反馈",

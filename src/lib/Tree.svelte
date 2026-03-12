@@ -54,6 +54,9 @@
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../config/baseTree";
     import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
     import { locale, t } from "svelte-whisper";
+    import LevelUpSplash from "./LevelUpSplash.svelte";
+    import { showLevelSplash } from "./showLevelSplashStore";
+    import { getSkillLevelInfo } from "../config/skillMetadata";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -166,6 +169,16 @@
 
     const longPressState: LongPressState = { timer: null, fired: false };
     let fadeKey = 0;
+
+    type SplashData = {
+        id: number;
+        x: number;
+        y: number;
+        levelDelta: number;
+        crystalDelta: number;
+    };
+    let activeSplashes: SplashData[] = [];
+    let splashIdCounter = 0;
 
     function updateLevels(nextLevels: LevelsByIndex) {
         levels = nextLevels;
@@ -469,6 +482,33 @@
         }
     }
 
+    function triggerSplash(index: NodeIndex, prevLevel: number, nextLevel: number) {
+        if (!$showLevelSplash) return;
+        const levelDelta = nextLevel - prevLevel;
+        if (levelDelta === 0) return;
+        const node = getNodeAt(index);
+        if (!node) return;
+        // Calculate crystal cost: sum costs from prevLevel to nextLevel
+        let crystalDelta = 0;
+        if (node.skillId) {
+            const prevInfo = getSkillLevelInfo(node.skillId, prevLevel, node.maxLevel);
+            const nextInfo = getSkillLevelInfo(node.skillId, nextLevel, node.maxLevel);
+            crystalDelta = nextInfo.totalCostSpent - prevInfo.totalCostSpent;
+        }
+        // Use world coordinates — the tree-canvas transform handles pan/zoom
+        activeSplashes = [...activeSplashes, {
+            id: splashIdCounter++,
+            x: node.x,
+            y: node.y,
+            levelDelta,
+            crystalDelta,
+        }];
+    }
+
+    function removeSplash(id: number) {
+        activeSplashes = activeSplashes.filter(s => s.id !== id);
+    }
+
     function applyChange(index: NodeIndex, targetLevel: number) {
         const currentLevel = getLevel(index);
         const { levels: nextLevels, deltas } = applyLevelChange({
@@ -495,7 +535,11 @@
                 return false;
             }
         }
+        const prevLevels = levels;
         updateLevels(nextLevels);
+        for (const d of deltas) {
+            triggerSplash(d.index, getLevelFrom(prevLevels, d.index), getLevelFrom(nextLevels, d.index));
+        }
         return true;
     }
 
@@ -577,7 +621,35 @@
     }
 
     export function resetAllNodes() {
+        const prevLevels = [...levels];
         updateLevels(nodes.map(() => 0));
+        // Trigger splash for the root node (index 0) showing total delta
+        if ($showLevelSplash) {
+            let totalLevelDelta = 0;
+            let totalCrystalDelta = 0;
+            for (let i = 0; i < nodes.length; i++) {
+                const prev = prevLevels[i] ?? 0;
+                if (prev === 0) continue;
+                totalLevelDelta -= prev;
+                const node = nodes[i];
+                if (node?.skillId) {
+                    const info = getSkillLevelInfo(node.skillId, prev, node.maxLevel);
+                    totalCrystalDelta -= info.totalCostSpent;
+                }
+            }
+            if (totalLevelDelta !== 0) {
+                const root = nodes[0];
+                if (root) {
+                    activeSplashes = [{
+                        id: splashIdCounter++,
+                        x: root.x,
+                        y: root.y,
+                        levelDelta: totalLevelDelta,
+                        crystalDelta: totalCrystalDelta,
+                    }];
+                }
+            }
+        }
     }
 
     export function getViewState() {
@@ -1357,6 +1429,17 @@
                         isGlobalIncrementLocked={nodeView.isGlobalIncrementLocked}
                         skillId={nodeView.node.skillId}
                         maxLevel={nodeView.node.maxLevel}
+                    />
+                {/each}
+
+                {#each activeSplashes as splash (splash.id)}
+                    <LevelUpSplash
+                        x={splash.x}
+                        y={splash.y}
+                        levelDelta={splash.levelDelta}
+                        crystalDelta={splash.crystalDelta}
+                        {scale}
+                        onDone={() => removeSplash(splash.id)}
                     />
                 {/each}
             </div>

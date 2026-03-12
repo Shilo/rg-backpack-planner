@@ -175,6 +175,7 @@ textarea,
     hyphens: auto;
     box-shadow: var(--shadow);
     pointer-events: none;
+    animation: tooltip-in 0.15s ease both;
 }
 
 .tooltip-line {
@@ -205,5 +206,59 @@ textarea,
 @media (hover: none) {
     .tooltip {
         transform: none;
+    }
+}
+
+/* ═══ Animations ═══ */
+
+@keyframes tooltip-in {
+    from { opacity: 0; transform: scale(0.96) translateY(2px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modal-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-shell-in {
+    from { opacity: 0; transform: scale(0.92) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes context-menu-in {
+    from { opacity: 0; transform: var(--ctx-transform) scale(0.96); filter: blur(2px); }
+    to { opacity: 1; transform: var(--ctx-transform) scale(1); filter: blur(0); }
+}
+
+@keyframes fab-action-in {
+    from { opacity: 0; transform: translateX(10px) scale(0.94); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toast-enter {
+    from { opacity: 0; transform: translateX(-10px) scale(0.96); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toast-progress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+@keyframes side-menu-item-in {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ═══ Reduced Motion ═══ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }

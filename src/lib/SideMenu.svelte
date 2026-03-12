@@ -174,7 +174,7 @@
         background: var(--backdrop-overlay, rgba(0, 0, 0, 0.5));
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.15s ease;
+        transition: opacity 0.2s ease;
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-side-menu) - 2);
@@ -199,7 +199,7 @@
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
         transform: translateX(100%);
-        transition: transform 0.15s ease;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         padding: 0;
         display: flex;
         flex-direction: column;
@@ -214,6 +214,7 @@
 
     .side-menu.open {
         transform: translateX(0);
+        box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15);
     }
 
     .side-menu__content {
@@ -279,4 +280,14 @@
         min-height: 0;
         overflow: hidden;
     }
+
+    .side-menu.open .side-menu__content-inner > :global(*) {
+        animation: side-menu-item-in 0.25s ease both;
+    }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(1)) { animation-delay: 20ms; }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(2)) { animation-delay: 50ms; }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(3)) { animation-delay: 80ms; }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(4)) { animation-delay: 110ms; }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(5)) { animation-delay: 140ms; }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(6)) { animation-delay: 170ms; }
 </style>
