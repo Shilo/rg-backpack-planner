@@ -166,7 +166,18 @@
         "uppercaseText": "大文字テキスト",
         "uppercaseTextTooltip": "すべてのテキストを大文字で表示",
         "colorblindTreeColors": "色覚対応ツリー",
-        "colorblindTreeColorsTooltip": "第一色覚・第二色覚・第三色覚異常に対応：オレンジを赤橙色に、黄色をより鮮明な黄色にシフトします"
+        "colorblindTreeColorsTooltip": "第一色覚・第二色覚・第三色覚異常に対応：オレンジを赤橙色に、黄色をより鮮明な黄色にシフトします",
+        "pages": {
+            "node": "ノード",
+            "nodeDescription": "プライマリアクション、レベル動作",
+            "appearance": "外観",
+            "appearanceDescription": "テーマ、ズーム、文字サイズ",
+            "general": "一般",
+            "generalDescription": "言語、触覚、リセット",
+            "backToSettings": "戻る"
+        },
+        "dangerZone": "危険ゾーン",
+        "advanced": "詳細設定"
     },
     "contextMenu": {
         "previewBuildOptions": "ビルドオプションをプレビュー"

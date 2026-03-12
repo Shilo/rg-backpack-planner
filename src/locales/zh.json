@@ -166,7 +166,18 @@
         "uppercaseText": "大写文本",
         "uppercaseTextTooltip": "以大写方式显示所有文本",
         "colorblindTreeColors": "色觉辅助树",
-        "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色"
+        "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色",
+        "pages": {
+            "node": "节点",
+            "nodeDescription": "主要操作、等级行为",
+            "appearance": "外观",
+            "appearanceDescription": "主题、缩放、字体大小",
+            "general": "通用",
+            "generalDescription": "语言、触觉、重置",
+            "backToSettings": "返回"
+        },
+        "dangerZone": "危险区域",
+        "advanced": "高级设置"
     },
     "contextMenu": {
         "previewBuildOptions": "预览构建选项"
