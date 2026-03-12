@@ -20,9 +20,15 @@ const CAPTURE_STABLE_FRAME_COUNT = 2;
 const COMBINED_TREE_SPACING_PX = 32;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 
-const SAFARI_WHITE_THRESHOLD = 245;
-const SAFARI_MIN_ALPHA = 8;
-const SAFARI_FRINGE_THRESHOLD = 235;
+// Synthetic background injected before iOS capture so that regions which should be
+// transparent get a unique, recognisable color instead of iOS Safari's false white.
+// #FF00FE (near-magenta) is not used anywhere in the tree UI.
+const IOS_CHROMA_R = 255;
+const IOS_CHROMA_G = 0;
+const IOS_CHROMA_B = 254;
+const IOS_CHROMA_TOLERANCE = 10;
+const IOS_CHROMA_CSS = `rgb(${IOS_CHROMA_R},${IOS_CHROMA_G},${IOS_CHROMA_B})`;
+// Any semi-transparent pixel adjacent to a cleared region is treated as fringe.
 const SAFARI_FRINGE_MAX_ALPHA = 220;
 
 const SNAPDOM_OPTS = {
@@ -142,7 +148,9 @@ async function withShadowsSuppressed<T>(
     fn: () => Promise<T>,
 ): Promise<T> {
     const style = document.createElement("style");
-    style.textContent = `.${NO_SHADOW_CLASS},.${NO_SHADOW_CLASS} *{box-shadow:none!important;text-shadow:none!important}`;
+    style.textContent =
+        `.${NO_SHADOW_CLASS},.${NO_SHADOW_CLASS} *{box-shadow:none!important;text-shadow:none!important}` +
+        `.${NO_SHADOW_CLASS}{background-color:${IOS_CHROMA_CSS}!important}`;
     document.head.appendChild(style);
     root.classList.add(NO_SHADOW_CLASS);
     try {
@@ -169,12 +177,11 @@ async function canvasToBlob(
 // because the white is injected by Safari during SVG rasterization, after snapdom
 // has already set up the SVG.
 //
-// This function fixes that by operating on the canvas BEFORE PNG encoding:
-// 1) flood-fill edge-connected white/near-white pixels to transparent
-// 2) remove a thin near-white fringe touching transparency, which Safari often leaves
-//
-// This keeps cropBlobToContent() working correctly and avoids blob->image->canvas
-// round-trips that can introduce extra halo pixels.
+// withShadowsSuppressed injects IOS_CHROMA_CSS as the captureRoot background before
+// the snapdom call, so transparent areas get filled with the chroma key color instead
+// of iOS Safari's white. This function then replaces all chroma key pixels with
+// transparency and removes semi-transparent fringe pixels at content edges.
+// Operates directly on the canvas before PNG encoding to avoid extra round-trips.
 function stripSafariWhiteBackgroundFromCanvas(
     canvas: HTMLCanvasElement,
 ): HTMLCanvasElement {
@@ -189,11 +196,6 @@ function stripSafariWhiteBackgroundFromCanvas(
     const { data } = imageData;
     const pixelCount = width * height;
 
-    const isNearWhite = (idx: number, threshold: number) =>
-        data[idx] >= threshold &&
-        data[idx + 1] >= threshold &&
-        data[idx + 2] >= threshold;
-
     const makeTransparent = (idx: number) => {
         data[idx] = 0;
         data[idx + 1] = 0;
@@ -201,44 +203,23 @@ function stripSafariWhiteBackgroundFromCanvas(
         data[idx + 3] = 0;
     };
 
-    const stack = new Int32Array(pixelCount);
-    let stackPtr = 0;
-
-    const tryPush = (x: number, y: number) => {
-        if (x < 0 || y < 0 || x >= width || y >= height) return;
-
-        const p = y * width + x;
+    // Pass 1: Replace all chroma key pixels with transparent.
+    // Works for both edge-connected and interior background regions,
+    // fixing the limitation of the prior edge flood-fill approach.
+    for (let p = 0; p < pixelCount; p++) {
         const idx = p * 4;
-        const alpha = data[idx + 3];
-
-        // alpha 0 means either originally transparent or already cleared/visited
-        if (alpha === 0 || alpha < SAFARI_MIN_ALPHA) return;
-        if (!isNearWhite(idx, SAFARI_WHITE_THRESHOLD)) return;
-
-        makeTransparent(idx);
-        stack[stackPtr++] = p;
-    };
-
-    for (let x = 0; x < width; x += 1) {
-        tryPush(x, 0);
-        tryPush(x, height - 1);
-    }
-    for (let y = 1; y < height - 1; y += 1) {
-        tryPush(0, y);
-        tryPush(width - 1, y);
+        if (data[idx + 3] === 0) continue;
+        if (
+            data[idx] >= IOS_CHROMA_R - IOS_CHROMA_TOLERANCE &&
+            data[idx + 1] <= IOS_CHROMA_G + IOS_CHROMA_TOLERANCE &&
+            data[idx + 2] >= IOS_CHROMA_B - IOS_CHROMA_TOLERANCE
+        ) {
+            makeTransparent(idx);
+        }
     }
 
-    while (stackPtr > 0) {
-        const p = stack[--stackPtr];
-        const x = p % width;
-        const y = (p / width) | 0;
-
-        tryPush(x + 1, y);
-        tryPush(x - 1, y);
-        tryPush(x, y + 1);
-        tryPush(x, y - 1);
-    }
-
+    // Pass 2: Remove semi-transparent fringe pixels adjacent to cleared regions.
+    // These are anti-aliased edge pixels blended with the chroma key background.
     const snapshot = new Uint8ClampedArray(data);
 
     const alphaAtSnapshot = (p: number) => snapshot[p * 4 + 3];
@@ -262,14 +243,6 @@ function stripSafariWhiteBackgroundFromCanvas(
 
             const alpha = snapshot[idx + 3];
             if (alpha === 0 || alpha > SAFARI_FRINGE_MAX_ALPHA) continue;
-
-            if (
-                snapshot[idx] < SAFARI_FRINGE_THRESHOLD ||
-                snapshot[idx + 1] < SAFARI_FRINGE_THRESHOLD ||
-                snapshot[idx + 2] < SAFARI_FRINGE_THRESHOLD
-            ) {
-                continue;
-            }
 
             if (touchesTransparent(x, y)) {
                 data[idx + 3] = 0;
