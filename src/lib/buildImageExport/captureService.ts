@@ -218,34 +218,56 @@ function stripSafariWhiteBackgroundFromCanvas(
         }
     }
 
-    // Pass 2: Remove semi-transparent fringe pixels adjacent to cleared regions.
-    // These are anti-aliased edge pixels blended with the chroma key background.
+    // Pass 2+: Remove fringe pixels adjacent to cleared regions.
+    // Anti-aliasing blends node edge pixels with the chroma key background, producing
+    // two types of fringe:
+    //   a) semi-transparent pixels (alpha ≤ SAFARI_FRINGE_MAX_ALPHA)
+    //   b) fully-opaque pixels whose color was blended with the chroma key, detectable
+    //      via min(R,B) - G > threshold (the "magenta amount" metric). The chroma key
+    //      has no green, so any contamination selectively suppresses G relative to R and B.
+    //      This metric is reliable across all UI colors because all legitimate content
+    //      colors have negative min(R,B)-G scores: red/copper (B≪G → -20), blue (R≪G → -30),
+    //      gold (G≫B → -100), teal (R≪G → -35), dark inactive (R≈G → 0). Threshold=5
+    //      safely catches ~10% chroma key blend without false-positives on any of these.
+    // Run 5 passes to peel multi-pixel fringes on high-dpr captures.
+    const CHROMA_CONTAMINATION_THRESHOLD = 5;
     const snapshot = new Uint8ClampedArray(data);
 
     const alphaAtSnapshot = (p: number) => snapshot[p * 4 + 3];
+    // Out-of-bounds neighbors are treated as transparent: canvas edge pixels are
+    // always adjacent to "nothing" and must be checked for fringe contamination.
     const touchesTransparent = (x: number, y: number) => {
-        const left = y * width + (x - 1);
-        const right = y * width + (x + 1);
-        const up = (y - 1) * width + x;
-        const down = (y + 1) * width + x;
+        if (x === 0 || y === 0 || x === width - 1 || y === height - 1) return true;
         return (
-            alphaAtSnapshot(left) === 0 ||
-            alphaAtSnapshot(right) === 0 ||
-            alphaAtSnapshot(up) === 0 ||
-            alphaAtSnapshot(down) === 0
+            alphaAtSnapshot(y * width + (x - 1)) === 0 ||
+            alphaAtSnapshot(y * width + (x + 1)) === 0 ||
+            alphaAtSnapshot((y - 1) * width + x) === 0 ||
+            alphaAtSnapshot((y + 1) * width + x) === 0
         );
     };
 
-    for (let y = 1; y < height - 1; y += 1) {
-        for (let x = 1; x < width - 1; x += 1) {
-            const p = y * width + x;
-            const idx = p * 4;
+    for (let pass = 0; pass < 5; pass += 1) {
+        if (pass > 0) snapshot.set(data);
+        for (let y = 0; y < height; y += 1) {
+            for (let x = 0; x < width; x += 1) {
+                const p = y * width + x;
+                const idx = p * 4;
 
-            const alpha = snapshot[idx + 3];
-            if (alpha === 0 || alpha > SAFARI_FRINGE_MAX_ALPHA) continue;
+                if (snapshot[idx + 3] === 0) continue;
+                if (!touchesTransparent(x, y)) continue;
 
-            if (touchesTransparent(x, y)) {
-                data[idx + 3] = 0;
+                const alpha = snapshot[idx + 3];
+                const r = snapshot[idx];
+                const g = snapshot[idx + 1];
+                const b = snapshot[idx + 2];
+
+                const isSemiTransparent = alpha <= SAFARI_FRINGE_MAX_ALPHA;
+                const isChromaContaminated =
+                    Math.min(r, b) - g > CHROMA_CONTAMINATION_THRESHOLD;
+
+                if (isSemiTransparent || isChromaContaminated) {
+                    makeTransparent(idx);
+                }
             }
         }
     }
