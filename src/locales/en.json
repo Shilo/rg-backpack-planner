@@ -43,14 +43,14 @@
             "build": "Build",
             "node": "Node",
             "view": "View",
-            "lookAndFeel": "Look and feel",
+            "lookAndFeel": "Look and Feel",
             "application": "Application",
             "statistics": "Statistics",
             "touch": "Touch",
             "mouse": "Mouse",
             "keyboard": "Keyboard",
             "hud": "HUD (Heads-Up Display)",
-            "controlsTab": "Side menu Controls Tab",
+            "controlsTab": "Side Menu Controls Tab",
             "instructions": "Instructions"
         }
     },
@@ -131,7 +131,7 @@
     "settings": {
         "languageLabel": "Language",
         "languageTooltip": "Choose application language",
-        "nodePrimaryActionTitle": "Node {primaryAction} Action",
+        "nodePrimaryActionTitle": "Node {primaryAction} action",
         "nodePrimaryActionLeftClick": "Left Click",
         "nodePrimaryActionTouch": "Touch",
         "nodePrimaryActionTooltip": "Choose +1, +10, or +Tier when you tap a node",
@@ -210,7 +210,7 @@
         "switchToPresetTooltip": "Switch to preset: {name}",
         "editPresetTooltip": "Edit preset: {name}",
         "createEmptyTooltip": "Create an empty build preset",
-        "addNew": "Add new",
+        "addNew": "Add New",
         "deleteAllAndCreateTooltip": "Delete all presets and create a new one",
         "movePresetUpTooltip": "Move preset up",
         "movePresetDownTooltip": "Move preset down",
@@ -220,19 +220,19 @@
         "renameButton": "Rename",
         "deleteButton": "Delete",
         "renameModalTitle": "Rename Build Preset",
-        "renameModalMessage": "Type a new name for this build preset",
+        "renameModalMessage": "Type a new name for this build preset.",
         "presetNameLabel": "Preset name",
         "renameConfirmLabel": "Rename",
         "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\"?",
-        "deleteModalTitle": "Delete build preset",
+        "deleteModalTitle": "Delete Build Preset",
         "deleteModalMessage": "Are you sure you want to remove \"{name}\" preset?",
-        "deleteConfirmLabel": "Delete preset",
+        "deleteConfirmLabel": "Delete Preset",
         "newModalTitle": "New Build Preset",
-        "newModalMessage": "Type a name for this build preset",
+        "newModalMessage": "Type a name for this build preset.",
         "createConfirmLabel": "Create",
-        "deleteAllModalTitle": "Delete all presets",
+        "deleteAllModalTitle": "Delete All Presets",
         "deleteAllModalMessage": "Are you sure you want to delete all build presets? A new default preset will be created.",
-        "deleteAllConfirmLabel": "Delete all",
+        "deleteAllConfirmLabel": "Delete All",
         "viewingPresetToast": "Viewing {name} preset",
         "editMenuTitle": "Edit",
         "editMenuTitleWithName": "Edit: {name}",
@@ -254,7 +254,7 @@
         "copyLinkTooltip": "Copy shareable link with build data",
         "copyLink": "Copy Link",
         "copyScreenshotTooltip": "Preview and share tree screenshots",
-        "copyScreenshot": "Share screenshot",
+        "copyScreenshot": "Share Screenshot",
         "shareLinkCopiedToast": "Share link copied to clipboard",
         "unableToShareLinkToast": "Unable to share link",
         "unableToCopyLinkToast": "Unable to copy link",
@@ -285,7 +285,7 @@
             "latePve": "Late PvE",
             "latePvp": "Late PvP"
         },
-        "sharePreviewBuild": "Share preview build",
+        "sharePreviewBuild": "Share Preview Build",
         "stopPreview": "Stop Preview",
         "stopPreviewTooltip": "Exit preview mode and switch to personal build",
         "previewBuildsTitle": "Preview Builds",
@@ -305,14 +305,14 @@
         "clonedPreviewBuildToast": "Cloned preview build",
         "loadModalTitle": "Preview Shareable Build",
         "loadModalMessage": "Type link or build code. (Preview is temporary and won't affect your current build.)",
-        "loadModalConfirmLabel": "Preview build"
+        "loadModalConfirmLabel": "Preview Build"
     },
     "modal": {
         "confirmLabel": "Confirm",
         "cancelLabel": "Cancel",
         "saveLabel": "Save",
         "valueLabel": "Value",
-        "previewBuildLabel": "Preview build",
+        "previewBuildLabel": "Preview Build",
         "loadBuild": {
             "title": "Preview Shareable Build",
             "message": "Type a Backpack Planner link or just the build code.",
@@ -344,13 +344,13 @@
         "resetSettings": {
             "title": "Reset Settings",
             "message": "Restore all settings to their default values. This will not affect your backpack tree progress.",
-            "confirmLabel": "Reset settings",
+            "confirmLabel": "Reset Settings",
             "toast": "Settings reset to defaults"
         },
         "clearAllData": {
             "title": "Clear All Data",
             "message": "Delete all data and reload the application. This will reset all trees, settings, and progress.",
-            "confirmLabel": "Clear all data"
+            "confirmLabel": "Clear All Data"
         }
     },
     "fullscreen": {
@@ -435,7 +435,7 @@
         "keyboardCycleTabsLabel": "Tab - Cycle tabs",
         "keyboardCycleTabsDescription": "Switch between tabs on the current view",
         "keyboardBackspaceResetLabel": "Backspace - Reset active tree",
-        "keyboardBackspaceResetDescription": "Open reset confirmation for the current tree when it has levels.",
+        "keyboardBackspaceResetDescription": "Open reset confirmation for the current tree when it has levels",
         "hudTechCrystalsLabel": "Tech Crystals (Currency)",
         "hudTechCrystalsDescription": "View spent and set owned amount",
         "hudResetTreeLabel": "Reset active tree",
@@ -445,7 +445,7 @@
         "hudFullscreenLabel": "Fullscreen",
         "hudFullscreenDescription": "Toggle fullscreen mode",
         "hudPreviewIndicatorLabel": "Preview build indicator",
-        "hudPreviewIndicatorDescription": "View and edit a shared build. Access preview build options.",
+        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options",
         "controlsTabGithubLabel": "GitHub button",
         "controlsTabGithubDescription": "View the source code on GitHub",
         "controlsTabInstallLabel": "Install app",
@@ -453,7 +453,7 @@
     },
     "install": {
         "tooltip": "Install {appName} app on {osName}",
-        "buttonLabel": "Install app on {osName}"
+        "buttonLabel": "Install App on {osName}"
     },
     "toast": {
         "copied": "Copied",
