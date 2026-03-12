@@ -1,6 +1,7 @@
 import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
+import { getOSNameKey } from "../systemUtil";
 import "./captureStyles.css";
 
 let captureInProgressCount = 0;
@@ -119,6 +120,69 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
     await waitForPaintFrames(2);
 }
 
+// iOS Safari renders SVG foreignObject images with a white background when drawn
+// to canvas via drawImage(). This flood-fill removes that false white background
+// by making edge-connected white/near-white pixels transparent so that the
+// subsequent cropBlobToContent() can correctly detect actual content bounds.
+async function stripEdgeWhiteBackground(blob: Blob): Promise<Blob | null> {
+    const image = await blobToImage(blob);
+    const { width, height } = getImageIntrinsicSize(image);
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) {
+        image.src = "";
+        return blob;
+    }
+    ctx.drawImage(image, 0, 0);
+    image.src = "";
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const { data } = imageData;
+    const WHITE_THRESHOLD = 240;
+    const visited = new Uint8Array(width * height);
+    const queue: number[] = [];
+
+    for (let x = 0; x < width; x++) {
+        queue.push(x);
+        queue.push((height - 1) * width + x);
+    }
+    for (let y = 1; y < height - 1; y++) {
+        queue.push(y * width);
+        queue.push(y * width + (width - 1));
+    }
+
+    while (queue.length > 0) {
+        const idx = queue.pop()!;
+        if (visited[idx]) continue;
+        visited[idx] = 1;
+        const i = idx * 4;
+        if (
+            data[i + 3] < 128 ||
+            data[i] < WHITE_THRESHOLD ||
+            data[i + 1] < WHITE_THRESHOLD ||
+            data[i + 2] < WHITE_THRESHOLD
+        )
+            continue;
+        data[i + 3] = 0;
+        const x = idx % width;
+        const y = Math.floor(idx / width);
+        if (x > 0) queue.push(idx - 1);
+        if (x < width - 1) queue.push(idx + 1);
+        if (y > 0) queue.push(idx - width);
+        if (y < height - 1) queue.push(idx + width);
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return new Promise((resolve) => {
+        canvas.toBlob((result) => {
+            clearCanvasAndImages(ctx, canvas);
+            resolve(result ?? blob);
+        }, "image/png");
+    });
+}
+
 async function captureLiveTreeBlob(
     bridge: TreeBridge,
     tabIndex: number,
@@ -145,7 +209,11 @@ async function captureLiveTreeBlob(
             : treeCanvas;
 
     try {
-        const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
+        let blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
+        if (!blob) return null;
+        if (getOSNameKey() === "ios") {
+            blob = (await stripEdgeWhiteBackground(blob)) ?? blob;
+        }
         return await cropBlobToContent(blob);
     } catch (error) {
         console.error("Failed to capture tree image:", error);
