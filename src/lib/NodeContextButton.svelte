@@ -42,7 +42,7 @@
             <span class="icon-cell crystal-icon">
                 <TechCrystalIcon size={14} weight="fill" aria-hidden="true" />
             </span>
-            <span class="crystal-value">{formatNumber(crystalValue)}</span>
+            <span class="crystal-value">{positive ? "\u2212" : negative ? "+" : ""}{formatNumber(crystalValue)}</span>
         {/if}
     </span>
 </button>
@@ -133,6 +133,16 @@
 
     .crystal-icon :global(svg) {
         color: var(--text-muted);
+    }
+
+    .positive .crystal-value,
+    .positive .crystal-icon :global(svg) {
+        color: var(--accent-danger);
+    }
+
+    .negative .crystal-value,
+    .negative .crystal-icon :global(svg) {
+        color: var(--success-text);
     }
 
     .positive .action-label,
