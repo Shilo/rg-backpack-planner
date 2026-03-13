@@ -191,6 +191,7 @@
         "resetTreeDescription": "Refund crystals and revert to level 0",
         "resetAllTreesDescription": "Refund all crystals across every tree",
         "fullscreenDescription": "Expand browser to fill the screen",
+        "themeDescription": "Accent color and light or dark mode",
         "pages": {
             "node": "Node",
             "nodeDescription": "Behavior and Display",

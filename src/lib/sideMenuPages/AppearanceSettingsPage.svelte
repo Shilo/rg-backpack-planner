@@ -67,7 +67,7 @@
 <SettingsPage title={$t("settings.pages.appearance")} {onBack}>
     <SideMenuSection title={$t("sideMenu.sections.lookAndFeel")}>
         <div class="button-group theme-row">
-            <ThemeColorSelector />
+            <ThemeColorSelector description={$t("settings.themeDescription")} />
             <button
                 class="icon-button"
                 type="button"

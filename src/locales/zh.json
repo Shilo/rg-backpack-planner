@@ -191,6 +191,7 @@
         "resetTreeDescription": "返还水晶并恢复至等级0",
         "resetAllTreesDescription": "返还所有技能树的全部水晶",
         "fullscreenDescription": "将浏览器切换为全屏模式",
+        "themeDescription": "主题色和明暗模式",
         "pages": {
             "node": "节点",
             "nodeDescription": "行为和显示",

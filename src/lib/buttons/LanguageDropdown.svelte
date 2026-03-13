@@ -144,11 +144,16 @@
         width: 100%;
     }
 
-    :global(.language-button .button-text) {
+    :global(.language-button .button-text),
+    :global(.language-button .button-text-group) {
         flex: 1;
         display: flex;
         min-width: 0;
         align-self: stretch;
+    }
+
+    :global(.language-button .button-text-group .button-text) {
+        align-self: auto;
     }
 
     .button-content {

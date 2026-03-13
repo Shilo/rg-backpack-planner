@@ -200,7 +200,7 @@
         align-items: center;
         gap: var(--spacing-md);
         min-height: 32px;
-        padding: 0 var(--spacing-lg) 0 var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
         background: var(--bg-input);
     }
 

@@ -17,6 +17,8 @@
     import ColorPickerDialog from "./ColorPickerDialog.svelte";
     import { t } from "svelte-whisper";
 
+    export let description: string | undefined = undefined;
+
     const PRESETS: {
         h: number;
         c: number;
@@ -112,7 +114,12 @@
     <span class="theme-button-icon">
         <PaletteIcon size={26} />
     </span>
-    <span class="theme-button-label">{$t("theme.label")}</span>
+    <div class="theme-button-label-group">
+        <span class="theme-button-label">{$t("theme.label")}</span>
+        {#if description}
+            <span class="theme-button-description">{description}</span>
+        {/if}
+    </div>
     <span class="theme-button-swatch" style="background: {currentHex}"></span>
     <CaretDownIcon class="caret-icon" size={12} />
 </button>
@@ -223,9 +230,24 @@
         height: 100%;
     }
 
-    .theme-button-label {
+    .theme-button-label-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
         flex: 1;
         min-width: 0;
+    }
+
+    .theme-button-label {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        user-select: none;
+    }
+
+    .theme-button-description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
         white-space: normal;
         overflow-wrap: anywhere;
         user-select: none;
