@@ -93,12 +93,8 @@
     $: nodeAvoidRects = [nodeSpotlightRect, treeSpotlightRect];
     $: treeAvoidRects = [nodePaneBounds, treeSpotlightRect, nodeSpotlightRect];
 
-    // Landscape detection
-    $: isLandscape = viewportWidth > 0 && viewportWidth > viewportHeight;
-
-    // Pane directions: landscape uses lateral positioning, portrait uses vertical
-    $: nodePaneDirection = isLandscape ? ("left" as const) : ("up" as const);
-    $: treePaneDirection = isLandscape ? ("right" as const) : ("down" as const);
+    const nodePaneDirection = "right" as const;
+    const treePaneDirection = "left" as const;
 
     let panePadding = 0;
     let isTouch = false;

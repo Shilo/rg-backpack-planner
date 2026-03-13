@@ -88,7 +88,7 @@
     > = {
         up: ["up", "down", "left", "right"],
         down: ["down", "up", "right", "left"],
-        left: ["left", "right", "up", "down"],
+        left: ["left", "right", "down", "up"],
         right: ["right", "left", "down", "up"],
     };
 
