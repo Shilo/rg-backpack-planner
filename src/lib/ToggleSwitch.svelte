@@ -156,7 +156,7 @@
         height: 24px;
         border-radius: 50%;
         background: white;
-        transition: transform var(--ease-spring, 0.3s cubic-bezier(0.34, 1.56, 0.64, 1));
+        transition: transform var(--ease-emphasis);
         box-shadow: var(--shadow);
     }
 
