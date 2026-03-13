@@ -180,6 +180,7 @@
         level: number;
         isUp: boolean;
         crystalDelta: number;
+        skipEntry: boolean;
     };
     let activeSplashes: SplashData[] = [];
 
@@ -539,6 +540,7 @@
                     level: getLevelFrom(nextLevels, index),
                     isUp: targetLevel > currentLevel,
                     crystalDelta: totalCrystalDelta,
+                    skipEntry: false,
                 };
                 const existingIdx = activeSplashes.findIndex(s => s.nodeIndex === index);
                 if (existingIdx !== -1) {
@@ -655,6 +657,7 @@
                         level: 0,
                         isUp: false,
                         crystalDelta: totalCrystalDelta,
+                        skipEntry: true,
                     }];
                 }
             }
@@ -1448,6 +1451,7 @@
                         level={splash.level}
                         isUp={splash.isUp}
                         crystalDelta={splash.crystalDelta}
+                        skipEntry={splash.skipEntry}
                         {scale}
                         onDone={() => removeSplash(splash.nodeIndex)}
                     />

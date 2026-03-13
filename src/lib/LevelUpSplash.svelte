@@ -19,6 +19,8 @@
     let el: HTMLDivElement;
     let nudgeX = 0;
     let nudgeY = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let animKey = 0;
 
     $: lvlText = "Lv " + formatNumber(level);
     $: cSign = crystalDelta > 0 ? "+" : crystalDelta < 0 ? "\u2212" : "";
@@ -26,6 +28,20 @@
     $: levelColor = isUp ? "var(--accent-light)" : "var(--accent-danger)";
     $: crystalColor = isUp ? "var(--accent-danger)" : "var(--success-text)";
     $: badgeScale = Math.max(1 / scale, 1);
+
+    let prevLevel = level;
+    let prevCrystalDelta = crystalDelta;
+    $: if (level !== prevLevel || crystalDelta !== prevCrystalDelta) {
+        prevLevel = level;
+        prevCrystalDelta = crystalDelta;
+        animKey++;
+        restartTimer();
+    }
+
+    function restartTimer() {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => onDone?.(), DURATION_MS);
+    }
 
     onMount(() => {
         if (el) {
@@ -49,29 +65,34 @@
                 nudgeY = (vh - insetBottom - rect.bottom) / scale;
             }
         }
-        const timer = setTimeout(() => onDone?.(), DURATION_MS);
-        return () => clearTimeout(timer);
+        restartTimer();
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
     });
 </script>
 
 <div
     bind:this={el}
     class="level-splash"
-    class:level-splash--skip-entry={skipEntry}
     style="left: {x + nudgeX}px; top: {y - 48 * badgeScale + nudgeY}px; --badge-scale: {badgeScale};"
     aria-live="polite"
 >
-    <div class="level-splash__pill">
-        <span class="level-splash__segment" style="color: {levelColor}">
-            <span class="level-splash__icon">{isUp ? ARROW_UP : ARROW_DOWN}</span>
-            <span>{lvlText}</span>
-        </span>
-        <span class="level-splash__divider"></span>
-        <span class="level-splash__segment" style="color: {crystalColor}">
-            <span class="level-splash__icon">{HEXAGON}</span>
-            <span>{cText}</span>
-        </span>
+    {#key animKey}
+    <div class="level-splash__anim" class:level-splash__anim--update={animKey > 0 || skipEntry}>
+        <div class="level-splash__pill">
+            <span class="level-splash__segment" style="color: {levelColor}">
+                <span class="level-splash__icon">{isUp ? ARROW_UP : ARROW_DOWN}</span>
+                <span>{lvlText}</span>
+            </span>
+            <span class="level-splash__divider"></span>
+            <span class="level-splash__segment" style="color: {crystalColor}">
+                <span class="level-splash__icon">{HEXAGON}</span>
+                <span>{cText}</span>
+            </span>
+        </div>
     </div>
+    {/key}
 </div>
 
 <style>
@@ -80,7 +101,14 @@
         transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
         pointer-events: none;
         z-index: 10;
+    }
+
+    .level-splash__anim {
         animation: splash-float 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .level-splash__anim--update {
+        animation-name: splash-update;
     }
 
     .level-splash__pill {
@@ -117,49 +145,25 @@
     }
 
     @keyframes splash-float {
-        0% {
-            opacity: 0;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(0.85) translateY(4px);
-        }
-        15% {
-            opacity: 1;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(1.02) translateY(0);
-        }
-        25% {
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(1) translateY(0);
-        }
-        65% {
-            opacity: 1;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(1) translateY(0);
-        }
-        100% {
-            opacity: 0;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(0.97) translateY(-12px);
-        }
+        0% { opacity: 0; transform: scale(0.85) translateY(4px); }
+        15% { opacity: 1; transform: scale(1.02) translateY(0); }
+        25% { transform: scale(1) translateY(0); }
+        65% { opacity: 1; transform: scale(1) translateY(0); }
+        100% { opacity: 0; transform: scale(0.97) translateY(-12px); }
     }
 
-    .level-splash--skip-entry {
-        animation: splash-hold 1.2s ease forwards;
-    }
-
-    @keyframes splash-hold {
-        0% {
-            opacity: 1;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
-        }
-        65% {
-            opacity: 1;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
-        }
-        100% {
-            opacity: 0;
-            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(0.97) translateY(-12px);
-        }
+    @keyframes splash-update {
+        0%, 65% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.97) translateY(-12px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .level-splash {
+        .level-splash__anim {
             animation: splash-fade 0.8s ease forwards;
+        }
+
+        .level-splash__anim--update {
+            animation-name: splash-fade-update;
         }
 
         @keyframes splash-fade {
@@ -169,13 +173,8 @@
             100% { opacity: 0; }
         }
 
-        .level-splash--skip-entry {
-            animation: splash-hold-fade 0.8s ease forwards;
-        }
-
-        @keyframes splash-hold-fade {
-            0% { opacity: 1; }
-            70% { opacity: 1; }
+        @keyframes splash-fade-update {
+            0%, 70% { opacity: 1; }
             100% { opacity: 0; }
         }
     }
