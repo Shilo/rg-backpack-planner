@@ -100,7 +100,7 @@
         font-size: var(--font-lg);
         font-weight: var(--weight-bold);
         line-height: var(--leading);
-        animation: toast-enter 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+        animation: toast-enter 0.25s cubic-bezier(0.05, 0.7, 0.1, 1) both;
         overflow: hidden;
         position: relative;
         cursor: pointer;
