@@ -197,12 +197,15 @@ export function applyTheme(
     // ── Error/Danger (Negative) — Warm red harmonized toward theme ──
     const dangerBaseHue = 20; // Warm red/orange
     const isNeutralTheme = source.c < 0.05;
-    const dangerHue = isNeutralTheme ? dangerBaseHue : harmonize(dangerBaseHue, source.h, 0.35);
+    // Low harmonization (0.15) keeps danger in the warm red-orange range for all
+    // themes. Higher values pull it toward magenta for blue themes, which is hard
+    // to distinguish from neutral surfaces — especially for red-green colorblind users.
+    const dangerHue = isNeutralTheme ? dangerBaseHue : harmonize(dangerBaseHue, source.h, 0.15);
     const dangerChroma = isNeutralTheme ? 0.03 : Math.max(source.c * 0.9, 0.20);
 
     if (isDark) {
         vars["--accent-danger"] = oklchToHex(0.62, dangerChroma, dangerHue);
-        vars["--danger-bg"] = oklchToHex(0.25, dangerChroma * 0.35, dangerHue);
+        vars["--danger-bg"] = oklchToHex(0.25, dangerChroma * 0.50, dangerHue);
         vars["--danger-border"] = oklchToHex(0.42, dangerChroma * 0.8, dangerHue);
         vars["--danger-text"] = oklchToHex(0.85, dangerChroma * 0.5, dangerHue);
     } else {
