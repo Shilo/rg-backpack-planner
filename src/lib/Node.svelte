@@ -412,6 +412,9 @@
         grid-template-areas: "stack";
     }
 
+    /* Intentional: nodes are spatial tree elements where keyboard navigation is
+       unintuitive. Tab key cycles tree tabs instead (TreeTabs.svelte). Focus
+       rings are deliberately suppressed — this is not an accessibility gap. */
     :global(.button.node:focus),
     :global(.button.node:focus-visible) {
         outline: none;

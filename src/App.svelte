@@ -556,6 +556,7 @@
         </div>
     </div>
     <main class="app-main">
+        <h1 class="visually-hidden">{$t("app.titleFull", { appName, gameName })}</h1>
         <TreeTabs
             bind:this={tabsRef}
             bind:activeLabel={activeTreeName}
