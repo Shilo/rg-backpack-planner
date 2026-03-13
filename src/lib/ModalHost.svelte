@@ -319,8 +319,8 @@
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         animation: modal-backdrop-in 0.15s ease both;
     }
 

@@ -13,7 +13,6 @@
     export let ignoreCloseTargetSelector: string | null = null;
     /** When true, (x,y) is the point just above the menu; menu is positioned with its top at y. */
     export let anchorBelow = false;
-
     let menuEl: HTMLDivElement | null = null;
     let displayX = 0;
     let displayY = 0;
@@ -39,6 +38,7 @@
     let lastX = 0;
     let lastY = 0;
     let backdropEl: HTMLButtonElement | null = null;
+    let isNested = false;
     $: resolvedTitle = title || "";
     $: resolvedAriaLabel = ariaLabel || "Context menu";
 
@@ -326,18 +326,20 @@
 </script>
 
 {#if isOpen}
-    <button
-        class="context-menu-backdrop"
-        type="button"
-        tabindex="0"
-        aria-label={$t("common.close")}
-        bind:this={backdropEl}
-        on:pointerdown={handleBackdropPointerDown}
-        on:pointerup={handleBackdropPointerUp}
-        on:click={handleBackdropClick}
-        on:contextmenu={handleBackdropContextMenu}
-        on:keydown={handleBackdropKeydown}
-    ></button>
+    {#if !noBackdrop}
+        <button
+            class="context-menu-backdrop"
+            type="button"
+            tabindex="0"
+            aria-label={$t("common.close")}
+            bind:this={backdropEl}
+            on:pointerdown={handleBackdropPointerDown}
+            on:pointerup={handleBackdropPointerUp}
+            on:click={handleBackdropClick}
+            on:contextmenu={handleBackdropContextMenu}
+            on:keydown={handleBackdropKeydown}
+        ></button>
+    {/if}
     <div
         class="context-menu"
         class:dragging={isDragging}
@@ -405,8 +407,8 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay-context);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);
