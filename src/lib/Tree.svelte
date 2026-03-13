@@ -9,7 +9,8 @@
 </script>
 
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { onMount, tick, setContext } from "svelte";
+    import { writable } from "svelte/store";
     import { fade } from "svelte/transition";
     import Node, { type NodeState } from "./Node.svelte";
     import RootNode from "./RootNode.svelte";
@@ -75,6 +76,8 @@
     export let rootY = TREE_ROOT_Y;
 
     let levels: LevelsByIndex = [];
+    const treeData = writable({ nodes, levels });
+    setContext("tree", treeData);
     let contextMenu: { index: NodeIndex | null; x: number; y: number } | null =
         null;
 
@@ -171,20 +174,18 @@
     let fadeKey = 0;
 
     type SplashData = {
-        id: number;
         nodeIndex: NodeIndex;
         x: number;
         y: number;
         level: number;
         isUp: boolean;
         crystalDelta: number;
-        skipEntry: boolean;
     };
     let activeSplashes: SplashData[] = [];
-    let splashIdCounter = 0;
 
     function updateLevels(nextLevels: LevelsByIndex) {
         levels = nextLevels;
+        treeData.set({ nodes, levels });
         onLevelsChange?.(nextLevels);
     }
 
@@ -192,6 +193,7 @@
         // Copy from external prop; clamp/pad to match node count
         const next: LevelsByIndex = nodes.map((_, i) => levelsById[i] ?? 0);
         levels = next;
+        treeData.set({ nodes, levels });
     } else {
         // Ensure levels array matches node count
         const next: LevelsByIndex = nodes.map((_, i) => levels[i] ?? 0);
@@ -200,6 +202,7 @@
             next.some((v, i) => v !== levels[i])
         ) {
             levels = next;
+            treeData.set({ nodes, levels });
         }
     }
 
@@ -485,8 +488,8 @@
         }
     }
 
-    function removeSplash(id: number) {
-        activeSplashes = activeSplashes.filter(s => s.id !== id);
+    function removeSplash(nodeIndex: NodeIndex) {
+        activeSplashes = activeSplashes.filter(s => s.nodeIndex !== nodeIndex);
     }
 
     function applyChange(index: NodeIndex, targetLevel: number) {
@@ -529,17 +532,21 @@
                         totalCrystalDelta += nextInfo.totalCostSpent - prevInfo.totalCostSpent;
                     }
                 }
-                const replacing = activeSplashes.some(s => s.nodeIndex === index);
-                activeSplashes = [...activeSplashes.filter(s => s.nodeIndex !== index), {
-                    id: splashIdCounter++,
+                const newSplash: SplashData = {
                     nodeIndex: index,
                     x: targetNode.x,
                     y: targetNode.y,
                     level: getLevelFrom(nextLevels, index),
                     isUp: targetLevel > currentLevel,
                     crystalDelta: totalCrystalDelta,
-                    skipEntry: replacing,
-                }];
+                };
+                const existingIdx = activeSplashes.findIndex(s => s.nodeIndex === index);
+                if (existingIdx !== -1) {
+                    activeSplashes[existingIdx] = newSplash;
+                    activeSplashes = activeSplashes;
+                } else {
+                    activeSplashes = [...activeSplashes, newSplash];
+                }
             }
         }
         return true;
@@ -642,14 +649,12 @@
                 const root = nodes[0];
                 if (root) {
                     activeSplashes = [{
-                        id: splashIdCounter++,
                         nodeIndex: 0 as NodeIndex,
                         x: root.x,
                         y: root.y,
                         level: 0,
                         isUp: false,
                         crystalDelta: totalCrystalDelta,
-                        skipEntry: false,
                     }];
                 }
             }
@@ -1436,16 +1441,15 @@
                     />
                 {/each}
 
-                {#each activeSplashes as splash (splash.id)}
+                {#each activeSplashes as splash (splash.nodeIndex)}
                     <LevelUpSplash
                         x={splash.x}
                         y={splash.y}
                         level={splash.level}
                         isUp={splash.isUp}
                         crystalDelta={splash.crystalDelta}
-                        skipEntry={splash.skipEntry}
                         {scale}
-                        onDone={() => removeSplash(splash.id)}
+                        onDone={() => removeSplash(splash.nodeIndex)}
                     />
                 {/each}
             </div>
