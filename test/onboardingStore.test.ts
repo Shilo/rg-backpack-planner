@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 // --- Store file structure ---
-const storePath = resolve("src/lib/onboardingStore.ts");
+const storePath = resolve("src/lib/Onboarding/onboardingStore.ts");
 let storeSource = "";
 
 try {
@@ -64,7 +64,7 @@ for (const localePath of localePaths) {
 const treePath = resolve("src/lib/Tree.svelte");
 const treeSource = readFileSync(treePath, "utf8");
 
-if (!/import.*onboardingSeen.*from.*\.\/onboardingStore/.test(treeSource)) {
+if (!/import.*onboardingSeen.*from.*\.\/Onboarding\/onboardingStore/.test(treeSource)) {
     throw new Error("Tree.svelte should import onboardingSeen from onboardingStore.");
 }
 

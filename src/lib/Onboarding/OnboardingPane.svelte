@@ -21,6 +21,10 @@
     export let bounds: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
     /** Padding from screen edges (px). */
     export let edgePadding: number = 0;
+    /** Extra bottom padding (e.g. for dismiss bar). */
+    export let bottomEdgePadding: number = 0;
+    /** The pane's own spotlight rect — treated as a hard constraint. */
+    export let ownSpotlightRect: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
 
     const GAP = 14;
 
@@ -57,8 +61,9 @@
                 break;
         }
 
-        // Clamp to viewport with edge padding
-        top = Math.max(edgePadding, Math.min(viewportHeight - contentHeight - edgePadding, top));
+        // Clamp to viewport with edge padding (bottom uses extra padding for dismiss bar)
+        const effectiveBottomPad = Math.max(edgePadding, bottomEdgePadding);
+        top = Math.max(edgePadding, Math.min(viewportHeight - contentHeight - effectiveBottomPad, top));
         left = Math.max(edgePadding, Math.min(viewportWidth - contentWidth - edgePadding, left));
 
         return {
@@ -103,7 +108,7 @@
 
     $: bestRect = (() => {
         // Reference variables used inside rectForDirection so Svelte tracks them
-        void contentHeight, contentWidth, spotlightRadius, edgePadding;
+        void contentHeight, contentWidth, spotlightRadius, edgePadding, bottomEdgePadding;
 
         if (!measured || viewportWidth === 0 || viewportHeight === 0) {
             return { top: screenY, left: screenX };
@@ -112,25 +117,41 @@
         const candidates = DIRECTION_FALLBACKS[direction];
         const rects = candidates.map((dir) => rectForDirection(dir));
 
-        if (avoidRects.length === 0) {
-            return rects[0];
-        }
+        // Own spotlight overlap for each direction
+        const ownOverlaps = rects.map((r) => overlapArea(r, ownSpotlightRect));
 
-        // Pick the first direction with zero total overlap
-        for (const rect of rects) {
-            if (totalOverlap(rect) === 0) {
-                return rect;
+        // 1. Prefer directions with zero overlap on everything (own spotlight + avoid rects)
+        for (let i = 0; i < rects.length; i++) {
+            if (ownOverlaps[i] === 0 && totalOverlap(rects[i]) === 0) {
+                return rects[i];
             }
         }
 
-        // All overlap — pick the one with the least total overlap area
+        // 2. Among directions that don't overlap own spotlight, pick least avoidRect overlap
+        const clearOfOwn = rects
+            .map((r, i) => ({ rect: r, idx: i }))
+            .filter((_, i) => ownOverlaps[i] === 0);
+
+        if (clearOfOwn.length > 0) {
+            let best = clearOfOwn[0];
+            let bestArea = totalOverlap(best.rect);
+            for (let i = 1; i < clearOfOwn.length; i++) {
+                const area = totalOverlap(clearOfOwn[i].rect);
+                if (area < bestArea) {
+                    best = clearOfOwn[i];
+                    bestArea = area;
+                }
+            }
+            return best.rect;
+        }
+
+        // 3. All directions overlap own spotlight — pick the least own-spotlight overlap
         let best = rects[0];
-        let bestArea = totalOverlap(rects[0]);
+        let bestArea = ownOverlaps[0];
         for (let i = 1; i < rects.length; i++) {
-            const area = totalOverlap(rects[i]);
-            if (area < bestArea) {
+            if (ownOverlaps[i] < bestArea) {
                 best = rects[i];
-                bestArea = area;
+                bestArea = ownOverlaps[i];
             }
         }
         return best;
@@ -188,7 +209,7 @@
         font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        padding: 3px 12px;
+        padding: var(--spacing-xs) var(--spacing-lg);
         border-radius: var(--radius-full);
         opacity: 0;
         animation: badge-enter 200ms var(--ease-decel) both;

@@ -31,7 +31,7 @@
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { t } from "svelte-whisper";
-    import { showOnboarding } from "../onboardingStore";
+    import { showOnboarding } from "../Onboarding/onboardingStore";
 
     import { getCurrentVersion } from "../latestUsedVersionStore";
 

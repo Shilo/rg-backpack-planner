@@ -27,7 +27,7 @@
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
     import { showLevelSplash } from "../showLevelSplashStore";
-    import { showOnboarding } from "../onboardingStore";
+    import { showOnboarding } from "../Onboarding/onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import { t, resetLocale } from "svelte-whisper";

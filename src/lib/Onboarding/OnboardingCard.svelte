@@ -50,7 +50,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
+        width: 36px; /* sized for 32px icon with alignment buffer */
         color: var(--text-muted);
     }
 

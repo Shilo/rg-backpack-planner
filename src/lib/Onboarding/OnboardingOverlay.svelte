@@ -6,7 +6,7 @@
         Node as NodeType,
         LevelsByIndex,
         NodeIndex,
-    } from "../types/tree";
+    } from "../../types/tree";
     import {
         ArrowsOutCardinalIcon,
         CursorClickIcon,
@@ -17,11 +17,11 @@
         MouseRightClickIcon,
         MouseScrollIcon,
     } from "phosphor-svelte";
-    import LongPressIcon from "./icons/LongPressIcon.svelte";
-    import PinchIcon from "./icons/PinchIcon.svelte";
-    import Node, { NODE_RADIUS_PX } from "./Node.svelte";
+    import LongPressIcon from "../icons/LongPressIcon.svelte";
+    import PinchIcon from "../icons/PinchIcon.svelte";
+    import Node, { NODE_RADIUS_PX } from "../Node.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
-    import { TREE_ROOT_X, TREE_ROOT_Y } from "../config/baseTree";
+    import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
 
     export let onDismiss: () => void;
@@ -100,7 +100,10 @@
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
     let overlayEl: HTMLDivElement;
+    let dismissBarHeight = 0;
 
+    // Intentionally blocks all keyboard input while overlay is active to prevent
+    // tree interactions (panning, tab switching, etc.) behind the tutorial.
     function handleKeydown(event: KeyboardEvent) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -197,14 +200,16 @@
         if (dismissing) return;
         dismissing = true;
 
-        // Immediately make overlay non-interactive for click-through
-        if (overlayEl) {
-            overlayEl.style.pointerEvents = "none";
-        }
-
-        // Forward the pointer event to whatever element is behind the overlay
+        // Hide overlay from elementFromPoint so we find the real target behind
+        overlayEl.style.visibility = "hidden";
         const target = document.elementFromPoint(event.clientX, event.clientY);
-        if (target && target !== overlayEl) {
+        overlayEl.style.visibility = "";
+
+        // Make overlay non-interactive so real pointerup reaches the target
+        overlayEl.style.pointerEvents = "none";
+
+        // Forward the pointer event to the element behind the overlay
+        if (target) {
             target.dispatchEvent(
                 new PointerEvent("pointerdown", {
                     clientX: event.clientX,
@@ -213,6 +218,7 @@
                     screenY: event.screenY,
                     pointerId: event.pointerId,
                     pointerType: event.pointerType,
+                    isPrimary: event.isPrimary,
                     button: event.button,
                     buttons: event.buttons,
                     bubbles: true,
@@ -251,6 +257,7 @@
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- aria-label intentionally not localized to keep i18n minimal -->
 <div
     class="onboarding-overlay"
     class:dismissing
@@ -280,6 +287,7 @@
                 <stop offset="70%" stop-color="black" />
                 <stop offset="100%" stop-color="white" />
             </radialGradient>
+            <!-- Only one overlay mounts at a time so static IDs are safe -->
             <mask id="onboarding-cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
                 <circle
@@ -299,7 +307,7 @@
         <rect
             width="100%"
             height="100%"
-            fill="rgba(0,0,0,0.55)"
+            fill="var(--backdrop-overlay)"
             mask="url(#onboarding-cutout-mask)"
         />
     </svg>
@@ -354,7 +362,7 @@
     <div class="dismiss-bg"></div>
 
     <!-- Dismiss hint card — above spotlights, behind panes -->
-    <div class="dismiss-text-bar">
+    <div class="dismiss-text-bar" bind:clientHeight={dismissBarHeight}>
         <div class="dismiss-card">
             <span class="dismiss-icon" aria-hidden="true">
                 {#if isTouch}
@@ -384,7 +392,9 @@
         {viewportWidth}
         {viewportHeight}
         avoidRects={nodeAvoidRects}
+        ownSpotlightRect={nodeSpotlightRect}
         edgePadding={panePadding}
+        bottomEdgePadding={dismissBarHeight}
         bind:bounds={nodePaneBounds}
     />
 
@@ -401,7 +411,9 @@
         {viewportWidth}
         {viewportHeight}
         avoidRects={treeAvoidRects}
+        ownSpotlightRect={treeSpotlightRect}
         edgePadding={panePadding}
+        bottomEdgePadding={dismissBarHeight}
     />
 
 
@@ -447,7 +459,7 @@
     .spotlight-ring {
         position: absolute;
         transform: translate(-50%, -50%);
-        border: 2px dashed rgba(255, 255, 255, 0.6);
+        border: 2px dashed color-mix(in srgb, var(--text) 60%, transparent);
         border-radius: 50%;
         pointer-events: none;
         z-index: 1;
@@ -490,7 +502,7 @@
     .dismiss-card {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: var(--spacing-md);
         padding: var(--spacing-sm) var(--spacing-lg);
         background: var(--bg-panel);
         border: 1px solid var(--border-subtle);
@@ -503,7 +515,7 @@
     .dismiss-icon {
         display: flex;
         align-items: center;
-        opacity: 0.7;
+        opacity: var(--opacity-disabled);
     }
 
     .dismiss-text {

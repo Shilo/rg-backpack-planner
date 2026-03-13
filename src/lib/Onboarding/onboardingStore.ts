@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { getItem, setItem } from "./storage";
+import { getItem, setItem } from "../storage";
 
 export const DEFAULT_ONBOARDING_SEEN = false;
 
