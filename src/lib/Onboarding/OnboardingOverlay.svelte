@@ -99,7 +99,6 @@
     let panePadding = 0;
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
-    let overlayEl: HTMLDivElement;
     let dismissBarHeight = 0;
 
     // Intentionally blocks all keyboard input while overlay is active to prevent
@@ -112,6 +111,12 @@
         }
     }
 
+    // Dismiss on any pointer interaction — uses window capture so the event
+    // still reaches the tree viewport (overlay is pointer-events: none).
+    function handlePointerDismiss() {
+        handleDismiss();
+    }
+
     onMount(() => {
         isTouch = window.matchMedia("(pointer: coarse)").matches;
         panePadding =
@@ -121,8 +126,10 @@
                 ),
             ) || 12;
         window.addEventListener("keydown", handleKeydown, true);
+        window.addEventListener("pointerdown", handlePointerDismiss, true);
         return () => {
             window.removeEventListener("keydown", handleKeydown, true);
+            window.removeEventListener("pointerdown", handlePointerDismiss, true);
             if (dismissTimer) clearTimeout(dismissTimer);
         };
     });
@@ -199,55 +206,9 @@
 
     let dismissing = false;
 
-    function handlePointerDismiss(event: PointerEvent) {
-        if (dismissing) return;
-        dismissing = true;
-
-        // Hide overlay from elementFromPoint so we find the real target behind
-        overlayEl.style.visibility = "hidden";
-        const target = document.elementFromPoint(event.clientX, event.clientY);
-        overlayEl.style.visibility = "";
-
-        // Make overlay non-interactive so real pointerup reaches the target
-        overlayEl.style.pointerEvents = "none";
-
-        // Forward the pointer event to the element behind the overlay
-        if (target) {
-            target.dispatchEvent(
-                new PointerEvent("pointerdown", {
-                    clientX: event.clientX,
-                    clientY: event.clientY,
-                    screenX: event.screenX,
-                    screenY: event.screenY,
-                    pointerId: event.pointerId,
-                    pointerType: event.pointerType,
-                    isPrimary: event.isPrimary,
-                    button: event.button,
-                    buttons: event.buttons,
-                    bubbles: true,
-                    cancelable: true,
-                    composed: true,
-                }),
-            );
-        }
-
-        // Animate out then remove
-        const prefersReducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        ).matches;
-        if (prefersReducedMotion) {
-            onDismiss();
-        } else {
-            dismissTimer = setTimeout(onDismiss, 250);
-        }
-    }
-
     function handleDismiss() {
         if (dismissing) return;
         dismissing = true;
-        if (overlayEl) {
-            overlayEl.style.pointerEvents = "none";
-        }
         const prefersReducedMotion = window.matchMedia(
             "(prefers-reduced-motion: reduce)",
         ).matches;
@@ -268,8 +229,6 @@
     aria-modal="true"
     aria-label="Controls tutorial"
     tabindex="-1"
-    on:pointerdown={handlePointerDismiss}
-    bind:this={overlayEl}
     bind:clientWidth={viewportWidth}
     bind:clientHeight={viewportHeight}
 >
@@ -358,11 +317,8 @@
             2}px; height: {treeSpotlightRadius * 2}px;"
     ></div>
 
-    <!-- Dismiss hint background — behind spotlight rings -->
-    <div class="dismiss-bg"></div>
-
-    <!-- Dismiss hint card — above spotlights, behind panes -->
-    <div class="dismiss-text-bar" bind:clientHeight={dismissBarHeight}>
+    <!-- Dismiss bar — gradient fades in with overlay, card fades in later -->
+    <div class="dismiss-bar" bind:clientHeight={dismissBarHeight}>
         <div class="dismiss-card">
             <span class="dismiss-icon" aria-hidden="true">
                 {#if isTouch}
@@ -422,6 +378,7 @@
         position: absolute;
         inset: 0;
         z-index: var(--z-index-context-menu);
+        pointer-events: none;
         animation: overlay-fade-in 300ms ease both;
     }
 
@@ -456,8 +413,7 @@
         z-index: 1;
     }
 
-    .dismiss-bg,
-    .dismiss-text-bar {
+    .dismiss-bar {
         --_bar-h: calc(
             var(--tab-height) +
                 max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
@@ -469,21 +425,11 @@
         right: 0;
         height: calc(var(--_bar-h) + var(--_fade));
         pointer-events: none;
-        opacity: 0;
-        animation: hint-fade-in 400ms ease both;
-        animation-delay: 800ms;
-        padding-bottom: var(--safe-bottom, 0px);
-    }
-
-    .dismiss-bg {
         background: linear-gradient(
             to bottom,
             transparent 0%,
             var(--bg) var(--_fade)
         );
-    }
-
-    .dismiss-text-bar {
         display: flex;
         align-items: flex-end;
         justify-content: center;
@@ -502,6 +448,7 @@
         font-size: var(--font-sm);
         color: var(--text-muted);
         white-space: nowrap;
+        animation: hint-fade-in 600ms ease 800ms both;
     }
 
     .dismiss-icon {
@@ -549,8 +496,7 @@
             animation: none;
         }
 
-        .dismiss-bg,
-        .dismiss-text-bar {
+        .dismiss-card {
             animation: none;
             opacity: 1;
         }
