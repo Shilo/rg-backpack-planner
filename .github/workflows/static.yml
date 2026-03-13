@@ -37,6 +37,11 @@ jobs:
       - name: Run tests
         run: npm run test
 
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Bump version
         run: node scripts/bump-version.cjs
         env:
@@ -54,21 +59,10 @@ jobs:
         with:
           path: './dist'
 
-      - name: Commit and push version bump
+      - name: Push version bump
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          if git diff --quiet; then
-            echo "No version changes to commit."
-            exit 0
-          fi
-
-          VERSION=$(node -p "require('./package.json').version")
-          git add package.json package-lock.json
-          git commit -m "chore(release): v${VERSION}"
           git pull --rebase
-          git push
+          git push && git push --tags
 
   deploy:
     needs: build
