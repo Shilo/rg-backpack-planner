@@ -64,11 +64,17 @@
 
     async function loadTabPage(tab: SideMenuTab): Promise<void> {
         if (tab === "settings" && !SideMenuSettingsPage) {
-            SideMenuSettingsPage = (await import("./sideMenuPages/SideMenuSettingsPage.svelte")).default;
+            SideMenuSettingsPage = (
+                await import("./sideMenuPages/SideMenuSettingsPage.svelte")
+            ).default;
         } else if (tab === "statistics" && !SideMenuStatisticsPage) {
-            SideMenuStatisticsPage = (await import("./sideMenuPages/SideMenuStatisticsPage.svelte")).default;
+            SideMenuStatisticsPage = (
+                await import("./sideMenuPages/SideMenuStatisticsPage.svelte")
+            ).default;
         } else if (tab === "controls" && !SideMenuControlsPage) {
-            SideMenuControlsPage = (await import("./sideMenuPages/SideMenuControlsPage.svelte")).default;
+            SideMenuControlsPage = (
+                await import("./sideMenuPages/SideMenuControlsPage.svelte")
+            ).default;
         }
     }
 
@@ -291,10 +297,22 @@
     .side-menu.open .side-menu__content-inner > :global(*) {
         animation: side-menu-item-in 0.25s ease both;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(1)) { animation-delay: 20ms; }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(2)) { animation-delay: 50ms; }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(3)) { animation-delay: 80ms; }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(4)) { animation-delay: 110ms; }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(5)) { animation-delay: 140ms; }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(6)) { animation-delay: 170ms; }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(1)) {
+        animation-delay: 20ms;
+    }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(2)) {
+        animation-delay: 50ms;
+    }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(3)) {
+        animation-delay: 80ms;
+    }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(4)) {
+        animation-delay: 110ms;
+    }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(5)) {
+        animation-delay: 140ms;
+    }
+    .side-menu.open .side-menu__content-inner > :global(:nth-child(6)) {
+        animation-delay: 170ms;
+    }
 </style>

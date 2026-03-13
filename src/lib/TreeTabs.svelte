@@ -469,7 +469,9 @@
     }
 
     function isCaptureInProgress() {
-        return document.documentElement.classList.contains(SNAPDOM_CAPTURE_CLASS);
+        return document.documentElement.classList.contains(
+            SNAPDOM_CAPTURE_CLASS,
+        );
     }
 
     function handleLevelsChange(nextLevels: number[]) {
@@ -495,9 +497,10 @@
             setActive,
             getActive: () => activeIndex,
             getTreeCanvas: () => treeRef?.getTreeCanvas?.(),
-            focusActiveTreeInView: () => treeRef?.focusTreeInViewForCapture
-                ? treeRef.focusTreeInViewForCapture()
-                : treeRef?.focusTreeInView?.(false),
+            focusActiveTreeInView: () =>
+                treeRef?.focusTreeInViewForCapture
+                    ? treeRef.focusTreeInViewForCapture()
+                    : treeRef?.focusTreeInView?.(false),
             getViewState: () => treeRef?.getViewState?.() ?? null,
             restoreAfterCapture,
         };

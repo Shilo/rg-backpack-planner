@@ -100,7 +100,7 @@
         position: absolute;
         transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
         pointer-events: none;
-        z-index: 10;
+        z-index: var(--z-index-tooltip);
     }
 
     .level-splash__anim {

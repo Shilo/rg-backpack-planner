@@ -3,10 +3,7 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
-    import {
-        saveBuildToUrl,
-        shareBuildUrlNative,
-    } from "../buildData/share";
+    import { saveBuildToUrl, shareBuildUrlNative } from "../buildData/share";
     import { portal } from "../portal";
     import { openComposeScreenshot } from "../ComposeScreenshot.svelte";
     import { activePresetName } from "../buildPresetsStore";
