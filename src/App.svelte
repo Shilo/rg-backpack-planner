@@ -32,6 +32,7 @@
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
     import ComposeScreenshot, {
+        isComposeScreenshotOpen,
         openComposeScreenshot,
     } from "./lib/ComposeScreenshot.svelte";
     import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
@@ -418,7 +419,12 @@
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat) return;
 
-            if (e.key === "Escape" && !e.defaultPrevented && e.isTrusted) {
+            if (
+                e.key === "Escape" &&
+                !e.defaultPrevented &&
+                e.isTrusted &&
+                !$isComposeScreenshotOpen
+            ) {
                 e.preventDefault();
                 if (isMenuOpen) {
                     if (!sideMenuRef?.tryGoBack?.()) {
@@ -496,7 +502,10 @@
             unsubscribeTechCrystals?.();
 
             if (typeof document !== "undefined") {
-                document.removeEventListener("closeSideMenu", handleCloseSideMenu);
+                document.removeEventListener(
+                    "closeSideMenu",
+                    handleCloseSideMenu,
+                );
             }
             if (typeof window !== "undefined") {
                 window.removeEventListener("hashchange", handleHashchange);
@@ -553,7 +562,7 @@
             bind:activeViewState={activeTreeViewState}
             bind:activeFocusViewState={activeTreeFocusViewState}
             {tabs}
-            isMenuOpen={isMenuOpen}
+            {isMenuOpen}
             onMenuClick={toggleMenu}
         />
     </main>

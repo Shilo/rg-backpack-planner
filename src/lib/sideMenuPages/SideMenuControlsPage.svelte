@@ -495,14 +495,27 @@
                     <li class="control-row">
                         <div class="control-label-row">
                             <span class="control-icon" aria-hidden="true">
-                                <ArrowCounterClockwiseIcon />
+                                <ListIcon />
                             </span>
                             <p class="control-label">
-                                {$t("controls.keyboardBackspaceResetLabel")}
+                                {$t("controls.keyboardEscLabel")}
                             </p>
                         </div>
                         <p class="control-desc control-desc-standalone">
-                            {$t("controls.keyboardBackspaceResetDescription")}
+                            {$t("controls.keyboardEscDescription")}
+                        </p>
+                    </li>
+                    <li class="control-row">
+                        <div class="control-label-row">
+                            <span class="control-icon" aria-hidden="true">
+                                <ArrowCounterClockwiseIcon />
+                            </span>
+                            <p class="control-label">
+                                {$t("controls.keyboardBackspaceLabel")}
+                            </p>
+                        </div>
+                        <p class="control-desc control-desc-standalone">
+                            {$t("controls.keyboardBackspaceDescription")}
                         </p>
                     </li>
                 </ul>
