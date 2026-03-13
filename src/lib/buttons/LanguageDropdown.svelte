@@ -64,11 +64,13 @@
         on:click={handleDropdownClick}
         icon={TranslateIcon}
         class="language-button"
-        description={$t("settings.languageDescription")}
         arrow="down"
     >
         <div class="button-content">
-            <span class="label">{$t("settings.languageLabel")}</span>
+            <div class="label-group">
+                <span class="label">{$t("settings.languageLabel")}</span>
+                <span class="description">{$t("settings.languageDescription")}</span>
+            </div>
             <div class="divider"></div>
             <div class="value-container">
                 <span class="language-value"
@@ -144,16 +146,11 @@
         width: 100%;
     }
 
-    :global(.language-button .button-text),
-    :global(.language-button .button-text-group) {
+    :global(.language-button .button-text) {
         flex: 1;
         display: flex;
         min-width: 0;
         align-self: stretch;
-    }
-
-    :global(.language-button .button-text-group .button-text) {
-        align-self: auto;
     }
 
     .button-content {
@@ -166,14 +163,27 @@
         flex-wrap: wrap;
     }
 
-    .label {
+    .label-group {
         flex: 1;
         min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        justify-content: center;
         text-align: left;
+    }
+
+    .label {
         white-space: normal;
         overflow-wrap: anywhere;
-        display: flex;
-        align-items: center;
+    }
+
+    .description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .divider {
