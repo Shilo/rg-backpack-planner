@@ -493,6 +493,30 @@
         "hudPreviewIndicatorLabel": "预览构建指示器",
         "hudPreviewIndicatorDescription": "查看和编辑分享的构建；访问预览构建选项"
     },
+    "onboarding": {
+        "nodesSection": "节点",
+        "treeSection": "技能树",
+        "levelUp": "升级",
+        "options": "选项",
+        "levelDown": "降级",
+        "treeOptions": "技能树选项",
+        "pan": "平移",
+        "zoom": "缩放",
+        "dismissClick": "点击任意位置开始",
+        "dismissTap": "点按任意位置开始",
+        "leftClick": "左键点击",
+        "rightClick": "右键点击",
+        "middleClick": "中键点击",
+        "clickDrag": "点击并拖动",
+        "scroll": "滚动",
+        "tap": "点按",
+        "longPress": "长按",
+        "swipe": "滑动",
+        "pinch": "捏合",
+        "showTutorial": "显示教程",
+        "showTutorialDescription": "重新播放首次操作指南",
+        "showTutorialToast": "教程将在下次加载技能树时显示"
+    },
     "install": {
         "tooltip": "在{osName}上安装{appName}应用",
         "buttonLabel": "在{osName}上安装应用"

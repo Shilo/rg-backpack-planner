@@ -493,6 +493,30 @@
         "hudPreviewIndicatorLabel": "プレビュービルド表示",
         "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス"
     },
+    "onboarding": {
+        "nodesSection": "ノード",
+        "treeSection": "ツリー",
+        "levelUp": "レベルアップ",
+        "options": "オプション",
+        "levelDown": "レベルダウン",
+        "treeOptions": "ツリーオプション",
+        "pan": "移動",
+        "zoom": "ズーム",
+        "dismissClick": "クリックして開始",
+        "dismissTap": "タップして開始",
+        "leftClick": "左クリック",
+        "rightClick": "右クリック",
+        "middleClick": "中クリック",
+        "clickDrag": "クリック＆ドラッグ",
+        "scroll": "スクロール",
+        "tap": "タップ",
+        "longPress": "長押し",
+        "swipe": "スワイプ",
+        "pinch": "ピンチ",
+        "showTutorial": "チュートリアルを表示",
+        "showTutorialDescription": "初回操作ガイドを再表示",
+        "showTutorialToast": "次のツリー読み込み時にチュートリアルを表示します"
+    },
     "install": {
         "tooltip": "{osName}に{appName}アプリをインストール",
         "buttonLabel": "{osName}にアプリをインストール"

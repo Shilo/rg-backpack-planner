@@ -493,6 +493,30 @@
         "hudPreviewIndicatorLabel": "Preview Build Indicator",
         "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options"
     },
+    "onboarding": {
+        "nodesSection": "Nodes",
+        "treeSection": "Tree",
+        "levelUp": "Level up",
+        "options": "Options",
+        "levelDown": "Level down",
+        "treeOptions": "Tree options",
+        "pan": "Pan",
+        "zoom": "Zoom",
+        "dismissClick": "Click anywhere to start",
+        "dismissTap": "Tap anywhere to start",
+        "leftClick": "Left Click",
+        "rightClick": "Right Click",
+        "middleClick": "Middle Click",
+        "clickDrag": "Click + Drag",
+        "scroll": "Scroll",
+        "tap": "Tap",
+        "longPress": "Long Press",
+        "swipe": "Swipe",
+        "pinch": "Pinch",
+        "showTutorial": "Show Tutorial",
+        "showTutorialDescription": "Replay the first-load controls guide",
+        "showTutorialToast": "Tutorial will show on next tree load"
+    },
     "install": {
         "tooltip": "Install {appName} app on {osName}",
         "buttonLabel": "Install App on {osName}"
