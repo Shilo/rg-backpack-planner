@@ -495,7 +495,9 @@
             : null;
 
     function removeSplash(nodeIndex: NodeIndex) {
-        activeSplashes = activeSplashes.filter(s => s.nodeIndex !== nodeIndex);
+        activeSplashes = activeSplashes.filter(
+            (s) => s.nodeIndex !== nodeIndex,
+        );
     }
 
     function applyChange(index: NodeIndex, targetLevel: number) {
@@ -529,9 +531,10 @@
         if ($showLevelSplash) {
             const targetNode = getNodeAt(index);
             if (targetNode) {
-                const totalCrystalDelta = targetLevel > currentLevel
-                    ? sumDeltaCosts(nodes, prevLevels, deltas)
-                    : -sumDeltaCosts(nodes, prevLevels, deltas);
+                const totalCrystalDelta =
+                    targetLevel > currentLevel
+                        ? sumDeltaCosts(nodes, prevLevels, deltas)
+                        : -sumDeltaCosts(nodes, prevLevels, deltas);
                 const newSplash: SplashData = {
                     nodeIndex: index,
                     x: targetNode.x,
@@ -541,7 +544,10 @@
                     crystalDelta: totalCrystalDelta,
                     skipEntry: false,
                 };
-                activeSplashes = [...activeSplashes.filter(s => s.nodeIndex !== index), newSplash];
+                activeSplashes = [
+                    ...activeSplashes.filter((s) => s.nodeIndex !== index),
+                    newSplash,
+                ];
             }
         }
         return true;
@@ -640,15 +646,17 @@
             if (hadLevels) {
                 const root = nodes[0];
                 if (root) {
-                    activeSplashes = [{
-                        nodeIndex: 0 as NodeIndex,
-                        x: root.x,
-                        y: root.y,
-                        level: 0,
-                        isUp: false,
-                        crystalDelta: totalCrystalDelta,
-                        skipEntry: true,
-                    }];
+                    activeSplashes = [
+                        {
+                            nodeIndex: 0 as NodeIndex,
+                            x: root.x,
+                            y: root.y,
+                            level: 0,
+                            isUp: false,
+                            crystalDelta: totalCrystalDelta,
+                            skipEntry: true,
+                        },
+                    ];
                 }
             }
         }
@@ -738,7 +746,7 @@
         });
     }
 
-    const NODE_MENU_GAP = 10;
+    const NODE_MENU_GAP = 16;
 
     function getNodeInfoFromTarget(target: EventTarget | null) {
         if (!(target instanceof Element)) return null;
@@ -1058,7 +1066,9 @@
         return Math.min(Math.max(value, min), max);
     }
 
-    function computeFocusViewState(overrideZoom?: TreeZoomLevel): TreeViewState | null {
+    function computeFocusViewState(
+        overrideZoom?: TreeZoomLevel,
+    ): TreeViewState | null {
         if (!viewportEl || nodes.length === 0) return null;
         const rect = viewportEl.getBoundingClientRect();
         // Ensure viewport has valid dimensions
@@ -1433,7 +1443,6 @@
                         maxLevel={nodeView.node.maxLevel}
                     />
                 {/each}
-
             </div>
 
             <NodeContentMenu
@@ -1464,10 +1473,15 @@
                         id={contextMenuRenderNode.index}
                         x={contextMenuRenderNode.node.x}
                         y={contextMenuRenderNode.node.y}
-                        label={$t(`skills.${contextMenuRenderNode.node.skillId}`)}
+                        label={$t(
+                            `skills.${contextMenuRenderNode.node.skillId}`,
+                        )}
                         level={contextMenuLevel}
                         state={contextMenuRenderNode.state}
-                        tier={tierIndex(contextMenuLevel, contextMenuRenderNode.node.maxLevel)}
+                        tier={tierIndex(
+                            contextMenuLevel,
+                            contextMenuRenderNode.node.maxLevel,
+                        )}
                         showTier={$showTier}
                         showSkillName={$showSkillName}
                         radius={contextMenuRenderNode.node.radius ?? 1}

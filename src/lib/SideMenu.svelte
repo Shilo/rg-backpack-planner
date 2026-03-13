@@ -185,8 +185,8 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease;

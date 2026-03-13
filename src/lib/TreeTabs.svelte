@@ -686,7 +686,7 @@
        `button.svelte-hash` (0,1,1), so !important is not needed here. */
     :global(.tab-buttons .tab-btn) {
         color: var(--text-muted);
-        padding: 2px var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
         min-height: var(--tab-height);
         border-radius: var(--radius);
         letter-spacing: normal;
@@ -753,11 +753,11 @@
     .tree-tab-crystals {
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
         font-size: 0.85em;
         color: var(--text-muted);
         background: color-mix(in srgb, var(--surface) 60%, transparent);
-        padding: 2px 4px;
+        padding: var(--spacing-xs) var(--spacing-sm);
         border-radius: var(--radius-sm);
         flex-shrink: 0;
         line-height: 1;

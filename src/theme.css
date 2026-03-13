@@ -5,6 +5,7 @@
     --border-width: 1px;
 
     /* Padding */
+    --spacing-xs: 2px;
     --spacing-sm: 4px;
     --spacing-md: 8px;
     --spacing-lg: 12px;
@@ -39,6 +40,7 @@
 
     /* Letter spacing */
     --tracking: 0.02em;
+    --tracking-wide: 0.06em;
 
     /* Line height */
     --leading-none: 1;

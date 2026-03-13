@@ -412,8 +412,8 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay-context);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);
@@ -422,7 +422,7 @@
     }
 
     @keyframes ctx-menu-enter {
-        from { opacity: 0; filter: blur(2px); }
-        to { opacity: 1; filter: blur(0); }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 </style>

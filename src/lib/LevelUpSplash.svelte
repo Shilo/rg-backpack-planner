@@ -140,7 +140,7 @@
     .level-splash__segment {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: var(--spacing-sm);
     }
 
     .level-splash__icon {

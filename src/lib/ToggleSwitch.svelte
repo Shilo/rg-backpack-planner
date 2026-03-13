@@ -109,7 +109,7 @@
     .toggle-row__label-group {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--spacing-xs);
         flex: 1;
         min-width: 0;
     }
@@ -155,7 +155,7 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: white;
+        background: oklch(0.97 0 0);
         transition: transform var(--ease-emphasis);
         box-shadow: var(--shadow);
     }

@@ -607,7 +607,7 @@
     /* Alternative input rows (e.g. Middle Click / Shift+Click) */
     .control-alt-group {
         display: grid;
-        gap: 2px;
+        gap: var(--spacing-xs);
         min-width: 0;
     }
 

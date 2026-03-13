@@ -129,7 +129,7 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--spacing-xs);
     }
 
     .about-app-name {

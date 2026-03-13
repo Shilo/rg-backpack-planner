@@ -309,7 +309,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
     }
 
     .skill-name {

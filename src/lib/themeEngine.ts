@@ -327,14 +327,14 @@ export function applyTheme(
     // ── Shadows ──
     if (isDark) {
         const bgHex = vars["--bg"];
-        vars["--shadow"] = `0 8px 20px ${bgHex}80`;
-        vars["--shadow-node"] = `0 4px 10px ${bgHex}80`;
-        vars["--shadow-node-hex"] = `0 4px 5px ${bgHex}`;
-        vars["--shadow-sm"] = `0 1px 2px ${bgHex}60, 0 2px 6px 2px ${bgHex}40`;
-        vars["--shadow-lg"] = `0 8px 24px ${bgHex}40`;
-        vars["--shadow-lateral"] = `-4px 0 32px ${bgHex}40`;
-        vars["--shadow-inset"] = `inset 0 2px 4px ${bgHex}50`;
-        vars["--shadow-drop-icon"] = `drop-shadow(0 2px 4px ${bgHex}a0)`;
+        vars["--shadow"] = `0 8px 20px ${bgHex}60`;
+        vars["--shadow-node"] = `0 4px 10px ${bgHex}60`;
+        vars["--shadow-node-hex"] = `0 4px 5px ${bgHex}c0`;
+        vars["--shadow-sm"] = `0 1px 2px ${bgHex}48, 0 2px 6px 2px ${bgHex}30`;
+        vars["--shadow-lg"] = `0 8px 24px ${bgHex}30`;
+        vars["--shadow-lateral"] = `-4px 0 32px ${bgHex}30`;
+        vars["--shadow-inset"] = `inset 0 2px 4px ${bgHex}40`;
+        vars["--shadow-drop-icon"] = `drop-shadow(0 2px 4px ${bgHex}80)`;
     } else {
         vars["--shadow"] = "0 8px 20px rgba(0,0,0,0.08)";
         vars["--shadow-node"] = "0 4px 10px rgba(0,0,0,0.10)";
@@ -345,12 +345,12 @@ export function applyTheme(
         vars["--shadow-inset"] = "inset 0 2px 4px rgba(0,0,0,0.06)";
         vars["--shadow-drop-icon"] = "drop-shadow(0 2px 4px rgba(0,0,0,0.25))";
     }
-    vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.5)";
+    vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.4)";
     vars["--backdrop-overlay-context"] = "rgba(0, 0, 0, 0.25)";
 
     // ── Dynamic filter variables (mode-dependent) ──
     if (isDark) {
-        vars["--brightness-hover"] = "brightness(1.2)";
+        vars["--brightness-hover"] = "brightness(1.12)";
         vars["--node-brightness-locked"] = "brightness(0.7)";
         vars["--node-brightness-available"] = "brightness(0.65)";
         vars["--shadow-text"] =

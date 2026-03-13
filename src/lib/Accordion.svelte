@@ -73,7 +73,7 @@
         flex: 1;
         font-size: var(--font-sm);
         font-weight: var(--weight-semibold);
-        letter-spacing: 0.06em;
+        letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
         color: var(--text-muted);
     }

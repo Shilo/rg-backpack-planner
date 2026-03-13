@@ -443,7 +443,7 @@
     .node-badge-icon-stack {
         position: absolute;
         inset: 0;
-        --badge-icon-gap: 2px;
+        --badge-icon-gap: var(--spacing-xs);
         pointer-events: none;
     }
 

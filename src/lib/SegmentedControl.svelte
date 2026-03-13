@@ -168,7 +168,7 @@
     .segmented-control__content {
         display: flex;
         align-items: stretch;
-        gap: 8px;
+        gap: var(--spacing-md);
         min-width: 0;
         min-height: 38px;
     }
@@ -178,7 +178,7 @@
     }
 
     .segmented-control__content.with-leading-icon {
-        padding-left: 12px;
+        padding-left: var(--spacing-lg);
         background: var(--bg-input);
     }
 
@@ -275,7 +275,7 @@
     .segmented-control__header-label-group {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--spacing-xs);
         flex: 1;
         min-width: 0;
     }

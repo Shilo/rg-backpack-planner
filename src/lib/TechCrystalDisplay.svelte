@@ -43,7 +43,7 @@
         border-radius: var(--radius-lg) !important;
         display: inline-flex;
         align-items: center;
-        gap: 2px !important;
+        gap: var(--spacing-xs) !important;
         padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm)
             var(--spacing-lg);
         font-weight: var(--weight-bold);
