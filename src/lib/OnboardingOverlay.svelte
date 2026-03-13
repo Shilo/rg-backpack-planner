@@ -75,14 +75,30 @@
     // Node pane bounds for overlap prevention
     let nodePaneBounds = { top: 0, bottom: 0, left: 0, right: 0 };
 
+    // Spotlight bounding rects (circle → axis-aligned rect)
+    $: nodeSpotlightRect = {
+        top: nodeScreenY - nodeSpotlightRadius,
+        bottom: nodeScreenY + nodeSpotlightRadius,
+        left: nodeScreenX - nodeSpotlightRadius,
+        right: nodeScreenX + nodeSpotlightRadius,
+    };
+    $: treeSpotlightRect = {
+        top: treeScreenY - treeSpotlightRadius,
+        bottom: treeScreenY + treeSpotlightRadius,
+        left: treeScreenX - treeSpotlightRadius,
+        right: treeScreenX + treeSpotlightRadius,
+    };
+
+    // Avoid zones for each pane (screen bounds enforced internally by pane)
+    $: nodeAvoidRects = [treeSpotlightRect];
+    $: treeAvoidRects = [nodePaneBounds, nodeSpotlightRect];
+
     // Landscape detection
     $: isLandscape = viewportWidth > 0 && viewportWidth > viewportHeight;
 
     // Pane directions: landscape uses lateral positioning, portrait uses vertical
-    $: nodePaneDirection =
-        isLandscape ? ("left" as const) : ("up" as const);
-    $: treePaneDirection =
-        isLandscape ? ("right" as const) : ("down" as const);
+    $: nodePaneDirection = isLandscape ? ("left" as const) : ("up" as const);
+    $: treePaneDirection = isLandscape ? ("right" as const) : ("down" as const);
 
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
@@ -184,10 +200,7 @@
         }
 
         // Forward the pointer event to whatever element is behind the overlay
-        const target = document.elementFromPoint(
-            event.clientX,
-            event.clientY,
-        );
+        const target = document.elementFromPoint(event.clientX, event.clientY);
         if (target && target !== overlayEl) {
             target.dispatchEvent(
                 new PointerEvent("pointerdown", {
@@ -308,7 +321,7 @@
                     maxLevel={targetNode.maxLevel}
                     tier={0}
                     label={$t(`skills.${targetNode.skillId}`)}
-                    scale={scale}
+                    {scale}
                     radius={targetNode.radius ?? 1}
                     region={targetRegion}
                     showSkillName={true}
@@ -327,7 +340,7 @@
             2}px; height: {treeSpotlightRadius * 2}px;"
     ></div>
 
-    <!-- Node instruction pane -->
+    <!-- Node instruction pane (avoids tree spotlight) -->
     <OnboardingPane
         screenX={nodeScreenX}
         screenY={nodeScreenY}
@@ -339,10 +352,11 @@
         baseCardIndex={0}
         {viewportWidth}
         {viewportHeight}
+        avoidRects={nodeAvoidRects}
         bind:bounds={nodePaneBounds}
     />
 
-    <!-- Tree instruction pane (avoids node pane) -->
+    <!-- Tree instruction pane (avoids node pane + node spotlight) -->
     <OnboardingPane
         screenX={treeScreenX}
         screenY={treeScreenY}
@@ -354,7 +368,7 @@
         baseCardIndex={nodeCards.length}
         {viewportWidth}
         {viewportHeight}
-        avoidRect={nodePaneBounds}
+        avoidRects={treeAvoidRects}
     />
 
     <!-- Dismiss hint — respects safe area -->

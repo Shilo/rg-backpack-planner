@@ -3,6 +3,7 @@
     import OnboardingCard from "./OnboardingCard.svelte";
 
     type CardData = { icon: Component; label: string; description: string };
+    type Rect = { top: number; bottom: number; left: number; right: number };
 
     export let screenX: number;
     export let screenY: number;
@@ -15,18 +16,9 @@
     export let baseCardIndex: number = 0;
     export let viewportWidth: number = 0;
     export let viewportHeight: number = 0;
-    export let avoidRect: {
-        top: number;
-        bottom: number;
-        left: number;
-        right: number;
-    } | null = null;
-    export let bounds: {
-        top: number;
-        bottom: number;
-        left: number;
-        right: number;
-    } = { top: 0, bottom: 0, left: 0, right: 0 };
+    /** Rects to avoid, checked in order. First is highest priority after screen bounds. */
+    export let avoidRects: Rect[] = [];
+    export let bounds: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
 
     const GAP = 14;
 
@@ -35,154 +27,108 @@
 
     $: measured = contentHeight > 0 && contentWidth > 0;
 
-    $: isVertical = direction === "up" || direction === "down";
-
-    $: computedTop = (() => {
-        if (!measured || viewportHeight === 0) return screenY;
-
+    /** Compute the clamped rect for the pane placed in a given direction. */
+    function rectForDirection(dir: "up" | "down" | "left" | "right"): Rect {
         let top: number;
-
-        if (isVertical) {
-            const spaceAbove = screenY - spotlightRadius - GAP;
-            const spaceBelow =
-                viewportHeight - screenY - spotlightRadius - GAP;
-
-            let goUp = direction === "up";
-            if (
-                goUp &&
-                contentHeight > spaceAbove &&
-                contentHeight <= spaceBelow
-            ) {
-                goUp = false;
-            } else if (
-                !goUp &&
-                contentHeight > spaceBelow &&
-                contentHeight <= spaceAbove
-            ) {
-                goUp = true;
-            }
-
-            if (goUp) {
-                top = screenY - spotlightRadius - GAP - contentHeight;
-            } else {
-                top = screenY + spotlightRadius + GAP;
-            }
-
-            // Avoid sibling overlap (vertical placement)
-            if (avoidRect) {
-                const myLeft = screenX - contentWidth / 2;
-                const myRight = myLeft + contentWidth;
-                const horizontalOverlap =
-                    myLeft < avoidRect.right && myRight > avoidRect.left;
-
-                if (horizontalOverlap) {
-                    const myBottom = top + contentHeight;
-                    const verticalOverlap =
-                        top < avoidRect.bottom && myBottom > avoidRect.top;
-
-                    if (verticalOverlap) {
-                        if (goUp) {
-                            const downTop =
-                                screenY + spotlightRadius + GAP;
-                            if (
-                                downTop + contentHeight <=
-                                viewportHeight
-                            ) {
-                                top = downTop;
-                            } else {
-                                top =
-                                    avoidRect.top - GAP - contentHeight;
-                            }
-                        } else {
-                            const upTop =
-                                screenY -
-                                spotlightRadius -
-                                GAP -
-                                contentHeight;
-                            if (upTop >= 0) {
-                                top = upTop;
-                            } else {
-                                top = avoidRect.bottom + GAP;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // Horizontal (left/right): center vertically on the spotlight
-            top = screenY - contentHeight / 2;
-
-            // Avoid sibling overlap (horizontal placement)
-            if (avoidRect) {
-                const myBottom = top + contentHeight;
-                const verticalOverlap =
-                    top < avoidRect.bottom && myBottom > avoidRect.top;
-                const myLeft =
-                    direction === "left"
-                        ? screenX -
-                          spotlightRadius -
-                          GAP -
-                          contentWidth
-                        : screenX + spotlightRadius + GAP;
-                const myRight = myLeft + contentWidth;
-                const horizontalOverlap =
-                    myLeft < avoidRect.right && myRight > avoidRect.left;
-
-                if (verticalOverlap && horizontalOverlap) {
-                    // Try to shift vertically to clear the sibling
-                    if (top < avoidRect.top) {
-                        top = Math.min(
-                            top,
-                            avoidRect.top - GAP - contentHeight,
-                        );
-                    } else {
-                        top = avoidRect.bottom + GAP;
-                    }
-                }
-            }
-        }
-
-        return Math.max(0, Math.min(viewportHeight - contentHeight, top));
-    })();
-
-    $: computedLeft = (() => {
-        if (!measured || viewportWidth === 0) return screenX;
-
         let left: number;
 
-        if (isVertical) {
-            // Vertical: center horizontally on the spotlight
-            left = screenX - contentWidth / 2;
-        } else {
-            // Horizontal: place to the left or right of the spotlight
-            const spaceLeft = screenX - spotlightRadius - GAP;
-            const spaceRight =
-                viewportWidth - screenX - spotlightRadius - GAP;
-
-            let goLeft = direction === "left";
-            if (
-                goLeft &&
-                contentWidth > spaceLeft &&
-                contentWidth <= spaceRight
-            ) {
-                goLeft = false;
-            } else if (
-                !goLeft &&
-                contentWidth > spaceRight &&
-                contentWidth <= spaceLeft
-            ) {
-                goLeft = true;
-            }
-
-            if (goLeft) {
+        switch (dir) {
+            case "up":
+                top = screenY - spotlightRadius - GAP - contentHeight;
+                left = screenX - contentWidth / 2;
+                break;
+            case "down":
+                top = screenY + spotlightRadius + GAP;
+                left = screenX - contentWidth / 2;
+                break;
+            case "left":
+                top = screenY - contentHeight / 2;
                 left = screenX - spotlightRadius - GAP - contentWidth;
-            } else {
+                break;
+            case "right":
+                top = screenY - contentHeight / 2;
                 left = screenX + spotlightRadius + GAP;
+                break;
+        }
+
+        // Clamp to viewport
+        top = Math.max(0, Math.min(viewportHeight - contentHeight, top));
+        left = Math.max(0, Math.min(viewportWidth - contentWidth, left));
+
+        return {
+            top,
+            bottom: top + contentHeight,
+            left,
+            right: left + contentWidth,
+        };
+    }
+
+    function overlapArea(a: Rect, b: Rect): number {
+        const dx = Math.max(
+            0,
+            Math.min(a.right, b.right) - Math.max(a.left, b.left),
+        );
+        const dy = Math.max(
+            0,
+            Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top),
+        );
+        return dx * dy;
+    }
+
+    /** Directions to try, in preference order starting from the requested one. */
+    const DIRECTION_FALLBACKS: Record<
+        string,
+        ("up" | "down" | "left" | "right")[]
+    > = {
+        up: ["up", "down", "left", "right"],
+        down: ["down", "up", "right", "left"],
+        left: ["left", "right", "up", "down"],
+        right: ["right", "left", "down", "up"],
+    };
+
+    /** Total overlap area of a candidate rect against all avoid zones. */
+    function totalOverlap(candidate: Rect): number {
+        let total = 0;
+        for (const avoid of avoidRects) {
+            total += overlapArea(candidate, avoid);
+        }
+        return total;
+    }
+
+    $: bestRect = (() => {
+        if (!measured || viewportWidth === 0 || viewportHeight === 0) {
+            return { top: screenY, left: screenX };
+        }
+
+        const candidates = DIRECTION_FALLBACKS[direction];
+        const rects = candidates.map((dir) => rectForDirection(dir));
+
+        if (avoidRects.length === 0) {
+            return rects[0];
+        }
+
+        // Pick the first direction with zero total overlap
+        for (const rect of rects) {
+            if (totalOverlap(rect) === 0) {
+                return rect;
             }
         }
 
-        return Math.max(0, Math.min(viewportWidth - contentWidth, left));
+        // All overlap — pick the one with the least total overlap area
+        let best = rects[0];
+        let bestArea = totalOverlap(rects[0]);
+        for (let i = 1; i < rects.length; i++) {
+            const area = totalOverlap(rects[i]);
+            if (area < bestArea) {
+                best = rects[i];
+                bestArea = area;
+            }
+        }
+        return best;
     })();
+
+    $: computedTop = bestRect.top;
+    $: computedLeft = bestRect.left;
 
     $: bounds = {
         top: computedTop,
