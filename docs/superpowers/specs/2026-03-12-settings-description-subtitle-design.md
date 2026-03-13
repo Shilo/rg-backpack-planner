@@ -68,6 +68,30 @@ Add optional `description: string | undefined` prop. When present, render below 
 - Label area switches to column layout when description is present
 - Remove `tooltipText` usage from callers where description replaces it
 
+### Wrapper Component Integration
+
+**FocusInViewButton.svelte** — wraps `Button`. Add a `description` prop that passes through to `Button`:
+
+```svelte
+<Button description={$t("settings.focusTreeInViewDescription")} ...>
+```
+
+Remove the existing `tooltipText` prop usage.
+
+**LanguageDropdown.svelte** — wraps `Button` with custom slot content (label + divider + value). The `description` prop on `Button` renders below the slot content, so it will appear below the entire `button-content` row. This is acceptable since the description "Application display language" contextualizes the whole control. Pass `description` directly to the `Button`:
+
+```svelte
+<Button description={$t("settings.languageDescription")} ...>
+```
+
+Remove the existing `tooltipText` prop usage.
+
+**TextSizeSliderSetting.svelte** — wraps `SliderSetting`. Add a `description` prop that passes through to `SliderSetting`:
+
+```svelte
+<SliderSetting description={description} ...>
+```
+
 ## Description Text (English)
 
 All descriptions are rephrased to avoid repeating the label wording.
@@ -90,7 +114,6 @@ All descriptions are rephrased to avoid repeating the label wording.
 | Tree Zoom | "Tree Zoom" | "Overall tree size in the viewport" | Yes |
 | Uppercase Text | "Uppercase Text" | "Capitalize all interface text" | Yes |
 | Colorblind Tree | "Colorblind Tree" | "Adjusted region colors for color vision deficiencies" | Yes |
-| Focus Tree in View | "Focus Tree in View" | "Reset zoom and pan to fit" | Yes |
 
 ### General Settings Page
 
@@ -106,7 +129,7 @@ All descriptions are rephrased to avoid repeating the label wording.
 
 | Setting | Label | Description | Tooltip removed? |
 |---------|-------|-------------|-----------------|
-| Preview | "Preview" | "Preview share link, code, or premade build" | Keep tooltip (button in a different context) |
+| Focus Tree in View | "Focus Tree in View" | "Reset zoom and pan to fit" | Yes |
 
 ## i18n Keys
 
@@ -136,9 +159,11 @@ Existing tooltip keys (`*Tooltip`) are kept in locale files but removed from com
 
 - **BuildPresetsButton** — multi-purpose preset selector with complex interaction
 - **TechCrystalsButton** — displays spent crystals count with special formatting
-- **Preview button** (root page) — keeps its tooltip since it's a dropdown trigger, not a standard settings control
+- **Preview button** (root page) — dropdown trigger with existing tooltip, not a standard settings control
 - **Theme color selector** — the color swatch itself is descriptive enough
 - **Theme mode toggle** — light/dark is self-explanatory from the icons
+- **FullscreenToggle** — self-explanatory from label and icon
+- **InstallPwaButton** — self-explanatory from label and icon
 
 ## Testing
 
