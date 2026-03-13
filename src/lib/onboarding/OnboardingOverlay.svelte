@@ -19,10 +19,9 @@
     } from "phosphor-svelte";
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
-    import Node, { NODE_RADIUS_PX } from "../Node.svelte";
+    import { NODE_RADIUS_PX } from "../Node.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
-    import { tierIndex } from "../tierLeveling";
     import { t } from "svelte-whisper";
 
     export let onDismiss: () => void;
@@ -48,17 +47,6 @@
 
     // Resolve target node from tree context
     $: targetNode = $treeData.nodes[targetNodeIndex];
-    $: targetLevel = $treeData.levels[targetNodeIndex] ?? 0;
-    $: targetTier = targetNode
-        ? tierIndex(targetLevel, targetNode.maxLevel)
-        : 0;
-    $: targetState =
-        targetNode && targetLevel >= targetNode.maxLevel
-            ? ("maxed" as const)
-            : targetLevel > 0
-              ? ("active" as const)
-              : ("available" as const);
-
     $: targetRegion = (() => {
         if (!targetNode) return "bottom-left" as const;
         if (targetNode.x > TREE_ROOT_X) return "right" as const;
@@ -288,38 +276,6 @@
         />
     </svg>
 
-    <!-- Node clone at real tree position -->
-    {#if targetNode}
-        <div
-            class="node-clone"
-            style="left: {nodeScreenX}px; top: {nodeScreenY}px;"
-            aria-hidden="true"
-        >
-            <div
-                class="node-clone-inner"
-                style="transform: scale({scale}); transform-origin: center; width: {nodeRadius *
-                    2}px; height: {nodeRadius * 2}px;"
-            >
-                <Node
-                    id={-1}
-                    skillId={targetNode.skillId}
-                    state={targetState}
-                    level={targetLevel}
-                    maxLevel={targetNode.maxLevel}
-                    tier={targetTier}
-                    label={$t(`skills.${targetNode.skillId}`)}
-                    {scale}
-                    radius={targetNode.radius ?? 1}
-                    region={targetRegion}
-                    showSkillName={true}
-                    showTier={true}
-                    x={nodeRadius}
-                    y={nodeRadius}
-                />
-            </div>
-        </div>
-    {/if}
-
     <!-- Node spotlight ring -->
     <div
         class="spotlight-ring"
@@ -406,17 +362,6 @@
         inset: 0;
         width: 100%;
         height: 100%;
-    }
-
-    .node-clone {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .node-clone-inner {
-        position: relative;
     }
 
     .spotlight-ring {
