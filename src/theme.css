@@ -24,6 +24,12 @@
     --weight-semibold: 600;
     --weight-bold: bold;
 
+    /* Backdrop blur */
+    --blur-xs: 2px;
+    --blur-sm: 4px;
+    --blur-md: 8px;
+    --blur-lg: 12px;
+
     /* Border radius */
     --radius: 12px;
     --radius-sm: 6px;

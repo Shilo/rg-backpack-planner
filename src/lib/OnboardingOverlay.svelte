@@ -1,6 +1,12 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { onMount } from "svelte";
+    import { onMount, getContext } from "svelte";
+    import type { Writable } from "svelte/store";
+    import type {
+        Node as NodeType,
+        LevelsByIndex,
+        NodeIndex,
+    } from "../types/tree";
     import {
         ArrowsOutCardinalIcon,
         HandGrabbingIcon,
@@ -12,70 +18,147 @@
     } from "phosphor-svelte";
     import LongPressIcon from "./icons/LongPressIcon.svelte";
     import PinchIcon from "./icons/PinchIcon.svelte";
-    import Node from "./Node.svelte";
+    import Node, { NODE_RADIUS_PX } from "./Node.svelte";
+    import OnboardingPane from "./OnboardingPane.svelte";
+    import { TREE_ROOT_X, TREE_ROOT_Y } from "../config/baseTree";
     import { t } from "svelte-whisper";
 
     export let onDismiss: () => void;
     export let offsetX: number;
     export let offsetY: number;
     export let scale: number;
+    export let targetNodeIndex: NodeIndex = 0;
+    export let emptySpaceWorldX: number = 100;
+    export let emptySpaceWorldY: number = 320;
 
-    type ChipData = {
+    type CardData = {
         icon: Component;
         label: string;
         description: string;
     };
 
-    /** Atk Boost (yellow branch, index 0) world position */
-    const NODE_WORLD_X = 270;
-    const NODE_WORLD_Y = 391;
-    const NODE_RADIUS = 32;
-
-    /** Empty area to the left of the tree root */
-    const TREE_WORLD_X = 100;
-    const TREE_WORLD_Y = 320;
+    const SPOTLIGHT_PAD = 12;
     const TREE_SPOTLIGHT_RADIUS = 55;
 
-    $: nodeScreenX = NODE_WORLD_X * scale + offsetX;
-    $: nodeScreenY = NODE_WORLD_Y * scale + offsetY;
-    $: nodeScreenRadius = NODE_RADIUS * scale;
-    $: nodeSpotlightRadius = nodeScreenRadius + 12;
+    const treeData =
+        getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>(
+            "tree",
+        );
 
-    $: treeScreenX = TREE_WORLD_X * scale + offsetX;
-    $: treeScreenY = TREE_WORLD_Y * scale + offsetY;
+    // Resolve target node from tree context
+    $: targetNode = $treeData.nodes[targetNodeIndex];
+
+    $: targetRegion = (() => {
+        if (!targetNode) return "bottom-left" as const;
+        if (targetNode.x > TREE_ROOT_X) return "right" as const;
+        if (targetNode.y < TREE_ROOT_Y) return "top-left" as const;
+        return "bottom-left" as const;
+    })();
+
+    // Node screen position (dynamic from tree data)
+    $: nodeRadius = (targetNode?.radius ?? 1) * NODE_RADIUS_PX;
+    $: nodeScreenX = (targetNode?.x ?? 0) * scale + offsetX;
+    $: nodeScreenY = (targetNode?.y ?? 0) * scale + offsetY;
+    $: nodeScreenRadius = nodeRadius * scale;
+    $: nodeSpotlightRadius = nodeScreenRadius + SPOTLIGHT_PAD;
+
+    // Empty space screen position
+    $: treeScreenX = emptySpaceWorldX * scale + offsetX;
+    $: treeScreenY = emptySpaceWorldY * scale + offsetY;
+
+    // Viewport dimensions (measured from overlay element)
+    let viewportWidth = 0;
+    let viewportHeight = 0;
+
+    // Node pane bounds for overlap prevention
+    let nodePaneBounds = { top: 0, bottom: 0, left: 0, right: 0 };
 
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
 
+    function handleKeydown(event: KeyboardEvent) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (event.key === "Escape") {
+            handleDismiss();
+        }
+    }
+
     onMount(() => {
         isTouch = window.matchMedia("(pointer: coarse)").matches;
+        window.addEventListener("keydown", handleKeydown, true);
         return () => {
+            window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);
         };
     });
 
-    $: nodeChips = isTouch
+    $: nodeCards = isTouch
         ? ([
-              { icon: HandTapIcon, label: $t("onboarding.tap"), description: $t("onboarding.levelUp") },
-              { icon: LongPressIcon, label: $t("onboarding.longPress"), description: $t("onboarding.options") },
-          ] as ChipData[])
+              {
+                  icon: HandTapIcon,
+                  label: $t("onboarding.tap"),
+                  description: $t("onboarding.levelUp"),
+              },
+              {
+                  icon: LongPressIcon,
+                  label: $t("onboarding.longPress"),
+                  description: $t("onboarding.options"),
+              },
+          ] as CardData[])
         : ([
-              { icon: MouseLeftClickIcon, label: $t("onboarding.leftClick"), description: $t("onboarding.levelUp") },
-              { icon: MouseRightClickIcon, label: $t("onboarding.rightClick"), description: $t("onboarding.options") },
-              { icon: MouseMiddleClickIcon, label: $t("onboarding.middleClick"), description: $t("onboarding.levelDown") },
-          ] as ChipData[]);
+              {
+                  icon: MouseLeftClickIcon,
+                  label: $t("onboarding.leftClick"),
+                  description: $t("onboarding.levelUp"),
+              },
+              {
+                  icon: MouseRightClickIcon,
+                  label: $t("onboarding.rightClick"),
+                  description: $t("onboarding.options"),
+              },
+              {
+                  icon: MouseMiddleClickIcon,
+                  label: $t("onboarding.middleClick"),
+                  description: $t("onboarding.levelDown"),
+              },
+          ] as CardData[]);
 
-    $: treeChips = isTouch
+    $: treeCards = isTouch
         ? ([
-              { icon: LongPressIcon, label: $t("onboarding.longPress"), description: $t("onboarding.treeOptions") },
-              { icon: HandGrabbingIcon, label: $t("onboarding.swipe"), description: $t("onboarding.pan") },
-              { icon: PinchIcon, label: $t("onboarding.pinch"), description: $t("onboarding.zoom") },
-          ] as ChipData[])
+              {
+                  icon: LongPressIcon,
+                  label: $t("onboarding.longPress"),
+                  description: $t("onboarding.treeOptions"),
+              },
+              {
+                  icon: HandGrabbingIcon,
+                  label: $t("onboarding.swipe"),
+                  description: $t("onboarding.pan"),
+              },
+              {
+                  icon: PinchIcon,
+                  label: $t("onboarding.pinch"),
+                  description: $t("onboarding.zoom"),
+              },
+          ] as CardData[])
         : ([
-              { icon: MouseRightClickIcon, label: $t("onboarding.rightClick"), description: $t("onboarding.treeOptions") },
-              { icon: ArrowsOutCardinalIcon, label: $t("onboarding.clickDrag"), description: $t("onboarding.pan") },
-              { icon: MouseScrollIcon, label: $t("onboarding.scroll"), description: $t("onboarding.zoom") },
-          ] as ChipData[]);
+              {
+                  icon: MouseRightClickIcon,
+                  label: $t("onboarding.rightClick"),
+                  description: $t("onboarding.treeOptions"),
+              },
+              {
+                  icon: ArrowsOutCardinalIcon,
+                  label: $t("onboarding.clickDrag"),
+                  description: $t("onboarding.pan"),
+              },
+              {
+                  icon: MouseScrollIcon,
+                  label: $t("onboarding.scroll"),
+                  description: $t("onboarding.zoom"),
+              },
+          ] as CardData[]);
 
     let dismissing = false;
 
@@ -102,6 +185,8 @@
     aria-label="Controls tutorial"
     tabindex="-1"
     on:pointerdown={handleDismiss}
+    bind:clientWidth={viewportWidth}
+    bind:clientHeight={viewportHeight}
 >
     <!-- Dark backdrop with spotlight cutouts -->
     <svg class="onboarding-backdrop" aria-hidden="true">
@@ -133,83 +218,79 @@
         <rect
             width="100%"
             height="100%"
-            fill="rgba(0,0,0,0.75)"
+            fill="rgba(0,0,0,0.6)"
             mask="url(#onboarding-mask)"
         />
     </svg>
 
     <!-- Node clone at real tree position -->
-    <div
-        class="node-clone"
-        style="left: {nodeScreenX}px; top: {nodeScreenY}px;"
-        aria-hidden="true"
-    >
+    {#if targetNode}
         <div
-            class="node-clone-inner"
-            style="transform: scale({scale}); transform-origin: center;"
+            class="node-clone"
+            style="left: {nodeScreenX}px; top: {nodeScreenY}px;"
+            aria-hidden="true"
         >
-            <Node
-                id={-1}
-                skillId="attack_boost"
-                state="available"
-                level={0}
-                maxLevel={100}
-                tier={0}
-                label={$t("skills.attack_boost")}
-                scale={scale}
-                radius={1}
-                region="bottom-left"
-                showSkillName={true}
-                showTier={true}
-                x={32}
-                y={32}
-            />
-        </div>
-    </div>
-
-    <!-- Node instruction cards (above the node) -->
-    <div
-        class="card-group node-card-group"
-        style="left: {nodeScreenX}px; top: {nodeScreenY - nodeSpotlightRadius - 8}px;"
-    >
-        <span class="section-label accent">{$t("onboarding.nodesSection")}</span>
-        {#each nodeChips as chip, i}
-            <div class="onboarding-card accent" style="--card-index: {i}">
-                <span class="card-icon" aria-hidden="true">
-                    <svelte:component this={chip.icon} />
-                </span>
-                <span class="card-text">
-                    <span class="card-label">{chip.label}</span>
-                    <span class="card-desc">{chip.description}</span>
-                </span>
+            <div
+                class="node-clone-inner"
+                style="transform: scale({scale}); transform-origin: center; width: {nodeRadius *
+                    2}px; height: {nodeRadius * 2}px;"
+            >
+                <Node
+                    id={-1}
+                    skillId={targetNode.skillId}
+                    state="available"
+                    level={0}
+                    maxLevel={targetNode.maxLevel}
+                    tier={0}
+                    label={$t(`skills.${targetNode.skillId}`)}
+                    scale={scale}
+                    radius={targetNode.radius ?? 1}
+                    region={targetRegion}
+                    showSkillName={true}
+                    showTier={true}
+                    x={nodeRadius}
+                    y={nodeRadius}
+                />
             </div>
-        {/each}
-    </div>
+        </div>
+    {/if}
+
+    <!-- Node instruction pane (prefers up) -->
+    <OnboardingPane
+        screenX={nodeScreenX}
+        screenY={nodeScreenY}
+        spotlightRadius={nodeSpotlightRadius}
+        preferUp={true}
+        sectionLabel={$t("onboarding.nodesSection")}
+        variant="accent"
+        cards={nodeCards}
+        baseCardIndex={0}
+        {viewportWidth}
+        {viewportHeight}
+        bind:bounds={nodePaneBounds}
+    />
 
     <!-- Tree spotlight ring -->
     <div
         class="spotlight-ring"
-        style="left: {treeScreenX}px; top: {treeScreenY}px; width: {TREE_SPOTLIGHT_RADIUS * 2}px; height: {TREE_SPOTLIGHT_RADIUS * 2}px;"
+        style="left: {treeScreenX}px; top: {treeScreenY}px; width: {TREE_SPOTLIGHT_RADIUS *
+            2}px; height: {TREE_SPOTLIGHT_RADIUS * 2}px;"
     ></div>
 
-    <!-- Tree instruction cards (beside the spotlight) -->
-    <div
-        class="card-group tree-card-group"
-        style="left: {treeScreenX + TREE_SPOTLIGHT_RADIUS + 16}px; top: {treeScreenY}px;"
-    >
-        <span class="section-label muted">{$t("onboarding.treeSection")}</span>
-        {#each treeChips as chip, i}
-            <div class="onboarding-card muted" style="--card-index: {nodeChips.length + i}">
-                <span class="card-icon" aria-hidden="true">
-                    <svelte:component this={chip.icon} />
-                </span>
-                <span class="card-text">
-                    <span class="card-label">{chip.label}</span>
-                    <span class="card-desc">{chip.description}</span>
-                </span>
-            </div>
-        {/each}
-    </div>
+    <!-- Tree instruction pane (prefers down, avoids node pane) -->
+    <OnboardingPane
+        screenX={treeScreenX}
+        screenY={treeScreenY}
+        spotlightRadius={TREE_SPOTLIGHT_RADIUS}
+        preferUp={false}
+        sectionLabel={$t("onboarding.treeSection")}
+        variant="muted"
+        cards={treeCards}
+        baseCardIndex={nodeCards.length}
+        {viewportWidth}
+        {viewportHeight}
+        avoidRect={nodePaneBounds}
+    />
 
     <!-- Dismiss hint -->
     <span class="onboarding-dismiss-hint">
@@ -222,6 +303,8 @@
         position: absolute;
         inset: 0;
         z-index: var(--z-index-context-menu);
+        backdrop-filter: blur(var(--blur-xs));
+        -webkit-backdrop-filter: blur(var(--blur-xs));
         animation: overlay-fade-in 300ms ease both;
     }
 
@@ -244,106 +327,6 @@
 
     .node-clone-inner {
         position: relative;
-        width: 64px;
-        height: 64px;
-    }
-
-    .card-group {
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-        pointer-events: none;
-        width: max-content;
-    }
-
-    .node-card-group {
-        transform: translate(-50%, -100%);
-        align-items: center;
-    }
-
-    .tree-card-group {
-        transform: translateY(-50%);
-    }
-
-    .section-label {
-        font-size: var(--font-xs);
-        font-weight: var(--weight-semibold);
-        letter-spacing: var(--tracking-wide);
-        text-transform: uppercase;
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .section-label.accent {
-        color: var(--accent);
-    }
-
-    .section-label.muted {
-        color: var(--text-muted);
-    }
-
-    .onboarding-card {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        padding: var(--spacing-sm) var(--spacing-md);
-        background: rgba(0, 0, 0, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        opacity: 0;
-        animation: card-enter 250ms var(--ease-decel) both;
-        animation-delay: calc(100ms + var(--card-index) * 60ms);
-        white-space: nowrap;
-    }
-
-    .onboarding-card.accent {
-        border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    }
-
-    .onboarding-card.muted {
-        border-color: rgba(255, 255, 255, 0.06);
-    }
-
-    .card-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        width: 20px;
-        height: 20px;
-        color: var(--text-muted);
-    }
-
-    .onboarding-card.accent .card-icon {
-        color: var(--accent);
-    }
-
-    .card-text {
-        display: flex;
-        align-items: baseline;
-        gap: var(--spacing-sm);
-    }
-
-    .card-label {
-        font-size: var(--font-sm);
-        font-weight: var(--weight-semibold);
-        color: var(--text);
-    }
-
-    .onboarding-card.accent .card-label {
-        color: var(--accent);
-    }
-
-    .onboarding-card.muted .card-label {
-        color: var(--text-muted);
-    }
-
-    .card-desc {
-        font-size: var(--font-xs);
-        color: var(--text-muted);
-        opacity: 0.7;
     }
 
     .spotlight-ring {
@@ -367,40 +350,37 @@
     }
 
     @keyframes overlay-fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes overlay-fade-out {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-
-    @keyframes card-enter {
         from {
-            transform: translateY(6px);
             opacity: 0;
         }
         to {
-            transform: translateY(0);
             opacity: 1;
         }
     }
 
+    @keyframes overlay-fade-out {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
     @keyframes spotlight-pulse {
-        0%, 100% { opacity: 0.2; }
-        50% { opacity: 0.4; }
+        0%,
+        100% {
+            opacity: 0.2;
+        }
+        50% {
+            opacity: 0.4;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
         .onboarding-overlay,
         .onboarding-overlay.dismissing {
             animation: none;
-        }
-
-        .onboarding-card {
-            animation: none;
-            opacity: 1;
         }
 
         .spotlight-ring {

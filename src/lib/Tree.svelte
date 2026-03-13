@@ -1518,6 +1518,7 @@
             {#if !$onboardingSeen}
                 <OnboardingOverlay
                     onDismiss={() => onboardingSeen.set(true)}
+                    targetNodeIndex={0}
                     {offsetX}
                     {offsetY}
                     {scale}

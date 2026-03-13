@@ -17,7 +17,7 @@
         type SideMenuTab,
     } from "./sideMenuActiveTabStore";
     import { t } from "svelte-whisper";
-    import { isFormField } from "./domUtil";
+    import { isFormField, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
 
     let sideMenuTabs: TabBarItem[] = [];
@@ -112,6 +112,7 @@
     function handleTabKeydown(event: KeyboardEvent) {
         if (!isOpen || event.key !== "Tab" || sideMenuTabs.length <= 1) return;
         if ($isComposeScreenshotOpen) return;
+        if (hasOnboardingOverlay()) return;
         if (isFormField(document.activeElement)) return;
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -185,8 +186,8 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(var(--blur-sm));
+        -webkit-backdrop-filter: blur(var(--blur-sm));
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease;

@@ -26,6 +26,14 @@ export function isEditableElement(el: Element | null): boolean {
 }
 
 /**
+ * Returns true when a full-screen overlay (e.g. onboarding tutorial) is active
+ * and should block all other keyboard shortcuts.
+ */
+export function hasOnboardingOverlay(): boolean {
+    return !!document.querySelector(".onboarding-overlay");
+}
+
+/**
  * Returns true when a keyboard shortcut should be handled: focus is inside root
  * (or on document/body) and the focused element is not a form field.
  * Use for tree-level shortcuts (e.g. Tab to cycle tabs, Backspace to reset).

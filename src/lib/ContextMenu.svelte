@@ -412,8 +412,8 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay-context);
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(var(--blur-xs));
+        -webkit-backdrop-filter: blur(var(--blur-xs));
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);

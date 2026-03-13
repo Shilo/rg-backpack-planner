@@ -39,7 +39,7 @@
         treeLevels,
     } from "./treeLevelsStore";
     import { openResetTreeModal } from "./resetTreeModal";
-    import { isKeyboardShortcutTarget } from "./domUtil";
+    import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
@@ -121,6 +121,7 @@
     function handleTabKeydown(event: KeyboardEvent) {
         if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
         if (isMenuOpen || $isComposeScreenshotOpen) return;
+        if (hasOnboardingOverlay()) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
             return;
 
@@ -142,6 +143,7 @@
     function handleBackspaceKeydown(event: KeyboardEvent) {
         if (event.key !== "Backspace" || !tabsRootEl) return;
         if (isMenuOpen) return;
+        if (hasOnboardingOverlay()) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
             return;
         const levels = $treeLevels[activeIndex] ?? [];

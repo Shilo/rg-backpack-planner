@@ -12,7 +12,7 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { isFormField } from "./lib/domUtil";
+    import { isFormField, hasOnboardingOverlay } from "./lib/domUtil";
     import { t, locale } from "svelte-whisper";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
@@ -426,7 +426,8 @@
                 !e.defaultPrevented &&
                 e.isTrusted &&
                 !$isComposeScreenshotOpen &&
-                !document.querySelector(".context-menu")
+                !document.querySelector(".context-menu") &&
+                !hasOnboardingOverlay()
             ) {
                 e.preventDefault();
                 if (isMenuOpen) {
@@ -441,13 +442,14 @@
                 isMenuOpen &&
                 !e.defaultPrevented &&
                 e.isTrusted &&
-                !isFormField(document.activeElement)
+                !isFormField(document.activeElement) &&
+                !hasOnboardingOverlay()
             ) {
                 e.preventDefault();
                 if (!sideMenuRef?.tryGoBack?.()) {
                     closeMenu();
                 }
-            } else if (e.key === "F9") {
+            } else if (e.key === "F9" && !hasOnboardingOverlay()) {
                 e.preventDefault();
                 openComposeScreenshot();
             }
