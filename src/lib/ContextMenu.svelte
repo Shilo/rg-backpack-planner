@@ -347,7 +347,7 @@
         class="context-menu"
         class:dragging={isDragging}
         bind:this={menuEl}
-        style={`left: ${displayX}px; top: ${displayY}px; transform: ${transformOrigin};`}
+        style={`transform: translate(${displayX}px, ${displayY}px) ${transformOrigin};`}
         role="menu"
         tabindex="-1"
         aria-label={resolvedAriaLabel}
@@ -366,7 +366,9 @@
 <style>
     .context-menu {
         position: fixed;
-        /* transform set inline for anchorBelow vs default */
+        left: 0;
+        top: 0;
+        /* transform set inline — combines translate(x,y) positioning with centering offset */
         background: var(--bg-panel);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);

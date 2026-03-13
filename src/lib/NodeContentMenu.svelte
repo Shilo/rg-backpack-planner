@@ -205,7 +205,7 @@
         >
             <div
                 class="progress-fill"
-                style={`width: ${maxLevel > 0 ? (level / maxLevel) * 100 : 0}%`}
+                style={`transform: scaleX(${maxLevel > 0 ? level / maxLevel : 0})`}
             ></div>
             {#if tickImage}
                 <div class="progress-ticks"></div>
@@ -476,8 +476,10 @@
 
     .progress-fill {
         height: 100%;
+        width: 100%;
         background: linear-gradient(90deg, var(--accent), var(--accent-light));
-        transition: width var(--ease);
+        transform-origin: left;
+        transition: transform var(--ease);
         border-radius: 0;
     }
 

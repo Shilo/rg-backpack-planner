@@ -94,37 +94,34 @@
         const incomingHeight =
             incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
 
-        // Wait for transition to end
+        // Animate height and wait for slide to finish
         requestAnimationFrame(() => {
-            // Animate height from outgoing to incoming alongside the slide
             if (containerElement) {
                 containerElement.style.transition = "height 0.15s ease";
                 containerElement.style.height = `${incomingHeight}px`;
             }
 
-            requestAnimationFrame(() => {
-                const onEnd = () => {
-                    clearTimeout(fallbackTimeout);
-                    isTransitioning = false;
-                    outgoingComponent = null;
-                    if (containerElement) {
-                        containerElement.style.height = "";
-                        containerElement.style.transition = "";
-                    }
-                };
-                let fallbackTimeout: ReturnType<typeof setTimeout>;
-                const incomingEl = containerElement?.querySelector(
-                    ".incoming:not(.active)",
-                );
-                if (incomingEl) {
-                    incomingEl.addEventListener("animationend", onEnd, {
-                        once: true,
-                    });
-                    fallbackTimeout = setTimeout(onEnd, 200);
-                } else {
-                    onEnd();
+            const onEnd = () => {
+                clearTimeout(fallbackTimeout);
+                isTransitioning = false;
+                outgoingComponent = null;
+                if (containerElement) {
+                    containerElement.style.height = "";
+                    containerElement.style.transition = "";
                 }
-            });
+            };
+            let fallbackTimeout: ReturnType<typeof setTimeout>;
+            const incomingEl = containerElement?.querySelector(
+                ".incoming:not(.active)",
+            );
+            if (incomingEl) {
+                incomingEl.addEventListener("animationend", onEnd, {
+                    once: true,
+                });
+                fallbackTimeout = setTimeout(onEnd, 200);
+            } else {
+                onEnd();
+            }
         });
     }
 
@@ -157,43 +154,41 @@
         const incomingHeight =
             incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
 
+        // Animate height and wait for slide to finish
         requestAnimationFrame(() => {
-            // Animate height from outgoing to incoming alongside the slide
             if (containerElement) {
                 containerElement.style.transition = "height 0.15s ease";
                 containerElement.style.height = `${incomingHeight}px`;
             }
 
-            requestAnimationFrame(() => {
-                const onEnd = () => {
-                    clearTimeout(fallbackTimeout);
-                    isTransitioning = false;
-                    outgoingComponent = null;
-                    if (containerElement) {
-                        containerElement.style.height = "";
-                        containerElement.style.transition = "";
-                    }
-                    // Focus the nav button that was clicked
-                    tick().then(() => {
-                        const btn = containerElement?.querySelector(
-                            `[data-page="${lastNavigatedPage}"]`,
-                        );
-                        if (btn instanceof HTMLElement) btn.focus();
-                    });
-                };
-                let fallbackTimeout: ReturnType<typeof setTimeout>;
-                const incomingEl = containerElement?.querySelector(
-                    ".incoming:not(.active)",
-                );
-                if (incomingEl) {
-                    incomingEl.addEventListener("animationend", onEnd, {
-                        once: true,
-                    });
-                    fallbackTimeout = setTimeout(onEnd, 200);
-                } else {
-                    onEnd();
+            const onEnd = () => {
+                clearTimeout(fallbackTimeout);
+                isTransitioning = false;
+                outgoingComponent = null;
+                if (containerElement) {
+                    containerElement.style.height = "";
+                    containerElement.style.transition = "";
                 }
-            });
+                // Focus the nav button that was clicked
+                tick().then(() => {
+                    const btn = containerElement?.querySelector(
+                        `[data-page="${lastNavigatedPage}"]`,
+                    );
+                    if (btn instanceof HTMLElement) btn.focus();
+                });
+            };
+            let fallbackTimeout: ReturnType<typeof setTimeout>;
+            const incomingEl = containerElement?.querySelector(
+                ".incoming:not(.active)",
+            );
+            if (incomingEl) {
+                incomingEl.addEventListener("animationend", onEnd, {
+                    once: true,
+                });
+                fallbackTimeout = setTimeout(onEnd, 200);
+            } else {
+                onEnd();
+            }
         });
     }
 </script>
