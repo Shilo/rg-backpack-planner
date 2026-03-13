@@ -48,7 +48,7 @@
     import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
-    import { onboardingSeen } from "./Onboarding/onboardingStore";
+    import { onboardingSeen } from "./onboarding/onboardingStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;

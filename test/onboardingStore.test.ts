@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 // --- Store file structure ---
-const storePath = resolve("src/lib/Onboarding/onboardingStore.ts");
+const storePath = resolve("src/lib/onboarding/onboardingStore.ts");
 let storeSource = "";
 
 try {

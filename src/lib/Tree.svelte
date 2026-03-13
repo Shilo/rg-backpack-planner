@@ -37,8 +37,8 @@
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
     import { showSkillName } from "./showSkillNameStore";
-    import OnboardingOverlay from "./Onboarding/OnboardingOverlay.svelte";
-    import { onboardingSeen } from "./Onboarding/onboardingStore";
+    import OnboardingOverlay from "./onboarding/OnboardingOverlay.svelte";
+    import { onboardingSeen } from "./onboarding/onboardingStore";
     import { textSize } from "./textSizeStore";
     import {
         applyLevelChange,
