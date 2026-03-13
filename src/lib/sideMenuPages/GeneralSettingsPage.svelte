@@ -1,6 +1,7 @@
 <script lang="ts">
     import {
         ArrowClockwiseIcon,
+        BookOpenTextIcon,
         ClockCounterClockwiseIcon,
         TrashSimpleIcon,
         VibrateIcon,
@@ -26,6 +27,7 @@
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
     import { showLevelSplash } from "../showLevelSplashStore";
+    import { onboardingSeen } from "../onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import { t, resetLocale } from "svelte-whisper";
@@ -55,6 +57,7 @@
                 colorblindTreeColors.resetToDefault();
                 uppercaseText.resetToDefault();
                 showLevelSplash.resetToDefault();
+                onboardingSeen.resetToDefault();
 
                 void resetLocale();
 
@@ -120,6 +123,17 @@
     <SideMenuSection title={$t("sideMenu.sections.application")}>
         <FullscreenToggle />
         <InstallPwaButton title={true} />
+        <Button
+            on:click={() => {
+                onboardingSeen.resetToDefault();
+                showToast($t("onboarding.showTutorialToast"));
+                onClose?.();
+            }}
+            description={$t("onboarding.showTutorialDescription")}
+            icon={BookOpenTextIcon}
+        >
+            {$t("onboarding.showTutorial")}
+        </Button>
         <Button
             on:click={handleReloadWindow}
             description={$t("settings.reloadWindowDescription")}

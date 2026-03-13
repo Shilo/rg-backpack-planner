@@ -37,6 +37,8 @@
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
     import { showSkillName } from "./showSkillNameStore";
+    import OnboardingOverlay from "./OnboardingOverlay.svelte";
+    import { onboardingSeen } from "./onboardingStore";
     import { textSize } from "./textSizeStore";
     import {
         applyLevelChange,
@@ -1512,6 +1514,12 @@
                     />
                 {/each}
             </div>
+
+            {#if !$onboardingSeen}
+                <OnboardingOverlay
+                    onDismiss={() => onboardingSeen.set(true)}
+                />
+            {/if}
         </div>
     </div>
 {/key}

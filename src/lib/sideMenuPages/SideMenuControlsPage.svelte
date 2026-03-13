@@ -5,6 +5,7 @@
         ArrowFatUpIcon,
         ArrowCounterClockwiseIcon,
         ArrowsOutCardinalIcon,
+        BookOpenTextIcon,
         CornersOutIcon,
         EyeIcon,
         GithubLogoIcon,
@@ -30,6 +31,8 @@
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { t } from "svelte-whisper";
+    import { onboardingSeen } from "../onboardingStore";
+    import { showToast } from "../toast";
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
     const version = getCurrentVersion();
@@ -279,6 +282,16 @@
                 </div>
             {/if}
         </div>
+        <Button
+            on:click={() => {
+                onboardingSeen.resetToDefault();
+                showToast($t("onboarding.showTutorialToast"));
+            }}
+            description={$t("onboarding.showTutorialDescription")}
+            icon={BookOpenTextIcon}
+        >
+            {$t("onboarding.showTutorial")}
+        </Button>
         <div class="instructions-accordion">
             <Accordion
                 title={$t("sideMenu.sections.instructions")}
