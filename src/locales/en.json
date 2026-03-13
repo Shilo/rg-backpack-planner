@@ -515,7 +515,7 @@
         "swipe": "Swipe",
         "pinch": "Pinch",
         "showTutorial": "Show Tutorial",
-        "showTutorialDescription": "Replay the first-load controls guide"
+        "showTutorialDescription": "View on-screen controls guide"
     },
     "install": {
         "tooltip": "Install {appName} app on {osName}",

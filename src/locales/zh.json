@@ -515,7 +515,7 @@
         "swipe": "滑动",
         "pinch": "捏合",
         "showTutorial": "显示教程",
-        "showTutorialDescription": "重新播放首次操作指南"
+        "showTutorialDescription": "查看屏幕操作指南"
     },
     "install": {
         "tooltip": "在{osName}上安装{appName}应用",

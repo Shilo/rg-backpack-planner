@@ -515,7 +515,7 @@
         "swipe": "スワイプ",
         "pinch": "ピンチ",
         "showTutorial": "チュートリアルを表示",
-        "showTutorialDescription": "初回操作ガイドを再表示"
+        "showTutorialDescription": "画面上の操作ガイドを見る"
     },
     "install": {
         "tooltip": "{osName}に{appName}アプリをインストール",
