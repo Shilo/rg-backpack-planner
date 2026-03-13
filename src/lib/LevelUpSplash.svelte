@@ -75,23 +75,33 @@
 <div
     bind:this={el}
     class="level-splash"
-    style="left: {x + nudgeX}px; top: {y - 40 * badgeScale + nudgeY}px; --badge-scale: {badgeScale};"
+    style="left: {x + nudgeX}px; top: {y -
+        48 * badgeScale +
+        nudgeY}px; --badge-scale: {badgeScale};"
     aria-live="polite"
 >
     {#key animKey}
-    <div class="level-splash__anim" class:level-splash__anim--update={animKey > 0 || skipEntry}>
-        <div class="level-splash__pill">
-            <span class="level-splash__segment" style="color: {levelColor}">
-                <span class="level-splash__icon">{isUp ? ARROW_UP : ARROW_DOWN}</span>
-                <span>{lvlText}</span>
-            </span>
-            <span class="level-splash__divider"></span>
-            <span class="level-splash__segment" style="color: {crystalColor}">
-                <span class="level-splash__icon">{HEXAGON}</span>
-                <span>{cText}</span>
-            </span>
+        <div
+            class="level-splash__anim"
+            class:level-splash__anim--update={animKey > 0 || skipEntry}
+        >
+            <div class="level-splash__pill">
+                <span class="level-splash__segment" style="color: {levelColor}">
+                    <span class="level-splash__icon"
+                        >{isUp ? ARROW_UP : ARROW_DOWN}</span
+                    >
+                    <span>{lvlText}</span>
+                </span>
+                <span class="level-splash__divider"></span>
+                <span
+                    class="level-splash__segment"
+                    style="color: {crystalColor}"
+                >
+                    <span class="level-splash__icon">{HEXAGON}</span>
+                    <span>{cText}</span>
+                </span>
+            </div>
         </div>
-    </div>
     {/key}
 </div>
 
@@ -145,16 +155,37 @@
     }
 
     @keyframes splash-float {
-        0% { opacity: 0; transform: scale(0.85) translateY(4px); }
-        15% { opacity: 1; transform: scale(1.04) translateY(0); }
-        25% { transform: scale(1) translateY(0); }
-        65% { opacity: 1; transform: scale(1) translateY(0); }
-        100% { opacity: 0; transform: scale(0.97) translateY(-12px); }
+        0% {
+            opacity: 0;
+            transform: scale(0.85) translateY(4px);
+        }
+        15% {
+            opacity: 1;
+            transform: scale(1.04) translateY(0);
+        }
+        25% {
+            transform: scale(1) translateY(0);
+        }
+        65% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(0.97) translateY(-12px);
+        }
     }
 
     @keyframes splash-update {
-        0%, 65% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(0.97) translateY(-12px); }
+        0%,
+        65% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(0.97) translateY(-12px);
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -167,15 +198,28 @@
         }
 
         @keyframes splash-fade {
-            0% { opacity: 0; }
-            20% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; }
+            0% {
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
         }
 
         @keyframes splash-fade-update {
-            0%, 70% { opacity: 1; }
-            100% { opacity: 0; }
+            0%,
+            70% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
         }
     }
 </style>
