@@ -1,6 +1,7 @@
 import type { LevelsByIndex, Node, NodeIndex } from "../types/tree";
 import { NodePrimaryAction } from "./nodePrimaryActionStore";
 import { NodeLevelBehavior } from "./nodeLevelBehaviorStore";
+import type { LevelDelta } from "./tierLeveling";
 import {
     applyLevelChange,
     nextTierTargetLevel,
@@ -13,6 +14,45 @@ export type NodeActionPreview = {
     totalCost: number;
     isRefund: boolean;
 };
+
+export function sumDeltaCosts(
+    nodes: Node[],
+    levels: LevelsByIndex,
+    deltas: LevelDelta[],
+): number {
+    let total = 0;
+    for (const delta of deltas) {
+        const node = nodes[delta.index];
+        if (!node?.skillId) continue;
+        const fromLevel = levels[delta.index] ?? 0;
+        const toLevel = fromLevel + delta.delta;
+        total += getCostRange(
+            node.skillId,
+            Math.min(fromLevel, toLevel),
+            Math.max(fromLevel, toLevel),
+        );
+    }
+    return total;
+}
+
+export function computeTotalCost(params: {
+    nodes: Node[];
+    levels: LevelsByIndex;
+    index: NodeIndex;
+    targetLevel: number;
+    nodeLevelBehavior: NodeLevelBehavior;
+}): { totalCost: number; deltas: LevelDelta[] } {
+    const { nodes, levels, index, targetLevel, nodeLevelBehavior } = params;
+    const { deltas } = applyLevelChange({
+        nodes,
+        levels,
+        index,
+        targetLevel,
+        nodeLevelBehavior,
+    });
+    const totalCost = sumDeltaCosts(nodes, levels, deltas);
+    return { totalCost, deltas };
+}
 
 export function getNodeActionPreview(params: {
     nodes: Node[];

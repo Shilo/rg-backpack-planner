@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { getNodeActionPreview } from "../src/lib/nodeActionPreview.ts";
+import { getNodeActionPreview, sumDeltaCosts, computeTotalCost } from "../src/lib/nodeActionPreview.ts";
 import { NodePrimaryAction } from "../src/lib/nodePrimaryActionStore.ts";
 import { NodeLevelBehavior } from "../src/lib/nodeLevelBehaviorStore.ts";
 import { getCostRange } from "../src/config/skillMetadata.ts";
@@ -238,6 +238,143 @@ console.log("  nodeActionPreview");
     assert.equal(refundResult.targetLevel, 0, "should target level 0");
 
     console.log("    ✓ maxLevel=1 nodes work with all action types");
+}
+
+// --- sumDeltaCosts: empty deltas returns 0 ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const cost = sumDeltaCosts(nodes, levels, []);
+    assert.equal(cost, 0, "empty deltas should return 0");
+    console.log("    ✓ sumDeltaCosts returns 0 for empty deltas");
+}
+
+// --- sumDeltaCosts: returns unsigned cost for positive deltas ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const deltas = [{ index: 0, delta: 1 }];
+    const cost = sumDeltaCosts(nodes, levels, deltas);
+    const expected = getCostRange(nodes[0]!.skillId, 0, 1);
+    assert.equal(cost, expected, "sumDeltaCosts should return single-node cost");
+    assert.ok(cost > 0, "cost should be positive");
+    console.log("    ✓ sumDeltaCosts returns correct single-node cost");
+}
+
+// --- sumDeltaCosts: returns unsigned cost for negative deltas (refund) ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    levels[0] = 10;
+    const deltas = [{ index: 0, delta: -5 }];
+    const cost = sumDeltaCosts(nodes, levels, deltas);
+    const expected = getCostRange(nodes[0]!.skillId, 5, 10);
+    assert.equal(cost, expected, "sumDeltaCosts should return unsigned cost for refund");
+    assert.ok(cost > 0, "refund cost should still be positive (unsigned)");
+    console.log("    ✓ sumDeltaCosts returns unsigned cost for negative deltas");
+}
+
+// --- sumDeltaCosts: sums across multiple deltas ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const deltas = [{ index: 0, delta: 20 }, { index: 1, delta: 20 }];
+    const cost = sumDeltaCosts(nodes, levels, deltas);
+    const expected =
+        getCostRange(nodes[0]!.skillId, 0, 20) +
+        getCostRange(nodes[1]!.skillId, 0, 20);
+    assert.equal(cost, expected, "sumDeltaCosts should sum costs across all deltas");
+    console.log("    ✓ sumDeltaCosts sums across multiple deltas");
+}
+
+// --- sumDeltaCosts: skips nodes without skillId ---
+{
+    const nodes = [
+        { skillId: undefined, maxLevel: 100, radius: 1, x: 0, y: 0 },
+    ] as unknown as Node[];
+    const levels = createLevels(1);
+    const deltas = [{ index: 0, delta: 10 }];
+    const cost = sumDeltaCosts(nodes, levels, deltas);
+    assert.equal(cost, 0, "should return 0 for nodes without skillId");
+    console.log("    ✓ sumDeltaCosts skips nodes without skillId");
+}
+
+// --- computeTotalCost: matches getNodeActionPreview for Solo ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const result = computeTotalCost({
+        nodes,
+        levels,
+        index: 0,
+        targetLevel: 20,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+    });
+    const expected = getCostRange(nodes[0]!.skillId, 0, 20);
+    assert.equal(result.totalCost, expected, "computeTotalCost Solo should match single-node cost");
+    assert.equal(result.deltas.length, 1, "Solo should produce 1 delta");
+    console.log("    ✓ computeTotalCost Solo matches single-node cost");
+}
+
+// --- computeTotalCost: Sync includes ancestor costs ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const solo = computeTotalCost({
+        nodes,
+        levels,
+        index: 2,
+        targetLevel: 20,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+    });
+    const sync = computeTotalCost({
+        nodes,
+        levels,
+        index: 2,
+        targetLevel: 20,
+        nodeLevelBehavior: NodeLevelBehavior.Sync,
+    });
+    assert.ok(
+        sync.totalCost > solo.totalCost,
+        `Sync cost (${sync.totalCost}) should exceed Solo cost (${solo.totalCost})`,
+    );
+    assert.ok(sync.deltas.length > 1, "Sync should produce multiple deltas");
+    console.log("    ✓ computeTotalCost Sync includes ancestor costs");
+}
+
+// --- computeTotalCost: no-op returns empty deltas and zero cost ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    levels[0] = 20;
+    const result = computeTotalCost({
+        nodes,
+        levels,
+        index: 0,
+        targetLevel: 20,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+    });
+    assert.equal(result.totalCost, 0, "no-op should return 0 cost");
+    assert.equal(result.deltas.length, 0, "no-op should return empty deltas");
+    console.log("    ✓ computeTotalCost no-op returns zero cost and empty deltas");
+}
+
+// --- computeTotalCost: refund returns unsigned (positive) cost ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    levels[0] = 20;
+    const result = computeTotalCost({
+        nodes,
+        levels,
+        index: 0,
+        targetLevel: 10,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+    });
+    const expected = getCostRange(nodes[0]!.skillId, 10, 20);
+    assert.equal(result.totalCost, expected, "refund computeTotalCost should return unsigned cost");
+    assert.ok(result.totalCost > 0, "refund cost should be positive (unsigned)");
+    console.log("    ✓ computeTotalCost refund returns unsigned cost");
 }
 
 console.log("  ✓ nodeActionPreview\n");
