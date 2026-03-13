@@ -93,7 +93,7 @@ export function getNodeActionPreview(params: {
 
     if (targetLevel === currentLevel) return null;
 
-    const { deltas } = applyLevelChange({
+    const { totalCost, deltas } = computeTotalCost({
         nodes,
         levels,
         index,
@@ -102,19 +102,6 @@ export function getNodeActionPreview(params: {
     });
 
     if (deltas.length === 0) return null;
-
-    let totalCost = 0;
-    for (const delta of deltas) {
-        const deltaNode = nodes[delta.index];
-        if (!deltaNode?.skillId) continue;
-        const fromLevel = levels[delta.index] ?? 0;
-        const toLevel = fromLevel + delta.delta;
-        totalCost += getCostRange(
-            deltaNode.skillId,
-            Math.min(fromLevel, toLevel),
-            Math.max(fromLevel, toLevel),
-        );
-    }
 
     return { targetLevel, totalCost, isRefund };
 }
