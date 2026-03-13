@@ -188,6 +188,9 @@
         "reloadWindowDescription": "刷新并加载最新版本",
         "resetSettingsDescription": "恢复默认设置，不影响进度",
         "clearAllDataDescription": "清除所有数据并重新加载",
+        "resetTreeDescription": "返还水晶并恢复至等级0",
+        "resetAllTreesDescription": "返还所有技能树的全部水晶",
+        "fullscreenDescription": "将浏览器切换为全屏模式",
         "pages": {
             "node": "节点",
             "nodeDescription": "行为和显示",

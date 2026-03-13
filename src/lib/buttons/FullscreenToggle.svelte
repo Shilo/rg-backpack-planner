@@ -76,7 +76,7 @@
         checked={isFullscreen}
         label={$t("fullscreen.label")}
         ariaLabel="Toggle fullscreen mode"
-        tooltipText={$t("fullscreen.tooltip")}
+        description={$t("settings.fullscreenDescription")}
         icon={CornersOutIcon as unknown as Component}
         onToggle={handleToggleFullscreen}
     />

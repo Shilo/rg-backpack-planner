@@ -35,7 +35,7 @@
 
 <Button
     on:click={handleResetAll}
-    tooltipText={$t("modal.resetTree.messageAll")}
+    description={$t("settings.resetAllTreesDescription")}
     icon={ArrowsCounterClockwiseIcon}
     arrow="right"
     negative
