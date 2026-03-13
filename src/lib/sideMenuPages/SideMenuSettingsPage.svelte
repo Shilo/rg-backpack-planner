@@ -74,10 +74,12 @@
         }
     }
 
-    async function navigateTo(page: SettingsPageId) {
-        if (isTransitioning || page === currentPage) return;
-        lastNavigatedPage = page;
-        transitionDirection = "forward";
+    async function transition(
+        targetPage: SettingsPageId,
+        direction: "forward" | "back",
+        onComplete?: () => void,
+    ) {
+        transitionDirection = direction;
         outgoingComponent = currentComponent;
         outgoingPage = currentPage;
 
@@ -87,8 +89,8 @@
         }
 
         isTransitioning = true;
-        currentPage = page;
-        await loadPage(page);
+        currentPage = targetPage;
+        await loadPage(targetPage);
         scrollToTop();
         await tick();
 
@@ -108,6 +110,7 @@
             if (containerElement) {
                 containerElement.style.height = "";
             }
+            onComplete?.();
         };
         let fallbackTimeout: ReturnType<typeof setTimeout>;
         const incomingEl = containerElement?.querySelector(
@@ -121,6 +124,12 @@
         } else {
             onEnd();
         }
+    }
+
+    async function navigateTo(page: SettingsPageId) {
+        if (isTransitioning || page === currentPage) return;
+        lastNavigatedPage = page;
+        await transition(page, "forward");
     }
 
     export function tryGoBack(): boolean {
@@ -131,57 +140,14 @@
 
     async function navigateBack() {
         if (isTransitioning || currentPage === "root") return;
-        transitionDirection = "back";
-        outgoingComponent = currentComponent;
-        outgoingPage = currentPage;
-
-        // Fix container height during transition to prevent collapse
-        if (containerElement) {
-            containerElement.style.height = `${containerElement.offsetHeight}px`;
-        }
-
-        isTransitioning = true;
-        currentPage = "root";
-        await loadPage("root");
-        scrollToTop();
-        await tick();
-
-        // Snap to incoming page height
-        const incomingPanel = containerElement?.querySelector(
-            ".settings-page-panel.incoming:not(.active)",
-        );
-        if (containerElement && incomingPanel) {
-            containerElement.style.height = `${incomingPanel.scrollHeight}px`;
-        }
-
-        // Wait for slide animation to finish
-        const onEnd = () => {
-            clearTimeout(fallbackTimeout);
-            isTransitioning = false;
-            outgoingComponent = null;
-            if (containerElement) {
-                containerElement.style.height = "";
-            }
-            // Focus the nav button that was clicked
+        await transition("root", "back", () => {
             tick().then(() => {
                 const btn = containerElement?.querySelector(
                     `[data-page="${lastNavigatedPage}"]`,
                 );
                 if (btn instanceof HTMLElement) btn.focus();
             });
-        };
-        let fallbackTimeout: ReturnType<typeof setTimeout>;
-        const incomingEl = containerElement?.querySelector(
-            ".incoming:not(.active)",
-        );
-        if (incomingEl) {
-            incomingEl.addEventListener("animationend", onEnd, {
-                once: true,
-            });
-            fallbackTimeout = setTimeout(onEnd, 200);
-        } else {
-            onEnd();
-        }
+        });
     }
 </script>
 
