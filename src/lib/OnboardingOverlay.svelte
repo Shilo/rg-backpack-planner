@@ -24,8 +24,13 @@
     };
 
     let isTouch = false;
+    let dismissTimer: ReturnType<typeof setTimeout> | null = null;
+
     onMount(() => {
         isTouch = window.matchMedia("(pointer: coarse)").matches;
+        return () => {
+            if (dismissTimer) clearTimeout(dismissTimer);
+        };
     });
 
     $: nodeChips = isTouch
@@ -60,7 +65,7 @@
         if (prefersReducedMotion) {
             onDismiss();
         } else {
-            setTimeout(onDismiss, 200);
+            dismissTimer = setTimeout(onDismiss, 200);
         }
     }
 </script>
@@ -70,6 +75,7 @@
     class="onboarding-overlay"
     class:dismissing
     role="dialog"
+    aria-modal="true"
     aria-label="Controls tutorial"
     on:pointerdown={handleDismiss}
 >
