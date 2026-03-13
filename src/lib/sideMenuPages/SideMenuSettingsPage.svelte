@@ -256,6 +256,7 @@
     .settings-page-panel {
         display: grid;
         gap: var(--spacing-lg);
+        background: var(--bg-panel);
     }
 
     .settings-page-panel.active {
@@ -270,22 +271,24 @@
         right: 0;
     }
 
-    /* Forward: outgoing slides left, incoming slides in from right */
+    /* Forward: incoming slides over the top from right, outgoing recedes underneath */
     .settings-page-container.forward .incoming:not(.active) {
         animation: slide-in-right 0.15s ease forwards;
+        z-index: 1;
     }
 
     .settings-page-container.forward .outgoing {
         animation: slide-out-left 0.15s ease forwards;
     }
 
-    /* Back: outgoing slides right, incoming slides in from left */
+    /* Back: outgoing slides away to the right on top, incoming emerges from left underneath */
     .settings-page-container.back .incoming:not(.active) {
         animation: slide-in-left 0.15s ease forwards;
     }
 
     .settings-page-container.back .outgoing {
         animation: slide-out-right 0.15s ease forwards;
+        z-index: 1;
     }
 
     @keyframes slide-in-right {
