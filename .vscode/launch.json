@@ -77,7 +77,8 @@
                 "update"
             ],
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "autoAttachChildProcesses": false
         }
     ]
 }
