@@ -13,6 +13,7 @@
         HandSwipeRightIcon,
         HandTapIcon,
         ImageIcon,
+        InfoIcon,
         ListIcon,
         MouseLeftClickIcon,
         MouseMiddleClickIcon,
@@ -141,6 +142,13 @@
             label: $t("controls.pointerZoomLabel"),
             description: $t("controls.pointerZoomDescription"),
             icon: MouseScrollIcon,
+            device: "pointer",
+        },
+        {
+            id: "pointer-hover",
+            label: $t("controls.pointerHoverLabel"),
+            description: $t("controls.pointerHoverDescription"),
+            icon: InfoIcon,
             device: "pointer",
         },
         {
