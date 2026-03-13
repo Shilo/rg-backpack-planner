@@ -58,6 +58,7 @@
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
     import { getSkillLevelInfo } from "../config/skillMetadata";
+    import { sumDeltaCosts } from "./nodeActionPreview";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -524,15 +525,9 @@
         if ($showLevelSplash) {
             const targetNode = getNodeAt(index);
             if (targetNode) {
-                let totalCrystalDelta = 0;
-                for (const d of deltas) {
-                    const node = getNodeAt(d.index);
-                    if (node?.skillId) {
-                        const prevInfo = getSkillLevelInfo(node.skillId, getLevelFrom(prevLevels, d.index), node.maxLevel);
-                        const nextInfo = getSkillLevelInfo(node.skillId, getLevelFrom(nextLevels, d.index), node.maxLevel);
-                        totalCrystalDelta += nextInfo.totalCostSpent - prevInfo.totalCostSpent;
-                    }
-                }
+                const totalCrystalDelta = targetLevel > currentLevel
+                    ? sumDeltaCosts(nodes, prevLevels, deltas)
+                    : -sumDeltaCosts(nodes, prevLevels, deltas);
                 const newSplash: SplashData = {
                     nodeIndex: index,
                     x: targetNode.x,
@@ -1438,18 +1433,6 @@
                     />
                 {/each}
 
-                {#each activeSplashes as splash (splash.nodeIndex)}
-                    <LevelUpSplash
-                        x={splash.x}
-                        y={splash.y}
-                        level={splash.level}
-                        isUp={splash.isUp}
-                        crystalDelta={splash.crystalDelta}
-                        skipEntry={splash.skipEntry}
-                        {scale}
-                        onDone={() => removeSplash(splash.nodeIndex)}
-                    />
-                {/each}
             </div>
 
             <NodeContentMenu
@@ -1469,6 +1452,24 @@
                 maxLevel={contextMenuMaxLevel}
                 isGlobalIncrementLocked={contextMenuIsGlobalIncrementLocked}
             />
+
+            <div
+                class="tree-splash-layer"
+                style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
+            >
+                {#each activeSplashes as splash (splash.nodeIndex)}
+                    <LevelUpSplash
+                        x={splash.x}
+                        y={splash.y}
+                        level={splash.level}
+                        isUp={splash.isUp}
+                        crystalDelta={splash.crystalDelta}
+                        skipEntry={splash.skipEntry}
+                        {scale}
+                        onDone={() => removeSplash(splash.nodeIndex)}
+                    />
+                {/each}
+            </div>
         </div>
     </div>
 {/key}
@@ -1506,6 +1507,14 @@
         position: absolute;
         inset: 0;
         transform-origin: 0 0;
+    }
+
+    .tree-splash-layer {
+        position: absolute;
+        inset: 0;
+        transform-origin: 0 0;
+        pointer-events: none;
+        z-index: var(--z-index-tooltip);
     }
 
     .tree-links {
