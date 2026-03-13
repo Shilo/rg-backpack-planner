@@ -192,6 +192,8 @@
         "resetAllTreesDescription": "返还所有技能树的全部水晶",
         "fullscreenDescription": "将浏览器切换为全屏模式",
         "themeDescription": "主题色和明暗模式",
+        "shareDescription": "链接、截图或应用分享",
+        "previewDescription": "查看和对比其他构建",
         "pages": {
             "node": "节点",
             "nodeDescription": "行为和显示",

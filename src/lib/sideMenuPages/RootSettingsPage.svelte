@@ -61,6 +61,7 @@
         <div class="button-group build-share-row">
             <ShareBuildButton
                 title={$t("settings.shareButton")}
+                description={$t("settings.shareDescription")}
                 disabled={$isPreviewMode}
                 onComposeScreenshot={() => onClose?.()}
             />
@@ -68,7 +69,7 @@
                 class="dropdown-button"
                 bind:element={previewButtonElement}
                 on:click={handlePreviewDropdownClick}
-                tooltipText={$t("settings.previewButtonTooltip")}
+                description={$t("settings.previewDescription")}
                 icon={EyeIcon}
                 arrow="down"
             >

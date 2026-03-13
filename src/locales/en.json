@@ -192,6 +192,8 @@
         "resetAllTreesDescription": "Refund all crystals across every tree",
         "fullscreenDescription": "Expand browser to fill the screen",
         "themeDescription": "Accent color and light or dark mode",
+        "shareDescription": "Link, screenshot, or app",
+        "previewDescription": "View and compare other builds",
         "pages": {
             "node": "Node",
             "nodeDescription": "Behavior and Display",

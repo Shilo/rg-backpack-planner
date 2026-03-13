@@ -192,6 +192,8 @@
         "resetAllTreesDescription": "全ツリーのクリスタルをすべて返還",
         "fullscreenDescription": "ブラウザを全画面表示にする",
         "themeDescription": "アクセントカラーとライト／ダークモード",
+        "shareDescription": "リンク、スクリーンショット、またはアプリ",
+        "previewDescription": "他のビルドを表示・比較",
         "pages": {
             "node": "ノード",
             "nodeDescription": "動作と表示",

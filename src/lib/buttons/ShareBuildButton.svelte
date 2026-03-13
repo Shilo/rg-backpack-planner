@@ -22,6 +22,7 @@
     export let showShareToApp = true;
     export let showCopyLink = true;
     export let showScreenshot = true;
+    export let description: string | undefined = undefined;
     export let onComposeScreenshot: (() => void) | null = null;
 
     let shareMenuOpen = false;
@@ -93,7 +94,8 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={resolvedTooltip}
+    tooltipText={description ? undefined : resolvedTooltip}
+    {description}
     icon={ShareIcon}
     arrow="down"
     {disabled}
