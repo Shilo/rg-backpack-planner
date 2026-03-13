@@ -34,7 +34,7 @@
         "test:ui:capture": "tsx test/captureScreenshot.ui.test.ts",
         "test": "npm run check && tsx test/index.ts",
         "pwa:assets": "node scripts/generate-pwa-icons.mjs",
-        "update": "npx npm-check-updates -u && npm install svelte-whisper@github:Shilo/svelte-whisper && npm install"
+        "update": "npx npm-check-updates -u && npx -y rimraf node_modules package-lock.json && npm install svelte-whisper@github:Shilo/svelte-whisper && npm install"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.4",
