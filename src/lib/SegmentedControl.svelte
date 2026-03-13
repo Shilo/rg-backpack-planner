@@ -16,6 +16,7 @@
     export let iconClass = "segmented-control__icon";
     export let onChange: ((index: number) => void) | null = null;
     export let tooltipText: string | undefined = undefined;
+    export let description: string | undefined = undefined;
 
     const normalizeLabel = (value: string, index: number) => {
         const trimmed = value.trim();
@@ -61,7 +62,12 @@
                     <svelte:component this={icon} class={iconClass} size={26} />
                 </span>
             {/if}
-            <span class="segmented-control__header-label">{label}</span>
+            <div class="segmented-control__header-label-group">
+                <span class="segmented-control__header-label">{label}</span>
+                {#if description}
+                    <span class="segmented-control__header-description">{description}</span>
+                {/if}
+            </div>
         </div>
     {/if}
 
@@ -152,8 +158,6 @@
     }
 
     .segmented-control__header-label {
-        flex: 1;
-        min-width: 0;
         font-size: var(--font-base);
         white-space: normal;
         overflow-wrap: anywhere;
@@ -266,5 +270,22 @@
         overflow-wrap: anywhere;
         text-align: center;
         transition: transform var(--ease);
+    }
+
+    .segmented-control__header-label-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .segmented-control__header-description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
+        white-space: normal;
+        overflow-wrap: anywhere;
+        user-select: none;
     }
 </style>
