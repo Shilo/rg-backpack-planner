@@ -733,7 +733,7 @@
         });
     }
 
-    const NODE_MENU_GAP = 4;
+    const NODE_MENU_GAP = 10;
 
     function getNodeInfoFromTarget(target: EventTarget | null) {
         if (!(target instanceof Element)) return null;
