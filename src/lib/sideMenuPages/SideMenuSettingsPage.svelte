@@ -128,6 +128,12 @@
         });
     }
 
+    export function tryGoBack(): boolean {
+        if (currentPage === "root" || isTransitioning) return false;
+        navigateBack();
+        return true;
+    }
+
     async function navigateBack() {
         if (isTransitioning || currentPage === "root") return;
         transitionDirection = "back";

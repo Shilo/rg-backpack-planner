@@ -55,6 +55,12 @@
     let SideMenuSettingsPage: any = null;
     let SideMenuStatisticsPage: any = null;
     let SideMenuControlsPage: any = null;
+    let settingsPageRef: { tryGoBack?: () => boolean } | null = null;
+
+    export function tryGoBack(): boolean {
+        if (activeTab !== "settings") return false;
+        return settingsPageRef?.tryGoBack?.() ?? false;
+    }
 
     async function loadTabPage(tab: SideMenuTab): Promise<void> {
         if (tab === "settings" && !SideMenuSettingsPage) {
@@ -138,6 +144,7 @@
                 {#if activeTab === "settings" && SideMenuSettingsPage}
                     <svelte:component
                         this={SideMenuSettingsPage}
+                        bind:this={settingsPageRef}
                         {activeTreeName}
                         {activeTreeIndex}
                         {activeTreeViewState}

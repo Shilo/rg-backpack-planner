@@ -141,6 +141,7 @@
 
     function handleBackspaceKeydown(event: KeyboardEvent) {
         if (event.key !== "Backspace" || !tabsRootEl) return;
+        if (isMenuOpen) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
             return;
         const levels = $treeLevels[activeIndex] ?? [];

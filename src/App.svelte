@@ -12,6 +12,7 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
+    import { isFormField } from "./lib/domUtil";
     import { t, locale } from "svelte-whisper";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
@@ -234,6 +235,7 @@
             tab: "statistics" | "settings" | "controls",
             persist?: boolean,
         ) => void;
+        tryGoBack?: () => boolean;
     } | null = null;
     let skipMenuTransition = shouldShowControls;
     let isMenuOpen = shouldShowControls;
@@ -412,19 +414,36 @@
     onMount(() => {
         ensureInstallListeners();
 
-        // Global hotkeys: F9 to open screenshot composer, Escape to toggle menu
+        // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat) return;
 
             if (e.key === "Escape" && !e.defaultPrevented && e.isTrusted) {
                 e.preventDefault();
-                toggleMenu();
+                if (isMenuOpen) {
+                    if (!sideMenuRef?.tryGoBack?.()) {
+                        closeMenu();
+                    }
+                } else {
+                    isMenuOpen = true;
+                }
+            } else if (
+                e.key === "Backspace" &&
+                isMenuOpen &&
+                !e.defaultPrevented &&
+                e.isTrusted &&
+                !isFormField(document.activeElement)
+            ) {
+                e.preventDefault();
+                if (!sideMenuRef?.tryGoBack?.()) {
+                    closeMenu();
+                }
             } else if (e.key === "F9") {
                 e.preventDefault();
                 openComposeScreenshot();
             }
         };
-        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keydown", handleKeyDown, true);
 
         function handleCloseSideMenu() {
             closeMenu();
@@ -481,7 +500,7 @@
             }
             if (typeof window !== "undefined") {
                 window.removeEventListener("hashchange", handleHashchange);
-                window.removeEventListener("keydown", handleKeyDown);
+                window.removeEventListener("keydown", handleKeyDown, true);
             }
         };
     });
