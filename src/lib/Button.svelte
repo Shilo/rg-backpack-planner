@@ -32,6 +32,7 @@
     export let toastNegative = false;
     export let toastDurationMs: number | undefined = undefined;
     export let arrow: "right" | "down" | undefined = undefined;
+    export let description: string | undefined = undefined;
 
     let restClass: string | undefined;
     let buttonProps: Record<string, unknown> = {};
@@ -119,9 +120,18 @@
             weight={iconWeight}
         />
     {/if}
-    <span class="button-text">
-        <slot />
-    </span>
+    {#if description}
+        <span class="button-text-group">
+            <span class="button-text">
+                <slot />
+            </span>
+            <span class="button-description">{description}</span>
+        </span>
+    {:else}
+        <span class="button-text">
+            <slot />
+        </span>
+    {/if}
     {#if arrow === "right"}
         <CaretRightIcon class="button-arrow" size={12} aria-hidden={true} />
     {:else if arrow === "down"}
@@ -174,7 +184,8 @@
         overflow-wrap: anywhere;
     }
 
-    .button.with-arrow .button-text {
+    .button.with-arrow .button-text,
+    .button.with-arrow .button-text-group {
         flex: 1;
         min-width: 0;
         white-space: normal;
@@ -269,5 +280,22 @@
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left: none;
+    }
+
+    .button-text-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+        line-height: var(--leading);
+    }
+
+    .button-description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 </style>
