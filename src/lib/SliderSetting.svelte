@@ -18,6 +18,7 @@
     export let defaultNotchIndex: number | undefined = undefined;
     export let onChange: ((value: number) => void) | null = null;
     export let tooltipText: string | undefined = undefined;
+    export let description: string | undefined = undefined;
 
     const DRAG_THRESHOLD_PX = 5;
 
@@ -129,8 +130,13 @@
                 </span>
             {/if}
             {#if label}
+            <div class="slider-setting__header-label-group">
                 <span class="slider-setting__header-label">{label}</span>
-            {/if}
+                {#if description}
+                    <span class="slider-setting__header-description">{description}</span>
+                {/if}
+            </div>
+        {/if}
             <span class="slider-setting__value">{valueLabel}</span>
         </div>
     {/if}
@@ -214,7 +220,6 @@
     }
 
     .slider-setting__header-label {
-        flex: 1;
         font-size: var(--font-base);
         letter-spacing: var(--tracking);
         color: var(--text-muted);
@@ -339,5 +344,22 @@
     }
     .slider-setting__input:active::-moz-range-thumb {
         transform: scale(1.12);
+    }
+
+    .slider-setting__header-label-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .slider-setting__header-description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
+        white-space: normal;
+        overflow-wrap: anywhere;
+        user-select: none;
     }
 </style>
