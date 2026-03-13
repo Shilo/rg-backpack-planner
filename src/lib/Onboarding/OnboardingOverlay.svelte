@@ -29,7 +29,7 @@
     export let offsetY: number;
     export let scale: number;
     export let targetNodeIndex: NodeIndex = 0;
-    export let emptySpaceWorldX: number = 190;
+    export let emptySpaceWorldX: number = 180;
     export let emptySpaceWorldY: number = 342;
 
     type CardData = {
