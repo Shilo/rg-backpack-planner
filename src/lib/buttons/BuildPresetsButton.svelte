@@ -319,13 +319,14 @@
     bind:element={presetsButtonElement}
     on:click={openPresetsMenu}
     tooltipText={$t("buildPresets.changeTooltip")}
+    description={$t("buildPresets.buttonDescription")}
     icon={ShareNetworkIcon}
     arrow="down"
     {disabled}
 >
-    {$t("buildPresets.buttonLabel", {
-        name: getDisplayPresetName($activePresetName),
-    })}
+    {$t("buildPresets.buttonLabel")} <span class="preset-name"
+        >{getDisplayPresetName($activePresetName)}</span
+    >
 </Button>
 
 <div use:portal class="presets-menu-portal" class:menu-open={presetsMenuOpen}>
@@ -470,6 +471,10 @@
 {/if}
 
 <style>
+    .preset-name {
+        color: var(--text);
+    }
+
     .presets-menu-portal {
         position: fixed;
         top: 0;

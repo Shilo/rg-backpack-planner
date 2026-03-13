@@ -27,6 +27,7 @@
     export let buildCode: string | undefined = undefined;
     export let label: string | undefined = undefined;
     export let tooltip: string | undefined = undefined;
+    export let description: string | undefined = undefined;
 
     function handleCloneBuild() {
         const sourceName = name ?? get(previewBuildName) ?? "";
@@ -71,7 +72,8 @@
 
 <Button
     on:click={handleCloneBuild}
-    tooltipText={tooltip ?? $t("preview.clonePreviewBuildTooltip")}
+    tooltipText={description ? undefined : (tooltip ?? $t("preview.clonePreviewBuildTooltip"))}
+    {description}
     icon={CopySimpleIcon}
     arrow="right"
 >

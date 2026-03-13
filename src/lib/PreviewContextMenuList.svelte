@@ -29,13 +29,14 @@
 <TechCrystalsButton tooltipSubject={$t("techCrystals.subjectPreview")} />
 <ShareBuildButton
     title={$t("preview.sharePreviewBuild")}
+    description={$t("preview.sharePreviewBuildDescription")}
     tooltipSubject={$t("techCrystals.subjectPreview")}
     buildName={$previewBuildName}
 />
-<CloneBuildButton />
+<CloneBuildButton description={$t("preview.clonePreviewBuildDescription")} />
 <Button
     on:click={handleStopPreview}
-    tooltipText={$t("preview.stopPreviewTooltip")}
+    description={$t("preview.stopPreviewDescription")}
     icon={EyeSlashIcon}
     negative
 >
