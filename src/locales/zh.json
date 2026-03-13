@@ -473,7 +473,7 @@
         "touchZoomLabel": "双指捏合",
         "touchZoomDescription": "缩放技能树",
         "touchMenuSwipeLabel": "在侧边菜单上右滑",
-        "touchMenuSwipeDescription": "关闭侧边菜单",
+        "touchMenuSwipeDescription": "返回或关闭侧边菜单",
         "keyboardScreenshotLabel": "F9 - 分享截图",
         "keyboardScreenshotDescription": "预览并分享技能树图片",
         "keyboardCycleTabsLabel": "Tab - 切换标签页",

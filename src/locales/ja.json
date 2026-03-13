@@ -473,7 +473,7 @@
         "touchZoomLabel": "二本指でピンチ",
         "touchZoomDescription": "ツリーをズームイン・アウト",
         "touchMenuSwipeLabel": "サイドメニューで右スワイプ",
-        "touchMenuSwipeDescription": "サイドメニューを閉じる",
+        "touchMenuSwipeDescription": "戻る、またはサイドメニューを閉じる",
         "keyboardScreenshotLabel": "F9 - スクリーンショットを共有",
         "keyboardScreenshotDescription": "ツリー画像をプレビューして共有",
         "keyboardCycleTabsLabel": "Tab - タブ切り替え",

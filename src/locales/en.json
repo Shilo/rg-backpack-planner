@@ -473,7 +473,7 @@
         "touchZoomLabel": "Pinch With Two Fingers",
         "touchZoomDescription": "Zoom in and out on tree",
         "touchMenuSwipeLabel": "Swipe Right on Side Menu",
-        "touchMenuSwipeDescription": "Close side menu",
+        "touchMenuSwipeDescription": "Go back or close side menu",
         "keyboardScreenshotLabel": "F9 - Share Screenshot",
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
         "keyboardCycleTabsLabel": "Tab - Cycle Tabs",

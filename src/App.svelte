@@ -206,7 +206,9 @@
 
         const deltaX = swipeLastX - swipeStartX;
         if (isSwiping && deltaX > swipeCloseThreshold) {
-            closeMenu();
+            if (!sideMenuRef?.tryGoBack?.()) {
+                closeMenu();
+            }
         }
 
         resetSwipeState();
