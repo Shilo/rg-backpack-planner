@@ -4,11 +4,18 @@ Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech bu
 
 ## Project Structure
 
-- **`src/lib/`** — Components, stores, build-data logic, helpers
-- **`src/lib/*Store.ts`** — Svelte stores
+- **`src/lib/`** — Components, stores, helpers, and domain logic
+  - **`*Store.ts`** — Svelte stores (theme, presets, settings, etc.)
+  - **`buildData/`** — Encoder/decoder and URL handling for share links
+  - **`buildImageExport/`** — Screenshot composer and image export
+  - **`sideMenuPages/`** — Settings, statistics, controls, and about pages
+  - **`onboarding/`** — Interactive tutorial overlay and cards
+  - **`modals/`** — Confirm, text input, load build, and fullscreen modals
+  - **`themeEngine.ts`**, **`themeApply.ts`** — OKLCH dynamic color generation and application
 - **`src/config/`** — Tree definitions (guardian, vanguard, cannon) and shared metadata
-- **`src/lib/buildData/`** — Encoder/decoder and URL handling for share links
+- **`src/assets/nodes/`** — Skill node SVG icons
 - **`src/locales/`** — i18n (en, ja, zh)
+- **`src/theme.css`** — Design tokens (spacing, typography, radius, motion, z-index)
 - **`public/`** — Static assets, icons, manifest inputs
 - **`scripts/`** — Build helpers (copy-404, bump-version, generate-pwa-icons)
 - **`test/`** — CLI test suites; see [test/README.md](test/README.md)

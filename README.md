@@ -17,14 +17,67 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
 ## Features
 
-- **Interactive skill trees** — Tap or click nodes to level Guardian, Vanguard, and Cannon trees. Pan, zoom, and explore full builds.
+### Plan Your Builds
+- **Interactive skill trees** — Tap or click nodes to level Guardian, Vanguard, and Cannon trees. Pan and zoom to explore.
 - **Smart leveling** — Levels sync along connected paths. Leaf cap enforces the game's 3-leaf limit.
-- **Tech Crystal tracking** — Enter your crystals and see build costs at a glance.
-- **Save and organize** — Multiple named presets with auto-save. Try premade starter builds to get ideas.
-- **Share builds** — Generate a link or export a screenshot of all three trees. Preview shared builds before cloning.
-- **Installable PWA** — Works offline, installs to your home screen, optimized for phones, tablets, and desktops.
-- **Themes** — Light and dark mode with customizable accent colors.
-- **Languages** — English, Japanese, and Chinese.
+- **Node context menu** — Right-click or long-press a node to increment/decrement by 1, 10, or tier, or set to max.
+- **Tree context menu** — Right-click or long-press empty space to reset, zoom to fit, or manage the tree.
+
+### Track Your Progress
+- **Tech Crystal tracking** — Enter how many crystals you own and see per-tree and total costs at a glance.
+- **Statistics** — View backpack bonuses, crystal spend, and node level totals. Copy or share stats.
+- **Visual feedback** — Nodes show locked, available, active, and maxed states. Level-up splash animation on milestones.
+
+### Save and Organize
+- **Multiple presets** — Save, rename, clone, reorder, and delete named builds.
+- **Auto-save** — Your active build saves automatically.
+
+### Share With Others
+- **Share links** — Generate a URL that encodes your full build. Anyone with the link can view it.
+- **Screenshot export** — Capture all three trees in one transparent PNG. Copy to clipboard or share directly.
+- **Preview mode** — Open a shared link to view a build without overwriting your presets. Clone it when you like it.
+
+### Customize
+- **Theme colors** — Choose from preset accent colors (sky, cyan, green, rose, amber, neutral) or pick a custom hue and chroma.
+- **Dark and light mode** — Switch freely; all colors adapt via the OKLCH theming engine.
+- **Colorblind tree colors** — Alternate palette shifts tree region hues for color vision accessibility.
+- **Text size** — Scale the UI font from 0.8x to 2.0x.
+- **Uppercase text** — Toggle uppercase rendering across the interface.
+- **Tree zoom** — Start zoomed to fit or in close-up.
+- **Node display** — Show or hide tier badges, skill names, and level-up splash animations.
+- **Node primary action** — Configure tap/click to add 1, 10, or a full tier of levels.
+- **Level sync** — Choose whether leveling a node syncs connected nodes or changes only the one you tapped.
+- **Haptic feedback** — Vibration on interactions (supported devices).
+- **Languages** — English, Japanese, and Chinese with auto-detection.
+
+### Works Everywhere
+- **Installable PWA** — Add to your home screen and use it like a native app. Works offline after first load.
+- **Responsive** — Optimized for phones, tablets, and desktops.
+- **Onboarding tutorial** — Interactive overlay highlights key controls on first launch. Replay anytime from settings.
+
+### Controls
+
+#### Touch
+- **Tap** a node — Primary action (configured in settings).
+- **Long-press** a node — Open the node menu.
+- **Long-press** empty space or a tab — Open the tree menu.
+- **Drag** — Pan the tree.
+- **Pinch** — Zoom in and out.
+- **Swipe right** on the side menu — Close the menu.
+
+#### Mouse and Keyboard
+- **Left-click** a node — Primary action (configured in settings).
+- **Shift + left-click** or **middle-click** a node — Refund levels.
+- **Right-click** a node — Open the node menu.
+- **Right-click** empty space or a tab — Open the tree menu.
+- **Click and drag** — Pan the tree.
+- **Scroll wheel** or **trackpad** — Zoom.
+- **Tab** — Cycle between trees or menu tabs.
+- **Backspace** — Reset the active tree.
+- **Escape** — Open or close the side menu.
+- **F9** — Open the screenshot composer.
+
+---
 
 ## Credits
 
