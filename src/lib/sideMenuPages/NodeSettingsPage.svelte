@@ -84,7 +84,7 @@
             options={nodePrimaryActionOptions}
             selectedIndex={nodePrimaryActionSelectedIndex}
             onChange={handleNodePrimaryActionChange}
-            tooltipText={$t("settings.nodePrimaryActionTooltip")}
+            description={$t("settings.nodePrimaryActionDescription")}
         />
         <SegmentedControl
             label={nodeLevelBehaviorLabel}
@@ -93,7 +93,7 @@
             options={nodeLevelBehaviorOptions}
             selectedIndex={nodeLevelBehaviorSelectedIndex}
             onChange={handleNodeLevelBehaviorChange}
-            tooltipText={$t("settings.nodeLevelBehaviorTooltip")}
+            description={$t("settings.nodeLevelBehaviorDescription")}
         />
     </SideMenuSection>
 
@@ -102,7 +102,7 @@
             checked={$showSkillName}
             label={$t("settings.showSkillName")}
             ariaLabel={$t("settings.showSkillName")}
-            tooltipText={$t("settings.showSkillNameTooltip")}
+            description={$t("settings.showSkillNameDescription")}
             icon={TagIcon as unknown as Component}
             onToggle={() => showSkillName.set(!$showSkillName)}
         />
@@ -110,7 +110,7 @@
             checked={$showTier}
             label={$t("settings.showTier")}
             ariaLabel={$t("settings.showTier")}
-            tooltipText={$t("settings.showTierTooltip")}
+            description={$t("settings.showTierDescription")}
             icon={MedalIcon as unknown as Component}
             onToggle={() => showTier.set(!$showTier)}
         />
@@ -118,7 +118,7 @@
             checked={$showLevelSplash}
             label={$t("settings.showLevelSplash")}
             ariaLabel={$t("settings.showLevelSplash")}
-            tooltipText={$t("settings.showLevelSplashTooltip")}
+            description={$t("settings.showLevelSplashDescription")}
             icon={SparkleIcon as unknown as Component}
             onToggle={() => showLevelSplash.set(!$showLevelSplash)}
         />
