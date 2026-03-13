@@ -296,6 +296,9 @@
         // Only reset drag offset when menu first opens (transition from closed to open)
         // or when x/y change while menu is already open (programmatic repositioning)
         const justOpened = !wasOpen;
+        if (justOpened) {
+            isNested = document.querySelectorAll(".context-menu").length > 0;
+        }
         const positionChanged = wasOpen && (x !== lastX || y !== lastY);
         wasOpen = true;
         lastX = x;
@@ -326,7 +329,7 @@
 </script>
 
 {#if isOpen}
-    {#if !noBackdrop}
+    {#if !isNested}
         <button
             class="context-menu-backdrop"
             type="button"

@@ -110,7 +110,6 @@
         isOpen={shareMenuOpen}
         title={resolvedMenuTitle}
         onClose={closeShareMenu}
-        noBackdrop
     >
         {#if showShareToApp}
             <Button
