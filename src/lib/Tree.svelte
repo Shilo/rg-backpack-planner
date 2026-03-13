@@ -174,7 +174,8 @@
         id: number;
         x: number;
         y: number;
-        levelDelta: number;
+        level: number;
+        isUp: boolean;
         crystalDelta: number;
     };
     let activeSplashes: SplashData[] = [];
@@ -482,29 +483,6 @@
         }
     }
 
-    function triggerSplash(index: NodeIndex, prevLevel: number, nextLevel: number) {
-        if (!$showLevelSplash) return;
-        const levelDelta = nextLevel - prevLevel;
-        if (levelDelta === 0) return;
-        const node = getNodeAt(index);
-        if (!node) return;
-        // Calculate crystal cost: sum costs from prevLevel to nextLevel
-        let crystalDelta = 0;
-        if (node.skillId) {
-            const prevInfo = getSkillLevelInfo(node.skillId, prevLevel, node.maxLevel);
-            const nextInfo = getSkillLevelInfo(node.skillId, nextLevel, node.maxLevel);
-            crystalDelta = nextInfo.totalCostSpent - prevInfo.totalCostSpent;
-        }
-        // Use world coordinates — the tree-canvas transform handles pan/zoom
-        activeSplashes = [...activeSplashes, {
-            id: splashIdCounter++,
-            x: node.x,
-            y: node.y,
-            levelDelta,
-            crystalDelta,
-        }];
-    }
-
     function removeSplash(id: number) {
         activeSplashes = activeSplashes.filter(s => s.id !== id);
     }
@@ -537,8 +515,27 @@
         }
         const prevLevels = levels;
         updateLevels(nextLevels);
-        for (const d of deltas) {
-            triggerSplash(d.index, getLevelFrom(prevLevels, d.index), getLevelFrom(nextLevels, d.index));
+        if ($showLevelSplash) {
+            const targetNode = getNodeAt(index);
+            if (targetNode) {
+                let totalCrystalDelta = 0;
+                for (const d of deltas) {
+                    const node = getNodeAt(d.index);
+                    if (node?.skillId) {
+                        const prevInfo = getSkillLevelInfo(node.skillId, getLevelFrom(prevLevels, d.index), node.maxLevel);
+                        const nextInfo = getSkillLevelInfo(node.skillId, getLevelFrom(nextLevels, d.index), node.maxLevel);
+                        totalCrystalDelta += nextInfo.totalCostSpent - prevInfo.totalCostSpent;
+                    }
+                }
+                activeSplashes = [...activeSplashes, {
+                    id: splashIdCounter++,
+                    x: targetNode.x,
+                    y: targetNode.y,
+                    level: getLevelFrom(nextLevels, index),
+                    isUp: targetLevel > currentLevel,
+                    crystalDelta: totalCrystalDelta,
+                }];
+            }
         }
         return true;
     }
@@ -623,28 +620,28 @@
     export function resetAllNodes() {
         const prevLevels = [...levels];
         updateLevels(nodes.map(() => 0));
-        // Trigger splash for the root node (index 0) showing total delta
         if ($showLevelSplash) {
-            let totalLevelDelta = 0;
             let totalCrystalDelta = 0;
+            let hadLevels = false;
             for (let i = 0; i < nodes.length; i++) {
                 const prev = prevLevels[i] ?? 0;
                 if (prev === 0) continue;
-                totalLevelDelta -= prev;
+                hadLevels = true;
                 const node = nodes[i];
                 if (node?.skillId) {
                     const info = getSkillLevelInfo(node.skillId, prev, node.maxLevel);
                     totalCrystalDelta -= info.totalCostSpent;
                 }
             }
-            if (totalLevelDelta !== 0) {
+            if (hadLevels) {
                 const root = nodes[0];
                 if (root) {
                     activeSplashes = [{
                         id: splashIdCounter++,
                         x: root.x,
                         y: root.y,
-                        levelDelta: totalLevelDelta,
+                        level: 0,
+                        isUp: false,
                         crystalDelta: totalCrystalDelta,
                     }];
                 }
@@ -1436,7 +1433,8 @@
                     <LevelUpSplash
                         x={splash.x}
                         y={splash.y}
-                        levelDelta={splash.levelDelta}
+                        level={splash.level}
+                        isUp={splash.isUp}
                         crystalDelta={splash.crystalDelta}
                         {scale}
                         onDone={() => removeSplash(splash.id)}

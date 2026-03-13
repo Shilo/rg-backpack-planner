@@ -4,7 +4,8 @@
 
     export let x: number;
     export let y: number;
-    export let levelDelta: number;
+    export let level: number;
+    export let isUp: boolean;
     export let crystalDelta: number;
     export let scale: number = 1;
     export let onDone: (() => void) | null = null;
@@ -18,8 +19,7 @@
     let nudgeX = 0;
     let nudgeY = 0;
 
-    $: isUp = levelDelta > 0;
-    $: lvlText = (isUp ? "+" : "") + formatNumber(levelDelta);
+    $: lvlText = "Lv " + formatNumber(level);
     $: cSign = crystalDelta > 0 ? "+" : crystalDelta < 0 ? "\u2212" : "";
     $: cText = cSign + formatNumber(Math.abs(crystalDelta));
     $: levelColor = isUp ? "var(--accent-light)" : "var(--accent-danger)";
