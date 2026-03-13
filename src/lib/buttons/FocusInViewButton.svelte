@@ -30,7 +30,7 @@
         onPress?.();
         onFocusInView();
     }}
-    tooltipText={$t("settings.focusTreeInViewTooltip")}
+    description={$t("settings.focusTreeInViewDescription")}
     icon={CubeFocusIcon}
     {disabled}
 >

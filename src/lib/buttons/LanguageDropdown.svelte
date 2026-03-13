@@ -64,7 +64,7 @@
         on:click={handleDropdownClick}
         icon={TranslateIcon}
         class="language-button"
-        tooltipText={$t("settings.languageTooltip")}
+        description={$t("settings.languageDescription")}
         arrow="down"
     >
         <div class="button-content">
