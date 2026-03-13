@@ -36,3 +36,28 @@ Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech bu
 - GitHub Pages base path is `/rg-backpack-planner/`; keep routing SPA-safe.
 - If `public/icon.svg` changes, rerun `npm run pwa:assets`.
 - `npm test` output is mirrored to `test/index.output.log`. It halts and exits 1 immediately upon the first test failure, only printing the success summary when all pass.
+
+## Design Context
+
+### Users
+Run! Goddess players planning and sharing Backpack Tech builds. They understand game mechanics and want a focused tool that helps them think clearly about build choices — not a flashy game portal. They arrive with intent (plan a build, share it, compare options) and want to get in, accomplish that, and get out.
+
+### Brand Personality
+**Clean, Focused, Reliable.** A trustworthy companion tool that earns confidence through clarity and consistency. It doesn't compete with the game for attention — it complements it.
+
+### Emotional Goals
+**Calm & Focus** — "Everything I need, nothing I don't." The interface should create a zen-like planning flow where decisions feel clear and distractions are absent. Users should feel in control and never overwhelmed.
+
+### Aesthetic Direction
+**Modern & Minimal.** The OKLCH theming system does the heavy lifting — surfaces stay clean, content leads. The default sky-blue theme loosely echoes the game's own palette, grounding the tool as a familiar companion without copying the in-game UI directly.
+
+**References:** Game companion apps (Mobalytics, PoE Ninja, D2 Armor Picker) for the "built for gamers by gamers" utility feel; polished indie tools (Linear, Raycast, Arc) for the quality bar and opinionated design sensibility.
+
+**Anti-patterns:** Generic dashboards, cluttered gaming sites, gratuitous decoration, or anything that feels like a template. The app should feel purpose-built.
+
+### Design Principles
+1. **Content over chrome** — Every pixel should serve the build-planning task. Decoration that doesn't aid comprehension gets cut.
+2. **Quiet confidence** — Quality shows in spacing, alignment, and consistency rather than flashy effects. Motion is purposeful, never performative.
+3. **Respect the player** — Assume expertise. Don't over-explain, don't gate, don't patronize. Surface power when needed, stay minimal by default.
+4. **Theming is identity** — The color system is a first-class feature, not a settings checkbox. Themes should feel intentional and cohesive across every surface.
+5. **Accessible by default** — Colorblind modes, reduced motion, keyboard navigation, and screen readers aren't afterthoughts — they're part of the design language.
