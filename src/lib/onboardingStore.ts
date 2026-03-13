@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-const DEFAULT_ONBOARDING_SEEN = false;
+export const DEFAULT_ONBOARDING_SEEN = false;
 
 function parseOnboardingSeen(storedValue: string | null): boolean | null {
     if (storedValue === null) return null;
