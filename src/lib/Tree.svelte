@@ -57,7 +57,6 @@
     import { locale, t } from "svelte-whisper";
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
-    import { getSkillLevelInfo } from "../config/skillMetadata";
     import { sumDeltaCosts } from "./nodeActionPreview";
 
     export let nodes: NodeType[] = [];
@@ -624,18 +623,15 @@
         const prevLevels = [...levels];
         updateLevels(nodes.map(() => 0));
         if ($showLevelSplash) {
-            let totalCrystalDelta = 0;
-            let hadLevels = false;
+            const resetDeltas = [];
             for (let i = 0; i < nodes.length; i++) {
                 const prev = prevLevels[i] ?? 0;
-                if (prev === 0) continue;
-                hadLevels = true;
-                const node = nodes[i];
-                if (node?.skillId) {
-                    const info = getSkillLevelInfo(node.skillId, prev, node.maxLevel);
-                    totalCrystalDelta -= info.totalCostSpent;
-                }
+                if (prev > 0) resetDeltas.push({ index: i, delta: -prev });
             }
+            const hadLevels = resetDeltas.length > 0;
+            const totalCrystalDelta = hadLevels
+                ? -sumDeltaCosts(nodes, prevLevels, resetDeltas)
+                : 0;
             if (hadLevels) {
                 const root = nodes[0];
                 if (root) {
