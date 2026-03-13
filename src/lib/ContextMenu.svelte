@@ -85,6 +85,9 @@
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
         if (event.key === "Escape") {
+            // Only close the topmost (last in DOM order) context menu
+            const allMenus = document.querySelectorAll(".context-menu");
+            if (allMenus.length > 1 && allMenus[allMenus.length - 1] !== menuEl) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             onClose?.();
