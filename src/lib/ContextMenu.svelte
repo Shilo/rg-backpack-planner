@@ -381,7 +381,7 @@
         cursor: move;
         touch-action: none;
         user-select: none;
-        box-shadow: var(--shadow), 0 8px 24px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow), var(--shadow-lg);
         animation: ctx-menu-enter 0.15s cubic-bezier(0.05, 0.7, 0.1, 1) both;
     }
 

@@ -229,7 +229,7 @@
 
     .side-menu.open {
         transform: translateX(0);
-        box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow-lateral);
     }
 
     .side-menu__content {

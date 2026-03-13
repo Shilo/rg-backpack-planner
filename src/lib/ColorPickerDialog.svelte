@@ -513,11 +513,11 @@
     }
 
     .grid-cell-selected {
-        outline: 2.5px solid white;
+        outline: 2.5px solid var(--border-focus);
         outline-offset: -2.5px;
         border-radius: 2px;
         z-index: 1;
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 0 1px var(--bg);
     }
 
     /* Controls below grid */

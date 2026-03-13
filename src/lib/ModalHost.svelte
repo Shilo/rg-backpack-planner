@@ -343,7 +343,7 @@
                 color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
                 transparent
             );
-        box-shadow: var(--shadow), 0 8px 32px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--shadow), var(--shadow-lg);
         animation: modal-shell-in var(--ease-decel) both;
         padding: 0;
         overflow: auto;

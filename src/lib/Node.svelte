@@ -532,9 +532,7 @@
         text-align: center;
 
         background: var(--badge-bg);
-        box-shadow:
-            0 1px 2px rgba(0, 0, 0, 0.3),
-            0 2px 6px 2px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow-sm);
     }
 
     @supports (color: color-contrast(red vs red)) {

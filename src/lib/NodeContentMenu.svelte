@@ -325,7 +325,7 @@
         border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
         border-radius: 6px;
         padding: var(--spacing-xs, 4px);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: var(--shadow-inset);
     }
 
     .node-icon-wrapper :global(svg) {
@@ -333,7 +333,7 @@
         height: 100%;
         opacity: 0.85;
         color: var(--accent-light, #fff);
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        filter: var(--shadow-drop-icon);
     }
 
     .info-header-text {
@@ -401,15 +401,15 @@
         align-items: flex-start;
         gap: var(--spacing-sm);
         padding: var(--spacing-sm) var(--spacing-md);
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.2);
+        background: var(--danger-bg);
+        border: 1px solid var(--danger-border);
         border-radius: 6px;
         width: 100%;
         box-sizing: border-box;
     }
 
     .warning-icon {
-        color: #ef4444;
+        color: var(--accent-danger);
         width: 1.25rem;
         height: 1.25rem;
         flex-shrink: 0;
@@ -427,7 +427,7 @@
     .warning-text {
         flex: 1;
         font-size: var(--font-sm);
-        color: #fca5a5;
+        color: var(--danger-text);
         line-height: 1.4;
         font-weight: var(--weight-medium, 500);
         word-break: break-word;

@@ -292,7 +292,7 @@
         border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
         border-radius: 6px;
         padding: var(--spacing-xs, 4px);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: var(--shadow-inset);
     }
 
     .node-icon-wrapper :global(svg) {
@@ -300,7 +300,7 @@
         height: 100%;
         opacity: 0.85;
         color: var(--accent-light, #fff);
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        filter: var(--shadow-drop-icon);
     }
 
     .info-header-text {
