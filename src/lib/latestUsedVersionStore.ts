@@ -4,6 +4,11 @@ import { getItem, setItem } from "./storage";
 
 const currentVersion = packageInfo.version ?? "unknown";
 
+export type VersionUpgradeState = {
+    hasVersionChange: boolean;
+    shouldShowUpdatedToast: boolean;
+};
+
 export function getStoredVersion(): string | null {
     try {
         return getItem("latest-used-version");
@@ -22,14 +27,21 @@ function setStoredVersion(version: string): void {
 
 export const latestUsedVersion = readable<string | null>(getStoredVersion());
 
-export function isNewVersion(): boolean {
-    const storedVersion = getStoredVersion();
-    return storedVersion !== currentVersion;
+export function getVersionUpgradeState(
+    storedVersion: string | null,
+    version: string = currentVersion,
+): VersionUpgradeState {
+    const hasVersionChange = storedVersion !== version;
+    return {
+        hasVersionChange,
+        shouldShowUpdatedToast: storedVersion !== null && hasVersionChange,
+    };
 }
 
 export function markVersionAsSeen(): void {
     setStoredVersion(currentVersion);
 }
+
 export function getCurrentVersion(): string {
     return currentVersion;
 }

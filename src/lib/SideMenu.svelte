@@ -43,7 +43,6 @@
     ];
 
     export let isOpen = false;
-    export let skipTransition = false;
     export let onClose: (() => void) | null = null;
     export let onResetAll: (() => void) | null = null;
     export let onResetTree: (() => void) | null = null;
@@ -132,7 +131,7 @@
 </script>
 
 <button
-    class={`menu-backdrop${isOpen ? " visible" : ""}${skipTransition ? " skip-transition" : ""}`}
+    class={`menu-backdrop${isOpen ? " visible" : ""}`}
     aria-label={$t("common.close")}
     tabindex={isOpen ? 0 : -1}
     inert={!isOpen}
@@ -142,7 +141,6 @@
 <aside
     class="side-menu"
     class:open={isOpen}
-    class:skip-transition={skipTransition}
     inert={!isOpen}
 >
     <div class="side-menu__scroll-area">
@@ -196,10 +194,6 @@
         z-index: calc(var(--z-index-side-menu) - 2);
     }
 
-    :global(.menu-backdrop.skip-transition) {
-        transition: none;
-    }
-
     :global(.menu-backdrop.visible) {
         opacity: 1;
         pointer-events: auto;
@@ -222,10 +216,6 @@
         gap: 0px;
         overflow: hidden;
         z-index: var(--z-index-side-menu);
-    }
-
-    .side-menu.skip-transition {
-        transition: none;
     }
 
     .side-menu.open {

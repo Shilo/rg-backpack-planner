@@ -518,8 +518,8 @@
         "showTutorialDescription": "View on-screen controls guide"
     },
     "install": {
-        "tooltip": "Install {appName} app on {osName}",
-        "buttonLabel": "Install App on {osName}"
+        "buttonLabel": "Install App on {osName}",
+        "description": "Use standalone and offline"
     },
     "toast": {
         "copied": "Copied",

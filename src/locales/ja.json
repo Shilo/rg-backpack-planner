@@ -518,8 +518,8 @@
         "showTutorialDescription": "画面上の操作ガイドを見る"
     },
     "install": {
-        "tooltip": "{osName}に{appName}アプリをインストール",
-        "buttonLabel": "{osName}にアプリをインストール"
+        "buttonLabel": "{osName}にアプリをインストール",
+        "description": "単体アプリとして開いてオフラインで使う"
     },
     "toast": {
         "copied": "コピーしました",

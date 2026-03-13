@@ -518,8 +518,8 @@
         "showTutorialDescription": "查看屏幕操作指南"
     },
     "install": {
-        "tooltip": "在{osName}上安装{appName}应用",
-        "buttonLabel": "在{osName}上安装应用"
+        "buttonLabel": "在{osName}上安装应用",
+        "description": "以独立应用打开并离线使用"
     },
     "toast": {
         "copied": "已复制",

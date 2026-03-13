@@ -106,7 +106,6 @@
     let canInstall = false;
     let isInstalled = false;
     const osName = getOSName();
-    $: appName = $t("app.name");
 
     function updateLocalState(state: InstallState) {
         deferredInstallPrompt = state.deferredInstallPrompt;
@@ -136,8 +135,9 @@
         class={className}
         on:click={handleInstallClick}
         icon={DownloadSimpleIcon}
-        aria-label={$t("install.tooltip", { appName, osName })}
-        tooltipText={$t("install.tooltip", { appName, osName })}
+        aria-label={$t("install.description")}
+        tooltipText={title ? undefined : $t("install.buttonLabel", { osName })}
+        description={title ? $t("install.description") : undefined}
     >
         {#if title}
             {$t("install.buttonLabel", { osName })}

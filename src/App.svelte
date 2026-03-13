@@ -16,15 +16,11 @@
     import { t, locale } from "svelte-whisper";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
-        isNewVersion,
         markVersionAsSeen,
         getStoredVersion,
         getCurrentVersion,
+        getVersionUpgradeState,
     } from "./lib/latestUsedVersionStore";
-    import {
-        getActiveTab,
-        setActiveTabWithoutPersist,
-    } from "./lib/sideMenuActiveTabStore";
 
     import {
         initTechCrystalTrees,
@@ -94,7 +90,8 @@
 
     // Mark version as seen on load (no longer auto-opens side menu)
     const previousVersion = getStoredVersion();
-    const shouldShowControls = false;
+    const { hasVersionChange, shouldShowUpdatedToast } =
+        getVersionUpgradeState(previousVersion);
 
     const baseTabs: Array<{
         id: "guardian" | "vanguard" | "cannon";
@@ -144,14 +141,6 @@
     }
 
     function closeMenu() {
-        if (openedMenuForNewVersion) {
-            const tabToRestore = getActiveTab();
-            // Restore active tab to persisted value so re-open doesn't show controls
-            // Update both the store and the SideMenu component directly
-            setActiveTabWithoutPersist(tabToRestore);
-            sideMenuRef?.openTab?.(tabToRestore, false);
-            openedMenuForNewVersion = false;
-        }
         isMenuOpen = false;
     }
 
@@ -233,10 +222,7 @@
         ) => void;
         tryGoBack?: () => boolean;
     } | null = null;
-    let skipMenuTransition = shouldShowControls;
-    let isMenuOpen = shouldShowControls;
-    /** True when menu was auto-opened for new-version notification; we reset tab on close. */
-    let openedMenuForNewVersion = shouldShowControls;
+    let isMenuOpen = false;
 
     // Subscriptions for preview mode and persistence, reused across URL re-initializations
     let unsubscribeTreeLevels: (() => void) | null = null;
@@ -461,25 +447,17 @@
             await tick();
             tabsRef?.focusActiveTreeInView?.(false);
 
-            // New-version controls behavior is tied to initial load, not history navigation
-            if (shouldShowControls && !hasRunVersionCheck) {
+            // Version-change behavior is tied to initial load, not history navigation
+            if (hasVersionChange && !hasRunVersionCheck) {
                 hasRunVersionCheck = true;
                 markVersionAsSeen();
-                if (previousVersion) {
+                if (shouldShowUpdatedToast) {
                     showToastDelayed(
                         $t("toast.updatedVersionToast", {
                             version: getCurrentVersion(),
                         }),
                     );
                 }
-                await tick();
-                // Ensure controls tab is active (backup in case component initialized before localStorage was set)
-                // Don't persist this change since it's for new version notification
-                sideMenuRef?.openTab?.("controls", false);
-                // Reset transition flag after menu is shown so future opens have transitions
-                setTimeout(() => {
-                    skipMenuTransition = false;
-                }, 200);
             }
         }
 
@@ -526,7 +504,6 @@
     <SideMenu
         bind:this={sideMenuRef}
         isOpen={isMenuOpen}
-        skipTransition={skipMenuTransition}
         onClose={closeMenu}
         onFocusInView={() => tabsRef?.focusActiveTreeInView?.(true)}
         onResetTree={() => tabsRef?.resetActiveTree?.()}
