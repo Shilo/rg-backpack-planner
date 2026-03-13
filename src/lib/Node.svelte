@@ -12,13 +12,18 @@
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import { formatNumber } from "./mathUtil";
     import {
-        getPrimaryActionCost,
         nodePrimaryAction,
         shiftKeyHeld,
     } from "./nodePrimaryActionStore";
     import { t } from "svelte-whisper";
     import { tooltip } from "./tooltip";
     import { CrownIcon } from "phosphor-svelte";
+    import { getContext } from "svelte";
+    import type { Writable } from "svelte/store";
+    import type { Node as NodeType, LevelsByIndex } from "../types/tree";
+    import { getNodeActionPreview } from "./nodeActionPreview";
+    import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
+    import type { TooltipSection } from "./tooltip";
 
     export let id: number;
     export let x: number = 0;
@@ -45,6 +50,8 @@
      */
     export let icon: Component | null = null;
 
+    const treeData = getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>("tree");
+
     $: nodeIcon =
         icon ?? (skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null);
 
@@ -54,30 +61,46 @@
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
     $: isRefund = $shiftKeyHeld;
-    $: primaryActionCost = getPrimaryActionCost(
-        $nodePrimaryAction,
-        skillId,
-        level,
-        maxLevel,
-        isRefund,
-    );
+    $: actionPreview = skillId != null
+        ? getNodeActionPreview({
+              nodes: $treeData.nodes,
+              levels: $treeData.levels,
+              index: id,
+              action: $nodePrimaryAction,
+              nodeLevelBehavior: $nodeLevelBehavior,
+              isRefund,
+          })
+        : null;
 
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
-    $: tooltipText =
-        primaryActionCost != null &&
-        !(state === "locked" && isGlobalIncrementLocked)
-            ? {
-                  line1: tooltipLine1,
-                  costLine: formatNumber(primaryActionCost),
-                  costLineRefund: isRefund,
-              }
-            : tooltipLine1;
+    $: tooltipSections = (() => {
+        const sections: TooltipSection[] = [];
+        if (tooltipLine1) {
+            sections.push({ type: "text", value: tooltipLine1 });
+        }
+        if (
+            actionPreview != null &&
+            !(state === "locked" && isGlobalIncrementLocked)
+        ) {
+            sections.push({
+                type: "level-preview",
+                from: level,
+                to: actionPreview.targetLevel,
+            });
+            sections.push({
+                type: "crystal-cost",
+                value: formatNumber(actionPreview.totalCost),
+                refund: actionPreview.isRefund,
+            });
+        }
+        return sections;
+    })();
 
     $: tooltipParam =
-        tooltipText == null
+        tooltipSections.length === 0
             ? undefined
-            : { content: tooltipText, hoverOnly: true };
+            : { content: tooltipSections, hoverOnly: true };
 
     /** Name badge text: short skill name when skillId is set, else label (tooltip/aria use full label). */
     $: badgeLabel =
