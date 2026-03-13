@@ -1327,7 +1327,7 @@
                 const rect = viewportEl.getBoundingClientRect();
                 viewportSize = { width: rect.width, height: rect.height };
             }
-            if (allowReactiveFocus) focusTreeInView();
+            focusTreeInView(false);
         };
         window.addEventListener("resize", handleResize, { passive: true });
 
