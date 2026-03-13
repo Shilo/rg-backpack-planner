@@ -64,7 +64,7 @@ for (const localePath of localePaths) {
 const treePath = resolve("src/lib/Tree.svelte");
 const treeSource = readFileSync(treePath, "utf8");
 
-if (!/import.*onboardingSeen.*from.*\.\/Onboarding\/onboardingStore/.test(treeSource)) {
+if (!/import.*onboardingSeen.*from.*\.\/onboarding\/onboardingStore/.test(treeSource)) {
     throw new Error("Tree.svelte should import onboardingSeen from onboardingStore.");
 }
 
