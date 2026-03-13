@@ -124,7 +124,7 @@ const KEY_CATEGORIES: Record<string, string> = {
     "buildPresets.newModalMessage":              "modal-description",
 
     // Controls descriptions (sentence case + no trailing period)
-    "controls.keyboardBackspaceResetDescription": "controls-description",
+    "controls.keyboardBackspaceDescription": "controls-description",
     "controls.hudPreviewIndicatorDescription":    "controls-description",
 };
 

@@ -16,7 +16,7 @@ if (!/import ComposeScreenshot[\s\S]*from "\.\/lib\/ComposeScreenshot\.svelte";/
     );
 }
 
-if (!/import ComposeScreenshot,\s*\{\s*openComposeScreenshot\s*,?\s*\}\s*from "\.\/lib\/ComposeScreenshot\.svelte";/s.test(appSource)) {
+if (!/import ComposeScreenshot,\s*\{[\s\S]*?openComposeScreenshot[\s\S]*?\}\s*from "\.\/lib\/ComposeScreenshot\.svelte";/s.test(appSource)) {
     throw new Error(
         "App.svelte should import openComposeScreenshot from ComposeScreenshot.svelte",
     );
