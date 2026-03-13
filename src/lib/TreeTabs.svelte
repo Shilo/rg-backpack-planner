@@ -633,13 +633,13 @@
         overflow: hidden;
         background: radial-gradient(
                 circle,
-                color-mix(in srgb, var(--border-subtle) 30%, transparent) 0.75px,
-                transparent 0.75px
+                color-mix(in srgb, var(--border-subtle) 30%, transparent) 2px,
+                transparent 2px
             ),
             radial-gradient(
                 circle at 50%
                     calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
-                color-mix(in srgb, var(--bg) 20%, var(--surface)),
+                var(--surface),
                 var(--bg) 100%
             );
         background-size:
