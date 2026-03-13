@@ -54,9 +54,6 @@ for (const localePath of localePaths) {
     if (!/"showTutorial"/.test(source)) {
         throw new Error(`${localePath}: onboarding.showTutorial key is required.`);
     }
-    if (!/"showTutorialToast"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.showTutorialToast key is required.`);
-    }
 }
 
 // --- Integration assertions (Tree.svelte, GeneralSettingsPage) ---

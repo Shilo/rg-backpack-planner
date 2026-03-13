@@ -124,7 +124,6 @@
         <Button
             on:click={() => {
                 showOnboarding();
-                showToast($t("onboarding.showTutorialToast"));
                 onClose?.();
             }}
             description={$t("onboarding.showTutorialDescription")}

@@ -27,7 +27,7 @@
         right: number;
     } = { top: 0, bottom: 0, left: 0, right: 0 };
 
-    const GAP = 8;
+    const GAP = 14;
 
     let contentHeight = 0;
     let contentWidth = 0;
@@ -120,16 +120,18 @@
     bind:clientHeight={contentHeight}
     bind:clientWidth={contentWidth}
 >
-    <span class="section-label {variant}">{sectionLabel}</span>
-    {#each cards as card, i}
-        <OnboardingCard
-            icon={card.icon}
-            label={card.label}
-            description={card.description}
-            {variant}
-            index={baseCardIndex + i}
-        />
-    {/each}
+    <span class="section-badge {variant}">{sectionLabel}</span>
+    <div class="cards-stack">
+        {#each cards as card, i}
+            <OnboardingCard
+                icon={card.icon}
+                label={card.label}
+                description={card.description}
+                {variant}
+                index={baseCardIndex + i}
+            />
+        {/each}
+    </div>
 </div>
 
 <style>
@@ -137,24 +139,58 @@
         position: absolute;
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-md);
         pointer-events: none;
         width: max-content;
+        max-width: min(320px, 85vw);
     }
 
-    .section-label {
+    .section-badge {
+        display: inline-block;
+        width: fit-content;
         font-size: var(--font-xs);
         font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        margin-bottom: var(--spacing-xs);
+        padding: 2px 10px;
+        border-radius: var(--radius-full);
+        opacity: 0;
+        animation: badge-enter 200ms var(--ease-decel) both;
     }
 
-    .section-label.accent {
+    .section-badge.accent {
         color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 15%, transparent);
+        border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
     }
 
-    .section-label.muted {
+    .section-badge.muted {
         color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .cards-stack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    @keyframes badge-enter {
+        from {
+            transform: translateY(4px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .section-badge {
+            animation: none;
+            opacity: 1;
+        }
     }
 </style>

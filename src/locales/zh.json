@@ -502,7 +502,7 @@
         "treeOptions": "技能树选项",
         "pan": "平移",
         "zoom": "缩放",
-        "dismissClick": "点击任意位置开始",
+        "dismissClick": "点击任意位置或按Esc键开始",
         "dismissTap": "点按任意位置开始",
         "leftClick": "左键点击",
         "rightClick": "右键点击",
@@ -514,8 +514,7 @@
         "swipe": "滑动",
         "pinch": "捏合",
         "showTutorial": "显示教程",
-        "showTutorialDescription": "重新播放首次操作指南",
-        "showTutorialToast": "教程将在下次加载技能树时显示"
+        "showTutorialDescription": "重新播放首次操作指南"
     },
     "install": {
         "tooltip": "在{osName}上安装{appName}应用",

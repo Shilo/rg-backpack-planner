@@ -21,22 +21,23 @@
         display: grid;
         grid-template-columns: auto 1fr;
         grid-template-rows: auto auto;
-        column-gap: var(--spacing-md);
+        column-gap: var(--spacing-lg);
         row-gap: 2px;
-        padding: var(--spacing-md) var(--spacing-lg);
-        background: rgba(0, 0, 0, 0.55);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: var(--spacing-lg) var(--spacing-lg);
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: var(--radius);
-        backdrop-filter: blur(var(--blur-lg));
-        -webkit-backdrop-filter: blur(var(--blur-lg));
+        backdrop-filter: blur(var(--blur-md));
+        -webkit-backdrop-filter: blur(var(--blur-md));
         opacity: 0;
-        animation: card-enter 250ms var(--ease-decel) both;
-        animation-delay: calc(100ms + var(--card-index) * 60ms);
+        animation: card-enter 280ms var(--ease-decel) both;
+        animation-delay: calc(150ms + var(--card-index) * 70ms);
         white-space: nowrap;
     }
 
     .onboarding-card.accent {
-        border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+        border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+        background: color-mix(in srgb, var(--accent) 6%, rgba(0, 0, 0, 0.5));
     }
 
     .onboarding-card.muted {
@@ -48,8 +49,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        font-size: 22px;
+        width: 32px;
+        font-size: 24px;
         color: var(--text-muted);
     }
 
@@ -58,7 +59,7 @@
     }
 
     .card-label {
-        font-size: var(--font-sm);
+        font-size: var(--font-base);
         font-weight: var(--weight-semibold);
         color: var(--text);
         line-height: var(--leading);
@@ -73,15 +74,15 @@
     }
 
     .card-desc {
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
         color: var(--text-muted);
-        opacity: 0.7;
+        opacity: 0.8;
         line-height: var(--leading);
     }
 
     @keyframes card-enter {
         from {
-            transform: translateY(6px);
+            transform: translateY(8px);
             opacity: 0;
         }
         to {

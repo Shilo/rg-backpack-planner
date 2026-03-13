@@ -32,7 +32,7 @@
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { t } from "svelte-whisper";
     import { showOnboarding } from "../onboardingStore";
-    import { showToast } from "../toast";
+
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
     const version = getCurrentVersion();
@@ -285,7 +285,6 @@
         <Button
             on:click={() => {
                 showOnboarding();
-                showToast($t("onboarding.showTutorialToast"));
             }}
             description={$t("onboarding.showTutorialDescription")}
             icon={BookOpenTextIcon}

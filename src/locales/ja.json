@@ -502,7 +502,7 @@
         "treeOptions": "ツリーオプション",
         "pan": "移動",
         "zoom": "ズーム",
-        "dismissClick": "クリックして開始",
+        "dismissClick": "クリックまたはEscキーで開始",
         "dismissTap": "タップして開始",
         "leftClick": "左クリック",
         "rightClick": "右クリック",
@@ -514,8 +514,7 @@
         "swipe": "スワイプ",
         "pinch": "ピンチ",
         "showTutorial": "チュートリアルを表示",
-        "showTutorialDescription": "初回操作ガイドを再表示",
-        "showTutorialToast": "次のツリー読み込み時にチュートリアルを表示します"
+        "showTutorialDescription": "初回操作ガイドを再表示"
     },
     "install": {
         "tooltip": "{osName}に{appName}アプリをインストール",

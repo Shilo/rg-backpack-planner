@@ -502,7 +502,7 @@
         "treeOptions": "Tree options",
         "pan": "Pan",
         "zoom": "Zoom",
-        "dismissClick": "Click anywhere to start",
+        "dismissClick": "Click anywhere or press Escape to start",
         "dismissTap": "Tap anywhere to start",
         "leftClick": "Left Click",
         "rightClick": "Right Click",
@@ -514,8 +514,7 @@
         "swipe": "Swipe",
         "pinch": "Pinch",
         "showTutorial": "Show Tutorial",
-        "showTutorialDescription": "Replay the first-load controls guide",
-        "showTutorialToast": "Tutorial will show on next tree load"
+        "showTutorialDescription": "Replay the first-load controls guide"
     },
     "install": {
         "tooltip": "Install {appName} app on {osName}",

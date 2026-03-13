@@ -9,6 +9,7 @@
     } from "../types/tree";
     import {
         ArrowsOutCardinalIcon,
+        CursorClickIcon,
         HandGrabbingIcon,
         HandTapIcon,
         MouseLeftClickIcon,
@@ -38,7 +39,7 @@
     };
 
     const SPOTLIGHT_PAD = 12;
-    const TREE_SPOTLIGHT_RADIUS = 55;
+    const TREE_SPOTLIGHT_BASE_RADIUS = 55;
 
     const treeData =
         getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>(
@@ -62,9 +63,10 @@
     $: nodeScreenRadius = nodeRadius * scale;
     $: nodeSpotlightRadius = nodeScreenRadius + SPOTLIGHT_PAD;
 
-    // Empty space screen position
+    // Empty space screen position (scales with tree transform)
     $: treeScreenX = emptySpaceWorldX * scale + offsetX;
     $: treeScreenY = emptySpaceWorldY * scale + offsetY;
+    $: treeSpotlightRadius = TREE_SPOTLIGHT_BASE_RADIUS * scale;
 
     // Viewport dimensions (measured from overlay element)
     let viewportWidth = 0;
@@ -75,6 +77,7 @@
 
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
+    let overlayEl: HTMLDivElement;
 
     function handleKeydown(event: KeyboardEvent) {
         event.preventDefault();
@@ -162,16 +165,62 @@
 
     let dismissing = false;
 
-    function handleDismiss() {
+    function handlePointerDismiss(event: PointerEvent) {
         if (dismissing) return;
         dismissing = true;
+
+        // Immediately make overlay non-interactive for click-through
+        if (overlayEl) {
+            overlayEl.style.pointerEvents = "none";
+        }
+
+        // Forward the pointer event to whatever element is behind the overlay
+        const target = document.elementFromPoint(
+            event.clientX,
+            event.clientY,
+        );
+        if (target && target !== overlayEl) {
+            target.dispatchEvent(
+                new PointerEvent("pointerdown", {
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    screenX: event.screenX,
+                    screenY: event.screenY,
+                    pointerId: event.pointerId,
+                    pointerType: event.pointerType,
+                    button: event.button,
+                    buttons: event.buttons,
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                }),
+            );
+        }
+
+        // Animate out then remove
         const prefersReducedMotion = window.matchMedia(
             "(prefers-reduced-motion: reduce)",
         ).matches;
         if (prefersReducedMotion) {
             onDismiss();
         } else {
-            dismissTimer = setTimeout(onDismiss, 300);
+            dismissTimer = setTimeout(onDismiss, 250);
+        }
+    }
+
+    function handleDismiss() {
+        if (dismissing) return;
+        dismissing = true;
+        if (overlayEl) {
+            overlayEl.style.pointerEvents = "none";
+        }
+        const prefersReducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        ).matches;
+        if (prefersReducedMotion) {
+            onDismiss();
+        } else {
+            dismissTimer = setTimeout(onDismiss, 250);
         }
     }
 </script>
@@ -184,22 +233,29 @@
     aria-modal="true"
     aria-label="Controls tutorial"
     tabindex="-1"
-    on:pointerdown={handleDismiss}
+    on:pointerdown={handlePointerDismiss}
+    bind:this={overlayEl}
     bind:clientWidth={viewportWidth}
     bind:clientHeight={viewportHeight}
 >
+    <!-- Blur layer with spotlight cutouts via CSS mask referencing the SVG mask -->
+    <div
+        class="onboarding-blur"
+        style="-webkit-mask: url(#onboarding-cutout-mask); mask: url(#onboarding-cutout-mask);"
+    ></div>
+
     <!-- Dark backdrop with spotlight cutouts -->
     <svg class="onboarding-backdrop" aria-hidden="true">
         <defs>
             <radialGradient id="onboarding-node-fade">
-                <stop offset="80%" stop-color="black" />
-                <stop offset="100%" stop-color="white" />
-            </radialGradient>
-            <radialGradient id="onboarding-tree-fade">
                 <stop offset="75%" stop-color="black" />
                 <stop offset="100%" stop-color="white" />
             </radialGradient>
-            <mask id="onboarding-mask">
+            <radialGradient id="onboarding-tree-fade">
+                <stop offset="70%" stop-color="black" />
+                <stop offset="100%" stop-color="white" />
+            </radialGradient>
+            <mask id="onboarding-cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
                 <circle
                     cx={nodeScreenX}
@@ -210,7 +266,7 @@
                 <circle
                     cx={treeScreenX}
                     cy={treeScreenY}
-                    r={TREE_SPOTLIGHT_RADIUS}
+                    r={treeSpotlightRadius}
                     fill="url(#onboarding-tree-fade)"
                 />
             </mask>
@@ -218,8 +274,8 @@
         <rect
             width="100%"
             height="100%"
-            fill="rgba(0,0,0,0.6)"
-            mask="url(#onboarding-mask)"
+            fill="rgba(0,0,0,0.45)"
+            mask="url(#onboarding-cutout-mask)"
         />
     </svg>
 
@@ -255,47 +311,59 @@
         </div>
     {/if}
 
-    <!-- Node instruction pane (prefers up) -->
-    <OnboardingPane
-        screenX={nodeScreenX}
-        screenY={nodeScreenY}
-        spotlightRadius={nodeSpotlightRadius}
-        preferUp={true}
-        sectionLabel={$t("onboarding.nodesSection")}
-        variant="accent"
-        cards={nodeCards}
-        baseCardIndex={0}
-        {viewportWidth}
-        {viewportHeight}
-        bind:bounds={nodePaneBounds}
-    />
+    <!-- Safe-area content wrapper -->
+    <div class="onboarding-content">
+        <!-- Node instruction pane (prefers up) -->
+        <OnboardingPane
+            screenX={nodeScreenX}
+            screenY={nodeScreenY}
+            spotlightRadius={nodeSpotlightRadius}
+            preferUp={true}
+            sectionLabel={$t("onboarding.nodesSection")}
+            variant="accent"
+            cards={nodeCards}
+            baseCardIndex={0}
+            {viewportWidth}
+            {viewportHeight}
+            bind:bounds={nodePaneBounds}
+        />
 
-    <!-- Tree spotlight ring -->
-    <div
-        class="spotlight-ring"
-        style="left: {treeScreenX}px; top: {treeScreenY}px; width: {TREE_SPOTLIGHT_RADIUS *
-            2}px; height: {TREE_SPOTLIGHT_RADIUS * 2}px;"
-    ></div>
+        <!-- Tree spotlight ring (scales with transform) -->
+        <div
+            class="spotlight-ring"
+            style="left: {treeScreenX}px; top: {treeScreenY}px; width: {treeSpotlightRadius *
+                2}px; height: {treeSpotlightRadius * 2}px;"
+        ></div>
 
-    <!-- Tree instruction pane (prefers down, avoids node pane) -->
-    <OnboardingPane
-        screenX={treeScreenX}
-        screenY={treeScreenY}
-        spotlightRadius={TREE_SPOTLIGHT_RADIUS}
-        preferUp={false}
-        sectionLabel={$t("onboarding.treeSection")}
-        variant="muted"
-        cards={treeCards}
-        baseCardIndex={nodeCards.length}
-        {viewportWidth}
-        {viewportHeight}
-        avoidRect={nodePaneBounds}
-    />
+        <!-- Tree instruction pane (prefers down, avoids node pane) -->
+        <OnboardingPane
+            screenX={treeScreenX}
+            screenY={treeScreenY}
+            spotlightRadius={treeSpotlightRadius}
+            preferUp={false}
+            sectionLabel={$t("onboarding.treeSection")}
+            variant="muted"
+            cards={treeCards}
+            baseCardIndex={nodeCards.length}
+            {viewportWidth}
+            {viewportHeight}
+            avoidRect={nodePaneBounds}
+        />
 
-    <!-- Dismiss hint -->
-    <span class="onboarding-dismiss-hint">
-        {isTouch ? $t("onboarding.dismissTap") : $t("onboarding.dismissClick")}
-    </span>
+        <!-- Dismiss hint -->
+        <div class="onboarding-dismiss-hint">
+            {#if !isTouch}
+                <span class="dismiss-icon" aria-hidden="true">
+                    <CursorClickIcon size={18} />
+                </span>
+            {/if}
+            <span class="dismiss-text">
+                {isTouch
+                    ? $t("onboarding.dismissTap")
+                    : $t("onboarding.dismissClick")}
+            </span>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -303,13 +371,18 @@
         position: absolute;
         inset: 0;
         z-index: var(--z-index-context-menu);
-        backdrop-filter: blur(var(--blur-xs));
-        -webkit-backdrop-filter: blur(var(--blur-xs));
         animation: overlay-fade-in 300ms ease both;
     }
 
     .onboarding-overlay.dismissing {
-        animation: overlay-fade-out 300ms ease both;
+        animation: overlay-fade-out 250ms ease both;
+    }
+
+    .onboarding-blur {
+        position: absolute;
+        inset: 0;
+        backdrop-filter: blur(var(--blur-sm));
+        -webkit-backdrop-filter: blur(var(--blur-sm));
     }
 
     .onboarding-backdrop {
@@ -317,6 +390,16 @@
         inset: 0;
         width: 100%;
         height: 100%;
+    }
+
+    .onboarding-content {
+        position: absolute;
+        inset:
+            max(var(--bar-pad, 12px), var(--safe-top, 0px))
+            max(var(--bar-pad, 12px), var(--safe-right, 0px))
+            max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
+            max(var(--bar-pad, 12px), var(--safe-left, 0px));
+        pointer-events: none;
     }
 
     .node-clone {
@@ -332,7 +415,7 @@
     .spotlight-ring {
         position: absolute;
         transform: translate(-50%, -50%);
-        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border: 2px dashed rgba(255, 255, 255, 0.25);
         border-radius: 50%;
         pointer-events: none;
         animation: spotlight-pulse 3s ease-in-out infinite;
@@ -340,13 +423,29 @@
 
     .onboarding-dismiss-hint {
         position: absolute;
-        bottom: var(--spacing-lg);
+        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        font-size: var(--font-xs);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: var(--font-sm);
         color: var(--text-muted);
-        opacity: 0.5;
+        opacity: 0;
         white-space: nowrap;
+        pointer-events: none;
+        animation: hint-fade-in 400ms ease both;
+        animation-delay: 800ms;
+    }
+
+    .dismiss-icon {
+        display: flex;
+        align-items: center;
+        opacity: 0.7;
+    }
+
+    .dismiss-text {
+        letter-spacing: var(--tracking);
     }
 
     @keyframes overlay-fade-in {
@@ -367,13 +466,24 @@
         }
     }
 
+    @keyframes hint-fade-in {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(4px);
+        }
+        to {
+            opacity: 0.6;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
     @keyframes spotlight-pulse {
         0%,
         100% {
-            opacity: 0.2;
+            opacity: 0.25;
         }
         50% {
-            opacity: 0.4;
+            opacity: 0.5;
         }
     }
 
@@ -385,7 +495,12 @@
 
         .spotlight-ring {
             animation: none;
-            opacity: 0.3;
+            opacity: 0.35;
+        }
+
+        .onboarding-dismiss-hint {
+            animation: none;
+            opacity: 0.6;
         }
     }
 </style>
