@@ -7,7 +7,8 @@
     export let screenX: number;
     export let screenY: number;
     export let spotlightRadius: number;
-    export let preferUp: boolean = true;
+    /** Preferred direction to place the pane relative to the spotlight. */
+    export let direction: "up" | "down" | "left" | "right" = "up";
     export let sectionLabel: string;
     export let variant: "accent" | "muted" = "accent";
     export let cards: CardData[] = [];
@@ -34,62 +35,108 @@
 
     $: measured = contentHeight > 0 && contentWidth > 0;
 
+    $: isVertical = direction === "up" || direction === "down";
+
     $: computedTop = (() => {
         if (!measured || viewportHeight === 0) return screenY;
 
-        const spaceAbove = screenY - spotlightRadius - GAP;
-        const spaceBelow =
-            viewportHeight - screenY - spotlightRadius - GAP;
-
-        let goUp = preferUp;
-        if (goUp && contentHeight > spaceAbove && contentHeight <= spaceBelow) {
-            goUp = false;
-        } else if (
-            !goUp &&
-            contentHeight > spaceBelow &&
-            contentHeight <= spaceAbove
-        ) {
-            goUp = true;
-        }
-
         let top: number;
-        if (goUp) {
-            top = screenY - spotlightRadius - GAP - contentHeight;
+
+        if (isVertical) {
+            const spaceAbove = screenY - spotlightRadius - GAP;
+            const spaceBelow =
+                viewportHeight - screenY - spotlightRadius - GAP;
+
+            let goUp = direction === "up";
+            if (
+                goUp &&
+                contentHeight > spaceAbove &&
+                contentHeight <= spaceBelow
+            ) {
+                goUp = false;
+            } else if (
+                !goUp &&
+                contentHeight > spaceBelow &&
+                contentHeight <= spaceAbove
+            ) {
+                goUp = true;
+            }
+
+            if (goUp) {
+                top = screenY - spotlightRadius - GAP - contentHeight;
+            } else {
+                top = screenY + spotlightRadius + GAP;
+            }
+
+            // Avoid sibling overlap (vertical placement)
+            if (avoidRect) {
+                const myLeft = screenX - contentWidth / 2;
+                const myRight = myLeft + contentWidth;
+                const horizontalOverlap =
+                    myLeft < avoidRect.right && myRight > avoidRect.left;
+
+                if (horizontalOverlap) {
+                    const myBottom = top + contentHeight;
+                    const verticalOverlap =
+                        top < avoidRect.bottom && myBottom > avoidRect.top;
+
+                    if (verticalOverlap) {
+                        if (goUp) {
+                            const downTop =
+                                screenY + spotlightRadius + GAP;
+                            if (
+                                downTop + contentHeight <=
+                                viewportHeight
+                            ) {
+                                top = downTop;
+                            } else {
+                                top =
+                                    avoidRect.top - GAP - contentHeight;
+                            }
+                        } else {
+                            const upTop =
+                                screenY -
+                                spotlightRadius -
+                                GAP -
+                                contentHeight;
+                            if (upTop >= 0) {
+                                top = upTop;
+                            } else {
+                                top = avoidRect.bottom + GAP;
+                            }
+                        }
+                    }
+                }
+            }
         } else {
-            top = screenY + spotlightRadius + GAP;
-        }
+            // Horizontal (left/right): center vertically on the spotlight
+            top = screenY - contentHeight / 2;
 
-        // Avoid sibling overlap
-        if (avoidRect) {
-            const myLeft = screenX - contentWidth / 2;
-            const myRight = myLeft + contentWidth;
-            const horizontalOverlap =
-                myLeft < avoidRect.right && myRight > avoidRect.left;
-
-            if (horizontalOverlap) {
+            // Avoid sibling overlap (horizontal placement)
+            if (avoidRect) {
                 const myBottom = top + contentHeight;
                 const verticalOverlap =
                     top < avoidRect.bottom && myBottom > avoidRect.top;
+                const myLeft =
+                    direction === "left"
+                        ? screenX -
+                          spotlightRadius -
+                          GAP -
+                          contentWidth
+                        : screenX + spotlightRadius + GAP;
+                const myRight = myLeft + contentWidth;
+                const horizontalOverlap =
+                    myLeft < avoidRect.right && myRight > avoidRect.left;
 
-                if (verticalOverlap) {
-                    if (goUp) {
-                        const downTop = screenY + spotlightRadius + GAP;
-                        if (downTop + contentHeight <= viewportHeight) {
-                            top = downTop;
-                        } else {
-                            top = avoidRect.top - GAP - contentHeight;
-                        }
+                if (verticalOverlap && horizontalOverlap) {
+                    // Try to shift vertically to clear the sibling
+                    if (top < avoidRect.top) {
+                        top = Math.min(
+                            top,
+                            avoidRect.top - GAP - contentHeight,
+                        );
                     } else {
-                        const upTop =
-                            screenY -
-                            spotlightRadius -
-                            GAP -
-                            contentHeight;
-                        if (upTop >= 0) {
-                            top = upTop;
-                        } else {
-                            top = avoidRect.bottom + GAP;
-                        }
+                        top = avoidRect.bottom + GAP;
                     }
                 }
             }
@@ -100,7 +147,40 @@
 
     $: computedLeft = (() => {
         if (!measured || viewportWidth === 0) return screenX;
-        const left = screenX - contentWidth / 2;
+
+        let left: number;
+
+        if (isVertical) {
+            // Vertical: center horizontally on the spotlight
+            left = screenX - contentWidth / 2;
+        } else {
+            // Horizontal: place to the left or right of the spotlight
+            const spaceLeft = screenX - spotlightRadius - GAP;
+            const spaceRight =
+                viewportWidth - screenX - spotlightRadius - GAP;
+
+            let goLeft = direction === "left";
+            if (
+                goLeft &&
+                contentWidth > spaceLeft &&
+                contentWidth <= spaceRight
+            ) {
+                goLeft = false;
+            } else if (
+                !goLeft &&
+                contentWidth > spaceRight &&
+                contentWidth <= spaceLeft
+            ) {
+                goLeft = true;
+            }
+
+            if (goLeft) {
+                left = screenX - spotlightRadius - GAP - contentWidth;
+            } else {
+                left = screenX + spotlightRadius + GAP;
+            }
+        }
+
         return Math.max(0, Math.min(viewportWidth - contentWidth, left));
     })();
 
@@ -148,11 +228,11 @@
     .section-badge {
         display: inline-block;
         width: fit-content;
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
         font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        padding: 2px 10px;
+        padding: 3px 12px;
         border-radius: var(--radius-full);
         opacity: 0;
         animation: badge-enter 200ms var(--ease-decel) both;
@@ -160,14 +240,14 @@
 
     .section-badge.accent {
         color: var(--accent);
-        background: color-mix(in srgb, var(--accent) 15%, transparent);
-        border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+        background: color-mix(in srgb, var(--accent) 12%, var(--bg-panel));
+        border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
     }
 
     .section-badge.muted {
         color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-panel);
+        border: 1px solid var(--border-subtle);
     }
 
     .cards-stack {

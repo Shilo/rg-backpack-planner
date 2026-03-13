@@ -75,6 +75,15 @@
     // Node pane bounds for overlap prevention
     let nodePaneBounds = { top: 0, bottom: 0, left: 0, right: 0 };
 
+    // Landscape detection
+    $: isLandscape = viewportWidth > 0 && viewportWidth > viewportHeight;
+
+    // Pane directions: landscape uses lateral positioning, portrait uses vertical
+    $: nodePaneDirection =
+        isLandscape ? ("left" as const) : ("up" as const);
+    $: treePaneDirection =
+        isLandscape ? ("right" as const) : ("down" as const);
+
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
     let overlayEl: HTMLDivElement;
@@ -311,58 +320,57 @@
         </div>
     {/if}
 
-    <!-- Safe-area content wrapper -->
-    <div class="onboarding-content">
-        <!-- Node instruction pane (prefers up) -->
-        <OnboardingPane
-            screenX={nodeScreenX}
-            screenY={nodeScreenY}
-            spotlightRadius={nodeSpotlightRadius}
-            preferUp={true}
-            sectionLabel={$t("onboarding.nodesSection")}
-            variant="accent"
-            cards={nodeCards}
-            baseCardIndex={0}
-            {viewportWidth}
-            {viewportHeight}
-            bind:bounds={nodePaneBounds}
-        />
+    <!-- Tree spotlight ring (scales with transform) — positioned in overlay space to match SVG mask -->
+    <div
+        class="spotlight-ring"
+        style="left: {treeScreenX}px; top: {treeScreenY}px; width: {treeSpotlightRadius *
+            2}px; height: {treeSpotlightRadius * 2}px;"
+    ></div>
 
-        <!-- Tree spotlight ring (scales with transform) -->
-        <div
-            class="spotlight-ring"
-            style="left: {treeScreenX}px; top: {treeScreenY}px; width: {treeSpotlightRadius *
-                2}px; height: {treeSpotlightRadius * 2}px;"
-        ></div>
+    <!-- Node instruction pane -->
+    <OnboardingPane
+        screenX={nodeScreenX}
+        screenY={nodeScreenY}
+        spotlightRadius={nodeSpotlightRadius}
+        direction={nodePaneDirection}
+        sectionLabel={$t("onboarding.nodesSection")}
+        variant="accent"
+        cards={nodeCards}
+        baseCardIndex={0}
+        {viewportWidth}
+        {viewportHeight}
+        bind:bounds={nodePaneBounds}
+    />
 
-        <!-- Tree instruction pane (prefers down, avoids node pane) -->
-        <OnboardingPane
-            screenX={treeScreenX}
-            screenY={treeScreenY}
-            spotlightRadius={treeSpotlightRadius}
-            preferUp={false}
-            sectionLabel={$t("onboarding.treeSection")}
-            variant="muted"
-            cards={treeCards}
-            baseCardIndex={nodeCards.length}
-            {viewportWidth}
-            {viewportHeight}
-            avoidRect={nodePaneBounds}
-        />
+    <!-- Tree instruction pane (avoids node pane) -->
+    <OnboardingPane
+        screenX={treeScreenX}
+        screenY={treeScreenY}
+        spotlightRadius={treeSpotlightRadius}
+        direction={treePaneDirection}
+        sectionLabel={$t("onboarding.treeSection")}
+        variant="muted"
+        cards={treeCards}
+        baseCardIndex={nodeCards.length}
+        {viewportWidth}
+        {viewportHeight}
+        avoidRect={nodePaneBounds}
+    />
 
-        <!-- Dismiss hint -->
-        <div class="onboarding-dismiss-hint">
-            {#if !isTouch}
-                <span class="dismiss-icon" aria-hidden="true">
-                    <CursorClickIcon size={18} />
-                </span>
+    <!-- Dismiss hint — respects safe area -->
+    <div class="onboarding-dismiss-hint">
+        <span class="dismiss-icon" aria-hidden="true">
+            {#if isTouch}
+                <HandTapIcon size={16} />
+            {:else}
+                <CursorClickIcon size={16} />
             {/if}
-            <span class="dismiss-text">
-                {isTouch
-                    ? $t("onboarding.dismissTap")
-                    : $t("onboarding.dismissClick")}
-            </span>
-        </div>
+        </span>
+        <span class="dismiss-text">
+            {isTouch
+                ? $t("onboarding.dismissTap")
+                : $t("onboarding.dismissClick")}
+        </span>
     </div>
 </div>
 
@@ -392,16 +400,6 @@
         height: 100%;
     }
 
-    .onboarding-content {
-        position: absolute;
-        inset:
-            max(var(--bar-pad, 12px), var(--safe-top, 0px))
-            max(var(--bar-pad, 12px), var(--safe-right, 0px))
-            max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
-            max(var(--bar-pad, 12px), var(--safe-left, 0px));
-        pointer-events: none;
-    }
-
     .node-clone {
         position: absolute;
         transform: translate(-50%, -50%);
@@ -423,17 +421,21 @@
 
     .onboarding-dismiss-hint {
         position: absolute;
-        bottom: 0;
+        bottom: max(var(--bar-pad, 12px), var(--safe-bottom, 0px));
         left: 50%;
         transform: translateX(-50%);
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        padding: var(--spacing-md) var(--spacing-lg);
+        background: var(--bg-panel);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius);
         font-size: var(--font-sm);
         color: var(--text-muted);
-        opacity: 0;
         white-space: nowrap;
         pointer-events: none;
+        opacity: 0;
         animation: hint-fade-in 400ms ease both;
         animation-delay: 800ms;
     }
@@ -472,7 +474,7 @@
             transform: translateX(-50%) translateY(4px);
         }
         to {
-            opacity: 0.6;
+            opacity: 0.8;
             transform: translateX(-50%) translateY(0);
         }
     }
@@ -500,7 +502,7 @@
 
         .onboarding-dismiss-hint {
             animation: none;
-            opacity: 0.6;
+            opacity: 0.8;
         }
     }
 </style>

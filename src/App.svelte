@@ -92,16 +92,9 @@
         }
     }
 
-    // Check if we should show controls tab on initial load
+    // Mark version as seen on load (no longer auto-opens side menu)
     const previousVersion = getStoredVersion();
-    const shouldShowControls = (() => {
-        const isNew = isNewVersion();
-        if (isNew) {
-            // Set active tab so SideMenu initializes with controls (without persisting)
-            setActiveTabWithoutPersist("controls");
-        }
-        return isNew;
-    })();
+    const shouldShowControls = false;
 
     const baseTabs: Array<{
         id: "guardian" | "vanguard" | "cannon";

@@ -10,7 +10,7 @@
 
 <div class="onboarding-card {variant}" style="--card-index: {index}">
     <span class="card-icon" aria-hidden="true">
-        <svelte:component this={icon} />
+        <svelte:component this={icon} size={32} />
     </span>
     <span class="card-label">{label}</span>
     <span class="card-desc">{description}</span>
@@ -24,8 +24,8 @@
         column-gap: var(--spacing-lg);
         row-gap: 2px;
         padding: var(--spacing-lg) var(--spacing-lg);
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-panel);
+        border: 1px solid var(--border-subtle);
         border-radius: var(--radius);
         backdrop-filter: blur(var(--blur-md));
         -webkit-backdrop-filter: blur(var(--blur-md));
@@ -36,12 +36,13 @@
     }
 
     .onboarding-card.accent {
-        border-color: color-mix(in srgb, var(--accent) 30%, transparent);
-        background: color-mix(in srgb, var(--accent) 6%, rgba(0, 0, 0, 0.5));
+        border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg-panel));
     }
 
     .onboarding-card.muted {
-        border-color: rgba(255, 255, 255, 0.06);
+        border-color: var(--border-subtle);
+        background: var(--bg-panel);
     }
 
     .card-icon {
@@ -49,8 +50,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        font-size: 24px;
+        width: 36px;
         color: var(--text-muted);
     }
 
@@ -70,13 +70,12 @@
     }
 
     .onboarding-card.muted .card-label {
-        color: var(--text-muted);
+        color: var(--text);
     }
 
     .card-desc {
         font-size: var(--font-sm);
         color: var(--text-muted);
-        opacity: 0.8;
         line-height: var(--leading);
     }
 
