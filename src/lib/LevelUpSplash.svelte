@@ -75,7 +75,7 @@
 <div
     bind:this={el}
     class="level-splash"
-    style="left: {x + nudgeX}px; top: {y - 48 * badgeScale + nudgeY}px; --badge-scale: {badgeScale};"
+    style="left: {x + nudgeX}px; top: {y - 34 * badgeScale + nudgeY}px; --badge-scale: {badgeScale};"
     aria-live="polite"
 >
     {#key animKey}
