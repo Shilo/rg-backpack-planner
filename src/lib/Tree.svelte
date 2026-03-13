@@ -542,13 +542,7 @@
                     crystalDelta: totalCrystalDelta,
                     skipEntry: false,
                 };
-                const existingIdx = activeSplashes.findIndex(s => s.nodeIndex === index);
-                if (existingIdx !== -1) {
-                    activeSplashes[existingIdx] = newSplash;
-                    activeSplashes = activeSplashes;
-                } else {
-                    activeSplashes = [...activeSplashes, newSplash];
-                }
+                activeSplashes = [...activeSplashes.filter(s => s.nodeIndex !== index), newSplash];
             }
         }
         return true;

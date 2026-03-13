@@ -4,6 +4,7 @@
     export let label = "";
     export let ariaLabel: string | undefined = undefined;
     export let tooltipText: string | undefined = undefined;
+    export let description: string | undefined = undefined;
     export let icon: Component | null = null;
     export let iconClass = "toggle-icon";
     export let onToggle: (() => void) | null = null;
@@ -33,8 +34,15 @@
             />
         </span>
     {/if}
-    {#if label}
-        <span class="toggle-row__label">{label}</span>
+    {#if label || description}
+        <div class="toggle-row__label-group">
+            {#if label}
+                <span class="toggle-row__label">{label}</span>
+            {/if}
+            {#if description}
+                <span class="toggle-row__description">{description}</span>
+            {/if}
+        </div>
     {/if}
     <div class="toggle-switch" class:active={checked}>
         <div class="toggle-switch__thumb"></div>
@@ -98,9 +106,24 @@
         height: 100%;
     }
 
-    .toggle-row__label {
+    .toggle-row__label-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
         flex: 1;
         min-width: 0;
+    }
+
+    .toggle-row__label {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        user-select: none;
+    }
+
+    .toggle-row__description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
         white-space: normal;
         overflow-wrap: anywhere;
         user-select: none;
