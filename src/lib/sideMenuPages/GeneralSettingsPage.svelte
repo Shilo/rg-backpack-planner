@@ -27,7 +27,7 @@
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
     import { showLevelSplash } from "../showLevelSplashStore";
-    import { onboardingSeen } from "../onboardingStore";
+    import { showOnboarding } from "../onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import { t, resetLocale } from "svelte-whisper";
@@ -57,8 +57,6 @@
                 colorblindTreeColors.resetToDefault();
                 uppercaseText.resetToDefault();
                 showLevelSplash.resetToDefault();
-                onboardingSeen.resetToDefault();
-
                 void resetLocale();
 
                 showToast($t("modal.resetSettings.toast"));
@@ -125,7 +123,7 @@
         <InstallPwaButton title={true} />
         <Button
             on:click={() => {
-                onboardingSeen.resetToDefault();
+                showOnboarding();
                 showToast($t("onboarding.showTutorialToast"));
                 onClose?.();
             }}

@@ -78,10 +78,10 @@ if (!/OnboardingOverlay/.test(treeSource)) {
 const generalPath = resolve("src/lib/sideMenuPages/GeneralSettingsPage.svelte");
 const generalSource = readFileSync(generalPath, "utf8");
 
-if (!/onboardingSeen/.test(generalSource)) {
-    throw new Error("GeneralSettingsPage should import onboardingSeen store.");
+if (!/showOnboarding/.test(generalSource)) {
+    throw new Error("GeneralSettingsPage should import showOnboarding.");
 }
 
-if (!/onboardingSeen\.resetToDefault\(\)/.test(generalSource)) {
-    throw new Error("GeneralSettingsPage reset should include onboardingSeen.resetToDefault().");
+if (!/showOnboarding\(\)/.test(generalSource)) {
+    throw new Error("GeneralSettingsPage Show Tutorial button should call showOnboarding().");
 }

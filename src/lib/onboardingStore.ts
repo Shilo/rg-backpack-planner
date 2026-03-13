@@ -28,6 +28,9 @@ function createOnboardingSeenStore() {
             setOnboardingSeen(value);
             set(value);
         },
+        setWithoutPersistence: (value: boolean) => {
+            set(value);
+        },
         resetToDefault: () => {
             setOnboardingSeen(DEFAULT_ONBOARDING_SEEN);
             set(DEFAULT_ONBOARDING_SEEN);
@@ -36,3 +39,7 @@ function createOnboardingSeenStore() {
 }
 
 export const onboardingSeen = createOnboardingSeenStore();
+
+export function showOnboarding() {
+    onboardingSeen.setWithoutPersistence(false);
+}

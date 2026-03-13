@@ -31,7 +31,7 @@
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { t } from "svelte-whisper";
-    import { onboardingSeen } from "../onboardingStore";
+    import { showOnboarding } from "../onboardingStore";
     import { showToast } from "../toast";
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
@@ -284,7 +284,7 @@
         </div>
         <Button
             on:click={() => {
-                onboardingSeen.resetToDefault();
+                showOnboarding();
                 showToast($t("onboarding.showTutorialToast"));
             }}
             description={$t("onboarding.showTutorialDescription")}
