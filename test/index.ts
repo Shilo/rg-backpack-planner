@@ -19,6 +19,7 @@ const TEST_FILES = [
     "globalLeafCap.test.ts",
     "tierLeveling.test.ts",
     "tierTargetLevelFns.test.ts",
+    "nodeActionPreview.test.ts",
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
 
