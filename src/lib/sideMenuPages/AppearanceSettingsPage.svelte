@@ -92,7 +92,7 @@
             checked={$uppercaseText}
             label={$t("settings.uppercaseText")}
             ariaLabel={$t("settings.uppercaseText")}
-            tooltipText={$t("settings.uppercaseTextTooltip")}
+            description={$t("settings.uppercaseTextDescription")}
             icon={TextAaIcon as unknown as Component}
             onToggle={() => uppercaseText.set(!$uppercaseText)}
         />
@@ -107,13 +107,13 @@
             options={treeZoomOptions}
             selectedIndex={treeZoomSelectedIndex}
             onChange={handleTreeZoomChange}
-            tooltipText={$t("settings.treeZoomTooltip")}
+            description={$t("settings.treeZoomDescription")}
         />
         <ToggleSwitch
             checked={$colorblindTreeColors}
             label={$t("settings.colorblindTreeColors")}
             ariaLabel={$t("settings.colorblindTreeColors")}
-            tooltipText={$t("settings.colorblindTreeColorsTooltip")}
+            description={$t("settings.colorblindTreeColorsDescription")}
             icon={PaletteIcon as unknown as Component}
             onToggle={() => colorblindTreeColors.set(!$colorblindTreeColors)}
         />
