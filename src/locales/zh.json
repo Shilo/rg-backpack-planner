@@ -464,7 +464,7 @@
         "pointerZoomLabel": "滚轮或触控板",
         "pointerZoomDescription": "缩放技能树",
         "pointerHoverLabel": "悬停",
-        "pointerHoverDescription": "将光标悬停在节点或按钮上以显示提示",
+        "pointerHoverDescription": "显示节点或按钮的提示信息",
         "touchNodeLabel": "点按节点",
         "touchNodeDescription": "增加节点等级并消耗科技水晶",
         "touchNodeMenuLabel": "长按节点",

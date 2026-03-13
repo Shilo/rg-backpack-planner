@@ -464,7 +464,7 @@
         "pointerZoomLabel": "Scroll Wheel or Trackpad",
         "pointerZoomDescription": "Zoom in and out on tree",
         "pointerHoverLabel": "Hover",
-        "pointerHoverDescription": "Hover over nodes or buttons to show tooltip",
+        "pointerHoverDescription": "Show tooltip on nodes or buttons",
         "touchNodeLabel": "Tap a Node",
         "touchNodeDescription": "Add node level(s) and spend Tech Crystals",
         "touchNodeMenuLabel": "Long Press a Node",

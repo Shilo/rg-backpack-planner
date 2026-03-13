@@ -464,7 +464,7 @@
         "pointerZoomLabel": "スクロールホイールまたはトラックパッド",
         "pointerZoomDescription": "ツリーをズームイン・アウト",
         "pointerHoverLabel": "ホバー",
-        "pointerHoverDescription": "ノードやボタンにカーソルを合わせてツールチップを表示",
+        "pointerHoverDescription": "ノードやボタンのツールチップを表示",
         "touchNodeLabel": "ノードをタップ",
         "touchNodeDescription": "ノードレベルを追加しテッククリスタルを消費",
         "touchNodeMenuLabel": "ノードを長押し",
