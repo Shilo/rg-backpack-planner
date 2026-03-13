@@ -11,6 +11,7 @@
     import type { IconWeight } from "phosphor-svelte";
     import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
+    import { evaluateSimpleMath } from "../mathUtil";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -39,12 +40,16 @@
     $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function parseValue() {
+        const result = evaluateSimpleMath(valueText);
+        if (result !== null) return Math.max(min, result);
         const parsed = Number.parseInt(valueText, 10);
         if (Number.isNaN(parsed)) return Math.max(min, 0);
         return Math.max(min, parsed);
     }
 
     $: currentValue = (() => {
+        const result = evaluateSimpleMath(valueText);
+        if (result !== null) return Math.max(min, result);
         const parsed = Number.parseInt(valueText, 10);
         if (Number.isNaN(parsed)) return Math.max(min, 0);
         return Math.max(min, parsed);
@@ -54,11 +59,6 @@
 
     function clampValueText() {
         valueText = `${parseValue()}`;
-    }
-
-    function handleInput(event: Event) {
-        const target = event.target as HTMLInputElement;
-        valueText = target.value.replace(/\D+/g, "");
     }
 
     function stepValue(delta: number) {
@@ -144,10 +144,8 @@
             bind:this={inputEl}
             type="text"
             inputmode="numeric"
-            pattern="[0-9]*"
             autocomplete="off"
-            value={valueText}
-            on:input={handleInput}
+            bind:value={valueText}
             on:blur={clampValueText}
             on:focus={handleFocus}
             on:keydown={handleKeydown}
