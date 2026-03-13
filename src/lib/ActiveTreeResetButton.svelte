@@ -13,8 +13,8 @@
         ? $t("trees.named", { label: trimmedTreeLabel })
         : $t("trees.generic");
     $: modalTitle = trimmedTreeLabel
-        ? $t("modal.resetTree.titleQuestion", { treeName })
-        : $t("modal.resetTree.titleDefaultQuestion");
+        ? $t("modal.resetTree.title", { treeName })
+        : $t("modal.resetTree.titleDefault");
     $: confirmText = trimmedTreeLabel
         ? $t("modal.resetTree.confirmLabel", { treeLabel: trimmedTreeLabel })
         : $t("modal.resetTree.confirmLabelDefault");

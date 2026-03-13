@@ -1,11 +1,12 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { CaretRightIcon } from "phosphor-svelte";
+    import { ArrowSquareOutIcon, CaretRightIcon } from "phosphor-svelte";
     import { triggerHaptic } from "../hapticsStore";
 
     export let icon: Component | null = null;
     export let label = "";
     export let value = "";
+    export let external = false;
     export let onClick: (() => void) | null = null;
 </script>
 
@@ -26,7 +27,11 @@
     {#if value}
         <span class="settings-link-value">{value}</span>
     {/if}
-    <CaretRightIcon class="settings-link-arrow" size={12} aria-hidden="true" />
+    {#if external}
+        <ArrowSquareOutIcon class="settings-link-arrow" size={14} aria-hidden="true" />
+    {:else}
+        <CaretRightIcon class="settings-link-arrow" size={12} aria-hidden="true" />
+    {/if}
 </button>
 
 <style>

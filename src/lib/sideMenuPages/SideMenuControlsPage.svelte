@@ -803,6 +803,11 @@
         color: var(--text-muted);
     }
 
+    .control-desc :global(a[target="_blank"])::after {
+        content: " ↗";
+        font-size: 0.85em;
+    }
+
     .app-info-actions {
         display: flex;
         align-items: flex-start;

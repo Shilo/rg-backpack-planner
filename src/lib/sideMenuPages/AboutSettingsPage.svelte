@@ -65,6 +65,7 @@
                 icon={UserIcon}
                 label={$t("settings.aboutAuthor")}
                 value={authorName}
+                external
                 onClick={() => openUrl(authorUrl)}
             />
         {/if}
@@ -73,6 +74,7 @@
                 icon={GithubLogoIcon}
                 label={$t("settings.aboutSourceCode")}
                 value="GitHub"
+                external
                 onClick={() => openUrl(sourceUrl)}
             />
         {/if}
@@ -81,6 +83,7 @@
                 icon={GameControllerIcon}
                 label={$t("settings.aboutGame")}
                 value={gameName}
+                external
                 onClick={() => openUrl(gameUrl)}
             />
         {/if}

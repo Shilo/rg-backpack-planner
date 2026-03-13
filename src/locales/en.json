@@ -32,11 +32,11 @@
             },
             "settings": {
                 "label": "Settings",
-                "tooltip": "View options"
+                "tooltip": "Customize behavior, appearance, and app settings"
             },
             "controls": {
                 "label": "Controls",
-                "tooltip": "View input mapping"
+                "tooltip": "View touch, mouse, and keyboard controls"
             }
         },
         "sections": {
@@ -267,15 +267,15 @@
         "renameModalMessage": "Type a new name for this build preset.",
         "presetNameLabel": "Preset name",
         "renameConfirmLabel": "Rename",
-        "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\"?",
+        "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\".",
         "deleteModalTitle": "Delete Build Preset",
-        "deleteModalMessage": "Are you sure you want to remove \"{name}\" preset?",
+        "deleteModalMessage": "Remove \"{name}\" and its build data.",
         "deleteConfirmLabel": "Delete Preset",
         "newModalTitle": "New Build Preset",
         "newModalMessage": "Type a name for this build preset.",
         "createConfirmLabel": "Create",
         "deleteAllModalTitle": "Delete All Presets",
-        "deleteAllModalMessage": "Are you sure you want to delete all build presets? A new default preset will be created.",
+        "deleteAllModalMessage": "Remove all build presets. A new default preset will be created.",
         "deleteAllConfirmLabel": "Delete All",
         "viewingPresetToast": "Viewing {name} preset",
         "editMenuTitle": "Edit",
@@ -374,10 +374,8 @@
         },
         "resetTree": {
             "title": "Reset {treeName}",
-            "titleQuestion": "Reset {treeName}?",
-            "titleAllQuestion": "Reset All Trees?",
+            "titleAll": "Reset All Trees",
             "titleDefault": "Reset Tree",
-            "titleDefaultQuestion": "Reset Tree?",
             "confirmLabel": "Reset {treeLabel}",
             "confirmLabelDefault": "Reset",
             "buttonLabel": "Reset {treeName}",
@@ -400,11 +398,11 @@
     },
     "fullscreen": {
         "label": "Fullscreen",
-        "tooltip": "Use fullscreen where your browser supports it",
+        "tooltip": "Expand the app to fill your screen",
         "enterTooltip": "Enter fullscreen",
         "exitTooltip": "Exit fullscreen",
         "unsupportedToast": "Fullscreen is not supported by your browser",
-        "failedToast": "Could not change fullscreen state"
+        "failedToast": "Could not toggle fullscreen. Try your browser's fullscreen shortcut instead."
     },
     "theme": {
         "label": "Theme",
@@ -498,7 +496,7 @@
         "controlsTabGithubLabel": "GitHub Button",
         "controlsTabGithubDescription": "View the source code on GitHub",
         "controlsTabInstallLabel": "Install App",
-        "controlsTabInstallDescription": "Install the Progressive Web App (PWA) on {osName}"
+        "controlsTabInstallDescription": "Install the app on {osName} for offline use"
     },
     "install": {
         "tooltip": "Install {appName} app on {osName}",

@@ -32,11 +32,11 @@
             },
             "settings": {
                 "label": "设置",
-                "tooltip": "查看选项"
+                "tooltip": "自定义行为、外观和应用设置"
             },
             "controls": {
                 "label": "操作",
-                "tooltip": "查看输入映射"
+                "tooltip": "查看触控、鼠标和键盘操作"
             }
         },
         "sections": {
@@ -267,15 +267,15 @@
         "renameModalMessage": "为此构建预设输入新名称。",
         "presetNameLabel": "预设名称",
         "renameConfirmLabel": "重命名",
-        "cloneModalMessage": "从\"{originalName}\"创建名为\"{name}\"的新预设？",
+        "cloneModalMessage": "从\"{originalName}\"创建名为\"{name}\"的新预设。",
         "deleteModalTitle": "删除构建预设",
-        "deleteModalMessage": "确定要移除\"{name}\"预设吗？",
+        "deleteModalMessage": "移除\"{name}\"及其构建数据。",
         "deleteConfirmLabel": "删除预设",
         "newModalTitle": "新建构建预设",
         "newModalMessage": "为此构建预设输入名称。",
         "createConfirmLabel": "创建",
         "deleteAllModalTitle": "删除所有预设",
-        "deleteAllModalMessage": "确定要删除所有构建预设吗？将创建一个新的默认预设。",
+        "deleteAllModalMessage": "移除所有构建预设。将创建一个新的默认预设。",
         "deleteAllConfirmLabel": "全部删除",
         "viewingPresetToast": "正在查看{name}预设",
         "editMenuTitle": "编辑",
@@ -374,10 +374,8 @@
         },
         "resetTree": {
             "title": "重置{treeName}",
-            "titleQuestion": "重置{treeName}？",
-            "titleAllQuestion": "重置所有技能树？",
+            "titleAll": "重置所有技能树",
             "titleDefault": "重置技能树",
-            "titleDefaultQuestion": "重置技能树？",
             "confirmLabel": "重置{treeLabel}",
             "confirmLabelDefault": "重置",
             "buttonLabel": "重置{treeName}",
@@ -400,11 +398,11 @@
     },
     "fullscreen": {
         "label": "全屏",
-        "tooltip": "在浏览器支持的情况下使用全屏",
+        "tooltip": "将应用扩展为全屏显示",
         "enterTooltip": "进入全屏",
         "exitTooltip": "退出全屏",
         "unsupportedToast": "您的浏览器不支持全屏",
-        "failedToast": "无法更改全屏状态"
+        "failedToast": "无法切换全屏。请尝试使用浏览器的全屏快捷键。"
     },
     "theme": {
         "label": "主题",
@@ -498,7 +496,7 @@
         "controlsTabGithubLabel": "GitHub按钮",
         "controlsTabGithubDescription": "在GitHub上查看源代码",
         "controlsTabInstallLabel": "安装应用",
-        "controlsTabInstallDescription": "在{osName}上安装渐进式Web应用（PWA）"
+        "controlsTabInstallDescription": "在{osName}上安装应用以离线使用"
     },
     "install": {
         "tooltip": "在{osName}上安装{appName}应用",

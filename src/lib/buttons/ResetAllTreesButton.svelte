@@ -20,7 +20,7 @@
         if (!onResetAll) return;
         openModal({
             type: "confirm",
-            title: $t("modal.resetTree.titleAllQuestion"),
+            title: $t("modal.resetTree.titleAll"),
             titleIcon: ArrowsCounterClockwiseIcon as unknown as Component,
             message: $t("modal.resetTree.messageAll"),
             confirmLabel: $t("modal.resetTree.buttonLabelAll"),

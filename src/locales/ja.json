@@ -32,11 +32,11 @@
             },
             "settings": {
                 "label": "設定",
-                "tooltip": "オプションを表示"
+                "tooltip": "動作、外観、アプリの設定をカスタマイズ"
             },
             "controls": {
                 "label": "操作",
-                "tooltip": "入力マッピングを表示"
+                "tooltip": "タッチ、マウス、キーボードの操作方法を表示"
             }
         },
         "sections": {
@@ -267,15 +267,15 @@
         "renameModalMessage": "このビルドプリセットの新しい名前を入力してください。",
         "presetNameLabel": "プリセット名",
         "renameConfirmLabel": "名前変更",
-        "cloneModalMessage": "プレビュービルドから\"{name}\"という名前のプリセットを\"{originalName}\"から作成しますか？",
+        "cloneModalMessage": "\"{originalName}\"から\"{name}\"という名前の新しいプリセットを作成します。",
         "deleteModalTitle": "ビルドプリセットを削除",
-        "deleteModalMessage": "\"{name}\"プリセットを削除してもよろしいですか？",
+        "deleteModalMessage": "\"{name}\"とそのビルドデータを削除します。",
         "deleteConfirmLabel": "プリセットを削除",
         "newModalTitle": "新規ビルドプリセット",
         "newModalMessage": "このビルドプリセットの名前を入力してください。",
         "createConfirmLabel": "作成",
         "deleteAllModalTitle": "全プリセットを削除",
-        "deleteAllModalMessage": "全てのビルドプリセットを削除してもよろしいですか？新しいデフォルトプリセットが作成されます。",
+        "deleteAllModalMessage": "全プリセットを削除します。新しいデフォルトプリセットが作成されます。",
         "deleteAllConfirmLabel": "全て削除",
         "viewingPresetToast": "{name}プリセットを表示中",
         "editMenuTitle": "編集",
@@ -374,10 +374,8 @@
         },
         "resetTree": {
             "title": "{treeName}をリセット",
-            "titleQuestion": "{treeName}をリセットしますか？",
-            "titleAllQuestion": "全ツリーをリセットしますか？",
+            "titleAll": "全ツリーをリセット",
             "titleDefault": "ツリーをリセット",
-            "titleDefaultQuestion": "ツリーをリセットしますか？",
             "confirmLabel": "{treeLabel}をリセット",
             "confirmLabelDefault": "リセット",
             "buttonLabel": "{treeName}をリセット",
@@ -400,11 +398,11 @@
     },
     "fullscreen": {
         "label": "フルスクリーン",
-        "tooltip": "ブラウザが対応している場合にフルスクリーンを使用",
+        "tooltip": "アプリを全画面に拡大",
         "enterTooltip": "フルスクリーンに入る",
         "exitTooltip": "フルスクリーンを終了",
         "unsupportedToast": "お使いのブラウザはフルスクリーンに対応していません",
-        "failedToast": "フルスクリーン状態を変更できませんでした"
+        "failedToast": "フルスクリーンを切り替えられませんでした。ブラウザのショートカットキーをお試しください。"
     },
     "theme": {
         "label": "テーマ",
@@ -498,7 +496,7 @@
         "controlsTabGithubLabel": "GitHubボタン",
         "controlsTabGithubDescription": "GitHubでソースコードを見る",
         "controlsTabInstallLabel": "アプリをインストール",
-        "controlsTabInstallDescription": "{osName}にプログレッシブウェブアプリ（PWA）をインストール"
+        "controlsTabInstallDescription": "{osName}にアプリをインストールしてオフラインで使用"
     },
     "install": {
         "tooltip": "{osName}に{appName}アプリをインストール",
