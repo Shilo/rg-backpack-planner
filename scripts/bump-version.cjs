@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const ROOT = process.cwd();
 const PACKAGE_JSON_PATH = path.join(ROOT, 'package.json');
@@ -59,7 +60,12 @@ function main() {
         writeJson(PACKAGE_LOCK_PATH, packageLock);
     }
 
-    console.log(`Bumped version: ${currentVersion} -> ${nextVersion}`);
+    const tag = `v${nextVersion}`;
+    execSync(`git add package.json package-lock.json`, { cwd: ROOT, stdio: 'inherit' });
+    execSync(`git commit -m "chore(release): ${tag}"`, { cwd: ROOT, stdio: 'inherit' });
+    execSync(`git tag ${tag}`, { cwd: ROOT, stdio: 'inherit' });
+
+    console.log(`Bumped version: ${currentVersion} -> ${nextVersion} (tagged ${tag})`);
 }
 
 main();
