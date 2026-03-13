@@ -3,7 +3,7 @@ import { TechCrystalIcon } from "./customIcons";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned, techCrystalsSpent } from "./techCrystalStore";
 import { tr } from "svelte-whisper";
-import { formatNumber } from "./mathUtil";
+import { formatNumber } from "svelte-whisper";
 
 export function openTechCrystalsOwnedModal(
     currentOwned: number,

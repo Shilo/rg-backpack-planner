@@ -3,7 +3,7 @@
     import { TechCrystalIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
 
     export let icon: Component | null = null;
     export let label: string;

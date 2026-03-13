@@ -10,7 +10,7 @@
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { nodePrimaryAction, shiftKeyHeld } from "./nodePrimaryActionStore";
     import { t } from "svelte-whisper";
     import { tooltip } from "./tooltip";

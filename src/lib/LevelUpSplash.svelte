@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
 
     export let x: number;
     export let y: number;

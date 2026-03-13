@@ -46,7 +46,7 @@
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
 
     export let tabs: TabConfig[] = [];

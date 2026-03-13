@@ -8,7 +8,7 @@
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node, LevelsByIndex } from "../types/tree";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
 
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";

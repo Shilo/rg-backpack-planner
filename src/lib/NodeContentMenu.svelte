@@ -11,7 +11,7 @@
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
     import ProgressBar from "./ProgressBar.svelte";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
     import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
     import type { Node, NodeIndex, SkillId, LevelsByIndex } from "../types/tree";
