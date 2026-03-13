@@ -107,8 +107,8 @@
     }
 
     $: bestRect = (() => {
-        // Reference variables used inside rectForDirection so Svelte tracks them
-        void contentHeight, contentWidth, spotlightRadius, edgePadding, bottomEdgePadding;
+        // Reference variables used inside helper functions so Svelte tracks them
+        void contentHeight, contentWidth, spotlightRadius, edgePadding, bottomEdgePadding, avoidRects;
 
         if (!measured || viewportWidth === 0 || viewportHeight === 0) {
             return { top: screenY, left: screenX };
