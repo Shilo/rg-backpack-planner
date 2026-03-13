@@ -489,6 +489,11 @@
         }
     }
 
+    $: contextMenuRenderNode =
+        contextMenu?.index != null
+            ? (renderNodes[contextMenu.index] ?? null)
+            : null;
+
     function removeSplash(nodeIndex: NodeIndex) {
         activeSplashes = activeSplashes.filter(s => s.nodeIndex !== nodeIndex);
     }
@@ -1449,6 +1454,33 @@
                 isGlobalIncrementLocked={contextMenuIsGlobalIncrementLocked}
             />
 
+            {#if contextMenu && contextMenuRenderNode}
+                <div
+                    class="node-spotlight-layer"
+                    style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
+                    aria-hidden="true"
+                >
+                    <Node
+                        id={contextMenuRenderNode.index}
+                        x={contextMenuRenderNode.node.x}
+                        y={contextMenuRenderNode.node.y}
+                        label={$t(`skills.${contextMenuRenderNode.node.skillId}`)}
+                        level={contextMenuLevel}
+                        state={contextMenuRenderNode.state}
+                        tier={tierIndex(contextMenuLevel, contextMenuRenderNode.node.maxLevel)}
+                        showTier={$showTier}
+                        showSkillName={$showSkillName}
+                        radius={contextMenuRenderNode.node.radius ?? 1}
+                        {scale}
+                        region={contextMenuRenderNode.region}
+                        isLeaf={contextMenuRenderNode.isLeaf}
+                        isGlobalIncrementLocked={contextMenuRenderNode.isGlobalIncrementLocked}
+                        skillId={contextMenuRenderNode.node.skillId}
+                        maxLevel={contextMenuRenderNode.node.maxLevel}
+                    />
+                </div>
+            {/if}
+
             <div
                 class="tree-splash-layer"
                 style={`transform: translate(${offsetX}px, ${offsetY}px) scale(${scale});`}
@@ -1503,6 +1535,14 @@
         position: absolute;
         inset: 0;
         transform-origin: 0 0;
+    }
+
+    .node-spotlight-layer {
+        position: absolute;
+        inset: 0;
+        transform-origin: 0 0;
+        pointer-events: none;
+        z-index: calc(var(--z-index-context-menu) - 1);
     }
 
     .tree-splash-layer {
