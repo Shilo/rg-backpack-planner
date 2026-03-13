@@ -375,7 +375,7 @@
         touch-action: none;
         user-select: none;
         box-shadow: var(--shadow), 0 8px 24px rgba(0, 0, 0, 0.15);
-        animation: ctx-menu-enter 0.18s ease both;
+        animation: ctx-menu-enter 0.15s cubic-bezier(0.05, 0.7, 0.1, 1) both;
     }
 
     .context-menu :global(button),
@@ -405,11 +405,13 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay-context);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);
         cursor: default;
-        animation: modal-backdrop-in 0.15s ease both;
+        animation: modal-backdrop-in 0.12s ease both;
     }
 
     @keyframes ctx-menu-enter {
