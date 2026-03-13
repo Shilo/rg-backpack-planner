@@ -319,7 +319,9 @@
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
-        animation: modal-backdrop-in 0.2s ease both;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        animation: modal-backdrop-in 0.15s ease both;
     }
 
     /* Dialog container: centered, scrollable, width from content up to viewport cap */
@@ -342,7 +344,7 @@
                 transparent
             );
         box-shadow: var(--shadow), 0 8px 32px rgba(0, 0, 0, 0.12);
-        animation: modal-shell-in 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+        animation: modal-shell-in var(--ease-decel) both;
         padding: 0;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
