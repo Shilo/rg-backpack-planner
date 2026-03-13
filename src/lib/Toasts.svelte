@@ -65,7 +65,8 @@
 <style>
     .toast-region {
         position: fixed;
-        left: calc(var(--bar-pad) + var(--safe-left, 0px));
+        left: 0;
+        right: 0;
         bottom: calc(
             (var(--bar-pad, 0px) + var(--tab-height, 0px)) *
                 (1 - var(--is-keyboard-open, 0)) + var(--spacing-lg) +
@@ -73,7 +74,7 @@
         );
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: var(--spacing-lg);
         z-index: var(--z-index-toast);
         pointer-events: none;
@@ -85,16 +86,21 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-lg);
-        padding: var(--spacing-md) var(--spacing-lg);
+        padding: var(--spacing-lg) calc(var(--spacing-lg) + var(--spacing-md));
+        max-width: min(
+            calc(100vw - 2 * var(--bar-pad) - var(--safe-left, 0px) - var(--safe-right, 0px)),
+            400px
+        );
         width: fit-content;
         border-radius: var(--radius);
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border-subtle);
         box-shadow: var(--shadow);
         color: var(--text-muted);
-        font-size: var(--font-base);
+        font-size: var(--font-lg);
+        font-weight: var(--weight-bold);
         line-height: var(--leading);
-        animation: toast-enter 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+        animation: toast-enter 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
         overflow: hidden;
         position: relative;
         cursor: pointer;
@@ -111,8 +117,8 @@
         position: absolute;
         bottom: 0;
         left: 0;
-        height: 2px;
-        background: var(--border-subtle);
+        height: 3px;
+        background: color-mix(in srgb, var(--accent) 50%, var(--border-subtle));
         animation: toast-progress var(--toast-duration, 3s) linear forwards;
     }
 

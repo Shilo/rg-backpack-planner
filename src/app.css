@@ -244,8 +244,8 @@ textarea,
 }
 
 @keyframes toast-enter {
-    from { opacity: 0; transform: translateX(-10px) scale(0.96); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
+    from { opacity: 0; transform: translateY(8px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes toast-progress {
