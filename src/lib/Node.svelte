@@ -118,7 +118,7 @@
     $: if (level !== prevLevelForTier) {
         const wasUp = level > prevLevelForTier;
         const ml = maxLevel as import("../types/tree").Node["maxLevel"];
-        if (wasUp && maxLevel > 1 && level === tierUpper(tierIndex(level, ml), ml)) {
+        if (wasUp && (isLeaf || (maxLevel > 1 && level === tierUpper(tierIndex(level, ml), ml)))) {
             tierRingKey++;
         }
         prevLevelForTier = level;
@@ -151,7 +151,7 @@
     </Button>
     {#key tierRingKey}
         {#if tierRingKey > 0}
-            <span class="tier-ring" class:tier-ring-hex={isLeaf}></span>
+            <span class="tier-ring"></span>
         {/if}
     {/key}
     <div
@@ -675,10 +675,6 @@
         border: 2px solid var(--node-flash-color);
         opacity: 0;
         animation: tier-ring-expand 550ms ease-out 80ms forwards;
-    }
-
-    .tier-ring-hex {
-        border-radius: 0;
     }
 
     @keyframes tier-ring-expand {
