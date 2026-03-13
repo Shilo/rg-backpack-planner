@@ -16,12 +16,13 @@ Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech bu
 
 ## Commands
 
-- `npm run dev` — Vite dev server
-- `npm run build` — production build + copy `index.html` to `404.html`
-- `npm run preview` — preview `dist/`
+- `npm run dev` — Vite dev server (`http://localhost:5173/` or with base path)
+- `npm run build` — Production build + copy `index.html` to `404.html` for SPA routing
+- `npm run preview` — Preview `dist/`
 - `npm run check` — svelte-check + TypeScript
-- `npm test` — checks + test suite
-- `npm run pwa:assets` — regenerate PWA assets from `public/icon.svg`
+- `npm test` — Checks + full test suite
+- `npm run test:ui:tier` — Headed Playwright tier contract UI suite (run only when explicitly requested)
+- `npm run pwa:assets` — Regenerate PWA assets from `public/icon.svg`
 
 ## Conventions
 
@@ -36,6 +37,10 @@ Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech bu
 - GitHub Pages base path is `/rg-backpack-planner/`; keep routing SPA-safe.
 - If `public/icon.svg` changes, rerun `npm run pwa:assets`.
 - `npm test` output is mirrored to `test/index.output.log`. It halts and exits 1 immediately upon the first test failure, only printing the success summary when all pass.
+- When asked to commit, use only `npm test` by default. Do not run `npm run test:ui:tier` unless explicitly requested.
+- This is a client-only PWA with no backend or database. `npm run dev` is all that's needed.
+- `npm run check` runs `svelte-check` + `tsc`. There is no separate ESLint config.
+- Project skills live in `.skills/` at repo root (e.g. `regenerate-locales`, `app-store-changelog`). Use them when asked to regenerate locales/translations or generate release notes.
 
 ## Design Context
 
