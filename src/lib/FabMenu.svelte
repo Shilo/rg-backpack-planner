@@ -83,14 +83,14 @@
             filter var(--ease),
             background var(--ease),
             border-color var(--ease);
-        animation: fab-action-in 0.2s ease both;
+        animation: fab-action-in 0.18s cubic-bezier(0.05, 0.7, 0.1, 1) both;
     }
 
     .fab-menu__action:nth-child(1) { animation-delay: 0ms; }
-    .fab-menu__action:nth-child(2) { animation-delay: 35ms; }
-    .fab-menu__action:nth-child(3) { animation-delay: 70ms; }
-    .fab-menu__action:nth-child(4) { animation-delay: 105ms; }
-    .fab-menu__action:nth-child(5) { animation-delay: 140ms; }
+    .fab-menu__action:nth-child(2) { animation-delay: 25ms; }
+    .fab-menu__action:nth-child(3) { animation-delay: 50ms; }
+    .fab-menu__action:nth-child(4) { animation-delay: 75ms; }
+    .fab-menu__action:nth-child(5) { animation-delay: 100ms; }
 
     .fab-menu__icon {
         width: 24px;
