@@ -133,10 +133,10 @@
     .segmented-control__header {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-md);
         min-width: 0;
         min-height: 32px;
-        padding: 8px 8px 8px 12px;
+        padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
         background: var(--bg-input);
     }
 
