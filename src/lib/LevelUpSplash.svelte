@@ -14,6 +14,10 @@
     const ARROW_DOWN = "\u25BC";
     const HEXAGON = "\u2B22";
 
+    let el: HTMLDivElement;
+    let nudgeX = 0;
+    let nudgeY = 0;
+
     $: isUp = levelDelta > 0;
     $: lvlText = (isUp ? "+" : "") + formatNumber(levelDelta);
     $: cSign = crystalDelta > 0 ? "+" : crystalDelta < 0 ? "\u2212" : "";
@@ -23,14 +27,36 @@
     $: badgeScale = Math.max(1 / scale, 1);
 
     onMount(() => {
+        if (el) {
+            const rect = el.getBoundingClientRect();
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const hud = document.querySelector(".hud-safe-area");
+            const hudRect = hud?.getBoundingClientRect();
+            const insetTop = hudRect?.top ?? 0;
+            const insetRight = hudRect ? vw - hudRect.right : 0;
+            const insetBottom = hudRect ? vh - hudRect.bottom : 0;
+            const insetLeft = hudRect?.left ?? 0;
+            if (rect.left < insetLeft) {
+                nudgeX = (insetLeft - rect.left) / scale;
+            } else if (rect.right > vw - insetRight) {
+                nudgeX = (vw - insetRight - rect.right) / scale;
+            }
+            if (rect.top < insetTop) {
+                nudgeY = (insetTop - rect.top) / scale;
+            } else if (rect.bottom > vh - insetBottom) {
+                nudgeY = (vh - insetBottom - rect.bottom) / scale;
+            }
+        }
         const timer = setTimeout(() => onDone?.(), DURATION_MS);
         return () => clearTimeout(timer);
     });
 </script>
 
 <div
+    bind:this={el}
     class="level-splash"
-    style="left: {x}px; top: {y - 48 * badgeScale}px; --badge-scale: {badgeScale};"
+    style="left: {x + nudgeX}px; top: {y - 48 * badgeScale + nudgeY}px; --badge-scale: {badgeScale};"
     aria-live="polite"
 >
     <div class="level-splash__pill">
