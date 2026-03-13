@@ -1,5 +1,10 @@
 <script context="module" lang="ts">
-    export type SettingsPageId = "root" | "node" | "appearance" | "general" | "about";
+    export type SettingsPageId =
+        | "root"
+        | "node"
+        | "appearance"
+        | "general"
+        | "about";
 </script>
 
 <script lang="ts">
@@ -76,7 +81,7 @@
         outgoingComponent = currentComponent;
         outgoingPage = currentPage;
 
-        // Fix container height during transition
+        // Fix container height during transition to prevent collapse
         if (containerElement) {
             containerElement.style.height = `${containerElement.offsetHeight}px`;
         }
@@ -87,42 +92,35 @@
         scrollToTop();
         await tick();
 
-        // Measure incoming page height for smooth height animation
+        // Snap to incoming page height
         const incomingPanel = containerElement?.querySelector(
             ".settings-page-panel.incoming:not(.active)",
         );
-        const incomingHeight =
-            incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
+        if (containerElement && incomingPanel) {
+            containerElement.style.height = `${incomingPanel.scrollHeight}px`;
+        }
 
-        // Animate height and wait for slide to finish
-        requestAnimationFrame(() => {
+        // Wait for slide animation to finish
+        const onEnd = () => {
+            clearTimeout(fallbackTimeout);
+            isTransitioning = false;
+            outgoingComponent = null;
             if (containerElement) {
-                containerElement.style.transition = "height 0.15s ease";
-                containerElement.style.height = `${incomingHeight}px`;
+                containerElement.style.height = "";
             }
-
-            const onEnd = () => {
-                clearTimeout(fallbackTimeout);
-                isTransitioning = false;
-                outgoingComponent = null;
-                if (containerElement) {
-                    containerElement.style.height = "";
-                    containerElement.style.transition = "";
-                }
-            };
-            let fallbackTimeout: ReturnType<typeof setTimeout>;
-            const incomingEl = containerElement?.querySelector(
-                ".incoming:not(.active)",
-            );
-            if (incomingEl) {
-                incomingEl.addEventListener("animationend", onEnd, {
-                    once: true,
-                });
-                fallbackTimeout = setTimeout(onEnd, 200);
-            } else {
-                onEnd();
-            }
-        });
+        };
+        let fallbackTimeout: ReturnType<typeof setTimeout>;
+        const incomingEl = containerElement?.querySelector(
+            ".incoming:not(.active)",
+        );
+        if (incomingEl) {
+            incomingEl.addEventListener("animationend", onEnd, {
+                once: true,
+            });
+            fallbackTimeout = setTimeout(onEnd, 200);
+        } else {
+            onEnd();
+        }
     }
 
     export function tryGoBack(): boolean {
@@ -137,6 +135,7 @@
         outgoingComponent = currentComponent;
         outgoingPage = currentPage;
 
+        // Fix container height during transition to prevent collapse
         if (containerElement) {
             containerElement.style.height = `${containerElement.offsetHeight}px`;
         }
@@ -147,49 +146,42 @@
         scrollToTop();
         await tick();
 
-        // Measure incoming page height for smooth height animation
+        // Snap to incoming page height
         const incomingPanel = containerElement?.querySelector(
             ".settings-page-panel.incoming:not(.active)",
         );
-        const incomingHeight =
-            incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
+        if (containerElement && incomingPanel) {
+            containerElement.style.height = `${incomingPanel.scrollHeight}px`;
+        }
 
-        // Animate height and wait for slide to finish
-        requestAnimationFrame(() => {
+        // Wait for slide animation to finish
+        const onEnd = () => {
+            clearTimeout(fallbackTimeout);
+            isTransitioning = false;
+            outgoingComponent = null;
             if (containerElement) {
-                containerElement.style.transition = "height 0.15s ease";
-                containerElement.style.height = `${incomingHeight}px`;
+                containerElement.style.height = "";
             }
-
-            const onEnd = () => {
-                clearTimeout(fallbackTimeout);
-                isTransitioning = false;
-                outgoingComponent = null;
-                if (containerElement) {
-                    containerElement.style.height = "";
-                    containerElement.style.transition = "";
-                }
-                // Focus the nav button that was clicked
-                tick().then(() => {
-                    const btn = containerElement?.querySelector(
-                        `[data-page="${lastNavigatedPage}"]`,
-                    );
-                    if (btn instanceof HTMLElement) btn.focus();
-                });
-            };
-            let fallbackTimeout: ReturnType<typeof setTimeout>;
-            const incomingEl = containerElement?.querySelector(
-                ".incoming:not(.active)",
-            );
-            if (incomingEl) {
-                incomingEl.addEventListener("animationend", onEnd, {
-                    once: true,
-                });
-                fallbackTimeout = setTimeout(onEnd, 200);
-            } else {
-                onEnd();
-            }
-        });
+            // Focus the nav button that was clicked
+            tick().then(() => {
+                const btn = containerElement?.querySelector(
+                    `[data-page="${lastNavigatedPage}"]`,
+                );
+                if (btn instanceof HTMLElement) btn.focus();
+            });
+        };
+        let fallbackTimeout: ReturnType<typeof setTimeout>;
+        const incomingEl = containerElement?.querySelector(
+            ".incoming:not(.active)",
+        );
+        if (incomingEl) {
+            incomingEl.addEventListener("animationend", onEnd, {
+                once: true,
+            });
+            fallbackTimeout = setTimeout(onEnd, 200);
+        } else {
+            onEnd();
+        }
     }
 </script>
 
@@ -269,6 +261,8 @@
         top: 0;
         left: 0;
         right: 0;
+        bottom: 0;
+        align-content: start;
     }
 
     /* Forward: incoming slides over the top from right, outgoing recedes underneath */
