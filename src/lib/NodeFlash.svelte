@@ -63,6 +63,10 @@
             opacity: 0.7;
             inset: 0;
         }
+        60% {
+            opacity: 0.3;
+            inset: -12px;
+        }
         100% {
             opacity: 0;
             inset: -10px;
