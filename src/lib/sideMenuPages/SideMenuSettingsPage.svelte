@@ -87,8 +87,21 @@
         scrollToTop();
         await tick();
 
+        // Measure incoming page height for smooth height animation
+        const incomingPanel = containerElement?.querySelector(
+            ".settings-page-panel.incoming:not(.active)",
+        );
+        const incomingHeight =
+            incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
+
         // Wait for transition to end
         requestAnimationFrame(() => {
+            // Animate height from outgoing to incoming alongside the slide
+            if (containerElement) {
+                containerElement.style.transition = "height 0.15s ease";
+                containerElement.style.height = `${incomingHeight}px`;
+            }
+
             requestAnimationFrame(() => {
                 const onEnd = () => {
                     clearTimeout(fallbackTimeout);
@@ -96,6 +109,7 @@
                     outgoingComponent = null;
                     if (containerElement) {
                         containerElement.style.height = "";
+                        containerElement.style.transition = "";
                     }
                 };
                 let fallbackTimeout: ReturnType<typeof setTimeout>;
@@ -130,7 +144,20 @@
         scrollToTop();
         await tick();
 
+        // Measure incoming page height for smooth height animation
+        const incomingPanel = containerElement?.querySelector(
+            ".settings-page-panel.incoming:not(.active)",
+        );
+        const incomingHeight =
+            incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
+
         requestAnimationFrame(() => {
+            // Animate height from outgoing to incoming alongside the slide
+            if (containerElement) {
+                containerElement.style.transition = "height 0.15s ease";
+                containerElement.style.height = `${incomingHeight}px`;
+            }
+
             requestAnimationFrame(() => {
                 const onEnd = () => {
                     clearTimeout(fallbackTimeout);
@@ -138,6 +165,7 @@
                     outgoingComponent = null;
                     if (containerElement) {
                         containerElement.style.height = "";
+                        containerElement.style.transition = "";
                     }
                     // Focus the nav button that was clicked
                     tick().then(() => {
