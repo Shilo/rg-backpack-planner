@@ -9,7 +9,7 @@
     --tab-height: 38px;
     --side-menu-tab-height: calc(var(--tab-height) + var(--bar-pad));
     --side-menu-tab-min-width: 72px;
-    --side-menu-width: 440px;
+    --side-menu-width: min(440px, 100vw);
     --z-index-hud: 5;
     --z-index-hud-over-side-menu-backdrop: 9;
     --z-index-side-menu: 10;

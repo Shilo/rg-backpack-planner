@@ -242,6 +242,17 @@
         font-size: var(--font-base);
     }
 
+    @media (pointer: coarse) {
+        .button-sm {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .button-md {
+            min-height: 44px;
+        }
+    }
+
     .button-negative {
         border-color: var(--danger-border);
         background: var(--danger-bg);
