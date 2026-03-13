@@ -104,7 +104,7 @@
     }
 
     .level-splash__anim {
-        animation: splash-float 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: splash-float 1.2s cubic-bezier(0.05, 0.7, 0.1, 1) forwards;
     }
 
     .level-splash__anim--update {
@@ -146,7 +146,7 @@
 
     @keyframes splash-float {
         0% { opacity: 0; transform: scale(0.85) translateY(4px); }
-        15% { opacity: 1; transform: scale(1.02) translateY(0); }
+        15% { opacity: 1; transform: scale(1.04) translateY(0); }
         25% { transform: scale(1) translateY(0); }
         65% { opacity: 1; transform: scale(1) translateY(0); }
         100% { opacity: 0; transform: scale(0.97) translateY(-12px); }
