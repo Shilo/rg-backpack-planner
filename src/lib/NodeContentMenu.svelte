@@ -10,6 +10,7 @@
     } from "phosphor-svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
+    import ProgressBar from "./ProgressBar.svelte";
     import { formatNumber } from "./mathUtil";
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
     import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
@@ -90,21 +91,6 @@
 
     $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
-    const tickGradient = (max: number) => {
-        if (max <= 1) return "";
-        const size = Math.ceil(max / 5);
-        const positions = [1, 2, 3, 4].map((t) => (t * size * 100) / max);
-        const thickness = "2px";
-        const color = "var(--bg-panel)";
-        return positions
-            .map(
-                (p) =>
-                    `linear-gradient(90deg, transparent calc(${p}% - ${thickness}), ${color} calc(${p}% - ${thickness}), ${color} calc(${p}% + ${thickness}), transparent calc(${p}% + ${thickness}))`,
-            )
-            .join(", ");
-    };
-
-    $: tickImage = tickGradient(maxLevel);
     $: totalTiers = maxLevel > 1 ? 5 : 1;
     $: completedTiers = (() => {
         if (maxLevel <= 0) return 0;
@@ -199,18 +185,10 @@
             </div>
         </div>
 
-        <div
-            class="progress"
-            style={`--tick-gradient:${tickImage}; --tick-thickness: 3px;`}
-        >
-            <div
-                class="progress-fill"
-                style={`transform: scaleX(${maxLevel > 0 ? level / maxLevel : 0})`}
-            ></div>
-            {#if tickImage}
-                <div class="progress-ticks"></div>
-            {/if}
-        </div>
+        <ProgressBar
+            value={maxLevel > 0 ? level / maxLevel : 0}
+            {maxLevel}
+        />
 
         <div class="button-grid" class:stacked={isSingleLevel}>
             {#if !isSingleLevel}
@@ -321,10 +299,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--bg-raised, rgba(0, 0, 0, 0.2));
-        border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+        background: var(--bg-raised);
+        border: 1px solid var(--border-subtle);
         border-radius: 6px;
-        padding: var(--spacing-xs, 4px);
+        padding: var(--spacing-xs);
         box-shadow: var(--shadow-inset);
     }
 
@@ -332,7 +310,7 @@
         width: 100%;
         height: 100%;
         opacity: 0.85;
-        color: var(--accent-light, #fff);
+        color: var(--accent-light);
         filter: var(--shadow-drop-icon);
     }
 
@@ -346,10 +324,10 @@
     }
 
     .skill-name {
-        font-size: var(--font-base, 1rem);
-        font-weight: var(--weight-bold, bold);
-        color: var(--text, #fff);
-        letter-spacing: var(--tracking, normal);
+        font-size: var(--font-base);
+        font-weight: var(--weight-bold);
+        color: var(--text);
+        letter-spacing: var(--tracking);
         line-height: 1.2;
         word-break: break-word;
         overflow-wrap: anywhere;
@@ -358,42 +336,42 @@
     .bonus-display {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm, 8px);
+        gap: var(--spacing-sm);
         padding: 0;
     }
 
     .bonus-current {
-        font-size: var(--font-sm, 0.875rem);
-        font-weight: var(--weight-bold, bold);
-        color: var(--text-muted, #aaa);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-bold);
+        color: var(--text-muted);
         font-variant-numeric: tabular-nums;
     }
 
     .bonus-arrow {
-        font-size: var(--font-xs, 0.75rem);
-        color: var(--text-disabled, #666);
+        font-size: var(--font-xs);
+        color: var(--text-disabled);
     }
 
     .bonus-next {
-        font-size: var(--font-sm, 0.875rem);
-        font-weight: var(--weight-bold, bold);
-        color: var(--accent-light, #0ff);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-bold);
+        color: var(--accent-light);
         font-variant-numeric: tabular-nums;
     }
 
     .skill-desc {
         margin-top: 4px;
-        font-size: var(--font-xs, 0.75rem);
-        color: var(--text-muted, #aaa);
-        line-height: var(--leading, 1.4);
+        font-size: var(--font-xs);
+        color: var(--text-muted);
+        line-height: var(--leading);
         width: 100%;
         word-break: break-word;
         overflow-wrap: anywhere;
     }
 
     .skill-desc :global(strong) {
-        color: var(--accent-light, #fff);
-        font-weight: var(--weight-bold, bold);
+        color: var(--accent-light);
+        font-weight: var(--weight-bold);
     }
 
     .warning-row {
@@ -429,7 +407,7 @@
         font-size: var(--font-sm);
         color: var(--danger-text);
         line-height: 1.4;
-        font-weight: var(--weight-medium, 500);
+        font-weight: var(--weight-medium);
         word-break: break-word;
         white-space: normal;
         min-width: 0;
@@ -462,32 +440,6 @@
     .meta-sep {
         opacity: var(--opacity-disabled);
         margin: 0 1px;
-    }
-
-    .progress {
-        width: 100%;
-        height: 8px;
-        background: var(--bg-raised);
-        border-radius: 4px;
-        overflow: hidden;
-        position: relative;
-        clip-path: inset(0 round 4px);
-    }
-
-    .progress-fill {
-        height: 100%;
-        width: 100%;
-        background: linear-gradient(90deg, var(--accent), var(--accent-light));
-        transform-origin: left;
-        transition: transform var(--ease);
-        border-radius: 0;
-    }
-
-    .progress-ticks {
-        position: absolute;
-        inset: 0;
-        background-image: var(--tick-gradient, none);
-        pointer-events: none;
     }
 
     .button-grid {
