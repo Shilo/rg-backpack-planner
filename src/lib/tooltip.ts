@@ -22,7 +22,7 @@ type TooltipState = {
 type Point = { x: number; y: number };
 
 const PRESS_DELAY_MS = LONG_PRESS_MS + 60;
-const HOVER_DELAY_MS = 500;
+const HOVER_DELAY_MS = LONG_PRESS_MS;
 
 export const tooltipStore = writable<TooltipState>({
     isOpen: false,
@@ -111,6 +111,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     let lastPoint: Point = { x: 0, y: 0 };
     let pressStart: Point | null = null;
     let globalPointerEnd: ((event: PointerEvent) => void) | null = null;
+    let hoverSuppressed = false;
 
     const canHover = () =>
         window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -134,6 +135,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     const scheduleHover = (event: PointerEvent) => {
         if (event.pointerType === "touch") return;
         if (event.buttons !== 0) return;
+        if (hoverSuppressed) return;
         if (!canHover() || !hasContent()) return;
         lastPoint = { x: event.clientX, y: event.clientY };
         clearHoverTimer();
@@ -174,6 +176,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
             return;
         }
         lastPoint = { x: event.clientX, y: event.clientY };
+        hoverSuppressed = false;
     };
 
     const handlePointerLeave = () => {
@@ -183,6 +186,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
 
     const handlePointerDown = (event: PointerEvent) => {
         clearHoverTimer();
+        hoverSuppressed = true;
         if (!hoverOnly) schedulePress(event);
         if (event.pointerType === "touch") {
             attachGlobalPointerEnd(event.pointerId);
