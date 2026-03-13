@@ -97,9 +97,9 @@
     const treePaneDirection = "left" as const;
 
     let panePadding = 0;
+    let bottomPadding = 0;
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
-    let dismissBarHeight = 0;
 
     // Intentionally blocks all keyboard input while overlay is active to prevent
     // tree interactions (panning, tab switching, etc.) behind the tutorial.
@@ -119,17 +119,23 @@
 
     onMount(() => {
         isTouch = window.matchMedia("(pointer: coarse)").matches;
-        panePadding =
-            parseFloat(
-                getComputedStyle(document.documentElement).getPropertyValue(
-                    "--spacing-lg",
-                ),
-            ) || 12;
+        const styles = getComputedStyle(document.documentElement);
+        const cssFloat = (name: string, fallback: number) =>
+            parseFloat(styles.getPropertyValue(name)) || fallback;
+        panePadding = cssFloat("--spacing-lg", 12);
+        const tabHeight = cssFloat("--tab-height", 0);
+        const barPad = cssFloat("--bar-pad", 0);
+        const safeBottom = cssFloat("--safe-bottom", 0);
+        bottomPadding = tabHeight + Math.max(barPad, safeBottom) + panePadding;
         window.addEventListener("keydown", handleKeydown, true);
         window.addEventListener("pointerdown", handlePointerDismiss, true);
         return () => {
             window.removeEventListener("keydown", handleKeydown, true);
-            window.removeEventListener("pointerdown", handlePointerDismiss, true);
+            window.removeEventListener(
+                "pointerdown",
+                handlePointerDismiss,
+                true,
+            );
             if (dismissTimer) clearTimeout(dismissTimer);
         };
     });
@@ -317,22 +323,20 @@
             2}px; height: {treeSpotlightRadius * 2}px;"
     ></div>
 
-    <!-- Dismiss bar — gradient fades in with overlay, card fades in later -->
-    <div class="dismiss-bar" bind:clientHeight={dismissBarHeight}>
-        <div class="dismiss-card">
-            <span class="dismiss-icon" aria-hidden="true">
-                {#if isTouch}
-                    <HandTapIcon size={16} />
-                {:else}
-                    <CursorClickIcon size={16} />
-                {/if}
-            </span>
-            <span class="dismiss-text">
-                {isTouch
-                    ? $t("onboarding.dismissTap")
-                    : $t("onboarding.dismissClick")}
-            </span>
-        </div>
+    <!-- Dismiss hint card -->
+    <div class="dismiss-card">
+        <span class="dismiss-icon" aria-hidden="true">
+            {#if isTouch}
+                <HandTapIcon size={20} />
+            {:else}
+                <CursorClickIcon size={20} />
+            {/if}
+        </span>
+        <span class="dismiss-text">
+            {isTouch
+                ? $t("onboarding.dismissTap")
+                : $t("onboarding.dismissClick")}
+        </span>
     </div>
 
     <!-- Node instruction pane (avoids tree spotlight) -->
@@ -350,7 +354,7 @@
         avoidRects={nodeAvoidRects}
         ownSpotlightRect={nodeSpotlightRect}
         edgePadding={panePadding}
-        bottomEdgePadding={dismissBarHeight}
+        bottomEdgePadding={bottomPadding}
         bind:bounds={nodePaneBounds}
     />
 
@@ -369,7 +373,7 @@
         avoidRects={treeAvoidRects}
         ownSpotlightRect={treeSpotlightRect}
         edgePadding={panePadding}
-        bottomEdgePadding={dismissBarHeight}
+        bottomEdgePadding={bottomPadding}
     />
 </div>
 
@@ -377,7 +381,7 @@
     .onboarding-overlay {
         position: absolute;
         inset: 0;
-        z-index: var(--z-index-context-menu);
+        z-index: calc(var(--z-index-hud) - 1);
         pointer-events: none;
         animation: overlay-fade-in 300ms ease both;
     }
@@ -413,42 +417,24 @@
         z-index: 1;
     }
 
-    .dismiss-bar {
-        --_bar-h: calc(
-            var(--tab-height) +
-                max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
-        );
-        --_fade: 24px;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: calc(var(--_bar-h) + var(--_fade));
-        pointer-events: none;
-        background: linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgb(from var(--backdrop-overlay-heavy) r g b / 1) var(--_fade)
-        );
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        padding-bottom: var(--spacing-lg);
-        z-index: 2;
-    }
-
     .dismiss-card {
+        position: absolute;
+        bottom: max(var(--bar-pad, 12px), var(--safe-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%);
+        height: var(--tab-height);
         display: inline-flex;
         align-items: center;
         gap: var(--spacing-md);
-        padding: var(--spacing-sm) var(--spacing-lg);
-        background: var(--bg-panel);
-        border: 1px solid var(--border-subtle);
+        padding: 0 var(--spacing-lg);
+        background: var(--bg-raised);
+        border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
-        font-size: var(--font-sm);
+        font-size: var(--font-base);
         color: var(--text-muted);
         white-space: nowrap;
-        animation: hint-fade-in 600ms ease 800ms both;
+        z-index: 2;
+        animation: hint-fade-in 250ms ease both;
     }
 
     .dismiss-icon {
@@ -459,6 +445,17 @@
 
     .dismiss-text {
         letter-spacing: var(--tracking);
+    }
+
+    @keyframes hint-fade-in {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     }
 
     @keyframes overlay-fade-in {
@@ -476,17 +473,6 @@
         }
         to {
             opacity: 0;
-        }
-    }
-
-    @keyframes hint-fade-in {
-        from {
-            opacity: 0;
-            transform: translateY(4px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
         }
     }
 

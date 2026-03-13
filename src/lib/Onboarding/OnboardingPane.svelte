@@ -21,7 +21,7 @@
     export let bounds: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
     /** Padding from screen edges (px). */
     export let edgePadding: number = 0;
-    /** Extra bottom padding (e.g. for dismiss bar). */
+    /** Extra bottom padding (e.g. for bottom tab bar). */
     export let bottomEdgePadding: number = 0;
     /** The pane's own spotlight rect — treated as a hard constraint. */
     export let ownSpotlightRect: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -61,7 +61,7 @@
                 break;
         }
 
-        // Clamp to viewport with edge padding (bottom uses extra padding for dismiss bar)
+        // Clamp to viewport with edge padding (bottom uses extra padding for tab bar)
         const effectiveBottomPad = Math.max(edgePadding, bottomEdgePadding);
         top = Math.max(edgePadding, Math.min(viewportHeight - contentHeight - effectiveBottomPad, top));
         left = Math.max(edgePadding, Math.min(viewportWidth - contentWidth - edgePadding, left));

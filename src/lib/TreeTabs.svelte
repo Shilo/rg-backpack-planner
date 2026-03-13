@@ -48,6 +48,7 @@
     import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
+    import { onboardingSeen } from "./Onboarding/onboardingStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -517,7 +518,7 @@
     <div class="hud-safe-area">
         <div class="tabs-bar">
             <FullscreenToggle iconButton={true} class="fullscreen-button" />
-            <div class="tab-buttons">
+            <div class="tab-buttons" class:hud-hidden={!$onboardingSeen}>
                 {#each tabs as tab, index}
                     <Button
                         class="tab-btn {index === activeIndex ? 'active' : ''}"
@@ -630,8 +631,7 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background:
-            radial-gradient(
+        background: radial-gradient(
                 circle,
                 color-mix(in srgb, var(--border-subtle) 30%, transparent) 0.75px,
                 transparent 0.75px
@@ -682,6 +682,12 @@
         min-width: 0;
         position: relative;
         z-index: var(--z-index-hud);
+        transition: opacity 250ms ease;
+    }
+
+    .tab-buttons.hud-hidden {
+        opacity: 0;
+        pointer-events: none !important;
     }
 
     /* Two-class specificity (0,2,0) reliably beats Button.svelte's scoped
