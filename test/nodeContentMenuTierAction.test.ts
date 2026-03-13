@@ -11,9 +11,9 @@ if (!/export let onIncrementTier: \(\(index: NodeIndex\) => void\) \| null = nul
     );
 }
 
-if (!/incrementTier: canUp \? getCostRange\(skillId, level, tierTargetLevel\) : null,/.test(nodeMenuNormalized)) {
+if (!/incrementTier: canUp \? computeTotalCost\(/.test(nodeMenuNormalized)) {
     throw new Error(
-        "NodeContentMenu should compute tier action cost to the tier target level.",
+        "NodeContentMenu should compute tier action cost via computeTotalCost.",
     );
 }
 

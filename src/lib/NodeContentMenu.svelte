@@ -13,10 +13,14 @@
     import { formatNumber } from "./mathUtil";
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
     import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
-    import type { Node, NodeIndex, SkillId } from "../types/tree";
+    import type { Node, NodeIndex, SkillId, LevelsByIndex } from "../types/tree";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
-    import { getSkillLevelInfo, getCostRange } from "../config/skillMetadata";
+    import { getSkillLevelInfo } from "../config/skillMetadata";
     import { t } from "svelte-whisper";
+    import { getContext } from "svelte";
+    import type { Writable } from "svelte/store";
+    import { computeTotalCost } from "./nodeActionPreview";
+    import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -33,6 +37,8 @@
     export let maxLevel: number = 0;
     export let isGlobalIncrementLocked = false;
     export let skillId: SkillId | null = null;
+
+    const treeData = getContext<Writable<{ nodes: Node[]; levels: LevelsByIndex }>>("tree");
 
     function formatBonusValue(v: number): string {
         if (v === 0) return "0";
@@ -53,26 +59,30 @@
             : 0;
 
     $: actionCosts = (() => {
-        if (!skillId) return null;
+        if (!skillId || nodeIndex === null) return null;
+        const { nodes, levels } = $treeData;
+        const behavior = $nodeLevelBehavior;
         const canUp = level < maxLevel;
         const canDown = level > 0;
         return {
             increment1: canUp
-                ? getCostRange(skillId, level, Math.min(level + 1, maxLevel))
+                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.min(level + 1, maxLevel), nodeLevelBehavior: behavior }).totalCost
                 : null,
             increment10: canUp
-                ? getCostRange(skillId, level, Math.min(level + 10, maxLevel))
+                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.min(level + 10, maxLevel), nodeLevelBehavior: behavior }).totalCost
                 : null,
             incrementTier: canUp
-                ? getCostRange(skillId, level, tierTargetLevel)
+                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: tierTargetLevel, nodeLevelBehavior: behavior }).totalCost
                 : null,
             decrement1: canDown
-                ? getCostRange(skillId, Math.max(level - 1, 0), level)
+                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.max(level - 1, 0), nodeLevelBehavior: behavior }).totalCost
                 : null,
             decrement10: canDown
-                ? getCostRange(skillId, Math.max(level - 10, 0), level)
+                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.max(level - 10, 0), nodeLevelBehavior: behavior }).totalCost
                 : null,
-            reset: canDown ? getCostRange(skillId, 0, level) : null,
+            reset: canDown
+                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: 0, nodeLevelBehavior: behavior }).totalCost
+                : null,
         };
     })();
 
