@@ -22,7 +22,7 @@ Active Run! Goddess players who understand the game's backpack tech tree mechani
 The overlay has two visual zones separated by a subtle divider:
 
 **Nodes zone** (accent-colored, with spotlight node):
-- A cloned `Node` component rendered with representative props (`skillId="attack_boost"`, `state="available"`, `level=0`, `region="right"`, `showSkillName=true`, `showTier=true`)
+- A cloned `Node` component rendered with representative props: `id={-1}`, `skillId="attack_boost"`, `state="available"`, `level=0`, `maxLevel=100`, `tier=0`, `label={$t("skills.attack_boost")}`, `scale=1`, `radius=1`, `region="right"`, `showSkillName=true`, `showTier=true`
 - Shows skill name badge above and level/tier badge below — exactly like a real tree node
 - Control chips below the node with Phosphor icons
 
@@ -73,8 +73,9 @@ Structure:
 - Dark semi-transparent backdrop (`rgba(0,0,0,0.75)`)
 - Centered content: section labels, cloned Node, chip groups, dismiss hint
 - Listens for `click`/`pointerdown` on the overlay to dismiss
+- z-index above tree nodes but below modals/toasts (the overlay renders inside Tree.svelte, so it naturally sits below ModalHost and the toast layer which render at the App level)
 
-The cloned Node is non-interactive (pointer-events disabled on the node itself). It serves purely as a visual anchor.
+The cloned Node is non-interactive (pointer-events disabled on the node itself). It serves purely as a visual anchor. The Node's reactive `actionPreview` computation will run harmlessly against the real tree context with the dummy `id={-1}` (producing null since no node exists at that index). The `tooltip` directive should be passed `undefined` to suppress hover tooltips on the display node.
 
 **`src/lib/onboardingStore.ts`**
 
@@ -101,13 +102,9 @@ All icons are already imported in `SideMenuControlsPage.svelte` and available in
 
 ## i18n
 
-Reuse existing locale keys where possible:
-- `controls.pointerNodeLabel` → "Left Click a Node"
-- `controls.pointerNodeMenuLabel` → "Right Click a Node"
-- `controls.touchNodeLabel` → "Tap a Node"
-- `controls.touchNodeMenuLabel` → "Long Press a Node"
+All chip labels use new short keys (existing `controls.*` keys include "a Node" suffixes that don't fit the compact chip format).
 
-New keys needed (short chip labels and descriptions):
+New keys needed:
 - `onboarding.nodesSection` → "Nodes"
 - `onboarding.treeSection` → "Tree"
 - `onboarding.levelUp` → "Level up"
@@ -141,6 +138,7 @@ All keys added to `en.json`, `ja.json`, `zh.json`.
 - Key: `onboarding-seen`
 - Never shown again after dismissal — no "show tutorial again" option (users can find controls in the side menu)
 - Independent of `latestUsedVersionStore` — version updates do not re-trigger onboarding
+- Uses the standard `rg-backpack-planner-` prefix, so "Clear All Data" in Settings will reset onboarding state — this is intentional (a full data reset should re-show onboarding on next load)
 
 ## Scope Boundaries
 
