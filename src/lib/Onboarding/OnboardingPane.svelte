@@ -2,7 +2,7 @@
     import type { Component } from "svelte";
     import OnboardingCard from "./OnboardingCard.svelte";
 
-    type CardData = { icon: Component; label: string; description: string };
+    type CardData = { icon: Component; label: string | string[]; description: string };
     type Rect = { top: number; bottom: number; left: number; right: number };
 
     export let screenX: number;

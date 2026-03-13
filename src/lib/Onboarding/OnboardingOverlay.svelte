@@ -29,12 +29,12 @@
     export let offsetY: number;
     export let scale: number;
     export let targetNodeIndex: NodeIndex = 0;
-    export let emptySpaceWorldX: number = 100;
-    export let emptySpaceWorldY: number = 310;
+    export let emptySpaceWorldX: number = 190;
+    export let emptySpaceWorldY: number = 342;
 
     type CardData = {
         icon: Component;
-        label: string;
+        label: string | string[];
         description: string;
     };
 
@@ -65,7 +65,7 @@
     // Empty space screen position (scales with tree transform)
     $: treeScreenX = emptySpaceWorldX * scale + offsetX;
     $: treeScreenY = emptySpaceWorldY * scale + offsetY;
-    $: treeSpotlightRadius = nodeSpotlightRadius;
+    $: treeSpotlightRadius = Math.round(nodeSpotlightRadius * 0.8);
 
     // Viewport dimensions (measured from overlay element)
     let viewportWidth = 0;
@@ -153,7 +153,7 @@
               },
               {
                   icon: MouseMiddleClickIcon,
-                  label: $t("onboarding.middleClick"),
+                  label: [$t("onboarding.middleClick"), $t("onboarding.shiftLeftClick")],
                   description: $t("onboarding.levelDown"),
               },
           ] as CardData[]);
@@ -415,8 +415,6 @@
         edgePadding={panePadding}
         bottomEdgePadding={dismissBarHeight}
     />
-
-
 </div>
 
 <style>
@@ -468,7 +466,8 @@
     .dismiss-bg,
     .dismiss-text-bar {
         --_bar-h: calc(
-            var(--tab-height) + max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
+            var(--tab-height) +
+                max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
         );
         --_fade: 24px;
         position: absolute;

@@ -2,17 +2,23 @@
     import type { Component } from "svelte";
 
     export let icon: Component;
-    export let label: string;
+    export let label: string | string[];
     export let description: string;
     export let variant: "accent" | "muted" = "accent";
     export let index: number = 0;
+
+    $: labels = Array.isArray(label) ? label : [label];
 </script>
 
 <div class="onboarding-card {variant}" style="--card-index: {index}">
     <span class="card-icon" aria-hidden="true">
         <svelte:component this={icon} size={32} />
     </span>
-    <span class="card-label">{label}</span>
+    <span class="card-labels">
+        {#each labels as l}
+            <span class="card-label">{l}</span>
+        {/each}
+    </span>
     <span class="card-desc">{description}</span>
 </div>
 
@@ -21,9 +27,9 @@
         display: grid;
         grid-template-columns: auto 1fr;
         grid-template-rows: auto auto;
-        column-gap: var(--spacing-lg);
+        column-gap: var(--spacing-md);
         row-gap: 2px;
-        padding: var(--spacing-lg) var(--spacing-lg);
+        padding: var(--spacing-sm) var(--spacing-md);
         background: var(--bg-panel);
         border: 1px solid var(--border-subtle);
         border-radius: var(--radius);
@@ -56,6 +62,11 @@
 
     .onboarding-card.accent .card-icon {
         color: var(--accent);
+    }
+
+    .card-labels {
+        display: flex;
+        flex-direction: column;
     }
 
     .card-label {
