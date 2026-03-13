@@ -27,7 +27,11 @@
     let contentHeight = 0;
     let contentWidth = 0;
 
-    $: measured = contentHeight > 0 && contentWidth > 0;
+    $: measured =
+        contentHeight > 0 &&
+        contentWidth > 0 &&
+        viewportWidth > 0 &&
+        viewportHeight > 0;
 
     /** Compute the clamped rect for the pane placed in a given direction. */
     function rectForDirection(dir: "up" | "down" | "left" | "right"): Rect {
@@ -98,6 +102,9 @@
     }
 
     $: bestRect = (() => {
+        // Reference variables used inside rectForDirection so Svelte tracks them
+        void contentHeight, contentWidth, spotlightRadius, edgePadding;
+
         if (!measured || viewportWidth === 0 || viewportHeight === 0) {
             return { top: screenY, left: screenX };
         }
