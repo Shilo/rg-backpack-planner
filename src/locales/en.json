@@ -53,7 +53,6 @@
             "display": "Display",
             "tree": "Tree",
             "hud": "HUD (Heads-Up Display)",
-            "controlsTab": "Side Menu Controls Tab",
             "instructions": "Instructions",
             "accessibility": "Accessibility"
         }
@@ -492,11 +491,7 @@
         "hudFullscreenLabel": "Fullscreen",
         "hudFullscreenDescription": "Toggle fullscreen mode",
         "hudPreviewIndicatorLabel": "Preview Build Indicator",
-        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options",
-        "controlsTabGithubLabel": "GitHub Button",
-        "controlsTabGithubDescription": "View the source code on GitHub",
-        "controlsTabInstallLabel": "Install App",
-        "controlsTabInstallDescription": "Install the app on {osName} for offline use"
+        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options"
     },
     "install": {
         "tooltip": "Install {appName} app on {osName}",

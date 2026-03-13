@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CaretDownIcon, CaretRightIcon } from "phosphor-svelte";
+    import { CaretDownIcon } from "phosphor-svelte";
     import { createEventDispatcher } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
 
@@ -21,18 +21,14 @@
     <button class="accordion-header" on:click={toggle} aria-expanded={isOpen}>
         <span class="accordion-title">{title}</span>
         <span class="accordion-arrow">
-            {#if isOpen}
-                <CaretDownIcon size={12} weight="bold" />
-            {:else}
-                <CaretRightIcon size={12} weight="bold" />
-            {/if}
+            <CaretDownIcon size={12} weight="bold" />
         </span>
     </button>
-    {#if isOpen}
+    <div class="accordion-body" aria-hidden={!isOpen}>
         <div class="accordion-content">
             <slot />
         </div>
-    {/if}
+    </div>
 </div>
 
 <style>
@@ -88,11 +84,44 @@
         justify-content: center;
         opacity: 0.5;
         color: var(--text-muted);
+        transform: rotate(-90deg);
+        transition: transform var(--ease-standard);
+    }
+
+    .is-open .accordion-arrow {
+        transform: rotate(0deg);
+    }
+
+    .accordion-body {
+        display: grid;
+        grid-template-rows: 0fr;
+        overflow: hidden;
+        transition: grid-template-rows var(--ease-emphasis);
+    }
+
+    .is-open .accordion-body {
+        grid-template-rows: 1fr;
     }
 
     .accordion-content {
+        min-height: 0;
         padding: var(--spacing-md) 0;
         display: grid;
         gap: var(--spacing-md);
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    .is-open .accordion-content {
+        opacity: 1;
+        transition: opacity 0.2s 0.05s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .accordion-arrow,
+        .accordion-body,
+        .accordion-content {
+            transition: none;
+        }
     }
 </style>

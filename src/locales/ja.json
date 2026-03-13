@@ -53,7 +53,6 @@
             "display": "表示",
             "tree": "ツリー",
             "hud": "HUD（ヘッドアップディスプレイ）",
-            "controlsTab": "サイドメニュー操作タブ",
             "instructions": "使い方",
             "accessibility": "アクセシビリティ"
         }
@@ -492,11 +491,7 @@
         "hudFullscreenLabel": "フルスクリーン",
         "hudFullscreenDescription": "フルスクリーンモードを切り替え",
         "hudPreviewIndicatorLabel": "プレビュービルド表示",
-        "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス",
-        "controlsTabGithubLabel": "GitHubボタン",
-        "controlsTabGithubDescription": "GitHubでソースコードを見る",
-        "controlsTabInstallLabel": "アプリをインストール",
-        "controlsTabInstallDescription": "{osName}にアプリをインストールしてオフラインで使用"
+        "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス"
     },
     "install": {
         "tooltip": "{osName}に{appName}アプリをインストール",

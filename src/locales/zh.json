@@ -53,7 +53,6 @@
             "display": "显示",
             "tree": "树",
             "hud": "HUD（平视显示）",
-            "controlsTab": "侧边菜单操作选项卡",
             "instructions": "使用说明",
             "accessibility": "无障碍"
         }
@@ -492,11 +491,7 @@
         "hudFullscreenLabel": "全屏",
         "hudFullscreenDescription": "切换全屏模式",
         "hudPreviewIndicatorLabel": "预览构建指示器",
-        "hudPreviewIndicatorDescription": "查看和编辑分享的构建；访问预览构建选项",
-        "controlsTabGithubLabel": "GitHub按钮",
-        "controlsTabGithubDescription": "在GitHub上查看源代码",
-        "controlsTabInstallLabel": "安装应用",
-        "controlsTabInstallDescription": "在{osName}上安装应用以离线使用"
+        "hudPreviewIndicatorDescription": "查看和编辑分享的构建；访问预览构建选项"
     },
     "install": {
         "tooltip": "在{osName}上安装{appName}应用",
