@@ -203,6 +203,13 @@ textarea,
     color: var(--success-text);
 }
 
+.tooltip-level-line {
+    display: block;
+    color: var(--text-muted);
+    font-size: inherit;
+    margin-top: var(--spacing-xs, 4px);
+}
+
 @media (hover: none) {
     .tooltip {
         transform: none;

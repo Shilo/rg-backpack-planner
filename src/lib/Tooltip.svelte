@@ -153,28 +153,31 @@
                 style="--tooltip-max-vw: {tooltipMaxViewport}; --tooltip-max-vh: {tooltipMaxViewport}; left: {boundedX}px; top: {boundedY}px;"
                 aria-hidden="true"
             >
-                {#if $tooltipStore.costLine != null}
-                    {#if $tooltipStore.text}
-                        <div class="tooltip-line">{$tooltipStore.text}</div>
-                    {/if}
-                    <div
-                        class="tooltip-cost-line"
-                        class:refund={$tooltipStore.costLineRefund}
-                    >
-                        <TechCrystalIcon
-                            size={14}
-                            weight="fill"
-                            class="tooltip-cost-icon"
-                        />
-                        <span class="tooltip-cost-value"
-                            >{$tooltipStore.costLineRefund
-                                ? "+"
-                                : "-"}{$tooltipStore.costLine}</span
+                {#each $tooltipStore.sections as section}
+                    {#if section.type === "text"}
+                        <div class="tooltip-line">{section.value}</div>
+                    {:else if section.type === "crystal-cost"}
+                        <div
+                            class="tooltip-cost-line"
+                            class:refund={section.refund}
                         >
-                    </div>
-                {:else}
-                    {$tooltipStore.text}
-                {/if}
+                            <TechCrystalIcon
+                                size={14}
+                                weight="fill"
+                                class="tooltip-cost-icon"
+                            />
+                            <span class="tooltip-cost-value"
+                                >{section.refund
+                                    ? "+"
+                                    : "-"}{section.value}</span
+                            >
+                        </div>
+                    {:else if section.type === "level-preview"}
+                        <div class="tooltip-level-line">
+                            Lv. {section.from} → {section.to}
+                        </div>
+                    {/if}
+                {/each}
             </div>
         </div>
     </div>
