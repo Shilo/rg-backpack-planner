@@ -55,8 +55,8 @@
 <style>
     .modal-content {
         display: grid;
-        gap: var(--spacing-md);
-        padding: var(--spacing-sm);
+        gap: var(--spacing-lg);
+        padding: var(--spacing-md);
         width: 100%;
         min-width: 0;
     }
@@ -70,12 +70,12 @@
     .modal-title {
         display: inline-flex;
         align-items: center;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-md);
     }
 
     .modal-header h2 {
         margin: 0;
-        font-size: var(--font-xl);
+        font-size: var(--font-lg); /* not --font-xl: modal shell max-width is too narrow */
         color: var(--text);
         line-height: var(--leading-none);
     }
@@ -100,7 +100,7 @@
     .modal-actions {
         display: flex;
         justify-content: flex-end;
-        gap: var(--spacing-md);
+        gap: var(--spacing-lg);
         min-width: 0;
     }
 </style>
