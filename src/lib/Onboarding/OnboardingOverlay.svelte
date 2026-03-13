@@ -153,7 +153,10 @@
               },
               {
                   icon: MouseMiddleClickIcon,
-                  label: [$t("onboarding.middleClick"), $t("onboarding.shiftLeftClick")],
+                  label: [
+                      $t("onboarding.middleClick"),
+                      $t("onboarding.shiftLeftClick"),
+                  ],
                   description: $t("onboarding.levelDown"),
               },
           ] as CardData[]);
@@ -270,11 +273,8 @@
     bind:clientWidth={viewportWidth}
     bind:clientHeight={viewportHeight}
 >
-    <!-- Blur layer with spotlight cutouts via CSS mask referencing the SVG mask -->
-    <div
-        class="onboarding-blur"
-        style="-webkit-mask: url(#onboarding-cutout-mask); mask: url(#onboarding-cutout-mask);"
-    ></div>
+    <!-- No backdrop blur — Chromium doesn't support backdrop-filter on masked
+         elements (https://issues.chromium.org/issues/41465359). -->
 
     <!-- Dark backdrop with spotlight cutouts -->
     <svg class="onboarding-backdrop" aria-hidden="true">
@@ -427,13 +427,6 @@
 
     .onboarding-overlay.dismissing {
         animation: overlay-fade-out 250ms ease both;
-    }
-
-    .onboarding-blur {
-        position: absolute;
-        inset: 0;
-        backdrop-filter: blur(var(--blur-md));
-        -webkit-backdrop-filter: blur(var(--blur-md));
     }
 
     .onboarding-backdrop {
