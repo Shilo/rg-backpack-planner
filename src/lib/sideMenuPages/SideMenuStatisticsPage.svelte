@@ -10,7 +10,7 @@
         ArrowFatUpIcon,
 } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
-    import { formatNumber, formatPercent } from "../mathUtil";
+    import { formatNumber, formatPercent } from "svelte-whisper";
     import {
         treeLevelsTotal,
         treeLevelsGuardian,

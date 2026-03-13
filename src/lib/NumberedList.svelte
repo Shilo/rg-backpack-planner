@@ -43,7 +43,7 @@
         font-size: 11px;
         font-weight: var(--weight-bold);
         color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-raised);
         border: 1.5px solid var(--text-muted);
         border-radius: 4px;
         margin-top: 1px;

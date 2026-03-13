@@ -92,6 +92,7 @@ const TEST_FILES = [
     "imageViewerInteractions.test.ts",
     "serviceWorkerAutoUpdateModule.test.ts",
     "serviceWorkerUpdateToast.test.ts",
+    "onboardingStore.test.ts",
 ];
 
 async function runAllTests() {

@@ -1,5 +1,10 @@
 <script context="module" lang="ts">
-    export type SettingsPageId = "root" | "node" | "appearance" | "general" | "about";
+    export type SettingsPageId =
+        | "root"
+        | "node"
+        | "appearance"
+        | "general"
+        | "about";
 </script>
 
 <script lang="ts">
@@ -69,63 +74,62 @@
         }
     }
 
-    async function navigateTo(page: SettingsPageId) {
-        if (isTransitioning || page === currentPage) return;
-        lastNavigatedPage = page;
-        transitionDirection = "forward";
+    async function transition(
+        targetPage: SettingsPageId,
+        direction: "forward" | "back",
+        onComplete?: () => void,
+    ) {
+        transitionDirection = direction;
         outgoingComponent = currentComponent;
         outgoingPage = currentPage;
 
-        // Fix container height during transition
+        // Fix container height during transition to prevent collapse
         if (containerElement) {
             containerElement.style.height = `${containerElement.offsetHeight}px`;
         }
 
         isTransitioning = true;
-        currentPage = page;
-        await loadPage(page);
+        currentPage = targetPage;
+        await loadPage(targetPage);
         scrollToTop();
         await tick();
 
-        // Measure incoming page height for smooth height animation
+        // Snap to incoming page height
         const incomingPanel = containerElement?.querySelector(
             ".settings-page-panel.incoming:not(.active)",
         );
-        const incomingHeight =
-            incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
+        if (containerElement && incomingPanel) {
+            containerElement.style.height = `${incomingPanel.scrollHeight}px`;
+        }
 
-        // Wait for transition to end
-        requestAnimationFrame(() => {
-            // Animate height from outgoing to incoming alongside the slide
+        // Wait for slide animation to finish
+        const onEnd = () => {
+            clearTimeout(fallbackTimeout);
+            isTransitioning = false;
+            outgoingComponent = null;
             if (containerElement) {
-                containerElement.style.transition = "height 0.15s ease";
-                containerElement.style.height = `${incomingHeight}px`;
+                containerElement.style.height = "";
             }
-
-            requestAnimationFrame(() => {
-                const onEnd = () => {
-                    clearTimeout(fallbackTimeout);
-                    isTransitioning = false;
-                    outgoingComponent = null;
-                    if (containerElement) {
-                        containerElement.style.height = "";
-                        containerElement.style.transition = "";
-                    }
-                };
-                let fallbackTimeout: ReturnType<typeof setTimeout>;
-                const incomingEl = containerElement?.querySelector(
-                    ".incoming:not(.active)",
-                );
-                if (incomingEl) {
-                    incomingEl.addEventListener("animationend", onEnd, {
-                        once: true,
-                    });
-                    fallbackTimeout = setTimeout(onEnd, 200);
-                } else {
-                    onEnd();
-                }
+            onComplete?.();
+        };
+        let fallbackTimeout: ReturnType<typeof setTimeout>;
+        const incomingEl = containerElement?.querySelector(
+            ".incoming:not(.active)",
+        );
+        if (incomingEl) {
+            incomingEl.addEventListener("animationend", onEnd, {
+                once: true,
             });
-        });
+            fallbackTimeout = setTimeout(onEnd, 200);
+        } else {
+            onEnd();
+        }
+    }
+
+    async function navigateTo(page: SettingsPageId) {
+        if (isTransitioning || page === currentPage) return;
+        lastNavigatedPage = page;
+        await transition(page, "forward");
     }
 
     export function tryGoBack(): boolean {
@@ -136,63 +140,12 @@
 
     async function navigateBack() {
         if (isTransitioning || currentPage === "root") return;
-        transitionDirection = "back";
-        outgoingComponent = currentComponent;
-        outgoingPage = currentPage;
-
-        if (containerElement) {
-            containerElement.style.height = `${containerElement.offsetHeight}px`;
-        }
-
-        isTransitioning = true;
-        currentPage = "root";
-        await loadPage("root");
-        scrollToTop();
-        await tick();
-
-        // Measure incoming page height for smooth height animation
-        const incomingPanel = containerElement?.querySelector(
-            ".settings-page-panel.incoming:not(.active)",
-        );
-        const incomingHeight =
-            incomingPanel?.scrollHeight ?? containerElement?.offsetHeight ?? 0;
-
-        requestAnimationFrame(() => {
-            // Animate height from outgoing to incoming alongside the slide
-            if (containerElement) {
-                containerElement.style.transition = "height 0.15s ease";
-                containerElement.style.height = `${incomingHeight}px`;
-            }
-
-            requestAnimationFrame(() => {
-                const onEnd = () => {
-                    clearTimeout(fallbackTimeout);
-                    isTransitioning = false;
-                    outgoingComponent = null;
-                    if (containerElement) {
-                        containerElement.style.height = "";
-                        containerElement.style.transition = "";
-                    }
-                    // Focus the nav button that was clicked
-                    tick().then(() => {
-                        const btn = containerElement?.querySelector(
-                            `[data-page="${lastNavigatedPage}"]`,
-                        );
-                        if (btn instanceof HTMLElement) btn.focus();
-                    });
-                };
-                let fallbackTimeout: ReturnType<typeof setTimeout>;
-                const incomingEl = containerElement?.querySelector(
-                    ".incoming:not(.active)",
+        await transition("root", "back", () => {
+            tick().then(() => {
+                const btn = containerElement?.querySelector(
+                    `[data-page="${lastNavigatedPage}"]`,
                 );
-                if (incomingEl) {
-                    incomingEl.addEventListener("animationend", onEnd, {
-                        once: true,
-                    });
-                    fallbackTimeout = setTimeout(onEnd, 200);
-                } else {
-                    onEnd();
-                }
+                if (btn instanceof HTMLElement) btn.focus();
             });
         });
     }
@@ -261,6 +214,7 @@
     .settings-page-panel {
         display: grid;
         gap: var(--spacing-lg);
+        background: var(--bg-panel);
     }
 
     .settings-page-panel.active {
@@ -273,24 +227,28 @@
         top: 0;
         left: 0;
         right: 0;
+        bottom: 0;
+        align-content: start;
     }
 
-    /* Forward: outgoing slides left, incoming slides in from right */
+    /* Forward: incoming slides over the top from right, outgoing recedes underneath */
     .settings-page-container.forward .incoming:not(.active) {
         animation: slide-in-right 0.15s ease forwards;
+        z-index: 1;
     }
 
     .settings-page-container.forward .outgoing {
         animation: slide-out-left 0.15s ease forwards;
     }
 
-    /* Back: outgoing slides right, incoming slides in from left */
+    /* Back: outgoing slides away to the right on top, incoming emerges from left underneath */
     .settings-page-container.back .incoming:not(.active) {
         animation: slide-in-left 0.15s ease forwards;
     }
 
     .settings-page-container.back .outgoing {
         animation: slide-out-right 0.15s ease forwards;
+        z-index: 1;
     }
 
     @keyframes slide-in-right {

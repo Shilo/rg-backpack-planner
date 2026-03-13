@@ -32,11 +32,11 @@
             },
             "settings": {
                 "label": "Settings",
-                "tooltip": "View options"
+                "tooltip": "Customize behavior, appearance, and app settings"
             },
             "controls": {
                 "label": "Controls",
-                "tooltip": "View input mapping"
+                "tooltip": "View touch, mouse, and keyboard controls"
             }
         },
         "sections": {
@@ -53,7 +53,6 @@
             "display": "Display",
             "tree": "Tree",
             "hud": "HUD (Heads-Up Display)",
-            "controlsTab": "Side Menu Controls Tab",
             "instructions": "Instructions",
             "accessibility": "Accessibility"
         }
@@ -267,15 +266,15 @@
         "renameModalMessage": "Type a new name for this build preset.",
         "presetNameLabel": "Preset name",
         "renameConfirmLabel": "Rename",
-        "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\"?",
+        "cloneModalMessage": "Create a new preset named \"{name}\" from \"{originalName}\".",
         "deleteModalTitle": "Delete Build Preset",
-        "deleteModalMessage": "Are you sure you want to remove \"{name}\" preset?",
+        "deleteModalMessage": "Remove \"{name}\" and its build data.",
         "deleteConfirmLabel": "Delete Preset",
         "newModalTitle": "New Build Preset",
         "newModalMessage": "Type a name for this build preset.",
         "createConfirmLabel": "Create",
         "deleteAllModalTitle": "Delete All Presets",
-        "deleteAllModalMessage": "Are you sure you want to delete all build presets? A new default preset will be created.",
+        "deleteAllModalMessage": "Remove all build presets. A new default preset will be created.",
         "deleteAllConfirmLabel": "Delete All",
         "viewingPresetToast": "Viewing {name} preset",
         "editMenuTitle": "Edit",
@@ -374,10 +373,8 @@
         },
         "resetTree": {
             "title": "Reset {treeName}",
-            "titleQuestion": "Reset {treeName}?",
-            "titleAllQuestion": "Reset All Trees?",
+            "titleAll": "Reset All Trees",
             "titleDefault": "Reset Tree",
-            "titleDefaultQuestion": "Reset Tree?",
             "confirmLabel": "Reset {treeLabel}",
             "confirmLabelDefault": "Reset",
             "buttonLabel": "Reset {treeName}",
@@ -400,11 +397,11 @@
     },
     "fullscreen": {
         "label": "Fullscreen",
-        "tooltip": "Use fullscreen where your browser supports it",
+        "tooltip": "Expand the app to fill your screen",
         "enterTooltip": "Enter fullscreen",
         "exitTooltip": "Exit fullscreen",
         "unsupportedToast": "Fullscreen is not supported by your browser",
-        "failedToast": "Could not change fullscreen state"
+        "failedToast": "Could not toggle fullscreen. Try your browser's fullscreen shortcut instead."
     },
     "theme": {
         "label": "Theme",
@@ -413,8 +410,8 @@
         "custom": "Custom",
         "customEllipsis": "Custom...",
         "preset": {
+            "sky": "Sky",
             "cyan": "Cyan",
-            "blue": "Blue",
             "green": "Green",
             "rose": "Rose",
             "amber": "Amber",
@@ -476,7 +473,7 @@
         "touchZoomLabel": "Pinch With Two Fingers",
         "touchZoomDescription": "Zoom in and out on tree",
         "touchMenuSwipeLabel": "Swipe Right on Side Menu",
-        "touchMenuSwipeDescription": "Close side menu",
+        "touchMenuSwipeDescription": "Go back or close side menu",
         "keyboardScreenshotLabel": "F9 - Share Screenshot",
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
         "keyboardCycleTabsLabel": "Tab - Cycle Tabs",
@@ -494,11 +491,31 @@
         "hudFullscreenLabel": "Fullscreen",
         "hudFullscreenDescription": "Toggle fullscreen mode",
         "hudPreviewIndicatorLabel": "Preview Build Indicator",
-        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options",
-        "controlsTabGithubLabel": "GitHub Button",
-        "controlsTabGithubDescription": "View the source code on GitHub",
-        "controlsTabInstallLabel": "Install App",
-        "controlsTabInstallDescription": "Install the Progressive Web App (PWA) on {osName}"
+        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options"
+    },
+    "onboarding": {
+        "nodesSection": "Nodes",
+        "treeSection": "Empty Space",
+        "levelUp": "Level up node",
+        "options": "Node options",
+        "levelDown": "Level down node",
+        "treeOptions": "Tree options",
+        "pan": "Pan view",
+        "zoom": "Zoom view",
+        "dismissClick": "Click anywhere or press Escape to start",
+        "dismissTap": "Tap anywhere to start",
+        "leftClick": "Left Click",
+        "rightClick": "Right Click",
+        "middleClick": "Middle Click",
+        "shiftLeftClick": "Shift + Left Click",
+        "clickDrag": "Click + Drag",
+        "scroll": "Scroll",
+        "tap": "Tap",
+        "longPress": "Long Press",
+        "swipe": "Swipe",
+        "pinch": "Pinch",
+        "showTutorial": "Show Tutorial",
+        "showTutorialDescription": "View on-screen controls guide"
     },
     "install": {
         "tooltip": "Install {appName} app on {osName}",

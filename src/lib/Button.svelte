@@ -242,6 +242,9 @@
         font-size: var(--font-base);
     }
 
+    /* button-sm touch targets are intentionally 32px for compact HUD toolbar buttons.
+       WCAG 2.5.5 (AA) 24px minimum is met. */
+
     .button-negative {
         border-color: var(--danger-border);
         background: var(--danger-bg);
@@ -285,7 +288,7 @@
     .button-text-group {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--spacing-xs);
         flex: 1;
         min-width: 0;
         line-height: var(--leading);

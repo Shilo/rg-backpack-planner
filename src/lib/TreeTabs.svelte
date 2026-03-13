@@ -39,15 +39,16 @@
         treeLevels,
     } from "./treeLevelsStore";
     import { openResetTreeModal } from "./resetTreeModal";
-    import { isKeyboardShortcutTarget } from "./domUtil";
+    import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
+    import { onboardingSeen } from "./onboarding/onboardingStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -121,6 +122,7 @@
     function handleTabKeydown(event: KeyboardEvent) {
         if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
         if (isMenuOpen || $isComposeScreenshotOpen) return;
+        if (hasOnboardingOverlay()) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
             return;
 
@@ -142,6 +144,7 @@
     function handleBackspaceKeydown(event: KeyboardEvent) {
         if (event.key !== "Backspace" || !tabsRootEl) return;
         if (isMenuOpen) return;
+        if (hasOnboardingOverlay()) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
             return;
         const levels = $treeLevels[activeIndex] ?? [];
@@ -515,7 +518,7 @@
     <div class="hud-safe-area">
         <div class="tabs-bar">
             <FullscreenToggle iconButton={true} class="fullscreen-button" />
-            <div class="tab-buttons">
+            <div class="tab-buttons" class:hud-hidden={!$onboardingSeen}>
                 {#each tabs as tab, index}
                     <Button
                         class="tab-btn {index === activeIndex ? 'active' : ''}"
@@ -629,10 +632,19 @@
         width: 100%;
         overflow: hidden;
         background: radial-gradient(
-            circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
-            color-mix(in srgb, var(--bg) 20%, var(--surface)),
-            var(--bg) 100%
-        );
+                circle,
+                color-mix(in srgb, var(--border-subtle) 30%, transparent) 0.75px,
+                transparent 0.75px
+            ),
+            radial-gradient(
+                circle at 50%
+                    calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
+                color-mix(in srgb, var(--bg) 20%, var(--surface)),
+                var(--bg) 100%
+            );
+        background-size:
+            32px 32px,
+            100% 100%;
         position: relative;
     }
 
@@ -670,13 +682,19 @@
         min-width: 0;
         position: relative;
         z-index: var(--z-index-hud);
+        transition: opacity 250ms ease;
+    }
+
+    .tab-buttons.hud-hidden {
+        opacity: 0;
+        pointer-events: none !important;
     }
 
     /* Two-class specificity (0,2,0) reliably beats Button.svelte's scoped
        `button.svelte-hash` (0,1,1), so !important is not needed here. */
     :global(.tab-buttons .tab-btn) {
         color: var(--text-muted);
-        padding: 2px var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
         min-height: var(--tab-height);
         border-radius: var(--radius);
         letter-spacing: normal;
@@ -743,11 +761,11 @@
     .tree-tab-crystals {
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
         font-size: 0.85em;
         color: var(--text-muted);
         background: color-mix(in srgb, var(--surface) 60%, transparent);
-        padding: 2px 4px;
+        padding: var(--spacing-xs) var(--spacing-sm);
         border-radius: var(--radius-sm);
         flex-shrink: 0;
         line-height: 1;

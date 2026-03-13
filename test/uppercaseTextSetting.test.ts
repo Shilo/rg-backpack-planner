@@ -102,13 +102,13 @@ const componentFiles = [
     "src/lib/ContextMenu.svelte",
     "src/lib/PreviewBuildIndicator.svelte",
     "src/lib/SliderSetting.svelte",
-    "src/lib/SideMenuSection.svelte",
     "src/lib/TabBar.svelte",
     "src/lib/TreeContextMenuList.svelte",
     "src/lib/TreeTabs.svelte",
     "src/lib/buttons/PreviewBuildsDropdown.svelte",
     "src/lib/modals/InputModal.svelte",
     "src/lib/modals/LoadBuildModal.svelte",
+    // Ignore SideMenuSection.svelte because it's a special case that has uppercase section title.
 ];
 
 for (const file of componentFiles) {

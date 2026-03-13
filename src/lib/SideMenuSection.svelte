@@ -29,9 +29,11 @@
 
     .side-menu-section__title {
         margin: 0;
-        font-size: var(--font-base);
-        letter-spacing: var(--tracking);
-        color: var(--text-disabled);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
     }
 
     .side-menu-section__action {

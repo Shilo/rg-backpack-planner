@@ -9,7 +9,7 @@
     --tab-height: 38px;
     --side-menu-tab-height: calc(var(--tab-height) + var(--bar-pad));
     --side-menu-tab-min-width: 72px;
-    --side-menu-width: 440px;
+    --side-menu-width: min(440px, 100vw);
     --z-index-hud: 5;
     --z-index-hud-over-side-menu-backdrop: 9;
     --z-index-side-menu: 10;
@@ -20,6 +20,7 @@
     --z-index-toast: 40;
     --z-index-tooltip: 50;
     --backdrop-overlay: rgba(0, 0, 0, 0.35);
+    --backdrop-overlay-heavy: rgba(0, 0, 0, 0.5);
     --backdrop-overlay-context: rgba(0, 0, 0, 0.25);
 
     --safe-top: env(safe-area-inset-top, 0px);
@@ -131,6 +132,18 @@ textarea,
     -webkit-touch-callout: default;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 * {
     scrollbar-color: var(--border-subtle) transparent;
     scrollbar-width: thin;
@@ -229,28 +242,32 @@ textarea,
 }
 
 @keyframes modal-shell-in {
-    from { opacity: 0; transform: scale(0.92) translateY(6px); }
+    from { opacity: 0; transform: scale(0.96) translateY(3px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes fab-action-in {
-    from { opacity: 0; transform: translateX(10px) scale(0.94); }
+    from { opacity: 0; transform: translateX(6px) scale(0.97); }
     to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 @keyframes toast-enter {
-    0% { opacity: 0; transform: translateY(8px) scale(0.92); }
-    70% { opacity: 1; transform: translateY(0) scale(1.02); }
+    from { opacity: 0; transform: translateY(6px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-enter-negative {
+    0% { opacity: 0; transform: translateY(4px) scale(0.97); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes toast-progress {
-    from { width: 100%; }
-    to { width: 0%; }
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
 }
 
 @keyframes side-menu-item-in {
-    from { opacity: 0; transform: translateX(8px); }
+    from { opacity: 0; transform: translateX(5px); }
     to { opacity: 1; transform: translateX(0); }
 }
 

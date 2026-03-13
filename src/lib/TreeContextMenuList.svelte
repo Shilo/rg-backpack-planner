@@ -3,11 +3,12 @@
         TreeIcon,
     } from "phosphor-svelte";
     import FocusInViewButton from "./buttons/FocusInViewButton.svelte";
+    import ProgressBar from "./ProgressBar.svelte";
     import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node, LevelsByIndex } from "../types/tree";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
 
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
@@ -186,12 +187,7 @@
             </div>
         </div>
 
-        <div class="progress">
-            <div
-                class="progress-fill"
-                style={`width: ${maxLevel > 0 ? (currentLevel / maxLevel) * 100 : 0}%`}
-            ></div>
-        </div>
+        <ProgressBar value={maxLevel > 0 ? currentLevel / maxLevel : 0} />
     </div>
 {/if}
 
@@ -288,19 +284,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--bg-raised, rgba(0, 0, 0, 0.2));
-        border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+        background: var(--bg-raised);
+        border: 1px solid var(--border-subtle);
         border-radius: 6px;
-        padding: var(--spacing-xs, 4px);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        padding: var(--spacing-xs);
+        box-shadow: var(--shadow-inset);
     }
 
     .node-icon-wrapper :global(svg) {
         width: 100%;
         height: 100%;
         opacity: 0.85;
-        color: var(--accent-light, #fff);
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        color: var(--accent-light);
+        filter: var(--shadow-drop-icon);
     }
 
     .info-header-text {
@@ -309,14 +305,14 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
     }
 
     .skill-name {
-        font-size: var(--font-base, 1rem);
-        font-weight: var(--weight-bold, bold);
-        color: var(--text, #fff);
-        letter-spacing: var(--tracking, normal);
+        font-size: var(--font-base);
+        font-weight: var(--weight-bold);
+        color: var(--text);
+        letter-spacing: var(--tracking);
         line-height: 1.2;
         word-break: break-word;
         overflow-wrap: anywhere;
@@ -380,20 +376,4 @@
         margin: 0 1px;
     }
 
-    .progress {
-        width: 100%;
-        height: 8px;
-        background: var(--bg-raised);
-        border-radius: 4px;
-        overflow: hidden;
-        position: relative;
-        clip-path: inset(0 round 4px);
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--accent), var(--accent-light));
-        transition: width var(--ease);
-        border-radius: 0;
-    }
 </style>

@@ -3,7 +3,7 @@
     import Button from "./Button.svelte";
     import { openTechCrystalsOwnedModal } from "./techCrystalModal";
     import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
 
     $: hasOwned = $techCrystalsOwned > 0;
@@ -43,7 +43,7 @@
         border-radius: var(--radius-lg) !important;
         display: inline-flex;
         align-items: center;
-        gap: 2px !important;
+        gap: var(--spacing-xs) !important;
         padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm)
             var(--spacing-lg);
         font-weight: var(--weight-bold);

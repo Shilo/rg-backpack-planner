@@ -12,7 +12,7 @@
     import ModalHost from "./lib/ModalHost.svelte";
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
-    import { isFormField } from "./lib/domUtil";
+    import { isFormField, hasOnboardingOverlay } from "./lib/domUtil";
     import { t, locale } from "svelte-whisper";
     import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
     import {
@@ -92,16 +92,9 @@
         }
     }
 
-    // Check if we should show controls tab on initial load
+    // Mark version as seen on load (no longer auto-opens side menu)
     const previousVersion = getStoredVersion();
-    const shouldShowControls = (() => {
-        const isNew = isNewVersion();
-        if (isNew) {
-            // Set active tab so SideMenu initializes with controls (without persisting)
-            setActiveTabWithoutPersist("controls");
-        }
-        return isNew;
-    })();
+    const shouldShowControls = false;
 
     const baseTabs: Array<{
         id: "guardian" | "vanguard" | "cannon";
@@ -206,7 +199,9 @@
 
         const deltaX = swipeLastX - swipeStartX;
         if (isSwiping && deltaX > swipeCloseThreshold) {
-            closeMenu();
+            if (!sideMenuRef?.tryGoBack?.()) {
+                closeMenu();
+            }
         }
 
         resetSwipeState();
@@ -424,7 +419,8 @@
                 !e.defaultPrevented &&
                 e.isTrusted &&
                 !$isComposeScreenshotOpen &&
-                !document.querySelector(".context-menu")
+                !document.querySelector(".context-menu") &&
+                !hasOnboardingOverlay()
             ) {
                 e.preventDefault();
                 if (isMenuOpen) {
@@ -439,13 +435,14 @@
                 isMenuOpen &&
                 !e.defaultPrevented &&
                 e.isTrusted &&
-                !isFormField(document.activeElement)
+                !isFormField(document.activeElement) &&
+                !hasOnboardingOverlay()
             ) {
                 e.preventDefault();
                 if (!sideMenuRef?.tryGoBack?.()) {
                     closeMenu();
                 }
-            } else if (e.key === "F9") {
+            } else if (e.key === "F9" && !hasOnboardingOverlay()) {
                 e.preventDefault();
                 openComposeScreenshot();
             }
@@ -556,6 +553,7 @@
         </div>
     </div>
     <main class="app-main">
+        <h1 class="visually-hidden">{$t("app.titleFull", { appName, gameName })}</h1>
         <TreeTabs
             bind:this={tabsRef}
             bind:activeLabel={activeTreeName}

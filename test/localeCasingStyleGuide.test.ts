@@ -96,7 +96,6 @@ const CJK_LOCALES = new Set(["ja", "zh"]);
 const KEY_CATEGORIES: Record<string, string> = {
     // Section headers
     "sideMenu.sections.lookAndFeel":             "section-header",
-    "sideMenu.sections.controlsTab":             "section-header",
 
     // Control labels (SegmentedControl label props)
     "settings.nodePrimaryActionTitle":           "control-label",

@@ -319,8 +319,8 @@
             calc(var(--spacing-lg) + var(--safe-bottom, 0px))
             calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: var(--z-index-modal);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(var(--blur-md));
+        -webkit-backdrop-filter: blur(var(--blur-md));
         animation: modal-backdrop-in 0.15s ease both;
     }
 
@@ -343,7 +343,7 @@
                 color-mix(in srgb, var(--accent) 55%, var(--border)) 50%,
                 transparent
             );
-        box-shadow: var(--shadow), 0 8px 32px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--shadow), var(--shadow-lg);
         animation: modal-shell-in var(--ease-decel) both;
         padding: 0;
         overflow: auto;

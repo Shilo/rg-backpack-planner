@@ -65,6 +65,7 @@
                 icon={UserIcon}
                 label={$t("settings.aboutAuthor")}
                 value={authorName}
+                external
                 onClick={() => openUrl(authorUrl)}
             />
         {/if}
@@ -73,6 +74,7 @@
                 icon={GithubLogoIcon}
                 label={$t("settings.aboutSourceCode")}
                 value="GitHub"
+                external
                 onClick={() => openUrl(sourceUrl)}
             />
         {/if}
@@ -81,6 +83,7 @@
                 icon={GameControllerIcon}
                 label={$t("settings.aboutGame")}
                 value={gameName}
+                external
                 onClick={() => openUrl(gameUrl)}
             />
         {/if}
@@ -126,7 +129,7 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--spacing-xs);
     }
 
     .about-app-name {

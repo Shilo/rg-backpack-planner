@@ -3,7 +3,7 @@
     import { TechCrystalIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
 
     export let icon: Component | null = null;
     export let label: string;
@@ -53,7 +53,7 @@
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
         border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius);

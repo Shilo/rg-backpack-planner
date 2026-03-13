@@ -349,7 +349,7 @@
     .slider-setting__header-label-group {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--spacing-xs);
         flex: 1;
         min-width: 0;
     }

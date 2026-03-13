@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="-5 25 1080 1010" fill="none">
   <style>
-    g { stroke: #44faff; }
+    g { stroke: #00adfc; }
     @media (prefers-color-scheme: light) {
-      g { stroke: #006a71; }
+      g { stroke: #005ea8; }
     }
   </style>
   <g stroke-width="80" stroke-linecap="round" stroke-linejoin="round">

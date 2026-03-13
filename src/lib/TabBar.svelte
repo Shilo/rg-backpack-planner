@@ -77,12 +77,12 @@
         color: var(--text-muted);
         border-radius: 0;
         min-height: var(--side-menu-tab-height);
-        padding: 2px var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
         cursor: pointer;
         position: relative;
         z-index: 1;

@@ -32,11 +32,11 @@
             },
             "settings": {
                 "label": "設定",
-                "tooltip": "オプションを表示"
+                "tooltip": "動作、外観、アプリの設定をカスタマイズ"
             },
             "controls": {
                 "label": "操作",
-                "tooltip": "入力マッピングを表示"
+                "tooltip": "タッチ、マウス、キーボードの操作方法を表示"
             }
         },
         "sections": {
@@ -53,7 +53,6 @@
             "display": "表示",
             "tree": "ツリー",
             "hud": "HUD（ヘッドアップディスプレイ）",
-            "controlsTab": "サイドメニュー操作タブ",
             "instructions": "使い方",
             "accessibility": "アクセシビリティ"
         }
@@ -267,15 +266,15 @@
         "renameModalMessage": "このビルドプリセットの新しい名前を入力してください。",
         "presetNameLabel": "プリセット名",
         "renameConfirmLabel": "名前変更",
-        "cloneModalMessage": "プレビュービルドから\"{name}\"という名前のプリセットを\"{originalName}\"から作成しますか？",
+        "cloneModalMessage": "\"{originalName}\"から\"{name}\"という名前の新しいプリセットを作成します。",
         "deleteModalTitle": "ビルドプリセットを削除",
-        "deleteModalMessage": "\"{name}\"プリセットを削除してもよろしいですか？",
+        "deleteModalMessage": "\"{name}\"とそのビルドデータを削除します。",
         "deleteConfirmLabel": "プリセットを削除",
         "newModalTitle": "新規ビルドプリセット",
         "newModalMessage": "このビルドプリセットの名前を入力してください。",
         "createConfirmLabel": "作成",
         "deleteAllModalTitle": "全プリセットを削除",
-        "deleteAllModalMessage": "全てのビルドプリセットを削除してもよろしいですか？新しいデフォルトプリセットが作成されます。",
+        "deleteAllModalMessage": "全プリセットを削除します。新しいデフォルトプリセットが作成されます。",
         "deleteAllConfirmLabel": "全て削除",
         "viewingPresetToast": "{name}プリセットを表示中",
         "editMenuTitle": "編集",
@@ -374,10 +373,8 @@
         },
         "resetTree": {
             "title": "{treeName}をリセット",
-            "titleQuestion": "{treeName}をリセットしますか？",
-            "titleAllQuestion": "全ツリーをリセットしますか？",
+            "titleAll": "全ツリーをリセット",
             "titleDefault": "ツリーをリセット",
-            "titleDefaultQuestion": "ツリーをリセットしますか？",
             "confirmLabel": "{treeLabel}をリセット",
             "confirmLabelDefault": "リセット",
             "buttonLabel": "{treeName}をリセット",
@@ -400,11 +397,11 @@
     },
     "fullscreen": {
         "label": "フルスクリーン",
-        "tooltip": "ブラウザが対応している場合にフルスクリーンを使用",
+        "tooltip": "アプリを全画面に拡大",
         "enterTooltip": "フルスクリーンに入る",
         "exitTooltip": "フルスクリーンを終了",
         "unsupportedToast": "お使いのブラウザはフルスクリーンに対応していません",
-        "failedToast": "フルスクリーン状態を変更できませんでした"
+        "failedToast": "フルスクリーンを切り替えられませんでした。ブラウザのショートカットキーをお試しください。"
     },
     "theme": {
         "label": "テーマ",
@@ -413,8 +410,8 @@
         "custom": "カスタム",
         "customEllipsis": "カスタム...",
         "preset": {
+            "sky": "スカイ",
             "cyan": "シアン",
-            "blue": "ブルー",
             "green": "グリーン",
             "rose": "ローズ",
             "amber": "アンバー",
@@ -476,7 +473,7 @@
         "touchZoomLabel": "二本指でピンチ",
         "touchZoomDescription": "ツリーをズームイン・アウト",
         "touchMenuSwipeLabel": "サイドメニューで右スワイプ",
-        "touchMenuSwipeDescription": "サイドメニューを閉じる",
+        "touchMenuSwipeDescription": "戻る、またはサイドメニューを閉じる",
         "keyboardScreenshotLabel": "F9 - スクリーンショットを共有",
         "keyboardScreenshotDescription": "ツリー画像をプレビューして共有",
         "keyboardCycleTabsLabel": "Tab - タブ切り替え",
@@ -494,11 +491,31 @@
         "hudFullscreenLabel": "フルスクリーン",
         "hudFullscreenDescription": "フルスクリーンモードを切り替え",
         "hudPreviewIndicatorLabel": "プレビュービルド表示",
-        "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス",
-        "controlsTabGithubLabel": "GitHubボタン",
-        "controlsTabGithubDescription": "GitHubでソースコードを見る",
-        "controlsTabInstallLabel": "アプリをインストール",
-        "controlsTabInstallDescription": "{osName}にプログレッシブウェブアプリ（PWA）をインストール"
+        "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス"
+    },
+    "onboarding": {
+        "nodesSection": "ノード",
+        "treeSection": "空白エリア",
+        "levelUp": "ノードレベルアップ",
+        "options": "ノードオプション",
+        "levelDown": "ノードをレベルダウン",
+        "treeOptions": "ツリーオプション",
+        "pan": "ビューを移動",
+        "zoom": "ビューをズーム",
+        "dismissClick": "クリックまたはEscキーで開始",
+        "dismissTap": "タップして開始",
+        "leftClick": "左クリック",
+        "rightClick": "右クリック",
+        "middleClick": "中クリック",
+        "shiftLeftClick": "Shift + 左クリック",
+        "clickDrag": "クリック＆ドラッグ",
+        "scroll": "スクロール",
+        "tap": "タップ",
+        "longPress": "長押し",
+        "swipe": "スワイプ",
+        "pinch": "ピンチ",
+        "showTutorial": "チュートリアルを表示",
+        "showTutorialDescription": "画面上の操作ガイドを見る"
     },
     "install": {
         "tooltip": "{osName}に{appName}アプリをインストール",

@@ -3,7 +3,7 @@
     import { t } from "svelte-whisper";
     import { TextTIcon } from "phosphor-svelte";
     import SliderSetting from "./SliderSetting.svelte";
-    import { formatNumber } from "./mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import {
         textSize,
         isTextSizeNotchIndex,

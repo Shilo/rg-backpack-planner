@@ -347,7 +347,7 @@
         class="context-menu"
         class:dragging={isDragging}
         bind:this={menuEl}
-        style={`left: ${displayX}px; top: ${displayY}px; transform: ${transformOrigin};`}
+        style={`transform: translate(${displayX}px, ${displayY}px) ${transformOrigin};`}
         role="menu"
         tabindex="-1"
         aria-label={resolvedAriaLabel}
@@ -366,7 +366,9 @@
 <style>
     .context-menu {
         position: fixed;
-        /* transform set inline for anchorBelow vs default */
+        left: 0;
+        top: 0;
+        /* transform set inline — combines translate(x,y) positioning with centering offset */
         background: var(--bg-panel);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
@@ -379,7 +381,7 @@
         cursor: move;
         touch-action: none;
         user-select: none;
-        box-shadow: var(--shadow), 0 8px 24px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow), var(--shadow-lg);
         animation: ctx-menu-enter 0.15s cubic-bezier(0.05, 0.7, 0.1, 1) both;
     }
 
@@ -410,8 +412,8 @@
         position: fixed;
         inset: 0;
         background: var(--backdrop-overlay-context);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(var(--blur-xs));
+        -webkit-backdrop-filter: blur(var(--blur-xs));
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-context-menu) - 1);
@@ -420,7 +422,7 @@
     }
 
     @keyframes ctx-menu-enter {
-        from { opacity: 0; filter: blur(2px); }
-        to { opacity: 1; filter: blur(0); }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 </style>

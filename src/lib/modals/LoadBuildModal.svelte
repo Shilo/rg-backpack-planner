@@ -202,7 +202,7 @@
 
     .modal-header h2 {
         margin: 0;
-        font-size: var(--font-lg);
+        font-size: var(--font-lg); /* not --font-xl: modal shell max-width is too narrow */
         color: var(--text);
         line-height: var(--leading-none);
     }

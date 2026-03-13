@@ -1,6 +1,7 @@
 <script lang="ts">
     import {
         ArrowClockwiseIcon,
+        BookOpenTextIcon,
         ClockCounterClockwiseIcon,
         TrashSimpleIcon,
         VibrateIcon,
@@ -26,6 +27,7 @@
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
     import { showLevelSplash } from "../showLevelSplashStore";
+    import { showOnboarding } from "../onboarding/onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import { t, resetLocale } from "svelte-whisper";
@@ -55,7 +57,6 @@
                 colorblindTreeColors.resetToDefault();
                 uppercaseText.resetToDefault();
                 showLevelSplash.resetToDefault();
-
                 void resetLocale();
 
                 showToast($t("modal.resetSettings.toast"));
@@ -121,6 +122,16 @@
         <FullscreenToggle />
         <InstallPwaButton title={true} />
         <Button
+            on:click={() => {
+                showOnboarding();
+                onClose?.();
+            }}
+            description={$t("onboarding.showTutorialDescription")}
+            icon={BookOpenTextIcon}
+        >
+            {$t("onboarding.showTutorial")}
+        </Button>
+        <Button
             on:click={handleReloadWindow}
             description={$t("settings.reloadWindowDescription")}
             icon={ArrowClockwiseIcon}
@@ -171,8 +182,10 @@
 
     .danger-zone-label {
         margin: 0;
-        font-size: var(--font-base);
-        letter-spacing: var(--tracking);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
         color: var(--danger-text);
     }
 

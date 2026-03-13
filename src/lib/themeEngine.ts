@@ -197,12 +197,15 @@ export function applyTheme(
     // ── Error/Danger (Negative) — Warm red harmonized toward theme ──
     const dangerBaseHue = 20; // Warm red/orange
     const isNeutralTheme = source.c < 0.05;
-    const dangerHue = isNeutralTheme ? dangerBaseHue : harmonize(dangerBaseHue, source.h, 0.35);
+    // Low harmonization (0.15) keeps danger in the warm red-orange range for all
+    // themes. Higher values pull it toward magenta for blue themes, which is hard
+    // to distinguish from neutral surfaces — especially for red-green colorblind users.
+    const dangerHue = isNeutralTheme ? dangerBaseHue : harmonize(dangerBaseHue, source.h, 0.15);
     const dangerChroma = isNeutralTheme ? 0.03 : Math.max(source.c * 0.9, 0.20);
 
     if (isDark) {
         vars["--accent-danger"] = oklchToHex(0.62, dangerChroma, dangerHue);
-        vars["--danger-bg"] = oklchToHex(0.25, dangerChroma * 0.35, dangerHue);
+        vars["--danger-bg"] = oklchToHex(0.25, dangerChroma * 0.50, dangerHue);
         vars["--danger-border"] = oklchToHex(0.42, dangerChroma * 0.8, dangerHue);
         vars["--danger-text"] = oklchToHex(0.85, dangerChroma * 0.5, dangerHue);
     } else {
@@ -253,9 +256,9 @@ export function applyTheme(
     // yellow (hue 105), increasing their visual separation and making each color more
     // distinctly identifiable — helping protanopia, deuteranopia, and tritanopia users.
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: colorblindTreeColors ? 20 : 38,  chroma: 0.12 }, // red-orange (cb) or warm orange
+        { name: "orange", hue: colorblindTreeColors ? 20 : 38, chroma: 0.12 }, // red-orange (cb) or warm orange
         { name: "yellow", hue: colorblindTreeColors ? 105 : 95, chroma: 0.11 }, // yellow (cb) or amber
-        { name: "blue",   hue: 255,                             chroma: 0.11 }, // clean blue
+        { name: "blue", hue: 255, chroma: 0.11 }, // clean blue
     ];
 
     for (const region of regions) {
@@ -324,20 +327,31 @@ export function applyTheme(
     // ── Shadows ──
     if (isDark) {
         const bgHex = vars["--bg"];
-        vars["--shadow"] = `0 8px 20px ${bgHex}80`;
-        vars["--shadow-node"] = `0 4px 10px ${bgHex}80`;
-        vars["--shadow-node-hex"] = `0 4px 5px ${bgHex}`;
+        vars["--shadow"] = `0 8px 20px ${bgHex}60`;
+        vars["--shadow-node"] = `0 4px 10px ${bgHex}60`;
+        vars["--shadow-node-hex"] = `0 4px 5px ${bgHex}c0`;
+        vars["--shadow-sm"] = `0 1px 2px ${bgHex}48, 0 2px 6px 2px ${bgHex}30`;
+        vars["--shadow-lg"] = `0 8px 24px ${bgHex}30`;
+        vars["--shadow-lateral"] = `-4px 0 32px ${bgHex}30`;
+        vars["--shadow-inset"] = `inset 0 2px 4px ${bgHex}40`;
+        vars["--shadow-drop-icon"] = `drop-shadow(0 2px 4px ${bgHex}80)`;
     } else {
         vars["--shadow"] = "0 8px 20px rgba(0,0,0,0.08)";
         vars["--shadow-node"] = "0 4px 10px rgba(0,0,0,0.10)";
         vars["--shadow-node-hex"] = "0 2px 4px rgba(0,0,0,0.12)";
+        vars["--shadow-sm"] = "0 1px 2px rgba(0,0,0,0.10), 0 2px 6px 2px rgba(0,0,0,0.06)";
+        vars["--shadow-lg"] = "0 8px 24px rgba(0,0,0,0.06)";
+        vars["--shadow-lateral"] = "-4px 0 32px rgba(0,0,0,0.06)";
+        vars["--shadow-inset"] = "inset 0 2px 4px rgba(0,0,0,0.06)";
+        vars["--shadow-drop-icon"] = "drop-shadow(0 2px 4px rgba(0,0,0,0.25))";
     }
-    vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.5)";
+    vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.4)";
+    vars["--backdrop-overlay-heavy"] = "rgba(0, 0, 0, 0.55)";
     vars["--backdrop-overlay-context"] = "rgba(0, 0, 0, 0.25)";
 
     // ── Dynamic filter variables (mode-dependent) ──
     if (isDark) {
-        vars["--brightness-hover"] = "brightness(1.2)";
+        vars["--brightness-hover"] = "brightness(1.12)";
         vars["--node-brightness-locked"] = "brightness(0.7)";
         vars["--node-brightness-available"] = "brightness(0.65)";
         vars["--shadow-text"] =

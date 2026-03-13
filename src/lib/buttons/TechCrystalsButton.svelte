@@ -1,7 +1,7 @@
 <script lang="ts">
     import { TechCrystalIcon } from "../customIcons";
     import Button from "../Button.svelte";
-    import { formatNumber } from "../mathUtil";
+    import { formatNumber } from "svelte-whisper";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
     import {
         techCrystalsSpent,

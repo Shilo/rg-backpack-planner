@@ -10,14 +10,12 @@
     import Button from "./Button.svelte";
     import NodeFlash from "./NodeFlash.svelte";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
-    import { formatNumber } from "./mathUtil";
-    import {
-        nodePrimaryAction,
-        shiftKeyHeld,
-    } from "./nodePrimaryActionStore";
+    import { formatNumber } from "svelte-whisper";
+    import { nodePrimaryAction, shiftKeyHeld } from "./nodePrimaryActionStore";
     import { t } from "svelte-whisper";
     import { tooltip } from "./tooltip";
     import { CrownIcon } from "phosphor-svelte";
+    import { tierIndex, tierUpper } from "./tierLeveling";
     import { getContext } from "svelte";
     import type { Writable } from "svelte/store";
     import type { Node as NodeType, LevelsByIndex } from "../types/tree";
@@ -50,7 +48,10 @@
      */
     export let icon: Component | null = null;
 
-    const treeData = getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>("tree");
+    const treeData =
+        getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>(
+            "tree",
+        );
 
     $: nodeIcon =
         icon ?? (skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null);
@@ -61,16 +62,17 @@
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
     $: isRefund = $shiftKeyHeld;
-    $: actionPreview = skillId != null
-        ? getNodeActionPreview({
-              nodes: $treeData.nodes,
-              levels: $treeData.levels,
-              index: id,
-              action: $nodePrimaryAction,
-              nodeLevelBehavior: $nodeLevelBehavior,
-              isRefund,
-          })
-        : null;
+    $: actionPreview =
+        skillId != null
+            ? getNodeActionPreview({
+                  nodes: $treeData.nodes,
+                  levels: $treeData.levels,
+                  index: id,
+                  action: $nodePrimaryAction,
+                  nodeLevelBehavior: $nodeLevelBehavior,
+                  isRefund,
+              })
+            : null;
 
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
@@ -110,6 +112,17 @@
 
     /** Show not-allowed cursor when user cannot level (maxed or leaf locked by global cap). */
     $: cursorNotAllowed = isMaxed || (isLeaf && isGlobalIncrementLocked);
+
+    let tierRingKey = 0;
+    let prevLevelForTier = level;
+    $: if (level !== prevLevelForTier) {
+        const wasUp = level > prevLevelForTier;
+        const ml = maxLevel as import("../types/tree").Node["maxLevel"];
+        if (wasUp && (isLeaf || (maxLevel > 1 && level === tierUpper(tierIndex(level, ml), ml)))) {
+            tierRingKey++;
+        }
+        prevLevelForTier = level;
+    }
 </script>
 
 <div
@@ -136,6 +149,11 @@
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
+    {#key tierRingKey}
+        {#if tierRingKey > 0}
+            <span class="tier-ring"></span>
+        {/if}
+    {/key}
     <div
         class="node-badge-icon-stack"
         style="--node-badge-scale: {Math.max(1 / scale, 1)}"
@@ -412,6 +430,9 @@
         grid-template-areas: "stack";
     }
 
+    /* Intentional: nodes are spatial tree elements where keyboard navigation is
+       unintuitive. Tab key cycles tree tabs instead (TreeTabs.svelte). Focus
+       rings are deliberately suppressed — this is not an accessibility gap. */
     :global(.button.node:focus),
     :global(.button.node:focus-visible) {
         outline: none;
@@ -422,7 +443,7 @@
     .node-badge-icon-stack {
         position: absolute;
         inset: 0;
-        --badge-icon-gap: 2px;
+        --badge-icon-gap: var(--spacing-xs);
         pointer-events: none;
     }
 
@@ -529,9 +550,7 @@
         text-align: center;
 
         background: var(--badge-bg);
-        box-shadow:
-            0 1px 2px rgba(0, 0, 0, 0.3),
-            0 2px 6px 2px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow-sm);
     }
 
     @supports (color: color-contrast(red vs red)) {
@@ -645,5 +664,31 @@
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
+    }
+
+    .tier-ring {
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 3;
+        border: 2px solid var(--node-flash-color);
+        opacity: 0;
+        animation: tier-ring-expand 550ms ease-out 80ms forwards;
+    }
+
+    @keyframes tier-ring-expand {
+        0% {
+            opacity: 0.5;
+            inset: -2px;
+        }
+        50% {
+            opacity: 0.25;
+            inset: -20px;
+        }
+        100% {
+            opacity: 0;
+            inset: -18px;
+        }
     }
 </style>
