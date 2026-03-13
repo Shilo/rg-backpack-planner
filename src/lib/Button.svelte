@@ -242,16 +242,8 @@
         font-size: var(--font-base);
     }
 
-    @media (pointer: coarse) {
-        .button-sm {
-            min-height: 44px;
-            min-width: 44px;
-        }
-
-        .button-md {
-            min-height: 44px;
-        }
-    }
+    /* button-sm touch targets are intentionally 32px for compact HUD toolbar buttons.
+       WCAG 2.5.5 (AA) 24px minimum is met. */
 
     .button-negative {
         border-color: var(--danger-border);
