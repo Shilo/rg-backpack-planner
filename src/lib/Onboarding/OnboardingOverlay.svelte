@@ -428,7 +428,7 @@
         background: linear-gradient(
             to bottom,
             transparent 0%,
-            var(--bg) var(--_fade)
+            rgb(from var(--backdrop-overlay-heavy) r g b / 1) var(--_fade)
         );
         display: flex;
         align-items: flex-end;
