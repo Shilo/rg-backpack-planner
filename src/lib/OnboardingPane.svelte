@@ -19,6 +19,8 @@
     /** Rects to avoid, checked in order. First is highest priority after screen bounds. */
     export let avoidRects: Rect[] = [];
     export let bounds: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
+    /** Padding from screen edges (px). */
+    export let edgePadding: number = 0;
 
     const GAP = 14;
 
@@ -51,9 +53,9 @@
                 break;
         }
 
-        // Clamp to viewport
-        top = Math.max(0, Math.min(viewportHeight - contentHeight, top));
-        left = Math.max(0, Math.min(viewportWidth - contentWidth, left));
+        // Clamp to viewport with edge padding
+        top = Math.max(edgePadding, Math.min(viewportHeight - contentHeight - edgePadding, top));
+        left = Math.max(edgePadding, Math.min(viewportWidth - contentWidth - edgePadding, left));
 
         return {
             top,
@@ -169,6 +171,7 @@
         pointer-events: none;
         width: max-content;
         max-width: min(320px, 85vw);
+        z-index: 3;
     }
 
     .section-badge {

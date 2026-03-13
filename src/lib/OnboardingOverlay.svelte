@@ -30,7 +30,7 @@
     export let scale: number;
     export let targetNodeIndex: NodeIndex = 0;
     export let emptySpaceWorldX: number = 100;
-    export let emptySpaceWorldY: number = 320;
+    export let emptySpaceWorldY: number = 310;
 
     type CardData = {
         icon: Component;
@@ -39,7 +39,6 @@
     };
 
     const SPOTLIGHT_PAD = 12;
-    const TREE_SPOTLIGHT_BASE_RADIUS = 55;
 
     const treeData =
         getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>(
@@ -66,7 +65,7 @@
     // Empty space screen position (scales with tree transform)
     $: treeScreenX = emptySpaceWorldX * scale + offsetX;
     $: treeScreenY = emptySpaceWorldY * scale + offsetY;
-    $: treeSpotlightRadius = TREE_SPOTLIGHT_BASE_RADIUS * scale;
+    $: treeSpotlightRadius = nodeSpotlightRadius;
 
     // Viewport dimensions (measured from overlay element)
     let viewportWidth = 0;
@@ -89,9 +88,10 @@
         right: treeScreenX + treeSpotlightRadius,
     };
 
-    // Avoid zones for each pane (screen bounds enforced internally by pane)
-    $: nodeAvoidRects = [treeSpotlightRect];
-    $: treeAvoidRects = [nodePaneBounds, nodeSpotlightRect];
+    // Avoid zones for each pane — ordered by priority (screen bounds enforced by clamping)
+    // 1. sibling pane, 2. own spotlight, 3. other spotlight
+    $: nodeAvoidRects = [nodeSpotlightRect, treeSpotlightRect];
+    $: treeAvoidRects = [nodePaneBounds, treeSpotlightRect, nodeSpotlightRect];
 
     // Landscape detection
     $: isLandscape = viewportWidth > 0 && viewportWidth > viewportHeight;
@@ -100,6 +100,7 @@
     $: nodePaneDirection = isLandscape ? ("left" as const) : ("up" as const);
     $: treePaneDirection = isLandscape ? ("right" as const) : ("down" as const);
 
+    let panePadding = 0;
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
     let overlayEl: HTMLDivElement;
@@ -114,6 +115,12 @@
 
     onMount(() => {
         isTouch = window.matchMedia("(pointer: coarse)").matches;
+        panePadding =
+            parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                    "--spacing-lg",
+                ),
+            ) || 12;
         window.addEventListener("keydown", handleKeydown, true);
         return () => {
             window.removeEventListener("keydown", handleKeydown, true);
@@ -296,7 +303,7 @@
         <rect
             width="100%"
             height="100%"
-            fill="rgba(0,0,0,0.45)"
+            fill="rgba(0,0,0,0.55)"
             mask="url(#onboarding-cutout-mask)"
         />
     </svg>
@@ -333,12 +340,40 @@
         </div>
     {/if}
 
-    <!-- Tree spotlight ring (scales with transform) — positioned in overlay space to match SVG mask -->
+    <!-- Node spotlight ring -->
+    <div
+        class="spotlight-ring"
+        style="left: {nodeScreenX}px; top: {nodeScreenY}px; width: {nodeSpotlightRadius *
+            2}px; height: {nodeSpotlightRadius * 2}px;"
+    ></div>
+
+    <!-- Tree spotlight ring -->
     <div
         class="spotlight-ring"
         style="left: {treeScreenX}px; top: {treeScreenY}px; width: {treeSpotlightRadius *
             2}px; height: {treeSpotlightRadius * 2}px;"
     ></div>
+
+    <!-- Dismiss hint background — behind spotlight rings -->
+    <div class="dismiss-bg"></div>
+
+    <!-- Dismiss hint card — above spotlights, behind panes -->
+    <div class="dismiss-text-bar">
+        <div class="dismiss-card">
+            <span class="dismiss-icon" aria-hidden="true">
+                {#if isTouch}
+                    <HandTapIcon size={16} />
+                {:else}
+                    <CursorClickIcon size={16} />
+                {/if}
+            </span>
+            <span class="dismiss-text">
+                {isTouch
+                    ? $t("onboarding.dismissTap")
+                    : $t("onboarding.dismissClick")}
+            </span>
+        </div>
+    </div>
 
     <!-- Node instruction pane (avoids tree spotlight) -->
     <OnboardingPane
@@ -353,6 +388,7 @@
         {viewportWidth}
         {viewportHeight}
         avoidRects={nodeAvoidRects}
+        edgePadding={panePadding}
         bind:bounds={nodePaneBounds}
     />
 
@@ -369,23 +405,10 @@
         {viewportWidth}
         {viewportHeight}
         avoidRects={treeAvoidRects}
+        edgePadding={panePadding}
     />
 
-    <!-- Dismiss hint — respects safe area -->
-    <div class="onboarding-dismiss-hint">
-        <span class="dismiss-icon" aria-hidden="true">
-            {#if isTouch}
-                <HandTapIcon size={16} />
-            {:else}
-                <CursorClickIcon size={16} />
-            {/if}
-        </span>
-        <span class="dismiss-text">
-            {isTouch
-                ? $t("onboarding.dismissTap")
-                : $t("onboarding.dismissClick")}
-        </span>
-    </div>
+
 </div>
 
 <style>
@@ -403,8 +426,8 @@
     .onboarding-blur {
         position: absolute;
         inset: 0;
-        backdrop-filter: blur(var(--blur-sm));
-        -webkit-backdrop-filter: blur(var(--blur-sm));
+        backdrop-filter: blur(var(--blur-md));
+        -webkit-backdrop-filter: blur(var(--blur-md));
     }
 
     .onboarding-backdrop {
@@ -418,6 +441,7 @@
         position: absolute;
         transform: translate(-50%, -50%);
         pointer-events: none;
+        z-index: 1;
     }
 
     .node-clone-inner {
@@ -427,31 +451,57 @@
     .spotlight-ring {
         position: absolute;
         transform: translate(-50%, -50%);
-        border: 2px dashed rgba(255, 255, 255, 0.25);
+        border: 2px dashed rgba(255, 255, 255, 0.6);
         border-radius: 50%;
         pointer-events: none;
-        animation: spotlight-pulse 3s ease-in-out infinite;
+        z-index: 1;
     }
 
-    .onboarding-dismiss-hint {
+    .dismiss-bg,
+    .dismiss-text-bar {
+        --_bar-h: calc(
+            var(--tab-height) + max(var(--bar-pad, 12px), var(--safe-bottom, 0px))
+        );
+        --_fade: 24px;
         position: absolute;
-        bottom: max(var(--bar-pad, 12px), var(--safe-bottom, 0px));
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: calc(var(--_bar-h) + var(--_fade));
+        pointer-events: none;
+        opacity: 0;
+        animation: hint-fade-in 400ms ease both;
+        animation-delay: 800ms;
+        padding-bottom: var(--safe-bottom, 0px);
+    }
+
+    .dismiss-bg {
+        background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            var(--bg) var(--_fade)
+        );
+    }
+
+    .dismiss-text-bar {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: var(--spacing-lg);
+        z-index: 2;
+    }
+
+    .dismiss-card {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: var(--spacing-md) var(--spacing-lg);
+        padding: var(--spacing-sm) var(--spacing-lg);
         background: var(--bg-panel);
         border: 1px solid var(--border-subtle);
         border-radius: var(--radius);
         font-size: var(--font-sm);
         color: var(--text-muted);
         white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        animation: hint-fade-in 400ms ease both;
-        animation-delay: 800ms;
     }
 
     .dismiss-icon {
@@ -485,21 +535,11 @@
     @keyframes hint-fade-in {
         from {
             opacity: 0;
-            transform: translateX(-50%) translateY(4px);
+            transform: translateY(4px);
         }
         to {
-            opacity: 0.8;
-            transform: translateX(-50%) translateY(0);
-        }
-    }
-
-    @keyframes spotlight-pulse {
-        0%,
-        100% {
-            opacity: 0.25;
-        }
-        50% {
-            opacity: 0.5;
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 
@@ -509,14 +549,10 @@
             animation: none;
         }
 
-        .spotlight-ring {
+        .dismiss-bg,
+        .dismiss-text-bar {
             animation: none;
-            opacity: 0.35;
-        }
-
-        .onboarding-dismiss-hint {
-            animation: none;
-            opacity: 0.8;
+            opacity: 1;
         }
     }
 </style>
