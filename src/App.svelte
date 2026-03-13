@@ -423,7 +423,8 @@
                 e.key === "Escape" &&
                 !e.defaultPrevented &&
                 e.isTrusted &&
-                !$isComposeScreenshotOpen
+                !$isComposeScreenshotOpen &&
+                !document.querySelector(".context-menu")
             ) {
                 e.preventDefault();
                 if (isMenuOpen) {
