@@ -105,7 +105,6 @@
 
     .accordion-content {
         min-height: 0;
-        padding: var(--spacing-md) 0;
         display: grid;
         gap: var(--spacing-md);
         opacity: 0;
@@ -113,6 +112,7 @@
     }
 
     .is-open .accordion-content {
+        padding-top: var(--spacing-md);
         opacity: 1;
         transition: opacity 0.2s 0.05s ease;
     }

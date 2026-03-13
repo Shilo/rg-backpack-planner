@@ -23,7 +23,6 @@
     import { TechCrystalIcon } from "../customIcons";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
-    import SideMenuSection from "../SideMenuSection.svelte";
     import Accordion from "../Accordion.svelte";
     import NumberedList from "../NumberedList.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -56,11 +55,7 @@
             ? $t("app.byForHtml", { ownerLink, gameLink })
             : "";
     $: appName = $t("app.name");
-    $: versionLabel = version === "unknown" ? "" : `v${version}`;
-    $: appSectionTitle =
-        versionLabel.length > 0
-            ? $t("app.titleWithVersion", { appName, version: versionLabel })
-            : appName;
+    $: versionLabel = version === "unknown" ? "" : version;
 
     type ControlDevice = "pointer" | "touch" | "both";
     type ControlTitleRow = {
@@ -241,24 +236,25 @@
 
 <div class="controls-page">
     <div class="controls-sections">
-        <SideMenuSection title={appSectionTitle}>
-            <div class="app-info-actions">
-                <div class="app-info-text">
-                    <div class="control-label-row">
-                        <span class="control-icon" aria-hidden="true">
-                            <AppIcon />
-                        </span>
-                        {#if appDescription}
-                            <p class="control-label">{appDescription}</p>
-                        {/if}
-                    </div>
+        <div class="app-card">
+            <div class="app-card-header">
+                <span class="app-card-icon" aria-hidden="true">
+                    <AppIcon />
+                </span>
+                <div class="app-card-text">
+                    <span class="app-card-name">{appName}</span>
+                    {#if appDescription}
+                        <span class="app-card-description"
+                            >{appDescription}</span
+                        >
+                    {/if}
                     {#if helpMessage}
-                        <p class="control-desc-standalone">
+                        <span class="app-card-meta">
                             {@html helpMessage}
-                        </p>
+                        </span>
                     {/if}
                 </div>
-                <div class="controls-actions">
+                <div class="app-card-actions">
                     <Button
                         icon={GithubLogoIcon}
                         aria-label={$t("app.sourceCodeGithub")}
@@ -274,7 +270,15 @@
                     <InstallPwaButton />
                 </div>
             </div>
-        </SideMenuSection>
+            {#if versionLabel}
+                <div class="app-card-row">
+                    <span class="app-card-label"
+                        >{$t("settings.aboutVersion")}</span
+                    >
+                    <span class="app-card-value">{versionLabel}</span>
+                </div>
+            {/if}
+        </div>
         <div class="instructions-accordion">
             <Accordion
                 title={$t("sideMenu.sections.instructions")}
@@ -369,10 +373,7 @@
                                     {/each}
                                 </div>
                             {:else}
-                                <span
-                                    class="control-icon"
-                                    aria-hidden="true"
-                                >
+                                <span class="control-icon" aria-hidden="true">
                                     <svelte:component this={control.icon} />
                                 </span>
                                 <p class="control-inline">
@@ -401,9 +402,7 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t(
-                                    "controls.keyboardScreenshotLabel",
-                                )}</span
+                                >{$t("controls.keyboardScreenshotLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
@@ -418,9 +417,7 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t(
-                                    "controls.keyboardCycleTabsLabel",
-                                )}</span
+                                >{$t("controls.keyboardCycleTabsLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
@@ -438,9 +435,7 @@
                                 >{$t("controls.keyboardEscLabel")}</span
                             >
                             <span class="control-desc"
-                                >{$t(
-                                    "controls.keyboardEscDescription",
-                                )}</span
+                                >{$t("controls.keyboardEscDescription")}</span
                             >
                         </p>
                     </li>
@@ -450,9 +445,7 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t(
-                                    "controls.keyboardBackspaceLabel",
-                                )}</span
+                                >{$t("controls.keyboardBackspaceLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
@@ -464,10 +457,7 @@
                 </ul>
             </Accordion>
         {/if}
-        <Accordion
-            title={$t("sideMenu.sections.hud")}
-            bind:isOpen={hudOpen}
-        >
+        <Accordion title={$t("sideMenu.sections.hud")} bind:isOpen={hudOpen}>
             <ul class="control-list">
                 <li class="control-row">
                     <span
@@ -481,9 +471,7 @@
                             >{$t("controls.hudTechCrystalsLabel")}</span
                         >
                         <span class="control-desc"
-                            >{$t(
-                                "controls.hudTechCrystalsDescription",
-                            )}</span
+                            >{$t("controls.hudTechCrystalsDescription")}</span
                         >
                     </p>
                 </li>
@@ -496,9 +484,7 @@
                             >{$t("controls.hudResetTreeLabel")}</span
                         >
                         <span class="control-desc"
-                            >{$t(
-                                "controls.hudResetTreeDescription",
-                            )}</span
+                            >{$t("controls.hudResetTreeDescription")}</span
                         >
                     </p>
                 </li>
@@ -511,9 +497,7 @@
                             >{$t("controls.hudSideMenuLabel")}</span
                         >
                         <span class="control-desc"
-                            >{$t(
-                                "controls.hudSideMenuDescription",
-                            )}</span
+                            >{$t("controls.hudSideMenuDescription")}</span
                         >
                     </p>
                 </li>
@@ -526,9 +510,7 @@
                             >{$t("controls.hudFullscreenLabel")}</span
                         >
                         <span class="control-desc"
-                            >{$t(
-                                "controls.hudFullscreenDescription",
-                            )}</span
+                            >{$t("controls.hudFullscreenDescription")}</span
                         >
                     </p>
                 </li>
@@ -538,9 +520,7 @@
                     >
                     <p class="control-inline">
                         <span class="control-label"
-                            >{$t(
-                                "controls.hudPreviewIndicatorLabel",
-                            )}</span
+                            >{$t("controls.hudPreviewIndicatorLabel")}</span
                         >
                         <span class="control-desc"
                             >{$t(
@@ -682,14 +662,6 @@
         color: var(--text-muted);
     }
 
-    /* App info header */
-    .control-label-row {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-md);
-        min-width: 0;
-    }
-
     .control-label {
         margin: 0;
         font-size: var(--font);
@@ -698,43 +670,95 @@
         min-width: 0;
     }
 
-    .control-desc-standalone {
-        margin: 0;
-        font-size: var(--font);
-        color: var(--text-muted);
-        line-height: 1.35;
-        overflow-wrap: break-word;
-        padding-left: calc(20px + var(--spacing-md));
+    /* App identity card */
+    .app-card {
+        background: var(--bg-raised);
+        border: var(--border-width) solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
     }
 
-    .control-desc-standalone :global(a) {
-        color: var(--text-muted);
-    }
-
-    .control-desc-standalone :global(a[target="_blank"])::after {
-        content: " ↗";
-        font-size: 0.85em;
-    }
-
-    .app-info-actions {
+    .app-card-header {
         display: flex;
         align-items: flex-start;
-        justify-content: space-between;
         gap: var(--spacing-md);
+        padding: var(--spacing-lg);
     }
 
-    .app-info-text {
+    .app-card-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        color: var(--text-muted);
+    }
+
+    .app-card-icon :global(svg) {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .app-card-text {
         flex: 1;
         min-width: 0;
         display: flex;
         flex-direction: column;
+        gap: var(--spacing-xs);
     }
 
-    .controls-actions {
+    .app-card-name {
+        font-size: var(--font-base);
+        font-weight: var(--weight-bold);
+        color: var(--text);
+        line-height: var(--leading);
+    }
+
+    .app-card-description {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
+        overflow-wrap: anywhere;
+    }
+
+    .app-card-meta {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading);
+        overflow-wrap: anywhere;
+    }
+
+    .app-card-meta :global(a) {
+        color: var(--text-disabled);
+    }
+
+    .app-card-meta :global(a[target="_blank"])::after {
+        content: " ↗";
+        font-size: 0.85em;
+    }
+
+    .app-card-actions {
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
-        gap: var(--spacing-md);
+        align-items: center;
+        gap: var(--spacing-sm);
         flex-shrink: 0;
+    }
+
+    .app-card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-top: var(--border-width) solid var(--border);
+    }
+
+    .app-card-label {
+        font-size: var(--font-base);
+        color: var(--text-muted);
+    }
+
+    .app-card-value {
+        font-size: var(--font-base);
+        color: var(--text-disabled);
     }
 </style>
