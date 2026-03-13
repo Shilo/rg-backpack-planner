@@ -111,7 +111,7 @@
             checked={$hapticsEnabled}
             label={$t("settings.haptics")}
             ariaLabel={$t("settings.haptics")}
-            tooltipText={$t("settings.hapticsTooltip")}
+            description={$t("settings.hapticsDescription")}
             icon={VibrateIcon as unknown as Component}
             onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
         />
@@ -122,7 +122,7 @@
         <InstallPwaButton title={true} />
         <Button
             on:click={handleReloadWindow}
-            tooltipText={$t("settings.reloadWindowTooltip")}
+            description={$t("settings.reloadWindowDescription")}
             icon={ArrowClockwiseIcon}
         >
             {$t("settings.reloadWindow")}
@@ -136,7 +136,7 @@
             <div class="danger-zone-content">
                 <Button
                     on:click={handleResetSettings}
-                    tooltipText={$t("settings.resetSettingsTooltip")}
+                    description={$t("settings.resetSettingsDescription")}
                     icon={ClockCounterClockwiseIcon}
                     arrow="right"
                     negative
@@ -145,7 +145,7 @@
                 </Button>
                 <Button
                     on:click={handleClearAllData}
-                    tooltipText={$t("settings.clearAllDataTooltip")}
+                    description={$t("settings.clearAllDataDescription")}
                     icon={TrashSimpleIcon}
                     arrow="right"
                     negative
