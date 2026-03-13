@@ -411,8 +411,8 @@
         "custom": "自定义",
         "customEllipsis": "自定义...",
         "preset": {
+            "sky": "天蓝",
             "cyan": "青色",
-            "blue": "蓝色",
             "green": "绿色",
             "rose": "玫瑰色",
             "amber": "琥珀色",

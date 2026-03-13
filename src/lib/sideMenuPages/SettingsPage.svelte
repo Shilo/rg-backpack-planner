@@ -88,9 +88,9 @@
 
     .settings-page-title {
         margin: 0;
-        font-size: var(--font-lg);
+        font-size: var(--font-xl);
         color: var(--text);
-        line-height: var(--leading);
+        line-height: var(--leading-none);
     }
 
     .settings-page-content {

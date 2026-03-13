@@ -134,7 +134,7 @@
         style="width: {NODE_DIAMETER_PX * radius}px; height: {NODE_DIAMETER_PX *
             radius}px;"
     >
-        <NodeFlash {level} {isLeaf} />
+        <NodeFlash {level} {isLeaf} {isMaxed} />
     </Button>
     <div
         class="node-badge-icon-stack"

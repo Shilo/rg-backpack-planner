@@ -400,7 +400,7 @@
             const filter = `var(--capture-link-filter, var(--node-brightness-available))`;
             return `stroke: ${color}; filter: ${filter};`;
         }
-        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: none;`;
+        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: drop-shadow(0 0 3px ${REGION_STROKE_COLOR[region]});`;
     }
 
     let renderNodes: RenderNode[] = [];

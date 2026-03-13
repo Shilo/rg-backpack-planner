@@ -23,8 +23,8 @@ const THEME_KEY = "rg-backpack-planner-theme-color";
 const DARK_KEY = "rg-backpack-planner-dark-mode";
 
 const PRESETS = [
+    { name: "sky",     h: 234, c: 0.18 },
     { name: "cyan",    h: 198, c: 0.14 },
-    { name: "blue",    h: 260, c: 0.26 },
     { name: "rose",    h: 350, c: 0.26 },
     { name: "amber",   h: 55,  c: 0.24 },
     { name: "neutral", h: 260, c: 0.02 },

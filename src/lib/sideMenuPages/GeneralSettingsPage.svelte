@@ -171,8 +171,10 @@
 
     .danger-zone-label {
         margin: 0;
-        font-size: var(--font-base);
-        letter-spacing: var(--tracking);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
         color: var(--danger-text);
     }
 

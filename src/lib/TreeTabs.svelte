@@ -628,11 +628,18 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: radial-gradient(
-            circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
-            color-mix(in srgb, var(--bg) 20%, var(--surface)),
-            var(--bg) 100%
-        );
+        background:
+            radial-gradient(
+                circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
+                color-mix(in srgb, var(--bg) 20%, var(--surface)),
+                var(--bg) 100%
+            ),
+            radial-gradient(
+                circle,
+                color-mix(in srgb, var(--border-subtle) 30%, transparent) 0.75px,
+                transparent 0.75px
+            );
+        background-size: 100% 100%, 32px 32px;
         position: relative;
     }
 

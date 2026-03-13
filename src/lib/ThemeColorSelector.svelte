@@ -23,15 +23,15 @@
         h: number;
         c: number;
         labelKey:
+            | "theme.preset.sky"
             | "theme.preset.cyan"
-            | "theme.preset.blue"
             | "theme.preset.rose"
             | "theme.preset.amber"
             | "theme.preset.green"
             | "theme.preset.neutral";
     }[] = [
-        { ...DEFAULT_THEME_COLOR, labelKey: "theme.preset.cyan" },
-        { h: 260, c: 0.26, labelKey: "theme.preset.blue" },
+        { ...DEFAULT_THEME_COLOR, labelKey: "theme.preset.sky" },
+        { h: 198, c: 0.14, labelKey: "theme.preset.cyan" },
         { h: 145, c: 0.25, labelKey: "theme.preset.green" },
         { h: 350, c: 0.26, labelKey: "theme.preset.rose" },
         { h: 55, c: 0.24, labelKey: "theme.preset.amber" },

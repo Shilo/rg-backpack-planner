@@ -1,16 +1,16 @@
 /**
- * Pre-computed theme colors for the default preset (Cyan: #44faff, h=198, c=0.14, l=0.9).
+ * Pre-computed theme colors for the default preset (Sky: #00adfc, h=234, c=0.18).
  * Used by static assets that can't call the runtime theme engine.
  *
- * THEME_BG: oklchToHex(BG_L*0.5 + SURFACE_L*0.5, c*0.14, h)
+ * THEME_BG: oklchToHex(0.10, max(c*0.22, 0.03), h)
  * - Used in index.html: <meta name="theme-color">
  *
- * THEME_ACCENT: oklchToHex(0.9, c, h)
+ * THEME_ACCENT: oklchToHex(0.7, c, h)
  * - Used in public/icon.svg: g { stroke } (dark mode)
  *
  * THEME_ACCENT_LIGHT: oklchToHex(0.45, c, h)
  * - Used in public/icon.svg: @media (light) g { stroke }
  */
-export const THEME_BG = "#0a1818";
-export const THEME_ACCENT = "#44faff";
-export const THEME_ACCENT_LIGHT = "#006a71";
+export const THEME_BG = "#00040e";
+export const THEME_ACCENT = "#00adfc";
+export const THEME_ACCENT_LIGHT = "#005ea8";

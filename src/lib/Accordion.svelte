@@ -75,8 +75,11 @@
 
     .accordion-title {
         flex: 1;
-        font-weight: var(--weight-bold);
-        color: var(--text);
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
     }
 
     .accordion-arrow {

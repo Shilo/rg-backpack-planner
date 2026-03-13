@@ -411,8 +411,8 @@
         "custom": "カスタム",
         "customEllipsis": "カスタム...",
         "preset": {
+            "sky": "スカイ",
             "cyan": "シアン",
-            "blue": "ブルー",
             "green": "グリーン",
             "rose": "ローズ",
             "amber": "アンバー",

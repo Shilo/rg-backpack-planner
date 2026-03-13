@@ -7,8 +7,8 @@ export interface ThemeColor {
     l?: number;
 }
 
-/** Default source color: matches the first preset (Cyan: #44faff) */
-export const DEFAULT_THEME_COLOR: ThemeColor = { h: 198, c: 0.14, l: 0.9 };
+/** Default source color: matches the game brand (Sky: #00adfc, derived from Run! Goddess icon). */
+export const DEFAULT_THEME_COLOR: ThemeColor = { h: 234, c: 0.18 };
 
 function getThemeColor(): ThemeColor {
     const stored = getItem("theme-color");
