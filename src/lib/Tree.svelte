@@ -172,11 +172,13 @@
 
     type SplashData = {
         id: number;
+        nodeIndex: NodeIndex;
         x: number;
         y: number;
         level: number;
         isUp: boolean;
         crystalDelta: number;
+        skipEntry: boolean;
     };
     let activeSplashes: SplashData[] = [];
     let splashIdCounter = 0;
@@ -527,13 +529,16 @@
                         totalCrystalDelta += nextInfo.totalCostSpent - prevInfo.totalCostSpent;
                     }
                 }
-                activeSplashes = [...activeSplashes, {
+                const replacing = activeSplashes.some(s => s.nodeIndex === index);
+                activeSplashes = [...activeSplashes.filter(s => s.nodeIndex !== index), {
                     id: splashIdCounter++,
+                    nodeIndex: index,
                     x: targetNode.x,
                     y: targetNode.y,
                     level: getLevelFrom(nextLevels, index),
                     isUp: targetLevel > currentLevel,
                     crystalDelta: totalCrystalDelta,
+                    skipEntry: replacing,
                 }];
             }
         }
@@ -638,11 +643,13 @@
                 if (root) {
                     activeSplashes = [{
                         id: splashIdCounter++,
+                        nodeIndex: 0 as NodeIndex,
                         x: root.x,
                         y: root.y,
                         level: 0,
                         isUp: false,
                         crystalDelta: totalCrystalDelta,
+                        skipEntry: false,
                     }];
                 }
             }
@@ -1436,6 +1443,7 @@
                         level={splash.level}
                         isUp={splash.isUp}
                         crystalDelta={splash.crystalDelta}
+                        skipEntry={splash.skipEntry}
                         {scale}
                         onDone={() => removeSplash(splash.id)}
                     />

@@ -8,6 +8,7 @@
     export let isUp: boolean;
     export let crystalDelta: number;
     export let scale: number = 1;
+    export let skipEntry: boolean = false;
     export let onDone: (() => void) | null = null;
 
     const DURATION_MS = 1200;
@@ -56,6 +57,7 @@
 <div
     bind:this={el}
     class="level-splash"
+    class:level-splash--skip-entry={skipEntry}
     style="left: {x + nudgeX}px; top: {y - 48 * badgeScale + nudgeY}px; --badge-scale: {badgeScale};"
     aria-live="polite"
 >
@@ -136,6 +138,25 @@
         }
     }
 
+    .level-splash--skip-entry {
+        animation: splash-hold 1.2s ease forwards;
+    }
+
+    @keyframes splash-hold {
+        0% {
+            opacity: 1;
+            transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
+        }
+        65% {
+            opacity: 1;
+            transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
+        }
+        100% {
+            opacity: 0;
+            transform: translate(-50%, -100%) scale(var(--badge-scale, 1)) scale(0.97) translateY(-12px);
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .level-splash {
             animation: splash-fade 0.8s ease forwards;
@@ -144,6 +165,16 @@
         @keyframes splash-fade {
             0% { opacity: 0; }
             20% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .level-splash--skip-entry {
+            animation: splash-hold-fade 0.8s ease forwards;
+        }
+
+        @keyframes splash-hold-fade {
+            0% { opacity: 1; }
             70% { opacity: 1; }
             100% { opacity: 0; }
         }

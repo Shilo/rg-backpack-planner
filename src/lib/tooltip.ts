@@ -1,9 +1,12 @@
 import { writable } from "svelte/store";
 import { LONG_PRESS_MOVE_THRESHOLD, LONG_PRESS_MS } from "./longPress";
 
-export type TooltipContent =
-    | string
-    | { line1: string; costLine?: string; costLineRefund?: boolean };
+export type TooltipSection =
+    | { type: "text"; value: string }
+    | { type: "crystal-cost"; value: string; refund: boolean }
+    | { type: "level-preview"; from: number; to: number };
+
+export type TooltipContent = string | TooltipSection[];
 
 export type TooltipParam =
     | TooltipContent
@@ -11,9 +14,7 @@ export type TooltipParam =
 
 type TooltipState = {
     isOpen: boolean;
-    text: string;
-    costLine: string | undefined;
-    costLineRefund: boolean;
+    sections: TooltipSection[];
     x: number;
     y: number;
 };
@@ -25,9 +26,7 @@ const HOVER_DELAY_MS = 500;
 
 export const tooltipStore = writable<TooltipState>({
     isOpen: false,
-    text: "",
-    costLine: undefined,
-    costLineRefund: false,
+    sections: [],
     x: 0,
     y: 0,
 });
@@ -37,17 +36,13 @@ let currentOwner: HTMLElement | null = null;
 
 function showTooltip(
     owner: HTMLElement,
-    text: string,
+    sections: TooltipSection[],
     point: Point,
-    costLine?: string,
-    costLineRefund = false,
 ) {
     currentOwner = owner;
     tooltipStore.set({
         isOpen: true,
-        text,
-        costLine,
-        costLineRefund,
+        sections,
         x: point.x,
         y: point.y,
     });
@@ -55,13 +50,11 @@ function showTooltip(
 
 function updateTooltipText(
     owner: HTMLElement,
-    text: string,
-    costLine?: string,
-    costLineRefund = false,
+    sections: TooltipSection[],
 ) {
     if (currentOwner !== owner) return;
     tooltipStore.update((state) =>
-        state.isOpen ? { ...state, text, costLine, costLineRefund } : state,
+        state.isOpen ? { ...state, sections } : state,
     );
 }
 
@@ -70,9 +63,7 @@ export function hideTooltip(owner?: HTMLElement) {
     currentOwner = null;
     tooltipStore.set({
         isOpen: false,
-        text: "",
-        costLine: undefined,
-        costLineRefund: false,
+        sections: [],
         x: 0,
         y: 0,
     });
@@ -92,36 +83,28 @@ function isSuppressed(pointerId: number | null) {
     return pointerId !== null && suppressedPointerIds.has(pointerId);
 }
 
-function normalizeContent(value?: TooltipContent): {
-    text: string;
-    costLine: string | undefined;
-    costLineRefund: boolean;
-} {
-    if (value == null) return { text: "", costLine: undefined, costLineRefund: false };
-    if (typeof value === "string") return { text: value, costLine: undefined, costLineRefund: false };
-    return {
-        text: value.line1 ?? "",
-        costLine: value.costLine,
-        costLineRefund: value.costLineRefund ?? false,
-    };
+function normalizeContent(value?: TooltipContent): TooltipSection[] {
+    if (value == null) return [];
+    if (typeof value === "string") {
+        return value === "" ? [] : [{ type: "text", value }];
+    }
+    return value;
 }
 
 function parseTooltipParam(value?: TooltipParam): {
-    text: string;
-    costLine: string | undefined;
-    costLineRefund: boolean;
+    sections: TooltipSection[];
     hoverOnly: boolean;
 } {
-    if (value == null) return { ...normalizeContent(undefined), hoverOnly: false };
+    if (value == null) return { sections: [], hoverOnly: false };
     if (typeof value === "object" && "content" in value) {
         const { content, hoverOnly = false } = value;
-        return { ...normalizeContent(content), hoverOnly };
+        return { sections: normalizeContent(content), hoverOnly };
     }
-    return { ...normalizeContent(value as TooltipContent), hoverOnly: false };
+    return { sections: normalizeContent(value as TooltipContent), hoverOnly: false };
 }
 
 export function tooltip(node: HTMLElement, value?: TooltipParam) {
-    let { text, costLine, costLineRefund, hoverOnly } = parseTooltipParam(value);
+    let { sections, hoverOnly } = parseTooltipParam(value);
     let hoverTimer: number | null = null;
     let pressTimer: number | null = null;
     let activePointerId: number | null = null;
@@ -146,7 +129,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
         }
     };
 
-    const hasContent = () => !!text || !!costLine;
+    const hasContent = () => sections.length > 0;
 
     const scheduleHover = (event: PointerEvent) => {
         if (event.pointerType === "touch") return;
@@ -155,7 +138,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
         lastPoint = { x: event.clientX, y: event.clientY };
         clearHoverTimer();
         hoverTimer = window.setTimeout(() => {
-            showTooltip(node, text, lastPoint, costLine, costLineRefund);
+            showTooltip(node, sections, lastPoint);
         }, HOVER_DELAY_MS);
     };
 
@@ -168,7 +151,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
         clearPressTimer();
         pressTimer = window.setTimeout(() => {
             if (isSuppressed(activePointerId)) return;
-            showTooltip(node, text, lastPoint, costLine, costLineRefund);
+            showTooltip(node, sections, lastPoint);
         }, PRESS_DELAY_MS);
     };
 
@@ -252,8 +235,8 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     node.addEventListener("pointercancel", handlePointerCancel);
     return {
         update(nextValue?: TooltipParam) {
-            ({ text, costLine, costLineRefund, hoverOnly } = parseTooltipParam(nextValue));
-            updateTooltipText(node, text, costLine, costLineRefund);
+            ({ sections, hoverOnly } = parseTooltipParam(nextValue));
+            updateTooltipText(node, sections);
         },
         destroy() {
             clearHoverTimer();
