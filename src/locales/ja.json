@@ -495,7 +495,7 @@
     },
     "onboarding": {
         "nodesSection": "ノード",
-        "treeSection": "ツリー",
+        "treeSection": "空白エリア",
         "levelUp": "レベルアップ",
         "options": "オプション",
         "levelDown": "レベルダウン",

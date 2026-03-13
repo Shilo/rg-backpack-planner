@@ -1518,6 +1518,9 @@
             {#if !$onboardingSeen}
                 <OnboardingOverlay
                     onDismiss={() => onboardingSeen.set(true)}
+                    {offsetX}
+                    {offsetY}
+                    {scale}
                 />
             {/if}
         </div>
