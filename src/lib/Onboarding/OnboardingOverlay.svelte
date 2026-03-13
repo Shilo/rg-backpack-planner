@@ -307,7 +307,7 @@
         <rect
             width="100%"
             height="100%"
-            fill="var(--backdrop-overlay)"
+            fill="var(--backdrop-overlay-heavy)"
             mask="url(#onboarding-cutout-mask)"
         />
     </svg>

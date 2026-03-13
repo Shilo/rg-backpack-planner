@@ -20,6 +20,7 @@
     --z-index-toast: 40;
     --z-index-tooltip: 50;
     --backdrop-overlay: rgba(0, 0, 0, 0.35);
+    --backdrop-overlay-heavy: rgba(0, 0, 0, 0.5);
     --backdrop-overlay-context: rgba(0, 0, 0, 0.25);
 
     --safe-top: env(safe-area-inset-top, 0px);

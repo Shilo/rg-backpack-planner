@@ -256,9 +256,9 @@ export function applyTheme(
     // yellow (hue 105), increasing their visual separation and making each color more
     // distinctly identifiable — helping protanopia, deuteranopia, and tritanopia users.
     const regions: { name: string; hue: number; chroma: number }[] = [
-        { name: "orange", hue: colorblindTreeColors ? 20 : 38,  chroma: 0.12 }, // red-orange (cb) or warm orange
+        { name: "orange", hue: colorblindTreeColors ? 20 : 38, chroma: 0.12 }, // red-orange (cb) or warm orange
         { name: "yellow", hue: colorblindTreeColors ? 105 : 95, chroma: 0.11 }, // yellow (cb) or amber
-        { name: "blue",   hue: 255,                             chroma: 0.11 }, // clean blue
+        { name: "blue", hue: 255, chroma: 0.11 }, // clean blue
     ];
 
     for (const region of regions) {
@@ -346,6 +346,7 @@ export function applyTheme(
         vars["--shadow-drop-icon"] = "drop-shadow(0 2px 4px rgba(0,0,0,0.25))";
     }
     vars["--backdrop-overlay"] = "rgba(0, 0, 0, 0.4)";
+    vars["--backdrop-overlay-heavy"] = "rgba(0, 0, 0, 0.55)";
     vars["--backdrop-overlay-context"] = "rgba(0, 0, 0, 0.25)";
 
     // ── Dynamic filter variables (mode-dependent) ──
