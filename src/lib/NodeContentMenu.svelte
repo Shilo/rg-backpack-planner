@@ -14,7 +14,12 @@
     import { formatNumber } from "svelte-whisper";
     import { tierSize, nextTierTargetLevel } from "./tierLeveling";
     import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
-    import type { Node, NodeIndex, SkillId, LevelsByIndex } from "../types/tree";
+    import type {
+        Node,
+        NodeIndex,
+        SkillId,
+        LevelsByIndex,
+    } from "../types/tree";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import { getSkillLevelInfo } from "../config/skillMetadata";
     import { t } from "svelte-whisper";
@@ -39,7 +44,8 @@
     export let isGlobalIncrementLocked = false;
     export let skillId: SkillId | null = null;
 
-    const treeData = getContext<Writable<{ nodes: Node[]; levels: LevelsByIndex }>>("tree");
+    const treeData =
+        getContext<Writable<{ nodes: Node[]; levels: LevelsByIndex }>>("tree");
 
     function formatBonusValue(v: number): string {
         if (v === 0) return "0";
@@ -67,22 +73,58 @@
         const canDown = level > 0;
         return {
             increment1: canUp
-                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.min(level + 1, maxLevel), nodeLevelBehavior: behavior }).totalCost
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: Math.min(level + 1, maxLevel),
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
                 : null,
             increment10: canUp
-                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.min(level + 10, maxLevel), nodeLevelBehavior: behavior }).totalCost
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: Math.min(level + 10, maxLevel),
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
                 : null,
             incrementTier: canUp
-                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: tierTargetLevel, nodeLevelBehavior: behavior }).totalCost
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: tierTargetLevel,
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
                 : null,
             decrement1: canDown
-                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.max(level - 1, 0), nodeLevelBehavior: behavior }).totalCost
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: Math.max(level - 1, 0),
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
                 : null,
             decrement10: canDown
-                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: Math.max(level - 10, 0), nodeLevelBehavior: behavior }).totalCost
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: Math.max(level - 10, 0),
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
                 : null,
             reset: canDown
-                ? computeTotalCost({ nodes, levels, index: nodeIndex, targetLevel: 0, nodeLevelBehavior: behavior }).totalCost
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: 0,
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
                 : null,
         };
     })();
@@ -185,10 +227,7 @@
             </div>
         </div>
 
-        <ProgressBar
-            value={maxLevel > 0 ? level / maxLevel : 0}
-            {maxLevel}
-        />
+        <ProgressBar value={maxLevel > 0 ? level / maxLevel : 0} {maxLevel} />
 
         <div class="button-grid" class:stacked={isSingleLevel}>
             {#if !isSingleLevel}
@@ -361,7 +400,7 @@
 
     .skill-desc {
         margin-top: 4px;
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
         color: var(--text-muted);
         line-height: var(--leading);
         width: 100%;
