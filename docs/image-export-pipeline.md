@@ -90,15 +90,92 @@ The 2838px image passes through more aggressive non-integer scaling at every sta
 
 ### Optimal Resolution for Discord Sharing
 
-There is a tradeoff between preview quality and full-size detail:
+The core problem is the **downscale ratio** — how aggressively the original must be shrunk to fit Discord's preview container. Higher ratios mean more information loss, more fractional pixel blending, and softer text/edges.
 
-- **~1800-2000px combined width** (~600-670px per tree): Good preview quality on Android with reasonable full-size detail
-- **~3000px+ combined width**: Best full-size detail but noticeably degraded Android previews
-- **~400-550px combined width**: Matches preview container exactly (no downscaling) but unusable at full size
+| Combined width | Per-tree long edge | Downscale to ~380px mobile preview | Discord preview quality | Full-size quality |
+|---|---|---|---|---|
+| ~1200px | ~400px | ~3.2x | Best preview | Too small for detail |
+| ~1800px | ~600px | ~4.7x | Good preview | Adequate detail |
+| ~2100px | ~700px | ~5.5x | Acceptable | Good detail |
+| ~3060px | ~1020px | ~8.1x | Noticeably soft on Android | Excellent detail |
 
-The preview degradation is unavoidable — it's a Discord platform limitation. Users who care about quality can always tap "Open Original" to see the lossless PNG from the CDN.
+The sweet spot for Discord sharing is **~1800-2100px combined width** (~600-700px per tree long edge). This keeps the downscale ratio under ~6x, where Android's Fresco sub-sampling and Discord's `CV_INTER_AREA` resizing produce acceptable results for sharp UI content.
 
-### Clipboard Copy Note
+Preview degradation is ultimately a Discord platform limitation. Users who want full quality can always tap "Open Original" to see the lossless PNG from the CDN.
+
+---
+
+## Resolution Normalization Fix
+
+### The Problem
+
+Currently, capture resolution depends entirely on the device's viewport size and DPR. The same build produces wildly different output across devices:
+
+| Device | Single tree output | Combined output |
+|---|---|---|
+| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~3375x1323 |
+| Landscape phone (812x375, DPR 3) | ~954x1125 | ~2862x1125 |
+| Desktop (1200x800, DPR 1) | ~530x625 | ~1590x625 |
+
+This means the same build shared from a portrait phone produces a 3375px-wide image (bad Discord previews), while a desktop export produces a 1590px-wide image (low detail). Neither is ideal.
+
+### The Fix: Dynamic snapdom Scale
+
+See full spec: `docs/superpowers/specs/2026-03-14-consistent-capture-resolution-design.md`
+
+The fix uses snapdom's `scale` and `dpr` options to normalize output resolution across all devices, without any DOM manipulation or viewport resizing.
+
+**Core idea**: After `focusTreeInViewForCapture()` runs, compute a dynamic `snapdomScale` that targets a consistent output resolution:
+
+```
+snapdomScale = TARGET / (max(boundsW, boundsH) * fitScale * dpr)
+```
+
+**Three new constants** in `imageFormat.ts`:
+
+| Constant | Default | Purpose |
+|---|---|---|
+| `EXPORT_DPR` | `2` | Fixed device pixel ratio for capture. Overrides `window.devicePixelRatio` for consistent output. |
+| `EXPORT_TARGET_LONG_EDGE_PX` | `1200` | Target resolution for the longest edge of a single cropped tree image, in physical pixels. |
+| `EXPORT_MAX_SCALE` | `4` | Upper cap on computed snapdom scale to prevent canvas size limit failures on small viewports. |
+
+**Normalized output** (with default `EXPORT_TARGET_LONG_EDGE_PX = 1200`):
+
+| Device | Before | After |
+|---|---|---|
+| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~1020x1200 |
+| Landscape phone (812x375, DPR 3) | ~954x1125 | ~1020x1200 |
+| Desktop (1200x800, DPR 1) | ~530x625 | ~1020x1200 |
+| Combined (3 trees) | varies wildly | ~3060x1200 |
+
+### Tuning for Discord
+
+The default target of `EXPORT_TARGET_LONG_EDGE_PX = 1200` produces ~3060px combined width, which falls in the "noticeably soft on Android Discord" range from the table above.
+
+**To optimize for Discord previews**, lower the target:
+
+| `EXPORT_TARGET_LONG_EDGE_PX` | Combined width | Discord Android preview |
+|---|---|---|
+| `1200` (default) | ~3060px | Soft — 8x downscale |
+| `800` | ~2040px | Good — 5.4x downscale |
+| `700` | ~1785px | Best balance — 4.7x downscale |
+| `500` | ~1275px | Sharp preview, but limited full-size detail |
+
+A value of **700-800** balances Discord preview quality with full-size detail. This is a single constant change in `imageFormat.ts` once the resolution normalization spec is implemented.
+
+### What the Fix Does NOT Change
+
+- No DOM manipulation or viewport resizing
+- `focusTreeInViewForCapture()` works exactly as before
+- `cropBlobToContent()` pipeline unchanged
+- View state save/restore unchanged
+- Label overlay pipeline unchanged (operates on post-capture blobs)
+- Stats image unaffected (uses its own canvas renderer)
+- Export format remains PNG/lossless throughout
+
+---
+
+## Clipboard Copy Note
 
 `share.ts:121` hardcodes `"image/png"` in the `ClipboardItem` for clipboard copy. This works because the export format is PNG. If the format ever changes, this needs to use `EXPORT_MIME` instead.
 
