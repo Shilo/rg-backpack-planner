@@ -20,8 +20,11 @@ export const EXPORT_DPR = 2;
 
 /**
  * Target resolution: longest edge of a single cropped tree image, in physical pixels.
+ * Combined 3-tree width ≈ 3 × target. Discord's proxy max is ~1872px — originals
+ * at or below this threshold are served untouched (zero proxy downscaling).
+ * 625 × 3 = 1875, right at the threshold.
  */
-export const EXPORT_TARGET_LONG_EDGE_PX = 800;
+export const EXPORT_TARGET_LONG_EDGE_PX = 625;
 
 /**
  * Upper cap on computed snapdom scale to prevent canvas size limit failures

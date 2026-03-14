@@ -120,28 +120,30 @@ The scale is capped at `EXPORT_MAX_SCALE` (4x) to prevent canvas OOM on very sma
 | Constant | Value | Purpose |
 |---|---|---|
 | `EXPORT_DPR` | `2` | Fixed device pixel ratio. Overrides `window.devicePixelRatio`. |
-| `EXPORT_TARGET_LONG_EDGE_PX` | `800` | Target longest edge of a single cropped tree, in physical pixels. |
+| `EXPORT_TARGET_LONG_EDGE_PX` | `625` | Target longest edge of a single cropped tree, in physical pixels. |
 | `EXPORT_MAX_SCALE` | `4` | Upper cap to prevent canvas size limit failures. |
 
 **Normalized output** (all devices now produce the same resolution):
 
 | Device | Before | After |
 |---|---|---|
-| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~680x800 |
-| Landscape phone (812x375, DPR 3) | ~954x1125 | ~680x800 |
-| Desktop (1200x800, DPR 1) | ~530x625 | ~680x800 |
-| Combined (3 trees) | varies | ~2040x800 |
+| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~531x625 |
+| Landscape phone (812x375, DPR 3) | ~954x1125 | ~531x625 |
+| Desktop (1200x800, DPR 1) | ~530x625 | ~531x625 |
+| Combined (3 trees) | varies | ~1875x625 |
 
 ### Discord Preview Quality
 
-At `EXPORT_TARGET_LONG_EDGE_PX = 800`, the combined image is ~2040px wide. On Android Discord, this requires a ~5.4x downscale to fit the ~380px preview container — near the resolution range that tested well (1908px looked sharp vs 2838px looking soft).
+Discord's desktop proxy serves images at a max width of ~1872px. Any original wider than this gets downscaled by the proxy — a lossy operation that compounds with mobile Fresco rendering.
 
-| `EXPORT_TARGET_LONG_EDGE_PX` | Combined width | Android preview downscale | Discord quality |
-|---|---|---|---|
-| `1200` | ~3060px | ~8.1x | Soft — aggressive downscale |
-| `800` (current) | ~2040px | ~5.4x | Good balance |
-| `700` | ~1785px | ~4.7x | Near the 1908px test that looked sharp |
-| `500` | ~1275px | ~3.4x | Sharp preview, limited full-size detail |
+At `EXPORT_TARGET_LONG_EDGE_PX = 625`, the combined image is ~1875px wide — right at the proxy threshold. The original is served essentially untouched, eliminating one stage of quality loss from the mobile preview pipeline.
+
+| `EXPORT_TARGET_LONG_EDGE_PX` | Combined width | Proxy downscale | Android preview downscale | Discord quality |
+|---|---|---|---|---|
+| `1200` | ~3060px | 39% | ~8.1x | Soft — double downscale |
+| `800` | ~2040px | 9% | ~5.4x | Good |
+| `625` (current) | ~1875px | **~0%** | ~4.9x | **Best — no proxy loss** |
+| `500` | ~1275px | 0% | ~3.4x | Sharp preview, limited full-size detail |
 
 This is a single constant change in `imageFormat.ts`. The rest of the pipeline (crop, label, combine, share) is unaffected.
 
