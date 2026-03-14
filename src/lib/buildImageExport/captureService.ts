@@ -352,7 +352,92 @@ function clearCanvasAndImages(
 }
 
 function computeLabelFontSize(referenceHeight: number): number {
-    return Math.max(14, Math.round(referenceHeight * 0.035));
+    return Math.max(10, Math.round(referenceHeight * 0.022));
+}
+
+function resolveThemeColor(prop: string, fallback: string): string {
+    if (typeof document === "undefined") return fallback;
+    const value = getComputedStyle(document.documentElement)
+        .getPropertyValue(prop)
+        .trim();
+    return value || fallback;
+}
+
+function drawRoundedRect(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number,
+) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+}
+
+function drawLabelCard(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    fontSize: number,
+) {
+    const cardBg = resolveThemeColor("--node-locked-bg", "#2a2a30");
+    const cardBorder = resolveThemeColor("--node-locked-border", "#3e3e46");
+    const cardText = resolveThemeColor("--text", "#e8e8ec");
+
+    const displayText = text.toUpperCase();
+    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+
+    const metrics = ctx.measureText(displayText);
+    const textWidth = metrics.width;
+    const padH = Math.round(fontSize * 0.55);
+    const padV = Math.round(fontSize * 0.35);
+    const cardW = textWidth + padH * 2;
+    const cardH = fontSize + padV * 2;
+    const r = Math.round(fontSize * 0.5);
+    const borderW = Math.max(1, Math.round(fontSize * 0.08));
+
+    // Card anchored with its right edge at x, top edge at y
+    const cardX = x - cardW;
+    const cardY = y;
+
+    // Shadow matching --shadow-node (0 4px 10px ${bgHex}60)
+    ctx.save();
+    ctx.shadowColor = cardBg + "60";
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = Math.round(fontSize * 0.25);
+    ctx.shadowBlur = Math.round(fontSize * 0.65);
+
+    // Fill background
+    drawRoundedRect(ctx, cardX, cardY, cardW, cardH, r);
+    ctx.fillStyle = cardBg;
+    ctx.fill();
+
+    // Clear shadow before stroke so it doesn't double-shadow
+    ctx.shadowColor = "transparent";
+
+    // Border stroke (matches locked node border)
+    ctx.strokeStyle = cardBorder;
+    ctx.lineWidth = borderW;
+    ctx.stroke();
+
+    ctx.restore();
+
+    // Text (matches locked node text color)
+    ctx.fillStyle = cardText;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillText(displayText, x - padH, cardY + cardH / 2);
 }
 
 async function addLabelsToTrees(
@@ -379,8 +464,8 @@ async function addLabelsToTrees(
     if (maxHeight === 0) return trees;
 
     const fontSize = computeLabelFontSize(maxHeight);
-    const padding = Math.round(fontSize * 0.75);
-    const bandHeight = Math.round(fontSize * 2);
+    const shadowSpread = Math.round(fontSize * 0.65) + Math.round(fontSize * 0.25);
+    const margin = Math.round(fontSize * 0.6) + shadowSpread;
     const result: ThreeTreeBlobs = [null, null, null];
 
     for (let i = 0; i < NUM_TREES; i += 1) {
@@ -394,7 +479,7 @@ async function addLabelsToTrees(
 
         const canvas = document.createElement("canvas");
         canvas.width = size.width;
-        canvas.height = size.height + bandHeight;
+        canvas.height = size.height;
         const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) {
             img.src = "";
@@ -402,23 +487,10 @@ async function addLabelsToTrees(
             continue;
         }
 
-        ctx.drawImage(img, 0, bandHeight);
+        ctx.drawImage(img, 0, 0);
         img.src = "";
 
-        ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
-        ctx.textAlign = "right";
-        ctx.textBaseline = "middle";
-
-        const textX = size.width - padding;
-        const textY = bandHeight / 2;
-
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.12));
-        ctx.lineJoin = "round";
-        ctx.strokeText(names[i], textX, textY);
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-        ctx.fillText(names[i], textX, textY);
+        drawLabelCard(ctx, names[i], size.width - margin, margin, fontSize);
 
         const labeled = await canvasToBlob(canvas);
         clearCanvasAndImages(ctx, canvas);
@@ -436,12 +508,12 @@ async function addBuildTitleLabel(
     const { width, height } = getImageIntrinsicSize(image);
 
     const fontSize = computeLabelFontSize(height);
-    const padding = Math.round(fontSize * 0.75);
-    const bandHeight = Math.round(fontSize * 2);
+    const shadowSpread = Math.round(fontSize * 0.65) + Math.round(fontSize * 0.25);
+    const margin = Math.round(fontSize * 0.6) + shadowSpread;
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
-    canvas.height = height + bandHeight;
+    canvas.height = height;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) {
         image.src = "";
@@ -451,20 +523,10 @@ async function addBuildTitleLabel(
     ctx.drawImage(image, 0, 0);
     image.src = "";
 
+    // Card height for vertical offset from bottom
     ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-
-    const textX = width - padding;
-    const textY = height + bandHeight / 2;
-
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.12));
-    ctx.lineJoin = "round";
-    ctx.strokeText(title, textX, textY);
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-    ctx.fillText(title, textX, textY);
+    const cardH = fontSize + Math.round(fontSize * 0.35) * 2;
+    drawLabelCard(ctx, title, width - margin, height - margin - cardH, fontSize);
 
     const result = await canvasToBlob(canvas);
     clearCanvasAndImages(ctx, canvas);
