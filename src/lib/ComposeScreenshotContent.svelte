@@ -37,6 +37,8 @@
         DEFAULT_UPPERCASE_TEXT,
     } from "./uppercaseTextStore";
     import Button from "./Button.svelte";
+    import { isPreviewMode } from "./previewModeStore";
+    import { previewBuildName } from "./previewBuildNameStore";
 
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
@@ -72,6 +74,10 @@
                 ? vanguardBlob
                 : cannonBlob;
 
+    $: activeBuildName = $isPreviewMode
+        ? $previewBuildName ?? $activePresetName
+        : $activePresetName;
+
     onMount(() => {
         if (isOpen) captureAll();
     });
@@ -90,7 +96,7 @@
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
             );
-            const presetName = get(activePresetName);
+            const buildName = activeBuildName;
             const result = await captureAllTreeImages(
                 showLabels
                     ? {
@@ -99,9 +105,10 @@
                               $t("trees.vanguard"),
                               $t("trees.cannon"),
                           ],
-                          buildTitle: !isDefaultPresetName(presetName)
-                              ? presetName
-                              : undefined,
+                          buildTitle:
+                              buildName && !isDefaultPresetName(buildName)
+                                  ? buildName
+                                  : undefined,
                       }
                     : undefined,
             );
@@ -149,7 +156,7 @@
     }
 
     function getComposeFilename(tabId: string): string {
-        return createComposeImageFilename($activePresetName, tabId);
+        return createComposeImageFilename(activeBuildName, tabId);
     }
 
     $: composeFabActions = [
