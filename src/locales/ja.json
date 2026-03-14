@@ -313,6 +313,7 @@
         "copyErrorToast": "スクリーンショットをコピーできません",
         "downloadedToast": "スクリーンショットをダウンロードしました",
         "shareErrorToast": "スクリーンショットを共有できません",
+        "viewInBrowser": "ブラウザで表示",
         "shareTooltip": "アプリで共有",
         "refreshTooltip": "スクリーンショットを再生成",
         "tabs": {

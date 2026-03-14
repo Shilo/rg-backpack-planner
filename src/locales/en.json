@@ -313,6 +313,7 @@
         "copyErrorToast": "Unable to copy screenshot",
         "downloadedToast": "Screenshot downloaded",
         "shareErrorToast": "Unable to share screenshot",
+        "viewInBrowser": "View in Browser",
         "shareTooltip": "Share via app",
         "refreshTooltip": "Regenerate screenshots",
         "statsErrorToast": "Unable to generate statistics image",

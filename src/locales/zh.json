@@ -313,6 +313,7 @@
         "copyErrorToast": "无法复制截图",
         "downloadedToast": "截图已下载",
         "shareErrorToast": "无法分享截图",
+        "viewInBrowser": "在浏览器中查看",
         "shareTooltip": "通过应用分享",
         "refreshTooltip": "重新生成截图",
         "tabs": {

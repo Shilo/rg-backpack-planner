@@ -4,6 +4,7 @@
         CopySimpleIcon,
         DownloadSimpleIcon,
         ShareIcon,
+        ArrowSquareOutIcon,
         ImageIcon,
         SquaresFourIcon,
         ArrowClockwiseIcon,
@@ -224,6 +225,13 @@
 
     $: composeFabActions = [
         {
+            id: "view",
+            label: $t("compose.viewInBrowser"),
+            icon: ArrowSquareOutIcon,
+            onClick: handleViewInBrowser,
+            disabled: isCurrentTabLoading,
+        },
+        {
             id: "copy",
             label: $t("common.copy"),
             icon: CopySimpleIcon,
@@ -271,6 +279,12 @@
                 tone: "negative",
             });
         }
+    }
+
+    function handleViewInBrowser() {
+        if (!currentBlob) return;
+        const url = URL.createObjectURL(currentBlob);
+        window.open(url, "_blank");
     }
 </script>
 
