@@ -326,7 +326,8 @@
             "name": "Name",
             "resolution": "Resolution",
             "fileSize": "File Size",
-            "format": "Format"
+            "format": "Format",
+            "dpr": "Pixel Ratio"
         }
     },
     "preview": {

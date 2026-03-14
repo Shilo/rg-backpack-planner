@@ -1,3 +1,5 @@
+import { EXPORT_MIME } from "./imageFormat";
+
 const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
 const DPR = 2;
 
@@ -258,7 +260,7 @@ export async function renderStatsImage(
                 }
                 resolve(blob);
             },
-            "image/png",
+            EXPORT_MIME,
         );
     });
 }

@@ -2,6 +2,7 @@ import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
 import { isIOSCaptureBug, captureWithIOSBackground, getIOSCaptureBg } from "./captureFixIOS";
+import { EXPORT_FORMAT, EXPORT_MIME } from "./imageFormat";
 import "./captureStyles.css";
 
 let captureInProgressCount = 0;
@@ -27,7 +28,7 @@ export type CaptureTextOptions = {
 };
 
 const SNAPDOM_OPTS = {
-    type: "png" as const,
+    type: EXPORT_FORMAT,
     backgroundColor: "transparent",
     cache: "disabled" as const,
     outerTransforms: false,
@@ -129,7 +130,7 @@ async function focusActiveTreeForCapture(bridge: TreeBridge) {
 
 async function canvasToBlob(
     canvas: HTMLCanvasElement,
-    type = "image/png",
+    type = EXPORT_MIME,
 ): Promise<Blob | null> {
     return new Promise((resolve) => {
         canvas.toBlob((blob) => resolve(blob ?? null), type);
@@ -176,7 +177,7 @@ async function captureLiveTreeBlob(
             return null;
         }
 
-        const blob = await canvasToBlob(canvas, "image/png");
+        const blob = await canvasToBlob(canvas, EXPORT_MIME);
         if (!blob) {
             const ctx = canvas.getContext("2d");
             if (ctx) {
@@ -324,7 +325,7 @@ async function cropBlobToContent(
     );
 
     return new Promise((resolve) => {
-        croppedCanvas.toBlob((result) => resolve(result ?? blob), "image/png");
+        croppedCanvas.toBlob((result) => resolve(result ?? blob), EXPORT_MIME);
     });
 }
 
@@ -597,7 +598,7 @@ async function combineTreeImagesHorizontally(
             canvas.toBlob((blob) => {
                 clearCanvasAndImages(ctx, canvas, img1, img2, img3);
                 resolve(blob ?? null);
-            }, "image/png");
+            }, EXPORT_MIME);
         });
     } catch (error) {
         console.error("Failed to combine tree images:", error);

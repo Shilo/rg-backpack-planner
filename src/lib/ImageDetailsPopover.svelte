@@ -28,6 +28,9 @@
         };
         return map[type] ?? type;
     }
+
+    $: dpr =
+        typeof window !== "undefined" ? window.devicePixelRatio : 1;
 </script>
 
 <div hidden>
@@ -74,6 +77,12 @@
                     <span class="image-details__value"
                         >{formatMimeType(mimeType)}</span
                     >
+                </div>
+                <div class="image-details__row">
+                    <span class="image-details__label"
+                        >{$t("compose.imageDetails.dpr")}</span
+                    >
+                    <span class="image-details__value">{dpr}x</span>
                 </div>
             </div>
         </ContextMenu>

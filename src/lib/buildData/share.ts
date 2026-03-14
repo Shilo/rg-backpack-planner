@@ -7,6 +7,7 @@ import type { BuildData } from "./encoder";
 import { createShareUrl } from "./url";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
+import { EXPORT_MIME } from "../buildImageExport/imageFormat";
 import { get } from "svelte/store";
 import { showToast } from "../toast";
 import { tr } from "svelte-whisper";
@@ -222,7 +223,7 @@ export async function shareImageBlobNative(
     }
 
     try {
-        const file = new File([blob], filename, { type: "image/png" });
+        const file = new File([blob], filename, { type: EXPORT_MIME });
         await navigator.share({ files: [file] });
         return true;
     } catch (error: unknown) {

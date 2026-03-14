@@ -1,3 +1,5 @@
+import { EXPORT_EXT } from "./buildImageExport/imageFormat";
+
 function encodeFilenameSegment(value: string): string {
     const normalized = value.trim().toLowerCase().replace(/\s+/g, "_");
     if (!normalized) return "build";
@@ -28,5 +30,5 @@ export function createComposeImageFilename(
 ): string {
     const presetSegment = encodeFilenameSegment(presetName);
     const tabSegment = encodeFilenameSegment(tabId);
-    return `${presetSegment}_${tabSegment}.webp`;
+    return `${presetSegment}_${tabSegment}${EXPORT_EXT}`;
 }
