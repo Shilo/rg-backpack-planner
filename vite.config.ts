@@ -1,14 +1,12 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { VitePWA } from "vite-plugin-pwa";
-import basicSsl from "@vitejs/plugin-basic-ssl";
 import { THEME_BG } from "./scripts/theme-defaults.ts";
 
 // https://vite.dev/config/
 export default defineConfig({
     base: "/",
     plugins: [
-        basicSsl(), // HTTPS in dev so Clipboard/Share APIs work on mobile
         svelte(),
         VitePWA({
             registerType: "autoUpdate",
