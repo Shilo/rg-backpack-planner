@@ -8,7 +8,7 @@
     const timeouts = new Map<string, number>();
 
     function scheduleToast(toast: Toast) {
-        if (timeouts.has(toast.id)) return;
+        if (timeouts.has(toast.id) || toast.durationMs === 0) return;
         const timeoutId = window.setTimeout(() => {
             dismissToast(toast.id);
         }, toast.durationMs);
@@ -45,6 +45,7 @@
     {#each $toastStore as toast (toast.id)}
         <div
             class="toast toast--{toast.tone}"
+            class:toast--permanent={toast.durationMs === 0}
             style="--toast-duration: {toast.durationMs}ms"
             role="button"
             tabindex="0"
@@ -138,6 +139,10 @@
 
     .toast--negative::after {
         background: var(--danger-border);
+    }
+
+    .toast--permanent::after {
+        display: none;
     }
 
     .toast__icon {
