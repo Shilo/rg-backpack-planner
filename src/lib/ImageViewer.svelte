@@ -4,6 +4,12 @@
         computeImageViewerFitTransform,
         syncImageViewerFit,
     } from "./imageViewerLayout";
+    import {
+        startLongPress,
+        clearLongPress,
+        suppressNextPointerUp,
+        type LongPressState,
+    } from "./longPress";
 
     export let blob: Blob | null = null;
     export let onTap: ((x: number, y: number) => void) | null = null;
@@ -34,6 +40,7 @@
     let viewportHeight = 0;
 
     // Pointer tracking
+    let lastPointerType: string | null = null;
     const pointers = new Map<number, { x: number; y: number }>();
     let panStart: {
         x: number;
@@ -55,6 +62,7 @@
     const DOUBLE_TAP_MAX_DISTANCE_PX = 24;
     let touchGestureActive = false;
     let lastTouchTap: { time: number; x: number; y: number } | null = null;
+    const longPressState: LongPressState = { timer: null, fired: false };
 
     // Blob -> objectURL (reactive)
     $: if (blob) {
@@ -204,6 +212,7 @@
 
     // Pointer handlers
     function onPointerDown(event: PointerEvent) {
+        lastPointerType = event.pointerType;
         if (event.pointerType === "mouse" && event.button === 1) {
             event.preventDefault();
             resetToFit();
@@ -228,7 +237,18 @@
                 offsetY,
             };
             panActive = false;
+
+            const pid = event.pointerId;
+            startLongPress(longPressState, () => {
+                if (panActive || pointers.size !== 1) return false;
+                const p = pointers.get(pid);
+                if (!p) return false;
+                suppressNextPointerUp(pid);
+                onTap?.(p.x, p.y);
+                return true;
+            });
         } else if (pointers.size === 2) {
+            clearLongPress(longPressState);
             const [p1, p2] = Array.from(pointers.values());
             const centerX = (p1.x + p2.x) / 2;
             const centerY = (p1.y + p2.y) / 2;
@@ -266,6 +286,7 @@
             const distance = Math.hypot(dx, dy);
             if (!panActive && distance > PAN_THRESHOLD) {
                 panActive = true;
+                clearLongPress(longPressState);
                 if (event.pointerType === "touch") {
                     touchGestureActive = true;
                 }
@@ -301,16 +322,13 @@
     function onPointerUp(event: PointerEvent) {
         pointers.delete(event.pointerId);
         viewportEl?.releasePointerCapture(event.pointerId);
+        clearLongPress(longPressState);
+
         const shouldHandleTouchTap =
             event.pointerType === "touch" &&
             pointers.size === 0 &&
             !panActive &&
             !touchGestureActive;
-        const shouldHandleMouseTap =
-            event.pointerType === "mouse" &&
-            event.button === 0 &&
-            pointers.size === 0 &&
-            !panActive;
 
         if (pointers.size === 0) {
             panStart = null;
@@ -326,6 +344,7 @@
             panActive = false;
         }
 
+        // Double-tap to reset fit (touch only, no popover trigger)
         if (shouldHandleTouchTap) {
             const now = event.timeStamp;
             if (lastTouchTap) {
@@ -343,18 +362,13 @@
                     return;
                 }
             }
-
             lastTouchTap = {
                 time: now,
                 x: event.clientX,
                 y: event.clientY,
             };
-            onTap?.(event.clientX, event.clientY);
         } else if (pointers.size === 0) {
             lastTouchTap = null;
-            if (shouldHandleMouseTap) {
-                onTap?.(event.clientX, event.clientY);
-            }
         }
     }
 
@@ -383,6 +397,9 @@
 
     function onContextMenu(event: MouseEvent) {
         event.preventDefault();
+        // Touch devices fire contextmenu on long-press and after gestures;
+        // only handle mouse right-click here — touch taps go through pointer events.
+        if (lastPointerType === "touch") return;
         onTap?.(event.clientX, event.clientY);
     }
 </script>

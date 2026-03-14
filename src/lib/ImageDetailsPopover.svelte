@@ -29,16 +29,11 @@
         return map[type] ?? type;
     }
 
-    $: dpr =
-        typeof window !== "undefined" ? window.devicePixelRatio : 1;
+    $: dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
 </script>
 
 <div hidden>
-    <div
-        use:portal
-        class="image-details-portal"
-        class:portal-open={isOpen}
-    >
+    <div use:portal class="image-details-portal" class:portal-open={isOpen}>
         <ContextMenu
             {x}
             {y}
@@ -64,6 +59,12 @@
                 </div>
                 <div class="image-details__row">
                     <span class="image-details__label"
+                        >{$t("compose.imageDetails.dpr")}</span
+                    >
+                    <span class="image-details__value">{dpr}x</span>
+                </div>
+                <div class="image-details__row">
+                    <span class="image-details__label"
                         >{$t("compose.imageDetails.fileSize")}</span
                     >
                     <span class="image-details__value"
@@ -77,12 +78,6 @@
                     <span class="image-details__value"
                         >{formatMimeType(mimeType)}</span
                     >
-                </div>
-                <div class="image-details__row">
-                    <span class="image-details__label"
-                        >{$t("compose.imageDetails.dpr")}</span
-                    >
-                    <span class="image-details__value">{dpr}x</span>
                 </div>
             </div>
         </ContextMenu>
@@ -126,13 +121,13 @@
     }
 
     .image-details__label {
-        font-size: var(--font-sm);
+        font-size: var(--font-base);
         color: var(--text-muted);
         white-space: nowrap;
     }
 
     .image-details__value {
-        font-size: var(--font-sm);
+        font-size: var(--font-base);
         font-weight: var(--weight-semibold);
         color: var(--text);
         text-align: right;
