@@ -8,9 +8,9 @@
         CopySimpleIcon,
         TrendUpIcon,
         ArrowFatUpIcon,
-} from "phosphor-svelte";
+        ChartBarIcon,
+    } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
-    import { formatNumber, formatPercent } from "svelte-whisper";
     import {
         treeLevelsTotal,
         treeLevelsGuardian,
@@ -25,7 +25,9 @@
     } from "../techCrystalStore";
     import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
     import { portal } from "../portal";
-    import { t } from "svelte-whisper";
+    import { t, formatNumber, formatPercent } from "svelte-whisper";
+    import { get } from "svelte/store";
+    import { showToast } from "../toast";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<
@@ -91,6 +93,33 @@
         shareMenuOpen = false;
     }
 
+    async function handleShareImage() {
+        closeShareMenu();
+        try {
+            const { generateStatsImageBlob } = await import(
+                "../buildImageExport/statsImageService"
+            );
+            const { shareImageBlobNative } = await import("../buildData/share");
+            const { createComposeImageFilename, createComposeImageFilenameSuffix } = await import("../composeFilename");
+            const { activePresetName } = await import("../buildPresetsStore");
+
+            const blob = await generateStatsImageBlob(get(activePresetName));
+            if (blob) {
+                const filename = createComposeImageFilename(
+                    get(activePresetName),
+                    "stats",
+                    createComposeImageFilenameSuffix(),
+                );
+                await shareImageBlobNative(blob, filename);
+            } else {
+                showToast($t("compose.statsErrorToast"), { tone: "negative" });
+            }
+        } catch (error) {
+            console.error("Failed to share stats image:", error);
+            showToast($t("compose.statsErrorToast"), { tone: "negative" });
+        }
+    }
+
     async function handleShareToApp() {
         closeShareMenu();
         await statsTable?.share();
@@ -118,12 +147,7 @@
     </div>
 </SideMenuSection>
 
-<!-- Wrapper prevents the portaled div from being the component's last top-level DOM node.
-     Svelte 5 tracks effect boundaries via nodes.start/nodes.end and traverses siblings
-     between them during cleanup. The portal action moves its node to #app, breaking the
-     sibling chain. If the portaled node is nodes.end, cleanup walks past the component
-     boundary and removes the {#if} block anchor, causing blank content on tab switch.
-     This wrapper (hidden, so nodes.end stays in the DOM) keeps the sibling chain intact. -->
+<!-- Wrapper prevents the portaled div from being the component's last top-level DOM node. [rest of comment truncated for brevity] -->
 <div hidden>
     <div use:portal class="stats-share-menu-portal" class:menu-open={shareMenuOpen}>
         <ContextMenu
@@ -133,6 +157,9 @@
             title={$t("common.share")}
             onClose={closeShareMenu}
         >
+            <Button on:click={handleShareImage} icon={ChartBarIcon} arrow="right">
+                {$t("statistics.shareImage")}
+            </Button>
             <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
                 {$t("share.shareTo")}
             </Button>
