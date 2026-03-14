@@ -34,3 +34,9 @@ if (!/import.*TreeViewState.*from/.test(normalized)) {
         "treeBridge.ts should import TreeViewState from Tree.svelte.",
     );
 }
+
+if (!/getWorldBoundsForCapture\?/.test(source)) {
+    throw new Error(
+        "TreeBridge type should declare optional getWorldBoundsForCapture method for capture-time bounds.",
+    );
+}
