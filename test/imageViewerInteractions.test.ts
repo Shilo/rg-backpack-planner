@@ -27,3 +27,27 @@ if (!/resetToFit\(\);/.test(source)) {
         "ImageViewer should call resetToFit() when a reset interaction is detected.",
     );
 }
+
+if (!/export let onTap/.test(source)) {
+    throw new Error(
+        "ImageViewer should expose an onTap callback prop for non-drag click/tap interactions.",
+    );
+}
+
+if (!/export let onImageLoad/.test(source)) {
+    throw new Error(
+        "ImageViewer should expose an onImageLoad callback prop with natural dimensions.",
+    );
+}
+
+if (!/onTap\?\.\(/.test(source)) {
+    throw new Error(
+        "ImageViewer should call onTap when a non-drag click or tap is detected.",
+    );
+}
+
+if (!/onImageLoad\?\.\(/.test(source)) {
+    throw new Error(
+        "ImageViewer should call onImageLoad when the image finishes loading.",
+    );
+}

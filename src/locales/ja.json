@@ -318,6 +318,13 @@
         "refreshTooltip": "スクリーンショットを再生成",
         "tabs": {
             "all": "すべてのツリーを表示"
+        },
+        "imageDetails": {
+            "title": "画像の詳細",
+            "name": "名前",
+            "resolution": "解像度",
+            "fileSize": "ファイルサイズ",
+            "format": "フォーマット"
         }
     },
     "preview": {

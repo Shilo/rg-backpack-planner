@@ -42,6 +42,7 @@
         DEFAULT_UPPERCASE_TEXT,
     } from "./uppercaseTextStore";
     import Button from "./Button.svelte";
+    import ImageDetailsPopover from "./ImageDetailsPopover.svelte";
     import { isPreviewMode } from "./previewModeStore";
     import { previewBuildName } from "./previewBuildNameStore";
 
@@ -58,6 +59,11 @@
     let statsBlob: Blob | null = null;
     let isStatsLoading = false;
     let activeTab = "all";
+    let imageDetailsOpen = false;
+    let imageDetailsTapX = 0;
+    let imageDetailsTapY = 0;
+    let imageNaturalWidth = 0;
+    let imageNaturalHeight = 0;
 
     let tabs: TabBarItem[] = [];
     $: tabs = [
@@ -100,6 +106,7 @@
     });
 
     async function captureAll() {
+        imageDetailsOpen = false;
         isLoading = true;
         const originalShowTier = get(showTier);
         const originalShowSkillName = get(showSkillName);
@@ -155,7 +162,24 @@
         }
     }
 
+    function handleImageTap(x: number, y: number) {
+        if (!currentBlob) return;
+        imageDetailsTapX = x;
+        imageDetailsTapY = y;
+        imageDetailsOpen = true;
+    }
+
+    function handleImageLoad(width: number, height: number) {
+        imageNaturalWidth = width;
+        imageNaturalHeight = height;
+    }
+
+    function closeImageDetails() {
+        imageDetailsOpen = false;
+    }
+
     function handleTabChange(tabId: string) {
+        imageDetailsOpen = false;
         activeTab = tabId;
         if (tabId === "stats" && !statsBlob && !isStatsLoading) {
             generateStatsImage();
@@ -303,7 +327,11 @@
             <p class="compose-loading-text">{$t("compose.loading")}</p>
         </div>
     {:else}
-        <ImageViewer blob={currentBlob} />
+        <ImageViewer
+            blob={currentBlob}
+            onTap={handleImageTap}
+            onImageLoad={handleImageLoad}
+        />
     {/if}
 
     {#if activeTab !== "stats" && (currentBlob || isLoading)}
@@ -339,6 +367,18 @@
         </div>
     {/if}
 </FullscreenModal>
+
+<ImageDetailsPopover
+    isOpen={imageDetailsOpen}
+    x={imageDetailsTapX}
+    y={imageDetailsTapY}
+    onClose={closeImageDetails}
+    filename={getComposeFilename(activeTab)}
+    naturalWidth={imageNaturalWidth}
+    naturalHeight={imageNaturalHeight}
+    fileSize={currentBlob?.size ?? 0}
+    mimeType={currentBlob?.type ?? ""}
+/>
 
 <style>
     .compose-loading {

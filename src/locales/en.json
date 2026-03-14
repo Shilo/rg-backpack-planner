@@ -320,6 +320,13 @@
         "tabs": {
             "all": "View all trees",
             "stats": "View statistics"
+        },
+        "imageDetails": {
+            "title": "Image Details",
+            "name": "Name",
+            "resolution": "Resolution",
+            "fileSize": "File Size",
+            "format": "Format"
         }
     },
     "preview": {

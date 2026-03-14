@@ -6,6 +6,10 @@
     } from "./imageViewerLayout";
 
     export let blob: Blob | null = null;
+    export let onTap: ((x: number, y: number) => void) | null = null;
+    export let onImageLoad:
+        | ((width: number, height: number) => void)
+        | null = null;
 
     let viewportEl: HTMLDivElement | null = null;
     let imgEl: HTMLImageElement | null = null;
@@ -113,6 +117,7 @@
         naturalWidth = imgEl.naturalWidth;
         naturalHeight = imgEl.naturalHeight;
         imageLoaded = true;
+        onImageLoad?.(naturalWidth, naturalHeight);
         syncFitState();
     }
 
@@ -301,6 +306,11 @@
             pointers.size === 0 &&
             !panActive &&
             !touchGestureActive;
+        const shouldHandleMouseTap =
+            event.pointerType === "mouse" &&
+            event.button === 0 &&
+            pointers.size === 0 &&
+            !panActive;
 
         if (pointers.size === 0) {
             panStart = null;
@@ -339,8 +349,12 @@
                 x: event.clientX,
                 y: event.clientY,
             };
+            onTap?.(event.clientX, event.clientY);
         } else if (pointers.size === 0) {
             lastTouchTap = null;
+            if (shouldHandleMouseTap) {
+                onTap?.(event.clientX, event.clientY);
+            }
         }
     }
 
@@ -366,6 +380,11 @@
         event.preventDefault();
         resetToFit();
     }
+
+    function onContextMenu(event: MouseEvent) {
+        event.preventDefault();
+        onTap?.(event.clientX, event.clientY);
+    }
 </script>
 
 <div
@@ -380,6 +399,7 @@
     on:pointerleave={onPointerUp}
     on:wheel|preventDefault={onWheel}
     on:dblclick={onDoubleClick}
+    on:contextmenu={onContextMenu}
 >
     {#if objectUrl}
         <img

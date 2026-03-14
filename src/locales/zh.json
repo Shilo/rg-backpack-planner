@@ -318,6 +318,13 @@
         "refreshTooltip": "重新生成截图",
         "tabs": {
             "all": "查看所有技能树"
+        },
+        "imageDetails": {
+            "title": "图片详情",
+            "name": "名称",
+            "resolution": "分辨率",
+            "fileSize": "文件大小",
+            "format": "格式"
         }
     },
     "preview": {

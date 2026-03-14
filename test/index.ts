@@ -91,6 +91,7 @@ const TEST_FILES = [
     "imageViewerClampAtFit.test.ts",
     "imageViewerResizeReset.test.ts",
     "imageViewerInteractions.test.ts",
+    "imageDetailsPopover.test.ts",
     "serviceWorkerAutoUpdateModule.test.ts",
     "serviceWorkerUpdateToast.test.ts",
     "onboardingStore.test.ts",
