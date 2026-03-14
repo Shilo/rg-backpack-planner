@@ -78,6 +78,7 @@
         getFocusViewState?: () => TreeViewState | null;
         getTreeCanvas?: () => HTMLDivElement | null;
         restoreViewState?: (view: TreeViewState | null) => void;
+        getWorldBoundsForCapture?: () => { width: number; height: number } | null;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -506,6 +507,8 @@
                     : treeRef?.focusTreeInView?.(false),
             getViewState: () => treeRef?.getViewState?.() ?? null,
             restoreAfterCapture,
+            getWorldBoundsForCapture: () =>
+                treeRef?.getWorldBoundsForCapture?.() ?? null,
         };
         registerTreeBridge(bridge);
         return { destroy: () => unregisterTreeBridge(bridge) };
