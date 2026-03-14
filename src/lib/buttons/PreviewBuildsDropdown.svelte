@@ -141,9 +141,7 @@
         letter-spacing: var(--tracking);
         color: var(--text-disabled);
         padding-left: var(--spacing-sm);
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
+        overflow-wrap: break-word;
     }
 
     .premade-builds-list {

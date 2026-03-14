@@ -91,9 +91,7 @@
         font-size: var(--font-base);
         color: var(--text-muted);
         line-height: 1.35;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
+        overflow-wrap: break-word;
         min-width: 0;
     }
 

@@ -223,8 +223,7 @@
         line-height: var(--leading-none);
         flex: 1;
         min-width: 0;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     :global(.modal-title-icon) {
@@ -238,9 +237,7 @@
         font-size: var(--font-base);
         color: var(--text-muted);
         line-height: 1.4;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
+        overflow-wrap: break-word;
     }
 
     .modal-label {

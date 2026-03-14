@@ -218,9 +218,7 @@
         font-size: var(--font-base);
         color: var(--text-muted);
         line-height: 1.4;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
+        overflow-wrap: break-word;
     }
 
     .modal-label {
