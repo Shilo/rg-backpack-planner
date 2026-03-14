@@ -54,14 +54,13 @@
 
 <style>
     .fab-menu {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+        display: grid;
+        grid-template-columns: max-content;
+        justify-content: end;
         gap: var(--spacing-md);
     }
 
     .fab-menu__action {
-        min-width: 144px;
         min-height: 38px;
         border-radius: var(--radius);
         border: var(--border-width) solid
