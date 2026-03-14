@@ -9,6 +9,7 @@ export type TreeBridge = {
     focusActiveTreeInView?: () => void;
     getViewState?: () => TreeViewState | null;
     restoreAfterCapture?: (index: number, viewState: TreeViewState) => void;
+    getWorldBoundsForCapture?: () => { width: number; height: number } | null;
 };
 
 export let treeBridge: TreeBridge | null = null;

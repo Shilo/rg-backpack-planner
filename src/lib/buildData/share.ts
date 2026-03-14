@@ -118,7 +118,7 @@ export async function copyImageBlobToClipboard(blob: Blob): Promise<boolean> {
     }
 
     try {
-        const item = new ClipboardItem({ "image/png": blob });
+        const item = new ClipboardItem({ [EXPORT_MIME]: blob });
         await navigator.clipboard.write([item]);
         return true;
     } catch (error) {

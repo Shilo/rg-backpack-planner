@@ -51,6 +51,7 @@ const TEST_FILES = [
     "bottomNavTabBarLayoutGuard.test.ts",
     "composeAllTabIconVisible.test.ts",
     "composeScreenshotTabsAndFilename.test.ts",
+    "imageFormatExports.test.ts",
     "captureServiceBadgeBounds.test.ts",
     "captureServiceCenteredBounds.test.ts",
     "captureServiceBadgeTypographyStyles.test.ts",

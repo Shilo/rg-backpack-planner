@@ -25,7 +25,10 @@
     import FabMenu from "./FabMenu.svelte";
     import { activePresetName } from "./buildPresetsStore";
     import { isDefaultPresetName } from "./buildData/url";
-    import { createComposeImageFilename } from "./composeFilename";
+    import {
+        createComposeImageFilename,
+        createComposeImageFilenameSuffix,
+    } from "./composeFilename";
     import { t, formatNumber, formatPercent } from "svelte-whisper";
     import { get } from "svelte/store";
     import { techCrystalsSpent } from "./techCrystalStore";
@@ -247,6 +250,14 @@
         return createComposeImageFilename(activeBuildName, tabId);
     }
 
+    function getDownloadFilename(tabId: string): string {
+        return createComposeImageFilename(
+            activeBuildName,
+            tabId,
+            createComposeImageFilenameSuffix(),
+        );
+    }
+
     $: composeFabActions = [
         {
             id: "view",
@@ -289,14 +300,14 @@
 
     function handleDownload() {
         if (!currentBlob) return;
-        const filename = getComposeFilename(activeTab);
+        const filename = getDownloadFilename(activeTab);
         downloadImageBlob(currentBlob, filename);
         showToast($t("compose.downloadedToast"));
     }
 
     async function handleShare() {
         if (!currentBlob) return;
-        const filename = getComposeFilename(activeTab);
+        const filename = getDownloadFilename(activeTab);
         const success = await shareImageBlobNative(currentBlob, filename);
         if (!success) {
             showToast($t("compose.shareErrorToast"), {

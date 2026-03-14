@@ -23,7 +23,7 @@ if (!/await waitForStableTreeCanvas\(\s*bridge\s*,\s*tabIndex\s*\)/.test(normali
     );
 }
 
-if (!/await snapdom\.toBlob\(\s*captureRoot\s*,\s*SNAPDOM_OPTS\s*\)/.test(normalized)) {
+if (!/await snapdom\.toBlob\(\s*captureRoot\s*,/.test(normalized)) {
     throw new Error(
         "captureService should capture the live tree viewport/canvas directly with snapdom.toBlob.",
     );

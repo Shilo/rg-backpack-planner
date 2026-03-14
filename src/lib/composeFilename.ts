@@ -1,5 +1,7 @@
 import { EXPORT_EXT } from "./buildImageExport/imageFormat";
 
+let composeFilenameSequence = 0;
+
 function encodeFilenameSegment(value: string): string {
     const normalized = value.trim().toLowerCase().replace(/\s+/g, "_");
     if (!normalized) return "build";
@@ -27,8 +29,19 @@ function encodeFilenameSegment(value: string): string {
 export function createComposeImageFilename(
     presetName: string,
     tabId: string,
+    suffix?: string,
 ): string {
     const presetSegment = encodeFilenameSegment(presetName);
     const tabSegment = encodeFilenameSegment(tabId);
-    return `${presetSegment}_${tabSegment}${EXPORT_EXT}`;
+    const suffixSegment = suffix
+        ? `_${encodeFilenameSegment(suffix)}`
+        : "";
+    return `${presetSegment}_${tabSegment}${suffixSegment}${EXPORT_EXT}`;
+}
+
+export function createComposeImageFilenameSuffix(now = Date.now()): string {
+    const timeSegment = now.toString(36).slice(-5).padStart(5, "0");
+    const sequenceSegment = composeFilenameSequence.toString(36);
+    composeFilenameSequence = (composeFilenameSequence + 1) % 36;
+    return `${timeSegment}${sequenceSegment}`;
 }

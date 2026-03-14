@@ -13,7 +13,14 @@ html.snapdom-capture .node-badge-icon-stack {
 
 html.snapdom-capture .node-badge {
     white-space: nowrap !important;
+    /* Badge text sits above visual center in a line-height:1 line box because
+       fonts reserve descender space that digits/letters don't fully use. The
+       offset is imperceptible at runtime scale but capture scale×DPR amplifies
+       it. Asymmetric padding shifts the content down toward visual center. */
+    padding-top: 4px !important;
+    padding-bottom: 0px !important;
 }
+
 
 /* During capture, "available" (unlocked but level 0) nodes should look
    identical to "locked" — the highlight only helps during interactive planning.
