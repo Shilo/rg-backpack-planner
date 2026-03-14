@@ -33,7 +33,10 @@ const app = mount(App, {
 
 const cleanupServiceWorkerAutoUpdate = initServiceWorkerAutoUpdate({
     showUpdatingToast: () => {
-        showToast(tr("toast.updatingToast"), { durationMs: 0 });
+        showToast(tr("toast.updatingToast"), {
+            durationMs: 0,
+            showSpinner: true,
+        });
     },
 });
 

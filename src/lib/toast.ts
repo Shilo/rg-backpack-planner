@@ -12,7 +12,13 @@ export type Toast = {
     message: string;
     tone: ToastTone;
     durationMs: number;
+    showIcon: boolean;
+    showSpinner: boolean;
 };
+
+type ToastOptions = Partial<
+    Pick<Toast, "tone" | "durationMs" | "showIcon" | "showSpinner">
+>;
 
 const DEFAULT_DURATION_MS = 2600;
 
@@ -24,13 +30,15 @@ export const toastStore = writable<Toast[]>([]);
 
 export function showToast(
     message: string,
-    options?: Partial<Pick<Toast, "tone" | "durationMs">>,
+    options?: ToastOptions,
 ) {
     const toast: Toast = {
         id: createId(),
         message,
         tone: options?.tone ?? "positive",
         durationMs: options?.durationMs ?? DEFAULT_DURATION_MS,
+        showIcon: options?.showIcon ?? true,
+        showSpinner: options?.showSpinner ?? false,
     };
     toastStore.update((toasts) => {
         const updated = [...toasts, toast];
@@ -51,7 +59,7 @@ export function dismissToast(id: string) {
  */
 export function showToastDelayed(
     message: string,
-    options?: Partial<Pick<Toast, "tone" | "durationMs">>,
+    options?: ToastOptions,
 ): void {
     setTimeout(() => {
         showToast(message, options);

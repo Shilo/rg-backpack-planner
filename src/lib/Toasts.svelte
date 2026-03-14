@@ -61,13 +61,18 @@
                 }
             }}
         >
-            <span class="toast__icon" aria-hidden="true">
-                {#if toast.tone === "negative"}
-                    <WarningCircleIcon size={20} weight="fill" />
-                {:else}
-                    <CheckCircleIcon size={20} weight="fill" />
-                {/if}
-            </span>
+            {#if toast.showIcon}
+                <span class="toast__icon" aria-hidden="true">
+                    {#if toast.tone === "negative"}
+                        <WarningCircleIcon size={20} weight="fill" />
+                    {:else}
+                        <CheckCircleIcon size={20} weight="fill" />
+                    {/if}
+                </span>
+            {/if}
+            {#if toast.showSpinner}
+                <span class="toast__spinner" aria-hidden="true"></span>
+            {/if}
             <span class="toast__message">{toast.message}</span>
         </div>
     {/each}
@@ -156,7 +161,29 @@
         color: var(--danger-text);
     }
 
+    .toast__spinner {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        border-radius: 999px;
+        border: 2px solid
+            color-mix(in srgb, var(--text-muted) 22%, transparent);
+        border-top-color: var(--accent);
+        animation: toast-spinner 0.75s linear infinite;
+    }
+
+    .toast--negative .toast__spinner {
+        border-color: color-mix(in srgb, var(--danger-text) 22%, transparent);
+        border-top-color: var(--danger-text);
+    }
+
     .toast__message {
         flex: 1;
+    }
+
+    @keyframes toast-spinner {
+        to {
+            transform: rotate(360deg);
+        }
     }
 </style>

@@ -95,6 +95,7 @@ const TEST_FILES = [
     "imageDetailsPopover.test.ts",
     "serviceWorkerAutoUpdateModule.test.ts",
     "serviceWorkerUpdateToast.test.ts",
+    "toastSpinnerApi.test.ts",
     "onboardingStore.test.ts",
 ];
 
