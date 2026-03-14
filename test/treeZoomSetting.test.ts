@@ -81,8 +81,8 @@ if (!/\$treeZoomScale/.test(treeSource)) {
     throw new Error("Tree focus logic should read from $treeZoomScale.");
 }
 
-if (!/TreeZoomLevel\.CloseUp/.test(treeSource)) {
-    throw new Error("Tree should compare close-up mode against TreeZoomLevel enum.");
+if (!/TreeZoomLevel\.Fit/.test(treeSource)) {
+    throw new Error("Tree should compare zoom mode against TreeZoomLevel enum.");
 }
 
 const settingsPagePath = resolve("src/lib/sideMenuPages/AppearanceSettingsPage.svelte");

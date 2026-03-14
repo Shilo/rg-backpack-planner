@@ -1088,7 +1088,7 @@
         const paddedCenterX = padding.horizontal + availableW / 2;
         const paddedCenterY = padding.top + availableH / 2;
         const zoomLevel = overrideZoom ?? $treeZoomScale;
-        const isCloseUpZoom = zoomLevel === TreeZoomLevel.CloseUp;
+        const isZoomedIn = zoomLevel !== TreeZoomLevel.Fit;
         const zoomMultiplier =
             getTreeZoomScaleValue(zoomLevel) /
             getTreeZoomScaleValue(TreeZoomLevel.Fit);
@@ -1124,8 +1124,8 @@
 
         bounds = getWorldBounds(nextScale) ?? bounds;
         const { minX, minY, width, height } = bounds;
-        const centerX = isCloseUpZoom ? rootX : minX + width / 2;
-        const centerY = isCloseUpZoom ? rootY : minY + height / 2;
+        const centerX = isZoomedIn ? rootX : minX + width / 2;
+        const centerY = isZoomedIn ? rootY : minY + height / 2;
         const nextOffsetX = paddedCenterX - centerX * nextScale;
         const nextOffsetY = paddedCenterY - centerY * nextScale;
         const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
