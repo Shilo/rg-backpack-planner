@@ -26,6 +26,8 @@
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
         if (event.key === "Escape") {
+            // Let context menus and fab menus handle Escape first
+            if (document.querySelector(".context-menu") || document.querySelector(".fab-menu--open")) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             handleClose();
