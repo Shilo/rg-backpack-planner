@@ -1,11 +1,12 @@
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-export const TREE_ZOOM_SCALES = [100, 150] as const;
+export const TREE_ZOOM_SCALES = [100, 150, 200] as const;
 
 export enum TreeZoomLevel {
     Fit = 0,
     CloseUp = 1,
+    Detail = 2,
 }
 
 /** Default when no stored preference: close-up on touch-primary devices, fit on pointer devices */

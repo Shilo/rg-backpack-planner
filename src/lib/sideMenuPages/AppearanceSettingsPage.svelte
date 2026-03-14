@@ -46,6 +46,12 @@
                 currentLocale,
             ),
         }),
+        $t("settings.treeZoomDetailOption", {
+            scale: formatZoomMultiplier(
+                getTreeZoomScaleValue(TreeZoomLevel.Detail),
+                currentLocale,
+            ),
+        }),
     ];
 
     function formatZoomMultiplier(zoomScale: number, localeCode?: string) {

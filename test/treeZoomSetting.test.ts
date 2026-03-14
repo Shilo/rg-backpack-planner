@@ -10,9 +10,9 @@ try {
     throw new Error("treeZoomStore.ts should exist for the new tree zoom setting.");
 }
 
-if (!/TREE_ZOOM_SCALES\s*=\s*\[\s*100,\s*150\s*\]\s*as const/.test(treeZoomStoreSource)) {
+if (!/TREE_ZOOM_SCALES\s*=\s*\[\s*100,\s*150,\s*200\s*\]\s*as const/.test(treeZoomStoreSource)) {
     throw new Error(
-        "treeZoomStore should define tree zoom scales as an array with 100 and 150.",
+        "treeZoomStore should define tree zoom scales as an array with 100, 150, and 200.",
     );
 }
 
@@ -28,10 +28,11 @@ if (!/export enum TreeZoomLevel/.test(treeZoomStoreSource)) {
 
 if (
     !/Fit\s*=\s*0/.test(treeZoomStoreSource) ||
-    !/CloseUp\s*=\s*1/.test(treeZoomStoreSource)
+    !/CloseUp\s*=\s*1/.test(treeZoomStoreSource) ||
+    !/Detail\s*=\s*2/.test(treeZoomStoreSource)
 ) {
     throw new Error(
-        "treeZoomStore should store tree zoom preference as selected-index values 0 and 1.",
+        "treeZoomStore should store tree zoom preference as selected-index values 0, 1, and 2.",
     );
 }
 
