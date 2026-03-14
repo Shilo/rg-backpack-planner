@@ -9,6 +9,7 @@
         ArrowClockwiseIcon,
         TextTIcon,
         TextTSlashIcon,
+        ChartBarIcon,
     } from "phosphor-svelte";
     import { GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
     import FullscreenModal from "./FullscreenModal.svelte";
@@ -24,8 +25,11 @@
     import { activePresetName } from "./buildPresetsStore";
     import { isDefaultPresetName } from "./buildData/url";
     import { createComposeImageFilename } from "./composeFilename";
-    import { t } from "svelte-whisper";
+    import { t, formatNumber, formatPercent } from "svelte-whisper";
     import { get } from "svelte/store";
+    import { techCrystalsSpent } from "./techCrystalStore";
+    import { treeLevelsTotal } from "./treeLevelsStore";
+    import { skillBonuses, SKILL_DISPLAY_ORDER } from "./skillBonusStore";
     import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
     import {
         showSkillName,
@@ -50,6 +54,8 @@
     let guardianBlob: Blob | null = null;
     let vanguardBlob: Blob | null = null;
     let cannonBlob: Blob | null = null;
+    let statsBlob: Blob | null = null;
+    let isStatsLoading = false;
     let activeTab = "all";
 
     let tabs: TabBarItem[] = [];
@@ -63,16 +69,27 @@
         { id: "guardian", label: $t("trees.guardian"), icon: GuardianIcon },
         { id: "vanguard", label: $t("trees.vanguard"), icon: VanguardIcon },
         { id: "cannon", label: $t("trees.cannon"), icon: CannonIcon },
+        {
+            id: "stats",
+            label: "",
+            icon: ChartBarIcon,
+            tooltip: $t("compose.tabs.stats"),
+        },
     ];
 
     $: currentBlob =
-        activeTab === "all"
-            ? combinedBlob
-            : activeTab === "guardian"
-              ? guardianBlob
-              : activeTab === "vanguard"
-                ? vanguardBlob
-                : cannonBlob;
+        activeTab === "stats"
+            ? statsBlob
+            : activeTab === "all"
+              ? combinedBlob
+              : activeTab === "guardian"
+                ? guardianBlob
+                : activeTab === "vanguard"
+                  ? vanguardBlob
+                  : cannonBlob;
+
+    $: isCurrentTabLoading =
+        activeTab === "stats" ? isStatsLoading : isLoading;
 
     $: activeBuildName = $isPreviewMode
         ? $previewBuildName ?? $activePresetName
@@ -140,6 +157,53 @@
 
     function handleTabChange(tabId: string) {
         activeTab = tabId;
+        if (tabId === "stats" && !statsBlob && !isStatsLoading) {
+            generateStatsImage();
+        }
+    }
+
+    async function generateStatsImage() {
+        isStatsLoading = true;
+        try {
+            const { renderStatsImage } = await import(
+                "./buildImageExport/statsImageRenderer"
+            );
+            const buildName = activeBuildName;
+            const bonuses: { label: string; value: string }[] = [];
+            const currentBonuses = get(skillBonuses);
+            for (const skillId of SKILL_DISPLAY_ORDER) {
+                const value = currentBonuses.get(skillId);
+                if (value !== undefined && value > 0) {
+                    bonuses.push({
+                        label: $t(`skills.${skillId}`),
+                        value: formatPercent(value),
+                    });
+                }
+            }
+            statsBlob = await renderStatsImage({
+                buildTitle:
+                    buildName && !isDefaultPresetName(buildName)
+                        ? buildName
+                        : undefined,
+                techCrystalsLabel: $t("statistics.techCrystalsSpent"),
+                techCrystalsValue: formatNumber(get(techCrystalsSpent)),
+                nodeLevelsLabel: $t("statistics.backpackNodeLevels"),
+                nodeLevelsValue: formatNumber(get(treeLevelsTotal)),
+                skillBonuses: bonuses,
+            });
+            if (!statsBlob) {
+                showToast($t("compose.statsErrorToast"), {
+                    tone: "negative",
+                });
+            }
+        } catch (error) {
+            console.error("Failed to generate stats image:", error);
+            showToast($t("compose.statsErrorToast"), {
+                tone: "negative",
+            });
+        } finally {
+            isStatsLoading = false;
+        }
     }
 
     function toggleLabels() {
@@ -165,21 +229,21 @@
             label: $t("common.copy"),
             icon: CopySimpleIcon,
             onClick: handleCopy,
-            disabled: isLoading,
+            disabled: isCurrentTabLoading,
         },
         {
             id: "download",
             label: $t("common.download"),
             icon: DownloadSimpleIcon,
             onClick: handleDownload,
-            disabled: isLoading,
+            disabled: isCurrentTabLoading,
         },
         {
             id: "share",
             label: $t("share.shareTo"),
             icon: ShareIcon,
             onClick: handleShare,
-            disabled: isLoading,
+            disabled: isCurrentTabLoading,
         },
     ];
 
@@ -218,7 +282,7 @@
     onTabChange={handleTabChange}
     onClose={handleClose}
 >
-    {#if isLoading}
+    {#if isCurrentTabLoading}
         <div class="compose-loading" role="status" aria-live="polite">
             <div class="compose-loading-icon">
                 <ImageIcon size={42} weight="duotone" />
@@ -229,7 +293,7 @@
         <ImageViewer blob={currentBlob} />
     {/if}
 
-    {#if currentBlob || isLoading}
+    {#if activeTab !== "stats" && (currentBlob || isLoading)}
         <div class="compose-tools">
             <Button
                 class="compose-tool-btn {showLabels ? 'active' : ''}"
@@ -253,7 +317,7 @@
             />
         </div>
     {/if}
-    {#if currentBlob || isLoading}
+    {#if currentBlob || isCurrentTabLoading}
         <div class="compose-fabs">
             <FabMenu
                 actions={composeFabActions}
@@ -341,13 +405,19 @@
         background: var(--bg-modal, var(--surface));
     }
 
-    :global(.fullscreen-modal .tab-bar__tab-button:first-child) {
+    :global(.fullscreen-modal .tab-bar__tab-button:first-child),
+    :global(.fullscreen-modal .tab-bar__tab-button:last-child) {
         flex: 0 0 var(--side-menu-tab-height);
     }
 
     :global(
             .fullscreen-modal
                 .tab-bar__tab-button:first-child
+                .tab-bar__tab-label
+        ),
+    :global(
+            .fullscreen-modal
+                .tab-bar__tab-button:last-child
                 .tab-bar__tab-label
         ) {
         display: none;

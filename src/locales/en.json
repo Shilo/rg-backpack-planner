@@ -315,8 +315,10 @@
         "shareErrorToast": "Unable to share screenshot",
         "shareTooltip": "Share via app",
         "refreshTooltip": "Regenerate screenshots",
+        "statsErrorToast": "Unable to generate statistics image",
         "tabs": {
-            "all": "View all trees"
+            "all": "View all trees",
+            "stats": "View statistics"
         }
     },
     "preview": {

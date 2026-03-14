@@ -544,8 +544,7 @@
         align-items: center;
         justify-content: center;
 
-        min-height: 15px;
-        padding: 0px calc(var(--radius-sm) / 2);
+        padding: 2px calc(var(--radius-sm) / 2);
         border-radius: var(--radius-sm);
         text-align: center;
 
@@ -579,7 +578,7 @@
 
     @media (hover: none) and (pointer: coarse) {
         .node-wrapper {
-            --badge-mobile-y-offset: 1px;
+            --badge-mobile-y-offset: 0px;
         }
     }
 
