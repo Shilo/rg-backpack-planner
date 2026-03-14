@@ -88,15 +88,64 @@ A higher-resolution original undergoes a more aggressive downscale ratio to fit 
 
 The 2838px image passes through more aggressive non-integer scaling at every stage. `CV_INTER_AREA` uses fractional pixel weights for non-integer ratios, producing softer edges. For tree screenshots with sharp node borders and fine text, this is particularly destructive.
 
-### Optimal Resolution for Discord Sharing
+---
 
-There is a tradeoff between preview quality and full-size detail:
+## Resolution Normalization (Implemented)
 
-- **~1800-2000px combined width** (~600-670px per tree): Good preview quality on Android with reasonable full-size detail
-- **~3000px+ combined width**: Best full-size detail but noticeably degraded Android previews
-- **~400-550px combined width**: Matches preview container exactly (no downscaling) but unusable at full size
+### The Problem
 
-The preview degradation is unavoidable — it's a Discord platform limitation. Users who care about quality can always tap "Open Original" to see the lossless PNG from the CDN.
+Before normalization, capture resolution depended entirely on the device's viewport size and DPR. The same build produced wildly different output:
+
+| Device | Single tree output | Combined output |
+|---|---|---|
+| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~3375x1323 |
+| Landscape phone (812x375, DPR 3) | ~954x1125 | ~2862x1125 |
+| Desktop (1200x800, DPR 1) | ~530x625 | ~1590x625 |
+
+### The Fix: Dynamic snapdom Scale
+
+Implemented in `captureService.ts` via `computeCaptureScale()` and `buildCaptureOpts()`.
+
+After `focusActiveTreeForCapture()` runs, the actual tree scale from `getViewState()` is used (not an approximated fitScale) to compute a dynamic snapdom `scale` that normalizes output:
+
+```
+renderedLongEdge = max(boundsW, boundsH) * treeScale
+snapdomScale     = EXPORT_TARGET_LONG_EDGE_PX / (renderedLongEdge * EXPORT_DPR)
+```
+
+The scale is clamped: `min(max(scale, 1), EXPORT_MAX_SCALE)` — never downscales, caps at 4x to prevent canvas OOM.
+
+**Three constants** in `imageFormat.ts` control the output:
+
+| Constant | Value | Purpose |
+|---|---|---|
+| `EXPORT_DPR` | `2` | Fixed device pixel ratio. Overrides `window.devicePixelRatio`. |
+| `EXPORT_TARGET_LONG_EDGE_PX` | `1200` | Target longest edge of a single cropped tree, in physical pixels. |
+| `EXPORT_MAX_SCALE` | `4` | Upper cap to prevent canvas size limit failures. |
+
+**Normalized output** (all devices now produce the same resolution):
+
+| Device | Before | After |
+|---|---|---|
+| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~1020x1200 |
+| Landscape phone (812x375, DPR 3) | ~954x1125 | ~1020x1200 |
+| Desktop (1200x800, DPR 1) | ~530x625 | ~1020x1200 |
+| Combined (3 trees) | varies | ~3060x1200 |
+
+### Discord Preview Quality vs Target Resolution
+
+The current `EXPORT_TARGET_LONG_EDGE_PX = 1200` produces ~3060px combined width. On Android Discord, this requires an ~8x downscale to fit the ~380px preview container — the same range that produced visibly soft results in testing (2838px looked worse than 1908px).
+
+| `EXPORT_TARGET_LONG_EDGE_PX` | Combined width | Android preview downscale | Discord quality |
+|---|---|---|---|
+| `1200` (current) | ~3060px | ~8.1x | Soft — similar to 2838px test |
+| `800` | ~2040px | ~5.4x | Good balance |
+| `700` | ~1785px | ~4.7x | Near the 1908px test that looked sharp |
+| `500` | ~1275px | ~3.4x | Sharp preview, limited full-size detail |
+
+Lowering to **700-800** would standardize output near the resolution that tested well on Discord, while still providing enough detail when users tap "Open Original" to view the lossless PNG from the CDN.
+
+This is a single constant change in `imageFormat.ts`. The rest of the pipeline (crop, label, combine, share) is unaffected.
 
 ### Clipboard Copy Note
 
