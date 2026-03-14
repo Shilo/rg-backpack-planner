@@ -1,10 +1,14 @@
 import { createComposeImageFilename } from "../src/lib/composeFilename";
 
 {
-    const filename = createComposeImageFilename("Default Build", "all");
-    if (filename !== "default_build_all.png") {
+    const filename = createComposeImageFilename(
+        "Default Build",
+        "all",
+        "kf12",
+    );
+    if (filename !== "default_build_all_kf12.png") {
         throw new Error(
-            `Expected spaces to become underscores: got "${filename}"`,
+            `Expected spaces to become underscores and suffix to append: got "${filename}"`,
         );
     }
 }
@@ -29,4 +33,3 @@ import { createComposeImageFilename } from "../src/lib/composeFilename";
         );
     }
 }
-
