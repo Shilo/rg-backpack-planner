@@ -20,6 +20,7 @@
     } from "./buildData/share";
     import FabMenu from "./FabMenu.svelte";
     import { activePresetName } from "./buildPresetsStore";
+    import { isDefaultPresetName } from "./buildData/url";
     import { createComposeImageFilename } from "./composeFilename";
     import { t } from "svelte-whisper";
     import { get } from "svelte/store";
@@ -86,7 +87,17 @@
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
             );
-            const result = await captureAllTreeImages();
+            const presetName = get(activePresetName);
+            const result = await captureAllTreeImages({
+                treeNames: [
+                    $t("trees.guardian"),
+                    $t("trees.vanguard"),
+                    $t("trees.cannon"),
+                ],
+                buildTitle: !isDefaultPresetName(presetName)
+                    ? presetName
+                    : undefined,
+            });
             if (result) {
                 combinedBlob = result.combined;
                 [guardianBlob, vanguardBlob, cannonBlob] = result.trees;

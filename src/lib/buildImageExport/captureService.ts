@@ -19,7 +19,12 @@ const CAPTURE_READY_MAX_FRAMES = 24;
 const CAPTURE_STABLE_FRAME_COUNT = 2;
 const COMBINED_TREE_SPACING_PX = 0;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
+const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
 
+export type CaptureTextOptions = {
+    treeNames: [string, string, string];
+    buildTitle?: string;
+};
 
 const SNAPDOM_OPTS = {
     type: "png" as const,
@@ -346,6 +351,126 @@ function clearCanvasAndImages(
     }
 }
 
+function computeLabelFontSize(referenceHeight: number): number {
+    return Math.max(14, Math.round(referenceHeight * 0.035));
+}
+
+async function addLabelsToTrees(
+    trees: ThreeTreeBlobs,
+    names: [string, string, string],
+): Promise<ThreeTreeBlobs> {
+    const images: (HTMLImageElement | null)[] = [];
+    const sizes: { width: number; height: number }[] = [];
+    let maxHeight = 0;
+
+    for (let i = 0; i < NUM_TREES; i += 1) {
+        if (trees[i]) {
+            const img = await blobToImage(trees[i]!);
+            const size = getImageIntrinsicSize(img);
+            images.push(img);
+            sizes.push(size);
+            maxHeight = Math.max(maxHeight, size.height);
+        } else {
+            images.push(null);
+            sizes.push({ width: 0, height: 0 });
+        }
+    }
+
+    if (maxHeight === 0) return trees;
+
+    const fontSize = computeLabelFontSize(maxHeight);
+    const padding = Math.round(fontSize * 0.75);
+    const bandHeight = Math.round(fontSize * 2);
+    const result: ThreeTreeBlobs = [null, null, null];
+
+    for (let i = 0; i < NUM_TREES; i += 1) {
+        const img = images[i];
+        const size = sizes[i];
+        if (!img || !names[i]) {
+            if (img) img.src = "";
+            result[i] = trees[i];
+            continue;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = size.width;
+        canvas.height = size.height + bandHeight;
+        const ctx = canvas.getContext("2d", { alpha: true });
+        if (!ctx) {
+            img.src = "";
+            result[i] = trees[i];
+            continue;
+        }
+
+        ctx.drawImage(img, 0, bandHeight);
+        img.src = "";
+
+        ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        const textX = size.width - padding;
+        const textY = bandHeight / 2;
+
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.12));
+        ctx.lineJoin = "round";
+        ctx.strokeText(names[i], textX, textY);
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.fillText(names[i], textX, textY);
+
+        const labeled = await canvasToBlob(canvas);
+        clearCanvasAndImages(ctx, canvas);
+        result[i] = labeled ?? trees[i];
+    }
+
+    return result;
+}
+
+async function addBuildTitleLabel(
+    blob: Blob,
+    title: string,
+): Promise<Blob> {
+    const image = await blobToImage(blob);
+    const { width, height } = getImageIntrinsicSize(image);
+
+    const fontSize = computeLabelFontSize(height);
+    const padding = Math.round(fontSize * 0.75);
+    const bandHeight = Math.round(fontSize * 2);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height + bandHeight;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) {
+        image.src = "";
+        return blob;
+    }
+
+    ctx.drawImage(image, 0, 0);
+    image.src = "";
+
+    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+
+    const textX = width - padding;
+    const textY = height + bandHeight / 2;
+
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.12));
+    ctx.lineJoin = "round";
+    ctx.strokeText(title, textX, textY);
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.fillText(title, textX, textY);
+
+    const result = await canvasToBlob(canvas);
+    clearCanvasAndImages(ctx, canvas);
+    return result ?? blob;
+}
+
 async function combineTreeImagesHorizontally(
     tree1Blob: Blob,
     tree2Blob: Blob,
@@ -480,17 +605,29 @@ export type CaptureAllResult = {
     trees: ThreeTreeBlobs;
 };
 
-export async function captureAllTreeImages(): Promise<CaptureAllResult | null> {
+export async function captureAllTreeImages(
+    textOptions?: CaptureTextOptions,
+): Promise<CaptureAllResult | null> {
     const bridge = treeBridge;
     if (!bridge) return null;
 
     return withCaptureState(async () => {
-        const trees = await captureThreeTreeBlobs(bridge);
+        let trees = await captureThreeTreeBlobs(bridge);
+
+        if (textOptions?.treeNames) {
+            trees = await addLabelsToTrees(trees, textOptions.treeNames);
+        }
+
         const [b0, b1, b2] = trees;
-        const combined =
+        let combined =
             b0 && b1 && b2
                 ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined)
                 : null;
+
+        if (combined && textOptions?.buildTitle) {
+            combined = await addBuildTitleLabel(combined, textOptions.buildTitle);
+        }
+
         return { combined, trees };
     });
 }
