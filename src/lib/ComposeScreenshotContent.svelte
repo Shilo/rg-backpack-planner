@@ -192,10 +192,32 @@
     async function generateStatsImage() {
         isStatsLoading = true;
         try {
-            const { generateStatsImageBlob } = await import(
-                "./buildImageExport/statsImageService"
+            const { renderStatsImage } = await import(
+                "./buildImageExport/statsImageRenderer"
             );
-            statsBlob = await generateStatsImageBlob(activeBuildName);
+            const buildName = activeBuildName;
+            const bonuses: { label: string; value: string }[] = [];
+            const currentBonuses = get(skillBonuses);
+            for (const skillId of SKILL_DISPLAY_ORDER) {
+                const value = currentBonuses.get(skillId);
+                if (value !== undefined && value > 0) {
+                    bonuses.push({
+                        label: $t(`skills.${skillId}`),
+                        value: formatPercent(value),
+                    });
+                }
+            }
+            statsBlob = await renderStatsImage({
+                buildTitle:
+                    buildName && !isDefaultPresetName(buildName)
+                        ? buildName
+                        : undefined,
+                techCrystalsLabel: $t("statistics.techCrystalsSpent"),
+                techCrystalsValue: formatNumber(get(techCrystalsSpent)),
+                nodeLevelsLabel: $t("statistics.backpackNodeLevels"),
+                nodeLevelsValue: formatNumber(get(treeLevelsTotal)),
+                skillBonuses: bonuses,
+            });
             if (!statsBlob) {
                 showToast($t("compose.statsErrorToast"), {
                     tone: "negative",
