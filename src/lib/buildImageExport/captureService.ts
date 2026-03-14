@@ -352,7 +352,7 @@ function clearCanvasAndImages(
 }
 
 function computeLabelFontSize(referenceHeight: number): number {
-    return Math.max(10, Math.round(referenceHeight * 0.022));
+    return Math.max(12, Math.round(referenceHeight * 0.032));
 }
 
 function resolveThemeColor(prop: string, fallback: string): string {

@@ -7,6 +7,8 @@
         ImageIcon,
         SquaresFourIcon,
         ArrowClockwiseIcon,
+        TextTIcon,
+        TextTSlashIcon,
     } from "phosphor-svelte";
     import { GuardianIcon, VanguardIcon, CannonIcon } from "./customIcons";
     import FullscreenModal from "./FullscreenModal.svelte";
@@ -41,6 +43,7 @@
 
     let isLoading = true;
     let closeRequested = false;
+    let showLabels = true;
     let combinedBlob: Blob | null = null;
     let guardianBlob: Blob | null = null;
     let vanguardBlob: Blob | null = null;
@@ -88,16 +91,20 @@
                 "./buildImageExport/captureService"
             );
             const presetName = get(activePresetName);
-            const result = await captureAllTreeImages({
-                treeNames: [
-                    $t("trees.guardian"),
-                    $t("trees.vanguard"),
-                    $t("trees.cannon"),
-                ],
-                buildTitle: !isDefaultPresetName(presetName)
-                    ? presetName
+            const result = await captureAllTreeImages(
+                showLabels
+                    ? {
+                          treeNames: [
+                              $t("trees.guardian"),
+                              $t("trees.vanguard"),
+                              $t("trees.cannon"),
+                          ],
+                          buildTitle: !isDefaultPresetName(presetName)
+                              ? presetName
+                              : undefined,
+                      }
                     : undefined,
-            });
+            );
             if (result) {
                 combinedBlob = result.combined;
                 [guardianBlob, vanguardBlob, cannonBlob] = result.trees;
@@ -126,6 +133,11 @@
 
     function handleTabChange(tabId: string) {
         activeTab = tabId;
+    }
+
+    function toggleLabels() {
+        showLabels = !showLabels;
+        captureAll();
     }
 
     function handleClose() {
@@ -211,17 +223,28 @@
     {/if}
 
     {#if currentBlob || isLoading}
-        <Button
-            class="compose-reload"
-            type="button"
-            aria-label={$t("compose.refreshTooltip")}
-            tooltipText={$t("compose.refreshTooltip")}
-            icon={ArrowClockwiseIcon}
-            iconClass="compose-reload__icon"
-            iconSize={24}
-            disabled={isLoading}
-            on:click={() => captureAll()}
-        />
+        <div class="compose-tools">
+            <Button
+                class="compose-tool-btn {showLabels ? 'active' : ''}"
+                type="button"
+                aria-label="Toggle labels"
+                tooltipText="Toggle labels"
+                icon={showLabels ? TextTIcon : TextTSlashIcon}
+                iconSize={24}
+                disabled={isLoading}
+                on:click={toggleLabels}
+            />
+            <Button
+                class="compose-tool-btn"
+                type="button"
+                aria-label={$t("compose.refreshTooltip")}
+                tooltipText={$t("compose.refreshTooltip")}
+                icon={ArrowClockwiseIcon}
+                iconSize={24}
+                disabled={isLoading}
+                on:click={() => captureAll()}
+            />
+        </div>
     {/if}
     {#if currentBlob || isLoading}
         <div class="compose-fabs">
@@ -256,11 +279,17 @@
         letter-spacing: 0.02em;
     }
 
-    :global(.compose-reload) {
+    .compose-tools {
         position: absolute;
         bottom: var(--spacing-lg);
         left: calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    :global(.compose-tool-btn) {
         width: 38px;
         height: 38px;
         padding: 0;
@@ -273,12 +302,25 @@
         ) !important;
     }
 
-    :global(.compose-reload:disabled) {
+    :global(.compose-tool-btn:disabled) {
         background: color-mix(
             in srgb,
             var(--bg-input) 80%,
             transparent
         ) !important;
+    }
+
+    :global(.compose-tool-btn.active) {
+        background: color-mix(
+            in srgb,
+            var(--accent) 25%,
+            var(--bg-raised)
+        ) !important;
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 40%,
+            var(--border-subtle)
+        );
     }
 
     .compose-fabs {
