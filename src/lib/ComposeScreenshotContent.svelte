@@ -337,16 +337,6 @@
     {#if activeTab !== "stats" && (currentBlob || isLoading)}
         <div class="compose-tools">
             <Button
-                class="compose-tool-btn {showLabels ? 'active' : ''}"
-                type="button"
-                aria-label="Toggle labels"
-                tooltipText="Toggle labels"
-                icon={showLabels ? TextTIcon : TextTSlashIcon}
-                iconSize={24}
-                disabled={isLoading}
-                on:click={toggleLabels}
-            />
-            <Button
                 class="compose-tool-btn"
                 type="button"
                 aria-label={$t("compose.refreshTooltip")}
@@ -356,6 +346,16 @@
                 disabled={isLoading}
                 on:click={() => captureAll()}
             />
+            <Button
+                class="compose-tool-btn {showLabels ? 'active' : ''}"
+                type="button"
+                aria-label="Toggle labels"
+                tooltipText="Toggle labels"
+                icon={showLabels ? TextTIcon : TextTSlashIcon}
+                iconSize={24}
+                disabled={isLoading}
+                on:click={toggleLabels}
+            />
         </div>
     {/if}
     {#if currentBlob || isCurrentTabLoading}
@@ -363,6 +363,7 @@
             <FabMenu
                 actions={composeFabActions}
                 ariaLabel={$t("compose.shareTooltip")}
+                fabIcon={ShareIcon}
             />
         </div>
     {/if}
@@ -409,16 +410,16 @@
         left: calc(var(--spacing-lg) + var(--safe-left, 0px));
         z-index: 1;
         display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
+        flex-direction: row;
+        gap: var(--spacing-lg);
     }
 
     :global(.compose-tool-btn) {
-        width: 38px;
-        height: 38px;
+        width: 48px;
+        height: 48px;
         padding: 0;
-        border-radius: 999px;
-        min-width: 38px;
+        border-radius: 50% !important;
+        min-width: 48px;
         background: color-mix(
             in srgb,
             var(--bg-raised) 80%,
@@ -437,12 +438,12 @@
     :global(.compose-tool-btn.active) {
         background: color-mix(
             in srgb,
-            var(--accent) 25%,
+            var(--accent) 35%,
             var(--bg-raised)
         ) !important;
         border-color: color-mix(
             in srgb,
-            var(--accent) 40%,
+            var(--accent) 50%,
             var(--border-subtle)
         );
     }
