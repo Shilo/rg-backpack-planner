@@ -4,7 +4,6 @@ import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge
 import { isIOSCaptureBug, captureWithIOSBackground, getIOSCaptureBg } from "./captureFixIOS";
 import { EXPORT_FORMAT, EXPORT_MIME, EXPORT_DPR, EXPORT_TARGET_LONG_EDGE_PX, EXPORT_MAX_SCALE } from "./imageFormat";
 import "./captureStyles.css";
-import { getTreeViewportPadding } from "../treeLayout";
 
 let captureInProgressCount = 0;
 
@@ -45,30 +44,20 @@ const SNAPDOM_OPTS = {
 };
 
 function computeCaptureScale(
-    captureRoot: HTMLElement,
     contentBounds: { width: number; height: number },
+    treeScale: number,
 ): number {
-    const rect = captureRoot.getBoundingClientRect();
-    const padding = getTreeViewportPadding();
-    const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
-    const availableH = Math.max(rect.height - padding.top - padding.bottom, 1);
-    const fitScale = Math.min(
-        availableW / contentBounds.width,
-        availableH / contentBounds.height,
-    );
     const renderedLongEdge =
-        Math.max(contentBounds.width, contentBounds.height) * fitScale;
+        Math.max(contentBounds.width, contentBounds.height) * treeScale;
     const scale = EXPORT_TARGET_LONG_EDGE_PX / (renderedLongEdge * EXPORT_DPR);
     return Math.min(Math.max(scale, 1), EXPORT_MAX_SCALE);
 }
 
-function buildCaptureOpts(
-    bridge: TreeBridge,
-    captureRoot: HTMLElement,
-) {
+function buildCaptureOpts(bridge: TreeBridge) {
     const bounds = bridge.getWorldBoundsForCapture?.();
-    const scale = bounds
-        ? computeCaptureScale(captureRoot, bounds)
+    const viewState = bridge.getViewState?.();
+    const scale = bounds && viewState
+        ? computeCaptureScale(bounds, viewState.scale)
         : 1;
     return { ...SNAPDOM_OPTS, scale, dpr: EXPORT_DPR };
 }
@@ -193,7 +182,7 @@ async function captureLiveTreeBlob(
             ? treeCanvas.parentElement
             : treeCanvas;
 
-    const captureOpts = buildCaptureOpts(bridge, captureRoot);
+    const captureOpts = buildCaptureOpts(bridge);
 
     try {
         if (!isIOSCaptureBug()) {
