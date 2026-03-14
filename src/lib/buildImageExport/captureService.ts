@@ -50,7 +50,7 @@ function computeCaptureScale(
     const renderedLongEdge =
         Math.max(contentBounds.width, contentBounds.height) * treeScale;
     const scale = EXPORT_TARGET_LONG_EDGE_PX / (renderedLongEdge * EXPORT_DPR);
-    return Math.min(Math.max(scale, 1), EXPORT_MAX_SCALE);
+    return Math.min(scale, EXPORT_MAX_SCALE);
 }
 
 function buildCaptureOpts(bridge: TreeBridge) {

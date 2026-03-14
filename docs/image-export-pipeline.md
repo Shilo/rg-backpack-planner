@@ -113,7 +113,7 @@ renderedLongEdge = max(boundsW, boundsH) * treeScale
 snapdomScale     = EXPORT_TARGET_LONG_EDGE_PX / (renderedLongEdge * EXPORT_DPR)
 ```
 
-The scale is clamped: `min(max(scale, 1), EXPORT_MAX_SCALE)` — never downscales, caps at 4x to prevent canvas OOM.
+The scale is capped at `EXPORT_MAX_SCALE` (4x) to prevent canvas OOM on very small viewports. Values below 1 are allowed — snapdom renders the SVG at the target canvas size, so this is a proper render at lower resolution, not a lossy post-process downscale.
 
 **Three constants** in `imageFormat.ts` control the output:
 
