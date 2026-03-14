@@ -1,23 +1,19 @@
 const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
 const DPR = 2;
 
-const PADDING_X = 20;
-const PADDING_Y = 16;
-const COLUMN_GAP = 16;
-const BORDER_RADIUS = 12;
+const GAP = 16;
+const DIVIDER_GAP = Math.round(GAP / 2);
+const BORDER_RADIUS = Math.round(GAP * 0.75);
 const BORDER_WIDTH = 1.5;
 const ACCENT_BAR_HEIGHT = 3;
 
 const TITLE_FONT_SIZE = 16;
-const TITLE_GAP_BELOW = 10;
 
 const STAT_FONT_SIZE = 13;
 const STAT_ROW_HEIGHT = 24;
 
 const SKILL_FONT_SIZE = 12;
 const SKILL_ROW_HEIGHT = 22;
-
-const DIVIDER_GAP = 8;
 
 export type StatsImageData = {
     buildTitle?: string;
@@ -114,10 +110,8 @@ export async function renderStatsImage(
         );
     }
 
-    // Card width = padding + left col + gap + right col + padding
-    let cardWidth = Math.ceil(
-        PADDING_X + maxLeft + COLUMN_GAP + maxRight + PADDING_X,
-    );
+    // Card width = gap + left col + gap + right col + gap
+    let cardWidth = Math.ceil(GAP + maxLeft + GAP + maxRight + GAP);
 
     // Ensure title fits if present
     if (data.buildTitle) {
@@ -126,26 +120,26 @@ export async function renderStatsImage(
             data.buildTitle.toUpperCase(),
             titleFont,
         );
-        cardWidth = Math.max(cardWidth, Math.ceil(titleWidth + PADDING_X * 2));
+        cardWidth = Math.max(cardWidth, Math.ceil(titleWidth + GAP * 2));
     }
 
     measureCanvas.width = 0;
     measureCanvas.height = 0;
 
-    const contentWidth = cardWidth - PADDING_X * 2;
-    const valueX = cardWidth - PADDING_X;
+    const contentWidth = cardWidth - GAP * 2;
+    const valueX = cardWidth - GAP;
 
     // Calculate card height
-    let h = ACCENT_BAR_HEIGHT + PADDING_Y;
+    let h = ACCENT_BAR_HEIGHT + GAP;
     if (data.buildTitle) {
-        h += TITLE_FONT_SIZE * 1.2 + TITLE_GAP_BELOW + 1 + DIVIDER_GAP;
+        h += TITLE_FONT_SIZE * 1.2 + GAP + 1 + DIVIDER_GAP;
     }
     h += STAT_ROW_HEIGHT * 2;
     if (data.skillBonuses.length > 0) {
         h += DIVIDER_GAP * 2 + 1;
         h += SKILL_ROW_HEIGHT * data.skillBonuses.length;
     }
-    h += PADDING_Y;
+    h += GAP;
 
     const canvas = document.createElement("canvas");
     canvas.width = cardWidth * DPR;
@@ -186,7 +180,7 @@ export async function renderStatsImage(
     ctx.fillRect(0, 0, cardWidth, ACCENT_BAR_HEIGHT);
     ctx.restore();
 
-    let y = ACCENT_BAR_HEIGHT + PADDING_Y;
+    let y = ACCENT_BAR_HEIGHT + GAP;
 
     // Build title
     if (data.buildTitle) {
@@ -199,12 +193,12 @@ export async function renderStatsImage(
             cardWidth / 2,
             y + TITLE_FONT_SIZE * 0.6,
         );
-        y += TITLE_FONT_SIZE * 1.2 + TITLE_GAP_BELOW;
+        y += TITLE_FONT_SIZE * 1.2 + GAP;
 
         // Divider
         ctx.fillStyle = borderColor;
         ctx.globalAlpha = 0.5;
-        ctx.fillRect(PADDING_X, y, contentWidth, 1);
+        ctx.fillRect(GAP, y, contentWidth, 1);
         ctx.globalAlpha = 1;
         y += 1 + DIVIDER_GAP;
     }
@@ -215,7 +209,7 @@ export async function renderStatsImage(
         ctx.fillStyle = mutedColor;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(label, PADDING_X, rowY + STAT_ROW_HEIGHT / 2);
+        ctx.fillText(label, GAP, rowY + STAT_ROW_HEIGHT / 2);
 
         ctx.font = statValueFont;
         ctx.fillStyle = textColor;
@@ -233,7 +227,7 @@ export async function renderStatsImage(
         y += DIVIDER_GAP;
         ctx.fillStyle = borderColor;
         ctx.globalAlpha = 0.5;
-        ctx.fillRect(PADDING_X, y, contentWidth, 1);
+        ctx.fillRect(GAP, y, contentWidth, 1);
         ctx.globalAlpha = 1;
         y += 1 + DIVIDER_GAP;
 
@@ -242,7 +236,7 @@ export async function renderStatsImage(
             ctx.fillStyle = mutedColor;
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
-            ctx.fillText(bonus.label, PADDING_X, y + SKILL_ROW_HEIGHT / 2);
+            ctx.fillText(bonus.label, GAP, y + SKILL_ROW_HEIGHT / 2);
 
             ctx.font = skillValueFont;
             ctx.fillStyle = accentColor;
