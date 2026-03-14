@@ -21,7 +21,7 @@ export const EXPORT_DPR = 2;
 /**
  * Target resolution: longest edge of a single cropped tree image, in physical pixels.
  */
-export const EXPORT_TARGET_LONG_EDGE_PX = 1200;
+export const EXPORT_TARGET_LONG_EDGE_PX = 800;
 
 /**
  * Upper cap on computed snapdom scale to prevent canvas size limit failures

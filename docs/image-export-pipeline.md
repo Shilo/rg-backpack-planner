@@ -120,35 +120,33 @@ The scale is clamped: `min(max(scale, 1), EXPORT_MAX_SCALE)` — never downscale
 | Constant | Value | Purpose |
 |---|---|---|
 | `EXPORT_DPR` | `2` | Fixed device pixel ratio. Overrides `window.devicePixelRatio`. |
-| `EXPORT_TARGET_LONG_EDGE_PX` | `1200` | Target longest edge of a single cropped tree, in physical pixels. |
+| `EXPORT_TARGET_LONG_EDGE_PX` | `800` | Target longest edge of a single cropped tree, in physical pixels. |
 | `EXPORT_MAX_SCALE` | `4` | Upper cap to prevent canvas size limit failures. |
 
 **Normalized output** (all devices now produce the same resolution):
 
 | Device | Before | After |
 |---|---|---|
-| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~1020x1200 |
-| Landscape phone (812x375, DPR 3) | ~954x1125 | ~1020x1200 |
-| Desktop (1200x800, DPR 1) | ~530x625 | ~1020x1200 |
-| Combined (3 trees) | varies | ~3060x1200 |
+| Portrait phone (375x600, DPR 3) | ~1125x1323 | ~680x800 |
+| Landscape phone (812x375, DPR 3) | ~954x1125 | ~680x800 |
+| Desktop (1200x800, DPR 1) | ~530x625 | ~680x800 |
+| Combined (3 trees) | varies | ~2040x800 |
 
-### Discord Preview Quality vs Target Resolution
+### Discord Preview Quality
 
-The current `EXPORT_TARGET_LONG_EDGE_PX = 1200` produces ~3060px combined width. On Android Discord, this requires an ~8x downscale to fit the ~380px preview container — the same range that produced visibly soft results in testing (2838px looked worse than 1908px).
+At `EXPORT_TARGET_LONG_EDGE_PX = 800`, the combined image is ~2040px wide. On Android Discord, this requires a ~5.4x downscale to fit the ~380px preview container — near the resolution range that tested well (1908px looked sharp vs 2838px looking soft).
 
 | `EXPORT_TARGET_LONG_EDGE_PX` | Combined width | Android preview downscale | Discord quality |
 |---|---|---|---|
-| `1200` (current) | ~3060px | ~8.1x | Soft — similar to 2838px test |
-| `800` | ~2040px | ~5.4x | Good balance |
+| `1200` | ~3060px | ~8.1x | Soft — aggressive downscale |
+| `800` (current) | ~2040px | ~5.4x | Good balance |
 | `700` | ~1785px | ~4.7x | Near the 1908px test that looked sharp |
 | `500` | ~1275px | ~3.4x | Sharp preview, limited full-size detail |
 
-Lowering to **700-800** would standardize output near the resolution that tested well on Discord, while still providing enough detail when users tap "Open Original" to view the lossless PNG from the CDN.
-
 This is a single constant change in `imageFormat.ts`. The rest of the pipeline (crop, label, combine, share) is unaffected.
 
-### Clipboard Copy Note
+### Clipboard Copy
 
-`share.ts:121` hardcodes `"image/png"` in the `ClipboardItem` for clipboard copy. This works because the export format is PNG. If the format ever changes, this needs to use `EXPORT_MIME` instead.
+`share.ts` uses `EXPORT_MIME` in the `ClipboardItem` for clipboard copy, so the clipboard format stays in sync with the export format.
 
 When pasting from clipboard into Discord (as opposed to file upload), Discord may re-encode the image. Direct file upload is the safest path for preserving the original format.
