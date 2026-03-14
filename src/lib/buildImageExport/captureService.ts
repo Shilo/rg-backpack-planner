@@ -2,8 +2,9 @@ import { tick } from "svelte";
 import { snapdom } from "@zumer/snapdom";
 import { treeBridge, type TreeBridge, SNAPDOM_CAPTURE_CLASS } from "./treeBridge";
 import { isIOSCaptureBug, captureWithIOSBackground, getIOSCaptureBg } from "./captureFixIOS";
-import { EXPORT_FORMAT, EXPORT_MIME } from "./imageFormat";
+import { EXPORT_FORMAT, EXPORT_MIME, EXPORT_DPR, EXPORT_TARGET_LONG_EDGE_PX, EXPORT_MAX_SCALE } from "./imageFormat";
 import "./captureStyles.css";
+import { getTreeViewportPadding } from "../treeLayout";
 
 let captureInProgressCount = 0;
 
@@ -42,6 +43,35 @@ const SNAPDOM_OPTS = {
         ".overlay",
     ],
 };
+
+function computeCaptureScale(
+    captureRoot: HTMLElement,
+    contentBounds: { width: number; height: number },
+): number {
+    const rect = captureRoot.getBoundingClientRect();
+    const padding = getTreeViewportPadding();
+    const availableW = Math.max(rect.width - padding.horizontal * 2, 1);
+    const availableH = Math.max(rect.height - padding.top - padding.bottom, 1);
+    const fitScale = Math.min(
+        availableW / contentBounds.width,
+        availableH / contentBounds.height,
+    );
+    const renderedLongEdge =
+        Math.max(contentBounds.width, contentBounds.height) * fitScale;
+    const scale = EXPORT_TARGET_LONG_EDGE_PX / (renderedLongEdge * EXPORT_DPR);
+    return Math.min(Math.max(scale, 1), EXPORT_MAX_SCALE);
+}
+
+function buildCaptureOpts(
+    bridge: TreeBridge,
+    captureRoot: HTMLElement,
+) {
+    const bounds = bridge.getWorldBoundsForCapture?.();
+    const scale = bounds
+        ? computeCaptureScale(captureRoot, bounds)
+        : 1;
+    return { ...SNAPDOM_OPTS, scale, dpr: EXPORT_DPR };
+}
 
 function waitForAnimationFrame(): Promise<void> {
     if (
@@ -163,15 +193,17 @@ async function captureLiveTreeBlob(
             ? treeCanvas.parentElement
             : treeCanvas;
 
+    const captureOpts = buildCaptureOpts(bridge, captureRoot);
+
     try {
         if (!isIOSCaptureBug()) {
-            const blob = await snapdom.toBlob(captureRoot, SNAPDOM_OPTS);
+            const blob = await snapdom.toBlob(captureRoot, captureOpts);
             return await cropBlobToContent(blob);
         }
 
         const { canvas, bg } = await captureWithIOSBackground(
             captureRoot,
-            () => snapdom(captureRoot, SNAPDOM_OPTS),
+            () => snapdom(captureRoot, captureOpts),
         );
         if (!canvas) {
             return null;
