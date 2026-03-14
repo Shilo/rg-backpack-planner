@@ -1241,6 +1241,10 @@
         // that will be restored by restoreViewState after capture completes.
     }
 
+    export function getWorldBoundsForCapture(): { width: number; height: number } | null {
+        return getWorldBounds(1);
+    }
+
     export function getFocusViewState() {
         return focusViewState ?? computeFocusViewState();
     }
