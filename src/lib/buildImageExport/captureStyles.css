@@ -13,6 +13,11 @@ html.snapdom-capture .node-badge-icon-stack {
 
 html.snapdom-capture .node-badge {
     white-space: nowrap !important;
+    /* Remove the identity transform (scale(1)) during capture. While visually
+       a no-op, the transform creates a compositing boundary in snapdom's SVG
+       foreignObject rendering that shifts text baselines, causing level badge
+       numbers to appear above-center in the exported image. */
+    transform: none !important;
 }
 
 /* During capture, "available" (unlocked but level 0) nodes should look
