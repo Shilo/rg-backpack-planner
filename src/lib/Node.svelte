@@ -118,7 +118,11 @@
     $: if (level !== prevLevelForTier) {
         const wasUp = level > prevLevelForTier;
         const ml = maxLevel as import("../types/tree").Node["maxLevel"];
-        if (wasUp && (isLeaf || (maxLevel > 1 && level === tierUpper(tierIndex(level, ml), ml)))) {
+        if (
+            wasUp &&
+            (isLeaf ||
+                (maxLevel > 1 && level === tierUpper(tierIndex(level, ml), ml)))
+        ) {
             tierRingKey++;
         }
         prevLevelForTier = level;
@@ -208,7 +212,7 @@
         --border-color-locked: var(--node-locked-border);
         --node-icon-size: 50%;
         --node-important-icon-size: 65%;
-        --badge-mobile-y-offset: 0px;
+        --badge-mobile-y-offset: 1px;
         /* Contrast text: soft black/white so badge text is readable and not blinding */
         --badge-text-on-light: #1c1c1c;
         --badge-text-on-dark: #f2f2f2;
