@@ -28,7 +28,7 @@
         "tabs": {
             "statistics": {
                 "label": "Statistics",
-                "tooltip": "View skills, levels, and tech crystal data"
+                "tooltip": "View skills, levels, and Tech Crystal data"
             },
             "settings": {
                 "label": "Settings",
@@ -187,8 +187,8 @@
         "reloadWindowDescription": "Refresh and load latest version",
         "resetSettingsDescription": "Restore defaults without affecting progress",
         "clearAllDataDescription": "Erase everything and reload",
-        "resetTreeDescription": "Refund crystals and revert to level 0",
-        "resetAllTreesDescription": "Refund all crystals across every tree",
+        "resetTreeDescription": "Refund Tech Crystals and revert to level 0",
+        "resetAllTreesDescription": "Refund all Tech Crystals across every tree",
         "fullscreenDescription": "Expand browser to fill the screen",
         "themeDescription": "Accent color and light or dark mode",
         "shareDescription": "Link or screenshot",
