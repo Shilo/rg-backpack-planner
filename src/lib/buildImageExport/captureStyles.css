@@ -31,6 +31,37 @@ html.snapdom-capture {
     --capture-link-filter: var(--node-brightness-locked);
 }
 
+/* Pin scoped CSS custom properties that Node.svelte defines on .node-wrapper.
+   snapdom's cloned DOM may fail to resolve Svelte-scoped variable definitions,
+   causing --border-width to fall back to the global 1px (theme.css) instead of
+   the node's 2px. Explicitly set them here so borders render at correct weight. */
+html.snapdom-capture .node-wrapper {
+    --border-width: 2px !important;
+    --hex-border-width: 3px !important;
+}
+
+/* Belt-and-suspenders: set border properties directly on non-hex node buttons
+   so borders survive even if var(--border-width) doesn't resolve. */
+html.snapdom-capture .button.node:not(.node-hexagon) {
+    border-width: 2px !important;
+    border-style: solid !important;
+}
+
+/* Ensure hex node border mechanism survives capture. The ::before fills the
+   hex shape with border color; ::after insets by --hex-border-width for the fill.
+   If --hex-border-width is lost, inset defaults to 0 and border disappears. */
+html.snapdom-capture .button.node.node-hexagon {
+    border: none !important;
+}
+
+/* Use theme-engine variables directly instead of scoped intermediaries like
+   --filter-locked / --filter-available (defined only in Node.svelte scoped CSS).
+   Theme-engine variables are set as inline styles on :root and always survive
+   DOM cloning. */
+html.snapdom-capture .button.node.locked {
+    filter: var(--node-brightness-locked) !important;
+}
+
 html.snapdom-capture .node-wrapper.available {
     --node-icon-color: var(--border-color-locked) !important;
 }
@@ -39,7 +70,7 @@ html.snapdom-capture .node-wrapper.available .button.node.available {
     background: var(--bg-locked) !important;
     border-color: var(--border-color-locked) !important;
     color: var(--text-color-locked) !important;
-    filter: var(--filter-locked) !important;
+    filter: var(--node-brightness-locked) !important;
     --hex-fill: var(--bg-locked);
     --hex-border-color: var(--border-color-locked);
 }
