@@ -1,24 +1,23 @@
 const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
 const DPR = 2;
 
-const CARD_WIDTH = 480;
-const PADDING_X = 28;
-const PADDING_Y = 24;
-const CONTENT_WIDTH = CARD_WIDTH - PADDING_X * 2;
-const BORDER_RADIUS = 14;
+const PADDING_X = 20;
+const PADDING_Y = 16;
+const COLUMN_GAP = 16;
+const BORDER_RADIUS = 12;
 const BORDER_WIDTH = 1.5;
 const ACCENT_BAR_HEIGHT = 3;
 
-const TITLE_FONT_SIZE = 17;
-const TITLE_GAP_BELOW = 14;
+const TITLE_FONT_SIZE = 16;
+const TITLE_GAP_BELOW = 10;
 
-const STAT_FONT_SIZE = 14;
-const STAT_ROW_HEIGHT = 30;
+const STAT_FONT_SIZE = 13;
+const STAT_ROW_HEIGHT = 24;
 
-const SKILL_FONT_SIZE = 13;
-const SKILL_ROW_HEIGHT = 26;
+const SKILL_FONT_SIZE = 12;
+const SKILL_ROW_HEIGHT = 22;
 
-const DIVIDER_GAP = 10;
+const DIVIDER_GAP = 8;
 
 export type StatsImageData = {
     buildTitle?: string;
@@ -58,6 +57,15 @@ function drawRoundedRect(
     ctx.closePath();
 }
 
+function measureWidth(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    font: string,
+): number {
+    ctx.font = font;
+    return ctx.measureText(text).width;
+}
+
 export async function renderStatsImage(
     data: StatsImageData,
 ): Promise<Blob | null> {
@@ -66,6 +74,66 @@ export async function renderStatsImage(
     const textColor = resolveThemeColor("--text", "#e8e8ec");
     const mutedColor = resolveThemeColor("--text-muted", "#8a8a94");
     const accentColor = resolveThemeColor("--accent", "#5b9bd5");
+
+    const statLabelFont = `600 ${STAT_FONT_SIZE}px ${LABEL_FONT}`;
+    const statValueFont = `700 ${STAT_FONT_SIZE}px ${LABEL_FONT}`;
+    const skillLabelFont = `500 ${SKILL_FONT_SIZE}px ${LABEL_FONT}`;
+    const skillValueFont = `600 ${SKILL_FONT_SIZE}px ${LABEL_FONT}`;
+    const titleFont = `700 ${TITLE_FONT_SIZE}px ${LABEL_FONT}`;
+
+    // Use a temporary canvas to measure text widths
+    const measureCanvas = document.createElement("canvas");
+    measureCanvas.width = 1;
+    measureCanvas.height = 1;
+    const mCtx = measureCanvas.getContext("2d");
+    if (!mCtx) return null;
+
+    // Measure all left/right column widths
+    let maxLeft = 0;
+    let maxRight = 0;
+
+    maxLeft = Math.max(
+        maxLeft,
+        measureWidth(mCtx, data.techCrystalsLabel, statLabelFont),
+        measureWidth(mCtx, data.nodeLevelsLabel, statLabelFont),
+    );
+    maxRight = Math.max(
+        maxRight,
+        measureWidth(mCtx, data.techCrystalsValue, statValueFont),
+        measureWidth(mCtx, data.nodeLevelsValue, statValueFont),
+    );
+
+    for (const bonus of data.skillBonuses) {
+        maxLeft = Math.max(
+            maxLeft,
+            measureWidth(mCtx, bonus.label, skillLabelFont),
+        );
+        maxRight = Math.max(
+            maxRight,
+            measureWidth(mCtx, bonus.value, skillValueFont),
+        );
+    }
+
+    // Card width = padding + left col + gap + right col + padding
+    let cardWidth = Math.ceil(
+        PADDING_X + maxLeft + COLUMN_GAP + maxRight + PADDING_X,
+    );
+
+    // Ensure title fits if present
+    if (data.buildTitle) {
+        const titleWidth = measureWidth(
+            mCtx,
+            data.buildTitle.toUpperCase(),
+            titleFont,
+        );
+        cardWidth = Math.max(cardWidth, Math.ceil(titleWidth + PADDING_X * 2));
+    }
+
+    measureCanvas.width = 0;
+    measureCanvas.height = 0;
+
+    const contentWidth = cardWidth - PADDING_X * 2;
+    const valueX = cardWidth - PADDING_X;
 
     // Calculate card height
     let h = ACCENT_BAR_HEIGHT + PADDING_Y;
@@ -80,7 +148,7 @@ export async function renderStatsImage(
     h += PADDING_Y;
 
     const canvas = document.createElement("canvas");
-    canvas.width = CARD_WIDTH * DPR;
+    canvas.width = cardWidth * DPR;
     canvas.height = h * DPR;
     const maybeCtx = canvas.getContext("2d", { alpha: true });
     if (!maybeCtx) return null;
@@ -93,7 +161,7 @@ export async function renderStatsImage(
     ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
     ctx.shadowOffsetY = 4;
     ctx.shadowBlur = 16;
-    drawRoundedRect(ctx, 0, 0, CARD_WIDTH, h, BORDER_RADIUS);
+    drawRoundedRect(ctx, 0, 0, cardWidth, h, BORDER_RADIUS);
     ctx.fillStyle = bgColor;
     ctx.fill();
     ctx.shadowColor = "transparent";
@@ -106,29 +174,29 @@ export async function renderStatsImage(
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(BORDER_RADIUS, 0);
-    ctx.lineTo(CARD_WIDTH - BORDER_RADIUS, 0);
-    ctx.arcTo(CARD_WIDTH, 0, CARD_WIDTH, BORDER_RADIUS, BORDER_RADIUS);
-    ctx.lineTo(CARD_WIDTH, ACCENT_BAR_HEIGHT);
+    ctx.lineTo(cardWidth - BORDER_RADIUS, 0);
+    ctx.arcTo(cardWidth, 0, cardWidth, BORDER_RADIUS, BORDER_RADIUS);
+    ctx.lineTo(cardWidth, ACCENT_BAR_HEIGHT);
     ctx.lineTo(0, ACCENT_BAR_HEIGHT);
     ctx.lineTo(0, BORDER_RADIUS);
     ctx.arcTo(0, 0, BORDER_RADIUS, 0, BORDER_RADIUS);
     ctx.closePath();
     ctx.clip();
     ctx.fillStyle = accentColor;
-    ctx.fillRect(0, 0, CARD_WIDTH, ACCENT_BAR_HEIGHT);
+    ctx.fillRect(0, 0, cardWidth, ACCENT_BAR_HEIGHT);
     ctx.restore();
 
     let y = ACCENT_BAR_HEIGHT + PADDING_Y;
 
     // Build title
     if (data.buildTitle) {
-        ctx.font = `700 ${TITLE_FONT_SIZE}px ${LABEL_FONT}`;
+        ctx.font = titleFont;
         ctx.fillStyle = textColor;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(
             data.buildTitle.toUpperCase(),
-            CARD_WIDTH / 2,
+            cardWidth / 2,
             y + TITLE_FONT_SIZE * 0.6,
         );
         y += TITLE_FONT_SIZE * 1.2 + TITLE_GAP_BELOW;
@@ -136,27 +204,23 @@ export async function renderStatsImage(
         // Divider
         ctx.fillStyle = borderColor;
         ctx.globalAlpha = 0.5;
-        ctx.fillRect(PADDING_X, y, CONTENT_WIDTH, 1);
+        ctx.fillRect(PADDING_X, y, contentWidth, 1);
         ctx.globalAlpha = 1;
         y += 1 + DIVIDER_GAP;
     }
 
     // Stat rows
     function drawStatRow(label: string, value: string, rowY: number) {
-        ctx.font = `600 ${STAT_FONT_SIZE}px ${LABEL_FONT}`;
+        ctx.font = statLabelFont;
         ctx.fillStyle = mutedColor;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText(label, PADDING_X, rowY + STAT_ROW_HEIGHT / 2);
 
-        ctx.font = `700 ${STAT_FONT_SIZE}px ${LABEL_FONT}`;
+        ctx.font = statValueFont;
         ctx.fillStyle = textColor;
         ctx.textAlign = "right";
-        ctx.fillText(
-            value,
-            CARD_WIDTH - PADDING_X,
-            rowY + STAT_ROW_HEIGHT / 2,
-        );
+        ctx.fillText(value, valueX, rowY + STAT_ROW_HEIGHT / 2);
     }
 
     drawStatRow(data.techCrystalsLabel, data.techCrystalsValue, y);
@@ -169,25 +233,21 @@ export async function renderStatsImage(
         y += DIVIDER_GAP;
         ctx.fillStyle = borderColor;
         ctx.globalAlpha = 0.5;
-        ctx.fillRect(PADDING_X, y, CONTENT_WIDTH, 1);
+        ctx.fillRect(PADDING_X, y, contentWidth, 1);
         ctx.globalAlpha = 1;
         y += 1 + DIVIDER_GAP;
 
         for (const bonus of data.skillBonuses) {
-            ctx.font = `500 ${SKILL_FONT_SIZE}px ${LABEL_FONT}`;
+            ctx.font = skillLabelFont;
             ctx.fillStyle = mutedColor;
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
             ctx.fillText(bonus.label, PADDING_X, y + SKILL_ROW_HEIGHT / 2);
 
-            ctx.font = `600 ${SKILL_FONT_SIZE}px ${LABEL_FONT}`;
+            ctx.font = skillValueFont;
             ctx.fillStyle = accentColor;
             ctx.textAlign = "right";
-            ctx.fillText(
-                bonus.value,
-                CARD_WIDTH - PADDING_X,
-                y + SKILL_ROW_HEIGHT / 2,
-            );
+            ctx.fillText(bonus.value, valueX, y + SKILL_ROW_HEIGHT / 2);
             y += SKILL_ROW_HEIGHT;
         }
     }

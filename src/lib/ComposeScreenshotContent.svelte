@@ -66,15 +66,15 @@
             icon: SquaresFourIcon,
             tooltip: $t("compose.tabs.all"),
         },
-        { id: "guardian", label: $t("trees.guardian"), icon: GuardianIcon },
-        { id: "vanguard", label: $t("trees.vanguard"), icon: VanguardIcon },
-        { id: "cannon", label: $t("trees.cannon"), icon: CannonIcon },
         {
             id: "stats",
             label: "",
             icon: ChartBarIcon,
             tooltip: $t("compose.tabs.stats"),
         },
+        { id: "guardian", label: $t("trees.guardian"), icon: GuardianIcon },
+        { id: "vanguard", label: $t("trees.vanguard"), icon: VanguardIcon },
+        { id: "cannon", label: $t("trees.cannon"), icon: CannonIcon },
     ];
 
     $: currentBlob =
@@ -88,11 +88,10 @@
                   ? vanguardBlob
                   : cannonBlob;
 
-    $: isCurrentTabLoading =
-        activeTab === "stats" ? isStatsLoading : isLoading;
+    $: isCurrentTabLoading = activeTab === "stats" ? isStatsLoading : isLoading;
 
     $: activeBuildName = $isPreviewMode
-        ? $previewBuildName ?? $activePresetName
+        ? ($previewBuildName ?? $activePresetName)
         : $activePresetName;
 
     onMount(() => {
@@ -406,7 +405,7 @@
     }
 
     :global(.fullscreen-modal .tab-bar__tab-button:first-child),
-    :global(.fullscreen-modal .tab-bar__tab-button:last-child) {
+    :global(.fullscreen-modal .tab-bar__tab-button:nth-child(2)) {
         flex: 0 0 var(--side-menu-tab-height);
     }
 
@@ -417,7 +416,7 @@
         ),
     :global(
             .fullscreen-modal
-                .tab-bar__tab-button:last-child
+                .tab-bar__tab-button:nth-child(2)
                 .tab-bar__tab-label
         ) {
         display: none;
