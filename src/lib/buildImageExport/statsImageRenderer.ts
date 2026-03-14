@@ -1,7 +1,7 @@
-import { EXPORT_MIME } from "./imageFormat";
+import { EXPORT_DPR, EXPORT_MIME } from "./imageFormat";
 
 const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
-const DPR = 2;
+const DPR = EXPORT_DPR;
 
 const GAP = 16;
 const DIVIDER_GAP = Math.round(GAP / 2);
