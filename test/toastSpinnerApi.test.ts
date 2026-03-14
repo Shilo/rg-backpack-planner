@@ -33,8 +33,65 @@ if (!/\{#if toast\.showSpinner\}/.test(toastsComponentSource)) {
     );
 }
 
-if (!/toast__spinner/.test(toastsComponentSource)) {
-    throw new Error("Toasts should define a dedicated spinner element.");
+if (!/import Spinner from "\.\/Spinner\.svelte"/.test(toastsComponentSource)) {
+    throw new Error("Toasts should import the shared Spinner component.");
+}
+
+if (!/<Spinner\b/.test(toastsComponentSource)) {
+    throw new Error("Toasts should render the shared Spinner component.");
+}
+
+if (/toast__spinner/.test(toastsComponentSource)) {
+    throw new Error("Toasts should stop defining an inline toast__spinner element.");
+}
+
+if (/toast-spinner/.test(toastsComponentSource)) {
+    throw new Error("Toasts should stop owning the toast-spinner animation.");
+}
+
+const spinnerPath = resolve("src/lib/Spinner.svelte");
+const spinnerSource = readFileSync(spinnerPath, "utf8");
+
+if (!/export let size = /.test(spinnerSource)) {
+    throw new Error("Spinner should expose a configurable size prop.");
+}
+
+if (!/export let thickness = /.test(spinnerSource)) {
+    throw new Error("Spinner should expose a configurable thickness prop.");
+}
+
+if (!/export let tone(?::[^=]+)? = "default"/.test(spinnerSource)) {
+    throw new Error("Spinner should expose a semantic tone prop.");
+}
+
+for (const removedProp of [
+    "color",
+    "trackColor",
+    "label",
+    "decorative",
+    "className",
+]) {
+    if (new RegExp(`export let ${removedProp}\\b`).test(spinnerSource)) {
+        throw new Error(`Spinner should not expose ${removedProp}.`);
+    }
+}
+
+if (!/aria-hidden="true"/.test(spinnerSource)) {
+    throw new Error("Spinner should keep aria-hidden static.");
+}
+
+if (/aria-label=/.test(spinnerSource)) {
+    throw new Error("Spinner should not expose or set a custom aria-label.");
+}
+
+if (!/tone=\{toast\.tone === "negative" \? "negative" : "default"\}/.test(toastsComponentSource)) {
+    throw new Error("Toasts should pass a semantic tone to Spinner.");
+}
+
+for (const removedToastProp of ["color=", "trackColor="]) {
+    if (toastsComponentSource.includes(removedToastProp)) {
+        throw new Error(`Toasts should not pass ${removedToastProp} to Spinner.`);
+    }
 }
 
 const mainPath = resolve("src/main.ts");

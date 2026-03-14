@@ -4,6 +4,7 @@
     import { dismissToast, toastStore, type Toast } from "./toast";
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon } from "phosphor-svelte";
+    import Spinner from "./Spinner.svelte";
 
     const timeouts = new Map<string, number>();
 
@@ -71,7 +72,9 @@
                 </span>
             {/if}
             {#if toast.showSpinner}
-                <span class="toast__spinner" aria-hidden="true"></span>
+                <Spinner
+                    tone={toast.tone === "negative" ? "negative" : "default"}
+                />
             {/if}
             <span class="toast__message">{toast.message}</span>
         </div>
@@ -104,7 +107,10 @@
         gap: var(--spacing-md);
         padding: var(--spacing-lg) calc(var(--spacing-lg) + var(--spacing-md));
         max-width: min(
-            calc(100vw - 2 * var(--bar-pad) - var(--safe-left, 0px) - var(--safe-right, 0px)),
+            calc(
+                100vw - 2 * var(--bar-pad) - var(--safe-left, 0px) -
+                    var(--safe-right, 0px)
+            ),
             400px
         );
         width: fit-content;
@@ -161,29 +167,7 @@
         color: var(--danger-text);
     }
 
-    .toast__spinner {
-        width: 1rem;
-        height: 1rem;
-        flex-shrink: 0;
-        border-radius: 999px;
-        border: 2px solid
-            color-mix(in srgb, var(--text-muted) 22%, transparent);
-        border-top-color: var(--accent);
-        animation: toast-spinner 0.75s linear infinite;
-    }
-
-    .toast--negative .toast__spinner {
-        border-color: color-mix(in srgb, var(--danger-text) 22%, transparent);
-        border-top-color: var(--danger-text);
-    }
-
     .toast__message {
         flex: 1;
-    }
-
-    @keyframes toast-spinner {
-        to {
-            transform: rotate(360deg);
-        }
     }
 </style>
