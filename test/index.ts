@@ -42,6 +42,7 @@ const TEST_FILES = [
     "nodeBadgeTypographyConsistency.test.ts",
     "nodeContentMenuTierAction.test.ts",
     "nodeFocusStyle.test.ts",
+    "rootNodeGearStructure.test.ts",
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
     "previewBuildsDropdownTcDescription.test.ts",
