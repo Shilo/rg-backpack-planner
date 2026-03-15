@@ -13,22 +13,30 @@ import { showToast } from "../toast";
 import { tr } from "svelte-whisper";
 
 /**
- * Copies text to clipboard
+ * Copies text to clipboard, with execCommand fallback.
  */
 async function copyToClipboard(text: string): Promise<boolean> {
-    if (
-        typeof navigator === "undefined" ||
-        !navigator.clipboard ||
-        typeof navigator.clipboard.writeText !== "function"
-    ) {
-        return false;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            // Fall through to execCommand fallback
+        }
     }
 
     try {
-        await navigator.clipboard.writeText(text);
-        return true;
-    } catch (error) {
-        console.error("Failed to copy to clipboard:", error);
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "true");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        return copied;
+    } catch {
         return false;
     }
 }

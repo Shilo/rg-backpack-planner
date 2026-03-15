@@ -301,7 +301,7 @@
         "copyScreenshot": "スクリーンショットを共有",
         "shareLinkCopiedToast": "共有リンクをクリップボードにコピーしました",
         "fallbackCopiedToast": "共有できません — クリップボードにコピーしました",
-        "shareFailedToast": "共有できません",
+        "shareFailedToast": "クリップボードにコピーできません",
         "unableToCopyLinkToast": "リンクをコピーできません",
         "shareScreenshotCopiedToast": "スクリーンショットをクリップボードにコピーしました",
         "unableToCopyScreenshotToast": "スクリーンショットをコピーできません",

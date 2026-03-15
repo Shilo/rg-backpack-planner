@@ -122,6 +122,30 @@ function getRecommendedResolution(candidate: string): ResolvedShareToken | null 
     return null;
 }
 
+function getLegacyCustomResolution(candidate: string): ResolvedShareToken | null {
+    const variants = getCandidateVariants(candidate);
+    for (const variant of [...variants].reverse()) {
+        if (variant.startsWith(CUSTOM_BUILD_PREFIX)) {
+            continue;
+        }
+
+        const buildData = decodeBuildData(variant);
+        if (!buildData) {
+            continue;
+        }
+
+        return {
+            buildData,
+            encoded: variant,
+            canonicalToken: getCustomBuildToken(variant),
+            kind: "custom",
+            shouldNormalize: true,
+        };
+    }
+
+    return null;
+}
+
 export function resolveShareToken(candidate: string): ResolvedShareToken | null {
     const token = candidate.trim();
     if (!token) {
@@ -149,18 +173,7 @@ export function resolveShareToken(candidate: string): ResolvedShareToken | null 
         return recommended;
     }
 
-    const legacyCustomBuild = decodeBuildData(token);
-    if (!legacyCustomBuild) {
-        return null;
-    }
-
-    return {
-        buildData: legacyCustomBuild,
-        encoded: token,
-        canonicalToken: getCustomBuildToken(token),
-        kind: "custom",
-        shouldNormalize: true,
-    };
+    return getLegacyCustomResolution(token);
 }
 
 export function resolveShareTokenFromUrl(): ResolvedShareToken | null {
@@ -222,7 +235,7 @@ export function getEncodedFromUrl(): string | null {
     const candidate = hash.slice(1).trim();
     if (!candidate) return null;
 
-    return resolveShareToken(candidate)?.encoded ?? candidate;
+    return resolveShareToken(candidate)?.encoded ?? null;
 }
 
 /**

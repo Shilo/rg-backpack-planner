@@ -301,7 +301,7 @@
         "copyScreenshot": "Share Screenshot",
         "shareLinkCopiedToast": "Share link copied to clipboard",
         "fallbackCopiedToast": "Share unavailable — copied to clipboard",
-        "shareFailedToast": "Unable to share",
+        "shareFailedToast": "Unable to copy to clipboard",
         "unableToCopyLinkToast": "Unable to copy link",
         "shareScreenshotCopiedToast": "Share screenshot copied to clipboard",
         "unableToCopyScreenshotToast": "Unable to copy screenshot",
