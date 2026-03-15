@@ -33,6 +33,7 @@
     export let toastDurationMs: number | undefined = undefined;
     export let arrow: "right" | "down" | undefined = undefined;
     export let description: string | undefined = undefined;
+    export let descriptionIcon: Component | null = null;
 
     let restClass: string | undefined;
     let buttonProps: Record<string, unknown> = {};
@@ -125,7 +126,17 @@
             <span class="button-text">
                 <slot />
             </span>
-            <span class="button-description">{description}</span>
+            <span class="button-description">
+                {#if descriptionIcon}
+                    <svelte:component
+                        this={descriptionIcon}
+                        class="button-description-icon"
+                        aria-hidden={true}
+                        size={12}
+                    />
+                {/if}
+                {description}
+            </span>
         </span>
     {:else}
         <span class="button-text">
@@ -295,6 +306,9 @@
     }
 
     .button-description {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
         font-size: var(--font-sm);
         color: var(--text-disabled);
         line-height: var(--leading);
