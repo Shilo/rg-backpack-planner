@@ -128,9 +128,13 @@ export async function copyImageBlobToClipboard(blob: Blob): Promise<boolean> {
 }
 
 /**
- * Result status for native/clipboard URL sharing
+ * Result status for native share / clipboard-copy operations.
+ * - "shared": Native share dialog succeeded.
+ * - "copied": Content was copied to clipboard (fallback or explicit).
+ * - "cancelled": User dismissed the native share dialog.
+ * - "failed": All mechanisms failed.
  */
-export type ShareBuildUrlResult = "shared" | "copied" | "cancelled" | "failed";
+export type ShareResult = "shared" | "copied" | "cancelled" | "failed";
 
 /**
  * Shares a build URL using the Web Share API when available,
@@ -148,7 +152,7 @@ export async function shareBuildUrlNative(options?: {
     title?: string;
     text?: string;
     customBuildData?: BuildData;
-}): Promise<ShareBuildUrlResult> {
+}): Promise<ShareResult> {
     // SSR / non-browser guard
     if (typeof window === "undefined" || typeof navigator === "undefined") {
         return "failed";
@@ -208,28 +212,59 @@ export function downloadImageBlob(blob: Blob, filename: string): void {
 }
 
 /**
- * Shares an image blob via the native Web Share API
- * @returns true if shared successfully, false if cancelled or unavailable
+ * Shares an image blob via the native Web Share API,
+ * falling back to copying the image to the clipboard.
  */
 export async function shareImageBlobNative(
     blob: Blob,
     filename: string,
-): Promise<boolean> {
-    if (
-        typeof navigator === "undefined" ||
-        typeof navigator.share !== "function"
-    ) {
-        return false;
+): Promise<ShareResult> {
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
+        return "failed";
     }
 
-    try {
-        const file = new File([blob], filename, { type: EXPORT_MIME });
-        await navigator.share({ files: [file] });
-        return true;
-    } catch (error: unknown) {
-        const err = error as { name?: string };
-        if (err?.name === "AbortError") return false;
-        console.error("Failed to share image:", error);
-        return false;
+    if (typeof navigator.share === "function") {
+        try {
+            const file = new File([blob], filename, { type: EXPORT_MIME });
+            await navigator.share({ files: [file] });
+            return "shared";
+        } catch (error: unknown) {
+            const err = error as { name?: string };
+            if (err?.name === "AbortError") return "cancelled";
+            console.error(
+                "Failed to share image via Web Share API, falling back:",
+                error,
+            );
+        }
     }
+
+    const clipboardSuccess = await copyImageBlobToClipboard(blob);
+    return clipboardSuccess ? "copied" : "failed";
+}
+
+/**
+ * Shares text via the native Web Share API,
+ * falling back to copying the text to the clipboard.
+ */
+export async function shareTextNative(text: string): Promise<ShareResult> {
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
+        return "failed";
+    }
+
+    if (typeof navigator.share === "function") {
+        try {
+            await navigator.share({ text });
+            return "shared";
+        } catch (error: unknown) {
+            const err = error as { name?: string };
+            if (err?.name === "AbortError") return "cancelled";
+            console.error(
+                "Failed to share text via Web Share API, falling back:",
+                error,
+            );
+        }
+    }
+
+    const clipboardSuccess = await copyToClipboard(text);
+    return clipboardSuccess ? "copied" : "failed";
 }

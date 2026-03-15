@@ -71,10 +71,11 @@
             customBuildData: buildData ?? undefined,
         });
 
-        if (result === "failed") {
-            showToast($t("share.unableToShareLinkToast"), { tone: "negative" });
+        if (result === "copied") {
+            showToast($t("share.fallbackCopiedToast"));
+        } else if (result === "failed") {
+            showToast($t("share.shareFailedToast"), { tone: "negative" });
         }
-        // For "shared" and "cancelled", rely on native dialog UX and show no toast.
     }
 
     async function handleCopyLink() {

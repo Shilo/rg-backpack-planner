@@ -199,9 +199,11 @@
                 "stats",
                 createComposeImageFilenameSuffix(),
             );
-            const success = await shareImageBlobNative(blob, filename);
-            if (!success) {
-                showToast($t("compose.shareErrorToast"), {
+            const result = await shareImageBlobNative(blob, filename);
+            if (result === "copied") {
+                showToast($t("share.fallbackCopiedToast"));
+            } else if (result === "failed") {
+                showToast($t("share.shareFailedToast"), {
                     tone: "negative",
                 });
             }

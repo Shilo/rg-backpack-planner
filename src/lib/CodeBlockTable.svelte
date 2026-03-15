@@ -1,5 +1,6 @@
 <script lang="ts">
     import { showToast } from "./toast";
+    import { shareTextNative } from "./buildData/share";
     import appPackage from "../../package.json";
     import { t } from "svelte-whisper";
 
@@ -100,19 +101,12 @@
     }
 
     export async function share() {
-        if (
-            typeof navigator !== "undefined" &&
-            typeof navigator.share === "function"
-        ) {
-            try {
-                await navigator.share({ text: codeblockText });
-                return;
-            } catch (error: unknown) {
-                const err = error as { name?: string };
-                if (err?.name === "AbortError") return;
-            }
+        const result = await shareTextNative(codeblockText);
+        if (result === "copied") {
+            showToast($t("share.fallbackCopiedToast"));
+        } else if (result === "failed") {
+            showToast($t("share.shareFailedToast"), { tone: "negative" });
         }
-        await copyCodeblock();
     }
 </script>
 

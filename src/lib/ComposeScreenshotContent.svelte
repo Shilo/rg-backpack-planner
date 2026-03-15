@@ -277,9 +277,11 @@
     async function handleShare() {
         if (!currentBlob) return;
         const filename = getDownloadFilename(activeTab);
-        const success = await shareImageBlobNative(currentBlob, filename);
-        if (!success) {
-            showToast($t("compose.shareErrorToast"), {
+        const result = await shareImageBlobNative(currentBlob, filename);
+        if (result === "copied") {
+            showToast($t("share.fallbackCopiedToast"));
+        } else if (result === "failed") {
+            showToast($t("share.shareFailedToast"), {
                 tone: "negative",
             });
         }
