@@ -7,6 +7,7 @@
     import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
     import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
     import PreviewBuildIndicator from "./lib/PreviewBuildIndicator.svelte";
+    import OnboardingOverlay from "./lib/onboarding/OnboardingOverlay.svelte";
     import Tooltip from "./lib/Tooltip.svelte";
     import Toasts from "./lib/Toasts.svelte";
     import ModalHost from "./lib/ModalHost.svelte";
@@ -63,7 +64,10 @@
         tryShowStoppedPreviewToast,
         tryShowClonedBuildToast,
     } from "./lib/toast";
-    import { onboardingSeen } from "./lib/onboarding/onboardingStore";
+    import {
+        completeOnboarding,
+        onboardingSeen,
+    } from "./lib/onboarding/onboardingStore";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
     import { tr } from "svelte-whisper";
@@ -559,6 +563,16 @@
             onMenuClick={toggleMenu}
         />
     </main>
+    {#if !$onboardingSeen}
+        <OnboardingOverlay
+            onDismiss={completeOnboarding}
+            nodes={tabs[activeTreeIndex]?.nodes ?? []}
+            offsetX={activeTreeViewState?.offsetX ?? 0}
+            offsetY={activeTreeViewState?.offsetY ?? 0}
+            scale={activeTreeViewState?.scale ?? 1}
+            targetNodeIndex={0}
+        />
+    {/if}
     <ComposeScreenshot />
     <Toasts />
     <ModalHost />
@@ -571,6 +585,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        position: relative;
     }
 
     .app-shell.menu-open {

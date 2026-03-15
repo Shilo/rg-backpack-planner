@@ -4,6 +4,9 @@ export const LONG_PRESS_MOVE_THRESHOLD = 8;
 /** Suppress the next pointerup/click for this pointer (invalidates touch after long-press) */
 const suppressedPointerIds = new Set<number>();
 let suppressClickUntil = 0;
+let suppressContextMenuUntil = 0;
+const CLICK_SUPPRESSION_MS = 200;
+const CONTEXT_MENU_SUPPRESSION_MS = 350;
 
 export function suppressNextPointerUp(pointerId: number) {
     suppressedPointerIds.add(pointerId);
@@ -12,7 +15,8 @@ export function suppressNextPointerUp(pointerId: number) {
 function handlePointerUp(event: PointerEvent) {
     if (!suppressedPointerIds.has(event.pointerId)) return;
     suppressedPointerIds.delete(event.pointerId);
-    suppressClickUntil = Date.now() + 200;
+    suppressClickUntil = Date.now() + CLICK_SUPPRESSION_MS;
+    suppressContextMenuUntil = Date.now() + CONTEXT_MENU_SUPPRESSION_MS;
     event.preventDefault();
     event.stopImmediatePropagation();
 }
@@ -24,9 +28,19 @@ function handleClick(event: MouseEvent) {
     event.stopImmediatePropagation();
 }
 
+function handleContextMenu(event: MouseEvent) {
+    if (Date.now() > suppressContextMenuUntil) return;
+    suppressContextMenuUntil = 0;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+}
+
 if (typeof document !== "undefined") {
     document.addEventListener("pointerup", handlePointerUp, { capture: true });
     document.addEventListener("click", handleClick, { capture: true });
+    document.addEventListener("contextmenu", handleContextMenu, {
+        capture: true,
+    });
 }
 
 export type LongPressState = {

@@ -8,6 +8,7 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "resolveJsonModule": true,
+        "allowArbitraryExtensions": true,
         "types": ["svelte", "vite/client"],
         "emitDeclarationOnly": true,
         /**

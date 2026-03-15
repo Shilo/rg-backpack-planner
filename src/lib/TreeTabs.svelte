@@ -253,7 +253,15 @@
         tabPressPointerId = null;
     }
 
+    function isPrimaryPointer(event: PointerEvent) {
+        if (event.pointerType === "mouse") {
+            return event.button === 0;
+        }
+        return true;
+    }
+
     function startTabPress(event: PointerEvent, tab: TabConfig, index: number) {
+        if (!isPrimaryPointer(event)) return;
         tabPressStart = { x: event.clientX, y: event.clientY };
         tabPressPoint = { x: event.clientX, y: event.clientY };
         tabPressPointerId = event.pointerId;
@@ -328,6 +336,7 @@
     }
 
     function startBackgroundPress(event: PointerEvent) {
+        if (!isPrimaryPointer(event)) return;
         if (
             isContextMenuTarget(event.target) ||
             isNodeTarget(event.target) ||
@@ -360,11 +369,6 @@
     }
 
     function openBackgroundMenu(event: MouseEvent) {
-        // Ignore touch-synthesized contextmenu - we use long-press for that
-        if (event.button !== 2) {
-            event.preventDefault();
-            return;
-        }
         if (
             isContextMenuTarget(event.target) ||
             isNodeTarget(event.target) ||
@@ -403,12 +407,6 @@
     }
 
     function openTabMenu(event: MouseEvent, tab: TabConfig, index: number) {
-        // Ignore touch-synthesized contextmenu - we use long-press for that
-        if (event.button !== 2) {
-            event.preventDefault();
-            return;
-        }
-
         event.preventDefault();
         hideTooltip();
         tabContextMenu = {

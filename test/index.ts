@@ -49,6 +49,8 @@ const TEST_FILES = [
     "rootNodeQuickSettingsRouting.test.ts",
     "rootNodeQuickSettingsTouchOffset.test.ts",
     "rootNodeInputHandling.test.ts",
+    "longPressContextMenuSuppression.test.ts",
+    "treeContextMenuInputHandling.test.ts",
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
     "previewBuildsDropdownTcDescription.test.ts",

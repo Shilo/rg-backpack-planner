@@ -1,11 +1,6 @@
 <script lang="ts">
-    import { getContext, onMount, tick } from "svelte";
-    import type { Writable } from "svelte/store";
-    import type {
-        LevelsByIndex,
-        Node as NodeType,
-        NodeIndex,
-    } from "../../types/tree";
+    import { onMount, tick } from "svelte";
+    import type { Node as NodeType, NodeIndex } from "../../types/tree";
     import {
         CursorClickIcon,
         HandTapIcon,
@@ -23,22 +18,18 @@
     } from "./onboardingSteps";
 
     export let onDismiss: () => void;
-    export let offsetX: number;
-    export let offsetY: number;
-    export let scale: number;
+    export let nodes: NodeType[] = [];
+    export let offsetX = 0;
+    export let offsetY = 0;
+    export let scale = 1;
     export let targetNodeIndex: NodeIndex = 0;
-    export let emptySpaceWorldX: number = 180;
-    export let emptySpaceWorldY: number = 342;
+    export let emptySpaceWorldX = 180;
+    export let emptySpaceWorldY = 342;
 
     const SPOTLIGHT_PAD = 12;
     const ROOT_SPOTLIGHT_PAD = 10;
     const HUD_SPOTLIGHT_RADIUS = 18;
     const EMPTY_RECT: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
-
-    const treeData =
-        getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>(
-            "tree",
-        );
 
     let overlayEl: HTMLDivElement | null = null;
     let viewportWidth = 0;
@@ -50,10 +41,17 @@
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
     let currentStepIndex = 0;
-    let activePaneBounds: Rect = { ...EMPTY_RECT };
     let dismissing = false;
+    let layoutVersion = 0;
+    let layoutRefreshFrame: number | null = null;
+    let trailingLayoutRefreshFrame: number | null = null;
+    let treeViewportRect: Rect = { ...EMPTY_RECT };
+    let nodeSpotlightRect: Rect = { ...EMPTY_RECT };
+    let rootSpotlightRect: Rect = { ...EMPTY_RECT };
+    let treeSpotlightRect: Rect = { ...EMPTY_RECT };
+    let hudSpotlightRect: Rect = { ...EMPTY_RECT };
 
-    $: targetNode = $treeData.nodes[targetNodeIndex];
+    $: targetNode = nodes[targetNodeIndex];
     $: targetRegion = (() => {
         if (!targetNode) return "bottom-left" as const;
         if (targetNode.x > TREE_ROOT_X) return "right" as const;
@@ -82,11 +80,13 @@
         compactLayout,
         targetRegion,
     });
-    $: if (steps.length > 0 && currentStepIndex > steps.length - 1) {
+    $: if (steps.length === 0) {
+        currentStepIndex = 0;
+    } else if (currentStepIndex > steps.length - 1) {
         currentStepIndex = steps.length - 1;
     }
     $: activeStep = steps[currentStepIndex] ?? null;
-    $: isFinalStep = currentStepIndex >= steps.length - 1;
+    $: isFinalStep = steps.length > 0 && currentStepIndex >= steps.length - 1;
     $: actionHint = isFinalStep
         ? isTouch
             ? $t("onboarding.startTap")
@@ -171,19 +171,66 @@
         };
     }
 
-    $: nodeSpotlightRect =
-        resolveElementRect(`[data-node-id="${targetNodeIndex}"]`, SPOTLIGHT_PAD) ??
-        circleRect(nodeScreenX, nodeScreenY, nodeScreenRadius + SPOTLIGHT_PAD);
-    $: rootSpotlightRect =
-        resolveElementRect('[data-node-id="root"]', ROOT_SPOTLIGHT_PAD) ??
-        circleRect(rootScreenX, rootScreenY, rootFallbackRadius);
-    $: treeSpotlightRect = circleRect(
-        treeScreenX,
-        treeScreenY,
-        treeSpotlightRadius,
-    );
-    $: hudSpotlightRect =
-        resolveElementRect(".top-right-actions", 8, 8) ?? fallbackHudRect();
+    function scheduleLayoutRefresh() {
+        if (typeof window === "undefined") return;
+        if (layoutRefreshFrame !== null) {
+            cancelAnimationFrame(layoutRefreshFrame);
+        }
+        if (trailingLayoutRefreshFrame !== null) {
+            cancelAnimationFrame(trailingLayoutRefreshFrame);
+        }
+        layoutRefreshFrame = requestAnimationFrame(() => {
+            layoutVersion += 1;
+            layoutRefreshFrame = null;
+            trailingLayoutRefreshFrame = requestAnimationFrame(() => {
+                layoutVersion += 1;
+                trailingLayoutRefreshFrame = null;
+            });
+        });
+    }
+
+    $: if (overlayEl) {
+        currentStepIndex;
+        targetNodeIndex;
+        viewportWidth;
+        viewportHeight;
+        offsetX;
+        offsetY;
+        scale;
+        nodes;
+        scheduleLayoutRefresh();
+    }
+
+    $: {
+        void layoutVersion;
+        treeViewportRect =
+            resolveElementRect(".tree-viewport", 0, 0) ?? { ...EMPTY_RECT };
+
+        nodeSpotlightRect =
+            resolveElementRect(`[data-node-id="${targetNodeIndex}"]`, SPOTLIGHT_PAD) ??
+            circleRect(
+                treeViewportRect.left + nodeScreenX,
+                treeViewportRect.top + nodeScreenY,
+                nodeScreenRadius + SPOTLIGHT_PAD,
+            );
+
+        rootSpotlightRect =
+            resolveElementRect('[data-node-id="root"]', ROOT_SPOTLIGHT_PAD) ??
+            circleRect(
+                treeViewportRect.left + rootScreenX,
+                treeViewportRect.top + rootScreenY,
+                rootFallbackRadius,
+            );
+
+        treeSpotlightRect = circleRect(
+            treeViewportRect.left + treeScreenX,
+            treeViewportRect.top + treeScreenY,
+            treeSpotlightRadius,
+        );
+
+        hudSpotlightRect =
+            resolveElementRect(".top-right-actions", 8, 8) ?? fallbackHudRect();
+    }
 
     function getSpotlightRect(target: OnboardingTarget): Rect {
         if (target === "node") return nodeSpotlightRect;
@@ -205,7 +252,10 @@
         if (dismissing || !activeStep) return;
         if (currentStepIndex < steps.length - 1) {
             currentStepIndex += 1;
-            void tick().then(() => overlayEl?.focus());
+            void tick().then(() => {
+                overlayEl?.focus();
+                scheduleLayoutRefresh();
+            });
             return;
         }
         dismissOnboarding();
@@ -229,22 +279,10 @@
         event.stopImmediatePropagation();
     }
 
-    function handlePointerAdvance(event: PointerEvent) {
+    function handleAdvanceClick(event: MouseEvent) {
         blockEvent(event);
         if (dismissing) return;
         handleAdvance();
-    }
-
-    function handleClickBlock(event: MouseEvent) {
-        blockEvent(event);
-    }
-
-    function handleWheelBlock(event: WheelEvent) {
-        blockEvent(event);
-    }
-
-    function handleContextMenuBlock(event: MouseEvent) {
-        blockEvent(event);
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -268,29 +306,22 @@
         footerBottomOffset = Math.max(barPad, safeBottom);
         bottomPadding = tabHeight + footerBottomOffset + panePadding;
 
-        const blockingWheelOptions = { capture: true, passive: false } as const;
         window.addEventListener("keydown", handleKeydown, true);
-        window.addEventListener("pointerdown", handlePointerAdvance, true);
-        window.addEventListener("click", handleClickBlock, true);
-        window.addEventListener("contextmenu", handleContextMenuBlock, true);
-        window.addEventListener("wheel", handleWheelBlock, blockingWheelOptions);
-        void tick().then(() => overlayEl?.focus());
+        scheduleLayoutRefresh();
+        void tick().then(() => {
+            overlayEl?.focus();
+            scheduleLayoutRefresh();
+        });
 
         return () => {
             window.removeEventListener("keydown", handleKeydown, true);
-            window.removeEventListener("pointerdown", handlePointerAdvance, true);
-            window.removeEventListener("click", handleClickBlock, true);
-            window.removeEventListener(
-                "contextmenu",
-                handleContextMenuBlock,
-                true,
-            );
-            window.removeEventListener(
-                "wheel",
-                handleWheelBlock,
-                blockingWheelOptions,
-            );
             if (dismissTimer) clearTimeout(dismissTimer);
+            if (layoutRefreshFrame !== null) {
+                cancelAnimationFrame(layoutRefreshFrame);
+            }
+            if (trailingLayoutRefreshFrame !== null) {
+                cancelAnimationFrame(trailingLayoutRefreshFrame);
+            }
         };
     });
 </script>
@@ -307,6 +338,10 @@
     tabindex="-1"
     bind:clientWidth={viewportWidth}
     bind:clientHeight={viewportHeight}
+    on:click={handleAdvanceClick}
+    on:keydown={handleKeydown}
+    on:contextmenu={blockEvent}
+    on:wheel={blockEvent}
 >
     <svg class="onboarding-backdrop" aria-hidden="true">
         <defs>
@@ -373,7 +408,6 @@
                 ownSpotlightRect={activeSpotlightRect}
                 edgePadding={effectivePanePadding}
                 bottomEdgePadding={footerReservedSpace}
-                bind:bounds={activePaneBounds}
                 compact={compactLayout}
             />
         {/key}
@@ -394,8 +428,9 @@
     .onboarding-overlay {
         position: absolute;
         inset: 0;
-        z-index: calc(var(--z-index-hud) + 1);
+        z-index: calc(var(--z-index-modal) - 1);
         pointer-events: auto;
+        touch-action: none;
         animation: overlay-fade-in 300ms ease both;
     }
 

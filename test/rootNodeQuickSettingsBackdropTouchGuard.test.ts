@@ -24,8 +24,50 @@ if (!/aria-label=\{\$t\("common\.close"\)\}/.test(source)) {
     );
 }
 
-if (!/on:click(?:\|preventDefault)?=\{\(\) => onClose\?\.\(\)\}/.test(source)) {
+if (!/let backdropHadPointerDown = false;/.test(source)) {
     throw new Error(
-        "RootNodeQuickSettings backdrop should close directly on click once root opens after the triggering gesture completes.",
+        "RootNodeQuickSettings should track whether the backdrop actually received the initiating press before closing.",
+    );
+}
+
+if (!/function handleBackdropPointerDown\(event: PointerEvent\)/.test(source)) {
+    throw new Error(
+        "RootNodeQuickSettings should capture backdrop pointerdown so post-open synthetic events do not count as a real close request.",
+    );
+}
+
+if (
+    !/function handleBackdropClick\(event: MouseEvent\) \{[\s\S]*?if \(!backdropHadPointerDown\) return;[\s\S]*?onClose\?\.\(\);/m.test(
+        source,
+    )
+) {
+    throw new Error(
+        "RootNodeQuickSettings should only close on click after the backdrop itself received the initiating press.",
+    );
+}
+
+if (
+    !/function handleBackdropContextMenu\(event: MouseEvent\) \{[\s\S]*?if \(!backdropHadPointerDown\) return;[\s\S]*?onClose\?\.\(\);/m.test(
+        source,
+    )
+) {
+    throw new Error(
+        "RootNodeQuickSettings should ignore synthetic contextmenu events unless the backdrop itself received the initiating press.",
+    );
+}
+
+if (
+    !/on:pointerdown=\{handleBackdropPointerDown\}[\s\S]*?on:pointerup=\{handleBackdropPointerUp\}[\s\S]*?on:click=\{handleBackdropClick\}[\s\S]*?on:contextmenu=\{handleBackdropContextMenu\}/m.test(
+        source,
+    )
+) {
+    throw new Error(
+        "RootNodeQuickSettings backdrop should use the same pointerdown-backed close wiring as the other context surfaces.",
+    );
+}
+
+if (/on:contextmenu\|preventDefault=\{\(\) => onClose\?\.\(\)\}/.test(source)) {
+    throw new Error(
+        "RootNodeQuickSettings should not close from a raw backdrop contextmenu handler without verifying the backdrop received the initiating press.",
     );
 }

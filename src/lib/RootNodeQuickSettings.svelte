@@ -17,6 +17,7 @@
     let displayY = 0;
     let isTouchPlatform = false;
     let wasOpen = false;
+    let backdropHadPointerDown = false;
 
     const MARGIN = 8;
     const OFFSET_Y = 12;
@@ -55,6 +56,7 @@
 
     $: if (!isOpen && wasOpen) {
         wasOpen = false;
+        backdropHadPointerDown = false;
     }
 
     function selectPrimaryAction(action: NodePrimaryAction) {
@@ -88,6 +90,33 @@
             onClose?.();
         }
     }
+
+    function handleBackdropPointerDown(event: PointerEvent) {
+        if (event.target !== event.currentTarget) return;
+        event.stopPropagation();
+        backdropHadPointerDown = true;
+    }
+
+    function handleBackdropPointerUp(event: PointerEvent) {
+        if (event.target !== event.currentTarget) return;
+        event.stopPropagation();
+    }
+
+    function handleBackdropClick(event: MouseEvent) {
+        if (event.target !== event.currentTarget) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (!backdropHadPointerDown) return;
+        onClose?.();
+    }
+
+    function handleBackdropContextMenu(event: MouseEvent) {
+        if (event.target !== event.currentTarget) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (!backdropHadPointerDown) return;
+        onClose?.();
+    }
 </script>
 
 {#if isOpen}
@@ -96,8 +125,10 @@
         type="button"
         tabindex="0"
         aria-label={$t("common.close")}
-        on:click={() => onClose?.()}
-        on:contextmenu|preventDefault={() => onClose?.()}
+        on:pointerdown={handleBackdropPointerDown}
+        on:pointerup={handleBackdropPointerUp}
+        on:click={handleBackdropClick}
+        on:contextmenu={handleBackdropContextMenu}
     ></button>
     <div
         class="qs-panel"

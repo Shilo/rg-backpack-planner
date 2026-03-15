@@ -37,8 +37,6 @@
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
     import { showSkillName } from "./showSkillNameStore";
-    import OnboardingOverlay from "./onboarding/OnboardingOverlay.svelte";
-    import { completeOnboarding, onboardingSeen } from "./onboarding/onboardingStore";
     import { textSize } from "./textSizeStore";
     import {
         applyLevelChange,
@@ -826,11 +824,6 @@
 
     function onContextMenu(event: MouseEvent) {
         if (gesturesDisabled) return;
-        // Ignore touch-synthesized contextmenu - we use long-press for that
-        if (event.button !== 2) {
-            event.preventDefault();
-            return;
-        }
         const info = getNodeInfoFromTarget(event.target);
         if (!info) return;
 
@@ -1574,16 +1567,6 @@
                     />
                 {/each}
             </div>
-
-            {#if !$onboardingSeen}
-                <OnboardingOverlay
-                    onDismiss={completeOnboarding}
-                    targetNodeIndex={0}
-                    {offsetX}
-                    {offsetY}
-                    {scale}
-                />
-            {/if}
         </div>
     </div>
 {/key}
