@@ -21,11 +21,165 @@ import {
     previewBuildName,
 } from "../previewBuildNameStore";
 import { get } from "svelte/store";
+
+export const CUSTOM_BUILD_PREFIX = "/";
+
+export interface ResolvedShareToken {
+    buildData: BuildData;
+    encoded: string;
+    canonicalToken: string;
+    kind: "recommended" | "custom";
+    shouldNormalize: boolean;
+}
+
 /**
  * Cached base path from vite.config.ts
  * Normalized to have leading slash and trailing slash
  */
 let cachedBasePath: string | null = null;
+
+function safeDecodeURIComponent(candidate: string): string | null {
+    if (!candidate.includes("%")) {
+        return null;
+    }
+
+    try {
+        return decodeURIComponent(candidate);
+    } catch {
+        return null;
+    }
+}
+
+function getCandidateVariants(candidate: string): string[] {
+    const token = candidate.trim();
+    if (!token) {
+        return [];
+    }
+
+    const variants = [token];
+    const decoded = safeDecodeURIComponent(token);
+    if (decoded && decoded !== token) {
+        variants.push(decoded);
+    }
+    return variants;
+}
+
+function getCustomBuildToken(encoded: string): string {
+    return `${CUSTOM_BUILD_PREFIX}${encoded}`;
+}
+
+function getShareTokenForEncoded(encoded: string): string {
+    return getRecommendedBuildTokenForEncoded(encoded) ?? getCustomBuildToken(encoded);
+}
+
+function getExplicitCustomEncoded(candidate: string): {
+    encoded: string;
+    shouldNormalize: boolean;
+} | null {
+    const variants = getCandidateVariants(candidate);
+    for (const variant of variants) {
+        if (!variant.startsWith(CUSTOM_BUILD_PREFIX)) {
+            continue;
+        }
+
+        const encoded = variant.slice(CUSTOM_BUILD_PREFIX.length).trim();
+        if (!encoded) {
+            return null;
+        }
+
+        const canonicalToken = getCustomBuildToken(encoded);
+        return {
+            encoded,
+            shouldNormalize: candidate.trim() !== canonicalToken,
+        };
+    }
+
+    return null;
+}
+
+function getRecommendedResolution(candidate: string): ResolvedShareToken | null {
+    for (const variant of getCandidateVariants(candidate)) {
+        const encoded = resolveRecommendedBuildEncoded(variant);
+        if (!encoded) {
+            continue;
+        }
+
+        const buildData = decodeBuildData(encoded);
+        const canonicalToken = getRecommendedBuildTokenForEncoded(encoded);
+        if (!buildData || !canonicalToken) {
+            return null;
+        }
+
+        return {
+            buildData,
+            encoded,
+            canonicalToken,
+            kind: "recommended",
+            shouldNormalize: false,
+        };
+    }
+
+    return null;
+}
+
+export function resolveShareToken(candidate: string): ResolvedShareToken | null {
+    const token = candidate.trim();
+    if (!token) {
+        return null;
+    }
+
+    const explicitCustom = getExplicitCustomEncoded(token);
+    if (explicitCustom) {
+        const buildData = decodeBuildData(explicitCustom.encoded);
+        if (!buildData) {
+            return null;
+        }
+
+        return {
+            buildData,
+            encoded: explicitCustom.encoded,
+            canonicalToken: getCustomBuildToken(explicitCustom.encoded),
+            kind: "custom",
+            shouldNormalize: explicitCustom.shouldNormalize,
+        };
+    }
+
+    const recommended = getRecommendedResolution(token);
+    if (recommended) {
+        return recommended;
+    }
+
+    const legacyCustomBuild = decodeBuildData(token);
+    if (!legacyCustomBuild) {
+        return null;
+    }
+
+    return {
+        buildData: legacyCustomBuild,
+        encoded: token,
+        canonicalToken: getCustomBuildToken(token),
+        kind: "custom",
+        shouldNormalize: true,
+    };
+}
+
+export function resolveShareTokenFromUrl(): ResolvedShareToken | null {
+    if (typeof window === "undefined") {
+        return null;
+    }
+
+    const hash = window.location.hash;
+    if (!hash || hash === "#") {
+        return null;
+    }
+
+    const candidate = hash.slice(1).trim();
+    if (!candidate) {
+        return null;
+    }
+
+    return resolveShareToken(candidate);
+}
 
 /**
  * Get the base path from Vite config, cached on first access
@@ -56,8 +210,8 @@ export function getBasePath(): string {
  * Get the encoded build data from the current URL.
  *
  * Supported formats:
- *   /{base}#{encoded}
- *   /{base}#/{reserved}
+ *   /{base}#{recommended}
+ *   /{base}#/{custom}
  */
 export function getEncodedFromUrl(): string | null {
     if (typeof window === "undefined") return null;
@@ -68,7 +222,7 @@ export function getEncodedFromUrl(): string | null {
     const candidate = hash.slice(1).trim();
     if (!candidate) return null;
 
-    return resolveRecommendedBuildEncoded(candidate) ?? candidate;
+    return resolveShareToken(candidate)?.encoded ?? candidate;
 }
 
 /**
@@ -143,7 +297,7 @@ export function createShareUrl(buildData?: BuildData): string {
               owned: get(techCrystalsOwned),
           };
     const encoded = encodeBuildData(data);
-    const shareToken = getRecommendedBuildTokenForEncoded(encoded) ?? encoded;
+    const shareToken = getShareTokenForEncoded(encoded);
     return buildShareUrl(shareToken);
 }
 
@@ -172,25 +326,19 @@ export function isDefaultPresetName(name?: string | null): boolean {
 export function loadBuildFromUrl(): BuildData | null {
     if (typeof window === "undefined") return null;
 
-    const encoded = getEncodedFromUrl();
-    if (!encoded) {
+    const resolved = resolveShareTokenFromUrl();
+    if (!resolved) {
         clearPreviewBuildName();
         return null;
     }
 
-    const buildData = decodeBuildData(encoded);
-    if (buildData) {
-        // Store the build name if present
-        if (buildData.name) {
-            setPreviewBuildName(buildData.name);
-        } else {
-            clearPreviewBuildName();
-        }
+    if (resolved.buildData.name) {
+        setPreviewBuildName(resolved.buildData.name);
     } else {
         clearPreviewBuildName();
     }
 
-    return buildData;
+    return resolved.buildData;
 }
 
 /**
@@ -212,12 +360,7 @@ export function parseEncodedFromUserInput(input: string): string | null {
     ).trim();
     if (!candidate) return null;
 
-    const recommendedEncoded = resolveRecommendedBuildEncoded(candidate);
-    if (recommendedEncoded) {
-        return recommendedEncoded;
-    }
-
-    return decodeBuildData(candidate) ? candidate : null;
+    return resolveShareToken(candidate)?.encoded ?? null;
 }
 
 /**
@@ -262,7 +405,7 @@ export function updateUrlWithCurrentBuild(): void {
         };
 
         const encoded = encodeBuildData(buildData);
-        const shareToken = getRecommendedBuildTokenForEncoded(encoded) ?? encoded;
+        const shareToken = getShareTokenForEncoded(encoded);
         const newPath = buildSharePath(shareToken);
 
         // Only update URL if it's different from current path + hash
@@ -296,7 +439,7 @@ export function navigateToEncodedBuild(encoded: string): void {
     if (typeof window === "undefined") return;
 
     const oldURL = window.location.href;
-    const newPath = buildSharePath(encoded);
+    const newPath = buildSharePath(getShareTokenForEncoded(encoded));
     window.history.pushState({}, "", newPath);
     window.dispatchEvent(
         new HashChangeEvent("hashchange", {

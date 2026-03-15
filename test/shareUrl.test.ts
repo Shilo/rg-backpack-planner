@@ -4,8 +4,10 @@ import {
     isDefaultPresetName,
     parseEncodedFromUserInput,
     getBuildNameFromEncoded,
+    resolveShareToken,
 } from "../src/lib/buildData/url.ts";
 import { decodeBuildData, encodeBuildData } from "../src/lib/buildData/encoder.ts";
+import { recommendedBuilds } from "../src/lib/buildData/recommended.ts";
 
 function assertEqual(actual: unknown, expected: unknown, message: string): void {
     const actualJson = JSON.stringify(actual);
@@ -45,10 +47,13 @@ const SHARED_PAYLOAD_EXAMPLE =
     "E'4.k.E.E.a.k.1,E'7.k.k.1,E.E.k.E.E.k'3.a;,E'7.k.k;Y.Y.E.Y.k.E.E.a.k,Y.Y.E.E.Y.E.E.k.k.1";
 const RECOMMENDED_LATE_PVE =
     "Late_PvE|,k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7";
-const RECOMMENDED_LATE_PVE_TOKEN = "/Late_PvE";
+const FIRST_RECOMMENDED_BUILD = recommendedBuilds[0];
 const recommendedLatePveBuildData = decodeBuildData(RECOMMENDED_LATE_PVE);
 if (!recommendedLatePveBuildData) {
     throw new Error("Expected Late_PvE recommended build fixture to decode");
+}
+if (!FIRST_RECOMMENDED_BUILD) {
+    throw new Error("Expected at least one recommended build fixture");
 }
 
 Object.defineProperty(globalThis, "window", {
@@ -72,109 +77,114 @@ Object.defineProperty(globalThis, "window", {
 assertEqual(
     parseEncodedFromUserInput(`https://example.com/#${encodedValidBuild}`),
     encodedValidBuild,
-    "Should extract payload from full URL with hash",
+    "Should decode a legacy bare custom payload from a full URL hash",
 );
 assertEqual(
     parseEncodedFromUserInput(`http://localhost:5173/rg-backpack-planner/#Name|${encodedValidBuild}`),
     `Name|${encodedValidBuild}`,
-    "Should extract named payload from full URL",
+    "Should decode a legacy bare named custom payload from a full URL hash",
 );
 assertEqual(
     parseEncodedFromUserInput(`#${encodedValidBuild}`),
     encodedValidBuild,
-    "Should extract payload from raw hash string",
+    "Should decode a legacy bare custom payload from a raw hash string",
 );
 assertEqual(
     parseEncodedFromUserInput(encodedValidBuild),
     encodedValidBuild,
-    "Should validate raw payload string",
+    "Should decode a raw legacy bare custom payload",
 );
 assertEqual(
     parseEncodedFromUserInput(`Custom_Name|${encodedValidBuild}`),
     `Custom_Name|${encodedValidBuild}`,
-    "Should validate raw payload with name",
+    "Should decode a raw legacy bare named custom payload",
 );
 assertEqual(
     parseEncodedFromUserInput(`https://rgbp.app/#${SHARED_PAYLOAD_EXAMPLE}`),
     SHARED_PAYLOAD_EXAMPLE,
-    "Should accept the reported production share URL payload",
+    "Should decode the reported production bare custom share URL payload",
 );
 assertEqual(
     parseEncodedFromUserInput(
         `https://rgbp.app/#${encodeURIComponent(SHARED_PAYLOAD_EXAMPLE)}`,
     ),
-    encodeURIComponent(SHARED_PAYLOAD_EXAMPLE),
-    "Should accept mobile percent-encoded share URL payloads",
-);
-assertEqual(
-    parseEncodedFromUserInput(RECOMMENDED_LATE_PVE_TOKEN),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a prefixed recommended build name alias to its encoded build",
-);
-assertEqual(
-    parseEncodedFromUserInput(`#${RECOMMENDED_LATE_PVE_TOKEN}`),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a prefixed recommended build name alias from a raw hash",
-);
-assertEqual(
-    parseEncodedFromUserInput("/late_pve"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a lowercase prefixed recommended build name alias",
-);
-assertEqual(
-    parseEncodedFromUserInput("/late pve"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a space-separated prefixed recommended build name alias",
-);
-assertEqual(
-    parseEncodedFromUserInput("/latepve"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a compact prefixed recommended build name alias",
-);
-assertEqual(
-    parseEncodedFromUserInput("/  LaTe   PvE  "),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a mixed-case prefixed recommended build name alias with extra spaces",
-);
-assertEqual(
-    parseEncodedFromUserInput("/4"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a prefixed recommended build numeric alias to its encoded build",
-);
-assertEqual(
-    parseEncodedFromUserInput("https://rgbp.app/#/4"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a prefixed recommended build numeric alias from a full URL",
-);
-assertEqual(
-    parseEncodedFromUserInput("https://rgbp.app/#%2FLate_PvE"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a percent-encoded prefixed recommended build link",
-);
-assertEqual(
-    parseEncodedFromUserInput("https://rgbp.app/#1"),
-    CUSTOM_FIRST_NODE_ONE,
-    "Should keep a bare numeric hash on the custom build path",
+    SHARED_PAYLOAD_EXAMPLE,
+    "Should decode percent-encoded bare custom share URL payloads to raw canonical custom payloads",
 );
 assertEqual(
     parseEncodedFromUserInput("Late_PvE"),
-    null,
-    "Should not resolve a bare recommended name without the reserved prefix",
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a bare recommended build name alias to its encoded build",
 );
 assertEqual(
-    parseEncodedFromUserInput("https://rgbp.app/#Late_PvE"),
+    parseEncodedFromUserInput("#Late_PvE"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a bare recommended build name alias from a raw hash",
+);
+assertEqual(
+    parseEncodedFromUserInput("late_pve"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a lowercase bare recommended build name alias",
+);
+assertEqual(
+    parseEncodedFromUserInput("late pve"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a space-separated bare recommended build name alias",
+);
+assertEqual(
+    parseEncodedFromUserInput("latepve"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a compact bare recommended build name alias",
+);
+assertEqual(
+    parseEncodedFromUserInput("  LaTe   PvE  "),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a mixed-case bare recommended build name alias with extra spaces",
+);
+assertEqual(
+    parseEncodedFromUserInput("1"),
+    FIRST_RECOMMENDED_BUILD.encoded,
+    "Should resolve a bare recommended build numeric alias to its encoded build",
+);
+assertEqual(
+    parseEncodedFromUserInput("https://rgbp.app/#1"),
+    FIRST_RECOMMENDED_BUILD.encoded,
+    "Should resolve a bare recommended build numeric alias from a full URL",
+);
+assertEqual(
+    parseEncodedFromUserInput(`/${CUSTOM_FIRST_NODE_ONE}`),
+    CUSTOM_FIRST_NODE_ONE,
+    "Should treat a prefixed custom payload as custom-only",
+);
+assertEqual(
+    parseEncodedFromUserInput(`https://rgbp.app/#/${encodedValidBuild}`),
+    encodedValidBuild,
+    "Should decode a canonical prefixed custom payload from a full URL",
+);
+assertEqual(
+    parseEncodedFromUserInput(`/${`Custom_Name|${encodedValidBuild}`}`),
+    `Custom_Name|${encodedValidBuild}`,
+    "Should decode a canonical prefixed named custom payload",
+);
+assertEqual(
+    parseEncodedFromUserInput(`https://rgbp.app/#%2F${encodedValidBuild}`),
+    encodedValidBuild,
+    "Should treat a percent-encoded custom prefix as custom-only",
+);
+assertEqual(
+    parseEncodedFromUserInput("/Late_PvE"),
     null,
-    "Should not resolve a bare recommended name URL without the reserved prefix",
+    "Should not resolve a prefixed recommended-looking token as a reserved build",
 );
 assertEqual(
     parseEncodedFromUserInput("https://rgbp.app/#Late_PvE|"),
     null,
-    "Should keep a bare named-looking hash on the custom path when the prefix is missing",
+    "Should keep a malformed bare named-looking token invalid",
 );
 assertEqual(
     parseEncodedFromUserInput("https://rgbp.app/#1|"),
     null,
-    "Should keep a bare numeric named-looking hash on the custom path when the prefix is missing",
+    "Should keep a malformed bare numeric named-looking token invalid",
 );
 assertEqual(
     parseEncodedFromUserInput("https://example.com/"),
@@ -215,60 +225,133 @@ assertEqual(
 );
 
 // getEncodedFromUrl alias resolution tests
-window.location.hash = "#/Late_PvE";
+window.location.hash = "#Late_PvE";
 assertEqual(
     getEncodedFromUrl(),
     RECOMMENDED_LATE_PVE,
-    "Should resolve the canonical prefixed recommended name hash to encoded build data",
+    "Should resolve the canonical bare recommended name hash to encoded build data",
 );
 
-window.location.hash = "#/late pve";
+window.location.hash = "#late pve";
 assertEqual(
     getEncodedFromUrl(),
     RECOMMENDED_LATE_PVE,
-    "Should resolve a lowercase spaced prefixed recommended name hash to encoded build data",
+    "Should resolve a lowercase spaced bare recommended name hash to encoded build data",
 );
 
-window.location.hash = "#%2FLate_PvE";
+window.location.hash = "#latepve";
 assertEqual(
     getEncodedFromUrl(),
     RECOMMENDED_LATE_PVE,
-    "Should resolve a percent-encoded prefixed recommended name hash to encoded build data",
-);
-
-window.location.hash = "#/4";
-assertEqual(
-    getEncodedFromUrl(),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve the prefixed recommended numeric hash to encoded build data",
+    "Should resolve a compact bare recommended name hash to encoded build data",
 );
 
 window.location.hash = "#1";
 assertEqual(
     getEncodedFromUrl(),
-    CUSTOM_FIRST_NODE_ONE,
-    "Should leave a bare numeric custom hash unchanged",
+    FIRST_RECOMMENDED_BUILD.encoded,
+    "Should resolve the bare recommended numeric hash to encoded build data",
 );
 
-window.location.hash = "#Late_PvE";
+window.location.hash = `#${encodeURIComponent(SHARED_PAYLOAD_EXAMPLE)}`;
 assertEqual(
     getEncodedFromUrl(),
-    "Late_PvE",
-    "Should leave a bare recommended-looking hash on the custom path when the prefix is missing",
+    SHARED_PAYLOAD_EXAMPLE,
+    "Should resolve a percent-encoded bare custom hash to raw encoded build data",
 );
 
-window.location.hash = `#${encodedValidBuild}`;
+window.location.hash = "#/1";
+assertEqual(
+    getEncodedFromUrl(),
+    CUSTOM_FIRST_NODE_ONE,
+    "Should resolve a prefixed custom hash as custom-only",
+);
+
+window.location.hash = "#%2F1";
+assertEqual(
+    getEncodedFromUrl(),
+    CUSTOM_FIRST_NODE_ONE,
+    "Should resolve a percent-encoded prefixed custom hash as custom-only",
+);
+
+window.location.hash = `#/${encodedValidBuild}`;
 assertEqual(
     getEncodedFromUrl(),
     encodedValidBuild,
-    "Should leave existing custom build hashes unchanged",
+    "Should resolve a canonical prefixed custom hash unchanged",
 );
 
-// createShareUrl recommended alias tests
+// resolveShareToken normalization tests
+const legacyCustomResolution = resolveShareToken(encodedValidBuild);
+assertEqual(
+    legacyCustomResolution
+        ? {
+              encoded: legacyCustomResolution.encoded,
+              canonicalToken: legacyCustomResolution.canonicalToken,
+              kind: legacyCustomResolution.kind,
+              shouldNormalize: legacyCustomResolution.shouldNormalize,
+          }
+        : null,
+    {
+        encoded: encodedValidBuild,
+        canonicalToken: `/${encodedValidBuild}`,
+        kind: "custom",
+        shouldNormalize: true,
+    },
+    "Should mark a legacy bare custom payload for immediate canonical normalization",
+);
+
+const percentEncodedLegacyCustomResolution = resolveShareToken(
+    encodeURIComponent(SHARED_PAYLOAD_EXAMPLE),
+);
+assertEqual(
+    percentEncodedLegacyCustomResolution
+        ? {
+              encoded: percentEncodedLegacyCustomResolution.encoded,
+              canonicalToken: percentEncodedLegacyCustomResolution.canonicalToken,
+              kind: percentEncodedLegacyCustomResolution.kind,
+              shouldNormalize: percentEncodedLegacyCustomResolution.shouldNormalize,
+          }
+        : null,
+    {
+        encoded: SHARED_PAYLOAD_EXAMPLE,
+        canonicalToken: `/${SHARED_PAYLOAD_EXAMPLE}`,
+        kind: "custom",
+        shouldNormalize: true,
+    },
+    "Should canonicalize a percent-encoded legacy bare custom payload to the raw prefixed custom token",
+);
+
+const prefixedCustomResolution = resolveShareToken(`/${encodedValidBuild}`);
+assertEqual(
+    prefixedCustomResolution
+        ? {
+              encoded: prefixedCustomResolution.encoded,
+              canonicalToken: prefixedCustomResolution.canonicalToken,
+              kind: prefixedCustomResolution.kind,
+              shouldNormalize: prefixedCustomResolution.shouldNormalize,
+          }
+        : null,
+    {
+        encoded: encodedValidBuild,
+        canonicalToken: `/${encodedValidBuild}`,
+        kind: "custom",
+        shouldNormalize: false,
+    },
+    "Should leave an already-prefixed custom payload canonical",
+);
+
+// createShareUrl namespace tests
 assertEqual(
     createShareUrl(recommendedLatePveBuildData),
-    "https://rgbp.app/#/Late_PvE",
-    "Should emit the canonical prefixed recommended name alias for exact recommended builds",
+    "https://rgbp.app/#Late_PvE",
+    "Should emit the canonical bare recommended name alias for exact recommended builds",
+);
+
+assertEqual(
+    createShareUrl(validBuildData),
+    `https://rgbp.app/#/${encodedValidBuild}`,
+    "Should emit the canonical prefixed custom URL for non-recommended builds",
 );
 
 const editedRecommendedBuildData = {
@@ -277,6 +360,6 @@ const editedRecommendedBuildData = {
 };
 assertEqual(
     createShareUrl(editedRecommendedBuildData),
-    `https://rgbp.app/#${encodeBuildData(editedRecommendedBuildData)}`,
-    "Should keep using the full encoded share URL after a recommended build is edited",
+    `https://rgbp.app/#/${encodeBuildData(editedRecommendedBuildData)}`,
+    "Should switch to the canonical prefixed custom URL after a recommended build is edited",
 );

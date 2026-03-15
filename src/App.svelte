@@ -31,7 +31,10 @@
         isComposeScreenshotOpen,
         openComposeScreenshot,
     } from "./lib/ComposeScreenshot.svelte";
-    import { getEncodedFromUrl, getBasePath } from "./lib/buildData/url";
+    import {
+        resolveShareTokenFromUrl,
+        getBasePath,
+    } from "./lib/buildData/url";
     import {
         decodeBuildData,
         encodeBuildData,
@@ -254,28 +257,35 @@
         unsubscribeTechCrystals?.();
         unsubscribeTechCrystals = null;
 
-        // Check if there's a build in the URL (hash-based: /{base}#{encoded})
-        // Only enter preview mode if we can actually decode valid build data
-        const encoded = getEncodedFromUrl();
-        let buildData: BuildData | null = null;
-        let hasUrlBuild = false;
+        // Check if there's a build in the URL (hash-based: /{base}#{recommended} or /{base}#/{custom})
+        // Only enter preview mode if we can actually resolve valid build data.
+        const hasUrlCandidate = hashAtStart.length > 1;
+        const resolvedShareToken = hasUrlCandidate
+            ? resolveShareTokenFromUrl()
+            : null;
+        let buildData: BuildData | null = resolvedShareToken?.buildData ?? null;
+        let hasUrlBuild = resolvedShareToken !== null;
 
-        if (encoded !== null) {
-            // Try to decode the encoded data
-            buildData = decodeBuildData(encoded);
-            if (buildData === null) {
-                // Invalid build data detected - clean it up
-                if (typeof window !== "undefined") {
-                    const basePath = getBasePath();
-                    window.history.replaceState({}, "", basePath);
-                    didNormalizeShareUrl = true;
-                    // Show toast to inform user
-                    showToastDelayed($t("preview.invalidShareLinkToast"), {
-                        tone: "negative",
-                    });
-                }
-            } else {
-                hasUrlBuild = true;
+        if (resolvedShareToken?.shouldNormalize && typeof window !== "undefined") {
+            const canonicalPath = `${getBasePath()}#${resolvedShareToken.canonicalToken}`;
+            const currentPathAndHash =
+                window.location.pathname + window.location.hash;
+            if (canonicalPath !== currentPathAndHash) {
+                window.history.replaceState({}, "", canonicalPath);
+                didNormalizeShareUrl = true;
+            }
+        }
+
+        if (!resolvedShareToken && hasUrlCandidate) {
+            // Invalid build data detected - clean it up
+            if (typeof window !== "undefined") {
+                const basePath = getBasePath();
+                window.history.replaceState({}, "", basePath);
+                didNormalizeShareUrl = true;
+                // Show toast to inform user
+                showToastDelayed($t("preview.invalidShareLinkToast"), {
+                    tone: "negative",
+                });
             }
         }
 
