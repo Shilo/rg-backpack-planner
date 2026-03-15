@@ -14,8 +14,8 @@ export const SKILL_DISPLAY_ORDER: readonly SkillId[] = [
     "final_damage_boost",
     // Global
     "global_atk",
-    "global_def",
     "global_hp",
+    "global_def",
     // Class-specific + utility
     "critical_hit",
     "skill_crit",
