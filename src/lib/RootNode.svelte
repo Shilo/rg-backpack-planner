@@ -10,13 +10,11 @@
     export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let onFocusView: (() => void) | null = null;
 
-    function handleKeydown(e: KeyboardEvent) {
-        if (e.key !== "Enter" && e.key !== " ") return;
-        e.preventDefault();
-        const el = e.currentTarget as HTMLElement;
+    function handleClick(event: MouseEvent) {
+        const el = event.currentTarget as HTMLElement;
+        const r = el.getBoundingClientRect();
         triggerHaptic();
         if (onRootNodeClick) {
-            const r = el.getBoundingClientRect();
             onRootNodeClick(r.left + r.width / 2, r.top + r.height / 2);
         } else {
             onFocusView?.();
@@ -29,11 +27,12 @@
     style="left: {x}px; top: {y}px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px"
 >
     <button
+        type="button"
         class="root-node-gear"
         data-node-id="root"
         tabindex="0"
         aria-label={$t("quickSettings.ariaLabel")}
-        on:keydown={handleKeydown}
+        on:click|stopPropagation={handleClick}
     >
         <RootNodeIcon class="root-node-gear-icon" aria-hidden="true" />
     </button>

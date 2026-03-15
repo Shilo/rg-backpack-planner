@@ -63,6 +63,7 @@
         tryShowStoppedPreviewToast,
         tryShowClonedBuildToast,
     } from "./lib/toast";
+    import { onboardingSeen } from "./lib/onboarding/onboardingStore";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
     import { tr } from "svelte-whisper";
@@ -540,6 +541,7 @@
                 onReset={() => tabsRef?.resetActiveTree?.()}
                 treeId={tabs[activeTreeIndex]?.id ?? ""}
                 treeLabel={activeTreeName}
+                forceShow={!$onboardingSeen}
             />
         </div>
     </div>

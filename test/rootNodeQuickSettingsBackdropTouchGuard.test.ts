@@ -4,44 +4,28 @@ import { resolve } from "node:path";
 const sourcePath = resolve("src/lib/RootNodeQuickSettings.svelte");
 const source = readFileSync(sourcePath, "utf8");
 
-if (!/let shouldIgnoreBackdropClick = false;/.test(source)) {
+if (/shouldIgnoreBackdropClick/.test(source)) {
     throw new Error(
-        "RootNodeQuickSettings should track when the first touch-open backdrop click needs to be ignored.",
+        "RootNodeQuickSettings should not rely on an initial backdrop-click suppression flag once root opening is moved to the correct input phase.",
     );
 }
 
 if (
-    !/\$: if \(isOpen && !wasOpen\) \{[\s\S]*?shouldIgnoreBackdropClick = isTouchPlatform;[\s\S]*?tick\(\)\.then\(updatePosition\);/m.test(
-        source,
-    )
+    /<button[^>]*class="qs-backdrop"[^>]*aria-hidden="true"/m.test(source)
 ) {
     throw new Error(
-        "RootNodeQuickSettings should ignore the first backdrop click after opening on touch platforms.",
+        "RootNodeQuickSettings backdrop should not hide itself from assistive technology while it can still receive focus.",
     );
 }
 
-if (
-    !/\$: if \(!isOpen && wasOpen\) \{[\s\S]*?shouldIgnoreBackdropClick = false;[\s\S]*?\}/m.test(
-        source,
-    )
-) {
+if (!/aria-label=\{\$t\("common\.close"\)\}/.test(source)) {
     throw new Error(
-        "RootNodeQuickSettings should clear the initial backdrop-click guard when quick settings closes.",
+        "RootNodeQuickSettings backdrop should use the existing common.close localization for its accessible label.",
     );
 }
 
-if (
-    !/function handleBackdropClick\(event: MouseEvent\) \{[\s\S]*?event\.preventDefault\(\);[\s\S]*?event\.stopPropagation\(\);[\s\S]*?if \(shouldIgnoreBackdropClick\) \{[\s\S]*?shouldIgnoreBackdropClick = false;[\s\S]*?return;[\s\S]*?\}[\s\S]*?onClose\?\.\(\);/m.test(
-        source,
-    )
-) {
+if (!/on:click(?:\|preventDefault)?=\{\(\) => onClose\?\.\(\)\}/.test(source)) {
     throw new Error(
-        "RootNodeQuickSettings backdrop click handler should consume the synthetic touch click before allowing close.",
-    );
-}
-
-if (!/on:click=\{handleBackdropClick\}/.test(source)) {
-    throw new Error(
-        "RootNodeQuickSettings backdrop should use handleBackdropClick so touch-open synthetic clicks do not immediately close it.",
+        "RootNodeQuickSettings backdrop should close directly on click once root opens after the triggering gesture completes.",
     );
 }

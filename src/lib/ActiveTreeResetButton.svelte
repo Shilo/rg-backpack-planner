@@ -12,6 +12,7 @@
     export let activeLevels: LevelsByIndex | null = null;
     export let treeId = "";
     export let treeLabel = "";
+    export let forceShow = false;
 
     $: trimmedTreeLabel = treeLabel.trim();
     $: treeName = trimmedTreeLabel
@@ -19,10 +20,11 @@
         : $t("trees.generic");
     $: activeTreeLevelsTotal = sumLevels(activeLevels);
     $: treeIcon = getTreeIcon(treeId);
-    $: showReset = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
+    $: canReset = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
+    $: showReset = forceShow || canReset;
 
     const handleReset = () => {
-        if (!onReset || !onResetBranch) return;
+        if (!canReset || !onReset || !onResetBranch) return;
         openResetTreeChoicesModal(
             $t,
             treeLabel,
@@ -45,6 +47,7 @@
         icon={ArrowCounterClockwiseIcon}
         iconClass="active-tree-reset__icon"
         negative
+        disabled={!canReset}
         on:click={handleReset}
     />
 {/if}

@@ -1,45 +1,74 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const sourcePath = resolve("src/lib/TreeTabs.svelte");
-const source = readFileSync(sourcePath, "utf8");
+const treeTabsPath = resolve("src/lib/TreeTabs.svelte");
+const treeTabsSource = readFileSync(treeTabsPath, "utf8");
 
 if (
-    !/function isRootTarget\(target: EventTarget \| null\) \{[\s\S]*?const nodeEl = target\.closest\("\[data-node-id\]"\);[\s\S]*?const nodeId = nodeEl\.getAttribute\("data-node-id"\);[\s\S]*?return nodeId === "root";[\s\S]*?\}/m.test(
-        source,
+    !/function isRootTarget\(target: EventTarget \| null\) \{[\s\S]*?return nodeId === "root";[\s\S]*?\}/m.test(
+        treeTabsSource,
     )
 ) {
     throw new Error(
-        "TreeTabs should detect the root node separately from background presses.",
+        "TreeTabs should still detect the root separately from regular nodes.",
     );
 }
 
 if (
-    !/function openRootQuickSettings\(x: number, y: number\) \{[\s\S]*?quickSettings = \{ x, y \};[\s\S]*?treeRef\?\.cancelGestures\?\.\(\);[\s\S]*?\}/m.test(
-        source,
+    !/function startBackgroundPress\(event: PointerEvent\) \{[\s\S]*?isRootTarget\(event\.target\)[\s\S]*?\)\s*return;/m.test(
+        treeTabsSource,
     )
 ) {
     throw new Error(
-        "TreeTabs should centralize opening root quick settings so every root interaction uses the same path.",
+        "TreeTabs background long-press should ignore the root so root interactions are handled by the dedicated root logic.",
     );
 }
 
 if (
-    !/const rootTarget = isRootTarget\(event\.target\);[\s\S]*?if \(rootTarget\) \{[\s\S]*?openRootQuickSettings\(point\.x, point\.y\);[\s\S]*?return true;[\s\S]*?\}/m.test(
-        source,
+    !/function openBackgroundMenu\(event: MouseEvent\) \{[\s\S]*?isRootTarget\(event\.target\)[\s\S]*?\)\s*return;/m.test(
+        treeTabsSource,
     )
 ) {
     throw new Error(
-        "TreeTabs background long-press should open root quick settings instead of the tree context menu.",
+        "TreeTabs background context-menu handling should ignore the root so it never opens the old tree menu.",
+    );
+}
+
+const treePath = resolve("src/lib/Tree.svelte");
+const treeSource = readFileSync(treePath, "utf8");
+
+if (!/function startRootLongPress\(pointerId: number\)/.test(treeSource)) {
+    throw new Error(
+        "Tree should define a dedicated root long-press path that matches node-menu long-press behavior.",
     );
 }
 
 if (
-    !/const rootTarget = isRootTarget\(event\.target\);[\s\S]*?if \(rootTarget\) \{[\s\S]*?openRootQuickSettings\(event\.clientX, event\.clientY\);[\s\S]*?return;[\s\S]*?\}/m.test(
-        source,
+    !/function startRootLongPress\(pointerId: number\) \{[\s\S]*?startLongPress\(longPressState, \(\) => \{[\s\S]*?suppressNextPointerUp\(pointerId\);[\s\S]*?openRootQuickSettings\(/m.test(
+        treeSource,
     )
 ) {
     throw new Error(
-        "TreeTabs right-click handling should open root quick settings instead of the tree context menu.",
+        "Tree root long-press should reuse the same startLongPress and suppressNextPointerUp flow as node menus.",
+    );
+}
+
+if (
+    !/if \([\s\S]*?info[\s\S]*?!info\.isRoot[\s\S]*?info\.index !== null[\s\S]*?\) \{[\s\S]*?startNodeLongPress\(event\.pointerId\);[\s\S]*?\} else if \(info && info\.isRoot\) \{[\s\S]*?startRootLongPress\(event\.pointerId\);/m.test(
+        treeSource,
+    )
+) {
+    throw new Error(
+        "Tree should route root long-press through the dedicated root long-press handler instead of the background handler.",
+    );
+}
+
+if (
+    !/function onContextMenu\(event: MouseEvent\) \{[\s\S]*?if \(!info\) return;[\s\S]*?if \(info\.isRoot\) \{[\s\S]*?event\.preventDefault\(\);[\s\S]*?openRootQuickSettings\(/m.test(
+        treeSource,
+    )
+) {
+    throw new Error(
+        "Tree right-click handling should open root quick settings directly.",
     );
 }

@@ -40,6 +40,10 @@ function createOnboardingSeenStore() {
 
 export const onboardingSeen = createOnboardingSeenStore();
 
+export function completeOnboarding() {
+    onboardingSeen.set(true);
+}
+
 export function showOnboarding() {
     onboardingSeen.setWithoutPersistence(false);
     document.dispatchEvent(new CustomEvent("closeSideMenu"));

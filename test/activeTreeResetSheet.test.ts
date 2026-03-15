@@ -42,6 +42,12 @@ if (!/export let activeLevels\b/.test(activeTreeResetButtonSource)) {
     );
 }
 
+if (!/export let treeNodes\b/.test(activeTreeResetButtonSource)) {
+    throw new Error(
+        "ActiveTreeResetButton should accept treeNodes so reset choices can show accurate Tech Crystal refund totals.",
+    );
+}
+
 if (!/export let onResetBranch\b/.test(activeTreeResetButtonSource)) {
     throw new Error(
         "ActiveTreeResetButton should accept onResetBranch to trigger orange, blue, or yellow resets.",
@@ -51,6 +57,12 @@ if (!/export let onResetBranch\b/.test(activeTreeResetButtonSource)) {
 if (!/openResetTreeChoicesModal/.test(activeTreeResetButtonSource)) {
     throw new Error(
         "ActiveTreeResetButton should use the shared reset tree choice modal helper.",
+    );
+}
+
+if (!/treeNodes/.test(resetTreeModalSource)) {
+    throw new Error(
+        "resetTreeModal should receive treeNodes so it can calculate refund totals per branch and tree.",
     );
 }
 

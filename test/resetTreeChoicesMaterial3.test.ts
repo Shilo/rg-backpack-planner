@@ -24,6 +24,24 @@ if (!/sheetIcon\?:\s*Component\s*\|\s*null;/.test(modalStoreSource)) {
     );
 }
 
+if (!/descriptionPrefix\?:\s*string;/.test(modalStoreSource)) {
+    throw new Error(
+        "reset tree choice config should support a description prefix for highlighted refund amounts.",
+    );
+}
+
+if (!/descriptionAmount\?:\s*string;/.test(modalStoreSource)) {
+    throw new Error(
+        "reset tree choice config should support a highlighted refund amount value.",
+    );
+}
+
+if (!/descriptionSuffix\?:\s*string;/.test(modalStoreSource)) {
+    throw new Error(
+        "reset tree choice config should support a description suffix for highlighted refund amounts.",
+    );
+}
+
 if (!/sheetIcon=\{renderedModal\.sheetIcon \?\? null\}/.test(modalHostSource)) {
     throw new Error(
         "ModalHost should pass the active tree sheetIcon into ResetTreeChoicesModal.",
@@ -39,6 +57,12 @@ if (/<ResetTreeChoicesModal[\s\S]*titleIcon=/.test(modalHostSource)) {
 if (!/sheetIcon:\s*treeIcon \?\? null/.test(resetTreeModalSource)) {
     throw new Error(
         "resetTreeModal should forward the active tree icon into the shared modal payload.",
+    );
+}
+
+if (!/calculateTreeBranchTechCrystalsSpent/.test(resetTreeModalSource) || !/calculateTreeTechCrystalsSpent/.test(resetTreeModalSource)) {
+    throw new Error(
+        "resetTreeModal should reuse shared Tech Crystal spending helpers for branch and tree refund totals.",
     );
 }
 
@@ -78,6 +102,12 @@ if (!/this=\{sheetIcon\}/.test(resetTreeSheetSource)) {
     );
 }
 
+if (!/reset-tree-choice__amount/.test(resetTreeSheetSource)) {
+    throw new Error(
+        "ResetTreeChoicesModal should render a dedicated highlighted refund amount element.",
+    );
+}
+
 if (/reset-tree-sheet__handle-zone|reset-tree-sheet__grabber/.test(resetTreeSheetSource)) {
     throw new Error(
         "ResetTreeChoicesModal should remove the drag handle affordance when the sheet does not support resizing.",
@@ -111,6 +141,18 @@ if (!/grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(resetTree
 if (!/reset-tree-sheet__header-copy/.test(resetTreeSheetSource)) {
     throw new Error(
         "ResetTreeChoicesModal should group title and description in a compact header copy column next to the tree icon.",
+    );
+}
+
+if (!/width:\s*3rem;/.test(resetTreeSheetSource) || !/height:\s*3rem;/.test(resetTreeSheetSource)) {
+    throw new Error(
+        "ResetTreeChoicesModal should size the tree badge to 48px to match the header block height.",
+    );
+}
+
+if (!/width:\s*2\.625rem;/.test(resetTreeSheetSource) || !/height:\s*2\.625rem;/.test(resetTreeSheetSource)) {
+    throw new Error(
+        "ResetTreeChoicesModal should scale the tree badge icon closer to the TreeContextMenu header treatment.",
     );
 }
 

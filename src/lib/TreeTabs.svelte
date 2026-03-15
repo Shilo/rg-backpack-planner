@@ -328,11 +328,14 @@
     }
 
     function startBackgroundPress(event: PointerEvent) {
-        const rootTarget = isRootTarget(event.target);
-        if (isContextMenuTarget(event.target) || isNodeTarget(event.target))
+        if (
+            isContextMenuTarget(event.target) ||
+            isNodeTarget(event.target) ||
+            isRootTarget(event.target)
+        )
             return;
         const activeTab = tabs[activeIndex];
-        if (!activeTab && !rootTarget) return;
+        if (!activeTab) return;
         backgroundPressStart = { x: event.clientX, y: event.clientY };
         backgroundPressPoint = { x: event.clientX, y: event.clientY };
         backgroundPressPointerId = event.pointerId;
@@ -343,11 +346,6 @@
             hideTooltip();
             if (backgroundPressPointerId !== null)
                 suppressNextPointerUp(backgroundPressPointerId);
-            if (rootTarget) {
-                openRootQuickSettings(point.x, point.y);
-                return true;
-            }
-            if (!activeTab) return false;
             tabContextMenu = {
                 id: activeTab.id,
                 label: activeTab.label,
@@ -367,19 +365,17 @@
             event.preventDefault();
             return;
         }
-        const rootTarget = isRootTarget(event.target);
-        if (isContextMenuTarget(event.target) || isNodeTarget(event.target))
+        if (
+            isContextMenuTarget(event.target) ||
+            isNodeTarget(event.target) ||
+            isRootTarget(event.target)
+        )
             return;
         const activeTab = tabs[activeIndex];
-        if (!activeTab && !rootTarget) return;
+        if (!activeTab) return;
 
         event.preventDefault();
         hideTooltip();
-        if (rootTarget) {
-            openRootQuickSettings(event.clientX, event.clientY);
-            return;
-        }
-        if (!activeTab) return;
         tabContextMenu = {
             id: activeTab.id,
             label: activeTab.label,
@@ -630,10 +626,7 @@
                     initialViewState={lastViewState}
                     onViewStateChange={handleViewStateChange}
                     onFocusViewStateChange={handleFocusViewStateChange}
-                    onRootNodeClick={(x, y) => {
-                        quickSettings = { x, y };
-                        treeRef?.cancelGestures?.();
-                    }}
+                    onRootNodeClick={openRootQuickSettings}
                 />
             {/key}
         {/if}

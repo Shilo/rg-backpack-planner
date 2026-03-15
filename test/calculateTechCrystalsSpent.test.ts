@@ -1,6 +1,10 @@
 // test/calculateTechCrystalsSpent.test.ts
 import assert from "node:assert";
-import { calculateTechCrystalsSpent } from "../src/lib/techCrystalStore.ts";
+import {
+    calculateTechCrystalsSpent,
+    calculateTreeBranchTechCrystalsSpent,
+    calculateTreeTechCrystalsSpent,
+} from "../src/lib/techCrystalStore.ts";
 import type { TabConfig } from "../src/types/tree.ts";
 
 // attack_boost uses COSTS_100_STAT: costs[0]=5, costs[1]=6, costs[2]=7
@@ -15,6 +19,18 @@ const tabB: TabConfig = {
     id: "b",
     label: "B",
     nodes: [{ skillId: "final_damage_boost", maxLevel: 1, radius: 1, x: 0, y: 0 }],
+};
+
+const tabC: TabConfig = {
+    id: "c",
+    label: "C",
+    nodes: Array.from({ length: 30 }, (_, index) => ({
+        skillId: "attack_boost",
+        maxLevel: 100,
+        radius: 1,
+        x: index,
+        y: 0,
+    })),
 };
 
 // All zeros → 0
@@ -64,6 +80,35 @@ assert.strictEqual(
     calculateTechCrystalsSpent([[1, 99]], [tabA]),
     5,
     "out-of-bounds node index should be skipped",
+);
+
+const branchLevels = Array(30).fill(0);
+branchLevels[0] = 2;
+branchLevels[10] = 1;
+branchLevels[20] = 1;
+
+assert.strictEqual(
+    calculateTreeTechCrystalsSpent(branchLevels, tabC.nodes),
+    21,
+    "tree helper should sum all node spending for a single tree",
+);
+
+assert.strictEqual(
+    calculateTreeBranchTechCrystalsSpent(branchLevels, tabC.nodes, "yellow"),
+    11,
+    "yellow branch spending should only include indices 0-9",
+);
+
+assert.strictEqual(
+    calculateTreeBranchTechCrystalsSpent(branchLevels, tabC.nodes, "orange"),
+    5,
+    "orange branch spending should only include indices 10-19",
+);
+
+assert.strictEqual(
+    calculateTreeBranchTechCrystalsSpent(branchLevels, tabC.nodes, "blue"),
+    5,
+    "blue branch spending should only include indices 20-29",
 );
 
 console.log("calculateTechCrystalsSpent: all tests passed");

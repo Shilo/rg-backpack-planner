@@ -12,10 +12,12 @@
     export let anchorRect: Rect;
     /** Preferred direction to place the pane relative to the spotlight. */
     export let direction: Direction = "up";
-    export let sectionLabel: string;
+    export let stepNumber = 1;
+    export let stepCount = 1;
+    export let title = "";
+    export let titleIcon: Component | null = null;
     export let variant: "accent" | "muted" = "accent";
     export let cards: CardData[] = [];
-    export let baseCardIndex: number = 0;
     export let viewportWidth: number = 0;
     export let viewportHeight: number = 0;
     /** Rects to avoid, checked in order. First is highest priority after screen bounds. */
@@ -81,7 +83,19 @@
     bind:clientHeight={contentHeight}
     bind:clientWidth={contentWidth}
 >
-    <span class="section-badge {variant}" class:compact>{sectionLabel}</span>
+    <div class="pane-header">
+        <span class="step-badge {variant}" class:compact
+            >{stepNumber} / {stepCount}</span
+        >
+        <div class="pane-title-row">
+            {#if titleIcon}
+                <span class="title-icon {variant}" aria-hidden="true">
+                    <svelte:component this={titleIcon} size={compact ? 18 : 20} />
+                </span>
+            {/if}
+            <span class="pane-title">{title}</span>
+        </div>
+    </div>
     <div class="cards-stack">
         {#each cards as card, i}
             <OnboardingCard
@@ -89,7 +103,7 @@
                 label={card.label}
                 description={card.description}
                 {variant}
-                index={baseCardIndex + i}
+                index={i}
                 {compact}
             />
         {/each}
@@ -113,8 +127,15 @@
         max-width: min(236px, calc(100vw - 24px));
     }
 
-    .section-badge {
-        display: inline-block;
+    .pane-header {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .step-badge {
+        display: inline-flex;
+        align-items: center;
         width: fit-content;
         font-size: var(--font-sm);
         font-weight: var(--weight-semibold);
@@ -126,21 +147,56 @@
         animation: badge-enter 200ms var(--ease-decel) both;
     }
 
-    .section-badge.compact {
+    .step-badge.compact {
         font-size: var(--font-xs);
         padding: 6px var(--spacing-md);
     }
 
-    .section-badge.accent {
+    .step-badge.accent {
         color: var(--accent);
         background: color-mix(in srgb, var(--accent) 12%, var(--bg-panel));
         border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
     }
 
-    .section-badge.muted {
+    .step-badge.muted {
         color: var(--text-muted);
         background: var(--bg-panel);
         border: 1px solid var(--border-subtle);
+    }
+
+    .pane-title-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding-inline: 2px;
+    }
+
+    .title-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+
+    .title-icon.accent {
+        color: var(--accent);
+    }
+
+    .title-icon.muted {
+        color: var(--text-muted);
+    }
+
+    .pane-title {
+        font-size: var(--font-lg);
+        font-weight: var(--weight-semibold);
+        line-height: 1.1;
+        color: var(--text);
+        text-wrap: balance;
+    }
+
+    .onboarding-pane.compact .pane-title {
+        font-size: var(--font-base);
     }
 
     .cards-stack {
@@ -165,7 +221,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .section-badge {
+        .step-badge {
             animation: none;
             opacity: 1;
         }

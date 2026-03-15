@@ -38,7 +38,7 @@
     import { showTier } from "./showTierStore";
     import { showSkillName } from "./showSkillNameStore";
     import OnboardingOverlay from "./onboarding/OnboardingOverlay.svelte";
-    import { onboardingSeen } from "./onboarding/onboardingStore";
+    import { completeOnboarding, onboardingSeen } from "./onboarding/onboardingStore";
     import { textSize } from "./textSizeStore";
     import {
         applyLevelChange,
@@ -747,6 +747,49 @@
         });
     }
 
+    function getRootMenuPosition(
+        rootEl: Element | null,
+    ): { x: number; y: number } | null {
+        if (!rootEl) return null;
+        const rect = rootEl.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+        };
+    }
+
+    function openRootQuickSettings(
+        rootEl: Element | null,
+        fallbackX: number,
+        fallbackY: number,
+    ) {
+        const pos = getRootMenuPosition(rootEl) ?? {
+            x: fallbackX,
+            y: fallbackY,
+        };
+        if (onRootNodeClick) {
+            onRootNodeClick(pos.x, pos.y);
+        } else {
+            focusTreeInView(true);
+        }
+        cancelActiveGestures();
+    }
+
+    function startRootLongPress(pointerId: number) {
+        startLongPress(longPressState, () => {
+            const pointer = pointers.get(pointerId);
+            if (!pointer || panActive || pointers.size !== 1) return false;
+            if (!pointer.isRoot) return false;
+            suppressTooltip(pointerId);
+            hideTooltip();
+            suppressNextPointerUp(pointerId);
+            const rootEl =
+                viewportEl?.querySelector('[data-node-id="root"]') ?? null;
+            openRootQuickSettings(rootEl, pointer.x, pointer.y);
+            return true;
+        });
+    }
+
     const NODE_MENU_GAP = 16;
 
     function getNodeInfoFromTarget(target: EventTarget | null) {
@@ -789,7 +832,20 @@
             return;
         }
         const info = getNodeInfoFromTarget(event.target);
-        if (!info || info.isRoot || info.index === null) return;
+        if (!info) return;
+
+        if (info.isRoot) {
+            event.preventDefault();
+            hideTooltip();
+            const rootEl =
+                event.target instanceof Element
+                    ? event.target.closest('[data-node-id="root"]')
+                    : null;
+            openRootQuickSettings(rootEl, event.clientX, event.clientY);
+            return;
+        }
+
+        if (info.index === null) return;
 
         event.preventDefault();
         hideTooltip();
@@ -879,6 +935,8 @@
                 !(event.pointerType === "mouse" && event.shiftKey)
             ) {
                 startNodeLongPress(event.pointerId);
+            } else if (info && info.isRoot) {
+                startRootLongPress(event.pointerId);
             }
         } else if (pointers.size === 2) {
             multiTouchGestureActive = true;
@@ -1011,14 +1069,7 @@
             !multiTouchGestureActive &&
             pointers.size === 0
         ) {
-            if (pointer.isRoot) {
-                triggerHaptic();
-                if (onRootNodeClick) {
-                    onRootNodeClick(event.clientX, event.clientY);
-                } else {
-                    focusTreeInView(true);
-                }
-            } else if (pointer.nodeIndex !== null) {
+            if (pointer.nodeIndex !== null) {
                 triggerHaptic();
                 const shouldDecrement =
                     event.pointerType === "mouse" && event.shiftKey;
@@ -1520,7 +1571,7 @@
 
             {#if !$onboardingSeen}
                 <OnboardingOverlay
-                    onDismiss={() => onboardingSeen.set(true)}
+                    onDismiss={completeOnboarding}
                     targetNodeIndex={0}
                     {offsetX}
                     {offsetY}

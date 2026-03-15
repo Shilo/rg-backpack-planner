@@ -42,3 +42,6 @@ docs/plans/
 # Claude generated files
 .claude/worktrees/
 .superpowers/
+
+# Codex generated files
+*.pid
