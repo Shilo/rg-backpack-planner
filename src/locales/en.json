@@ -352,6 +352,7 @@
         "recommended": "Recommended",
         "previewFromLinkTooltip": "Preview build from shareable link or code",
         "previewBuildTooltip": "Preview {name} build",
+        "techCrystalsDescription": "{count} Tech Crystals",
         "clonePreviewBuild": "Clone Preview Build",
         "clonePreviewBuildDescription": "Copy to personal build",
         "cloneModalTitle": "Clone Preview Build",

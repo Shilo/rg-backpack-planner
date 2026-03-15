@@ -350,6 +350,7 @@
         "recommended": "おすすめ",
         "previewFromLinkTooltip": "共有リンクまたはコードからビルドをプレビュー",
         "previewBuildTooltip": "{name}ビルドをプレビュー",
+        "techCrystalsDescription": "{count} テッククリスタル",
         "clonePreviewBuild": "プレビュービルドをクローン",
         "clonePreviewBuildDescription": "個人ビルドにコピー",
         "cloneModalTitle": "プレビュービルドをクローン",

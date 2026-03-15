@@ -60,6 +60,7 @@
             rawName,
             name: localizedName,
             code: build.encoded,
+            index: build.index,
             tcSpent,
         };
     });
@@ -107,11 +108,15 @@
                     tooltipText={$t("preview.previewBuildTooltip", {
                         name: build.name,
                     })}
-                    description={build.tcSpent > 0 ? build.tcSpent.toLocaleString() : undefined}
+                    description={build.tcSpent > 0
+                        ? $t("preview.techCrystalsDescription", {
+                            count: build.tcSpent.toLocaleString(),
+                        })
+                        : undefined}
                     descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}
                     on:click={() => handlePremadeClick(build.code)}
                 >
-                    {build.name}
+                    {build.index}. {build.name}
                 </Button>
             {/each}
         </div>

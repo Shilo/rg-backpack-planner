@@ -350,6 +350,7 @@
         "recommended": "推荐",
         "previewFromLinkTooltip": "从分享链接或代码预览构建",
         "previewBuildTooltip": "预览{name}构建",
+        "techCrystalsDescription": "{count} 科技水晶",
         "clonePreviewBuild": "克隆预览构建",
         "clonePreviewBuildDescription": "复制到个人构建",
         "cloneModalTitle": "克隆预览构建",

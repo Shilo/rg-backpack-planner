@@ -1,5 +1,10 @@
 import appPackage from "../../../package.json";
-import { decodeBuildData } from "./encoder";
+import { derived } from "svelte/store";
+import { decodeBuildData, encodeBuildData } from "./encoder";
+import { treeLevels } from "../treeLevelsStore";
+import { techCrystalsOwned } from "../techCrystalStore";
+import { isPreviewMode } from "../previewModeStore";
+import { previewBuildName } from "../previewBuildNameStore";
 
 export interface RecommendedBuild {
     index: number;
@@ -102,3 +107,22 @@ export function getRecommendedBuildForEncoded(
 ): RecommendedBuild | null {
     return recommendedBuildByEncoded.get(encoded) ?? null;
 }
+
+/**
+ * Derived store that reactively tracks whether the current preview build
+ * matches a recommended build. Re-encodes the current build state on every
+ * change (tree levels, tech crystals, build name) and looks it up.
+ * Returns null when not in preview mode or when the build doesn't match.
+ */
+export const previewRecommendedBuild = derived(
+    [isPreviewMode, treeLevels, techCrystalsOwned, previewBuildName],
+    ([$isPreviewMode, $treeLevels, $techCrystalsOwned, $previewBuildName]) => {
+        if (!$isPreviewMode) return null;
+        const encoded = encodeBuildData({
+            trees: $treeLevels,
+            owned: $techCrystalsOwned,
+            name: $previewBuildName ?? undefined,
+        });
+        return getRecommendedBuildForEncoded(encoded);
+    },
+);

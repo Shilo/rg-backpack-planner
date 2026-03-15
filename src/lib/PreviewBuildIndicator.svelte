@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { EyeIcon } from "phosphor-svelte";
     import { isPreviewMode } from "./previewModeStore";
     import { previewBuildName, getPreviewTitle } from "./previewBuildNameStore";
+    import { previewRecommendedBuild } from "./buildData/recommended";
+    import { usePlaywrightIndicator } from "./dev/usePlaywrightIndicator";
     import Button from "./Button.svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
@@ -41,37 +42,16 @@
         ? $t("preview.title")
         : (devIndicatorState?.title ?? "");
     $: indicatorDetail = $isPreviewMode
-        ? $previewBuildName
+        ? $previewRecommendedBuild
+            ? `${$previewRecommendedBuild.index}. ${$previewBuildName ?? $previewRecommendedBuild.displayName}`
+            : $previewBuildName
         : (devIndicatorState?.detail ?? null);
     $: indicatorTooltip = $isPreviewMode
         ? $t("contextMenu.previewBuildOptions")
         : (devIndicatorState?.tooltip ?? "");
 
-    onMount(() => {
-        if (import.meta.env.DEV) {
-            // Keep the Playwright indicator store out of production by only importing it in dev builds.
-            let cancelled = false;
-            let unsubscribe: (() => void) | null = null;
-
-            void import("./dev/playwrightIndicatorStore.dev").then(
-                ({ playwrightIndicatorState }) => {
-                    if (cancelled) {
-                        return;
-                    }
-
-                    unsubscribe = playwrightIndicatorState.subscribe(
-                        (value) => {
-                            devIndicatorState = value;
-                        },
-                    );
-                },
-            );
-
-            return () => {
-                cancelled = true;
-                unsubscribe?.();
-            };
-        }
+    usePlaywrightIndicator((value) => {
+        devIndicatorState = value;
     });
 </script>
 
