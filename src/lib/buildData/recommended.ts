@@ -96,3 +96,9 @@ export function getRecommendedBuildTokenForEncoded(
 ): string | null {
     return recommendedBuildByEncoded.get(encoded)?.alias ?? null;
 }
+
+export function getRecommendedBuildForEncoded(
+    encoded: string,
+): RecommendedBuild | null {
+    return recommendedBuildByEncoded.get(encoded) ?? null;
+}

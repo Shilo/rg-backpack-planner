@@ -4,7 +4,9 @@
  */
 
 import type { BuildData } from "./encoder";
-import { createShareUrl } from "./url";
+import { encodeBuildData } from "./encoder";
+import { createShareUrl, createShareUrlFromToken } from "./url";
+import { getRecommendedBuildForEncoded } from "./recommended";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { EXPORT_MIME } from "../buildImageExport/imageFormat";
@@ -41,6 +43,102 @@ async function copyToClipboard(text: string): Promise<boolean> {
     }
 }
 
+function resolveShareBuildData(
+    buildName?: string | null,
+    customBuildData?: BuildData,
+): BuildData {
+    return customBuildData
+        ? {
+              ...customBuildData,
+              ...(buildName && { name: buildName }),
+          }
+        : {
+              trees: get(treeLevels),
+              owned: get(techCrystalsOwned),
+              ...(buildName && { name: buildName }),
+          };
+}
+
+function stripUrlScheme(url: string): string {
+    return url.replace(/^[a-z]+:\/\//i, "");
+}
+
+export interface RecommendedShareUrlChoice {
+    id: "full" | "short";
+    displayUrl: string;
+    url: string;
+}
+
+export function getRecommendedShareUrlChoices(options?: {
+    buildName?: string | null;
+    customBuildData?: BuildData;
+}): RecommendedShareUrlChoice[] | null {
+    const buildData = resolveShareBuildData(
+        options?.buildName,
+        options?.customBuildData,
+    );
+    const recommendedBuild = getRecommendedBuildForEncoded(
+        encodeBuildData(buildData),
+    );
+    if (!recommendedBuild) {
+        return null;
+    }
+
+    const fullUrl = createShareUrl(buildData);
+    const shortUrl = createShareUrlFromToken(`${recommendedBuild.index}`);
+
+    return [
+        {
+            id: "full",
+            displayUrl: stripUrlScheme(fullUrl),
+            url: fullUrl,
+        },
+        {
+            id: "short",
+            displayUrl: stripUrlScheme(shortUrl),
+            url: shortUrl,
+        },
+    ];
+}
+
+export async function copyShareUrl(url: string): Promise<boolean> {
+    return copyToClipboard(url);
+}
+
+export async function shareUrlNative(options: {
+    url: string;
+    title?: string;
+    text?: string;
+}): Promise<ShareResult> {
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
+        return "failed";
+    }
+
+    if (typeof navigator.share === "function") {
+        try {
+            await navigator.share({
+                url: options.url,
+                title: options.title,
+                text: options.text,
+            });
+            return "shared";
+        } catch (error: unknown) {
+            const err = error as { name?: string };
+            if (err?.name === "AbortError") {
+                return "cancelled";
+            }
+
+            console.error(
+                "Failed to share via Web Share API, falling back:",
+                error,
+            );
+        }
+    }
+
+    const clipboardSuccess = await copyToClipboard(options.url);
+    return clipboardSuccess ? "copied" : "failed";
+}
+
 /**
  * Saves a build to a shareable URL and copies it to clipboard
  * @param buildName Optional build name to include in the share URL
@@ -51,18 +149,9 @@ export async function saveBuildToUrl(
     customBuildData?: BuildData,
 ): Promise<boolean> {
     try {
-        const buildData: BuildData = customBuildData
-            ? {
-                  ...customBuildData,
-                  ...(buildName && { name: buildName }),
-              }
-            : {
-                  trees: get(treeLevels),
-                  owned: get(techCrystalsOwned),
-                  ...(buildName && { name: buildName }),
-              };
+        const buildData = resolveShareBuildData(buildName, customBuildData);
         const shareUrl = createShareUrl(buildData);
-        const success = await copyToClipboard(shareUrl);
+        const success = await copyShareUrl(shareUrl);
         return success;
     } catch (error) {
         console.error("Failed to save build URL:", error);
@@ -161,50 +250,16 @@ export async function shareBuildUrlNative(options?: {
     text?: string;
     customBuildData?: BuildData;
 }): Promise<ShareResult> {
-    // SSR / non-browser guard
-    if (typeof window === "undefined" || typeof navigator === "undefined") {
-        return "failed";
-    }
-
-    const buildData: BuildData = options?.customBuildData
-        ? {
-              ...options.customBuildData,
-              ...(options.buildName && { name: options.buildName }),
-          }
-        : {
-              trees: get(treeLevels),
-              owned: get(techCrystalsOwned),
-              ...(options?.buildName && { name: options.buildName }),
-          };
+    const buildData = resolveShareBuildData(
+        options?.buildName,
+        options?.customBuildData,
+    );
     const shareUrl = createShareUrl(buildData);
-
-    // Prefer Web Share API when available
-    if (typeof navigator.share === "function") {
-        try {
-            await navigator.share({
-                url: shareUrl,
-                title: options?.title,
-                text: options?.text,
-            });
-            return "shared";
-        } catch (error: unknown) {
-            // If user cancels the dialog, treat as a non-error cancellation
-            const err = error as { name?: string };
-            if (err?.name === "AbortError") {
-                return "cancelled";
-            }
-
-            console.error(
-                "Failed to share via Web Share API, falling back:",
-                error,
-            );
-            // Fall through to clipboard fallback
-        }
-    }
-
-    // Clipboard fallback
-    const clipboardSuccess = await copyToClipboard(shareUrl);
-    return clipboardSuccess ? "copied" : "failed";
+    return shareUrlNative({
+        url: shareUrl,
+        title: options?.title,
+        text: options?.text,
+    });
 }
 
 /**

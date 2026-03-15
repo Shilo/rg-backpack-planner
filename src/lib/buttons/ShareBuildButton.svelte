@@ -3,13 +3,21 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
-    import { saveBuildToUrl, shareBuildUrlNative } from "../buildData/share";
+    import {
+        copyShareUrl,
+        getRecommendedShareUrlChoices,
+        saveBuildToUrl,
+        shareBuildUrlNative,
+        shareUrlNative,
+        type RecommendedShareUrlChoice,
+    } from "../buildData/share";
     import { portal } from "../portal";
     import { openComposeScreenshot } from "../ComposeScreenshot.svelte";
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
     import { truncateText } from "../stringUtil";
     import { t } from "svelte-whisper";
+    import { isPreviewMode } from "../previewModeStore";
 
     export let title: string | undefined;
     export let disabled: boolean | undefined = false;
@@ -28,6 +36,11 @@
     let shareMenuOpen = false;
     let shareMenuX = 0;
     let shareMenuY = 0;
+    let linkMenuOpen = false;
+    let linkMenuX = 0;
+    let linkMenuY = 0;
+    let linkMenuAction: "share" | "copy" | null = null;
+    let recommendedShareChoices: RecommendedShareUrlChoice[] | null = null;
     let shareButtonElement: HTMLButtonElement | null = null;
     $: resolvedTooltipSubject =
         tooltipSubject || $t("techCrystals.subjectYour");
@@ -45,13 +58,58 @@
         const rect = shareButtonElement.getBoundingClientRect();
         shareMenuX = rect.left + rect.width / 2;
         shareMenuY = rect.bottom + 8;
+        recommendedShareChoices = $isPreviewMode
+            ? getRecommendedShareUrlChoices({
+                  buildName: effectiveBuildName,
+                  customBuildData: buildData ?? undefined,
+              })
+            : null;
+        closeLinkMenu();
         shareMenuOpen = true;
     }
 
     function closeShareMenu() {
+        closeLinkMenu();
+        recommendedShareChoices = null;
         shareMenuOpen = false;
         // Prevent event from bubbling to side menu backdrop
         // The context menu is portaled outside, so we need to ensure clicks don't propagate
+    }
+
+    function closeLinkMenu() {
+        linkMenuOpen = false;
+        linkMenuAction = null;
+    }
+
+    function getAnchorRect(
+        event: CustomEvent<MouseEvent> | MouseEvent,
+    ): DOMRect | null {
+        const mouseEvent = event instanceof CustomEvent ? event.detail : event;
+        const target =
+            (mouseEvent.currentTarget as HTMLElement | null) ??
+            (mouseEvent.target as HTMLElement | null)?.closest("button") ??
+            null;
+        return target?.getBoundingClientRect() ?? null;
+    }
+
+    function tryOpenRecommendedLinkMenu(
+        event: CustomEvent<MouseEvent> | MouseEvent,
+        action: "share" | "copy",
+    ): boolean {
+        if (!$isPreviewMode || !recommendedShareChoices?.length) {
+            return false;
+        }
+
+        const rect = getAnchorRect(event);
+        if (!rect) {
+            return false;
+        }
+
+        linkMenuX = rect.left + rect.width / 2;
+        linkMenuY = rect.bottom + 8;
+        linkMenuAction = action;
+        linkMenuOpen = true;
+        return true;
     }
 
     function handleComposeScreenshot() {
@@ -60,7 +118,11 @@
         openComposeScreenshot();
     }
 
-    async function handleShareToApp() {
+    async function handleShareToApp(event: CustomEvent<MouseEvent>) {
+        if (tryOpenRecommendedLinkMenu(event, "share")) {
+            return;
+        }
+
         closeShareMenu();
         const effectiveTitle =
             shareTitle ?? resolvedButtonTitle ?? $t("share.defaultShareTitle");
@@ -78,12 +140,51 @@
         }
     }
 
-    async function handleCopyLink() {
+    async function handleCopyLink(event: CustomEvent<MouseEvent>) {
+        if (tryOpenRecommendedLinkMenu(event, "copy")) {
+            return;
+        }
+
         closeShareMenu();
         const success = await saveBuildToUrl(
             effectiveBuildName,
             buildData ?? undefined,
         );
+        if (success) {
+            showToast($t("share.shareLinkCopiedToast"));
+        } else {
+            showToast($t("share.unableToCopyLinkToast"), { tone: "negative" });
+        }
+    }
+
+    async function handleRecommendedLinkChoice(
+        choice: RecommendedShareUrlChoice,
+    ) {
+        const action = linkMenuAction;
+        closeShareMenu();
+
+        if (action === "share") {
+            const effectiveTitle =
+                shareTitle ??
+                resolvedButtonTitle ??
+                $t("share.defaultShareTitle");
+            const result = await shareUrlNative({
+                url: choice.url,
+                title: effectiveTitle,
+                text: shareText,
+            });
+
+            if (result === "copied") {
+                showToast($t("share.fallbackCopiedToast"));
+            } else if (result === "failed") {
+                showToast($t("share.shareFailedToast"), {
+                    tone: "negative",
+                });
+            }
+            return;
+        }
+
+        const success = await copyShareUrl(choice.url);
         if (success) {
             showToast($t("share.shareLinkCopiedToast"));
         } else {
@@ -127,6 +228,7 @@
                 on:click={handleCopyLink}
                 tooltipText={$t("share.copyLinkTooltip")}
                 icon={LinkSimpleIcon}
+                arrow={recommendedShareChoices ? "right" : undefined}
             >
                 {$t("share.copyLink")}
             </Button>
@@ -144,6 +246,34 @@
     </ContextMenu>
 </div>
 
+{#if linkMenuOpen}
+    <div use:portal class="share-menu-portal link-submenu">
+        <ContextMenu
+            x={linkMenuX}
+            y={linkMenuY}
+            isOpen={true}
+            title={$t("share.shareLinkMenuTitle")}
+            onClose={closeLinkMenu}
+        >
+            {#each recommendedShareChoices ?? [] as choice (choice.id)}
+                <Button
+                    on:click={() => handleRecommendedLinkChoice(choice)}
+                    tooltipText={choice.displayUrl}
+                    icon={choice.id === "full" ? LinkSimpleIcon : ShareIcon}
+                >
+                    {choice.id === "full"
+                        ? $t("share.fullLinkChoice", {
+                              url: choice.displayUrl,
+                          })
+                        : $t("share.shortLinkChoice", {
+                              url: choice.displayUrl,
+                          })}
+                </Button>
+            {/each}
+        </ContextMenu>
+    </div>
+{/if}
+
 <style>
     .share-menu-portal {
         position: fixed;
@@ -157,6 +287,10 @@
 
     /* Allow pointer events when menu is open so backdrop can block interactions */
     .share-menu-portal.menu-open {
+        pointer-events: auto;
+    }
+
+    .share-menu-portal.link-submenu {
         pointer-events: auto;
     }
 </style>

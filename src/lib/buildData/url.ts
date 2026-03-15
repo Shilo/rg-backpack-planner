@@ -260,6 +260,10 @@ function buildShareUrl(encoded: string): string {
     return window.location.origin + buildSharePath(encoded);
 }
 
+export function createShareUrlFromToken(shareToken: string): string {
+    return buildShareUrl(shareToken);
+}
+
 /**
  * Clear share data from URL, leaving only the base path
  *

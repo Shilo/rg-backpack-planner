@@ -8,6 +8,7 @@ import {
 } from "../src/lib/buildData/url.ts";
 import { decodeBuildData, encodeBuildData } from "../src/lib/buildData/encoder.ts";
 import { recommendedBuilds } from "../src/lib/buildData/recommended.ts";
+import { getRecommendedShareUrlChoices } from "../src/lib/buildData/share.ts";
 
 function assertEqual(actual: unknown, expected: unknown, message: string): void {
     const actualJson = JSON.stringify(actual);
@@ -52,12 +53,18 @@ const RESERVED_LOOKING_CUSTOM_NAME = "Late PvE";
 const RESERVED_LOOKING_NAMED_CUSTOM = `Late_PvE|${encodedValidBuild}`;
 const RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM = `1|${encodedValidBuild}`;
 const FIRST_RECOMMENDED_BUILD = recommendedBuilds[0];
+const RECOMMENDED_LATE_PVE_ENTRY = recommendedBuilds.find(
+    (build) => build.encoded === RECOMMENDED_LATE_PVE,
+);
 const recommendedLatePveBuildData = decodeBuildData(RECOMMENDED_LATE_PVE);
 if (!recommendedLatePveBuildData) {
     throw new Error("Expected Late_PvE recommended build fixture to decode");
 }
 if (!FIRST_RECOMMENDED_BUILD) {
     throw new Error("Expected at least one recommended build fixture");
+}
+if (!RECOMMENDED_LATE_PVE_ENTRY) {
+    throw new Error("Expected Late_PvE recommended build metadata");
 }
 
 Object.defineProperty(globalThis, "window", {
@@ -477,4 +484,43 @@ assertEqual(
     createShareUrl(editedRecommendedBuildData),
     `https://rgbp.app/#/${encodeBuildData(editedRecommendedBuildData)}`,
     "Should switch to the canonical prefixed custom URL after a recommended build is edited",
+);
+
+// recommended share-choice tests
+assertEqual(
+    getRecommendedShareUrlChoices({
+        buildName: recommendedLatePveBuildData.name ?? null,
+        customBuildData: recommendedLatePveBuildData,
+    }),
+    [
+        {
+            id: "full",
+            displayUrl: `rgbp.app/#${RECOMMENDED_LATE_PVE_ENTRY.alias}`,
+            url: `https://rgbp.app/#${RECOMMENDED_LATE_PVE_ENTRY.alias}`,
+        },
+        {
+            id: "short",
+            displayUrl: `rgbp.app/#${RECOMMENDED_LATE_PVE_ENTRY.index}`,
+            url: `https://rgbp.app/#${RECOMMENDED_LATE_PVE_ENTRY.index}`,
+        },
+    ],
+    "Should expose both full and short recommended share choices for an exact recommended build",
+);
+
+assertEqual(
+    getRecommendedShareUrlChoices({
+        buildName: RESERVED_LOOKING_CUSTOM_NAME,
+        customBuildData: validBuildData,
+    }),
+    null,
+    "Should not expose recommended share choices for custom builds, even with reserved-looking names",
+);
+
+assertEqual(
+    getRecommendedShareUrlChoices({
+        buildName: editedRecommendedBuildData.name ?? null,
+        customBuildData: editedRecommendedBuildData,
+    }),
+    null,
+    "Should not expose recommended share choices after a recommended build is edited",
 );
