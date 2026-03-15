@@ -1,5 +1,11 @@
 <script lang="ts">
-    import { ImageIcon, LinkSimpleIcon, ShareIcon } from "phosphor-svelte";
+    import {
+        ArrowsInLineHorizontalIcon,
+        ArrowsOutLineHorizontalIcon,
+        ImageIcon,
+        LinkSimpleIcon,
+        ShareIcon,
+    } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { showToast } from "../toast";
@@ -252,22 +258,27 @@
             x={linkMenuX}
             y={linkMenuY}
             isOpen={true}
-            title={$t("share.shareLinkMenuTitle")}
+            title={
+                linkMenuAction === "copy"
+                    ? $t("share.copyLink")
+                    : $t("share.shareLinkMenuTitle")
+            }
             onClose={closeLinkMenu}
         >
             {#each recommendedShareChoices ?? [] as choice (choice.id)}
                 <Button
                     on:click={() => handleRecommendedLinkChoice(choice)}
-                    tooltipText={choice.displayUrl}
-                    icon={choice.id === "full" ? LinkSimpleIcon : ShareIcon}
+                    tooltipText={choice.url}
+                    description={choice.displayUrl}
+                    icon={
+                        choice.id === "full"
+                            ? ArrowsOutLineHorizontalIcon
+                            : ArrowsInLineHorizontalIcon
+                    }
                 >
                     {choice.id === "full"
-                        ? $t("share.fullLinkChoice", {
-                              url: choice.displayUrl,
-                          })
-                        : $t("share.shortLinkChoice", {
-                              url: choice.displayUrl,
-                          })}
+                        ? $t("share.fullUrlChoice")
+                        : $t("share.shortUrlChoice")}
                 </Button>
             {/each}
         </ContextMenu>
