@@ -6,13 +6,14 @@
     export let description: string;
     export let variant: "accent" | "muted" = "accent";
     export let index: number = 0;
+    export let compact = false;
 
     $: labels = Array.isArray(label) ? label : [label];
 </script>
 
-<div class="onboarding-card {variant}" style="--card-index: {index}">
+<div class="onboarding-card {variant}" class:compact style="--card-index: {index}">
     <span class="card-icon" aria-hidden="true">
-        <svelte:component this={icon} size={32} />
+        <svelte:component this={icon} size={compact ? 24 : 32} />
     </span>
     <span class="card-labels">
         {#each labels as l}
@@ -38,7 +39,8 @@
         opacity: 0;
         animation: card-enter 280ms var(--ease-decel) both;
         animation-delay: calc(150ms + var(--card-index) * 70ms);
-        white-space: nowrap;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .onboarding-card.accent {
@@ -60,6 +62,15 @@
         color: var(--text-muted);
     }
 
+    .onboarding-card.compact {
+        column-gap: var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .onboarding-card.compact .card-icon {
+        width: 28px;
+    }
+
     .onboarding-card.accent .card-icon {
         color: var(--accent);
     }
@@ -76,6 +87,10 @@
         line-height: var(--leading);
     }
 
+    .onboarding-card.compact .card-label {
+        font-size: var(--font-sm);
+    }
+
     .onboarding-card.accent .card-label {
         color: var(--accent);
     }
@@ -88,6 +103,10 @@
         font-size: var(--font-sm);
         color: var(--text-muted);
         line-height: var(--leading);
+    }
+
+    .onboarding-card.compact .card-desc {
+        font-size: var(--font-xs);
     }
 
     @keyframes card-enter {

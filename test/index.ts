@@ -14,6 +14,7 @@ const TEST_FILES = [
 
     // 2. Core State & Logic
     "treeLevelsStore.test.ts",
+    "treeBranchReset.test.ts",
     "treeProgressStore.test.ts",
     "treeLayout.test.ts",
     "globalLeafCap.test.ts",
@@ -23,6 +24,7 @@ const TEST_FILES = [
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
     "calculateTechCrystalsSpent.test.ts",
+    "resetTreeChoiceModel.test.ts",
 
     // 3. Serialization & Storage
     "storage.test.ts",
@@ -69,6 +71,7 @@ const TEST_FILES = [
     "treeBridgeRestoreAfterCapture.test.ts",
     "sideMenuComposeScreenshotClose.test.ts",
     "modalHostKeyboardBackdropGuard.test.ts",
+    "activeTreeResetSheet.test.ts",
     "colorPickerDialogKeyboardBackdropGuard.test.ts",
     "colorPickerDialogBackdropInteraction.test.ts",
     "backdropKeyboardOpenHeuristic.test.ts",
@@ -99,6 +102,7 @@ const TEST_FILES = [
     "serviceWorkerAutoUpdateModule.test.ts",
     "serviceWorkerUpdateToast.test.ts",
     "toastSpinnerApi.test.ts",
+    "onboardingPaneLayout.test.ts",
     "onboardingStore.test.ts",
 ];
 

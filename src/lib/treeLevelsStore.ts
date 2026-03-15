@@ -2,6 +2,15 @@ import { derived, writable } from "svelte/store";
 import type { Node, LevelsByIndex } from "../types/tree";
 
 export const treeLevels = writable<LevelsByIndex[]>([]);
+export const TREE_BRANCH_KEYS = ["yellow", "orange", "blue"] as const;
+export type TreeBranchKey = (typeof TREE_BRANCH_KEYS)[number];
+
+const TREE_BRANCH_BOUNDS: Record<TreeBranchKey, { start: number; end: number }> =
+    {
+        yellow: { start: 0, end: 10 },
+        orange: { start: 10, end: 20 },
+        blue: { start: 20, end: 30 },
+    };
 
 export const sumLevels = (levels: LevelsByIndex | null | undefined) =>
     (levels ?? []).reduce((total, value) => total + (value ?? 0), 0);
@@ -24,6 +33,39 @@ export const treeLevelsCannon = derived(treeLevels, ($trees) =>
 
 function initLevels(nodes: Node[]): LevelsByIndex {
     return Array(nodes.length).fill(0);
+}
+
+function getClampedBranchBounds(
+    levels: LevelsByIndex | null | undefined,
+    branch: TreeBranchKey,
+) {
+    const { start, end } = TREE_BRANCH_BOUNDS[branch];
+    const length = levels?.length ?? 0;
+    return {
+        start: Math.min(start, length),
+        end: Math.min(end, length),
+    };
+}
+
+export function sumTreeBranchLevels(
+    levels: LevelsByIndex | null | undefined,
+    branch: TreeBranchKey,
+) {
+    if (!levels?.length) return 0;
+    const { start, end } = getClampedBranchBounds(levels, branch);
+    return sumLevels(levels.slice(start, end));
+}
+
+export function withTreeBranchLevelsReset(
+    levels: LevelsByIndex,
+    branch: TreeBranchKey,
+) {
+    const next = [...levels];
+    const { start, end } = getClampedBranchBounds(levels, branch);
+    for (let index = start; index < end; index += 1) {
+        next[index] = 0;
+    }
+    return next;
 }
 
 export function ensureTreeLevels(trees: { nodes: Node[] }[]) {
@@ -69,6 +111,17 @@ export function resetTreeLevels(index: number, trees: { nodes: Node[] }[]) {
         if (index < 0 || index >= current.length) return current;
         const next = current.slice();
         next[index] = nextLevels;
+        return next;
+    });
+}
+
+export function resetTreeBranchLevels(index: number, branch: TreeBranchKey) {
+    treeLevels.update((current) => {
+        if (index < 0 || index >= current.length) return current;
+        const levels = current[index];
+        if (!levels) return current;
+        const next = current.slice();
+        next[index] = withTreeBranchLevelsReset(levels, branch);
         return next;
     });
 }

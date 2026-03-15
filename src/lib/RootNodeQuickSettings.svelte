@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import { GearSix } from "phosphor-svelte";
+    import { RootNodeIcon } from "./customIcons";
     import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
     import { nodeLevelBehavior, NodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { triggerHaptic } from "./hapticsStore";
@@ -107,7 +107,7 @@
         on:keydown={handleKeydown}
     >
         <div class="qs-header">
-            <GearSix class="qs-header-icon" size={13} weight="bold" />
+            <RootNodeIcon class="qs-header-icon" aria-hidden="true" />
             <span class="qs-header-title">{$t("quickSettings.title")}</span>
         </div>
 
@@ -188,7 +188,7 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
-        padding: var(--spacing-sm) var(--spacing-md);
+        padding: var(--spacing-md) var(--spacing-md);
         border-bottom: var(--border-width) solid var(--border);
         background: var(--bg-input);
         color: var(--text-disabled);
@@ -197,11 +197,16 @@
     .qs-header :global(.qs-header-icon) {
         flex: 0 0 auto;
         display: block;
+        width: 16px;
+        height: 16px;
         color: currentColor;
+        --root-gear-fill: color-mix(in srgb, var(--surface) 80%, transparent);
+        --root-gear-stroke: currentColor;
+        --root-gear-stroke-width: 3;
     }
 
     .qs-header-title {
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
         letter-spacing: var(--tracking);
         white-space: nowrap;
         line-height: var(--leading);

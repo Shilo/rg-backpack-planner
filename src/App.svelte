@@ -14,7 +14,11 @@
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
     import { isFormField, hasOnboardingOverlay } from "./lib/domUtil";
     import { t, locale } from "svelte-whisper";
-    import { treeLevels, sumLevels } from "./lib/treeLevelsStore";
+    import {
+        treeLevels,
+        sumLevels,
+        type TreeBranchKey,
+    } from "./lib/treeLevelsStore";
     import {
         markVersionAsSeen,
         getStoredVersion,
@@ -66,6 +70,7 @@
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
+        resetActiveBranch?: (branch: TreeBranchKey) => void;
         resetActiveTree?: () => void;
         resetAllTrees?: () => void;
     } | null = null;
@@ -78,9 +83,6 @@
     let swipeLastX: number | null = null;
     let isSwiping = false;
     const swipeCloseThreshold = 70;
-    $: activeTreeLevelsTotal = sumLevels($treeLevels?.[activeTreeIndex]);
-    $: canResetActiveTree = activeTreeLevelsTotal > 0;
-
     function closeTransientUiForPreview() {
         closeModal();
         closeMenu();
@@ -533,9 +535,10 @@
         <div class="top-right-actions">
             <TechCrystalDisplay />
             <ActiveTreeResetButton
+                activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
+                onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
                 onReset={() => tabsRef?.resetActiveTree?.()}
                 treeLabel={activeTreeName}
-                canReset={canResetActiveTree}
             />
         </div>
     </div>

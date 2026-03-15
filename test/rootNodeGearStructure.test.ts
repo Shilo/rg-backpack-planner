@@ -4,6 +4,10 @@ const src = readFileSync(
     new URL("../src/lib/RootNode.svelte", import.meta.url),
     "utf8",
 );
+const customIconsSource = readFileSync(
+    new URL("../src/lib/customIcons.ts", import.meta.url),
+    "utf8",
+);
 
 // 1. No Button component import (removes nested interactive element)
 if (/import\s+Button\b/.test(src)) {
@@ -12,10 +16,10 @@ if (/import\s+Button\b/.test(src)) {
     );
 }
 
-// 2. No GearSix icon import (gear is SVG)
+// 2. No GearSix icon import
 if (/import.*GearSix/.test(src)) {
     throw new Error(
-        "RootNode should not import GearSix — the gear shape is an inline SVG.",
+        "RootNode should not import GearSix — the gear should come from customIcons.",
     );
 }
 
@@ -54,24 +58,36 @@ if (!/<button[^>]*aria-label/.test(src)) {
     );
 }
 
-// 6. Contains an inline SVG with the gear path
-if (!/<svg[^>]*viewBox/.test(src)) {
+// 6. customIcons exports the shared RootNodeIcon component
+if (!/import\s+RootNodeIcon\s+from\s+"\.\/RootNodeIcon\.svelte"/.test(customIconsSource)) {
     throw new Error(
-        "RootNode should contain an inline SVG element for the gear shape.",
+        "customIcons should import RootNodeIcon from ./RootNodeIcon.svelte.",
     );
 }
 
-// 7. SVG path uses cubic bezier curves (C commands)
-if (!/<path[^/]*d="[^"]*C\s/.test(src)) {
+if (!/export\s+\{\s*TechCrystalIcon,\s*RootNodeIcon\s*\}/.test(customIconsSource)) {
     throw new Error(
-        "The gear SVG path should use cubic bezier curves (C commands) for smooth rounding.",
+        "customIcons should re-export RootNodeIcon alongside TechCrystalIcon.",
     );
 }
 
-// 8. SVG path has stroke for border
-if (!/stroke-width:\s*3/.test(src)) {
+// 7. RootNode imports and renders the shared RootNodeIcon component
+if (!/import\s+\{\s*RootNodeIcon\s*\}\s+from\s+"\.\/customIcons"/.test(src)) {
     throw new Error(
-        "The gear path should have stroke-width: 3 for the border.",
+        "RootNode should import RootNodeIcon from ./customIcons.",
+    );
+}
+
+if (!/<RootNodeIcon[^>]*aria-hidden="true"/.test(src)) {
+    throw new Error(
+        "RootNode should render RootNodeIcon with aria-hidden=\"true\" inside the gear button.",
+    );
+}
+
+// 8. RootNode should not keep the old inline SVG gear markup
+if (/<svg[^>]*viewBox="0 0 44 44"/.test(src)) {
+    throw new Error(
+        "RootNode should not keep an inline gear SVG once RootNodeIcon is extracted.",
     );
 }
 

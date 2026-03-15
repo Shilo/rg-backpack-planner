@@ -230,6 +230,7 @@
     },
     "tree": {
         "focusedInViewToast": "Focused tree in view",
+        "resetBranchToast": "Reset {branchName} branch",
         "resetTreeToast": "Reset {treeLabel} tree",
         "resetAllTreesToast": "Reset all trees",
         "menuButtonTooltip": "Open menu"
@@ -397,7 +398,15 @@
             "buttonLabelDefault": "Reset Tree",
             "buttonLabelAll": "Reset All Trees",
             "message": "Revert {treeName} nodes to level 0 and refund Tech Crystals in tree.",
-            "messageAll": "Revert all nodes to level 0 and refund all Tech Crystals."
+            "messageAll": "Revert all nodes to level 0 and refund all Tech Crystals.",
+            "optionsLabel": "Reset options for {treeName}",
+            "choiceMessage": "Choose what to reset in {treeName}.",
+            "choiceBranchLabel": "Reset {branchName} Branch",
+            "choiceBranchDescription": "Refund Tech Crystals spent in the {branchName} branch only.",
+            "choiceBranchDescriptionEmpty": "Nothing to reset in this branch.",
+            "choiceTreeLabel": "Reset Whole Tree",
+            "choiceTreeDescription": "Refund Tech Crystals spent across every branch in this tree.",
+            "choiceTreeDescriptionEmpty": "Nothing to reset in this tree."
         },
         "resetSettings": {
             "title": "Reset Settings",
@@ -514,11 +523,17 @@
     },
     "onboarding": {
         "nodesSection": "Nodes",
+        "rootSection": "Root Gear",
         "treeSection": "Empty Space",
+        "hudSection": "Top Right HUD",
         "levelUp": "Level up node",
         "options": "Node options",
         "levelDown": "Level down node",
         "treeOptions": "Tree options",
+        "rootQuickSettings": "Open quick settings",
+        "rootPrimaryAction": "Change node tap action and level mode",
+        "techCrystalBudget": "Set Tech Crystal budget",
+        "resetActiveTree": "Reset active tree",
         "pan": "Pan view",
         "zoom": "Zoom view",
         "dismissClick": "Click anywhere or press Escape to start",

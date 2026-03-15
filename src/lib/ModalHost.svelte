@@ -4,6 +4,7 @@
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
+    import ResetTreeChoicesModal from "./modals/ResetTreeChoicesModal.svelte";
     import { get } from "svelte/store";
     import { closeModal, modalStore } from "./modalStore";
     import { triggerHaptic } from "./hapticsStore";
@@ -26,9 +27,15 @@
                     : null;
             requestAnimationFrame(() => {
                 const current = get(modalStore);
-                if (current?.type === "confirm") {
+                const focusSelector =
+                    current?.type === "confirm"
+                        ? "[data-modal-confirm]"
+                        : current?.type === "resetTreeChoices"
+                          ? "[data-modal-choice]:not(:disabled)"
+                          : null;
+                if (focusSelector) {
                     const btn = document.querySelector<HTMLButtonElement>(
-                        "[data-modal-confirm]",
+                        focusSelector,
                     );
                     btn?.focus();
                 }
@@ -185,6 +192,13 @@
         if (event.key === "Enter") {
             const active = document.activeElement;
             if (
+                $modalStore.type === "resetTreeChoices" &&
+                active instanceof HTMLButtonElement &&
+                active.closest(".modal-shell")
+            ) {
+                return;
+            }
+            if (
                 active instanceof HTMLButtonElement &&
                 active.getAttribute("data-modal-confirm") !== null
             ) {
@@ -222,6 +236,7 @@
             class:modal-shell--confirm={$modalStore.type === "confirm"}
             class:modal-shell--input={$modalStore.type === "input"}
             class:modal-shell--textInput={$modalStore.type === "textInput"}
+            class:modal-shell--resetTreeChoices={$modalStore.type === "resetTreeChoices"}
             role="dialog"
             aria-modal="true"
             aria-label={$modalStore.title}
@@ -294,6 +309,19 @@
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
                 />
+            {:else if $modalStore.type === "resetTreeChoices"}
+                <ResetTreeChoicesModal
+                    title={$modalStore.title}
+                    titleIcon={$modalStore.titleIcon ?? null}
+                    titleIconClass={$modalStore.titleIconClass ?? ""}
+                    titleIconWeight={$modalStore.titleIconWeight}
+                    message={$modalStore.message}
+                    choices={$modalStore.resetTreeChoices?.choices ?? []}
+                    cancelLabel={$modalStore.cancelLabel ??
+                        $t("modal.cancelLabel")}
+                    onConfirm={(value) => handleConfirm(value)}
+                    onCancel={handleCancel}
+                />
             {/if}
         </div>
     </div>
@@ -358,5 +386,27 @@
     .modal-shell--textInput {
         min-width: max(320px, min(92vw, 20rem));
         max-width: max(320px, min(20rem, 100%));
+    }
+
+    .modal-shell--resetTreeChoices {
+        min-width: 0;
+        width: min(100%, 28rem);
+        max-width: min(100%, 28rem);
+        margin-bottom: 0;
+        border-radius: calc(var(--radius-lg) + 3px);
+        background:
+            linear-gradient(
+                180deg,
+                color-mix(in srgb, var(--bg-panel) 84%, var(--accent) 16%),
+                var(--bg-panel) 26%
+            );
+    }
+
+    @media (min-width: 768px) {
+        .modal-shell--resetTreeChoices {
+            min-width: 22rem;
+            max-width: min(28rem, 92vw);
+            margin-bottom: auto;
+        }
     }
 </style>

@@ -230,6 +230,7 @@
     },
     "tree": {
         "focusedInViewToast": "ツリーをビューに合わせました",
+        "resetBranchToast": "{branchName}ブランチをリセット",
         "resetTreeToast": "{treeLabel}ツリーをリセット",
         "resetAllTreesToast": "全ツリーをリセット",
         "menuButtonTooltip": "メニューを開く"
@@ -395,7 +396,15 @@
             "buttonLabelDefault": "ツリーをリセット",
             "buttonLabelAll": "全ツリーをリセット",
             "message": "{treeName}のノードをレベル0に戻し、ツリーのテッククリスタルを返還します。",
-            "messageAll": "全ノードをレベル0に戻し、全テッククリスタルを返還します。"
+            "messageAll": "全ノードをレベル0に戻し、全テッククリスタルを返還します。",
+            "optionsLabel": "{treeName}のリセット項目",
+            "choiceMessage": "{treeName}でリセットする範囲を選択してください。",
+            "choiceBranchLabel": "{branchName}ブランチをリセット",
+            "choiceBranchDescription": "{branchName}ブランチで消費したテッククリスタルのみを返還します。",
+            "choiceBranchDescriptionEmpty": "このブランチにリセットできる内容はありません。",
+            "choiceTreeLabel": "ツリー全体をリセット",
+            "choiceTreeDescription": "このツリーのすべてのブランチで消費したテッククリスタルを返還します。",
+            "choiceTreeDescriptionEmpty": "このツリーにリセットできる内容はありません。"
         },
         "resetSettings": {
             "title": "設定をリセット",
@@ -512,11 +521,17 @@
     },
     "onboarding": {
         "nodesSection": "ノード",
+        "rootSection": "ルートギア",
         "treeSection": "空白エリア",
+        "hudSection": "右上HUD",
         "levelUp": "ノードレベルアップ",
         "options": "ノードオプション",
         "levelDown": "ノードをレベルダウン",
         "treeOptions": "ツリーオプション",
+        "rootQuickSettings": "クイック設定を開く",
+        "rootPrimaryAction": "ノードタップ動作とレベル動作を変更",
+        "techCrystalBudget": "テッククリスタル予算を設定",
+        "resetActiveTree": "現在のツリーをリセット",
         "pan": "ビューを移動",
         "zoom": "ビューをズーム",
         "dismissClick": "クリックまたはEscキーで開始",

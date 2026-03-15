@@ -34,11 +34,14 @@
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
+        resetTreeBranchLevels,
         resetTreeLevels,
         setTreeLevels,
         sumLevels,
+        sumTreeBranchLevels,
         treeLevels,
     } from "./treeLevelsStore";
+    import type { TreeBranchKey } from "./treeLevelsStore";
     import { openResetTreeModal } from "./resetTreeModal";
     import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
@@ -426,6 +429,21 @@
         treeRef?.triggerFade?.();
     }
 
+    function getBranchName(branch: TreeBranchKey) {
+        return $t(`theme.colorNames.${branch}`);
+    }
+
+    function resetBranchByIndex(index: number, branch: TreeBranchKey) {
+        resetTreeBranchLevels(index, branch);
+        treeRef?.triggerFade?.();
+        showToast(
+            $t("tree.resetBranchToast", {
+                branchName: getBranchName(branch),
+            }),
+            { tone: "negative" },
+        );
+    }
+
     function resetTreeByIndex(index: number) {
         resetLevelsForTab(index);
         const tabLabel = tabs[index].label;
@@ -455,6 +473,13 @@
     export function resetActiveTree() {
         if (!tabs[activeIndex]) return;
         resetTreeByIndex(activeIndex);
+    }
+
+    export function resetActiveBranch(branch: TreeBranchKey) {
+        if (!tabs[activeIndex]) return;
+        const levels = $treeLevels[activeIndex] ?? [];
+        if (sumTreeBranchLevels(levels, branch) === 0) return;
+        resetBranchByIndex(activeIndex, branch);
     }
 
     export function resetAllTrees() {

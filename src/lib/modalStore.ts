@@ -1,8 +1,14 @@
 import type { Component } from "svelte";
 import type { IconWeight } from "phosphor-svelte";
 import { writable } from "svelte/store";
+import type { ResetTreeChoiceId } from "./resetTreeChoiceModel";
 
-export type ModalType = "confirm" | "input" | "textInput" | "loadBuild";
+export type ModalType =
+    | "confirm"
+    | "input"
+    | "textInput"
+    | "loadBuild"
+    | "resetTreeChoices";
 
 export type ModalInputConfig = {
     label: string;
@@ -24,6 +30,18 @@ export type InputFooterButtonConfig = {
     icon: Component;
 };
 
+export type ResetTreeChoiceConfig = {
+    id: ResetTreeChoiceId;
+    label: string;
+    description: string;
+    tone: "orange" | "blue" | "yellow" | "danger";
+    disabled?: boolean;
+};
+
+export type ResetTreeChoicesConfig = {
+    choices: ResetTreeChoiceConfig[];
+};
+
 export type ModalPayload = {
     type: ModalType;
     title: string;
@@ -39,6 +57,7 @@ export type ModalPayload = {
     /** Optional bottom-left button: shows label + icon, submits with value when clicked. */
     inputFooterButton?: InputFooterButtonConfig;
     textInput?: TextInputConfig;
+    resetTreeChoices?: ResetTreeChoicesConfig;
     onConfirm?: (value?: string | number) => void;
     onCancel?: () => void;
 };

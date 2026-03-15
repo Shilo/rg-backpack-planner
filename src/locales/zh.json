@@ -230,6 +230,7 @@
     },
     "tree": {
         "focusedInViewToast": "已聚焦技能树到视图",
+        "resetBranchToast": "重置{branchName}分支",
         "resetTreeToast": "重置{treeLabel}树",
         "resetAllTreesToast": "重置所有技能树",
         "menuButtonTooltip": "打开菜单"
@@ -395,7 +396,15 @@
             "buttonLabelDefault": "重置技能树",
             "buttonLabelAll": "重置所有技能树",
             "message": "将{treeName}节点恢复到等级0并退还技能树中的科技水晶。",
-            "messageAll": "将所有节点恢复到等级0并退还所有科技水晶。"
+            "messageAll": "将所有节点恢复到等级0并退还所有科技水晶。",
+            "optionsLabel": "{treeName}重置选项",
+            "choiceMessage": "选择要在{treeName}中重置的范围。",
+            "choiceBranchLabel": "重置{branchName}分支",
+            "choiceBranchDescription": "仅返还{branchName}分支中消耗的科技水晶。",
+            "choiceBranchDescriptionEmpty": "该分支没有可重置的内容。",
+            "choiceTreeLabel": "重置整棵树",
+            "choiceTreeDescription": "返还这棵树所有分支中消耗的科技水晶。",
+            "choiceTreeDescriptionEmpty": "这棵树没有可重置的内容。"
         },
         "resetSettings": {
             "title": "重置设置",
@@ -512,11 +521,17 @@
     },
     "onboarding": {
         "nodesSection": "节点",
+        "rootSection": "根节点齿轮",
         "treeSection": "空白区域",
+        "hudSection": "右上 HUD",
         "levelUp": "升级节点",
         "options": "节点选项",
         "levelDown": "降级节点",
         "treeOptions": "技能树选项",
+        "rootQuickSettings": "打开快速设置",
+        "rootPrimaryAction": "更改节点点按操作和升级模式",
+        "techCrystalBudget": "设置科技水晶预算",
+        "resetActiveTree": "重置当前技能树",
         "pan": "平移视图",
         "zoom": "缩放视图",
         "dismissClick": "点击任意位置或按Esc键开始",

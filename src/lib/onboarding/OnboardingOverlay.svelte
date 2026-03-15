@@ -20,9 +20,10 @@
     import LongPressIcon from "../icons/LongPressIcon.svelte";
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { NODE_RADIUS_PX } from "../Node.svelte";
-    import OnboardingPane from "./OnboardingPane.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
+    import OnboardingPane from "./OnboardingPane.svelte";
+    import type { Direction, Rect } from "./paneLayout";
 
     export let onDismiss: () => void;
     export let offsetX: number;
@@ -39,13 +40,30 @@
     };
 
     const SPOTLIGHT_PAD = 12;
+    const ROOT_SPOTLIGHT_RADIUS = 34;
+    const HUD_SPOTLIGHT_RADIUS = 18;
+    const EMPTY_RECT: Rect = { top: 0, bottom: 0, left: 0, right: 0 };
 
     const treeData =
         getContext<Writable<{ nodes: NodeType[]; levels: LevelsByIndex }>>(
             "tree",
         );
 
-    // Resolve target node from tree context
+    let overlayEl: HTMLDivElement | null = null;
+    let viewportWidth = 0;
+    let viewportHeight = 0;
+    let panePadding = 0;
+    let bottomPadding = 0;
+    let isTouch = false;
+    let hasResetAction = false;
+    let dismissTimer: ReturnType<typeof setTimeout> | null = null;
+
+    let hudPaneBounds: Rect = { ...EMPTY_RECT };
+    let nodePaneBounds: Rect = { ...EMPTY_RECT };
+    let rootPaneBounds: Rect = { ...EMPTY_RECT };
+    let treePaneBounds: Rect = { ...EMPTY_RECT };
+    let hudSpotlightRect: Rect = { ...EMPTY_RECT };
+
     $: targetNode = $treeData.nodes[targetNodeIndex];
     $: targetRegion = (() => {
         if (!targetNode) return "bottom-left" as const;
@@ -54,54 +72,236 @@
         return "bottom-left" as const;
     })();
 
-    // Node screen position (dynamic from tree data)
+    $: compactLayout =
+        viewportWidth > 0 &&
+        viewportHeight > 0 &&
+        (viewportWidth < 680 || viewportHeight < 680);
+    $: effectivePanePadding = compactLayout
+        ? Math.max(8, panePadding - 2)
+        : panePadding;
+
     $: nodeRadius = (targetNode?.radius ?? 1) * NODE_RADIUS_PX;
     $: nodeScreenX = (targetNode?.x ?? 0) * scale + offsetX;
     $: nodeScreenY = (targetNode?.y ?? 0) * scale + offsetY;
     $: nodeScreenRadius = nodeRadius * scale;
     $: nodeSpotlightRadius = nodeScreenRadius + SPOTLIGHT_PAD;
 
-    // Empty space screen position (scales with tree transform)
+    $: rootScreenX = TREE_ROOT_X * scale + offsetX;
+    $: rootScreenY = TREE_ROOT_Y * scale + offsetY;
+
     $: treeScreenX = emptySpaceWorldX * scale + offsetX;
     $: treeScreenY = emptySpaceWorldY * scale + offsetY;
-    $: treeSpotlightRadius = Math.round(nodeSpotlightRadius * 0.8);
+    $: treeSpotlightRadius = Math.max(
+        26,
+        Math.round(nodeSpotlightRadius * 0.8),
+    );
 
-    // Viewport dimensions (measured from overlay element)
-    let viewportWidth = 0;
-    let viewportHeight = 0;
+    function circleRect(x: number, y: number, radius: number): Rect {
+        return {
+            top: y - radius,
+            bottom: y + radius,
+            left: x - radius,
+            right: x + radius,
+        };
+    }
 
-    // Node pane bounds for overlap prevention
-    let nodePaneBounds = { top: 0, bottom: 0, left: 0, right: 0 };
+    function rectWidth(rect: Rect) {
+        return rect.right - rect.left;
+    }
 
-    // Spotlight bounding rects (circle → axis-aligned rect)
-    $: nodeSpotlightRect = {
-        top: nodeScreenY - nodeSpotlightRadius,
-        bottom: nodeScreenY + nodeSpotlightRadius,
-        left: nodeScreenX - nodeSpotlightRadius,
-        right: nodeScreenX + nodeSpotlightRadius,
-    };
-    $: treeSpotlightRect = {
-        top: treeScreenY - treeSpotlightRadius,
-        bottom: treeScreenY + treeSpotlightRadius,
-        left: treeScreenX - treeSpotlightRadius,
-        right: treeScreenX + treeSpotlightRadius,
-    };
+    function rectHeight(rect: Rect) {
+        return rect.bottom - rect.top;
+    }
 
-    // Avoid zones for each pane — ordered by priority (screen bounds enforced by clamping)
-    // 1. sibling pane, 2. own spotlight, 3. other spotlight
-    $: nodeAvoidRects = [nodeSpotlightRect, treeSpotlightRect];
-    $: treeAvoidRects = [nodePaneBounds, treeSpotlightRect, nodeSpotlightRect];
+    function resolveElementRect(
+        selector: string,
+        paddingX: number,
+        paddingY = paddingX,
+    ): Rect | null {
+        if (!overlayEl || typeof document === "undefined") return null;
+        const target = document.querySelector(selector);
+        if (!(target instanceof HTMLElement)) return null;
+        const overlayRect = overlayEl.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        return {
+            top: targetRect.top - overlayRect.top - paddingY,
+            bottom: targetRect.bottom - overlayRect.top + paddingY,
+            left: targetRect.left - overlayRect.left - paddingX,
+            right: targetRect.right - overlayRect.left + paddingX,
+        };
+    }
 
-    const nodePaneDirection = "right" as const;
-    const treePaneDirection = "left" as const;
+    function fallbackHudRect(): Rect {
+        const width = compactLayout ? 116 : 148;
+        const height = compactLayout ? 68 : 76;
+        const top = effectivePanePadding;
+        const left = Math.max(
+            effectivePanePadding,
+            viewportWidth - width - effectivePanePadding,
+        );
+        return {
+            top,
+            bottom: top + height,
+            left,
+            right: left + width,
+        };
+    }
 
-    let panePadding = 0;
-    let bottomPadding = 0;
-    let isTouch = false;
-    let dismissTimer: ReturnType<typeof setTimeout> | null = null;
+    $: nodeSpotlightRect = circleRect(
+        nodeScreenX,
+        nodeScreenY,
+        nodeSpotlightRadius,
+    );
+    $: rootSpotlightRect = circleRect(
+        rootScreenX,
+        rootScreenY,
+        ROOT_SPOTLIGHT_RADIUS,
+    );
+    $: treeSpotlightRect = circleRect(
+        treeScreenX,
+        treeScreenY,
+        treeSpotlightRadius,
+    );
+    $: {
+        void overlayEl;
+        void viewportWidth;
+        void viewportHeight;
+        hudSpotlightRect =
+            resolveElementRect(".top-right-actions", 8, 8) ?? fallbackHudRect();
+    }
 
-    // Intentionally blocks all keyboard input while overlay is active to prevent
-    // tree interactions (panning, tab switching, etc.) behind the tutorial.
+    $: {
+        void viewportWidth;
+        void viewportHeight;
+        hasResetAction =
+            typeof document !== "undefined" &&
+            !!document.querySelector(".top-right-actions .active-tree-reset");
+    }
+
+    let nodePaneDirection: Direction = "right";
+    let rootPaneDirection: Direction = "right";
+    let treePaneDirection: Direction = "left";
+    const hudPaneDirection: Direction = "left";
+
+    $: nodePaneDirection = targetRegion === "right" ? "left" : "right";
+    $: rootPaneDirection = compactLayout ? "down" : "right";
+    $: treePaneDirection = compactLayout ? "up" : "left";
+
+    $: primaryInputIcon = isTouch ? HandTapIcon : MouseLeftClickIcon;
+    $: primaryInputLabel = isTouch
+        ? $t("onboarding.tap")
+        : $t("onboarding.leftClick");
+
+    $: hudCards = [
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: $t("onboarding.techCrystalBudget"),
+        },
+        ...(hasResetAction
+            ? [
+                  {
+                      icon: primaryInputIcon,
+                      label: primaryInputLabel,
+                      description: $t("onboarding.resetActiveTree"),
+                  },
+              ]
+            : []),
+    ] as CardData[];
+
+    $: nodeCards = isTouch
+        ? ([{
+              icon: HandTapIcon,
+              label: $t("onboarding.tap"),
+              description: $t("onboarding.levelUp"),
+          }, {
+              icon: LongPressIcon,
+              label: $t("onboarding.longPress"),
+              description: $t("onboarding.options"),
+          }] as CardData[])
+        : ([{
+              icon: MouseLeftClickIcon,
+              label: $t("onboarding.leftClick"),
+              description: $t("onboarding.levelUp"),
+          }, {
+              icon: MouseRightClickIcon,
+              label: $t("onboarding.rightClick"),
+              description: $t("onboarding.options"),
+          }, {
+              icon: MouseMiddleClickIcon,
+              label: [
+                  $t("onboarding.middleClick"),
+                  $t("onboarding.shiftLeftClick"),
+              ],
+              description: $t("onboarding.levelDown"),
+          }] as CardData[]);
+
+    $: rootCards = [
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: $t("onboarding.rootQuickSettings"),
+        },
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: $t("onboarding.rootPrimaryAction"),
+        },
+    ] as CardData[];
+
+    $: treeCards = isTouch
+        ? ([{
+              icon: LongPressIcon,
+              label: $t("onboarding.longPress"),
+              description: $t("onboarding.treeOptions"),
+          }, {
+              icon: HandGrabbingIcon,
+              label: $t("onboarding.swipe"),
+              description: $t("onboarding.pan"),
+          }, {
+              icon: PinchIcon,
+              label: $t("onboarding.pinch"),
+              description: $t("onboarding.zoom"),
+          }] as CardData[])
+        : ([{
+              icon: MouseRightClickIcon,
+              label: $t("onboarding.rightClick"),
+              description: $t("onboarding.treeOptions"),
+          }, {
+              icon: ArrowsOutCardinalIcon,
+              label: $t("onboarding.clickDrag"),
+              description: $t("onboarding.pan"),
+          }, {
+              icon: MouseScrollIcon,
+              label: $t("onboarding.scroll"),
+              description: $t("onboarding.zoom"),
+          }] as CardData[]);
+
+    $: nodeAvoidRects = [hudSpotlightRect, rootSpotlightRect, treeSpotlightRect];
+    $: hudAvoidRects = [
+        nodePaneBounds,
+        nodeSpotlightRect,
+        rootSpotlightRect,
+        treeSpotlightRect,
+    ];
+    $: rootAvoidRects = [
+        hudPaneBounds,
+        nodePaneBounds,
+        hudSpotlightRect,
+        nodeSpotlightRect,
+        treeSpotlightRect,
+    ];
+    $: treeAvoidRects = [
+        hudPaneBounds,
+        nodePaneBounds,
+        rootPaneBounds,
+        hudSpotlightRect,
+        nodeSpotlightRect,
+        rootSpotlightRect,
+    ];
+
+    let dismissing = false;
+
     function handleKeydown(event: KeyboardEvent) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -110,8 +310,6 @@
         }
     }
 
-    // Dismiss on any pointer interaction — uses window capture so the event
-    // still reaches the tree viewport (overlay is pointer-events: none).
     function handlePointerDismiss() {
         handleDismiss();
     }
@@ -139,78 +337,6 @@
         };
     });
 
-    $: nodeCards = isTouch
-        ? ([
-              {
-                  icon: HandTapIcon,
-                  label: $t("onboarding.tap"),
-                  description: $t("onboarding.levelUp"),
-              },
-              {
-                  icon: LongPressIcon,
-                  label: $t("onboarding.longPress"),
-                  description: $t("onboarding.options"),
-              },
-          ] as CardData[])
-        : ([
-              {
-                  icon: MouseLeftClickIcon,
-                  label: $t("onboarding.leftClick"),
-                  description: $t("onboarding.levelUp"),
-              },
-              {
-                  icon: MouseRightClickIcon,
-                  label: $t("onboarding.rightClick"),
-                  description: $t("onboarding.options"),
-              },
-              {
-                  icon: MouseMiddleClickIcon,
-                  label: [
-                      $t("onboarding.middleClick"),
-                      $t("onboarding.shiftLeftClick"),
-                  ],
-                  description: $t("onboarding.levelDown"),
-              },
-          ] as CardData[]);
-
-    $: treeCards = isTouch
-        ? ([
-              {
-                  icon: LongPressIcon,
-                  label: $t("onboarding.longPress"),
-                  description: $t("onboarding.treeOptions"),
-              },
-              {
-                  icon: HandGrabbingIcon,
-                  label: $t("onboarding.swipe"),
-                  description: $t("onboarding.pan"),
-              },
-              {
-                  icon: PinchIcon,
-                  label: $t("onboarding.pinch"),
-                  description: $t("onboarding.zoom"),
-              },
-          ] as CardData[])
-        : ([
-              {
-                  icon: MouseRightClickIcon,
-                  label: $t("onboarding.rightClick"),
-                  description: $t("onboarding.treeOptions"),
-              },
-              {
-                  icon: ArrowsOutCardinalIcon,
-                  label: $t("onboarding.clickDrag"),
-                  description: $t("onboarding.pan"),
-              },
-              {
-                  icon: MouseScrollIcon,
-                  label: $t("onboarding.scroll"),
-                  description: $t("onboarding.zoom"),
-              },
-          ] as CardData[]);
-
-    let dismissing = false;
-
     function handleDismiss() {
         if (dismissing) return;
         dismissing = true;
@@ -228,6 +354,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- aria-label intentionally not localized to keep i18n minimal -->
 <div
+    bind:this={overlayEl}
     class="onboarding-overlay"
     class:dismissing
     role="dialog"
@@ -237,21 +364,20 @@
     bind:clientWidth={viewportWidth}
     bind:clientHeight={viewportHeight}
 >
-    <!-- No backdrop blur — Chromium doesn't support backdrop-filter on masked
-         elements (https://issues.chromium.org/issues/41465359). -->
-
-    <!-- Dark backdrop with spotlight cutouts -->
     <svg class="onboarding-backdrop" aria-hidden="true">
         <defs>
             <radialGradient id="onboarding-node-fade">
                 <stop offset="75%" stop-color="black" />
                 <stop offset="100%" stop-color="white" />
             </radialGradient>
+            <radialGradient id="onboarding-root-fade">
+                <stop offset="72%" stop-color="black" />
+                <stop offset="100%" stop-color="white" />
+            </radialGradient>
             <radialGradient id="onboarding-tree-fade">
                 <stop offset="70%" stop-color="black" />
                 <stop offset="100%" stop-color="white" />
             </radialGradient>
-            <!-- Only one overlay mounts at a time so static IDs are safe -->
             <mask id="onboarding-cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
                 <circle
@@ -261,10 +387,24 @@
                     fill="url(#onboarding-node-fade)"
                 />
                 <circle
+                    cx={rootScreenX}
+                    cy={rootScreenY}
+                    r={ROOT_SPOTLIGHT_RADIUS}
+                    fill="url(#onboarding-root-fade)"
+                />
+                <circle
                     cx={treeScreenX}
                     cy={treeScreenY}
                     r={treeSpotlightRadius}
                     fill="url(#onboarding-tree-fade)"
+                />
+                <rect
+                    x={hudSpotlightRect.left}
+                    y={hudSpotlightRect.top}
+                    width={rectWidth(hudSpotlightRect)}
+                    height={rectHeight(hudSpotlightRect)}
+                    rx={HUD_SPOTLIGHT_RADIUS}
+                    fill="black"
                 />
             </mask>
         </defs>
@@ -276,27 +416,42 @@
         />
     </svg>
 
-    <!-- Node spotlight ring -->
     <div
-        class="spotlight-ring"
-        style="left: {nodeScreenX}px; top: {nodeScreenY}px; width: {nodeSpotlightRadius *
-            2}px; height: {nodeSpotlightRadius * 2}px;"
+        class="spotlight-ring spotlight-ring--rect"
+        style="left: {hudSpotlightRect.left}px; top: {hudSpotlightRect.top}px; width: {rectWidth(
+            hudSpotlightRect,
+        )}px; height: {rectHeight(
+            hudSpotlightRect,
+        )}px; border-radius: {HUD_SPOTLIGHT_RADIUS}px;"
     ></div>
 
-    <!-- Tree spotlight ring -->
     <div
-        class="spotlight-ring"
-        style="left: {treeScreenX}px; top: {treeScreenY}px; width: {treeSpotlightRadius *
-            2}px; height: {treeSpotlightRadius * 2}px;"
+        class="spotlight-ring spotlight-ring--circle"
+        style="left: {nodeSpotlightRect.left}px; top: {nodeSpotlightRect.top}px; width: {rectWidth(
+            nodeSpotlightRect,
+        )}px; height: {rectHeight(nodeSpotlightRect)}px;"
     ></div>
 
-    <!-- Dismiss hint card -->
-    <div class="dismiss-card">
+    <div
+        class="spotlight-ring spotlight-ring--circle"
+        style="left: {rootSpotlightRect.left}px; top: {rootSpotlightRect.top}px; width: {rectWidth(
+            rootSpotlightRect,
+        )}px; height: {rectHeight(rootSpotlightRect)}px;"
+    ></div>
+
+    <div
+        class="spotlight-ring spotlight-ring--circle"
+        style="left: {treeSpotlightRect.left}px; top: {treeSpotlightRect.top}px; width: {rectWidth(
+            treeSpotlightRect,
+        )}px; height: {rectHeight(treeSpotlightRect)}px;"
+    ></div>
+
+    <div class="dismiss-card" class:compact={compactLayout}>
         <span class="dismiss-icon" aria-hidden="true">
             {#if isTouch}
-                <HandTapIcon size={20} />
+                <HandTapIcon size={compactLayout ? 16 : 20} />
             {:else}
-                <CursorClickIcon size={20} />
+                <CursorClickIcon size={compactLayout ? 16 : 20} />
             {/if}
         </span>
         <span class="dismiss-text">
@@ -306,11 +461,8 @@
         </span>
     </div>
 
-    <!-- Node instruction pane (avoids tree spotlight) -->
     <OnboardingPane
-        screenX={nodeScreenX}
-        screenY={nodeScreenY}
-        spotlightRadius={nodeSpotlightRadius}
+        anchorRect={nodeSpotlightRect}
         direction={nodePaneDirection}
         sectionLabel={$t("onboarding.nodesSection")}
         variant="accent"
@@ -320,27 +472,61 @@
         {viewportHeight}
         avoidRects={nodeAvoidRects}
         ownSpotlightRect={nodeSpotlightRect}
-        edgePadding={panePadding}
+        edgePadding={effectivePanePadding}
         bottomEdgePadding={bottomPadding}
         bind:bounds={nodePaneBounds}
+        compact={compactLayout}
     />
 
-    <!-- Tree instruction pane (avoids node pane + node spotlight) -->
     <OnboardingPane
-        screenX={treeScreenX}
-        screenY={treeScreenY}
-        spotlightRadius={treeSpotlightRadius}
+        anchorRect={hudSpotlightRect}
+        direction={hudPaneDirection}
+        sectionLabel={$t("onboarding.hudSection")}
+        variant="muted"
+        cards={hudCards}
+        baseCardIndex={nodeCards.length}
+        {viewportWidth}
+        {viewportHeight}
+        avoidRects={hudAvoidRects}
+        ownSpotlightRect={hudSpotlightRect}
+        edgePadding={effectivePanePadding}
+        bottomEdgePadding={bottomPadding}
+        bind:bounds={hudPaneBounds}
+        compact={compactLayout}
+    />
+
+    <OnboardingPane
+        anchorRect={rootSpotlightRect}
+        direction={rootPaneDirection}
+        sectionLabel={$t("onboarding.rootSection")}
+        variant="accent"
+        cards={rootCards}
+        baseCardIndex={nodeCards.length + hudCards.length}
+        {viewportWidth}
+        {viewportHeight}
+        avoidRects={rootAvoidRects}
+        ownSpotlightRect={rootSpotlightRect}
+        edgePadding={effectivePanePadding}
+        bottomEdgePadding={bottomPadding}
+        bind:bounds={rootPaneBounds}
+        compact={compactLayout}
+    />
+
+    <OnboardingPane
+        anchorRect={treeSpotlightRect}
         direction={treePaneDirection}
         sectionLabel={$t("onboarding.treeSection")}
         variant="muted"
         cards={treeCards}
-        baseCardIndex={nodeCards.length}
+        baseCardIndex={nodeCards.length + hudCards.length + rootCards.length}
         {viewportWidth}
         {viewportHeight}
         avoidRects={treeAvoidRects}
         ownSpotlightRect={treeSpotlightRect}
-        edgePadding={panePadding}
+        edgePadding={effectivePanePadding}
         bottomEdgePadding={bottomPadding}
+        bind:bounds={treePaneBounds}
+        compact={compactLayout}
     />
 </div>
 
@@ -348,7 +534,7 @@
     .onboarding-overlay {
         position: absolute;
         inset: 0;
-        z-index: calc(var(--z-index-hud) - 1);
+        z-index: calc(var(--z-index-hud) + 1);
         pointer-events: none;
         animation: overlay-fade-in 300ms ease both;
     }
@@ -366,11 +552,13 @@
 
     .spotlight-ring {
         position: absolute;
-        transform: translate(-50%, -50%);
         border: 2px dashed color-mix(in srgb, var(--text) 60%, transparent);
-        border-radius: 50%;
         pointer-events: none;
         z-index: 1;
+    }
+
+    .spotlight-ring--circle {
+        border-radius: 999px;
     }
 
     .dismiss-card {
@@ -391,6 +579,17 @@
         white-space: nowrap;
         z-index: 2;
         animation: hint-fade-in 250ms ease both;
+    }
+
+    .dismiss-card.compact {
+        height: auto;
+        min-height: 32px;
+        max-width: calc(100vw - 24px);
+        padding: var(--spacing-xs) var(--spacing-md);
+        gap: var(--spacing-sm);
+        font-size: var(--font-sm);
+        white-space: normal;
+        text-align: center;
     }
 
     .dismiss-icon {
