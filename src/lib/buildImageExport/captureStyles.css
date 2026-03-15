@@ -98,3 +98,9 @@ html.snapdom-capture .node-wrapper.available .node-badge-slot-name .node-badge {
 html.snapdom-capture .node-flash {
     display: none !important;
 }
+
+/* Pin --gear-border-width on the root node gear so the ::after inset survives
+   snapdom's DOM cloning — same mechanism as --hex-border-width on .node-wrapper. */
+html.snapdom-capture .root-node-gear {
+    --gear-border-width: 2px !important;
+}
