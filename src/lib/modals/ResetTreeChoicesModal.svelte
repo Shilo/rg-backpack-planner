@@ -73,7 +73,15 @@
                 <span class="reset-tree-choice__copy">
                     <span class="reset-tree-choice__label">{choice.label}</span>
                     <span class="reset-tree-choice__description">
-                        {choice.description}
+                        {#if choice.descriptionAmount}
+                            {choice.descriptionPrefix ?? ""}
+                            <span class="reset-tree-choice__amount">
+                                {choice.descriptionAmount}
+                            </span>
+                            {choice.descriptionSuffix ?? ""}
+                        {:else}
+                            {choice.description}
+                        {/if}
                     </span>
                 </span>
             </button>
@@ -91,16 +99,16 @@
 
 <style>
     .reset-tree-sheet {
-        --sheet-inline-padding: clamp(0.875rem, 3.2vw, 1.25rem);
+        --sheet-inline-padding: clamp(0.75rem, 3vw, 1rem);
         container-type: inline-size;
         display: grid;
-        gap: clamp(0.625rem, 1.8vw, 0.875rem);
+        gap: clamp(0.5rem, 1.6vw, 0.75rem);
         width: 100%;
         min-width: 0;
         padding:
-            clamp(0.75rem, 2vw, 1rem)
+            clamp(0.65rem, 1.8vw, 0.85rem)
             var(--sheet-inline-padding)
-            calc(0.875rem + min(var(--safe-bottom, 0px), 0.875rem))
+            calc(0.75rem + min(var(--safe-bottom, 0px), 0.75rem))
             var(--sheet-inline-padding);
     }
 
@@ -108,8 +116,7 @@
         display: grid;
         grid-template-columns: auto minmax(0, 1fr);
         align-items: center;
-        gap: 0.75rem;
-        padding-bottom: 0.125rem;
+        gap: 0.625rem;
     }
 
     .reset-tree-sheet__tree-badge {
@@ -125,26 +132,26 @@
                 color-mix(in srgb, var(--bg-raised) 88%, transparent)
             );
         box-shadow: var(--shadow-sm);
-        width: 3.5rem;
-        height: 3.5rem;
-        border-radius: 1.1rem;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.95rem;
         color: var(--accent-light);
     }
 
     .reset-tree-sheet__tree-icon {
-        width: 1.85rem;
-        height: 1.85rem;
+        width: 2.625rem;
+        height: 2.625rem;
     }
 
     .reset-tree-sheet__header-copy {
         display: grid;
-        gap: 0.3rem;
+        gap: 0.2rem;
         min-width: 0;
     }
 
     .reset-tree-sheet__header-copy h2 {
         margin: 0;
-        font-size: clamp(1.02rem, 1.8vw, 1.28rem);
+        font-size: clamp(1rem, 1.7vw, 1.18rem);
         color: var(--text);
         line-height: 1.12;
         letter-spacing: 0.01em;
@@ -154,14 +161,14 @@
     .reset-tree-sheet__message {
         margin: 0;
         color: var(--text-muted);
-        font-size: 0.88rem;
-        line-height: var(--leading);
+        font-size: 0.82rem;
+        line-height: 1.28;
         text-wrap: pretty;
     }
 
     .reset-tree-sheet__choices {
         display: grid;
-        gap: 0.625rem;
+        gap: 0.5rem;
     }
 
     .reset-tree-choice {
@@ -182,7 +189,7 @@
             var(--choice-accent) 32%
         );
         width: 100%;
-        min-height: 70px;
+        min-height: 66px;
         border: var(--border-width) solid var(--choice-border);
         border-radius: 1.1rem;
         background: var(--choice-bg);
@@ -190,8 +197,8 @@
         display: grid;
         grid-template-columns: auto 1fr;
         align-items: start;
-        gap: 0.75rem;
-        padding: 0.8rem 0.875rem;
+        gap: 0.65rem;
+        padding: 0.72rem 0.8rem;
         text-align: left;
         box-shadow:
             inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent),
@@ -232,15 +239,15 @@
     }
 
     .reset-tree-choice__leading {
-        padding-top: 0.1rem;
+        padding-top: 0.06rem;
     }
 
     .reset-tree-choice__leading-icon-wrap {
-        width: 2.25rem;
-        height: 2.25rem;
+        width: 2.125rem;
+        height: 2.125rem;
         display: grid;
         place-items: center;
-        border-radius: 0.85rem;
+        border-radius: 0.8rem;
         background: color-mix(
             in srgb,
             var(--choice-accent) 20%,
@@ -253,12 +260,12 @@
 
     .reset-tree-choice__copy {
         display: grid;
-        gap: 0.16rem;
+        gap: 0.14rem;
         min-width: 0;
     }
 
     .reset-tree-choice__label {
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         font-weight: var(--weight-semibold);
         line-height: 1.14;
         color: inherit;
@@ -266,11 +273,17 @@
     }
 
     .reset-tree-choice__description {
-        font-size: 0.77rem;
+        font-size: 0.74rem;
         color: var(--choice-copy);
-        line-height: var(--leading);
+        line-height: 1.28;
         overflow-wrap: anywhere;
         text-wrap: pretty;
+    }
+
+    .reset-tree-choice__amount {
+        color: var(--choice-accent);
+        font-weight: var(--weight-bold);
+        font-variant-numeric: tabular-nums;
     }
 
     :global(.reset-tree-choice__icon) {
@@ -290,6 +303,10 @@
     }
 
     .reset-tree-choice:disabled .reset-tree-choice__description {
+        color: var(--text-disabled);
+    }
+
+    .reset-tree-choice:disabled .reset-tree-choice__amount {
         color: var(--text-disabled);
     }
 
@@ -406,15 +423,9 @@
             padding-bottom: 0;
         }
 
-        .reset-tree-sheet__tree-badge {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 0.95rem;
-        }
-
         .reset-tree-sheet__tree-icon {
-            width: 1.6rem;
-            height: 1.6rem;
+            width: 2.25rem;
+            height: 2.25rem;
         }
 
         .reset-tree-sheet__header-copy {
@@ -422,11 +433,11 @@
         }
 
         .reset-tree-sheet__header-copy h2 {
-            font-size: 0.98rem;
+            font-size: 0.94rem;
         }
 
         .reset-tree-sheet__message {
-            font-size: 0.8rem;
+            font-size: 0.76rem;
         }
 
         .reset-tree-sheet__choices {
@@ -434,27 +445,27 @@
         }
 
         .reset-tree-choice {
-            min-height: 62px;
-            gap: 0.625rem;
-            padding: 0.68rem 0.75rem;
+            min-height: 58px;
+            gap: 0.55rem;
+            padding: 0.6rem 0.66rem;
         }
 
         .reset-tree-choice__leading-icon-wrap {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 0.78rem;
+            width: 1.9rem;
+            height: 1.9rem;
+            border-radius: 0.72rem;
         }
 
         .reset-tree-choice__label {
-            font-size: 0.88rem;
+            font-size: 0.84rem;
         }
 
         .reset-tree-choice__description {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
         }
 
         :global(.reset-tree-sheet__cancel) {
-            min-height: 40px;
+            min-height: 38px;
             margin-top: 0;
         }
     }

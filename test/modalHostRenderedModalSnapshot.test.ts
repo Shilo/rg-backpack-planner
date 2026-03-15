@@ -9,15 +9,21 @@ if (!/let renderedModal: ModalPayload \| null = null;/.test(source)) {
     );
 }
 
-if (!/\{#if renderedModal\}/.test(source)) {
+if (!/\{#if \$modalStore && renderedModal\}/.test(source)) {
     throw new Error(
-        "ModalHost should render from renderedModal instead of directly from $modalStore during outro.",
+        "ModalHost should keep the block lifecycle tied to $modalStore while guarding the snapshot as non-null for template rendering.",
     );
 }
 
 if (!/transition:modalShellTransition=\{\{ sheet: renderedModal\.type === "resetTreeChoices" \}\}/.test(source)) {
     throw new Error(
         "ModalHost should drive bottom-sheet transitions from the stable renderedModal snapshot.",
+    );
+}
+
+if (/\{#if renderedModal\}/.test(source)) {
+    throw new Error(
+        "ModalHost should not keep the if-block keyed to renderedModal, or the modal can never start its outro after closeModal().",
     );
 }
 

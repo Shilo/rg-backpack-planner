@@ -1,6 +1,6 @@
 <script lang="ts">
     import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
-    import type { LevelsByIndex } from "../types/tree";
+    import type { LevelsByIndex, Node } from "../types/tree";
     import Button from "./Button.svelte";
     import { getTreeIcon } from "./customIcons";
     import { openResetTreeChoicesModal } from "./resetTreeModal";
@@ -10,6 +10,7 @@
     export let onReset: (() => void) | null = null;
     export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
     export let activeLevels: LevelsByIndex | null = null;
+    export let treeNodes: Node[] = [];
     export let treeId = "";
     export let treeLabel = "";
     export let forceShow = false;
@@ -33,6 +34,7 @@
                 onResetTree: onReset,
                 onResetBranch,
             },
+            treeNodes,
             treeIcon,
         );
     };

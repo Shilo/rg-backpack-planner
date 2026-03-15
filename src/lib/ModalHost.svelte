@@ -248,7 +248,7 @@
 
 <svelte:window on:keydown|capture={handleKeydown} />
 
-{#if renderedModal}
+{#if $modalStore && renderedModal}
     <div
         class="modal-backdrop"
         class:modal-backdrop--sheet={renderedModal.type === "resetTreeChoices"}

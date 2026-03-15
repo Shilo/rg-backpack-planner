@@ -34,6 +34,9 @@ export type ResetTreeChoiceConfig = {
     id: ResetTreeChoiceId;
     label: string;
     description: string;
+    descriptionPrefix?: string;
+    descriptionAmount?: string;
+    descriptionSuffix?: string;
     tone: "orange" | "blue" | "yellow" | "danger";
     disabled?: boolean;
 };

@@ -1,9 +1,13 @@
 import { derived, writable } from "svelte/store";
-import type { TabConfig } from "../types/tree";
+import type { Node, LevelsByIndex, TabConfig } from "../types/tree";
 import { buildPresetsStore } from "./buildPresetsStore";
 import { decodeBuildData } from "./buildData/encoder";
 import { getSkillLevelInfo } from "../config/skillMetadata";
-import { treeLevels } from "./treeLevelsStore";
+import {
+    getTreeBranchBounds,
+    treeLevels,
+    type TreeBranchKey,
+} from "./treeLevelsStore";
 
 export const techCrystalsOwned = writable(0);
 export const activeTabs = writable<TabConfig[]>([]);
@@ -15,12 +19,7 @@ export const techCrystalsSpentByTree = derived(
         return $treeLevels.map((levels, tabIndex) => {
             const tab = $activeTabs[tabIndex];
             if (!tab || !levels) return 0;
-            return levels.reduce((sum, level, nodeIndex) => {
-                const node = tab.nodes[nodeIndex];
-                if (!node) return sum;
-                const info = getSkillLevelInfo(node.skillId, level, node.maxLevel);
-                return sum + info.totalCostSpent;
-            }, 0);
+            return calculateTreeTechCrystalsSpent(levels, tab.nodes);
         });
     }
 );
@@ -102,11 +101,43 @@ export function calculateTechCrystalsSpent(
     return trees.reduce((total, levels, tabIndex) => {
         const tab = tabs[tabIndex];
         if (!tab) return total;
-        return total + levels.reduce((sum, level, nodeIndex) => {
-            const node = tab.nodes[nodeIndex];
-            if (!node || !level) return sum;
-            const info = getSkillLevelInfo(node.skillId, level, node.maxLevel);
-            return sum + info.totalCostSpent;
-        }, 0);
+        return total + calculateTreeTechCrystalsSpent(levels, tab.nodes);
     }, 0);
+}
+
+function calculateNodeTechCrystalsSpent(
+    level: number | null | undefined,
+    node: Node | null | undefined,
+) {
+    if (!node || !level) return 0;
+    const info = getSkillLevelInfo(node.skillId, level, node.maxLevel);
+    return info.totalCostSpent;
+}
+
+export function calculateTreeTechCrystalsSpent(
+    levels: LevelsByIndex | null | undefined,
+    nodes: Node[],
+): number {
+    if (!levels?.length || !nodes.length) return 0;
+    return levels.reduce(
+        (sum, level, nodeIndex) =>
+            sum + calculateNodeTechCrystalsSpent(level, nodes[nodeIndex]),
+        0,
+    );
+}
+
+export function calculateTreeBranchTechCrystalsSpent(
+    levels: LevelsByIndex | null | undefined,
+    nodes: Node[],
+    branch: TreeBranchKey,
+): number {
+    if (!levels?.length || !nodes.length) return 0;
+    const { start, end } = getTreeBranchBounds(levels, branch);
+    let sum = 0;
+
+    for (let nodeIndex = start; nodeIndex < end; nodeIndex += 1) {
+        sum += calculateNodeTechCrystalsSpent(levels[nodeIndex], nodes[nodeIndex]);
+    }
+
+    return sum;
 }

@@ -35,7 +35,7 @@ function initLevels(nodes: Node[]): LevelsByIndex {
     return Array(nodes.length).fill(0);
 }
 
-function getClampedBranchBounds(
+export function getTreeBranchBounds(
     levels: LevelsByIndex | null | undefined,
     branch: TreeBranchKey,
 ) {
@@ -52,7 +52,7 @@ export function sumTreeBranchLevels(
     branch: TreeBranchKey,
 ) {
     if (!levels?.length) return 0;
-    const { start, end } = getClampedBranchBounds(levels, branch);
+    const { start, end } = getTreeBranchBounds(levels, branch);
     return sumLevels(levels.slice(start, end));
 }
 
@@ -61,7 +61,7 @@ export function withTreeBranchLevelsReset(
     branch: TreeBranchKey,
 ) {
     const next = [...levels];
-    const { start, end } = getClampedBranchBounds(levels, branch);
+    const { start, end } = getTreeBranchBounds(levels, branch);
     for (let index = start; index < end; index += 1) {
         next[index] = 0;
     }

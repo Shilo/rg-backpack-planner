@@ -48,7 +48,7 @@
     .root-node-gear {
         --root-gear-fill: var(--bg-raised);
         --root-gear-stroke: var(--border);
-        --root-gear-stroke-width: 3;
+        --root-gear-stroke-width: 2;
         width: 100%;
         height: 100%;
         padding: 0;

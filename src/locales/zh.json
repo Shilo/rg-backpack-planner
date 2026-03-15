@@ -400,10 +400,10 @@
             "optionsLabel": "{treeName}重置选项",
             "choiceMessage": "选择要在{treeName}中重置的范围。",
             "choiceBranchLabel": "重置{branchName}分支",
-            "choiceBranchDescription": "仅返还{branchName}分支中消耗的科技水晶。",
+            "choiceBranchDescription": "仅返还{branchName}分支中消耗的{amount}。",
             "choiceBranchDescriptionEmpty": "该分支没有可重置的内容。",
             "choiceTreeLabel": "重置整棵树",
-            "choiceTreeDescription": "返还这棵树所有分支中消耗的科技水晶。",
+            "choiceTreeDescription": "返还这棵树所有分支中消耗的{amount}。",
             "choiceTreeDescriptionEmpty": "这棵树没有可重置的内容。"
         },
         "resetSettings": {

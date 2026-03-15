@@ -1,6 +1,11 @@
 import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
 import type { Component } from "svelte";
-import type { LevelsByIndex } from "../types/tree";
+import { formatNumber } from "svelte-whisper";
+import type { LevelsByIndex, Node } from "../types/tree";
+import {
+    calculateTreeBranchTechCrystalsSpent,
+    calculateTreeTechCrystalsSpent,
+} from "./techCrystalStore";
 import {
     type TranslateFn,
     openConfirmModal,
@@ -11,6 +16,8 @@ import {
     type ResetTreeChoiceId,
 } from "./resetTreeChoiceModel";
 import type { TreeBranchKey } from "./treeLevelsStore";
+
+const REFUND_AMOUNT_TOKEN = "__amount__";
 
 /**
  * Opens the reset-tree confirmation modal. Use from ResetTreeButton and
@@ -52,6 +59,7 @@ export function openResetTreeChoicesModal(
         onResetBranch: (branch: TreeBranchKey) => void;
         onResetTree: () => void;
     },
+    treeNodes: Node[] = [],
     treeIcon: Component | null = null,
 ): void {
     const trimmedLabel = treeLabel.trim();
@@ -61,6 +69,49 @@ export function openResetTreeChoicesModal(
     const choiceState = buildResetTreeChoiceState(activeLevels);
     const branchName = (branch: TreeBranchKey) =>
         t(`theme.colorNames.${branch}`);
+    const branchRefunds: Record<TreeBranchKey, number> = {
+        yellow: calculateTreeBranchTechCrystalsSpent(
+            activeLevels,
+            treeNodes,
+            "yellow",
+        ),
+        orange: calculateTreeBranchTechCrystalsSpent(
+            activeLevels,
+            treeNodes,
+            "orange",
+        ),
+        blue: calculateTreeBranchTechCrystalsSpent(activeLevels, treeNodes, "blue"),
+    };
+    const totalRefund = calculateTreeTechCrystalsSpent(activeLevels, treeNodes);
+
+    const buildRefundDescription = (
+        key:
+            | "modal.resetTree.choiceBranchDescription"
+            | "modal.resetTree.choiceTreeDescription",
+        params: Record<string, string>,
+        amount: number,
+    ) => {
+        const amountLabel = t("preview.techCrystalsDescription", {
+            count: formatNumber(amount),
+        });
+        const description = t(key, {
+            ...params,
+            amount: amountLabel,
+        });
+        const tokenizedDescription = t(key, {
+            ...params,
+            amount: REFUND_AMOUNT_TOKEN,
+        });
+        const [descriptionPrefix = "", ...descriptionSuffixParts] =
+            tokenizedDescription.split(REFUND_AMOUNT_TOKEN);
+
+        return {
+            description,
+            descriptionPrefix,
+            descriptionAmount: amountLabel,
+            descriptionSuffix: descriptionSuffixParts.join(REFUND_AMOUNT_TOKEN),
+        };
+    };
 
     openModal({
         type: "resetTreeChoices",
@@ -73,12 +124,15 @@ export function openResetTreeChoicesModal(
         resetTreeChoices: {
             choices: choiceState.choices.map((choice) => {
                 if (choice.id === "tree") {
+                    const refundDescription = buildRefundDescription(
+                        "modal.resetTree.choiceTreeDescription",
+                        {},
+                        totalRefund,
+                    );
                     return {
                         id: choice.id,
                         label: t("modal.resetTree.choiceTreeLabel"),
-                        description: choice.enabled
-                            ? t("modal.resetTree.choiceTreeDescription")
-                            : t("modal.resetTree.choiceTreeDescriptionEmpty"),
+                        ...refundDescription,
                         tone: "danger" as const,
                         disabled: !choice.enabled,
                     };
@@ -86,16 +140,17 @@ export function openResetTreeChoicesModal(
 
                 const branch = choice.branch ?? "orange";
                 const name = branchName(branch);
+                const refundDescription = buildRefundDescription(
+                    "modal.resetTree.choiceBranchDescription",
+                    { branchName: name },
+                    branchRefunds[branch],
+                );
                 return {
                     id: choice.id,
                     label: t("modal.resetTree.choiceBranchLabel", {
                         branchName: name,
                     }),
-                    description: choice.enabled
-                        ? t("modal.resetTree.choiceBranchDescription", {
-                              branchName: name,
-                          })
-                        : t("modal.resetTree.choiceBranchDescriptionEmpty"),
+                    ...refundDescription,
                     tone: branch,
                     disabled: !choice.enabled,
                 };

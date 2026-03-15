@@ -901,7 +901,9 @@
             cancelActiveGestures();
             return;
         }
-        viewportEl.setPointerCapture(event.pointerId);
+        if (!info?.isRoot) {
+            viewportEl.setPointerCapture(event.pointerId);
+        }
         pointers.set(event.pointerId, {
             x: event.clientX,
             y: event.clientY,
@@ -1055,7 +1057,11 @@
 
         if (!isPrimaryPointer(event)) return;
         if (viewportEl) {
-            viewportEl.releasePointerCapture(event.pointerId);
+            try {
+                viewportEl.releasePointerCapture(event.pointerId);
+            } catch {
+                // Root presses intentionally skip pointer capture so native click/tap can open quick settings.
+            }
         }
         const pointer = pointers.get(event.pointerId);
         pointers.delete(event.pointerId);

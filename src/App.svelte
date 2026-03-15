@@ -540,6 +540,7 @@
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
                 onReset={() => tabsRef?.resetActiveTree?.()}
                 treeId={tabs[activeTreeIndex]?.id ?? ""}
+                treeNodes={tabs[activeTreeIndex]?.nodes ?? []}
                 treeLabel={activeTreeName}
                 forceShow={!$onboardingSeen}
             />

@@ -402,10 +402,10 @@
             "optionsLabel": "Reset options for {treeName}",
             "choiceMessage": "Choose what to reset in {treeName}.",
             "choiceBranchLabel": "Reset {branchName} Branch",
-            "choiceBranchDescription": "Refund Tech Crystals spent in the {branchName} branch only.",
+            "choiceBranchDescription": "Refund {amount} spent in the {branchName} branch only.",
             "choiceBranchDescriptionEmpty": "Nothing to reset in this branch.",
             "choiceTreeLabel": "Reset Whole Tree",
-            "choiceTreeDescription": "Refund Tech Crystals spent across every branch in this tree.",
+            "choiceTreeDescription": "Refund {amount} spent across every branch in this tree.",
             "choiceTreeDescriptionEmpty": "Nothing to reset in this tree."
         },
         "resetSettings": {

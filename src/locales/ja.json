@@ -400,10 +400,10 @@
             "optionsLabel": "{treeName}のリセット項目",
             "choiceMessage": "{treeName}でリセットする範囲を選択してください。",
             "choiceBranchLabel": "{branchName}ブランチをリセット",
-            "choiceBranchDescription": "{branchName}ブランチで消費したテッククリスタルのみを返還します。",
+            "choiceBranchDescription": "{branchName}ブランチで消費した{amount}のみを返還します。",
             "choiceBranchDescriptionEmpty": "このブランチにリセットできる内容はありません。",
             "choiceTreeLabel": "ツリー全体をリセット",
-            "choiceTreeDescription": "このツリーのすべてのブランチで消費したテッククリスタルを返還します。",
+            "choiceTreeDescription": "このツリーのすべてのブランチで消費した{amount}を返還します。",
             "choiceTreeDescriptionEmpty": "このツリーにリセットできる内容はありません。"
         },
         "resetSettings": {

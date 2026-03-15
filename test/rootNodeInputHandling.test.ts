@@ -32,3 +32,13 @@ if (
         "Tree pointerup should no longer open root quick settings directly once RootNode owns click/tap activation.",
     );
 }
+
+if (
+    !/if \(!info\?\.isRoot\) \{\s*viewportEl\.setPointerCapture\(event\.pointerId\);\s*\}/m.test(
+        treeSource,
+    )
+) {
+    throw new Error(
+        "Tree should skip pointer capture for root presses so the native root click/tap event can still fire.",
+    );
+}
