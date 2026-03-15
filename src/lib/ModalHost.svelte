@@ -1,5 +1,7 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
+    import { cubicOut } from "svelte/easing";
+    import { fade, type TransitionConfig } from "svelte/transition";
     import ConfirmModal from "./modals/ConfirmModal.svelte";
     import InputModal from "./modals/InputModal.svelte";
     import TextInputModal from "./modals/TextInputModal.svelte";
@@ -217,6 +219,24 @@
             }
         }
     }
+
+    function modalShellTransition(
+        _node: Element,
+        params: { sheet?: boolean } = {},
+    ): TransitionConfig {
+        const isSheet = params.sheet ?? false;
+        const distance = isSheet ? 32 : 8;
+        const startScale = isSheet ? 1 : 0.96;
+
+        return {
+            duration: isSheet ? 220 : 160,
+            easing: cubicOut,
+            css: (t, u) => `
+                opacity: ${t};
+                transform: translate3d(0, ${u * distance}px, 0) scale(${startScale + (1 - startScale) * t});
+            `,
+        };
+    }
 </script>
 
 <svelte:window on:keydown|capture={handleKeydown} />
@@ -228,6 +248,7 @@
         role="button"
         tabindex="0"
         aria-label={$t("common.close")}
+        transition:fade={{ duration: 140 }}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
@@ -241,6 +262,7 @@
             role="dialog"
             aria-modal="true"
             aria-label={$modalStore.title}
+            transition:modalShellTransition={{ sheet: $modalStore.type === "resetTreeChoices" }}
         >
             {#if $modalStore.type === "confirm"}
                 <ConfirmModal
@@ -313,10 +335,7 @@
             {:else if $modalStore.type === "resetTreeChoices"}
                 <ResetTreeChoicesModal
                     title={$modalStore.title}
-                    titleIcon={$modalStore.titleIcon ?? null}
                     sheetIcon={$modalStore.sheetIcon ?? null}
-                    titleIconClass={$modalStore.titleIconClass ?? ""}
-                    titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
                     choices={$modalStore.resetTreeChoices?.choices ?? []}
                     cancelLabel={$modalStore.cancelLabel ??
@@ -351,7 +370,6 @@
         z-index: var(--z-index-modal);
         backdrop-filter: blur(var(--blur-md));
         -webkit-backdrop-filter: blur(var(--blur-md));
-        animation: modal-backdrop-in 0.15s ease both;
     }
 
     .modal-backdrop--sheet {
@@ -382,7 +400,6 @@
                 transparent
             );
         box-shadow: var(--shadow), var(--shadow-lg);
-        animation: modal-shell-in var(--ease-decel) both;
         padding: 0;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
@@ -451,6 +468,32 @@
                 40rem,
                 calc(100vw - 7rem - var(--safe-left, 0px) - var(--safe-right, 0px))
             );
+        }
+    }
+
+    @media (orientation: landscape) and (max-height: 26rem) {
+        .modal-backdrop--sheet {
+            padding-top: max(0.5rem, var(--safe-top, 0px));
+            padding-right: calc(0.75rem + var(--safe-right, 0px));
+            padding-bottom: max(0.5rem, var(--safe-bottom, 0px));
+            padding-left: calc(0.75rem + var(--safe-left, 0px));
+        }
+
+        .modal-shell--resetTreeChoices {
+            width: min(
+                44rem,
+                calc(
+                    100vw - 1.5rem - var(--safe-left, 0px) - var(--safe-right, 0px)
+                )
+            );
+            max-width: min(
+                44rem,
+                calc(
+                    100vw - 1.5rem - var(--safe-left, 0px) - var(--safe-right, 0px)
+                )
+            );
+            max-height: calc(100% - max(0.5rem, var(--safe-top, 0px)));
+            border-radius: 24px;
         }
     }
 </style>

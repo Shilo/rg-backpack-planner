@@ -45,6 +45,7 @@ const TEST_FILES = [
     "nodeContentMenuTierAction.test.ts",
     "nodeFocusStyle.test.ts",
     "rootNodeGearStructure.test.ts",
+    "rootNodeQuickSettingsBackdropTouchGuard.test.ts",
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
     "previewBuildsDropdownTcDescription.test.ts",

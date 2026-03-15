@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import type { IconWeight } from "phosphor-svelte";
     import {
         ArrowCounterClockwiseIcon,
         ArrowsCounterClockwiseIcon,
@@ -12,11 +11,7 @@
     import type { ResetTreeChoiceId } from "../resetTreeChoiceModel";
 
     export let title = "";
-    export let titleIcon: Component | null = null;
     export let sheetIcon: Component | null = null;
-    export let titleIconClass = "";
-    export let titleIconAriaHidden = true;
-    export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
     export let choices: ResetTreeChoiceConfig[] = [];
     export let cancelLabel = "";
@@ -39,37 +34,21 @@
 </script>
 
 <div class="reset-tree-sheet">
-    <div class="reset-tree-sheet__handle-zone" aria-hidden="true">
-        <div class="reset-tree-sheet__grabber"></div>
-    </div>
-
     <header class="reset-tree-sheet__header">
-        <div class="reset-tree-sheet__header-top">
-            {#if sheetIcon}
-                <span class="reset-tree-sheet__tree-badge" aria-hidden="true">
-                    <svelte:component
-                        this={sheetIcon}
-                        class="reset-tree-sheet__tree-icon"
-                    />
-                </span>
-            {/if}
-            {#if titleIcon}
-                <span class="reset-tree-sheet__title-chip">
-                    <svelte:component
-                        this={titleIcon}
-                        class={`reset-tree-sheet__title-icon ${titleIconClass}`.trim()}
-                        aria-hidden={titleIconAriaHidden}
-                        weight={titleIconWeight}
-                    />
-                </span>
-            {/if}
-        </div>
-        <div class="reset-tree-sheet__title">
-            <h2>{title}</h2>
-        </div>
-        {#if message}
-            <p class="reset-tree-sheet__message">{message}</p>
+        {#if sheetIcon}
+            <span class="reset-tree-sheet__tree-badge" aria-hidden="true">
+                <svelte:component
+                    this={sheetIcon}
+                    class="reset-tree-sheet__tree-icon"
+                />
+            </span>
         {/if}
+        <div class="reset-tree-sheet__header-copy">
+            <h2>{title}</h2>
+            {#if message}
+                <p class="reset-tree-sheet__message">{message}</p>
+            {/if}
+        </div>
     </header>
 
     <div class="reset-tree-sheet__choices">
@@ -112,49 +91,28 @@
 
 <style>
     .reset-tree-sheet {
-        --sheet-inline-padding: clamp(1rem, 4vw, 1.5rem);
+        --sheet-inline-padding: clamp(0.875rem, 3.2vw, 1.25rem);
         container-type: inline-size;
         display: grid;
-        gap: clamp(0.75rem, 2vw, 1rem);
+        gap: clamp(0.625rem, 1.8vw, 0.875rem);
         width: 100%;
         min-width: 0;
         padding:
-            0
+            clamp(0.75rem, 2vw, 1rem)
             var(--sheet-inline-padding)
-            calc(1rem + min(var(--safe-bottom, 0px), 1rem))
+            calc(0.875rem + min(var(--safe-bottom, 0px), 0.875rem))
             var(--sheet-inline-padding);
-    }
-
-    .reset-tree-sheet__handle-zone {
-        min-height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: calc(var(--spacing-xs) * -1);
-    }
-
-    .reset-tree-sheet__grabber {
-        width: 42px;
-        height: 4px;
-        border-radius: var(--radius-full);
-        background: color-mix(in srgb, var(--text-muted) 32%, transparent);
-        box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 10%, transparent);
     }
 
     .reset-tree-sheet__header {
         display: grid;
-        gap: 0.75rem;
-        padding-bottom: 0.25rem;
-    }
-
-    .reset-tree-sheet__header-top {
-        display: flex;
+        grid-template-columns: auto minmax(0, 1fr);
         align-items: center;
         gap: 0.75rem;
+        padding-bottom: 0.125rem;
     }
 
-    .reset-tree-sheet__tree-badge,
-    .reset-tree-sheet__title-chip {
+    .reset-tree-sheet__tree-badge {
         display: inline-grid;
         place-items: center;
         flex: 0 0 auto;
@@ -167,58 +125,43 @@
                 color-mix(in srgb, var(--bg-raised) 88%, transparent)
             );
         box-shadow: var(--shadow-sm);
-    }
-
-    .reset-tree-sheet__tree-badge {
-        width: 3rem;
-        height: 3rem;
-        border-radius: 1rem;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 1.1rem;
         color: var(--accent-light);
     }
 
-    .reset-tree-sheet__title-chip {
-        width: 2.25rem;
-        height: 2.25rem;
-        border-radius: 0.875rem;
-        color: var(--text-muted);
-    }
-
     .reset-tree-sheet__tree-icon {
-        width: 1.375rem;
-        height: 1.375rem;
+        width: 1.85rem;
+        height: 1.85rem;
     }
 
-    .reset-tree-sheet__title {
+    .reset-tree-sheet__header-copy {
         display: grid;
+        gap: 0.3rem;
         min-width: 0;
     }
 
-    .reset-tree-sheet__title h2 {
+    .reset-tree-sheet__header-copy h2 {
         margin: 0;
-        font-size: clamp(1.1rem, 2vw, 1.35rem);
+        font-size: clamp(1.02rem, 1.8vw, 1.28rem);
         color: var(--text);
-        line-height: 1.14;
+        line-height: 1.12;
         letter-spacing: 0.01em;
         text-wrap: balance;
-    }
-
-    .reset-tree-sheet__title-icon {
-        width: 18px;
-        height: 18px;
     }
 
     .reset-tree-sheet__message {
         margin: 0;
         color: var(--text-muted);
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         line-height: var(--leading);
-        max-width: 40ch;
         text-wrap: pretty;
     }
 
     .reset-tree-sheet__choices {
         display: grid;
-        gap: 0.75rem;
+        gap: 0.625rem;
     }
 
     .reset-tree-choice {
@@ -239,16 +182,16 @@
             var(--choice-accent) 32%
         );
         width: 100%;
-        min-height: 76px;
+        min-height: 70px;
         border: var(--border-width) solid var(--choice-border);
-        border-radius: 1.25rem;
+        border-radius: 1.1rem;
         background: var(--choice-bg);
         color: var(--text);
         display: grid;
         grid-template-columns: auto 1fr;
         align-items: start;
-        gap: 0.875rem;
-        padding: 0.95rem 1rem;
+        gap: 0.75rem;
+        padding: 0.8rem 0.875rem;
         text-align: left;
         box-shadow:
             inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent),
@@ -293,11 +236,11 @@
     }
 
     .reset-tree-choice__leading-icon-wrap {
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 2.25rem;
+        height: 2.25rem;
         display: grid;
         place-items: center;
-        border-radius: 0.95rem;
+        border-radius: 0.85rem;
         background: color-mix(
             in srgb,
             var(--choice-accent) 20%,
@@ -310,20 +253,20 @@
 
     .reset-tree-choice__copy {
         display: grid;
-        gap: 0.2rem;
+        gap: 0.16rem;
         min-width: 0;
     }
 
     .reset-tree-choice__label {
-        font-size: 0.96rem;
+        font-size: 0.92rem;
         font-weight: var(--weight-semibold);
-        line-height: 1.2;
+        line-height: 1.14;
         color: inherit;
         text-wrap: balance;
     }
 
     .reset-tree-choice__description {
-        font-size: 0.8rem;
+        font-size: 0.77rem;
         color: var(--choice-copy);
         line-height: var(--leading);
         overflow-wrap: anywhere;
@@ -374,13 +317,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 1.25rem;
-        min-height: 52px;
+        border-radius: 1.1rem;
+        min-height: 46px;
         font-weight: var(--weight-semibold);
         background: color-mix(in srgb, var(--surface) 82%, var(--accent) 18%);
         border-color: color-mix(in srgb, var(--accent) 26%, var(--border) 74%);
         color: var(--text);
         text-align: center;
+        margin-top: 0.125rem;
     }
 
     .reset-tree-sheet__header,
@@ -426,7 +370,7 @@
         }
     }
 
-    @container (min-width: 32rem) {
+    @container (min-width: 30rem) {
         .reset-tree-sheet__choices {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -434,23 +378,84 @@
 
     @media (orientation: landscape) and (max-height: 46rem) {
         .reset-tree-sheet {
-            gap: 0.75rem;
-            padding-bottom: calc(0.875rem + min(var(--safe-bottom, 0px), 0.75rem));
+            --sheet-inline-padding: 0.8rem;
+            gap: 0.5rem;
+            padding-top: 0.7rem;
+            padding-bottom: calc(0.7rem + min(var(--safe-bottom, 0px), 0.6rem));
         }
 
         .reset-tree-sheet__header {
-            grid-template-columns: auto 1fr;
-            column-gap: 1rem;
-            align-items: start;
-        }
-
-        .reset-tree-sheet__header-top {
-            grid-row: 1 / span 2;
-            align-self: start;
+            gap: 0.625rem;
         }
 
         .reset-tree-sheet__choices {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (orientation: landscape) and (max-height: 26rem) {
+        .reset-tree-sheet {
+            --sheet-inline-padding: 0.7rem;
+            gap: 0.45rem;
+            padding-top: 0.55rem;
+            padding-bottom: calc(0.6rem + min(var(--safe-bottom, 0px), 0.45rem));
+        }
+
+        .reset-tree-sheet__header {
+            gap: 0.55rem;
+            padding-bottom: 0;
+        }
+
+        .reset-tree-sheet__tree-badge {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.95rem;
+        }
+
+        .reset-tree-sheet__tree-icon {
+            width: 1.6rem;
+            height: 1.6rem;
+        }
+
+        .reset-tree-sheet__header-copy {
+            gap: 0.18rem;
+        }
+
+        .reset-tree-sheet__header-copy h2 {
+            font-size: 0.98rem;
+        }
+
+        .reset-tree-sheet__message {
+            font-size: 0.8rem;
+        }
+
+        .reset-tree-sheet__choices {
+            gap: 0.5rem;
+        }
+
+        .reset-tree-choice {
+            min-height: 62px;
+            gap: 0.625rem;
+            padding: 0.68rem 0.75rem;
+        }
+
+        .reset-tree-choice__leading-icon-wrap {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.78rem;
+        }
+
+        .reset-tree-choice__label {
+            font-size: 0.88rem;
+        }
+
+        .reset-tree-choice__description {
+            font-size: 0.72rem;
+        }
+
+        :global(.reset-tree-sheet__cancel) {
+            min-height: 40px;
+            margin-top: 0;
         }
     }
 

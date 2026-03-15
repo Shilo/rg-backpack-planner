@@ -16,6 +16,7 @@
     let displayX = 0;
     let displayY = 0;
     let isTouchPlatform = false;
+    let shouldIgnoreBackdropClick = false;
     let wasOpen = false;
 
     const MARGIN = 8;
@@ -48,11 +49,13 @@
 
     $: if (isOpen && !wasOpen) {
         wasOpen = true;
+        shouldIgnoreBackdropClick = isTouchPlatform;
         tick().then(updatePosition);
     }
 
     $: if (!isOpen && wasOpen) {
         wasOpen = false;
+        shouldIgnoreBackdropClick = false;
     }
 
     function selectPrimaryAction(action: NodePrimaryAction) {
@@ -86,6 +89,16 @@
             onClose?.();
         }
     }
+
+    function handleBackdropClick(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (shouldIgnoreBackdropClick) {
+            shouldIgnoreBackdropClick = false;
+            return;
+        }
+        onClose?.();
+    }
 </script>
 
 {#if isOpen}
@@ -94,7 +107,7 @@
         type="button"
         tabindex="-1"
         aria-hidden="true"
-        on:click={() => onClose?.()}
+        on:click={handleBackdropClick}
         on:contextmenu|preventDefault={() => onClose?.()}
     ></button>
     <div

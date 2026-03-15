@@ -67,7 +67,6 @@ export function openResetTreeChoicesModal(
         title: trimmedLabel
             ? t("modal.resetTree.title", { treeName })
             : t("modal.resetTree.titleDefault"),
-        titleIcon: ArrowCounterClockwiseIcon as unknown as Component,
         sheetIcon: treeIcon ?? null,
         message: t("modal.resetTree.choiceMessage", { treeName }),
         cancelLabel: t("common.cancel"),
