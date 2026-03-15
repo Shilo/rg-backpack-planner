@@ -98,7 +98,20 @@ if (!/drop-shadow\(var\(--shadow-node-hex\)\)/.test(src)) {
     );
 }
 
-// 10. Imports triggerHaptic for keyboard handler
+// 10. Root node should use the default neutral button palette
+if (!/--root-gear-fill:\s*var\(--bg-raised\)/.test(src)) {
+    throw new Error(
+        "RootNode should use var(--bg-raised) for a calmer default button-like fill.",
+    );
+}
+
+if (!/--root-gear-stroke:\s*var\(--border\)/.test(src)) {
+    throw new Error(
+        "RootNode should use var(--border) for the neutral default button outline.",
+    );
+}
+
+// 11. Imports triggerHaptic for keyboard handler
 if (!/import.*triggerHaptic.*from/.test(src)) {
     throw new Error(
         "RootNode should import triggerHaptic from hapticsStore for the keyboard handler.",

@@ -46,6 +46,7 @@ export type ModalPayload = {
     type: ModalType;
     title: string;
     titleIcon?: Component | null;
+    sheetIcon?: Component | null;
     titleIconClass?: string;
     titleIconWeight?: IconWeight;
     message?: string;

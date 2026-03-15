@@ -2,6 +2,7 @@
     import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
     import type { LevelsByIndex } from "../types/tree";
     import Button from "./Button.svelte";
+    import { getTreeIcon } from "./customIcons";
     import { openResetTreeChoicesModal } from "./resetTreeModal";
     import { sumLevels, type TreeBranchKey } from "./treeLevelsStore";
     import { t } from "svelte-whisper";
@@ -9,6 +10,7 @@
     export let onReset: (() => void) | null = null;
     export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
     export let activeLevels: LevelsByIndex | null = null;
+    export let treeId = "";
     export let treeLabel = "";
 
     $: trimmedTreeLabel = treeLabel.trim();
@@ -16,14 +18,21 @@
         ? $t("trees.named", { label: trimmedTreeLabel })
         : $t("trees.generic");
     $: activeTreeLevelsTotal = sumLevels(activeLevels);
+    $: treeIcon = getTreeIcon(treeId);
     $: showReset = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
 
     const handleReset = () => {
         if (!onReset || !onResetBranch) return;
-        openResetTreeChoicesModal($t, treeLabel, activeLevels, {
-            onResetTree: onReset,
-            onResetBranch,
-        });
+        openResetTreeChoicesModal(
+            $t,
+            treeLabel,
+            activeLevels,
+            {
+                onResetTree: onReset,
+                onResetBranch,
+            },
+            treeIcon,
+        );
     };
 </script>
 

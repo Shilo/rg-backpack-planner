@@ -6,9 +6,7 @@
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
     import {
-        GuardianIcon,
-        VanguardIcon,
-        CannonIcon,
+        getTreeIcon,
         TechCrystalIcon,
     } from "./customIcons";
     import type { Component } from "svelte";
@@ -58,10 +56,7 @@
     export let onMenuClick: (() => void) | null = null;
 
     function getTabIcon(id: string): Component | null {
-        if (id === "guardian") return GuardianIcon as unknown as Component;
-        if (id === "vanguard") return VanguardIcon as unknown as Component;
-        if (id === "cannon") return CannonIcon as unknown as Component;
-        return null;
+        return getTreeIcon(id);
     }
     /** When true, Tab key cycles side menu tabs instead of tree tabs. */
     export let isMenuOpen = false;

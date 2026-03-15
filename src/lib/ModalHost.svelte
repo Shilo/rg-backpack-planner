@@ -224,6 +224,7 @@
 {#if $modalStore}
     <div
         class="modal-backdrop"
+        class:modal-backdrop--sheet={$modalStore.type === "resetTreeChoices"}
         role="button"
         tabindex="0"
         aria-label={$t("common.close")}
@@ -313,6 +314,7 @@
                 <ResetTreeChoicesModal
                     title={$modalStore.title}
                     titleIcon={$modalStore.titleIcon ?? null}
+                    sheetIcon={$modalStore.sheetIcon ?? null}
                     titleIconClass={$modalStore.titleIconClass ?? ""}
                     titleIconWeight={$modalStore.titleIconWeight}
                     message={$modalStore.message}
@@ -350,6 +352,14 @@
         backdrop-filter: blur(var(--blur-md));
         -webkit-backdrop-filter: blur(var(--blur-md));
         animation: modal-backdrop-in 0.15s ease both;
+    }
+
+    .modal-backdrop--sheet {
+        background: color-mix(
+            in srgb,
+            var(--backdrop-overlay-heavy) 92%,
+            transparent
+        );
     }
 
     /* Dialog container: centered, scrollable, width from content up to viewport cap */
@@ -390,23 +400,57 @@
 
     .modal-shell--resetTreeChoices {
         min-width: 0;
-        width: min(100%, 28rem);
-        max-width: min(100%, 28rem);
+        width: min(100%, 40rem);
+        max-width: min(
+            40rem,
+            calc(
+                100vw - 2 * var(--spacing-lg) - var(--safe-left, 0px) -
+                    var(--safe-right, 0px)
+            )
+        );
+        max-height: min(
+            42rem,
+            calc(100% - max(3.5rem, calc(var(--safe-top, 0px) + 1rem)))
+        );
         margin-bottom: 0;
-        border-radius: calc(var(--radius-lg) + 3px);
+        border-radius: 28px;
         background:
             linear-gradient(
                 180deg,
-                color-mix(in srgb, var(--bg-panel) 84%, var(--accent) 16%),
-                var(--bg-panel) 26%
+                color-mix(in srgb, var(--surface) 80%, var(--accent) 20%),
+                color-mix(in srgb, var(--bg-panel) 94%, transparent) 22%,
+                var(--bg-panel) 100%
             );
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 20%,
+            var(--border) 80%
+        );
+        box-shadow:
+            0 20px 60px color-mix(in srgb, var(--bg) 55%, transparent),
+            var(--shadow-lg);
+        transform-origin: bottom center;
+        overflow: auto;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 48rem) {
+        .modal-backdrop--sheet {
+            padding-left: calc(3.5rem + var(--safe-left, 0px));
+            padding-right: calc(3.5rem + var(--safe-right, 0px));
+            padding-top: calc(1rem + var(--safe-top, 0px));
+            padding-bottom: calc(1rem + var(--safe-bottom, 0px));
+        }
+
         .modal-shell--resetTreeChoices {
             min-width: 22rem;
-            max-width: min(28rem, 92vw);
-            margin-bottom: auto;
+            width: min(
+                40rem,
+                calc(100vw - 7rem - var(--safe-left, 0px) - var(--safe-right, 0px))
+            );
+            max-width: min(
+                40rem,
+                calc(100vw - 7rem - var(--safe-left, 0px) - var(--safe-right, 0px))
+            );
         }
     }
 </style>

@@ -538,6 +538,7 @@
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
                 onReset={() => tabsRef?.resetActiveTree?.()}
+                treeId={tabs[activeTreeIndex]?.id ?? ""}
                 treeLabel={activeTreeName}
             />
         </div>

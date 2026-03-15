@@ -52,6 +52,7 @@ export function openResetTreeChoicesModal(
         onResetBranch: (branch: TreeBranchKey) => void;
         onResetTree: () => void;
     },
+    treeIcon: Component | null = null,
 ): void {
     const trimmedLabel = treeLabel.trim();
     const treeName = trimmedLabel
@@ -67,6 +68,7 @@ export function openResetTreeChoicesModal(
             ? t("modal.resetTree.title", { treeName })
             : t("modal.resetTree.titleDefault"),
         titleIcon: ArrowCounterClockwiseIcon as unknown as Component,
+        sheetIcon: treeIcon ?? null,
         message: t("modal.resetTree.choiceMessage", { treeName }),
         cancelLabel: t("common.cancel"),
         resetTreeChoices: {
