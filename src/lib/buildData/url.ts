@@ -10,7 +10,7 @@ import {
     decodeNameSpaces,
 } from "./encoder";
 import {
-    getRecommendedBuildAliasForEncoded,
+    getRecommendedBuildTokenForEncoded,
     resolveRecommendedBuildEncoded,
 } from "./recommended";
 import { treeLevels } from "../treeLevelsStore";
@@ -55,8 +55,9 @@ export function getBasePath(): string {
 /**
  * Get the encoded build data from the current URL.
  *
- * Supported format:
+ * Supported formats:
  *   /{base}#{encoded}
+ *   /{base}#/{reserved}
  */
 export function getEncodedFromUrl(): string | null {
     if (typeof window === "undefined") return null;
@@ -142,7 +143,7 @@ export function createShareUrl(buildData?: BuildData): string {
               owned: get(techCrystalsOwned),
           };
     const encoded = encodeBuildData(data);
-    const shareToken = getRecommendedBuildAliasForEncoded(encoded) ?? encoded;
+    const shareToken = getRecommendedBuildTokenForEncoded(encoded) ?? encoded;
     return buildShareUrl(shareToken);
 }
 
@@ -261,7 +262,7 @@ export function updateUrlWithCurrentBuild(): void {
         };
 
         const encoded = encodeBuildData(buildData);
-        const shareToken = getRecommendedBuildAliasForEncoded(encoded) ?? encoded;
+        const shareToken = getRecommendedBuildTokenForEncoded(encoded) ?? encoded;
         const newPath = buildSharePath(shareToken);
 
         // Only update URL if it's different from current path + hash

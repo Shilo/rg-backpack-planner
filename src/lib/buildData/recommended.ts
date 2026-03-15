@@ -1,6 +1,8 @@
 import appPackage from "../../../package.json";
 import { decodeBuildData } from "./encoder";
 
+export const RESERVED_BUILD_PREFIX = "/";
+
 export interface RecommendedBuild {
     index: number;
     alias: string;
@@ -9,7 +11,19 @@ export interface RecommendedBuild {
 }
 
 function normalizeRecommendedAlias(candidate: string): string {
-    return candidate.trim().toLowerCase().replace(/[\s_]+/g, "_");
+    return candidate.trim().toLowerCase().replace(/[\s_]+/g, "");
+}
+
+function safeDecodeURIComponent(candidate: string): string | null {
+    if (!candidate.includes("%")) {
+        return null;
+    }
+
+    try {
+        return decodeURIComponent(candidate);
+    } catch {
+        return null;
+    }
 }
 
 function parseRecommendedBuild(
@@ -70,17 +84,42 @@ function getRecommendedBuildByIndex(indexToken: string): RecommendedBuild | null
     return recommendedBuilds[index - 1] ?? null;
 }
 
+function stripReservedBuildPrefix(candidate: string): string | null {
+    const token = candidate.trim();
+    if (!token.startsWith(RESERVED_BUILD_PREFIX)) {
+        return null;
+    }
+
+    const value = token.slice(RESERVED_BUILD_PREFIX.length).trim();
+    return value || null;
+}
+
+function getReservedBuildCandidate(candidate: string): string | null {
+    const directCandidate = stripReservedBuildPrefix(candidate);
+    if (directCandidate) {
+        return directCandidate;
+    }
+
+    const decodedCandidate = safeDecodeURIComponent(candidate);
+    if (!decodedCandidate || decodedCandidate === candidate) {
+        return null;
+    }
+
+    return stripReservedBuildPrefix(decodedCandidate);
+}
+
 export function resolveRecommendedBuildAlias(
     candidate: string,
 ): RecommendedBuild | null {
-    const token = candidate.trim();
+    const token = getReservedBuildCandidate(candidate);
     if (!token || token.includes("|")) {
         return null;
     }
 
     return (
+        getRecommendedBuildByIndex(token) ??
         recommendedBuildByAlias.get(normalizeRecommendedAlias(token)) ??
-        getRecommendedBuildByIndex(token)
+        null
     );
 }
 
@@ -90,8 +129,9 @@ export function resolveRecommendedBuildEncoded(
     return resolveRecommendedBuildAlias(candidate)?.encoded ?? null;
 }
 
-export function getRecommendedBuildAliasForEncoded(
+export function getRecommendedBuildTokenForEncoded(
     encoded: string,
 ): string | null {
-    return recommendedBuildByEncoded.get(encoded)?.alias ?? null;
+    const build = recommendedBuildByEncoded.get(encoded);
+    return build ? `${RESERVED_BUILD_PREFIX}${build.alias}` : null;
 }

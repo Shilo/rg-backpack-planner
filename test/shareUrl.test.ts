@@ -40,10 +40,12 @@ const validBuildData = {
     owned: 0,
 };
 const encodedValidBuild = encodeBuildData(validBuildData);
+const CUSTOM_FIRST_NODE_ONE = "1";
 const SHARED_PAYLOAD_EXAMPLE =
     "E'4.k.E.E.a.k.1,E'7.k.k.1,E.E.k.E.E.k'3.a;,E'7.k.k;Y.Y.E.Y.k.E.E.a.k,Y.Y.E.E.Y.E.E.k.k.1";
 const RECOMMENDED_LATE_PVE =
     "Late_PvE|,k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7";
+const RECOMMENDED_LATE_PVE_TOKEN = "/Late_PvE";
 const recommendedLatePveBuildData = decodeBuildData(RECOMMENDED_LATE_PVE);
 if (!recommendedLatePveBuildData) {
     throw new Error("Expected Late_PvE recommended build fixture to decode");
@@ -105,39 +107,74 @@ assertEqual(
     "Should accept mobile percent-encoded share URL payloads",
 );
 assertEqual(
+    parseEncodedFromUserInput(RECOMMENDED_LATE_PVE_TOKEN),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a prefixed recommended build name alias to its encoded build",
+);
+assertEqual(
+    parseEncodedFromUserInput(`#${RECOMMENDED_LATE_PVE_TOKEN}`),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a prefixed recommended build name alias from a raw hash",
+);
+assertEqual(
+    parseEncodedFromUserInput("/late_pve"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a lowercase prefixed recommended build name alias",
+);
+assertEqual(
+    parseEncodedFromUserInput("/late pve"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a space-separated prefixed recommended build name alias",
+);
+assertEqual(
+    parseEncodedFromUserInput("/latepve"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a compact prefixed recommended build name alias",
+);
+assertEqual(
+    parseEncodedFromUserInput("/  LaTe   PvE  "),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a mixed-case prefixed recommended build name alias with extra spaces",
+);
+assertEqual(
+    parseEncodedFromUserInput("/4"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a prefixed recommended build numeric alias to its encoded build",
+);
+assertEqual(
+    parseEncodedFromUserInput("https://rgbp.app/#/4"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a prefixed recommended build numeric alias from a full URL",
+);
+assertEqual(
+    parseEncodedFromUserInput("https://rgbp.app/#%2FLate_PvE"),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a percent-encoded prefixed recommended build link",
+);
+assertEqual(
+    parseEncodedFromUserInput("https://rgbp.app/#1"),
+    CUSTOM_FIRST_NODE_ONE,
+    "Should keep a bare numeric hash on the custom build path",
+);
+assertEqual(
     parseEncodedFromUserInput("Late_PvE"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a recommended build name alias to its encoded build",
+    null,
+    "Should not resolve a bare recommended name without the reserved prefix",
 );
 assertEqual(
-    parseEncodedFromUserInput("#Late_PvE"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a recommended build name alias from a raw hash",
+    parseEncodedFromUserInput("https://rgbp.app/#Late_PvE"),
+    null,
+    "Should not resolve a bare recommended name URL without the reserved prefix",
 );
 assertEqual(
-    parseEncodedFromUserInput("late_pve"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a lowercase recommended build name alias",
+    parseEncodedFromUserInput("https://rgbp.app/#Late_PvE|"),
+    null,
+    "Should keep a bare named-looking hash on the custom path when the prefix is missing",
 );
 assertEqual(
-    parseEncodedFromUserInput("late pve"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a space-separated recommended build name alias",
-);
-assertEqual(
-    parseEncodedFromUserInput("  LaTe   PvE  "),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a mixed-case recommended build name alias with extra spaces",
-);
-assertEqual(
-    parseEncodedFromUserInput("4"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a recommended build numeric alias to its encoded build",
-);
-assertEqual(
-    parseEncodedFromUserInput("https://rgbp.app/#4"),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a recommended build numeric alias from a full URL",
+    parseEncodedFromUserInput("https://rgbp.app/#1|"),
+    null,
+    "Should keep a bare numeric named-looking hash on the custom path when the prefix is missing",
 );
 assertEqual(
     parseEncodedFromUserInput("https://example.com/"),
@@ -178,25 +215,46 @@ assertEqual(
 );
 
 // getEncodedFromUrl alias resolution tests
+window.location.hash = "#/Late_PvE";
+assertEqual(
+    getEncodedFromUrl(),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve the canonical prefixed recommended name hash to encoded build data",
+);
+
+window.location.hash = "#/late pve";
+assertEqual(
+    getEncodedFromUrl(),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a lowercase spaced prefixed recommended name hash to encoded build data",
+);
+
+window.location.hash = "#%2FLate_PvE";
+assertEqual(
+    getEncodedFromUrl(),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve a percent-encoded prefixed recommended name hash to encoded build data",
+);
+
+window.location.hash = "#/4";
+assertEqual(
+    getEncodedFromUrl(),
+    RECOMMENDED_LATE_PVE,
+    "Should resolve the prefixed recommended numeric hash to encoded build data",
+);
+
+window.location.hash = "#1";
+assertEqual(
+    getEncodedFromUrl(),
+    CUSTOM_FIRST_NODE_ONE,
+    "Should leave a bare numeric custom hash unchanged",
+);
+
 window.location.hash = "#Late_PvE";
 assertEqual(
     getEncodedFromUrl(),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve the canonical recommended name hash to encoded build data",
-);
-
-window.location.hash = "#late pve";
-assertEqual(
-    getEncodedFromUrl(),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve a lowercase spaced recommended name hash to encoded build data",
-);
-
-window.location.hash = "#4";
-assertEqual(
-    getEncodedFromUrl(),
-    RECOMMENDED_LATE_PVE,
-    "Should resolve the recommended numeric hash to encoded build data",
+    "Late_PvE",
+    "Should leave a bare recommended-looking hash on the custom path when the prefix is missing",
 );
 
 window.location.hash = `#${encodedValidBuild}`;
@@ -209,8 +267,8 @@ assertEqual(
 // createShareUrl recommended alias tests
 assertEqual(
     createShareUrl(recommendedLatePveBuildData),
-    "https://rgbp.app/#Late_PvE",
-    "Should emit the canonical recommended name alias for exact recommended builds",
+    "https://rgbp.app/#/Late_PvE",
+    "Should emit the canonical prefixed recommended name alias for exact recommended builds",
 );
 
 const editedRecommendedBuildData = {
