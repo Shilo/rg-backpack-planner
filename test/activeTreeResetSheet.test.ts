@@ -24,9 +24,9 @@ if (!/import\s+ResetTreeChoicesModal\s+from\s+"\.\/modals\/ResetTreeChoicesModal
     );
 }
 
-if (!/\$modalStore\.type === "resetTreeChoices"/.test(modalHostSource)) {
+if (!/(?:\$modalStore|renderedModal)\.type === "resetTreeChoices"/.test(modalHostSource)) {
     throw new Error(
-        'ModalHost should branch on $modalStore.type === "resetTreeChoices".',
+        'ModalHost should branch on the modal type === "resetTreeChoices".',
     );
 }
 

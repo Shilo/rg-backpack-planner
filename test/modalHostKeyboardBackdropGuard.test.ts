@@ -30,11 +30,11 @@ if (
     );
 }
 
-// Implementation: dismissKeyboardFromBackdropTap checks $modalStore, calls dismissFocusedTextEntryWithin,
+// Implementation: dismissKeyboardFromBackdropTap checks the active modal snapshot, calls dismissFocusedTextEntryWithin,
 // then either (didDismissFocusedInput + isTouch) or shouldIgnoreBackdropTapForKeyboardDismiss sets shouldIgnoreBackdropClick.
-if (!/if \(!\$modalStore\) return false;/.test(source)) {
+if (!/if \(!renderedModal\) return false;/.test(source)) {
     throw new Error(
-        "ModalHost should guard backdrop tap with $modalStore check.",
+        "ModalHost should guard backdrop tap with the active rendered modal check.",
     );
 }
 if (!/dismissFocusedTextEntryWithin\("\.modal-shell"\)/.test(source)) {

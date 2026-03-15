@@ -8,7 +8,7 @@
     import LoadBuildModal from "./modals/LoadBuildModal.svelte";
     import ResetTreeChoicesModal from "./modals/ResetTreeChoicesModal.svelte";
     import { get } from "svelte/store";
-    import { closeModal, modalStore } from "./modalStore";
+    import { closeModal, modalStore, type ModalPayload } from "./modalStore";
     import { triggerHaptic } from "./hapticsStore";
     import {
         dismissFocusedTextEntryWithin,
@@ -19,16 +19,18 @@
     let lastActiveElement: HTMLElement | null = null;
     let isMouseDownOnBackdrop = false;
     let shouldIgnoreBackdropClick = false;
+    let renderedModal: ModalPayload | null = null;
 
     const unsubscribe = modalStore.subscribe((value) => {
         isMouseDownOnBackdrop = false;
         if (value) {
+            renderedModal = value;
             lastActiveElement =
                 document.activeElement instanceof HTMLElement
                     ? document.activeElement
                     : null;
             requestAnimationFrame(() => {
-                const current = get(modalStore);
+                const current = get(modalStore) ?? renderedModal;
                 const focusSelector =
                     current?.type === "confirm"
                         ? "[data-modal-confirm]"
@@ -54,7 +56,7 @@
     });
 
     function handleCancel() {
-        const payload = $modalStore;
+        const payload = renderedModal;
         if (!payload) return;
         closeModal();
         queueMicrotask(() => {
@@ -63,7 +65,7 @@
     }
 
     function handleConfirm(value?: string | number) {
-        const payload = $modalStore;
+        const payload = renderedModal;
         if (!payload) return;
         closeModal();
         queueMicrotask(() => {
@@ -90,7 +92,7 @@
     const isTouch = () => window.matchMedia("(pointer: coarse)").matches;
 
     function dismissKeyboardFromBackdropTap() {
-        if (!$modalStore) return false;
+        if (!renderedModal) return false;
         const didDismissFocusedInput =
             dismissFocusedTextEntryWithin(".modal-shell");
         if (didDismissFocusedInput) {
@@ -143,7 +145,7 @@
     }
 
     function handleModalTabKeydown(event: KeyboardEvent) {
-        if (event.key !== "Tab" || !$modalStore) return;
+        if (event.key !== "Tab" || !renderedModal) return;
         const backdrop = document.querySelector(".modal-backdrop");
         if (!backdrop || !backdrop.contains(document.activeElement)) return;
 
@@ -175,7 +177,7 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
-        if (!$modalStore) return;
+        if (!renderedModal) return;
 
         if (event.key === "Tab") {
             handleModalTabKeydown(event);
@@ -194,7 +196,7 @@
         if (event.key === "Enter") {
             const active = document.activeElement;
             if (
-                $modalStore.type === "resetTreeChoices" &&
+                renderedModal.type === "resetTreeChoices" &&
                 active instanceof HTMLButtonElement &&
                 active.closest(".modal-shell")
             ) {
@@ -237,108 +239,114 @@
             `,
         };
     }
+
+    function handleBackdropOutroEnd() {
+        if ($modalStore) return;
+        renderedModal = null;
+    }
 </script>
 
 <svelte:window on:keydown|capture={handleKeydown} />
 
-{#if $modalStore}
+{#if renderedModal}
     <div
         class="modal-backdrop"
-        class:modal-backdrop--sheet={$modalStore.type === "resetTreeChoices"}
+        class:modal-backdrop--sheet={renderedModal.type === "resetTreeChoices"}
         role="button"
         tabindex="0"
         aria-label={$t("common.close")}
         transition:fade={{ duration: 140 }}
+        on:outroend={handleBackdropOutroEnd}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
     >
         <div
             class="modal-shell"
-            class:modal-shell--confirm={$modalStore.type === "confirm"}
-            class:modal-shell--input={$modalStore.type === "input"}
-            class:modal-shell--textInput={$modalStore.type === "textInput"}
-            class:modal-shell--resetTreeChoices={$modalStore.type === "resetTreeChoices"}
+            class:modal-shell--confirm={renderedModal.type === "confirm"}
+            class:modal-shell--input={renderedModal.type === "input"}
+            class:modal-shell--textInput={renderedModal.type === "textInput"}
+            class:modal-shell--resetTreeChoices={renderedModal.type === "resetTreeChoices"}
             role="dialog"
             aria-modal="true"
-            aria-label={$modalStore.title}
-            transition:modalShellTransition={{ sheet: $modalStore.type === "resetTreeChoices" }}
+            aria-label={renderedModal.title}
+            transition:modalShellTransition={{ sheet: renderedModal.type === "resetTreeChoices" }}
         >
-            {#if $modalStore.type === "confirm"}
+            {#if renderedModal.type === "confirm"}
                 <ConfirmModal
-                    title={$modalStore.title}
-                    titleIcon={$modalStore.titleIcon ?? null}
-                    titleIconClass={$modalStore.titleIconClass ?? ""}
-                    titleIconWeight={$modalStore.titleIconWeight}
-                    message={$modalStore.message}
-                    confirmLabel={$modalStore.confirmLabel ??
+                    title={renderedModal.title}
+                    titleIcon={renderedModal.titleIcon ?? null}
+                    titleIconClass={renderedModal.titleIconClass ?? ""}
+                    titleIconWeight={renderedModal.titleIconWeight}
+                    message={renderedModal.message}
+                    confirmLabel={renderedModal.confirmLabel ??
                         $t("modal.confirmLabel")}
-                    cancelLabel={$modalStore.cancelLabel ??
+                    cancelLabel={renderedModal.cancelLabel ??
                         $t("modal.cancelLabel")}
-                    confirmNegative={$modalStore.confirmNegative ?? false}
-                    confirmPositive={$modalStore.confirmPositive ?? false}
+                    confirmNegative={renderedModal.confirmNegative ?? false}
+                    confirmPositive={renderedModal.confirmPositive ?? false}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
-            {:else if $modalStore.type === "input"}
+            {:else if renderedModal.type === "input"}
                 <InputModal
-                    title={$modalStore.title}
-                    titleIcon={$modalStore.titleIcon ?? null}
-                    titleIconClass={$modalStore.titleIconClass ?? ""}
-                    titleIconWeight={$modalStore.titleIconWeight}
-                    message={$modalStore.message}
-                    label={$modalStore.input?.label ?? $t("modal.valueLabel")}
-                    value={$modalStore.input?.value ?? 0}
-                    min={$modalStore.input?.min ?? 0}
-                    step={$modalStore.input?.step ?? 1}
-                    footerButton={$modalStore.inputFooterButton ?? null}
-                    confirmLabel={$modalStore.confirmLabel ??
+                    title={renderedModal.title}
+                    titleIcon={renderedModal.titleIcon ?? null}
+                    titleIconClass={renderedModal.titleIconClass ?? ""}
+                    titleIconWeight={renderedModal.titleIconWeight}
+                    message={renderedModal.message}
+                    label={renderedModal.input?.label ?? $t("modal.valueLabel")}
+                    value={renderedModal.input?.value ?? 0}
+                    min={renderedModal.input?.min ?? 0}
+                    step={renderedModal.input?.step ?? 1}
+                    footerButton={renderedModal.inputFooterButton ?? null}
+                    confirmLabel={renderedModal.confirmLabel ??
                         $t("modal.saveLabel")}
-                    cancelLabel={$modalStore.cancelLabel ??
+                    cancelLabel={renderedModal.cancelLabel ??
                         $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
-            {:else if $modalStore.type === "textInput"}
+            {:else if renderedModal.type === "textInput"}
                 <TextInputModal
-                    title={$modalStore.title}
-                    titleIcon={$modalStore.titleIcon ?? null}
-                    titleIconClass={$modalStore.titleIconClass ?? ""}
-                    titleIconWeight={$modalStore.titleIconWeight}
-                    message={$modalStore.message}
-                    label={$modalStore.textInput?.label ??
+                    title={renderedModal.title}
+                    titleIcon={renderedModal.titleIcon ?? null}
+                    titleIconClass={renderedModal.titleIconClass ?? ""}
+                    titleIconWeight={renderedModal.titleIconWeight}
+                    message={renderedModal.message}
+                    label={renderedModal.textInput?.label ??
                         $t("modal.valueLabel")}
-                    value={$modalStore.textInput?.value ?? ""}
-                    maxLength={$modalStore.textInput?.maxLength ?? 25}
-                    placeholder={$modalStore.textInput?.placeholder ?? ""}
-                    confirmLabel={$modalStore.confirmLabel ??
+                    value={renderedModal.textInput?.value ?? ""}
+                    maxLength={renderedModal.textInput?.maxLength ?? 25}
+                    placeholder={renderedModal.textInput?.placeholder ?? ""}
+                    confirmLabel={renderedModal.confirmLabel ??
                         $t("modal.saveLabel")}
-                    cancelLabel={$modalStore.cancelLabel ??
+                    cancelLabel={renderedModal.cancelLabel ??
                         $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
-            {:else if $modalStore.type === "loadBuild"}
+            {:else if renderedModal.type === "loadBuild"}
                 <LoadBuildModal
-                    title={$modalStore.title}
-                    titleIcon={$modalStore.titleIcon ?? null}
-                    titleIconClass={$modalStore.titleIconClass ?? ""}
-                    titleIconWeight={$modalStore.titleIconWeight}
-                    message={$modalStore.message}
-                    confirmLabel={$modalStore.confirmLabel ??
+                    title={renderedModal.title}
+                    titleIcon={renderedModal.titleIcon ?? null}
+                    titleIconClass={renderedModal.titleIconClass ?? ""}
+                    titleIconWeight={renderedModal.titleIconWeight}
+                    message={renderedModal.message}
+                    confirmLabel={renderedModal.confirmLabel ??
                         $t("modal.previewBuildLabel")}
-                    cancelLabel={$modalStore.cancelLabel ??
+                    cancelLabel={renderedModal.cancelLabel ??
                         $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
                 />
-            {:else if $modalStore.type === "resetTreeChoices"}
+            {:else if renderedModal.type === "resetTreeChoices"}
                 <ResetTreeChoicesModal
-                    title={$modalStore.title}
-                    sheetIcon={$modalStore.sheetIcon ?? null}
-                    message={$modalStore.message}
-                    choices={$modalStore.resetTreeChoices?.choices ?? []}
-                    cancelLabel={$modalStore.cancelLabel ??
+                    title={renderedModal.title}
+                    sheetIcon={renderedModal.sheetIcon ?? null}
+                    message={renderedModal.message}
+                    choices={renderedModal.resetTreeChoices?.choices ?? []}
+                    cancelLabel={renderedModal.cancelLabel ??
                         $t("modal.cancelLabel")}
                     onConfirm={(value) => handleConfirm(value)}
                     onCancel={handleCancel}

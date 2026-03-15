@@ -27,6 +27,10 @@ if (!/resetToDefault:\s*\(\)\s*=>\s*\{/.test(storeSource)) {
     throw new Error("onboardingStore should expose resetToDefault().");
 }
 
+if (!/export function completeOnboarding\(\)/.test(storeSource)) {
+    throw new Error("onboardingStore should expose completeOnboarding().");
+}
+
 // --- i18n keys in all locales ---
 const localePaths = [
     resolve("src/locales/en.json"),
@@ -54,6 +58,18 @@ for (const localePath of localePaths) {
     if (!/"showTutorial"/.test(source)) {
         throw new Error(`${localePath}: onboarding.showTutorial key is required.`);
     }
+    if (!/"continueClick"/.test(source)) {
+        throw new Error(`${localePath}: onboarding.continueClick key is required.`);
+    }
+    if (!/"continueTap"/.test(source)) {
+        throw new Error(`${localePath}: onboarding.continueTap key is required.`);
+    }
+    if (!/"startClick"/.test(source)) {
+        throw new Error(`${localePath}: onboarding.startClick key is required.`);
+    }
+    if (!/"startTap"/.test(source)) {
+        throw new Error(`${localePath}: onboarding.startTap key is required.`);
+    }
 }
 
 // --- Integration assertions (Tree.svelte, GeneralSettingsPage) ---
@@ -72,6 +88,10 @@ if (!/OnboardingOverlay/.test(treeSource)) {
     throw new Error("Tree.svelte should render OnboardingOverlay component.");
 }
 
+if (!/completeOnboarding/.test(treeSource)) {
+    throw new Error("Tree.svelte should use completeOnboarding() when the walkthrough finishes.");
+}
+
 const generalPath = resolve("src/lib/sideMenuPages/GeneralSettingsPage.svelte");
 const generalSource = readFileSync(generalPath, "utf8");
 
@@ -81,4 +101,35 @@ if (!/showOnboarding/.test(generalSource)) {
 
 if (!/showOnboarding\(\)/.test(generalSource)) {
     throw new Error("GeneralSettingsPage Show Tutorial button should call showOnboarding().");
+}
+
+const appPath = resolve("src/App.svelte");
+const appSource = readFileSync(appPath, "utf8");
+
+if (!/import\s+\{\s*onboardingSeen\s*\}\s+from\s+"\.\/lib\/onboarding\/onboardingStore"/.test(appSource)) {
+    throw new Error("App.svelte should import onboardingSeen so onboarding can force-show the top-right HUD.");
+}
+
+if (!/forceShow=\{!\$onboardingSeen\}/.test(appSource)) {
+    throw new Error(
+        "App.svelte should force-show the top-right reset action while onboarding is active.",
+    );
+}
+
+const activeTreeResetButtonPath = resolve("src/lib/ActiveTreeResetButton.svelte");
+const activeTreeResetButtonSource = readFileSync(
+    activeTreeResetButtonPath,
+    "utf8",
+);
+
+if (!/export let forceShow\b/.test(activeTreeResetButtonSource)) {
+    throw new Error(
+        "ActiveTreeResetButton should accept forceShow so onboarding can reveal the full top-right HUD.",
+    );
+}
+
+if (!/forceShow\s*\|\|/.test(activeTreeResetButtonSource)) {
+    throw new Error(
+        "ActiveTreeResetButton should keep rendering when forceShow is enabled during onboarding.",
+    );
 }

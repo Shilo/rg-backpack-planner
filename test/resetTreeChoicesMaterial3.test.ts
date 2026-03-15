@@ -24,7 +24,7 @@ if (!/sheetIcon\?:\s*Component\s*\|\s*null;/.test(modalStoreSource)) {
     );
 }
 
-if (!/sheetIcon=\{\$modalStore\.sheetIcon \?\? null\}/.test(modalHostSource)) {
+if (!/sheetIcon=\{renderedModal\.sheetIcon \?\? null\}/.test(modalHostSource)) {
     throw new Error(
         "ModalHost should pass the active tree sheetIcon into ResetTreeChoicesModal.",
     );

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
     computePaneRect,
@@ -92,24 +92,82 @@ function runScenario(
     }
 }
 
+const stepsPath = resolve("src/lib/onboarding/onboardingSteps.ts");
 const overlayPath = resolve("src/lib/onboarding/OnboardingOverlay.svelte");
-const overlaySource = readFileSync(overlayPath, "utf8");
+const footerPath = resolve("src/lib/onboarding/OnboardingFooterNote.svelte");
+const panePath = resolve("src/lib/onboarding/OnboardingPane.svelte");
 
-if (!/onboarding\.rootSection/.test(overlaySource)) {
+if (!existsSync(stepsPath)) {
     throw new Error(
-        "OnboardingOverlay should render a dedicated root/quick-settings section.",
+        "onboardingSteps.ts should exist so onboarding steps can stay data-driven.",
     );
 }
 
-if (!/onboarding\.hudSection/.test(overlaySource)) {
+if (!existsSync(footerPath)) {
     throw new Error(
-        "OnboardingOverlay should render a grouped HUD section for .top-right-actions.",
+        "OnboardingFooterNote.svelte should exist for the onboarding progress footer.",
+    );
+}
+
+const stepsSource = readFileSync(stepsPath, "utf8");
+const overlaySource = readFileSync(overlayPath, "utf8");
+const footerSource = readFileSync(footerPath, "utf8");
+const paneSource = readFileSync(panePath, "utf8");
+
+for (const stepId of ['"nodes"', '"hud"', '"root"', '"tree"']) {
+    if (!stepsSource.includes(stepId)) {
+        throw new Error(
+            `onboardingSteps.ts should define the ${stepId} walkthrough step.`,
+        );
+    }
+}
+
+if (!/currentStepIndex/.test(overlaySource)) {
+    throw new Error(
+        "OnboardingOverlay should track the active walkthrough step index.",
+    );
+}
+
+if (!/OnboardingFooterNote/.test(overlaySource)) {
+    throw new Error(
+        "OnboardingOverlay should render the dedicated onboarding footer note component.",
+    );
+}
+
+const paneTagMatches = overlaySource.match(/<OnboardingPane\b/g) ?? [];
+if (paneTagMatches.length !== 1) {
+    throw new Error(
+        "OnboardingOverlay should render exactly one OnboardingPane per step.",
     );
 }
 
 if (!/top-right-actions/.test(overlaySource)) {
     throw new Error(
-        "OnboardingOverlay should anchor one pane to App.svelte .top-right-actions.",
+        "OnboardingOverlay should still spotlight App.svelte .top-right-actions.",
+    );
+}
+
+if (!/data-node-id="root"/.test(overlaySource)) {
+    throw new Error(
+        'OnboardingOverlay should measure the live root node element via data-node-id="root".',
+    );
+}
+
+if (!/progress-tick/.test(footerSource)) {
+    throw new Error(
+        "OnboardingFooterNote should render segmented onboarding progress ticks.",
+    );
+}
+
+if (!/export let stepNumber/.test(paneSource)) {
+    throw new Error(
+        "OnboardingPane should accept stepNumber so each pane is indexed.",
+    );
+}
+
+if (!/export let titleIcon/.test(paneSource)) {
+    throw new Error(
+        "OnboardingPane should accept a titleIcon for the step header.",
     );
 }
 
@@ -118,13 +176,38 @@ for (const localePath of [
     resolve("src/locales/ja.json"),
     resolve("src/locales/zh.json"),
 ]) {
-    const localeSource = readFileSync(localePath, "utf8");
-    if (!/"rootSection"/.test(localeSource)) {
+    const locale = JSON.parse(readFileSync(localePath, "utf8"));
+    if (typeof locale.onboarding?.rootSection !== "string") {
         throw new Error(`${localePath}: onboarding.rootSection key is required.`);
     }
-    if (!/"hudSection"/.test(localeSource)) {
+    if (typeof locale.onboarding?.hudSection !== "string") {
         throw new Error(`${localePath}: onboarding.hudSection key is required.`);
     }
+    if (typeof locale.onboarding?.continueClick !== "string") {
+        throw new Error(
+            `${localePath}: onboarding.continueClick key is required.`,
+        );
+    }
+    if (typeof locale.onboarding?.continueTap !== "string") {
+        throw new Error(
+            `${localePath}: onboarding.continueTap key is required.`,
+        );
+    }
+    if (typeof locale.onboarding?.startClick !== "string") {
+        throw new Error(
+            `${localePath}: onboarding.startClick key is required.`,
+        );
+    }
+    if (typeof locale.onboarding?.startTap !== "string") {
+        throw new Error(
+            `${localePath}: onboarding.startTap key is required.`,
+        );
+    }
+}
+
+const enLocale = JSON.parse(readFileSync(resolve("src/locales/en.json"), "utf8"));
+if (enLocale.onboarding?.rootSection !== "Root Node") {
+    throw new Error('English onboarding.rootSection should be renamed to "Root Node".');
 }
 
 runScenario(390, 744, 12, 74, [
