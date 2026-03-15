@@ -12,10 +12,10 @@ if (/import\s+Button\b/.test(src)) {
     );
 }
 
-// 2. No GearSix icon import (gear is pure CSS)
+// 2. No GearSix icon import (gear is SVG)
 if (/import.*GearSix/.test(src)) {
     throw new Error(
-        "RootNode should not import GearSix — the gear shape is pure CSS clip-path.",
+        "RootNode should not import GearSix — the gear shape is an inline SVG.",
     );
 }
 
@@ -26,52 +26,52 @@ if (!/ROOT_SIZE\s*=\s*44/.test(src)) {
     );
 }
 
-// 4. Uses --gear-clip custom property
-if (!/--gear-clip/.test(src)) {
-    throw new Error(
-        "RootNode should define a --gear-clip custom property for the gear polygon.",
-    );
-}
-
-// 5. Button element has data-node-id="root"
+// 4. Button element has data-node-id="root"
 if (!/<button[^>]*data-node-id="root"/.test(src) && !/<button[^>]*data-node-id=\{"root"\}/.test(src)) {
     throw new Error(
         'The <button> element should have data-node-id="root" for Tree.svelte pointer detection.',
     );
 }
 
-// 6. root-wrapper div should NOT have role="button" (no nested interactive)
+// 5. root-wrapper div should NOT have role="button" (no nested interactive)
 if (/class="root-wrapper"[^>]*role="button"/.test(src)) {
     throw new Error(
         'root-wrapper should not have role="button" — it is a plain positioning div.',
     );
 }
 
-// 6b. Button element has tabindex="0" for keyboard focus
+// 5b. Button element has tabindex="0" for keyboard focus
 if (!/<button[^>]*tabindex="0"/.test(src)) {
     throw new Error(
         'The <button> should have tabindex="0" for keyboard focus.',
     );
 }
 
-// 6c. Button element has aria-label for accessibility
+// 5c. Button element has aria-label for accessibility
 if (!/<button[^>]*aria-label/.test(src)) {
     throw new Error(
         "The <button> should have an aria-label for accessibility.",
     );
 }
 
-// 7. Gear button uses clip-path: var(--gear-clip)
-if (!/clip-path:\s*var\(--gear-clip\)/.test(src)) {
+// 6. Contains an inline SVG with the gear path
+if (!/<svg[^>]*viewBox/.test(src)) {
     throw new Error(
-        "The gear button should use clip-path: var(--gear-clip).",
+        "RootNode should contain an inline SVG element for the gear shape.",
     );
 }
 
-// 8. Has ::before and ::after pseudo-elements for border/fill layers
-if (!/::before/.test(src) || !/::after/.test(src)) {
+// 7. SVG path uses cubic bezier curves (C commands)
+if (!/<path[^/]*d="[^"]*C\s/.test(src)) {
     throw new Error(
-        "RootNode should use ::before (border) and ::after (fill) pseudo-elements.",
+        "The gear SVG path should use cubic bezier curves (C commands) for smooth rounding.",
+    );
+}
+
+// 8. SVG path has stroke for border
+if (!/stroke-width:\s*3/.test(src)) {
+    throw new Error(
+        "The gear path should have stroke-width: 3 for the border.",
     );
 }
 

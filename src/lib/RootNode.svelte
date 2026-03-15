@@ -33,7 +33,13 @@
         tabindex="0"
         aria-label={$t("quickSettings.ariaLabel")}
         on:keydown={handleKeydown}
-    ></button>
+    >
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+            <path
+                d="M 22 2.5 C 27 2.5 25.46 8.41 28.75 10.31 C 32.04 12.21 36.39 7.92 38.89 12.25 C 41.39 16.58 35.5 18.2 35.5 22 C 35.5 25.8 41.39 27.42 38.89 31.75 C 36.39 36.08 32.04 31.79 28.75 33.69 C 25.46 35.59 27 41.5 22 41.5 C 17 41.5 18.54 35.59 15.25 33.69 C 11.96 31.79 7.61 36.08 5.11 31.75 C 2.61 27.42 8.5 25.8 8.5 22 C 8.5 18.2 2.61 16.58 5.11 12.25 C 7.61 7.92 11.96 12.21 15.25 10.31 C 18.54 8.41 17 2.5 22 2.5 Z"
+            />
+        </svg>
+    </button>
 </div>
 
 <style>
@@ -44,51 +50,29 @@
     }
 
     .root-node-gear {
-        --gear-clip: polygon(
-            79.67% 38.01%, 94.32% 42.19%, 94.32% 57.81%, 79.67% 61.99%,
-            75.22% 69.70%, 78.93% 84.47%, 65.39% 92.29%, 54.45% 81.69%,
-            45.55% 81.69%, 34.61% 92.29%, 21.07% 84.47%, 24.78% 69.70%,
-            20.33% 61.99%,  5.68% 57.81%,  5.68% 42.19%, 20.33% 38.01%,
-            24.78% 30.30%, 21.07% 15.53%, 34.61%  7.71%, 45.55% 18.31%,
-            54.45% 18.31%, 65.39%  7.71%, 78.93% 15.53%, 75.22% 30.30%
-        );
-        --gear-fill: var(--surface);
-        --gear-border-color: var(--border);
-        --gear-border-width: 2px;
-
         width: 100%;
         height: 100%;
         padding: 0;
-        clip-path: var(--gear-clip);
-        position: relative;
-        overflow: visible;
-        isolation: isolate;
-        background: transparent;
         border: none;
+        background: transparent;
         box-shadow: none;
-        filter: drop-shadow(var(--shadow-node-hex));
         outline: none;
         cursor: pointer;
+        filter: drop-shadow(var(--shadow-node-hex));
     }
 
-    .root-node-gear::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        clip-path: var(--gear-clip);
-        background: var(--gear-border-color);
-        z-index: 0;
-        pointer-events: none;
+    .root-node-gear svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
     }
 
-    .root-node-gear::after {
-        content: "";
-        position: absolute;
-        inset: var(--gear-border-width);
-        clip-path: var(--gear-clip);
-        background: var(--gear-fill);
-        z-index: 0;
-        pointer-events: none;
+    .root-node-gear path {
+        fill: var(--surface);
+        stroke: var(--border);
+        stroke-width: 3;
+        stroke-linejoin: round;
     }
 
     @media (hover: hover) {
