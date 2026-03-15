@@ -301,7 +301,7 @@
         "copyScreenshot": "分享截图",
         "shareLinkCopiedToast": "分享链接已复制到剪贴板",
         "fallbackCopiedToast": "无法分享 — 已复制到剪贴板",
-        "shareFailedToast": "无法复制到剪贴板",
+        "shareFailedToast": "无法分享",
         "unableToCopyLinkToast": "无法复制链接",
         "shareScreenshotCopiedToast": "截图已复制到剪贴板",
         "unableToCopyScreenshotToast": "无法复制截图",

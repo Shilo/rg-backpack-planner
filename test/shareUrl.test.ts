@@ -43,10 +43,14 @@ const validBuildData = {
 };
 const encodedValidBuild = encodeBuildData(validBuildData);
 const CUSTOM_FIRST_NODE_ONE = "1";
+const OUT_OF_RANGE_NUMERIC_CUSTOM = "6";
 const SHARED_PAYLOAD_EXAMPLE =
     "E'4.k.E.E.a.k.1,E'7.k.k.1,E.E.k.E.E.k'3.a;,E'7.k.k;Y.Y.E.Y.k.E.E.a.k,Y.Y.E.E.Y.E.E.k.k.1";
 const RECOMMENDED_LATE_PVE =
     "Late_PvE|,k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7";
+const RESERVED_LOOKING_CUSTOM_NAME = "Late PvE";
+const RESERVED_LOOKING_NAMED_CUSTOM = `Late_PvE|${encodedValidBuild}`;
+const RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM = `1|${encodedValidBuild}`;
 const FIRST_RECOMMENDED_BUILD = recommendedBuilds[0];
 const recommendedLatePveBuildData = decodeBuildData(RECOMMENDED_LATE_PVE);
 if (!recommendedLatePveBuildData) {
@@ -152,6 +156,21 @@ assertEqual(
     "Should resolve a bare recommended build numeric alias from a full URL",
 );
 assertEqual(
+    parseEncodedFromUserInput(OUT_OF_RANGE_NUMERIC_CUSTOM),
+    OUT_OF_RANGE_NUMERIC_CUSTOM,
+    "Should fall back to a bare custom payload when a numeric alias is out of recommended range",
+);
+assertEqual(
+    parseEncodedFromUserInput(`https://rgbp.app/#${OUT_OF_RANGE_NUMERIC_CUSTOM}`),
+    OUT_OF_RANGE_NUMERIC_CUSTOM,
+    "Should fall back to a bare custom payload from a full URL when a numeric alias is out of recommended range",
+);
+assertEqual(
+    parseEncodedFromUserInput(RESERVED_LOOKING_NAMED_CUSTOM),
+    RESERVED_LOOKING_NAMED_CUSTOM,
+    "Should keep a bare named custom payload custom even when its name matches a reserved alias",
+);
+assertEqual(
     parseEncodedFromUserInput(`/${CUSTOM_FIRST_NODE_ONE}`),
     CUSTOM_FIRST_NODE_ONE,
     "Should treat a prefixed custom payload as custom-only",
@@ -165,6 +184,16 @@ assertEqual(
     parseEncodedFromUserInput(`/${`Custom_Name|${encodedValidBuild}`}`),
     `Custom_Name|${encodedValidBuild}`,
     "Should decode a canonical prefixed named custom payload",
+);
+assertEqual(
+    parseEncodedFromUserInput(`/${RESERVED_LOOKING_NAMED_CUSTOM}`),
+    RESERVED_LOOKING_NAMED_CUSTOM,
+    "Should treat a prefixed reserved-looking named payload as custom-only",
+);
+assertEqual(
+    parseEncodedFromUserInput(`/${RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM}`),
+    RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM,
+    "Should treat a prefixed numeric reserved-looking named payload as custom-only",
 );
 assertEqual(
     parseEncodedFromUserInput(`https://rgbp.app/#%2F${encodedValidBuild}`),
@@ -253,6 +282,20 @@ assertEqual(
     "Should resolve the bare recommended numeric hash to encoded build data",
 );
 
+window.location.hash = `#${OUT_OF_RANGE_NUMERIC_CUSTOM}`;
+assertEqual(
+    getEncodedFromUrl(),
+    OUT_OF_RANGE_NUMERIC_CUSTOM,
+    "Should fall back to a bare custom hash when a numeric alias is out of recommended range",
+);
+
+window.location.hash = `#${RESERVED_LOOKING_NAMED_CUSTOM}`;
+assertEqual(
+    getEncodedFromUrl(),
+    RESERVED_LOOKING_NAMED_CUSTOM,
+    "Should keep a bare reserved-looking named custom hash on the custom path",
+);
+
 window.location.hash = `#${encodeURIComponent(SHARED_PAYLOAD_EXAMPLE)}`;
 assertEqual(
     getEncodedFromUrl(),
@@ -301,6 +344,48 @@ assertEqual(
     "Should mark a legacy bare custom payload for immediate canonical normalization",
 );
 
+const outOfRangeNumericCustomResolution = resolveShareToken(
+    OUT_OF_RANGE_NUMERIC_CUSTOM,
+);
+assertEqual(
+    outOfRangeNumericCustomResolution
+        ? {
+              encoded: outOfRangeNumericCustomResolution.encoded,
+              canonicalToken: outOfRangeNumericCustomResolution.canonicalToken,
+              kind: outOfRangeNumericCustomResolution.kind,
+              shouldNormalize: outOfRangeNumericCustomResolution.shouldNormalize,
+          }
+        : null,
+    {
+        encoded: OUT_OF_RANGE_NUMERIC_CUSTOM,
+        canonicalToken: `/${OUT_OF_RANGE_NUMERIC_CUSTOM}`,
+        kind: "custom",
+        shouldNormalize: true,
+    },
+    "Should normalize an out-of-range numeric token back to the canonical custom namespace",
+);
+
+const reservedLookingNamedCustomResolution = resolveShareToken(
+    RESERVED_LOOKING_NAMED_CUSTOM,
+);
+assertEqual(
+    reservedLookingNamedCustomResolution
+        ? {
+              encoded: reservedLookingNamedCustomResolution.encoded,
+              canonicalToken: reservedLookingNamedCustomResolution.canonicalToken,
+              kind: reservedLookingNamedCustomResolution.kind,
+              shouldNormalize: reservedLookingNamedCustomResolution.shouldNormalize,
+          }
+        : null,
+    {
+        encoded: RESERVED_LOOKING_NAMED_CUSTOM,
+        canonicalToken: `/${RESERVED_LOOKING_NAMED_CUSTOM}`,
+        kind: "custom",
+        shouldNormalize: true,
+    },
+    "Should normalize a bare reserved-looking named custom payload to the canonical custom namespace",
+);
+
 const percentEncodedLegacyCustomResolution = resolveShareToken(
     encodeURIComponent(SHARED_PAYLOAD_EXAMPLE),
 );
@@ -341,6 +426,27 @@ assertEqual(
     "Should leave an already-prefixed custom payload canonical",
 );
 
+const prefixedReservedLookingNamedCustomResolution = resolveShareToken(
+    `/${RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM}`,
+);
+assertEqual(
+    prefixedReservedLookingNamedCustomResolution
+        ? {
+              encoded: prefixedReservedLookingNamedCustomResolution.encoded,
+              canonicalToken: prefixedReservedLookingNamedCustomResolution.canonicalToken,
+              kind: prefixedReservedLookingNamedCustomResolution.kind,
+              shouldNormalize: prefixedReservedLookingNamedCustomResolution.shouldNormalize,
+          }
+        : null,
+    {
+        encoded: RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM,
+        canonicalToken: `/${RESERVED_LOOKING_NUMERIC_NAMED_CUSTOM}`,
+        kind: "custom",
+        shouldNormalize: false,
+    },
+    "Should leave a prefixed reserved-looking named custom payload canonical",
+);
+
 // createShareUrl namespace tests
 assertEqual(
     createShareUrl(recommendedLatePveBuildData),
@@ -352,6 +458,15 @@ assertEqual(
     createShareUrl(validBuildData),
     `https://rgbp.app/#/${encodedValidBuild}`,
     "Should emit the canonical prefixed custom URL for non-recommended builds",
+);
+
+assertEqual(
+    createShareUrl({
+        ...validBuildData,
+        name: RESERVED_LOOKING_CUSTOM_NAME,
+    }),
+    `https://rgbp.app/#/${RESERVED_LOOKING_NAMED_CUSTOM}`,
+    "Should keep a custom build with a reserved-looking name in the canonical custom namespace",
 );
 
 const editedRecommendedBuildData = {
