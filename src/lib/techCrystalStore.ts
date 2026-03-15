@@ -69,22 +69,10 @@ export const techCrystalsFromActivePreset = derived(
             return { owned: 0, spent: 0 };
         }
 
-        const owned = buildData.owned ?? 0;
-        const spent = buildData.trees.reduce(
-            (total, levels, tabIndex) => {
-                const tab = $activeTabs[tabIndex];
-                if (!tab) return total;
-                return total + levels.reduce((sum, level, nodeIndex) => {
-                    const node = tab.nodes[nodeIndex];
-                    if (!node || !level) return sum;
-                    const info = getSkillLevelInfo(node.skillId, level, node.maxLevel);
-                    return sum + info.totalCostSpent;
-                }, 0);
-            },
-            0,
-        );
-
-        return { owned, spent };
+        return {
+            owned: buildData.owned ?? 0,
+            spent: calculateTechCrystalsSpent(buildData.trees, $activeTabs),
+        };
     },
 );
 
@@ -98,4 +86,27 @@ export function initTechCrystalTrees(tabs: TabConfig[]) {
 export function setTechCrystalsOwned(value: number) {
     const nextValue = Math.max(0, Math.floor(value));
     techCrystalsOwned.set(nextValue);
+}
+
+/**
+ * Pure function: sums tech crystals spent across all trees given a build's
+ * level arrays and the active tab configs.
+ *
+ * Extracted from techCrystalsFromActivePreset so it can be called outside
+ * the store context (e.g. for computing TC for non-active builds).
+ */
+export function calculateTechCrystalsSpent(
+    trees: number[][],
+    tabs: TabConfig[],
+): number {
+    return trees.reduce((total, levels, tabIndex) => {
+        const tab = tabs[tabIndex];
+        if (!tab) return total;
+        return total + levels.reduce((sum, level, nodeIndex) => {
+            const node = tab.nodes[nodeIndex];
+            if (!node || !level) return sum;
+            const info = getSkillLevelInfo(node.skillId, level, node.maxLevel);
+            return sum + info.totalCostSpent;
+        }, 0);
+    }, 0);
 }

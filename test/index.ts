@@ -22,6 +22,7 @@ const TEST_FILES = [
     "nodeActionPreview.test.ts",
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
+    "calculateTechCrystalsSpent.test.ts",
 
     // 3. Serialization & Storage
     "storage.test.ts",
