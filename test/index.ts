@@ -48,6 +48,7 @@ const TEST_FILES = [
     "rootNodeQuickSettingsBackdropTouchGuard.test.ts",
     "rootNodeQuickSettingsRouting.test.ts",
     "rootNodeQuickSettingsTouchOffset.test.ts",
+    "rootNodeQuickSettingsToastLabels.test.ts",
     "rootNodeInputHandling.test.ts",
     "longPressContextMenuSuppression.test.ts",
     "treeContextMenuInputHandling.test.ts",

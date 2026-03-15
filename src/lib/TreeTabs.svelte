@@ -64,6 +64,7 @@
     export let activeIndex = 0;
     export let activeViewState: TreeViewState | null = null;
     export let activeFocusViewState: TreeViewState | null = null;
+    export let activeOnboardingReady: boolean = false;
     let bottomInset = 0;
     let tabsBarEl: HTMLDivElement | null = null;
     let tabsRootEl: HTMLDivElement | null = null;
@@ -103,6 +104,7 @@
     let globalLeveledLeafNodesOutsideActiveTreeCount = 0;
     const TAB_CYCLE_REPEAT_MS = 400;
     let lastTabCycleAt = 0;
+    let previousOnboardingTreeId = "";
 
     function getPointerEvent(event: Event) {
         const detail = (event as CustomEvent<PointerEvent>).detail;
@@ -224,6 +226,10 @@
         activeFocusViewState = next;
     }
 
+    function handleOnboardingReadyChange(ready: boolean) {
+        activeOnboardingReady = ready;
+    }
+
     $: {
         const nextId = tabs[activeIndex]?.id ?? "";
         if (hasMounted && nextId && nextId !== lastActiveTabId) {
@@ -236,6 +242,14 @@
 
     $: if (tabs.length > 0) {
         activeLabel = tabs[activeIndex]?.label ?? tabs[0].label;
+    }
+
+    $: {
+        const currentTreeId = tabs[activeIndex]?.id ?? "";
+        if (currentTreeId !== previousOnboardingTreeId) {
+            previousOnboardingTreeId = currentTreeId;
+            activeOnboardingReady = false;
+        }
     }
 
     $: ensureTreeLevels(tabs);
@@ -624,6 +638,7 @@
                     initialViewState={lastViewState}
                     onViewStateChange={handleViewStateChange}
                     onFocusViewStateChange={handleFocusViewStateChange}
+                    onOnboardingReadyChange={handleOnboardingReadyChange}
                     onRootNodeClick={openRootQuickSettings}
                 />
             {/key}

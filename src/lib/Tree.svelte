@@ -70,6 +70,7 @@
     export let onFocusViewStateChange:
         | ((view: TreeViewState | null) => void)
         | null = null;
+    export let onOnboardingReadyChange: ((ready: boolean) => void) | null = null;
     export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let rootX = TREE_ROOT_X;
     export let rootY = TREE_ROOT_Y;
@@ -1334,6 +1335,7 @@
     onMount(() => {
         hasMounted = true;
         lastAppliedBottomInset = bottomInset;
+        onOnboardingReadyChange?.(false);
 
         // Re-focus tree whenever zoom mode changes.
         treeZoomScale.setOnChange(() => {
@@ -1382,13 +1384,20 @@
             await tick();
             if (initialViewState) {
                 setViewState(initialViewState);
+                await tick();
+                onOnboardingReadyChange?.(true);
                 return;
             }
-            if (!focusTreeInView()) {
-                requestAnimationFrame(() => {
-                    focusTreeInView();
-                });
+            if (focusTreeInView()) {
+                await tick();
+                onOnboardingReadyChange?.(true);
+                return;
             }
+            requestAnimationFrame(async () => {
+                if (!focusTreeInView()) return;
+                await tick();
+                onOnboardingReadyChange?.(true);
+            });
         };
         void initializeView();
 
@@ -1413,6 +1422,7 @@
             unsubscribeShowTier();
             unsubscribeShowSkillName();
             unsubscribeLocale();
+            onOnboardingReadyChange?.(false);
         };
     });
 

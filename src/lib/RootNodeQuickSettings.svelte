@@ -49,6 +49,10 @@
         displayY = py;
     }
 
+    function showSettingToast(settingLabel: string, valueLabel: string) {
+        showToast(`${settingLabel}: ${valueLabel}`);
+    }
+
     $: if (isOpen && !wasOpen) {
         wasOpen = true;
         tick().then(updatePosition);
@@ -68,7 +72,7 @@
                 : action === NodePrimaryAction.IncrementTen
                   ? $t("nodeMenu.incrementTen")
                   : $t("nodeMenu.incrementTier");
-        showToast(label);
+        showSettingToast(clickActionLabel, label);
         onClose?.();
     }
 
@@ -79,7 +83,7 @@
             behavior === NodeLevelBehavior.Solo
                 ? $t("settings.nodeLevelBehaviorSolo")
                 : $t("settings.nodeLevelBehaviorSync");
-        showToast(label);
+        showSettingToast($t("settings.nodeLevelBehavior"), label);
         onClose?.();
     }
 

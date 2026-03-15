@@ -124,8 +124,20 @@ if (!/completeOnboarding/.test(appSource)) {
     throw new Error("App.svelte should own completeOnboarding() when the walkthrough finishes.");
 }
 
-if (!/\{#if !\$onboardingSeen\}[\s\S]*<OnboardingOverlay\b/.test(appSource)) {
-    throw new Error("App.svelte should render OnboardingOverlay while onboarding is active.");
+if (!/activeTreeOnboardingReady/.test(appSource)) {
+    throw new Error(
+        "App.svelte should track when the active tree is ready before auto-showing onboarding.",
+    );
+}
+
+if (
+    !/\{#if !\$onboardingSeen && activeTreeOnboardingReady\}[\s\S]*<OnboardingOverlay\b/.test(
+        appSource,
+    )
+) {
+    throw new Error(
+        "App.svelte should wait for the active tree onboarding-ready signal before rendering OnboardingOverlay.",
+    );
 }
 
 const activeTreeResetButtonPath = resolve("src/lib/ActiveTreeResetButton.svelte");
@@ -143,6 +155,39 @@ if (!/export let forceShow\b/.test(activeTreeResetButtonSource)) {
 if (!/forceShow\s*\|\|/.test(activeTreeResetButtonSource)) {
     throw new Error(
         "ActiveTreeResetButton should keep rendering when forceShow is enabled during onboarding.",
+    );
+}
+
+const treeTabsPath = resolve("src/lib/TreeTabs.svelte");
+const treeTabsSource = readFileSync(treeTabsPath, "utf8");
+
+if (!/export let activeOnboardingReady: boolean = false;/.test(treeTabsSource)) {
+    throw new Error(
+        "TreeTabs.svelte should expose activeOnboardingReady so App.svelte can delay onboarding until tree layout is ready.",
+    );
+}
+
+if (!/onOnboardingReadyChange=\{handleOnboardingReadyChange\}/.test(treeTabsSource)) {
+    throw new Error(
+        "TreeTabs.svelte should forward Tree onboarding-ready updates through handleOnboardingReadyChange().",
+    );
+}
+
+if (!/activeOnboardingReady = false;/.test(treeTabsSource)) {
+    throw new Error(
+        "TreeTabs.svelte should reset activeOnboardingReady when the active tree changes.",
+    );
+}
+
+if (!/export let onOnboardingReadyChange: \(\(ready: boolean\) => void\) \| null = null;/.test(treeSource)) {
+    throw new Error(
+        "Tree.svelte should accept onOnboardingReadyChange so onboarding can wait for the initial tree focus/layout pass.",
+    );
+}
+
+if (!/onOnboardingReadyChange\?\.\(true\)/.test(treeSource)) {
+    throw new Error(
+        "Tree.svelte should notify when the tree is ready for onboarding spotlight measurements.",
     );
 }
 

@@ -10,15 +10,24 @@
     export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let onFocusView: (() => void) | null = null;
 
-    function handleClick(event: MouseEvent) {
-        const el = event.currentTarget as HTMLElement;
+    function openQuickSettings(el: HTMLElement, withHaptic = false) {
         const r = el.getBoundingClientRect();
-        triggerHaptic();
+        if (withHaptic) {
+            triggerHaptic();
+        }
         if (onRootNodeClick) {
             onRootNodeClick(r.left + r.width / 2, r.top + r.height / 2);
         } else {
             onFocusView?.();
         }
+    }
+
+    function handleClick(event: MouseEvent) {
+        openQuickSettings(event.currentTarget as HTMLElement, true);
+    }
+
+    function handleContextMenu(event: MouseEvent) {
+        openQuickSettings(event.currentTarget as HTMLElement);
     }
 </script>
 
@@ -33,6 +42,7 @@
         tabindex="0"
         aria-label={$t("quickSettings.ariaLabel")}
         on:click|stopPropagation={handleClick}
+        on:contextmenu|preventDefault|stopPropagation={handleContextMenu}
     >
         <RootNodeIcon class="root-node-gear-icon" aria-hidden="true" />
     </button>

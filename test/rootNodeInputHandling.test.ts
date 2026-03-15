@@ -16,6 +16,22 @@ if (!/on:click(?:\|stopPropagation)?=\{handleClick\}/.test(rootNodeSource)) {
     );
 }
 
+if (!/function handleContextMenu\(event: MouseEvent\)/.test(rootNodeSource)) {
+    throw new Error(
+        "RootNode should define a dedicated contextmenu handler so right-click on the root always opens quick settings directly.",
+    );
+}
+
+if (
+    !/on:contextmenu\|preventDefault\|stopPropagation=\{handleContextMenu\}/.test(
+        rootNodeSource,
+    )
+) {
+    throw new Error(
+        "RootNode should handle native contextmenu on the button itself instead of relying on outer tree routing.",
+    );
+}
+
 if (/on:keydown=\{handleKeydown\}/.test(rootNodeSource)) {
     throw new Error(
         "RootNode should not duplicate native button activation with a custom keydown opener.",

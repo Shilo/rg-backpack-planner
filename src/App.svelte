@@ -83,6 +83,7 @@
     let activeTreeIndex = 0;
     let activeTreeViewState: TreeViewState | null = null;
     let activeTreeFocusViewState: TreeViewState | null = null;
+    let activeTreeOnboardingReady = false;
     let swipeStartX: number | null = null;
     let swipeStartY: number | null = null;
     let swipeLastX: number | null = null;
@@ -558,12 +559,13 @@
             bind:activeIndex={activeTreeIndex}
             bind:activeViewState={activeTreeViewState}
             bind:activeFocusViewState={activeTreeFocusViewState}
+            bind:activeOnboardingReady={activeTreeOnboardingReady}
             {tabs}
             {isMenuOpen}
             onMenuClick={toggleMenu}
         />
     </main>
-    {#if !$onboardingSeen}
+    {#if !$onboardingSeen && activeTreeOnboardingReady}
         <OnboardingOverlay
             onDismiss={completeOnboarding}
             nodes={tabs[activeTreeIndex]?.nodes ?? []}
