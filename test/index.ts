@@ -44,6 +44,7 @@ const TEST_FILES = [
     "nodeFocusStyle.test.ts",
     "appHotkeys.test.ts",
     "shareBuildButtonComposeOpen.test.ts",
+    "previewBuildsDropdownTcDescription.test.ts",
     "composeFilename.test.ts",
     "composeScreenshotHost.test.ts",
     "composeScreenshotStaticLoadingIndicator.test.ts",

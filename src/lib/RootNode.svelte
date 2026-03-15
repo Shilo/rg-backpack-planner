@@ -36,7 +36,7 @@
         class="root-node"
         icon={GearSix}
         iconClass="root-node-icon"
-        iconWeight="bold"
+        iconWeight="fill"
         style="width: 100%; height: 100%;"
         small
     />

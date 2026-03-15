@@ -20,6 +20,9 @@
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
     import { t } from "svelte-whisper";
+    import { TechCrystalIcon } from "../customIcons";
+    import { calculateTechCrystalsSpent, activeTabs } from "../techCrystalStore";
+    import { decodeBuildData } from "../buildData/encoder";
 
     export let x = 0;
     export let y = 0;
@@ -49,10 +52,15 @@
         const localizedName = premadeBuildLabelKeys[rawName]
             ? $t(premadeBuildLabelKeys[rawName])
             : rawName;
+        const buildData = decodeBuildData(build.encoded);
+        const tcSpent = buildData
+            ? calculateTechCrystalsSpent(buildData.trees, $activeTabs)
+            : 0;
         return {
             rawName,
             name: localizedName,
             code: build.encoded,
+            tcSpent,
         };
     });
 
@@ -99,6 +107,8 @@
                     tooltipText={$t("preview.previewBuildTooltip", {
                         name: build.name,
                     })}
+                    description={build.tcSpent > 0 ? build.tcSpent.toLocaleString() : undefined}
+                    descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}
                     on:click={() => handlePremadeClick(build.code)}
                 >
                     {build.name}

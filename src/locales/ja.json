@@ -545,13 +545,10 @@
     },
     "quickSettings": {
         "ariaLabel": "クイック設定",
-        "clickAction": "クリック",
-        "levelMode": "レベル",
+        "title": "ノード クイック設定",
         "haptics": "触覚",
         "on": "ON",
         "off": "OFF",
-        "toastClickAction": "クリック: {action}",
-        "toastLevelMode": "レベル: {mode}",
         "toastHapticsOn": "触覚フィードバック: ON",
         "toastHapticsOff": "触覚フィードバック: OFF"
     }

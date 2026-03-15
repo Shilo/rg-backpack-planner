@@ -547,13 +547,10 @@
     },
     "quickSettings": {
         "ariaLabel": "Quick settings",
-        "clickAction": "Click",
-        "levelMode": "Levels",
+        "title": "Node Quick Settings",
         "haptics": "Haptics",
         "on": "On",
         "off": "Off",
-        "toastClickAction": "Click: {action}",
-        "toastLevelMode": "Levels: {mode}",
         "toastHapticsOn": "Haptics on",
         "toastHapticsOff": "Haptics off"
     }

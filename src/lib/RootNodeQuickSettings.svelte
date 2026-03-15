@@ -64,7 +64,7 @@
                 : action === NodePrimaryAction.IncrementTen
                   ? $t("nodeMenu.incrementTen")
                   : $t("nodeMenu.incrementTier");
-        showToast($t("quickSettings.toastClickAction", { action: label }));
+        showToast(label);
         onClose?.();
     }
 
@@ -75,7 +75,7 @@
             behavior === NodeLevelBehavior.Solo
                 ? $t("settings.nodeLevelBehaviorSolo")
                 : $t("settings.nodeLevelBehaviorSync");
-        showToast($t("quickSettings.toastLevelMode", { mode: label }));
+        showToast(label);
         onClose?.();
     }
 
@@ -108,10 +108,7 @@
     >
         <div class="qs-header">
             <GearSix class="qs-header-icon" size={13} weight="bold" />
-            <span class="qs-header-title">
-                {$t("settings.pages.node")}
-                {$t("sideMenu.sections.behavior")}
-            </span>
+            <span class="qs-header-title">{$t("quickSettings.title")}</span>
         </div>
 
         <div class="qs-rows">
