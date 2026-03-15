@@ -542,5 +542,17 @@
         "unableToCopy": "コピーできません",
         "updatingToast": "更新中...",
         "updatedVersionToast": "v{version}に更新しました"
+    },
+    "quickSettings": {
+        "ariaLabel": "クイック設定",
+        "clickAction": "クリック",
+        "levelMode": "レベル",
+        "haptics": "触覚",
+        "on": "ON",
+        "off": "OFF",
+        "toastClickAction": "クリック: {action}",
+        "toastLevelMode": "レベル: {mode}",
+        "toastHapticsOn": "触覚フィードバック: ON",
+        "toastHapticsOff": "触覚フィードバック: OFF"
     }
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TechCrystalIcon } from "./customIcons";
+    import { GearSix } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
 
@@ -7,17 +7,16 @@
 
     export let x = 0;
     export let y = 0;
-    export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
-        null;
+    export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let onFocusView: (() => void) | null = null;
 
     function handleKeydown(e: KeyboardEvent) {
         if (e.key !== "Enter" && e.key !== " ") return;
         e.preventDefault();
         const el = e.currentTarget as HTMLElement;
-        if (onOpenTreeContextMenu) {
+        if (onRootNodeClick) {
             const r = el.getBoundingClientRect();
-            onOpenTreeContextMenu(r.left + r.width / 2, r.top + r.height / 2);
+            onRootNodeClick(r.left + r.width / 2, r.top + r.height / 2);
         } else {
             onFocusView?.();
         }
@@ -31,13 +30,13 @@
     on:keydown={handleKeydown}
     role="button"
     tabindex="0"
-    aria-label="Tree actions"
+    aria-label={$t("quickSettings.ariaLabel")}
 >
     <Button
         class="root-node"
-        icon={TechCrystalIcon}
+        icon={GearSix}
         iconClass="root-node-icon"
-        iconWeight="fill"
+        iconWeight="bold"
         style="width: 100%; height: 100%;"
         small
     />

@@ -544,5 +544,17 @@
         "unableToCopy": "Unable to copy",
         "updatingToast": "Updating...",
         "updatedVersionToast": "Updated to v{version}"
+    },
+    "quickSettings": {
+        "ariaLabel": "Quick settings",
+        "clickAction": "Click",
+        "levelMode": "Levels",
+        "haptics": "Haptics",
+        "on": "On",
+        "off": "Off",
+        "toastClickAction": "Click: {action}",
+        "toastLevelMode": "Levels: {mode}",
+        "toastHapticsOn": "Haptics on",
+        "toastHapticsOff": "Haptics off"
     }
 }

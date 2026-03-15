@@ -23,6 +23,7 @@
         SNAPDOM_CAPTURE_CLASS,
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
+    import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
     import {
         clearLongPress,
         isLongPressMovement,
@@ -88,6 +89,7 @@
         index: number;
         hideViewOptions: boolean;
     } | null = null;
+    let quickSettings: { x: number; y: number } | null = null;
     let hasMounted = false;
     let lastActiveTabId = "";
     let isInitialRestore = true;
@@ -579,21 +581,12 @@
                     globalLeveledLeafNodesOutsideTreeCount={globalLeveledLeafNodesOutsideActiveTreeCount}
                     onLevelsChange={handleLevelsChange}
                     {bottomInset}
-                    gesturesDisabled={!!tabContextMenu}
+                    gesturesDisabled={!!tabContextMenu || !!quickSettings}
                     initialViewState={lastViewState}
                     onViewStateChange={handleViewStateChange}
                     onFocusViewStateChange={handleFocusViewStateChange}
-                    onOpenTreeContextMenu={(x, y) => {
-                        const activeTab = tabs[activeIndex];
-                        if (!activeTab) return;
-                        tabContextMenu = {
-                            id: activeTab.id,
-                            label: activeTab.label,
-                            x,
-                            y,
-                            index: activeIndex,
-                            hideViewOptions: false,
-                        };
+                    onRootNodeClick={(x, y) => {
+                        quickSettings = { x, y };
                         treeRef?.cancelGestures?.();
                     }}
                 />
@@ -622,6 +615,13 @@
         onClose={closeTabMenu}
         onFocusInView={focusTabInView}
         onReset={resetTabTree}
+    />
+
+    <RootNodeQuickSettings
+        x={quickSettings?.x ?? 0}
+        y={quickSettings?.y ?? 0}
+        isOpen={!!quickSettings}
+        onClose={() => { quickSettings = null; }}
     />
 </div>
 

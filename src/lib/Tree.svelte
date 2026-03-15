@@ -72,8 +72,7 @@
     export let onFocusViewStateChange:
         | ((view: TreeViewState | null) => void)
         | null = null;
-    export let onOpenTreeContextMenu: ((x: number, y: number) => void) | null =
-        null;
+    export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let rootX = TREE_ROOT_X;
     export let rootY = TREE_ROOT_Y;
 
@@ -1014,8 +1013,8 @@
         ) {
             if (pointer.isRoot) {
                 triggerHaptic();
-                if (onOpenTreeContextMenu) {
-                    onOpenTreeContextMenu(event.clientX, event.clientY);
+                if (onRootNodeClick) {
+                    onRootNodeClick(event.clientX, event.clientY);
                 } else {
                     focusTreeInView(true);
                 }
@@ -1425,7 +1424,7 @@
                 <RootNode
                     x={rootX}
                     y={rootY}
-                    {onOpenTreeContextMenu}
+                    {onRootNodeClick}
                     onFocusView={() => focusTreeInView(true)}
                 />
 

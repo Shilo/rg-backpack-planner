@@ -542,5 +542,17 @@
         "unableToCopy": "无法复制",
         "updatingToast": "更新中...",
         "updatedVersionToast": "已更新到 v{version}"
+    },
+    "quickSettings": {
+        "ariaLabel": "快速设置",
+        "clickAction": "点击",
+        "levelMode": "等级",
+        "haptics": "触觉",
+        "on": "开",
+        "off": "关",
+        "toastClickAction": "点击: {action}",
+        "toastLevelMode": "等级: {mode}",
+        "toastHapticsOn": "触觉反馈: 开",
+        "toastHapticsOff": "触觉反馈: 关"
     }
 }
