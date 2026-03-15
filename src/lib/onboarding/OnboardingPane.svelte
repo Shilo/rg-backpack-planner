@@ -84,16 +84,19 @@
     bind:clientWidth={contentWidth}
 >
     <div class="pane-header">
-        <span class="step-badge {variant}" class:compact
-            >{stepNumber} / {stepCount}</span
-        >
-        <div class="pane-title-row">
-            {#if titleIcon}
-                <span class="title-icon {variant}" aria-hidden="true">
-                    <svelte:component this={titleIcon} size={compact ? 18 : 20} />
-                </span>
-            {/if}
-            <span class="pane-title">{title}</span>
+        <div class="pane-header-card {variant}" class:compact>
+            <div class="pane-header-main">
+                {#if titleIcon}
+                    <span class="title-icon {variant}" aria-hidden="true">
+                        <svelte:component
+                            this={titleIcon}
+                            size={compact ? 18 : 20}
+                        />
+                    </span>
+                {/if}
+                <span class="pane-title">{title}</span>
+            </div>
+            <span class="pane-step-count">{stepNumber} / {stepCount}</span>
         </div>
     </div>
     <div class="cards-stack">
@@ -128,47 +131,57 @@
     }
 
     .pane-header {
+        display: contents;
+    }
+
+    .pane-header-card {
         display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-
-    .step-badge {
-        display: inline-flex;
         align-items: center;
-        width: fit-content;
-        font-size: var(--font-sm);
-        font-weight: var(--weight-semibold);
-        letter-spacing: var(--tracking-wide);
-        text-transform: uppercase;
-        padding: var(--spacing-xs) var(--spacing-lg);
-        border-radius: var(--radius-full);
-        opacity: 0;
-        animation: badge-enter 200ms var(--ease-decel) both;
-    }
-
-    .step-badge.compact {
-        font-size: var(--font-xs);
-        padding: 6px var(--spacing-md);
-    }
-
-    .step-badge.accent {
-        color: var(--accent);
-        background: color-mix(in srgb, var(--accent) 12%, var(--bg-panel));
-        border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-    }
-
-    .step-badge.muted {
-        color: var(--text-muted);
-        background: var(--bg-panel);
+        justify-content: space-between;
+        gap: var(--spacing-md);
+        min-width: 0;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: calc(var(--radius) + 2px);
         border: 1px solid var(--border-subtle);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(var(--blur-sm));
+        -webkit-backdrop-filter: blur(var(--blur-sm));
     }
 
-    .pane-title-row {
+    .pane-header-card.compact {
+        gap: var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .pane-header-card.accent {
+        background:
+            linear-gradient(
+                135deg,
+                color-mix(in srgb, var(--accent) 13%, var(--bg-raised)),
+                color-mix(in srgb, var(--bg-raised) 92%, var(--surface))
+            );
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 22%,
+            var(--border-subtle)
+        );
+    }
+
+    .pane-header-card.muted {
+        background: var(--bg-panel);
+        border-color: color-mix(
+            in srgb,
+            var(--text-muted) 18%,
+            var(--border-subtle)
+        );
+    }
+
+    .pane-header-main {
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
-        padding-inline: 2px;
+        min-width: 0;
+        flex: 1;
     }
 
     .title-icon {
@@ -193,10 +206,24 @@
         line-height: 1.1;
         color: var(--text);
         text-wrap: balance;
+        min-width: 0;
     }
 
     .onboarding-pane.compact .pane-title {
         font-size: var(--font-base);
+    }
+
+    .pane-step-count {
+        flex-shrink: 0;
+        text-align: right;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: var(--tracking);
+        color: var(--text-muted);
+    }
+
+    .onboarding-pane.compact .pane-step-count {
+        font-size: var(--font-xs);
     }
 
     .cards-stack {
@@ -207,23 +234,5 @@
 
     .onboarding-pane.compact .cards-stack {
         gap: var(--spacing-xs);
-    }
-
-    @keyframes badge-enter {
-        from {
-            transform: translateY(4px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .step-badge {
-            animation: none;
-            opacity: 1;
-        }
     }
 </style>

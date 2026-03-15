@@ -40,6 +40,7 @@
                 <svelte:component
                     this={sheetIcon}
                     class="reset-tree-sheet__tree-icon"
+                    size={42}
                 />
             </span>
         {/if}
@@ -105,9 +106,7 @@
         gap: clamp(0.5rem, 1.6vw, 0.75rem);
         width: 100%;
         min-width: 0;
-        padding:
-            clamp(0.65rem, 1.8vw, 0.85rem)
-            var(--sheet-inline-padding)
+        padding: clamp(0.65rem, 1.8vw, 0.85rem) var(--sheet-inline-padding)
             calc(0.75rem + min(var(--safe-bottom, 0px), 0.75rem))
             var(--sheet-inline-padding);
     }
@@ -125,12 +124,11 @@
         flex: 0 0 auto;
         border: var(--border-width) solid
             color-mix(in srgb, var(--accent) 22%, var(--border) 78%);
-        background:
-            linear-gradient(
-                180deg,
-                color-mix(in srgb, var(--surface) 78%, var(--accent) 22%),
-                color-mix(in srgb, var(--bg-raised) 88%, transparent)
-            );
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--surface) 78%, var(--accent) 22%),
+            color-mix(in srgb, var(--bg-raised) 88%, transparent)
+        );
         box-shadow: var(--shadow-sm);
         width: 3rem;
         height: 3rem;
@@ -324,9 +322,21 @@
 
     .reset-tree-choice--danger {
         --choice-accent: var(--accent-danger);
-        --choice-bg: color-mix(in srgb, var(--danger-bg) 78%, var(--bg-raised) 22%);
-        --choice-border: color-mix(in srgb, var(--danger-border) 75%, var(--border) 25%);
-        --choice-copy: color-mix(in srgb, var(--danger-text) 78%, var(--text-muted) 22%);
+        --choice-bg: color-mix(
+            in srgb,
+            var(--danger-bg) 78%,
+            var(--bg-raised) 22%
+        );
+        --choice-border: color-mix(
+            in srgb,
+            var(--danger-border) 75%,
+            var(--border) 25%
+        );
+        --choice-copy: color-mix(
+            in srgb,
+            var(--danger-text) 78%,
+            var(--text-muted) 22%
+        );
     }
 
     :global(.reset-tree-sheet__cancel) {
@@ -415,7 +425,9 @@
             --sheet-inline-padding: 0.7rem;
             gap: 0.45rem;
             padding-top: 0.55rem;
-            padding-bottom: calc(0.6rem + min(var(--safe-bottom, 0px), 0.45rem));
+            padding-bottom: calc(
+                0.6rem + min(var(--safe-bottom, 0px), 0.45rem)
+            );
         }
 
         .reset-tree-sheet__header {

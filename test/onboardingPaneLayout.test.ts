@@ -114,10 +114,31 @@ const overlaySource = readFileSync(overlayPath, "utf8");
 const footerSource = readFileSync(footerPath, "utf8");
 const paneSource = readFileSync(panePath, "utf8");
 
-for (const stepId of ['"nodes"', '"hud"', '"root"', '"tree"']) {
+for (const stepId of ['"nodes"', '"root"', '"tree"', '"hud"']) {
     if (!stepsSource.includes(stepId)) {
         throw new Error(
             `onboardingSteps.ts should define the ${stepId} walkthrough step.`,
+        );
+    }
+}
+
+const stepSequence = [
+    stepsSource.indexOf('id: "nodes"'),
+    stepsSource.indexOf('id: "root"'),
+    stepsSource.indexOf('id: "tree"'),
+    stepsSource.indexOf('id: "hud"'),
+];
+
+if (stepSequence.some((index) => index === -1)) {
+    throw new Error(
+        "onboardingSteps.ts should define the nodes, root, tree, and hud steps.",
+    );
+}
+
+for (let i = 1; i < stepSequence.length; i += 1) {
+    if (stepSequence[i - 1] >= stepSequence[i]) {
+        throw new Error(
+            "onboardingSteps.ts should order steps as nodes, root, tree, then hud.",
         );
     }
 }
@@ -131,6 +152,18 @@ if (!/currentStepIndex/.test(overlaySource)) {
 if (!/OnboardingFooterNote/.test(overlaySource)) {
     throw new Error(
         "OnboardingOverlay should render the dedicated onboarding footer note component.",
+    );
+}
+
+if (/pointerdown/.test(overlaySource)) {
+    throw new Error(
+        "OnboardingOverlay should advance on click/tap instead of pointerdown.",
+    );
+}
+
+if (!/on:click=\{handleAdvanceClick\}/.test(overlaySource)) {
+    throw new Error(
+        "OnboardingOverlay should advance when the blocking overlay is clicked.",
     );
 }
 
@@ -159,6 +192,28 @@ if (!/progress-tick/.test(footerSource)) {
     );
 }
 
+if (!/class="footer-top-row"/.test(footerSource)) {
+    throw new Error(
+        "OnboardingFooterNote should render a top row for instructions and paging.",
+    );
+}
+
+if (!/class="footer-progress-row"/.test(footerSource)) {
+    throw new Error(
+        "OnboardingFooterNote should render the progress bar on its own bottom row.",
+    );
+}
+
+if (
+    !/\.step-count\s*\{[^}]*font-size:\s*var\(--font-sm\);/s.test(
+        footerSource,
+    )
+) {
+    throw new Error(
+        "OnboardingFooterNote step count should use the same font size as the instructions.",
+    );
+}
+
 if (!/export let stepNumber/.test(paneSource)) {
     throw new Error(
         "OnboardingPane should accept stepNumber so each pane is indexed.",
@@ -168,6 +223,24 @@ if (!/export let stepNumber/.test(paneSource)) {
 if (!/export let titleIcon/.test(paneSource)) {
     throw new Error(
         "OnboardingPane should accept a titleIcon for the step header.",
+    );
+}
+
+if (/step-badge/.test(paneSource)) {
+    throw new Error(
+        "OnboardingPane should replace the separate step badge with a shared header card row.",
+    );
+}
+
+if (!/pane-header-card/.test(paneSource)) {
+    throw new Error(
+        "OnboardingPane should render a dedicated header card for icon, title, and paging.",
+    );
+}
+
+if (!/pane-step-count/.test(paneSource)) {
+    throw new Error(
+        "OnboardingPane should render paging inside the header card.",
     );
 }
 

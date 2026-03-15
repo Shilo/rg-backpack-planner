@@ -72,7 +72,7 @@ for (const localePath of localePaths) {
     }
 }
 
-// --- Integration assertions (Tree.svelte, GeneralSettingsPage) ---
+// --- Integration assertions (App.svelte, Tree.svelte, GeneralSettingsPage) ---
 // These verify Chunk 3 integration. They are added here because the test
 // runs after all chunks are complete. If running Chunk 1 in isolation,
 // these will fail until Chunk 3 is done.
@@ -80,16 +80,16 @@ for (const localePath of localePaths) {
 const treePath = resolve("src/lib/Tree.svelte");
 const treeSource = readFileSync(treePath, "utf8");
 
-if (!/import.*onboardingSeen.*from.*\.\/onboarding\/onboardingStore/.test(treeSource)) {
-    throw new Error("Tree.svelte should import onboardingSeen from onboardingStore.");
+if (/onboardingStore/.test(treeSource)) {
+    throw new Error("Tree.svelte should not depend on onboardingStore after the overlay moves to App.svelte.");
 }
 
-if (!/OnboardingOverlay/.test(treeSource)) {
-    throw new Error("Tree.svelte should render OnboardingOverlay component.");
+if (/OnboardingOverlay/.test(treeSource)) {
+    throw new Error("Tree.svelte should not render OnboardingOverlay after it moves to App.svelte.");
 }
 
-if (!/completeOnboarding/.test(treeSource)) {
-    throw new Error("Tree.svelte should use completeOnboarding() when the walkthrough finishes.");
+if (/completeOnboarding/.test(treeSource)) {
+    throw new Error("Tree.svelte should not own completeOnboarding() after the overlay moves to App.svelte.");
 }
 
 const generalPath = resolve("src/lib/sideMenuPages/GeneralSettingsPage.svelte");
@@ -106,7 +106,7 @@ if (!/showOnboarding\(\)/.test(generalSource)) {
 const appPath = resolve("src/App.svelte");
 const appSource = readFileSync(appPath, "utf8");
 
-if (!/import\s+\{\s*onboardingSeen\s*\}\s+from\s+"\.\/lib\/onboarding\/onboardingStore"/.test(appSource)) {
+if (!/import\s+\{[\s\S]*onboardingSeen[\s\S]*\}\s+from\s+"\.\/lib\/onboarding\/onboardingStore"/.test(appSource)) {
     throw new Error("App.svelte should import onboardingSeen so onboarding can force-show the top-right HUD.");
 }
 
@@ -114,6 +114,18 @@ if (!/forceShow=\{!\$onboardingSeen\}/.test(appSource)) {
     throw new Error(
         "App.svelte should force-show the top-right reset action while onboarding is active.",
     );
+}
+
+if (!/import\s+OnboardingOverlay\s+from\s+"\.\/lib\/onboarding\/OnboardingOverlay\.svelte"/.test(appSource)) {
+    throw new Error("App.svelte should import OnboardingOverlay after the overlay moves to app level.");
+}
+
+if (!/completeOnboarding/.test(appSource)) {
+    throw new Error("App.svelte should own completeOnboarding() when the walkthrough finishes.");
+}
+
+if (!/\{#if !\$onboardingSeen\}[\s\S]*<OnboardingOverlay\b/.test(appSource)) {
+    throw new Error("App.svelte should render OnboardingOverlay while onboarding is active.");
 }
 
 const activeTreeResetButtonPath = resolve("src/lib/ActiveTreeResetButton.svelte");
@@ -131,5 +143,14 @@ if (!/export let forceShow\b/.test(activeTreeResetButtonSource)) {
 if (!/forceShow\s*\|\|/.test(activeTreeResetButtonSource)) {
     throw new Error(
         "ActiveTreeResetButton should keep rendering when forceShow is enabled during onboarding.",
+    );
+}
+
+const tsconfigAppPath = resolve("tsconfig.app.json");
+const tsconfigAppSource = readFileSync(tsconfigAppPath, "utf8");
+
+if (!/"allowArbitraryExtensions"\s*:\s*true/.test(tsconfigAppSource)) {
+    throw new Error(
+        "tsconfig.app.json should enable allowArbitraryExtensions for .svelte module resolution warnings.",
     );
 }

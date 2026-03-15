@@ -14,7 +14,7 @@ import LongPressIcon from "../icons/LongPressIcon.svelte";
 import PinchIcon from "../icons/PinchIcon.svelte";
 import type { Direction } from "./paneLayout";
 
-export type OnboardingStepId = "nodes" | "hud" | "root" | "tree";
+export type OnboardingStepId = "nodes" | "root" | "tree" | "hud";
 export type OnboardingTarget = "node" | "hud" | "root" | "tree";
 type TargetRegion = "top-left" | "bottom-left" | "right";
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -159,15 +159,6 @@ export function createOnboardingSteps({
             cards: nodeCards,
         },
         {
-            id: "hud",
-            target: "hud",
-            direction: "left",
-            title: translate("onboarding.hudSection"),
-            titleIcon: TechCrystalIcon,
-            variant: "muted",
-            cards: hudCards,
-        },
-        {
             id: "root",
             target: "root",
             direction: compactLayout ? "down" : "right",
@@ -184,6 +175,15 @@ export function createOnboardingSteps({
             titleIcon: ArrowsOutCardinalIcon,
             variant: "muted",
             cards: treeCards,
+        },
+        {
+            id: "hud",
+            target: "hud",
+            direction: "left",
+            title: translate("onboarding.hudSection"),
+            titleIcon: TechCrystalIcon,
+            variant: "muted",
+            cards: hudCards,
         },
     ];
 }
