@@ -15,11 +15,10 @@
     import {
         parseEncodedFromUserInput,
         navigateToEncodedBuild,
-        getBuildNameFromEncoded,
     } from "../buildData/url";
+    import { recommendedBuilds } from "../buildData/recommended";
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
-    import appPackage from "../../../package.json";
     import { t } from "svelte-whisper";
 
     export let x = 0;
@@ -44,29 +43,18 @@
         "Late PvP": "preview.premade.latePvp",
     };
 
-    // Dynamically get all premade builds from package.json
-    $: premadeBuilds = (() => {
-        const builds = appPackage?.premadeBuilds;
-        if (!Array.isArray(builds)) return [];
-
-        return builds
-            .filter(
-                (value): value is string =>
-                    typeof value === "string" && value.trim() !== "",
-            )
-            .map((value) => {
-                const rawName =
-                    getBuildNameFromEncoded(value) ?? $t("preview.title");
-                const localizedName = premadeBuildLabelKeys[rawName]
-                    ? $t(premadeBuildLabelKeys[rawName])
-                    : rawName;
-                return {
-                    rawName,
-                    name: localizedName,
-                    code: value,
-                };
-            });
-    })();
+    // Read recommended builds from the shared registry so loading and sharing stay in sync.
+    $: premadeBuilds = recommendedBuilds.map((build) => {
+        const rawName = build.displayName ?? $t("preview.title");
+        const localizedName = premadeBuildLabelKeys[rawName]
+            ? $t(premadeBuildLabelKeys[rawName])
+            : rawName;
+        return {
+            rawName,
+            name: localizedName,
+            code: build.encoded,
+        };
+    });
 
     function handlePremadeClick(buildCode: string) {
         onClose?.();

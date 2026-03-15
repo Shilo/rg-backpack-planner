@@ -9,6 +9,10 @@ import {
     decodeBuildData,
     decodeNameSpaces,
 } from "./encoder";
+import {
+    getRecommendedBuildAliasForEncoded,
+    resolveRecommendedBuildEncoded,
+} from "./recommended";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import {
@@ -30,7 +34,7 @@ let cachedBasePath: string | null = null;
 export function getBasePath(): string {
     if (cachedBasePath === null) {
         // Get base from Vite's injected BASE_URL
-        let base = import.meta.env.BASE_URL;
+        let base = import.meta.env?.BASE_URL ?? "/";
 
         // Ensure leading slash
         if (!base.startsWith("/")) {
@@ -60,8 +64,10 @@ export function getEncodedFromUrl(): string | null {
     const hash = window.location.hash;
     if (!hash || hash === "#") return null;
 
-    const encoded = hash.slice(1).trim();
-    return encoded || null;
+    const candidate = hash.slice(1).trim();
+    if (!candidate) return null;
+
+    return resolveRecommendedBuildEncoded(candidate) ?? candidate;
 }
 
 /**
@@ -136,7 +142,8 @@ export function createShareUrl(buildData?: BuildData): string {
               owned: get(techCrystalsOwned),
           };
     const encoded = encodeBuildData(data);
-    return buildShareUrl(encoded);
+    const shareToken = getRecommendedBuildAliasForEncoded(encoded) ?? encoded;
+    return buildShareUrl(shareToken);
 }
 
 /**
@@ -204,6 +211,11 @@ export function parseEncodedFromUserInput(input: string): string | null {
     ).trim();
     if (!candidate) return null;
 
+    const recommendedEncoded = resolveRecommendedBuildEncoded(candidate);
+    if (recommendedEncoded) {
+        return recommendedEncoded;
+    }
+
     return decodeBuildData(candidate) ? candidate : null;
 }
 
@@ -249,7 +261,8 @@ export function updateUrlWithCurrentBuild(): void {
         };
 
         const encoded = encodeBuildData(buildData);
-        const newPath = buildSharePath(encoded);
+        const shareToken = getRecommendedBuildAliasForEncoded(encoded) ?? encoded;
+        const newPath = buildSharePath(shareToken);
 
         // Only update URL if it's different from current path + hash
         const currentPathAndHash =
