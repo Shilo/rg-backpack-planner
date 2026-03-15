@@ -314,11 +314,25 @@
         return nodeId !== null && nodeId !== "root";
     }
 
+    function isRootTarget(target: EventTarget | null) {
+        if (!(target instanceof Element)) return false;
+        const nodeEl = target.closest("[data-node-id]");
+        if (!nodeEl) return false;
+        const nodeId = nodeEl.getAttribute("data-node-id");
+        return nodeId === "root";
+    }
+
+    function openRootQuickSettings(x: number, y: number) {
+        quickSettings = { x, y };
+        treeRef?.cancelGestures?.();
+    }
+
     function startBackgroundPress(event: PointerEvent) {
+        const rootTarget = isRootTarget(event.target);
         if (isContextMenuTarget(event.target) || isNodeTarget(event.target))
             return;
         const activeTab = tabs[activeIndex];
-        if (!activeTab) return;
+        if (!activeTab && !rootTarget) return;
         backgroundPressStart = { x: event.clientX, y: event.clientY };
         backgroundPressPoint = { x: event.clientX, y: event.clientY };
         backgroundPressPointerId = event.pointerId;
@@ -329,6 +343,11 @@
             hideTooltip();
             if (backgroundPressPointerId !== null)
                 suppressNextPointerUp(backgroundPressPointerId);
+            if (rootTarget) {
+                openRootQuickSettings(point.x, point.y);
+                return true;
+            }
+            if (!activeTab) return false;
             tabContextMenu = {
                 id: activeTab.id,
                 label: activeTab.label,
@@ -348,13 +367,19 @@
             event.preventDefault();
             return;
         }
+        const rootTarget = isRootTarget(event.target);
         if (isContextMenuTarget(event.target) || isNodeTarget(event.target))
             return;
         const activeTab = tabs[activeIndex];
-        if (!activeTab) return;
+        if (!activeTab && !rootTarget) return;
 
         event.preventDefault();
         hideTooltip();
+        if (rootTarget) {
+            openRootQuickSettings(event.clientX, event.clientY);
+            return;
+        }
+        if (!activeTab) return;
         tabContextMenu = {
             id: activeTab.id,
             label: activeTab.label,

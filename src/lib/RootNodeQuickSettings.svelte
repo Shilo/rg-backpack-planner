@@ -21,6 +21,7 @@
 
     const MARGIN = 8;
     const OFFSET_Y = 12;
+    const TOUCH_EXTRA_OFFSET_Y = 32;
 
     onMount(() => {
         const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
@@ -39,8 +40,9 @@
     function updatePosition() {
         if (!panelEl) return;
         const rect = panelEl.getBoundingClientRect();
+        const offsetY = OFFSET_Y + (isTouchPlatform ? TOUCH_EXTRA_OFFSET_Y : 0);
         let px = x - rect.width / 2;
-        let py = y - rect.height - OFFSET_Y;
+        let py = y - rect.height - offsetY;
         px = Math.max(MARGIN, Math.min(px, window.innerWidth - rect.width - MARGIN));
         py = Math.max(MARGIN, Math.min(py, window.innerHeight - rect.height - MARGIN));
         displayX = px;
