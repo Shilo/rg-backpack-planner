@@ -6,6 +6,8 @@
 import { writable, get, derived } from "svelte/store";
 import { encodeBuildData, decodeBuildData } from "./buildData/encoder";
 import { getItem, setItem } from "./storage";
+import { isPreviewMode } from "./previewModeStore";
+import { previewBuildName } from "./previewBuildNameStore";
 
 
 export const DEFAULT_PRESET_NAME = "Default";
@@ -266,3 +268,14 @@ export const activePresetName = derived(buildPresetsStore, (data) => {
     );
     return activePreset?.name ?? DEFAULT_PRESET_NAME;
 });
+
+/**
+ * Derived store for the display build name, preview-aware.
+ * Returns the preview build name when in preview mode,
+ * otherwise the active personal preset name.
+ */
+export const activeBuildName = derived(
+    [activePresetName, isPreviewMode, previewBuildName],
+    ([$preset, $preview, $previewName]) =>
+        $preview ? ($previewName ?? $preset) : $preset,
+);

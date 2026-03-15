@@ -454,7 +454,10 @@
         "backpackNodeLevels": "节点等级",
         "techCrystalsSpent": "科技水晶消耗",
         "total": "总计",
-        "copyStatistics": "复制统计"
+        "copyStatistics": "复制统计",
+        "shareImage": "分享图片",
+        "shareText": "分享文本",
+        "generatingImage": "生成中..."
     },
     "controls": {
         "pointerNodeLabel": "左键点击节点",

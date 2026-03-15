@@ -456,7 +456,10 @@
         "backpackNodeLevels": "Node Levels",
         "techCrystalsSpent": "Tech Crystals Spent",
         "total": "Total",
-        "copyStatistics": "Copy Statistics"
+        "copyStatistics": "Copy Statistics",
+        "shareImage": "Share Image",
+        "shareText": "Share Text",
+        "generatingImage": "Generating..."
     },
     "controls": {
         "pointerNodeLabel": "Left Click a Node",

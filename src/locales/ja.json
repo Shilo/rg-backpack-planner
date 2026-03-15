@@ -454,7 +454,10 @@
         "backpackNodeLevels": "ノードレベル",
         "techCrystalsSpent": "テッククリスタル消費",
         "total": "合計",
-        "copyStatistics": "統計をコピー"
+        "copyStatistics": "統計をコピー",
+        "shareImage": "画像を共有",
+        "shareText": "テキストを共有",
+        "generatingImage": "生成中..."
     },
     "controls": {
         "pointerNodeLabel": "ノードを左クリック",

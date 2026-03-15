@@ -6,9 +6,12 @@
     import {
         ShareIcon,
         CopySimpleIcon,
+        DownloadSimpleIcon,
         TrendUpIcon,
         ArrowFatUpIcon,
-} from "phosphor-svelte";
+        ImageIcon,
+        TextTIcon,
+    } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
     import { formatNumber, formatPercent } from "svelte-whisper";
     import {
@@ -26,6 +29,17 @@
     import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
     import { portal } from "../portal";
     import { t } from "svelte-whisper";
+    import { showToast, dismissToast } from "../toast";
+    import {
+        copyImageBlobToClipboard,
+        downloadImageBlob,
+        shareImageBlobNative,
+    } from "../buildData/share";
+    import { activeBuildName } from "../buildPresetsStore";
+    import {
+        createComposeImageFilename,
+        createComposeImageFilenameSuffix,
+    } from "../composeFilename";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<
@@ -36,6 +50,15 @@
     let shareMenuX = 0;
     let shareMenuY = 0;
     let shareButtonElement: HTMLButtonElement | null = null;
+
+    let childMenuType: "image" | "text" | null = null;
+    let childMenuX = 0;
+    let childMenuY = 0;
+
+    $: childMenuTitle =
+        childMenuType === "image"
+            ? $t("statistics.shareImage")
+            : $t("statistics.shareText");
 
     $: {
         const bonusRows: Array<[string, string]> = [];
@@ -84,11 +107,105 @@
         const rect = shareButtonElement.getBoundingClientRect();
         shareMenuX = rect.left + rect.width / 2;
         shareMenuY = rect.bottom + 8;
+        childMenuType = null;
         shareMenuOpen = true;
     }
 
     function closeShareMenu() {
         shareMenuOpen = false;
+        childMenuType = null;
+    }
+
+    function closeChildMenu() {
+        childMenuType = null;
+    }
+
+    function openChildMenu(
+        event: CustomEvent<MouseEvent> | MouseEvent,
+        type: "image" | "text",
+    ) {
+        const mouseEvent =
+            event instanceof CustomEvent ? event.detail : event;
+        mouseEvent.stopPropagation();
+        mouseEvent.preventDefault();
+        const target =
+            (mouseEvent.currentTarget as HTMLElement | null) ??
+            (mouseEvent.target as HTMLElement | null)?.closest("button") ??
+            null;
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        childMenuX = rect.left + rect.width / 2;
+        childMenuY = rect.bottom + 8;
+        childMenuType = type;
+    }
+
+    async function withStatsImage(action: (blob: Blob) => Promise<void>) {
+        const toastId = showToast($t("statistics.generatingImage"), {
+            showSpinner: true,
+            showIcon: false,
+            durationMs: 30000,
+        });
+        try {
+            const { generateStatsImageBlob } = await import(
+                "../buildImageExport/statsImageGenerator"
+            );
+            const blob = await generateStatsImageBlob();
+            dismissToast(toastId);
+            if (!blob) {
+                showToast($t("compose.statsErrorToast"), {
+                    tone: "negative",
+                });
+                return;
+            }
+            await action(blob);
+        } catch (error) {
+            console.error("Failed to generate stats image:", error);
+            dismissToast(toastId);
+            showToast($t("compose.statsErrorToast"), { tone: "negative" });
+        }
+    }
+
+    async function handleCopyImage() {
+        closeShareMenu();
+        await withStatsImage(async (blob) => {
+            const success = await copyImageBlobToClipboard(blob);
+            showToast(
+                success
+                    ? $t("compose.copiedToast")
+                    : $t("compose.copyErrorToast"),
+                { tone: success ? "positive" : "negative" },
+            );
+        });
+    }
+
+    async function handleDownloadImage() {
+        closeShareMenu();
+        await withStatsImage(async (blob) => {
+            const filename = createComposeImageFilename(
+                $activeBuildName,
+                "stats",
+                createComposeImageFilenameSuffix(),
+            );
+            downloadImageBlob(blob, filename);
+            showToast($t("compose.downloadedToast"));
+        });
+    }
+
+    async function handleShareImageToApp() {
+        closeShareMenu();
+        await withStatsImage(async (blob) => {
+            const filename = createComposeImageFilename(
+                $activeBuildName,
+                "stats",
+                createComposeImageFilenameSuffix(),
+            );
+            const success = await shareImageBlobNative(blob, filename);
+            if (!success) {
+                showToast($t("compose.shareErrorToast"), {
+                    tone: "negative",
+                });
+            }
+        });
     }
 
     async function handleShareToApp() {
@@ -133,14 +250,48 @@
             title={$t("common.share")}
             onClose={closeShareMenu}
         >
-            <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
-                {$t("share.shareTo")}
+            <Button on:click={(e) => openChildMenu(e, "image")} icon={ImageIcon} arrow="right">
+                {$t("statistics.shareImage")}
             </Button>
-            <Button on:click={handleCopyStatistics} icon={CopySimpleIcon}>
-                {$t("statistics.copyStatistics")}
+            <Button on:click={(e) => openChildMenu(e, "text")} icon={TextTIcon} arrow="right">
+                {$t("statistics.shareText")}
             </Button>
         </ContextMenu>
     </div>
+    {#if childMenuType}
+        <div
+            use:portal
+            class="stats-share-menu-portal stats-child-menu"
+            style="pointer-events: auto;"
+        >
+            <ContextMenu
+                x={childMenuX}
+                y={childMenuY}
+                isOpen={true}
+                title={childMenuTitle}
+                onClose={closeChildMenu}
+            >
+                {#if childMenuType === "image"}
+                    <Button on:click={handleCopyImage} icon={CopySimpleIcon}>
+                        {$t("common.copy")}
+                    </Button>
+                    <Button on:click={handleDownloadImage} icon={DownloadSimpleIcon}>
+                        {$t("common.download")}
+                    </Button>
+                    <Button on:click={handleShareImageToApp} icon={ShareIcon} arrow="right">
+                        {$t("share.shareTo")}
+                    </Button>
+                {:else}
+                    <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
+                        {$t("share.shareTo")}
+                    </Button>
+                    <Button on:click={handleCopyStatistics} icon={CopySimpleIcon}>
+                        {$t("statistics.copyStatistics")}
+                    </Button>
+                {/if}
+            </ContextMenu>
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -179,7 +330,8 @@
         z-index: var(--z-index-context-menu-share);
     }
 
-    .stats-share-menu-portal.menu-open {
+    .stats-share-menu-portal.menu-open,
+    .stats-share-menu-portal.stats-child-menu {
         pointer-events: auto;
     }
 </style>

@@ -15,9 +15,9 @@ if (!allTabMatch) {
     );
 }
 
-if (!/activePresetName/.test(source)) {
+if (!/activeBuildName/.test(source)) {
     throw new Error(
-        "ComposeScreenshotContent should use activePresetName for image filenames.",
+        "ComposeScreenshotContent should use activeBuildName for image filenames.",
     );
 }
 

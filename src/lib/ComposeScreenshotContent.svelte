@@ -23,17 +23,14 @@
         shareImageBlobNative,
     } from "./buildData/share";
     import FabMenu from "./FabMenu.svelte";
-    import { activePresetName } from "./buildPresetsStore";
+    import { activeBuildName } from "./buildPresetsStore";
     import { isDefaultPresetName } from "./buildData/url";
     import {
         createComposeImageFilename,
         createComposeImageFilenameSuffix,
     } from "./composeFilename";
-    import { t, formatNumber, formatPercent } from "svelte-whisper";
+    import { t } from "svelte-whisper";
     import { get } from "svelte/store";
-    import { techCrystalsSpent } from "./techCrystalStore";
-    import { treeLevelsTotal } from "./treeLevelsStore";
-    import { skillBonuses, SKILL_DISPLAY_ORDER } from "./skillBonusStore";
     import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
     import {
         showSkillName,
@@ -46,8 +43,6 @@
     } from "./uppercaseTextStore";
     import Button from "./Button.svelte";
     import ImageDetailsPopover from "./ImageDetailsPopover.svelte";
-    import { isPreviewMode } from "./previewModeStore";
-    import { previewBuildName } from "./previewBuildNameStore";
 
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
@@ -100,10 +95,6 @@
 
     $: isCurrentTabLoading = activeTab === "stats" ? isStatsLoading : isLoading;
 
-    $: activeBuildName = $isPreviewMode
-        ? ($previewBuildName ?? $activePresetName)
-        : $activePresetName;
-
     onMount(() => {
         if (isOpen) captureAll();
     });
@@ -123,7 +114,7 @@
             const { captureAllTreeImages } = await import(
                 "./buildImageExport/captureService"
             );
-            const buildName = activeBuildName;
+            const buildName = $activeBuildName;
             const result = await captureAllTreeImages(
                 showLabels
                     ? {
@@ -192,32 +183,10 @@
     async function generateStatsImage() {
         isStatsLoading = true;
         try {
-            const { renderStatsImage } = await import(
-                "./buildImageExport/statsImageRenderer"
+            const { generateStatsImageBlob } = await import(
+                "./buildImageExport/statsImageGenerator"
             );
-            const buildName = activeBuildName;
-            const bonuses: { label: string; value: string }[] = [];
-            const currentBonuses = get(skillBonuses);
-            for (const skillId of SKILL_DISPLAY_ORDER) {
-                const value = currentBonuses.get(skillId);
-                if (value !== undefined && value > 0) {
-                    bonuses.push({
-                        label: $t(`skills.${skillId}`),
-                        value: formatPercent(value),
-                    });
-                }
-            }
-            statsBlob = await renderStatsImage({
-                buildTitle:
-                    buildName && !isDefaultPresetName(buildName)
-                        ? buildName
-                        : undefined,
-                techCrystalsLabel: $t("statistics.techCrystalsSpent"),
-                techCrystalsValue: formatNumber(get(techCrystalsSpent)),
-                nodeLevelsLabel: $t("statistics.backpackNodeLevels"),
-                nodeLevelsValue: formatNumber(get(treeLevelsTotal)),
-                skillBonuses: bonuses,
-            });
+            statsBlob = await generateStatsImageBlob();
             if (!statsBlob) {
                 showToast($t("compose.statsErrorToast"), {
                     tone: "negative",
@@ -247,12 +216,12 @@
     }
 
     function getComposeFilename(tabId: string): string {
-        return createComposeImageFilename(activeBuildName, tabId);
+        return createComposeImageFilename($activeBuildName, tabId);
     }
 
     function getDownloadFilename(tabId: string): string {
         return createComposeImageFilename(
-            activeBuildName,
+            $activeBuildName,
             tabId,
             createComposeImageFilenameSuffix(),
         );
