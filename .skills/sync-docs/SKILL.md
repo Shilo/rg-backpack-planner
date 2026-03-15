@@ -27,46 +27,78 @@ For each target file, run:
 git log --follow -n 1 --pretty=format:"%H %ai %s" -- <file>
 ```
 
-This gives the commit hash where each doc was last modified.
+This gives the commit hash and date where each doc was last modified.
 
-### Step 2 — Get the diff for each file
+### Step 2 — Explore what changed
 
-Using the hash from Step 1, get only the code changes relevant to that doc:
+For each file, get only the code changes relevant to that doc:
 ```bash
 git diff <hash> HEAD -- <scope>
 ```
 
-Use the **Diff scope** column from the table above for `<scope>`. Always diff against `HEAD` (not the working tree) so the diff is clean and reproducible.
+Use the **Diff scope** column from the table above for `<scope>`. Always diff against `HEAD` (not the working tree) so the diff is clean and reproducible. For AGENTS.md / CLAUDE.md, use the **earlier** of their two hashes.
 
-For AGENTS.md / CLAUDE.md, exclude other doc files from the diff to avoid noise:
-```bash
-git diff <hash> HEAD -- src/ config/ scripts/ package.json
-```
+Before reading the diff, also scan these areas of the codebase directly for structural signals that a diff alone may not surface clearly:
 
-### Step 3 — Analyze changes per doc
+- **`src/lib/`** — New, removed, or renamed components, stores, and modules
+- **`src/config/`** — Tree definitions, shared metadata, constants
+- **`package.json` scripts** — Added or removed commands
+- **`src/theme.css`**, **`themeEngine.ts`**, **`themeApply.ts`** — Design token or theming changes
+- **Brand assets, design tokens, CSS variables** — Any new color palettes, font stacks, or spacing scales
 
-Read the current content of each doc file, then review the diff to identify:
+Note what you've learned before writing any updates.
 
-**For AGENTS.md / CLAUDE.md (Project Structure section):**
+### Step 3 — Analyze and update each doc
+
+Read the current content of each doc file, then apply targeted edits.
+
+#### AGENTS.md and CLAUDE.md — Project Structure, Commands, Notes
+
 - New modules or files in `src/lib/`, `src/config/`, `scripts/` → add or extend bullet
 - Removed or renamed modules → remove or rename bullet
 - New commands in `package.json` scripts → add to Commands section
+- Sections that remain accurate → leave untouched
 
-**For AGENTS.md and CLAUDE.md (Design Context section):**
-- Changes to theme system, OKLCH engine, color model, or design tokens → update Aesthetic Direction
-- Changes to user-facing interaction model → update Users or Design Principles
-- Skip this section if changes are purely structural (new files/modules with no UX impact)
+#### AGENTS.md and CLAUDE.md — Design Context
 
-**For README.md:**
+Update this section **only** when the UX, brand, or design model itself has changed — not merely because new components were added. Signs that warrant an update:
+
+- Changes to the theme system, OKLCH engine, color model, or design tokens → revise **Aesthetic Direction**
+- Changes to the user-facing interaction model or target audience → revise **Users**
+- New design constraints or principles emerging from recent work → revise **Design Principles**
+
+The Design Context section follows this structure — preserve it exactly when editing:
+
+```markdown
+## Design Context
+
+### Users
+[Who they are, their context, the job to be done]
+
+### Brand Personality
+[Voice, tone, 3-word personality, emotional goals]
+
+### Aesthetic Direction
+[Visual tone, references, anti-references, theme]
+
+### Design Principles
+[3–5 principles that guide all design decisions]
+```
+
+If design intent behind a change is ambiguous from the diff alone, ask the user before updating this section rather than guessing.
+
+#### README.md — Features and Controls
+
 - New user-visible features → add to the relevant feature section
-- Changed controls (keyboard shortcuts, gestures) → update Controls section
-- Internal implementation details (refactors, constants, store logic) → skip entirely
-- Only include changes a player would notice or care about
+- Changed controls (keyboard shortcuts, gestures) → update the Controls section
+- Internal implementation details (refactors, constants, store logic, new test files) → skip entirely
+- Apply the player's lens: only include what a Run! Goddess player would notice or care about
 
-**For test/README.md:**
-- New test files → consider adding a `npx tsx test/<name>.test.ts` example if it covers a major, independently runnable test area
+#### test/README.md — Running Tests and Update Guidance
+
+- New test files → add a `npx tsx test/<name>.test.ts` example **only** if it covers a major, independently runnable test area (e.g., share URL encoding, tier leveling — not small helpers or internal store tests)
 - New behavior categories under test → add to "When to Update Tests"
-- New console error patterns from intentional error-path tests → add to "Expected Console Errors"
+- New expected console errors from intentional error-path tests → add to "Expected Console Errors"
 
 ### Step 4 — Write the updates
 
@@ -77,8 +109,9 @@ After all edits, confirm which files were updated and summarize each change in o
 ## Common Mistakes
 
 - **Over-updating README.md** — Only include user-facing changes. Ignore new constants, refactored internals, renamed functions, or test infrastructure.
-- **Forgetting AGENTS.md** — Every edit to CLAUDE.md must also be applied to AGENTS.md and vice versa. Never update one without the other.
-- **Different hashes for AGENTS.md and CLAUDE.md** — Use the earlier (older) of the two hashes as the diff base so neither file misses any changes.
+- **Forgetting the other file** — Every edit to CLAUDE.md must also be applied to AGENTS.md and vice versa. Never update one without the other.
+- **Using the wrong hash for AGENTS.md / CLAUDE.md** — Always use the earlier (older) of their two hashes as the diff base so neither file misses any changes.
 - **Diffing working tree instead of HEAD** — Always `git diff <hash> HEAD`, not `git diff <hash>` (which includes uncommitted changes).
-- **Updating Design Context for structural changes** — Only update the Design Context section in CLAUDE.md / AGENTS.md when the UX/brand/design model itself changes, not just because new components were added.
-- **Adding every new test file to the examples** — The `npx tsx` examples in test/README.md are curated. Only add a file if it covers a major, independently useful test area (like share URL encoding or tier leveling).
+- **Guessing at design intent** — If it's unclear whether a code change reflects a shift in UX or brand direction, ask the user before touching the Design Context section.
+- **Adding every new test file to the examples** — The `npx tsx` examples in test/README.md are curated. Only add a file if it covers a major, independently useful test area.
+- **Rewriting accurate sections** — Only edit what has changed. If a section is still correct, leave it alone.
