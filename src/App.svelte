@@ -52,6 +52,7 @@
         loadPresetsFromStorage,
         updateActivePresetBuildCode,
     } from "./lib/buildPresetsStore";
+    import { buildContextMenuOpenForOverlayRaise } from "./lib/buildContextMenuOverlayRaiseStore";
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
     import {
         clearPreviewBuildName,
@@ -542,7 +543,7 @@
             {/key}
             <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
         </div>
-        <div class="top-right-actions">
+        <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
             <TechCrystalDisplay />
             <ActiveTreeResetButton
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
@@ -635,6 +636,10 @@
         .app-shell.menu-open .top-right-actions {
             right: calc(var(--side-menu-width) + 10px);
         }
+    }
+
+    .top-right-actions.above-backdrop {
+        z-index: var(--z-index-hud-above-context-backdrop);
     }
 
     .top-left-actions > :global(*),
