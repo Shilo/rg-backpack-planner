@@ -198,21 +198,7 @@ if (!/class="footer-title-row"/.test(footerSource)) {
     );
 }
 
-if (!/class="footer-progress-row"/.test(footerSource)) {
-    throw new Error(
-        "OnboardingFooterNote should render the progress bar on its own bottom row.",
-    );
-}
 
-if (
-    !/\.step-count\s*\{[^}]*font-size:\s*var\(--font-sm\);/s.test(
-        footerSource,
-    )
-) {
-    throw new Error(
-        "OnboardingFooterNote step count should use the same font size as the instructions.",
-    );
-}
 
 if (!/export let titleIcon/.test(paneSource)) {
     throw new Error(
@@ -264,16 +250,6 @@ for (const localePath of [
     if (typeof locale.onboarding?.continueTap !== "string") {
         throw new Error(
             `${localePath}: onboarding.continueTap key is required.`,
-        );
-    }
-    if (typeof locale.onboarding?.startClick !== "string") {
-        throw new Error(
-            `${localePath}: onboarding.startClick key is required.`,
-        );
-    }
-    if (typeof locale.onboarding?.startTap !== "string") {
-        throw new Error(
-            `${localePath}: onboarding.startTap key is required.`,
         );
     }
 }

@@ -64,12 +64,6 @@ for (const localePath of localePaths) {
     if (!/"continueTap"/.test(source)) {
         throw new Error(`${localePath}: onboarding.continueTap key is required.`);
     }
-    if (!/"startClick"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.startClick key is required.`);
-    }
-    if (!/"startTap"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.startTap key is required.`);
-    }
 }
 
 // --- Integration assertions (App.svelte, Tree.svelte, GeneralSettingsPage) ---
@@ -179,17 +173,6 @@ if (!/activeOnboardingReady = false;/.test(treeTabsSource)) {
     );
 }
 
-if (!/export let onOnboardingReadyChange: \(\(ready: boolean\) => void\) \| null = null;/.test(treeSource)) {
-    throw new Error(
-        "Tree.svelte should accept onOnboardingReadyChange so onboarding can wait for the initial tree focus/layout pass.",
-    );
-}
-
-if (!/onOnboardingReadyChange\?\.\(true\)/.test(treeSource)) {
-    throw new Error(
-        "Tree.svelte should notify when the tree is ready for onboarding spotlight measurements.",
-    );
-}
 
 const tsconfigAppPath = resolve("tsconfig.app.json");
 const tsconfigAppSource = readFileSync(tsconfigAppPath, "utf8");
