@@ -1,4 +1,6 @@
-# What's New (v0.4.15 → v0.5.12)
+# What's New in v0.5.12
+https://rgbp.app
+*Changes since v0.4.15*
 
 ## New
 - Added build sharing via custom URLs and high-quality image exports.
@@ -24,7 +26,9 @@
 
 ---
 
-# What's New (v0.4.1 → v0.4.14)
+# What's New in v0.4.14
+https://rgbp.app
+*Changes since v0.4.1*
 
 ## New
 - Added navigable settings pages with General, Appearance, Node, and About sections.
