@@ -2,11 +2,7 @@
     import { onMount, tick } from "svelte";
     import { fly } from "svelte/transition";
     import type { Node as NodeType, NodeIndex } from "../../types/tree";
-    import {
-        CursorClickIcon,
-        HandTapIcon,
-        MouseLeftClickIcon,
-    } from "phosphor-svelte";
+    import { HandTapIcon, MouseLeftClickIcon } from "phosphor-svelte";
     import { NODE_RADIUS_PX } from "../Node.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
@@ -102,15 +98,9 @@
         currentStepIndex = steps.length - 1;
     }
     $: activeStep = steps[currentStepIndex] ?? null;
-    $: isFinalStep = steps.length > 0 && currentStepIndex >= steps.length - 1;
-    $: actionHint = isFinalStep
-        ? isTouch
-            ? $t("onboarding.startTap")
-            : $t("onboarding.startClick")
-        : isTouch
-          ? $t("onboarding.continueTap")
-          : $t("onboarding.continueClick");
-    $: actionHintIcon = isTouch ? HandTapIcon : CursorClickIcon;
+    $: actionHint = isTouch
+        ? $t("onboarding.continueTap")
+        : $t("onboarding.continueClick");
     const prefersReducedMotion =
         typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -342,6 +332,15 @@
         dismissOnboarding();
     }
 
+    function handleBack() {
+        if (dismissing || currentStepIndex <= 0) return;
+        currentStepIndex -= 1;
+        void tick().then(() => {
+            overlayEl?.focus();
+            scheduleLayoutRefresh();
+        });
+    }
+
     function dismissOnboarding() {
         if (dismissing) return;
         dismissing = true;
@@ -515,9 +514,10 @@
             stepCount={steps.length}
             title={$t("onboarding.tutorialTitle")}
             hintText={actionHint}
-            hintIcon={actionHintIcon}
             compact={compactLayout}
             onSkip={dismissOnboarding}
+            onBack={handleBack}
+            onForward={handleAdvance}
         />
     </div>
 </div>

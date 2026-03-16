@@ -72,7 +72,7 @@
     }
 
     .onboarding-card.accent .card-icon {
-        color: var(--accent);
+        color: var(--text-muted);
     }
 
     .card-labels {
@@ -92,7 +92,7 @@
     }
 
     .onboarding-card.accent .card-label {
-        color: var(--accent);
+        color: var(--text);
     }
 
     .onboarding-card.muted .card-label {

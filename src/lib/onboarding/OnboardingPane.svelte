@@ -193,7 +193,7 @@
     }
 
     .title-icon.accent {
-        color: var(--accent);
+        color: var(--text-muted);
     }
 
     .title-icon.muted {
