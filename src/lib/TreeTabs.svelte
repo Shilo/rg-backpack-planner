@@ -47,7 +47,6 @@
     import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
-    import { onboardingSeen } from "./onboarding/onboardingStore";
     import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
 
     export let tabs: TabConfig[] = [];
@@ -149,14 +148,8 @@
         }
         event.preventDefault();
         lastTabCycleAt = performance.now();
-        const delta =
-            isTab && event.shiftKey
-                ? -1
-                : isArrowLeft
-                  ? -1
-                  : 1;
-        const next =
-            (activeIndex + delta + tabs.length) % tabs.length;
+        const delta = isTab && event.shiftKey ? -1 : isArrowLeft ? -1 : 1;
+        const next = (activeIndex + delta + tabs.length) % tabs.length;
         setActive(next);
     }
 
@@ -302,7 +295,10 @@
         tabPressStart = { x: event.clientX, y: event.clientY };
         tabPressPoint = { x: event.clientX, y: event.clientY };
         tabPressPointerId = event.pointerId;
-        tabPressEl = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+        tabPressEl =
+            event.currentTarget instanceof HTMLElement
+                ? event.currentTarget
+                : null;
         startLongPress(tabPressState, () => {
             if (!tabPressEl) return false;
             suppressTooltip(tabPressPointerId);
@@ -449,10 +445,15 @@
     function openTabMenu(event: MouseEvent, tab: TabConfig, index: number) {
         event.preventDefault();
         hideTooltip();
-        const el = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+        const el =
+            event.currentTarget instanceof HTMLElement
+                ? event.currentTarget
+                : null;
         const rect = el?.getBoundingClientRect();
         const menuX = rect ? rect.left + rect.width / 2 : event.clientX;
-        const menuY = rect ? rect.top - TREE_MENU_GAP : event.clientY - TREE_MENU_GAP;
+        const menuY = rect
+            ? rect.top - TREE_MENU_GAP
+            : event.clientY - TREE_MENU_GAP;
         tabContextMenu = {
             id: tab.id,
             label: tab.label,
@@ -617,7 +618,7 @@
     <div class="hud-safe-area">
         <div class="tabs-bar">
             <FullscreenToggle iconButton={true} class="fullscreen-button" />
-            <div class="tab-buttons" class:hud-hidden={!$onboardingSeen}>
+            <div class="tab-buttons">
                 {#each tabs as tab, index}
                     <Button
                         class="tab-btn {index === activeIndex ? 'active' : ''}"
@@ -786,10 +787,6 @@
         transition: opacity 250ms ease;
     }
 
-    .tab-buttons.hud-hidden {
-        opacity: 0;
-        pointer-events: none !important;
-    }
 
     /* Two-class specificity (0,2,0) reliably beats Button.svelte's scoped
        `button.svelte-hash` (0,1,1), so !important is not needed here. */

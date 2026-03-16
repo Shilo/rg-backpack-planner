@@ -1,8 +1,12 @@
 import type { Component } from "svelte";
 import {
+    ArrowCounterClockwiseIcon,
     ArrowsOutCardinalIcon,
+    CornersOutIcon,
     CursorClickIcon,
+    DotsThreeOutlineIcon,
     EyeIcon,
+    GraphIcon,
     HandGrabbingIcon,
     HandTapIcon,
     ListIcon,
@@ -12,7 +16,7 @@ import {
     MouseRightClickIcon,
     MouseScrollIcon,
 } from "phosphor-svelte";
-import { RootNodeIcon, TechCrystalIcon } from "../customIcons";
+import { GuardianIcon, RootNodeIcon, TechCrystalIcon } from "../customIcons";
 import LongPressIcon from "../icons/LongPressIcon.svelte";
 import PinchIcon from "../icons/PinchIcon.svelte";
 import type { Direction } from "./paneLayout";
@@ -24,7 +28,7 @@ export type OnboardingStepId =
     | "tree"
     | "hud"
     | "preview"
-    | "sidemenu";
+    | "bottombar";
 export type OnboardingTarget =
     | "node"
     | "locked-node"
@@ -32,7 +36,7 @@ export type OnboardingTarget =
     | "root"
     | "tree"
     | "preview"
-    | "sidemenu";
+    | "bottombar";
 type TargetRegion = "top-left" | "bottom-left" | "right";
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 
@@ -73,37 +77,37 @@ export function createOnboardingSteps({
 }: CreateOnboardingStepsOptions): OnboardingStepDefinition[] {
     const nodeCards = isTouch
         ? [
-              {
-                  icon: HandTapIcon,
-                  label: translate("onboarding.tap"),
-                  description: translate("onboarding.levelUp"),
-              },
-              {
-                  icon: LongPressIcon,
-                  label: translate("onboarding.longPress"),
-                  description: translate("onboarding.options"),
-              },
-          ]
+            {
+                icon: HandTapIcon,
+                label: translate("onboarding.tap"),
+                description: translate("onboarding.levelUp"),
+            },
+            {
+                icon: LongPressIcon,
+                label: translate("onboarding.longPress"),
+                description: translate("onboarding.options"),
+            },
+        ]
         : [
-              {
-                  icon: MouseLeftClickIcon,
-                  label: translate("onboarding.leftClick"),
-                  description: translate("onboarding.levelUp"),
-              },
-              {
-                  icon: MouseRightClickIcon,
-                  label: translate("onboarding.rightClick"),
-                  description: translate("onboarding.options"),
-              },
-              {
-                  icon: MouseMiddleClickIcon,
-                  label: [
-                      translate("onboarding.middleClick"),
-                      translate("onboarding.shiftLeftClick"),
-                  ],
-                  description: translate("onboarding.levelDown"),
-              },
-          ];
+            {
+                icon: MouseLeftClickIcon,
+                label: translate("onboarding.leftClick"),
+                description: translate("onboarding.levelUp"),
+            },
+            {
+                icon: MouseRightClickIcon,
+                label: translate("onboarding.rightClick"),
+                description: translate("onboarding.options"),
+            },
+            {
+                icon: MouseMiddleClickIcon,
+                label: [
+                    translate("onboarding.middleClick"),
+                    translate("onboarding.shiftLeftClick"),
+                ],
+                description: translate("onboarding.levelDown"),
+            },
+        ];
 
     const lockedCards = [
         {
@@ -115,12 +119,12 @@ export function createOnboardingSteps({
 
     const hudCards = [
         {
-            icon: primaryInputIcon,
+            icon: TechCrystalIcon as unknown as Component,
             label: primaryInputLabel,
             description: translate("onboarding.techCrystalBudget"),
         },
         {
-            icon: primaryInputIcon,
+            icon: ArrowCounterClockwiseIcon,
             label: primaryInputLabel,
             description: translate("onboarding.resetActiveTree"),
         },
@@ -141,60 +145,93 @@ export function createOnboardingSteps({
 
     const treeCards = isTouch
         ? [
-              {
-                  icon: LongPressIcon,
-                  label: translate("onboarding.longPress"),
-                  description: translate("onboarding.treeOptions"),
-              },
-              {
-                  icon: HandGrabbingIcon,
-                  label: translate("onboarding.swipe"),
-                  description: translate("onboarding.pan"),
-              },
-              {
-                  icon: PinchIcon,
-                  label: translate("onboarding.pinch"),
-                  description: translate("onboarding.zoom"),
-              },
-          ]
+            {
+                icon: LongPressIcon,
+                label: translate("onboarding.longPress"),
+                description: translate("onboarding.treeOptions"),
+            },
+            {
+                icon: HandGrabbingIcon,
+                label: translate("onboarding.swipe"),
+                description: translate("onboarding.pan"),
+            },
+            {
+                icon: PinchIcon,
+                label: translate("onboarding.pinch"),
+                description: translate("onboarding.zoom"),
+            },
+        ]
         : [
-              {
-                  icon: MouseRightClickIcon,
-                  label: translate("onboarding.rightClick"),
-                  description: translate("onboarding.treeOptions"),
-              },
-              {
-                  icon: ArrowsOutCardinalIcon,
-                  label: translate("onboarding.clickDrag"),
-                  description: translate("onboarding.pan"),
-              },
-              {
-                  icon: MouseScrollIcon,
-                  label: translate("onboarding.scroll"),
-                  description: translate("onboarding.zoom"),
-              },
-          ];
+            {
+                icon: MouseRightClickIcon,
+                label: translate("onboarding.rightClick"),
+                description: translate("onboarding.treeOptions"),
+            },
+            {
+                icon: ArrowsOutCardinalIcon,
+                label: translate("onboarding.clickDrag"),
+                description: translate("onboarding.pan"),
+            },
+            {
+                icon: MouseScrollIcon,
+                label: translate("onboarding.scroll"),
+                description: translate("onboarding.zoom"),
+            },
+        ];
 
     const previewCards = [
         {
-            icon: primaryInputIcon,
+            icon: HandTapIcon,
             label: primaryInputLabel,
             description: translate("onboarding.previewOptions"),
         },
     ];
 
-    const sidemenuCards = [
-        {
-            icon: primaryInputIcon,
-            label: primaryInputLabel,
-            description: translate("onboarding.sidemenuToggle"),
-        },
-        {
-            icon: primaryInputIcon,
-            label: primaryInputLabel,
-            description: translate("onboarding.sidemenuSwitchTrees"),
-        },
-    ];
+    const bottombarCards = isTouch
+        ? [
+            {
+                icon: ListIcon,
+                label: translate("onboarding.tap"),
+                description: translate("onboarding.bottombarToggleMenu"),
+            },
+            {
+                icon: GuardianIcon as unknown as Component,
+                label: translate("onboarding.bottombarTapTab"),
+                description: translate("onboarding.bottombarSwitchTree"),
+            },
+            {
+                icon: GuardianIcon as unknown as Component,
+                label: translate("onboarding.longPress"),
+                description: translate("onboarding.bottombarTreeOptions"),
+            },
+            {
+                icon: CornersOutIcon,
+                label: translate("onboarding.tap"),
+                description: translate("onboarding.bottombarToggleFullscreen"),
+            },
+        ]
+        : [
+            {
+                icon: ListIcon,
+                label: translate("onboarding.leftClick"),
+                description: translate("onboarding.bottombarToggleMenu"),
+            },
+            {
+                icon: GuardianIcon as unknown as Component,
+                label: translate("onboarding.bottombarClickTab"),
+                description: translate("onboarding.bottombarSwitchTree"),
+            },
+            {
+                icon: GuardianIcon as unknown as Component,
+                label: translate("onboarding.rightClick"),
+                description: translate("onboarding.bottombarTreeOptions"),
+            },
+            {
+                icon: CornersOutIcon,
+                label: translate("onboarding.leftClick"),
+                description: translate("onboarding.bottombarToggleFullscreen"),
+            },
+        ];
 
     return [
         {
@@ -202,7 +239,7 @@ export function createOnboardingSteps({
             target: "node",
             direction: targetRegion === "right" ? "left" : "right",
             title: translate("onboarding.nodesSection"),
-            titleIcon: CursorClickIcon,
+            titleIcon: GraphIcon,
             variant: "accent",
             cards: nodeCards,
         },
@@ -238,7 +275,7 @@ export function createOnboardingSteps({
             target: "hud",
             direction: "left",
             title: translate("onboarding.hudSection"),
-            titleIcon: TechCrystalIcon,
+            titleIcon: TechCrystalIcon as unknown as Component,
             variant: "muted",
             cards: hudCards,
         },
@@ -252,13 +289,13 @@ export function createOnboardingSteps({
             cards: previewCards,
         },
         {
-            id: "sidemenu",
-            target: "sidemenu",
+            id: "bottombar",
+            target: "bottombar",
             direction: "up",
-            title: translate("onboarding.sidemenuSection"),
-            titleIcon: ListIcon,
+            title: translate("onboarding.bottombarSection"),
+            titleIcon: DotsThreeOutlineIcon,
             variant: "muted",
-            cards: sidemenuCards,
+            cards: bottombarCards,
         },
     ];
 }

@@ -17,6 +17,7 @@
         createOnboardingSteps,
         type OnboardingTarget,
     } from "./onboardingSteps";
+    import { toastsPaused } from "../toast";
 
     export let onDismiss: () => void;
     export let nodes: NodeType[] = [];
@@ -40,6 +41,7 @@
     let bottomPadding = 0;
     let footerBottomOffset = 0;
     let footerHeight = 0;
+    let footerBounds: Rect = { ...EMPTY_RECT };
     let isTouch = false;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
     let currentStepIndex = 0;
@@ -54,7 +56,7 @@
     let treeSpotlightRect: Rect = { ...EMPTY_RECT };
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
     let previewSpotlightRect: Rect = { ...EMPTY_RECT };
-    let sidemenuSpotlightRect: Rect = { ...EMPTY_RECT };
+    let bottombarSpotlightRect: Rect = { ...EMPTY_RECT };
 
     $: targetNode = nodes[targetNodeIndex];
     $: targetRegion = (() => {
@@ -267,8 +269,8 @@
         previewSpotlightRect =
             resolveElementRect(".preview-indicator-button", 8) ?? { ...EMPTY_RECT };
 
-        sidemenuSpotlightRect =
-            resolveElementRect(".menu-button", 8) ?? { ...EMPTY_RECT };
+        bottombarSpotlightRect =
+            resolveElementRect(".tabs-bar-spacer", 8) ?? { ...EMPTY_RECT };
     }
 
     function getSpotlightRect(target: OnboardingTarget): Rect {
@@ -277,7 +279,7 @@
         if (target === "hud") return hudSpotlightRect;
         if (target === "root") return rootSpotlightRect;
         if (target === "preview") return previewSpotlightRect;
-        if (target === "sidemenu") return sidemenuSpotlightRect;
+        if (target === "bottombar") return bottombarSpotlightRect;
         return treeSpotlightRect;
     }
 
@@ -296,19 +298,36 @@
                 target === "preview",
             );
             document.body.classList.toggle(
-                "onboarding-step-sidemenu",
-                target === "sidemenu",
+                "onboarding-step-bottombar",
+                target === "bottombar",
             );
         }
     }
     $: activeSpotlightIsRect =
         activeStep?.target === "hud" ||
         activeStep?.target === "preview" ||
-        activeStep?.target === "sidemenu";
+        activeStep?.target === "bottombar";
+    $: ringTop = Math.max(0, activeSpotlightRect.top);
+    $: ringLeft = Math.max(0, activeSpotlightRect.left);
+    $: ringRight = Math.min(viewportWidth, activeSpotlightRect.right);
+    $: ringBottom = Math.min(viewportHeight, activeSpotlightRect.bottom);
+    $: ringWidth = ringRight - ringLeft;
+    $: ringHeight = ringBottom - ringTop;
+
     $: footerReservedSpace = Math.max(
         bottomPadding,
-        footerHeight + footerBottomOffset + panePadding,
+        footerHeight + bottomPadding + panePadding,
     );
+    $: {
+        void layoutVersion;
+        const footerTop = viewportHeight - bottomPadding - footerHeight;
+        footerBounds = {
+            top: footerTop - panePadding,
+            bottom: viewportHeight,
+            left: 0,
+            right: viewportWidth,
+        };
+    }
 
     function handleAdvance() {
         if (dismissing || !activeStep) return;
@@ -356,6 +375,7 @@
     }
 
     onMount(() => {
+        toastsPaused.set(true);
         isTouch = window.matchMedia("(pointer: coarse)").matches;
         currentStepIndex = 0;
         const styles = getComputedStyle(document.documentElement);
@@ -377,11 +397,12 @@
         });
 
         return () => {
+            toastsPaused.set(false);
             document.body.classList.remove(
                 "has-onboarding-overlay",
                 "onboarding-step-hud",
                 "onboarding-step-preview",
-                "onboarding-step-sidemenu",
+                "onboarding-step-bottombar",
             );
             window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);
@@ -451,11 +472,7 @@
         class="spotlight-ring"
         class:spotlight-ring--circle={!activeSpotlightIsRect}
         class:spotlight-ring--rect={activeSpotlightIsRect}
-        style="left: {activeSpotlightRect.left}px; top: {activeSpotlightRect.top}px; width: {rectWidth(
-            activeSpotlightRect,
-        )}px; height: {rectHeight(
-            activeSpotlightRect,
-        )}px; border-radius: {activeSpotlightIsRect
+        style="left: {ringLeft}px; top: {ringTop}px; width: {ringWidth}px; height: {ringHeight}px; border-radius: {activeSpotlightIsRect
             ? HUD_SPOTLIGHT_RADIUS
             : 999}px;"
     ></div>
@@ -478,7 +495,7 @@
                     stepCount={steps.length}
                     {viewportWidth}
                     {viewportHeight}
-                    avoidRects={[]}
+                    avoidRects={footerBounds.top > 0 ? [footerBounds] : []}
                     ownSpotlightRect={activeSpotlightRect}
                     edgePadding={effectivePanePadding}
                     bottomEdgePadding={footerReservedSpace}
@@ -488,13 +505,19 @@
         {/key}
     {/if}
 
-    <div class="footer-wrap" bind:clientHeight={footerHeight}>
+    <div
+        class="footer-wrap"
+        bind:clientHeight={footerHeight}
+        style="bottom: {bottomPadding}px;"
+    >
         <OnboardingFooterNote
             stepNumber={currentStepIndex + 1}
             stepCount={steps.length}
+            title={$t("onboarding.tutorialTitle")}
             hintText={actionHint}
             hintIcon={actionHintIcon}
             compact={compactLayout}
+            onSkip={dismissOnboarding}
         />
     </div>
 </div>
@@ -506,6 +529,7 @@
         z-index: calc(var(--z-index-modal) - 1);
         pointer-events: auto;
         touch-action: none;
+        overflow: hidden;
         animation: overlay-fade-in 300ms ease both;
     }
 
@@ -540,7 +564,6 @@
     .footer-wrap {
         position: absolute;
         left: 50%;
-        bottom: max(var(--bar-pad, 12px), var(--safe-bottom, 0px));
         transform: translateX(-50%);
         z-index: 2;
         pointer-events: none;

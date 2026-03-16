@@ -27,6 +27,7 @@ function createId() {
 }
 
 export const toastStore = writable<Toast[]>([]);
+export const toastsPaused = writable(false);
 
 export function showToast(
     message: string,

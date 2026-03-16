@@ -11,6 +11,8 @@ function parseOnboardingSeen(storedValue: string | null): boolean | null {
 }
 
 function getOnboardingSeen(): boolean {
+    // TODO DEV: force onboarding on every reload for testing
+    return false;
     const stored = parseOnboardingSeen(getItem("onboarding-seen"));
     return stored ?? DEFAULT_ONBOARDING_SEEN;
 }

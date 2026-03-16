@@ -104,6 +104,7 @@
         color: var(--text-muted);
         line-height: var(--leading);
         white-space: pre-line;
+        padding-right: var(--spacing-xs);
     }
 
     .onboarding-card.compact .card-desc {

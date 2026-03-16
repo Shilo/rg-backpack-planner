@@ -192,9 +192,9 @@ if (!/progress-tick/.test(footerSource)) {
     );
 }
 
-if (!/class="footer-top-row"/.test(footerSource)) {
+if (!/class="footer-title-row"/.test(footerSource)) {
     throw new Error(
-        "OnboardingFooterNote should render a top row for instructions and paging.",
+        "OnboardingFooterNote should render a title row with tutorial heading and paging.",
     );
 }
 
@@ -211,12 +211,6 @@ if (
 ) {
     throw new Error(
         "OnboardingFooterNote step count should use the same font size as the instructions.",
-    );
-}
-
-if (!/export let stepNumber/.test(paneSource)) {
-    throw new Error(
-        "OnboardingPane should accept stepNumber so each pane is indexed.",
     );
 }
 
@@ -241,6 +235,12 @@ if (!/pane-header-card/.test(paneSource)) {
 if (!/pane-step-count/.test(paneSource)) {
     throw new Error(
         "OnboardingPane should render paging inside the header card.",
+    );
+}
+
+if (!/export let stepNumber/.test(paneSource)) {
+    throw new Error(
+        "OnboardingPane should accept stepNumber so each pane is indexed.",
     );
 }
 

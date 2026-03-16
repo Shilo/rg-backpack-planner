@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { fly } from "svelte/transition";
-    import { dismissToast, toastStore, type Toast } from "./toast";
+    import { dismissToast, toastStore, toastsPaused, type Toast } from "./toast";
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
@@ -24,62 +24,71 @@
         }
     }
 
-    const unsubscribe = toastStore.subscribe((toasts) => {
-        toasts.forEach(scheduleToast);
-        const activeIds = new Set(toasts.map((toast) => toast.id));
-        for (const toastId of Array.from(timeouts.keys())) {
-            if (!activeIds.has(toastId)) {
-                clearToast(toastId);
-            }
-        }
-    });
-
-    onDestroy(() => {
-        unsubscribe();
+    function clearAllTimeouts() {
         for (const toastId of Array.from(timeouts.keys())) {
             clearToast(toastId);
         }
-    });
+    }
+
+    $: paused = $toastsPaused;
+
+    $: {
+        if (paused) {
+            clearAllTimeouts();
+        } else {
+            $toastStore.forEach(scheduleToast);
+            const activeIds = new Set($toastStore.map((t) => t.id));
+            for (const toastId of Array.from(timeouts.keys())) {
+                if (!activeIds.has(toastId)) {
+                    clearToast(toastId);
+                }
+            }
+        }
+    }
+
+    onDestroy(clearAllTimeouts);
 </script>
 
-<div class="toast-region" aria-live="polite" aria-atomic="true">
-    {#each $toastStore as toast (toast.id)}
-        <div
-            class="toast toast--{toast.tone}"
-            class:toast--permanent={toast.durationMs === 0}
-            style="--toast-duration: {toast.durationMs}ms"
-            role="button"
-            tabindex="0"
-            out:fly={{ y: 8, duration: 150 }}
-            on:click={() => {
-                triggerHaptic();
-                dismissToast(toast.id);
-            }}
-            on:keydown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
+{#if !paused}
+    <div class="toast-region" aria-live="polite" aria-atomic="true">
+        {#each $toastStore as toast (toast.id)}
+            <div
+                class="toast toast--{toast.tone}"
+                class:toast--permanent={toast.durationMs === 0}
+                style="--toast-duration: {toast.durationMs}ms"
+                role="button"
+                tabindex="0"
+                out:fly={{ y: 8, duration: 150 }}
+                on:click={() => {
+                    triggerHaptic();
                     dismissToast(toast.id);
-                }
-            }}
-        >
-            {#if toast.showIcon}
-                <span class="toast__icon" aria-hidden="true">
-                    {#if toast.tone === "negative"}
-                        <WarningCircleIcon size={20} weight="fill" />
-                    {:else}
-                        <CheckCircleIcon size={20} weight="fill" />
-                    {/if}
-                </span>
-            {/if}
-            {#if toast.showSpinner}
-                <Spinner
-                    tone={toast.tone === "negative" ? "negative" : "default"}
-                />
-            {/if}
-            <span class="toast__message">{toast.message}</span>
-        </div>
-    {/each}
-</div>
+                }}
+                on:keydown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        dismissToast(toast.id);
+                    }
+                }}
+            >
+                {#if toast.showIcon}
+                    <span class="toast__icon" aria-hidden="true">
+                        {#if toast.tone === "negative"}
+                            <WarningCircleIcon size={20} weight="fill" />
+                        {:else}
+                            <CheckCircleIcon size={20} weight="fill" />
+                        {/if}
+                    </span>
+                {/if}
+                {#if toast.showSpinner}
+                    <Spinner
+                        tone={toast.tone === "negative" ? "negative" : "default"}
+                    />
+                {/if}
+                <span class="toast__message">{toast.message}</span>
+            </div>
+        {/each}
+    </div>
+{/if}
 
 <style>
     .toast-region {
