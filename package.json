@@ -16,11 +16,31 @@
         "url": "https://rungoddess.topgamesinc.com"
     },
     "premadeBuilds": [
-        { "name": "Early_Raid", "build": ",,k.k.'2.k;;;iU", "icon": "SpiralIcon" },
-        { "name": "Early_PvE", "build": "v:3;;;uA", "icon": "SunIcon" },
-        { "name": "Mid_PvE", "build": ",k..k.'2.k.k..a:3;;;37W", "icon": "KnifeIcon" },
-        { "name": "Late_PvE", "build": ",k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7", "icon": "SwordIcon" },
-        { "name": "Late_PvP", "build": "k'4..k.k..a,k'7.a.a.1;k..k.'2.k.k..a,k'7.a.a.1;k'4..k.k..a,k'7.a.a.1;aox", "icon": "ShieldIcon" }
+        {
+            "name": "Early_Raid",
+            "build": ",,k.k.'2.k;;;iU",
+            "icon": "SpiralIcon"
+        },
+        {
+            "name": "Early_PvE",
+            "build": "v:3;;;uA",
+            "icon": "SunIcon"
+        },
+        {
+            "name": "Mid_PvE",
+            "build": ",k..k.'2.k.k..a:3;;;37W",
+            "icon": "KnifeIcon"
+        },
+        {
+            "name": "Late_PvE",
+            "build": ",k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7",
+            "icon": "SwordIcon"
+        },
+        {
+            "name": "Late_PvP",
+            "build": "k'4..k.k..a,k'7.a.a.1;k..k.'2.k.k..a,k'7.a.a.1;k'4..k.k..a,k'7.a.a.1;aox",
+            "icon": "ShieldIcon"
+        }
     ],
     "private": true,
     "type": "module",
