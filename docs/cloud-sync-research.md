@@ -171,6 +171,8 @@ Without one of those, there is no robust way to know which remote data belongs t
 
 ## Option 1: Firestore + Lightweight Identity
 
+- Firebase homepage: <https://firebase.google.com/>
+
 ### Summary
 
 Store one private cloud document per user containing the exact `build-presets` blob. Use local `localStorage` as the on-device cache. Subscribe to the cloud document for realtime updates.
@@ -290,6 +292,8 @@ It aligns with the actual size of the data, gives realtime sync, keeps the app s
 
 ## Option 2: Supabase + Private Sync Row
 
+- Supabase homepage: <https://supabase.com/>
+
 ### Summary
 
 Store the `build-presets` blob in a private row, probably JSONB, owned by one auth user. Subscribe to database changes or fetch/update as needed.
@@ -329,6 +333,8 @@ Security:
 A strong second choice, especially if the roadmap starts prioritizing leaderboards and public build publishing. For private build sync alone, it is a bit more infrastructure than needed.
 
 ## Option 3: Appwrite + Anonymous Session + Document Store
+
+- Appwrite homepage: <https://appwrite.io/>
 
 ### Summary
 

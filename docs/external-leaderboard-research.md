@@ -34,6 +34,8 @@ Reason:
 
 ## Best External Recommendation: Softr
 
+- Softr homepage: <https://www.softr.io/>
+
 ### What it is
 
 Use Softr as the public-facing leaderboard or build-gallery site, backed by either a Softr Database or Airtable.
@@ -75,6 +77,8 @@ This is the strongest external recommendation for Backpack Planner because it su
 
 ## Alternative 2: Glide
 
+- Glide homepage: <https://www.glideapps.com/>
+
 ### What it is
 
 Use Glide to build a separate public app-like leaderboard experience.
@@ -110,6 +114,8 @@ A good runner-up. Choose Glide if you want the external experience to feel like 
 
 ## Alternative 3: LootLocker Leaderboards
 
+- LootLocker homepage: <https://lootlocker.com/>
+
 ### What it is
 
 Use a dedicated leaderboard backend designed for games.
@@ -144,6 +150,8 @@ LootLocker is purpose-built for scoreboards, rankings, player names, and metadat
 Good if the goal is "show rankings with names and scores." It drops behind Softr and Glide once "open the exact build in Backpack Planner" becomes a core requirement.
 
 ## Alternative 4: Airtable Only
+
+- Airtable homepage: <https://www.airtable.com/>
 
 ### What it is
 

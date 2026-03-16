@@ -180,6 +180,8 @@ If you implement a leaderboard yourself, the best fit is still to keep it alongs
 
 ### Firestore version
 
+- Firebase homepage: <https://firebase.google.com/>
+
 Best when:
 
 - Firestore is already chosen for private sync
@@ -201,6 +203,8 @@ Tradeoff:
 - More limited query ergonomics than SQL if the public feature grows a lot
 
 ### Supabase version
+
+- Supabase homepage: <https://supabase.com/>
 
 Best when:
 
