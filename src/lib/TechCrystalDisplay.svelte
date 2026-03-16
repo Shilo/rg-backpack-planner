@@ -76,6 +76,6 @@
     }
 
     .currency-owned {
-        color: var(--text);
+        color: var(--text-muted);
     }
 </style>

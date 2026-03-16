@@ -64,7 +64,7 @@
     }
 
     .tech-crystals-owned {
-        color: var(--text);
+        color: var(--text-muted);
     }
 
     :global(.button-icon-filled) {
