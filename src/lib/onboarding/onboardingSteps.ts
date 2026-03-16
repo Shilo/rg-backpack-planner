@@ -295,7 +295,7 @@ export function createOnboardingSteps({
             direction: compactLayout ? "up" : "left",
             title: translate("onboarding.treeSection"),
             titleIcon: ArrowsOutCardinalIcon,
-            variant: "muted",
+            variant: "accent",
             cards: treeCards,
         },
         {
