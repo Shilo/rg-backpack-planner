@@ -126,17 +126,14 @@
             <span class="button-text">
                 <slot />
             </span>
-            <span class="button-description">
-                {#if descriptionIcon}
-                    <svelte:component
+            <span class="button-description"
+                >{#if descriptionIcon}<svelte:component
                         this={descriptionIcon}
                         class="button-description-icon"
                         aria-hidden={true}
                         size={12}
-                    />
-                {/if}
-                {description}
-            </span>
+                    />{/if}{description}</span
+            >
         </span>
     {:else}
         <span class="button-text">
