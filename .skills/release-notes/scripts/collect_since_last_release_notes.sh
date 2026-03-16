@@ -45,8 +45,8 @@ printf "Commits in range: %s\n" "$commit_count"
 printf "\n== Commits ==\n"
 git log --reverse --date=short --pretty=format:'%h|%ad|%s' "$range"
 
-printf "\n\n== Files Touched ==\n"
-git log --reverse --name-only --pretty=format:'--- %h %s' "$range" | sed '/^$/d'
+printf "\n\n== Files Touched (A=added, M=modified, D=deleted, R=renamed) ==\n"
+git log --reverse --name-status --pretty=format:'--- %h %s' "$range" | sed '/^$/d'
 
 printf "\n\n== Previous Release Notes ==\n"
 cat "$RELEASE_FILE"

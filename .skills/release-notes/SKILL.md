@@ -20,7 +20,7 @@ bash .skills/release-notes/scripts/collect_since_last_release_notes.sh
 This outputs:
 - **Meta** — anchor commit, version range, production URL, commit count
 - **Commits** — hash, date, and subject for every commit in the range
-- **Files Touched** — which files each commit modified
+- **Files Touched** — which files each commit added (A), modified (M), deleted (D), or renamed (R)
 - **Previous Release Notes** — the current contents of `RELEASE_NOTES.md`
 
 If there are no new commits since the last edit, stop and tell the user the notes are already up to date.
@@ -43,12 +43,34 @@ Scan the commits and touched files. Identify changes that a player would notice 
 
 If a change is ambiguous, include it only if it has a plausible user-visible effect. When in doubt, leave it out — brief and accurate is better than comprehensive and noisy.
 
+#### Use file paths to determine feature scope
+
+Commit messages are often vague or overly broad. The file paths tell the truth about what a commit actually touches. Use the directory structure to understand which feature area a change belongs to:
+
+- Files under `buildImageExport/` → screenshot/image export feature
+- Files under `onboarding/` → onboarding feature
+- Files under `sideMenuPages/` → settings feature
+- Files under `locales/` → localization (supporting, not a feature on its own)
+- Files under `modals/` → modal dialogs
+
+When a commit message says something generic like "Add tech crystal tracker" but the files are all in `buildImageExport/`, the change is scoped to screenshot exports — describe it that way.
+
+#### Use file status (A/M/D) to judge new vs. improved vs. fixed
+
+The file status is a strong signal for categorization:
+
+- **A (added)** — A new file was created. If it's a new component (e.g., `A src/lib/SomeNewFeature.svelte`), this is evidence of a genuinely new feature.
+- **M (modified)** — An existing file was changed. This is evidence of an improvement or fix to an existing feature, not a new one. A commit that only modifies files is almost never a "New" feature. Use the commit message and context to distinguish improvements from fixes — a `fix:` commit that modifies a file is a bug fix, while a `feat:` commit that modifies a file is an improvement.
+- **D (deleted)** — A file was removed. Usually part of a refactor or cleanup.
+
+Don't rely solely on commit message prefixes like `feat:` or `fix:` — but do use them as supporting evidence alongside the file status and paths.
+
 ### 4) Draft the new section
 
 Group changes into three categories and write short, benefit-focused bullets:
 
-- **New** — Features or capabilities that **did not exist in any previous release.** Cross-check each candidate against the previous notes. If a similar feature was already mentioned (even with different wording), it belongs in Improved, not New.
-- **Improved** — Enhancements, iterations, or refinements to features that already exist. This includes adding new functionality to an existing feature (e.g., adding keyboard navigation to an existing tab system).
+- **New** — Features or capabilities that **did not exist in any previous release.** Cross-check each candidate against the previous notes and the file status. A feature is only "New" if (a) it wasn't mentioned in any prior release notes, AND (b) its primary files were added (A), not just modified (M). If either condition fails, it belongs in Improved.
+- **Improved** — Enhancements, iterations, or refinements to features that already exist. This includes adding new functionality to an existing feature (e.g., adding keyboard navigation to an existing tab system), and any work on features already mentioned in previous notes.
 - **Fixed** — Bug fixes users would have encountered.
 
 Omit any category that has no entries. Prefer 5-10 bullets total unless the release warrants more.
@@ -66,8 +88,8 @@ Use this exact structure. The production URL comes from the collection script's 
 
 ```
 # What's New in <to-version>
-<production-url>
 -# Changes since <from-version>
+<production-url>
 
 ## New
 - Added ...
@@ -94,8 +116,8 @@ Read the current `RELEASE_NOTES.md`. Insert the new section at the very top, fol
 
 ```
 # What's New in v0.5.18
+-# Changes since v0.5.12
 https://rgbp.app
-*Changes since v0.5.12*
 
 ## New
 - ...
@@ -109,8 +131,8 @@ https://rgbp.app
 ---
 
 # What's New in v0.5.12
+-# Changes since v0.4.15
 https://rgbp.app
-*Changes since v0.4.15*
 
 ## New
 - ...
