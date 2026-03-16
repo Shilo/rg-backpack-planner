@@ -42,6 +42,14 @@
     pointer-events: auto;
 }
 
+body.has-onboarding-overlay {
+    overflow: hidden;
+}
+
+body.onboarding-step-hud .top-right-actions {
+    z-index: var(--z-index-modal);
+}
+
 .uppercase-text * {
     text-transform: uppercase;
 }

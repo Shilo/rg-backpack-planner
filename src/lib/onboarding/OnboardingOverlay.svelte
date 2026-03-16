@@ -248,6 +248,14 @@
     $: activeSpotlightRect = activeStep
         ? getSpotlightRect(activeStep.target)
         : EMPTY_RECT;
+    $: {
+        if (typeof document !== "undefined") {
+            document.body.classList.toggle(
+                "onboarding-step-hud",
+                activeStep?.target === "hud",
+            );
+        }
+    }
     $: activeSpotlightIsRect = activeStep?.target === "hud";
     $: footerReservedSpace = Math.max(
         bottomPadding,
@@ -312,6 +320,7 @@
         footerBottomOffset = Math.max(barPad, safeBottom);
         bottomPadding = tabHeight + footerBottomOffset + panePadding;
 
+        document.body.classList.add("has-onboarding-overlay");
         window.addEventListener("keydown", handleKeydown, true);
         scheduleLayoutRefresh();
         void tick().then(() => {
@@ -320,6 +329,10 @@
         });
 
         return () => {
+            document.body.classList.remove(
+                "has-onboarding-overlay",
+                "onboarding-step-hud",
+            );
             window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);
             if (layoutRefreshFrame !== null) {

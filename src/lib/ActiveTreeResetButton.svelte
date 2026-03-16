@@ -49,7 +49,7 @@
         icon={ArrowCounterClockwiseIcon}
         iconClass="active-tree-reset__icon"
         negative
-        disabled={!canReset}
+        disabled={!canReset && !forceShow}
         on:click={handleReset}
     />
 {/if}
