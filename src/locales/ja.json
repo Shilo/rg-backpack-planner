@@ -339,11 +339,11 @@
         "title": "プレビュー",
         "buildTitle": "{name}ビルド",
         "premade": {
-            "starter": "スターター",
-            "earlyStun": "序盤スタン",
-            "midPve": "中盤PvE",
-            "latePve": "終盤PvE",
-            "latePvp": "終盤PvP"
+            "Early_Raid": "序盤レイド",
+            "Early_PvE": "序盤PvE",
+            "Mid_PvE": "中盤PvE",
+            "Late_PvE": "終盤PvE",
+            "Late_PvP": "終盤PvP"
         },
         "sharePreviewBuild": "プレビュービルドを共有",
         "sharePreviewBuildDescription": "リンクやスクショ",

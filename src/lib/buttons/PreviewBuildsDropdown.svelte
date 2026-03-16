@@ -11,7 +11,7 @@
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
     import { t } from "svelte-whisper";
-    import { TechCrystalIcon, premadeBuildIcons } from "../customIcons";
+    import { TechCrystalIcon, getRecommendedBuildIcon } from "../customIcons";
     import { calculateTechCrystalsSpent, activeTabs } from "../techCrystalStore";
     import { decodeBuildData } from "../buildData/encoder";
 
@@ -21,27 +21,16 @@
     export let onClose: (() => void) | null = null;
     export let onPreview: (() => void) | null = null;
 
-    const premadeBuildLabelKeys: Record<string, string> = {
-        Starter: "preview.premade.starter",
-        "Early Stun": "preview.premade.earlyStun",
-        "Mid PvE": "preview.premade.midPve",
-        "Late PvE": "preview.premade.latePve",
-        "Late PvP": "preview.premade.latePvp",
-    };
-
     // Read recommended builds from the shared registry so loading and sharing stay in sync.
     $: premadeBuilds = recommendedBuilds.map((build) => {
-        const rawName = build.displayName ?? $t("preview.title");
-        const localizedName = premadeBuildLabelKeys[rawName]
-            ? $t(premadeBuildLabelKeys[rawName])
-            : rawName;
+        const localizedName = $t(build.i18nKey) || build.displayName;
         const buildData = decodeBuildData(build.encoded);
         const tcSpent = buildData
             ? calculateTechCrystalsSpent(buildData.trees, $activeTabs)
             : 0;
         return {
-            rawName,
             name: localizedName,
+            icon: getRecommendedBuildIcon(build.iconName),
             code: build.encoded,
             index: build.index,
             tcSpent,
@@ -87,7 +76,7 @@
         <div class="premade-builds-list">
             {#each premadeBuilds as build}
                 <Button
-                    icon={premadeBuildIcons[build.rawName] ?? ShareNetworkIcon}
+                    icon={build.icon ?? ShareNetworkIcon}
                     tooltipText={$t("preview.previewBuildTooltip", {
                         name: build.name,
                     })}

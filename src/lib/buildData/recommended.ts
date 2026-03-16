@@ -11,6 +11,14 @@ export interface RecommendedBuild {
     alias: string;
     displayName: string;
     encoded: string;
+    iconName: string;
+    i18nKey: string;
+}
+
+interface PremadeBuildEntry {
+    name: string;
+    build: string;
+    icon: string;
 }
 
 function normalizeRecommendedAlias(candidate: string): string {
@@ -18,23 +26,14 @@ function normalizeRecommendedAlias(candidate: string): string {
 }
 
 function parseRecommendedBuild(
-    encoded: string,
+    entry: PremadeBuildEntry,
     index: number,
 ): RecommendedBuild | null {
-    if (typeof encoded !== "string" || encoded.trim() === "") {
+    if (!entry?.name || !entry?.build) {
         return null;
     }
 
-    const separatorIndex = encoded.indexOf("|");
-    if (separatorIndex === -1) {
-        return null;
-    }
-
-    const alias = encoded.slice(0, separatorIndex).trim();
-    if (!alias) {
-        return null;
-    }
-
+    const encoded = `${entry.name}|${entry.build}`;
     const buildData = decodeBuildData(encoded);
     if (!buildData?.name) {
         return null;
@@ -42,18 +41,20 @@ function parseRecommendedBuild(
 
     return {
         index: index + 1,
-        alias,
+        alias: entry.name,
         displayName: buildData.name,
         encoded,
+        iconName: entry.icon ?? "",
+        i18nKey: `preview.premade.${entry.name}`,
     };
 }
 
-const premadeBuilds = Array.isArray(appPackage?.premadeBuilds)
+const premadeBuilds: PremadeBuildEntry[] = Array.isArray(appPackage?.premadeBuilds)
     ? appPackage.premadeBuilds
     : [];
 
 export const recommendedBuilds: RecommendedBuild[] = premadeBuilds
-    .map((encoded, index) => parseRecommendedBuild(encoded, index))
+    .map((entry, index) => parseRecommendedBuild(entry, index))
     .filter((build): build is RecommendedBuild => build !== null);
 
 const recommendedBuildByAlias = new Map(

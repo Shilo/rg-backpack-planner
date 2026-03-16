@@ -339,11 +339,11 @@
         "title": "Aperçu",
         "buildTitle": "Build {name}",
         "premade": {
-            "starter": "Débutant",
-            "earlyStun": "Étourdissement précoce",
-            "midPve": "PvE intermédiaire",
-            "latePve": "PvE avancé",
-            "latePvp": "PvP avancé"
+            "Early_Raid": "Raid précoce",
+            "Early_PvE": "PvE précoce",
+            "Mid_PvE": "PvE intermédiaire",
+            "Late_PvE": "PvE avancé",
+            "Late_PvP": "PvP avancé"
         },
         "sharePreviewBuild": "Partager le build d'aperçu",
         "sharePreviewBuildDescription": "Lien ou capture d'écran",

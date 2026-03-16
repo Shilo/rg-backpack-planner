@@ -339,11 +339,11 @@
         "title": "预览",
         "buildTitle": "{name}构建",
         "premade": {
-            "starter": "新手",
-            "earlyStun": "前期眩晕",
-            "midPve": "中期PvE",
-            "latePve": "后期PvE",
-            "latePvp": "后期PvP"
+            "Early_Raid": "前期突袭",
+            "Early_PvE": "前期PvE",
+            "Mid_PvE": "中期PvE",
+            "Late_PvE": "后期PvE",
+            "Late_PvP": "后期PvP"
         },
         "sharePreviewBuild": "分享预览构建",
         "sharePreviewBuildDescription": "链接或截图",

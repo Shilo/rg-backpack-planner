@@ -339,11 +339,11 @@
         "title": "Preview",
         "buildTitle": "{name} Build",
         "premade": {
-            "starter": "Starter",
-            "earlyStun": "Early Stun",
-            "midPve": "Mid PvE",
-            "latePve": "Late PvE",
-            "latePvp": "Late PvP"
+            "Early_Raid": "Early Raid",
+            "Early_PvE": "Early PvE",
+            "Mid_PvE": "Mid PvE",
+            "Late_PvE": "Late PvE",
+            "Late_PvP": "Late PvP"
         },
         "sharePreviewBuild": "Share Preview Build",
         "sharePreviewBuildDescription": "Link or screenshot",
