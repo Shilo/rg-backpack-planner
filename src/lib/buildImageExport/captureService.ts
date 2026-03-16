@@ -483,12 +483,20 @@ function drawMetadataCardHighlight(
     height: number,
     radius: number,
     color: string,
+    baseColor: string,
 ) {
     ctx.save();
-    ctx.globalAlpha = 0.16;
-    drawRoundedRect(ctx, x, y, width, Math.max(8, height * 0.46), radius);
-    ctx.fillStyle = color;
-    ctx.fill();
+    drawRoundedRect(ctx, x, y, width, height, radius);
+    ctx.clip();
+
+    const gradient = ctx.createLinearGradient(x, y, x, y + height);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(0.42, color);
+    gradient.addColorStop(1, baseColor);
+
+    ctx.globalAlpha = 0.24;
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, width, height);
     ctx.restore();
 }
 
@@ -504,7 +512,7 @@ function measureMetadataCard(
     const padH = Math.round(fontSize * 0.6);
     const padV = Math.round(fontSize * 0.32);
     const rowGap = Math.round(fontSize * 0.22);
-    const iconSize = Math.round(valueFontSize * 0.92);
+    const iconSize = valueFontSize;
     const iconGap = Math.round(valueFontSize * 0.32);
 
     ctx.font = `700 ${titleFontSize}px ${LABEL_FONT}`;
@@ -611,9 +619,11 @@ function drawMetadataCard(
         metrics.height,
         metrics.radius,
         cardHighlight,
+        cardBase,
     );
 
     ctx.shadowColor = "transparent";
+    drawRoundedRect(ctx, cardX, cardY, metrics.width, metrics.height, metrics.radius);
     ctx.strokeStyle = cardBorderSoft;
     ctx.lineWidth = metrics.borderWidth;
     ctx.stroke();

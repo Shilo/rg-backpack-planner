@@ -36,6 +36,28 @@ if (!/function drawMetadataCardHighlight\(/.test(source)) {
     );
 }
 
+if (/drawRoundedRect\(ctx, x, y, width, Math\.max\(8, height \* 0\.46\), radius\)/.test(source)) {
+    throw new Error(
+        "captureService should not draw the highlight as a separate top-half rounded panel inside the card.",
+    );
+}
+
+if (!/ctx\.createLinearGradient\(x, y, x, y \+ height\)/.test(source)) {
+    throw new Error(
+        "captureService should render the highlight as a full-card surface wash instead of a nested rounded block.",
+    );
+}
+
+const fullCardPathMatches = source.match(
+    /drawRoundedRect\(ctx, cardX, cardY, metrics\.width, metrics\.height, metrics\.radius\);/g,
+);
+
+if (!fullCardPathMatches || fullCardPathMatches.length < 2) {
+    throw new Error(
+        "captureService should redraw the full card path before stroking so the border outlines the entire card.",
+    );
+}
+
 if (!/ctx\.font = `700 \$\{titleFontSize\}px \$\{LABEL_FONT\}`/.test(source)) {
     throw new Error(
         "captureService should draw the title with the stronger typography treatment.",
@@ -45,6 +67,12 @@ if (!/ctx\.font = `700 \$\{titleFontSize\}px \$\{LABEL_FONT\}`/.test(source)) {
 if (!/ctx\.font = `600 \$\{valueFontSize\}px \$\{LABEL_FONT\}`/.test(source)) {
     throw new Error(
         "captureService should draw the tech crystal row with the smaller supporting typography treatment.",
+    );
+}
+
+if (!/const iconSize = valueFontSize;/.test(source)) {
+    throw new Error(
+        "captureService should size the tech crystal icon to match the supporting text height.",
     );
 }
 
