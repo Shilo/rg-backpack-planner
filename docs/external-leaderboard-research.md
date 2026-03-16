@@ -8,6 +8,10 @@ Document the best external leaderboard or build-gallery solutions if you do not 
 
 This is research-only documentation. It does not implement anything.
 
+Pricing note:
+
+- Cost snapshots below were checked against official pricing pages on 2026-03-16 and may change.
+
 ## Hard Requirement: Open Builds Back in Backpack Planner
 
 An external leaderboard is only a strong fit if each published record can link back into Backpack Planner and open the exact build in preview mode.
@@ -35,6 +39,7 @@ Reason:
 ## Best External Recommendation: Softr
 
 - Softr homepage: <https://www.softr.io/>
+- Cost snapshot: Free is $0/month; Basic is $59/month; Professional is $167/month; Business is $323/month on the official docs page. Professional also supports $10/month packs of 10 extra users. Pricing: <https://www.softr.io/pricing> and <https://docs.softr.io/workspace-and-billing/pricing-and-plans>
 
 ### What it is
 
@@ -78,6 +83,7 @@ This is the strongest external recommendation for Backpack Planner because it su
 ## Alternative 2: Glide
 
 - Glide homepage: <https://www.glideapps.com/>
+- Cost snapshot: Free is $0/month; Explorer is $19/month billed annually or $25/month monthly; Maker is $49/month billed annually or $60/month monthly; Business is $199/month billed annually or $249/month monthly; Enterprise is custom. Business includes 30 users and 5,000 updates, with extra users at $5 annual or $6 monthly and extra updates at $0.02 each. Pricing: <https://www.glideapps.com/pricing> and <https://help.glideapps.com/en/articles/11780756-pricing-plans-as-of-july-1-2025>
 
 ### What it is
 
@@ -115,6 +121,7 @@ A good runner-up. Choose Glide if you want the external experience to feel like 
 ## Alternative 3: LootLocker Leaderboards
 
 - LootLocker homepage: <https://lootlocker.com/>
+- Cost snapshot: Trial is free for 30 days with a 1,000 MAU/month limit; non-commercial projects can apply for a free license; paid Developer and Publisher tiers are contact-sales rather than self-serve public prices. The pricing page does explicitly list $0.015 for each additional MAU above the included amount on the Publisher tier. Pricing: <https://lootlocker.com/pricing>
 
 ### What it is
 
@@ -152,6 +159,7 @@ Good if the goal is "show rankings with names and scores." It drops behind Softr
 ## Alternative 4: PlayFab Leaderboards
 
 - PlayFab homepage: <https://playfab.com/>
+- Cost snapshot: Free to Start is $0/month before a title passes 100K players; then there is pay-as-you-go, Standard at $99/month plus usage, Premium at $1,999/month plus usage, and Enterprise starting at $10K/month. Pricing: <https://playfab.com/pricing/>
 
 ### What it is
 
@@ -187,6 +195,7 @@ A strong leaderboard-focused option that was missing from the earlier docs. It i
 ## Alternative 5: Heroic Labs / Nakama
 
 - Heroic Labs homepage: <https://heroiclabs.com/>
+- Cost snapshot: Heroic Cloud's hosted Nakama pricing is calculator-based rather than a simple flat public tier; Satori starts at $600/month, Studio Basic support is $2,000/month, Studio Standard is $6,000/month, and Studio Premium is custom. Pricing: <https://heroiclabs.com/pricing>
 
 ### What it is
 
@@ -222,6 +231,7 @@ A real leaderboard-focused platform, but not a low-effort external gallery solut
 ## Alternative 6: Beamable
 
 - Beamable homepage: <https://beamable.com/>
+- Cost snapshot: Free tier is $0/month up to 100K API calls; usage above that is $10 per 1M API calls. Public subscription tiers shown on the pricing page include Indie at $30/month, Dev at $100/month, Studio at $200/month, Reporting at $300/month, Pro at $600/month, and Metered above $600/month. Pricing: <https://beamable.com/pricing>
 
 ### What it is
 
@@ -255,6 +265,7 @@ Worth including as a leaderboard-native option, but it sits in the same bucket a
 ## Alternative 7: AccelByte
 
 - AccelByte homepage: <https://accelbyte.io/>
+- Cost snapshot: Shared Cloud is free to start with a 90-day trial and then usage fees; after the included free PCCU band, shared-cloud daily PCCU pricing starts at $0.0248 for Online, $0.0770 for Multiplayer, and $0.1100 for Complete in the 31 to 5K PCCU band. Private Cloud starts at $2,500/month per environment for Online or Multiplayer and $3,500/month per environment for Complete, and support starts at $1,000 per title per month. Pricing: <https://accelbyte.io/pricing>
 
 ### What it is
 
@@ -290,6 +301,7 @@ Another legitimate leaderboard-focused platform that was missing from the docs. 
 ## Alternative 8: Airtable Only
 
 - Airtable homepage: <https://www.airtable.com/>
+- Cost snapshot: Free plan available; Team is $20/user/month billed annually; Business is $45/user/month billed annually, or $54/user/month billed monthly in Airtable's support docs; Enterprise Scale is custom. Pricing: <https://airtable.com/pricing> and <https://support.airtable.com/docs/airtable-plans>
 
 ### What it is
 

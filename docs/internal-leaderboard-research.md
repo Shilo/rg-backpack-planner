@@ -8,6 +8,10 @@ Document how an optional public leaderboard or build gallery could work if it is
 
 This is research-only documentation. It does not implement anything.
 
+Pricing note:
+
+- Cost snapshots below were checked against official pricing pages on 2026-03-16 and may change.
+
 ## Relationship to Private Sync
 
 Private sync and public leaderboard features should stay separate even if they share one cloud opt-in.
@@ -181,6 +185,7 @@ If you implement a leaderboard yourself, the best fit is still to keep it alongs
 ### Firestore version
 
 - Firebase homepage: <https://firebase.google.com/>
+- Cost snapshot: Firebase Authentication (excluding phone verification) is no-cost up to 50K MAUs, and Cloud Firestore's free quota includes 1 GiB stored data, 50K reads/day, 20K writes/day, 20K deletes/day, and 10 GiB/month outbound transfer; beyond that, pricing is pay-as-you-go and location-based. Pricing: <https://firebase.google.com/pricing/> and <https://firebase.google.com/docs/firestore/pricing>
 
 Best when:
 
@@ -205,6 +210,7 @@ Tradeoff:
 ### Supabase version
 
 - Supabase homepage: <https://supabase.com/>
+- Cost snapshot: Free plan available; Pro is $25/month and paid organizations include $10 in compute credits. Common usage pricing called out in the docs includes storage at $0.021/GB-month, Edge Functions at $2 per 1M invocations, Realtime messages at $2.50 per 1M messages, and MAU overages at $0.00325 per MAU beyond quota. Pricing: <https://supabase.com/pricing> and <https://supabase.com/docs/guides/platform/billing-faq>
 
 Best when:
 

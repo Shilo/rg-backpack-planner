@@ -8,6 +8,10 @@ Find the most intuitive and simple way to let users automatically sync their sav
 
 This document is research-only. It does not propose implementation details beyond architecture-level recommendations.
 
+Pricing note:
+
+- Cost snapshots below were checked against official pricing pages on 2026-03-16 and may change.
+
 ## Current App State
 
 The app is currently a client-only GitHub Pages PWA with no backend. Personal data is stored in browser `localStorage`.
@@ -172,6 +176,7 @@ Without one of those, there is no robust way to know which remote data belongs t
 ## Option 1: Firestore + Lightweight Identity
 
 - Firebase homepage: <https://firebase.google.com/>
+- Cost snapshot: Firebase Authentication (excluding phone verification) is no-cost up to 50K MAUs, and Cloud Firestore's free quota includes 1 GiB stored data, 50K reads/day, 20K writes/day, 20K deletes/day, and 10 GiB/month outbound transfer; beyond that, pricing is pay-as-you-go and location-based. Pricing: <https://firebase.google.com/pricing/> and <https://firebase.google.com/docs/firestore/pricing>
 
 ### Summary
 
@@ -293,6 +298,7 @@ It aligns with the actual size of the data, gives realtime sync, keeps the app s
 ## Option 2: Supabase + Private Sync Row
 
 - Supabase homepage: <https://supabase.com/>
+- Cost snapshot: Free plan available; Pro is $25/month and paid organizations include $10 in compute credits. Common usage pricing called out in the docs includes storage at $0.021/GB-month, Edge Functions at $2 per 1M invocations, Realtime messages at $2.50 per 1M messages, and MAU overages at $0.00325 per MAU beyond quota. Pricing: <https://supabase.com/pricing> and <https://supabase.com/docs/guides/platform/billing-faq>
 
 ### Summary
 
@@ -335,6 +341,7 @@ A strong second choice, especially if the roadmap starts prioritizing leaderboar
 ## Option 3: Appwrite + Anonymous Session + Document Store
 
 - Appwrite homepage: <https://appwrite.io/>
+- Cost snapshot: Free is $0/month; Pro starts at $25/month; Enterprise is custom. The pricing docs also note separate database operation quotas, with 500K reads and 250K writes/month on Free and 1.75M reads plus 750K writes/month on paid plans before overages. Pricing: <https://appwrite.io/pricing> and <https://appwrite.io/docs/advanced/platform/database-reads-and-writes>
 
 ### Summary
 
