@@ -47,3 +47,6 @@ git log --reverse --date=short --pretty=format:'%h|%ad|%s' "$range"
 
 printf "\n\n== Files Touched ==\n"
 git log --reverse --name-only --pretty=format:'--- %h %s' "$range" | sed '/^$/d'
+
+printf "\n\n== Previous Release Notes ==\n"
+cat "$RELEASE_FILE"
