@@ -206,6 +206,7 @@
     :global(.button-arrow) {
         flex: 0 0 auto;
         opacity: 0.5;
+        margin-left: calc(-1 * var(--spacing-md));
     }
 
     .button-icon {
