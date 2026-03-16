@@ -25,19 +25,28 @@
 
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
+        const isTab = event.key === "Tab";
+        const isArrowLeft = event.key === "ArrowLeft";
+        const isArrowRight = event.key === "ArrowRight";
         if (event.key === "Escape") {
             // Let context menus and fab menus handle Escape first
             if (document.querySelector(".context-menu") || document.querySelector(".fab-menu--open")) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             handleClose();
-        } else if (event.key === "Tab" && tabs.length > 1 && modalEl) {
+        } else if ((isTab || isArrowLeft || isArrowRight) && tabs.length > 1 && modalEl) {
             if (!isKeyboardShortcutTarget(document.activeElement, modalEl)) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             const currentIndex = tabs.findIndex((t) => t.id === activeTab);
+            const delta =
+                isTab && event.shiftKey
+                    ? -1
+                    : isArrowLeft
+                      ? -1
+                      : 1;
             const nextIndex =
-                (currentIndex + (event.shiftKey ? -1 : 1) + tabs.length) %
+                (currentIndex + delta + tabs.length) %
                 tabs.length;
             onTabChange(tabs[nextIndex].id);
             triggerHaptic();

@@ -125,7 +125,15 @@
     }
 
     function handleTabKeydown(event: KeyboardEvent) {
-        if (event.key !== "Tab" || !tabsRootEl || tabs.length <= 1) return;
+        const isTab = event.key === "Tab";
+        const isArrowLeft = event.key === "ArrowLeft";
+        const isArrowRight = event.key === "ArrowRight";
+        if (
+            !tabsRootEl ||
+            (!isTab && !isArrowLeft && !isArrowRight) ||
+            tabs.length <= 1
+        )
+            return;
         if (isMenuOpen || $isComposeScreenshotOpen) return;
         if (hasOnboardingOverlay()) return;
         if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
@@ -140,9 +148,14 @@
         }
         event.preventDefault();
         lastTabCycleAt = performance.now();
-        const next = event.shiftKey
-            ? (activeIndex - 1 + tabs.length) % tabs.length
-            : (activeIndex + 1) % tabs.length;
+        const delta =
+            isTab && event.shiftKey
+                ? -1
+                : isArrowLeft
+                  ? -1
+                  : 1;
+        const next =
+            (activeIndex + delta + tabs.length) % tabs.length;
         setActive(next);
     }
 
