@@ -97,4 +97,8 @@
         display: grid;
         gap: var(--spacing-lg);
     }
+
+    .settings-page-content :global(.button-arrow) {
+        margin-left: calc(-1 * var(--spacing-md));
+    }
 </style>
