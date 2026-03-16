@@ -16,15 +16,19 @@ Run migrations in **[src/main.ts](src/main.ts)** as the **first** executable ste
 2. **Immediately** after the opening of the script (before `initThemeReactivity()`, before `initViewportTracking()`, before `initializeI18n()`), call the migration runner, e.g.:
    - `runMigrations()` — synchronous function that:
      - Reads `getStoredVersion()` and `getCurrentVersion()`.
-     - If equal or both null/unknown, do nothing and return.
-     - Otherwise, run each migration that applies to the upgrade path (stored → current), in order.
-     - Then call `markVersionAsSeen()` so the rest of the app (including App.svelte) sees the new version as "already seen" and no other code tries to run migrations or overwrite version.
+     - If current is "unknown", or **stored is null** (no version ever saved — treat as already on current), or stored ≥ current, do nothing and return.
+     - Otherwise, runs every migration whose `toVersion` is strictly after stored and at or before current (`stored < toVersion ≤ current`), in version order. E.g. 0.9 → 1.2 runs 1.0 and 1.1; 1.2 → 1.3 runs only the 1.3 migration. Does **not** call `markVersionAsSeen()` — App.svelte does that after `runInitialization()` so the "updated" toast can still show.
+
+## Version values
+
+- **Stored:** From localStorage key `latest-used-version`. It is **null** when the key was never set (first launch, or before this feature existed). When null, we do not run migrations (user is treated as already on current).
+- **Current:** From `package.json` version. It is **"unknown"** only if that field is missing (should not happen in normal builds). When "unknown", we skip migrations.
 3. Do **not** run migrations inside App.svelte’s `onMount` or in any component: that runs after mount, after store subscriptions and other init, and can race with code that already read from storage.
 
 ## Contract for the migration runner
 
 - **Synchronous:** No `async`/`await` in the runner; migrations are sync so there’s no chance of other code running before they finish.
 - **No side effects beyond storage:** Migrations only change localStorage (and optionally sessionStorage) via the same storage API the rest of the app uses. They don’t depend on DOM, i18n, or Svelte.
-- **Idempotent per version:** Each migration is keyed by version; running the same migration twice for the same upgrade path should be safe (e.g. migrations only run when stored !== current, and after running we set stored = current).
+- **Idempotent per version:** Each migration is keyed by version; a given migration runs only when its `toVersion` is in the open-closed interval (stored, current]. After the user is marked as having seen the new version in App.svelte, the next load has stored = current so no migrations run again.
 
 This ensures the version migration runs first and avoids race conditions with the rest of the app.

@@ -344,7 +344,7 @@ import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
         return nodeId === "root";
     }
 
-    const ROOT_QUICK_SETTINGS_PAD = 8;
+    const ROOT_QUICK_SETTINGS_PAD = 32;
     function openRootQuickSettings(centerX: number, rootTop: number) {
         quickSettings = { x: centerX, y: rootTop - ROOT_QUICK_SETTINGS_PAD };
         treeRef?.cancelGestures?.();

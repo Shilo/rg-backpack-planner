@@ -1,8 +1,14 @@
 <script lang="ts">
     import { onMount, onDestroy, tick } from "svelte";
     import { RootNodeIcon } from "./customIcons";
-    import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
-    import { nodeLevelBehavior, NodeLevelBehavior } from "./nodeLevelBehaviorStore";
+    import {
+        nodePrimaryAction,
+        NodePrimaryAction,
+    } from "./nodePrimaryActionStore";
+    import {
+        nodeLevelBehavior,
+        NodeLevelBehavior,
+    } from "./nodeLevelBehaviorStore";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
@@ -24,7 +30,9 @@
     onMount(() => {
         const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
         const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-        isTouchPlatform = !hasFinePointer && (hasCoarsePointer || navigator.maxTouchPoints > 0);
+        isTouchPlatform =
+            !hasFinePointer &&
+            (hasCoarsePointer || navigator.maxTouchPoints > 0);
     });
 
     $: clickActionLabel = $t("settings.nodePrimaryActionTitle", {
@@ -41,8 +49,14 @@
         const rect = panelEl.getBoundingClientRect();
         let px = x - rect.width / 2;
         let py = y - rect.height;
-        px = Math.max(MARGIN, Math.min(px, window.innerWidth - rect.width - MARGIN));
-        py = Math.max(MARGIN, Math.min(py, window.innerHeight - rect.height - MARGIN));
+        px = Math.max(
+            MARGIN,
+            Math.min(px, window.innerWidth - rect.width - MARGIN),
+        );
+        py = Math.max(
+            MARGIN,
+            Math.min(py, window.innerHeight - rect.height - MARGIN),
+        );
         displayX = px;
         displayY = py;
     }
@@ -173,7 +187,11 @@
 
         <div class="qs-rows">
             <span class="qs-label">{clickActionLabel}</span>
-            <div class="qs-chips" role="radiogroup" aria-label={clickActionLabel}>
+            <div
+                class="qs-chips"
+                role="radiogroup"
+                aria-label={clickActionLabel}
+            >
                 {#each [NodePrimaryAction.IncrementOne, NodePrimaryAction.IncrementTen, NodePrimaryAction.IncrementTier] as action (action)}
                     <button
                         class="qs-chip"
@@ -193,7 +211,11 @@
             </div>
 
             <span class="qs-label">{$t("settings.nodeLevelBehavior")}</span>
-            <div class="qs-chips" role="radiogroup" aria-label={$t("settings.nodeLevelBehavior")}>
+            <div
+                class="qs-chips"
+                role="radiogroup"
+                aria-label={$t("settings.nodeLevelBehavior")}
+            >
                 {#each [NodeLevelBehavior.Solo, NodeLevelBehavior.Sync] as behavior (behavior)}
                     <button
                         class="qs-chip"
@@ -300,7 +322,8 @@
     /* Divider between rows */
     .qs-label:nth-child(3),
     .qs-chips:nth-child(4) {
-        border-top: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+        border-top: var(--border-width) solid
+            color-mix(in srgb, var(--border) 60%, transparent);
     }
 
     .qs-chip {
@@ -334,7 +357,11 @@
 
     @media (hover: hover) {
         .qs-chip:not(.qs-chip--active):hover {
-            background: color-mix(in srgb, var(--bg-raised) 80%, var(--text) 20%);
+            background: color-mix(
+                in srgb,
+                var(--bg-raised) 80%,
+                var(--text) 20%
+            );
             color: var(--text);
         }
     }

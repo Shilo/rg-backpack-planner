@@ -29,6 +29,7 @@ const TEST_FILES = [
     // 3. Serialization & Storage
     "storage.test.ts",
     "latestUsedVersionStore.test.ts",
+    "runMigrations.test.ts",
     "encoder.test.ts",
 
     // 4. Features (Presets & Sharing)
