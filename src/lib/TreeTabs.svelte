@@ -48,6 +48,7 @@
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
     import { onboardingSeen } from "./onboarding/onboardingStore";
+    import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -278,6 +279,8 @@
     $: if (tabContextMenu && typeof tabContextMenu.index === "number") {
         lastTabContextMenuIndex = tabContextMenu.index;
     }
+
+    $: treeContextMenuOpen.set(!!tabContextMenu);
 
     function clearTabPress() {
         clearLongPress(tabPressState);

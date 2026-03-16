@@ -58,6 +58,7 @@
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
     import { sumDeltaCosts } from "./nodeActionPreview";
+    import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -70,7 +71,8 @@
     export let onFocusViewStateChange:
         | ((view: TreeViewState | null) => void)
         | null = null;
-    export let onOnboardingReadyChange: ((ready: boolean) => void) | null = null;
+    export let onOnboardingReadyChange: ((ready: boolean) => void) | null =
+        null;
     export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let rootX = TREE_ROOT_X;
     export let rootY = TREE_ROOT_Y;
@@ -696,6 +698,8 @@
         return target instanceof Element && !!target.closest(".context-menu");
     }
 
+    $: nodeContextMenuOpen.set(!!contextMenu);
+
     function cancelActiveGestures() {
         if (viewportEl) {
             for (const pointerId of pointers.keys()) {
@@ -1291,7 +1295,10 @@
         // that will be restored by restoreViewState after capture completes.
     }
 
-    export function getWorldBoundsForCapture(): { width: number; height: number } | null {
+    export function getWorldBoundsForCapture(): {
+        width: number;
+        height: number;
+    } | null {
         return getWorldBounds(1);
     }
 
@@ -1621,7 +1628,7 @@
         inset: 0;
         transform-origin: 0 0;
         pointer-events: none;
-        z-index: calc(var(--z-index-context-menu) - 1);
+        z-index: var(--z-index-context-menu-backdrop);
     }
 
     .tree-splash-layer {

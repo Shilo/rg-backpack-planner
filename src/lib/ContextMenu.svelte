@@ -458,7 +458,7 @@
         -webkit-backdrop-filter: blur(var(--blur-xs));
         border: none;
         padding: 0;
-        z-index: calc(var(--z-index-context-menu) - 1);
+        z-index: var(--z-index-context-menu-backdrop);
         cursor: default;
         animation: modal-backdrop-in 0.12s ease both;
     }
