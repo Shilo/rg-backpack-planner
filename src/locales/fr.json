@@ -552,6 +552,13 @@
         "longPress": "Appui long",
         "swipe": "Balayer",
         "pinch": "Pincer",
+        "lockedSection": "Nœuds verrouillés",
+        "lockedNodeLevel": "Montez intuitivement les nœuds verrouillés\n(Les nœuds enfants monteront instantanément)",
+        "previewSection": "Indicateur d'aperçu",
+        "previewOptions": "Voir les options et cloner le build d'aperçu",
+        "sidemenuSection": "Barre de navigation inférieure",
+        "sidemenuToggle": "Ouvrir/fermer le menu latéral",
+        "sidemenuSwitchTrees": "Changer d'arbre",
         "showTutorial": "Afficher le tutoriel",
         "showTutorialDescription": "Voir le guide des contrôles à l'écran"
     },

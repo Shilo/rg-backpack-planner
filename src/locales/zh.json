@@ -552,6 +552,13 @@
         "longPress": "长按",
         "swipe": "滑动",
         "pinch": "捏合",
+        "lockedSection": "锁定节点",
+        "lockedNodeLevel": "直观地升级锁定节点\n（子节点将同时升级）",
+        "previewSection": "预览指示器",
+        "previewOptions": "查看选项并克隆预览构建",
+        "sidemenuSection": "底部导航栏",
+        "sidemenuToggle": "切换侧边菜单",
+        "sidemenuSwitchTrees": "切换技能树",
         "showTutorial": "显示教程",
         "showTutorialDescription": "查看屏幕操作指南"
     },

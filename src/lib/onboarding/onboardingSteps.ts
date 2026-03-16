@@ -2,8 +2,11 @@ import type { Component } from "svelte";
 import {
     ArrowsOutCardinalIcon,
     CursorClickIcon,
+    EyeIcon,
     HandGrabbingIcon,
     HandTapIcon,
+    ListIcon,
+    LockIcon,
     MouseLeftClickIcon,
     MouseMiddleClickIcon,
     MouseRightClickIcon,
@@ -14,8 +17,22 @@ import LongPressIcon from "../icons/LongPressIcon.svelte";
 import PinchIcon from "../icons/PinchIcon.svelte";
 import type { Direction } from "./paneLayout";
 
-export type OnboardingStepId = "nodes" | "root" | "tree" | "hud";
-export type OnboardingTarget = "node" | "hud" | "root" | "tree";
+export type OnboardingStepId =
+    | "nodes"
+    | "locked"
+    | "root"
+    | "tree"
+    | "hud"
+    | "preview"
+    | "sidemenu";
+export type OnboardingTarget =
+    | "node"
+    | "locked-node"
+    | "hud"
+    | "root"
+    | "tree"
+    | "preview"
+    | "sidemenu";
 type TargetRegion = "top-left" | "bottom-left" | "right";
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 
@@ -42,6 +59,7 @@ type CreateOnboardingStepsOptions = {
     primaryInputLabel: string;
     compactLayout: boolean;
     targetRegion: TargetRegion;
+    lockedNodeRegion: TargetRegion;
 };
 
 export function createOnboardingSteps({
@@ -51,6 +69,7 @@ export function createOnboardingSteps({
     primaryInputLabel,
     compactLayout,
     targetRegion,
+    lockedNodeRegion,
 }: CreateOnboardingStepsOptions): OnboardingStepDefinition[] {
     const nodeCards = isTouch
         ? [
@@ -85,6 +104,14 @@ export function createOnboardingSteps({
                   description: translate("onboarding.levelDown"),
               },
           ];
+
+    const lockedCards = [
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: translate("onboarding.lockedNodeLevel"),
+        },
+    ];
 
     const hudCards = [
         {
@@ -148,6 +175,27 @@ export function createOnboardingSteps({
               },
           ];
 
+    const previewCards = [
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: translate("onboarding.previewOptions"),
+        },
+    ];
+
+    const sidemenuCards = [
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: translate("onboarding.sidemenuToggle"),
+        },
+        {
+            icon: primaryInputIcon,
+            label: primaryInputLabel,
+            description: translate("onboarding.sidemenuSwitchTrees"),
+        },
+    ];
+
     return [
         {
             id: "nodes",
@@ -157,6 +205,15 @@ export function createOnboardingSteps({
             titleIcon: CursorClickIcon,
             variant: "accent",
             cards: nodeCards,
+        },
+        {
+            id: "locked",
+            target: "locked-node",
+            direction: lockedNodeRegion === "right" ? "left" : "right",
+            title: translate("onboarding.lockedSection"),
+            titleIcon: LockIcon,
+            variant: "accent",
+            cards: lockedCards,
         },
         {
             id: "root",
@@ -184,6 +241,24 @@ export function createOnboardingSteps({
             titleIcon: TechCrystalIcon,
             variant: "muted",
             cards: hudCards,
+        },
+        {
+            id: "preview",
+            target: "preview",
+            direction: "down",
+            title: translate("onboarding.previewSection"),
+            titleIcon: EyeIcon,
+            variant: "muted",
+            cards: previewCards,
+        },
+        {
+            id: "sidemenu",
+            target: "sidemenu",
+            direction: "up",
+            title: translate("onboarding.sidemenuSection"),
+            titleIcon: ListIcon,
+            variant: "muted",
+            cards: sidemenuCards,
         },
     ];
 }

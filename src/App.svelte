@@ -17,9 +17,11 @@
     import { t, locale } from "svelte-whisper";
     import {
         treeLevels,
+        setTreeLevels,
         sumLevels,
         type TreeBranchKey,
     } from "./lib/treeLevelsStore";
+    import type { LevelsByIndex } from "./types/tree";
     import {
         markVersionAsSeen,
         getStoredVersion,
@@ -30,6 +32,7 @@
     import {
         initTechCrystalTrees,
         techCrystalsOwned,
+        setTechCrystalsOwned,
     } from "./lib/techCrystalStore";
     import { applyBuildFromUrl, applyBuildData } from "./lib/buildData/applier";
     import ComposeScreenshot, {
@@ -56,6 +59,7 @@
     import { setPreviewMode, isPreviewMode } from "./lib/previewModeStore";
     import {
         clearPreviewBuildName,
+        setPreviewBuildName,
         previewBuildName,
         getPreviewTitle,
     } from "./lib/previewBuildNameStore";
@@ -73,6 +77,7 @@
     import { get } from "svelte/store";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/inputStore";
+    import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -235,6 +240,122 @@
         tryGoBack?: () => boolean;
     } | null = null;
     let isMenuOpen = false;
+
+    // Temporary onboarding preview state
+    let onboardingPreviewSetupDone = false;
+    let onboardingOriginalState: {
+        treeLevels: LevelsByIndex[];
+        techCrystalsOwned: number;
+        isPreview: boolean;
+        buildName: string | null;
+        hash: string;
+    } | null = null;
+
+    function setupOnboardingPreview() {
+        const currentLevels = get(treeLevels);
+        const currentOwned = get(techCrystalsOwned);
+        const currentPreviewMode = get(isPreviewMode);
+        const currentBuildName = get(previewBuildName);
+        const currentHash =
+            typeof window !== "undefined" ? window.location.hash : "";
+
+        onboardingOriginalState = {
+            treeLevels: currentLevels.map((t) => [...t]),
+            techCrystalsOwned: currentOwned,
+            isPreview: currentPreviewMode,
+            buildName: currentBuildName,
+            hash: currentHash,
+        };
+
+        // Pause subscriptions to prevent persistence/URL updates during onboarding
+        unsubscribeTreeLevels?.();
+        unsubscribeTreeLevels = null;
+        unsubscribeTechCrystals?.();
+        unsubscribeTechCrystals = null;
+
+        // Load recommended build 0 temporarily
+        const build = recommendedBuilds[0];
+        if (build) {
+            const buildData = decodeBuildData(build.encoded);
+            if (buildData) {
+                applyBuildData(tabs, buildData);
+                setPreviewMode(true);
+                setPreviewBuildName(build.displayName);
+            }
+        }
+    }
+
+    function teardownOnboardingPreview() {
+        if (!onboardingOriginalState) return;
+        const state = onboardingOriginalState;
+        onboardingOriginalState = null;
+
+        // Restore original build state
+        state.treeLevels.forEach((levels, index) => {
+            setTreeLevels(index, levels);
+        });
+        setTechCrystalsOwned(state.techCrystalsOwned);
+        setPreviewMode(state.isPreview);
+        if (state.buildName !== null) {
+            setPreviewBuildName(state.buildName);
+        } else {
+            clearPreviewBuildName();
+        }
+
+        // Restore URL hash
+        if (typeof window !== "undefined") {
+            const target = state.hash || "";
+            if (window.location.hash !== target) {
+                window.history.replaceState(
+                    {},
+                    "",
+                    target || getBasePath(),
+                );
+            }
+        }
+
+        // Re-establish subscriptions
+        if (state.isPreview) {
+            unsubscribeTreeLevels = treeLevels.subscribe(() => {
+                if (get(isPreviewMode)) {
+                    updateUrlWithCurrentBuild();
+                }
+            });
+            unsubscribeTechCrystals = techCrystalsOwned.subscribe(() => {
+                if (get(isPreviewMode)) {
+                    updateUrlWithCurrentBuild();
+                }
+            });
+        } else {
+            const persistToActivePreset = () => {
+                if (get(isPreviewMode)) return;
+                const levels = get(treeLevels);
+                const owned = get(techCrystalsOwned);
+                updateActivePresetBuildCode(
+                    encodeBuildData({ trees: levels, owned }),
+                );
+            };
+            unsubscribeTreeLevels =
+                treeLevels.subscribe(persistToActivePreset);
+            unsubscribeTechCrystals =
+                techCrystalsOwned.subscribe(persistToActivePreset);
+        }
+    }
+
+    function handleOnboardingDismiss() {
+        completeOnboarding();
+        teardownOnboardingPreview();
+        onboardingPreviewSetupDone = false;
+    }
+
+    $: if (
+        !$onboardingSeen &&
+        activeTreeOnboardingReady &&
+        !onboardingPreviewSetupDone
+    ) {
+        onboardingPreviewSetupDone = true;
+        setupOnboardingPreview();
+    }
 
     // Subscriptions for preview mode and persistence, reused across URL re-initializations
     let unsubscribeTreeLevels: (() => void) | null = null;
@@ -572,12 +693,13 @@
     </main>
     {#if !$onboardingSeen && activeTreeOnboardingReady}
         <OnboardingOverlay
-            onDismiss={completeOnboarding}
+            onDismiss={handleOnboardingDismiss}
             nodes={tabs[activeTreeIndex]?.nodes ?? []}
             offsetX={activeTreeViewState?.offsetX ?? 0}
             offsetY={activeTreeViewState?.offsetY ?? 0}
             scale={activeTreeViewState?.scale ?? 1}
             targetNodeIndex={0}
+            lockedNodeIndex={12}
         />
     {/if}
     <ComposeScreenshot />

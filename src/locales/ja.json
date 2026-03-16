@@ -552,6 +552,13 @@
         "longPress": "長押し",
         "swipe": "スワイプ",
         "pinch": "ピンチ",
+        "lockedSection": "ロックノード",
+        "lockedNodeLevel": "直感的にロックノードをレベルアップ\n（子ノードも即座にレベルアップ）",
+        "previewSection": "プレビュー表示",
+        "previewOptions": "オプションの表示やプレビュービルドのクローン",
+        "sidemenuSection": "下部ナビゲーションバー",
+        "sidemenuToggle": "サイドメニューの切り替え",
+        "sidemenuSwitchTrees": "ツリーの切り替え",
         "showTutorial": "チュートリアルを表示",
         "showTutorialDescription": "画面上の操作ガイドを見る"
     },

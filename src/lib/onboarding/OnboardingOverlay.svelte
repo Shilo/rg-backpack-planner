@@ -24,6 +24,7 @@
     export let offsetY = 0;
     export let scale = 1;
     export let targetNodeIndex: NodeIndex = 0;
+    export let lockedNodeIndex: NodeIndex = 12;
     export let emptySpaceWorldX = 180;
     export let emptySpaceWorldY = 342;
 
@@ -48,15 +49,26 @@
     let trailingLayoutRefreshFrame: number | null = null;
     let treeViewportRect: Rect = { ...EMPTY_RECT };
     let nodeSpotlightRect: Rect = { ...EMPTY_RECT };
+    let lockedNodeSpotlightRect: Rect = { ...EMPTY_RECT };
     let rootSpotlightRect: Rect = { ...EMPTY_RECT };
     let treeSpotlightRect: Rect = { ...EMPTY_RECT };
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
+    let previewSpotlightRect: Rect = { ...EMPTY_RECT };
+    let sidemenuSpotlightRect: Rect = { ...EMPTY_RECT };
 
     $: targetNode = nodes[targetNodeIndex];
     $: targetRegion = (() => {
         if (!targetNode) return "bottom-left" as const;
         if (targetNode.x > TREE_ROOT_X) return "right" as const;
         if (targetNode.y < TREE_ROOT_Y) return "top-left" as const;
+        return "bottom-left" as const;
+    })();
+
+    $: lockedNode = nodes[lockedNodeIndex];
+    $: lockedNodeRegion = (() => {
+        if (!lockedNode) return "bottom-left" as const;
+        if (lockedNode.x > TREE_ROOT_X) return "right" as const;
+        if (lockedNode.y < TREE_ROOT_Y) return "top-left" as const;
         return "bottom-left" as const;
     })();
 
@@ -80,6 +92,7 @@
         primaryInputLabel,
         compactLayout,
         targetRegion,
+        lockedNodeRegion,
     });
     $: if (steps.length === 0) {
         currentStepIndex = 0;
@@ -106,6 +119,11 @@
     $: nodeScreenX = (targetNode?.x ?? 0) * scale + offsetX;
     $: nodeScreenY = (targetNode?.y ?? 0) * scale + offsetY;
     $: nodeScreenRadius = nodeRadius * scale;
+
+    $: lockedNodeRadius = (lockedNode?.radius ?? 1) * NODE_RADIUS_PX;
+    $: lockedNodeScreenX = (lockedNode?.x ?? 0) * scale + offsetX;
+    $: lockedNodeScreenY = (lockedNode?.y ?? 0) * scale + offsetY;
+    $: lockedNodeScreenRadius = lockedNodeRadius * scale;
 
     $: rootScreenX = TREE_ROOT_X * scale + offsetX;
     $: rootScreenY = TREE_ROOT_Y * scale + offsetY;
@@ -198,6 +216,7 @@
     $: if (overlayEl) {
         currentStepIndex;
         targetNodeIndex;
+        lockedNodeIndex;
         viewportWidth;
         viewportHeight;
         offsetX;
@@ -220,6 +239,14 @@
                 nodeScreenRadius + SPOTLIGHT_PAD,
             );
 
+        lockedNodeSpotlightRect =
+            resolveElementRect(`[data-node-id="${lockedNodeIndex}"]`, SPOTLIGHT_PAD) ??
+            circleRect(
+                treeViewportRect.left + lockedNodeScreenX,
+                treeViewportRect.top + lockedNodeScreenY,
+                lockedNodeScreenRadius + SPOTLIGHT_PAD,
+            );
+
         rootSpotlightRect =
             resolveElementRect('[data-node-id="root"]', ROOT_SPOTLIGHT_PAD) ??
             circleRect(
@@ -236,12 +263,21 @@
 
         hudSpotlightRect =
             resolveElementRect(".top-right-actions", 8, 8) ?? fallbackHudRect();
+
+        previewSpotlightRect =
+            resolveElementRect(".preview-indicator-button", 8) ?? { ...EMPTY_RECT };
+
+        sidemenuSpotlightRect =
+            resolveElementRect(".menu-button", 8) ?? { ...EMPTY_RECT };
     }
 
     function getSpotlightRect(target: OnboardingTarget): Rect {
         if (target === "node") return nodeSpotlightRect;
+        if (target === "locked-node") return lockedNodeSpotlightRect;
         if (target === "hud") return hudSpotlightRect;
         if (target === "root") return rootSpotlightRect;
+        if (target === "preview") return previewSpotlightRect;
+        if (target === "sidemenu") return sidemenuSpotlightRect;
         return treeSpotlightRect;
     }
 
@@ -250,13 +286,25 @@
         : EMPTY_RECT;
     $: {
         if (typeof document !== "undefined") {
+            const target = activeStep?.target;
             document.body.classList.toggle(
                 "onboarding-step-hud",
-                activeStep?.target === "hud",
+                target === "hud",
+            );
+            document.body.classList.toggle(
+                "onboarding-step-preview",
+                target === "preview",
+            );
+            document.body.classList.toggle(
+                "onboarding-step-sidemenu",
+                target === "sidemenu",
             );
         }
     }
-    $: activeSpotlightIsRect = activeStep?.target === "hud";
+    $: activeSpotlightIsRect =
+        activeStep?.target === "hud" ||
+        activeStep?.target === "preview" ||
+        activeStep?.target === "sidemenu";
     $: footerReservedSpace = Math.max(
         bottomPadding,
         footerHeight + footerBottomOffset + panePadding,
@@ -332,6 +380,8 @@
             document.body.classList.remove(
                 "has-onboarding-overlay",
                 "onboarding-step-hud",
+                "onboarding-step-preview",
+                "onboarding-step-sidemenu",
             );
             window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);

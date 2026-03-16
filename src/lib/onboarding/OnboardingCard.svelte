@@ -103,6 +103,7 @@
         font-size: var(--font-sm);
         color: var(--text-muted);
         line-height: var(--leading);
+        white-space: pre-line;
     }
 
     .onboarding-card.compact .card-desc {

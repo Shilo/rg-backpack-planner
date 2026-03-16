@@ -220,6 +220,7 @@
         font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking);
         color: var(--text-muted);
+        padding-right: var(--spacing-xs);
     }
 
     .onboarding-pane.compact .pane-step-count {

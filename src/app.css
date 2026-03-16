@@ -46,8 +46,24 @@ body.has-onboarding-overlay {
     overflow: hidden;
 }
 
+body.has-onboarding-overlay .hud-safe-area * {
+    pointer-events: none !important;
+}
+
+body.has-onboarding-overlay .app-title-display-wrapper {
+    z-index: var(--z-index-modal);
+}
+
 body.onboarding-step-hud .top-right-actions {
     z-index: var(--z-index-modal);
+}
+
+body.onboarding-step-preview .top-left-actions {
+    z-index: var(--z-index-modal);
+}
+
+body.onboarding-step-sidemenu .menu-button {
+    z-index: var(--z-index-modal) !important;
 }
 
 .uppercase-text * {

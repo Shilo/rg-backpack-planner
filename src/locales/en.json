@@ -552,6 +552,13 @@
         "longPress": "Long Press",
         "swipe": "Swipe",
         "pinch": "Pinch",
+        "lockedSection": "Locked Nodes",
+        "lockedNodeLevel": "Intuitively level locked nodes\n(Children nodes will instantly level)",
+        "previewSection": "Preview Indicator",
+        "previewOptions": "View options & clone preview build",
+        "sidemenuSection": "Bottom Navigation Bar",
+        "sidemenuToggle": "Toggle side menu",
+        "sidemenuSwitchTrees": "Switch between trees",
         "showTutorial": "Show Tutorial",
         "showTutorialDescription": "View on-screen controls guide"
     },
