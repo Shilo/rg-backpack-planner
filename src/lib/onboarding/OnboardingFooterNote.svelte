@@ -34,16 +34,7 @@
     on:mousedown|stopPropagation
     on:touchstart|stopPropagation
 >
-    <div class="footer-title-row">
-        <div class="footer-title">
-            <span class="title-icon" aria-hidden="true">
-                <BookOpenIcon size={compact ? 16 : 18} />
-            </span>
-            <span class="title-text">{title}</span>
-        </div>
-        <span class="step-count">{stepNumber} / {stepCount}</span>
-    </div>
-    <div class="footer-body">
+    <div class="footer-main">
         <button
             class="nav-button"
             type="button"
@@ -63,9 +54,18 @@
             <CaretRightIcon size={navIconSize} weight="bold" />
         </button>
 
-        {#if hintText}
-            <span class="hint-text">{hintText}</span>
-        {/if}
+        <div class="footer-content">
+            <div class="footer-title-row">
+                <span class="title-icon" aria-hidden="true">
+                    <BookOpenIcon size={compact ? 14 : 16} />
+                </span>
+                <span class="title-text">{title}</span>
+                <span class="step-count">{stepNumber} / {stepCount}</span>
+            </div>
+            {#if hintText}
+                <span class="hint-text">{hintText}</span>
+            {/if}
+        </div>
 
         {#if onSkip}
             <button
@@ -78,16 +78,15 @@
             </button>
         {/if}
     </div>
-    <div class="footer-progress-row">
-        <div class="progress-track" aria-hidden="true">
-            {#each progressTicks as tick}
-                <span
-                    class="progress-tick"
-                    class:is-complete={tick + 1 < stepNumber}
-                    class:is-active={tick + 1 === stepNumber}
-                ></span>
-            {/each}
-        </div>
+
+    <div class="progress-track" aria-hidden="true">
+        {#each progressTicks as tick}
+            <span
+                class="progress-tick"
+                class:is-complete={tick + 1 < stepNumber}
+                class:is-active={tick + 1 === stepNumber}
+            ></span>
+        {/each}
     </div>
 </div>
 
@@ -95,9 +94,9 @@
     .footer-note {
         display: flex;
         flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-        padding: 10px 10px 10px 10px;
+        gap: 6px;
+        padding: 8px 10px;
+        max-width: 100%;
         background: linear-gradient(
             135deg,
             color-mix(in srgb, var(--accent) 12%, var(--bg-raised)),
@@ -117,38 +116,45 @@
     }
 
     .footer-note.compact {
-        gap: var(--spacing-md);
-        padding: var(--spacing-md);
+        gap: 4px;
+        padding: 6px 8px;
     }
 
-    .footer-body {
+    .footer-main {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        gap: var(--spacing-md);
+        gap: 8px;
+    }
+
+    .footer-note.compact .footer-main {
+        gap: 6px;
+    }
+
+    .footer-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        flex: 1;
+        min-width: 0;
     }
 
     .footer-title-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: var(--spacing-md);
-    }
-
-    .footer-title {
-        display: flex;
-        align-items: center;
         gap: var(--spacing-sm);
-        min-width: 0;
     }
 
     .title-icon {
         display: inline-flex;
         align-items: center;
         color: var(--accent);
+        flex-shrink: 0;
     }
 
     .title-text {
-        font-size: var(--font-lg);
+        font-size: var(--font-sm);
         font-weight: var(--weight-semibold);
         color: var(--text);
         line-height: 1.1;
@@ -158,41 +164,31 @@
     }
 
     .footer-note.compact .title-text {
-        font-size: var(--font-base);
+        font-size: var(--font-xs);
     }
 
     .step-count {
-        font-size: var(--font-sm);
+        font-size: var(--font-xs);
         font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking);
         color: var(--text-muted);
-        text-align: right;
+        margin-left: auto;
         flex-shrink: 0;
     }
 
-    .footer-note.compact .step-count {
-        font-size: var(--font-xs);
-    }
-
     .hint-text {
-        flex: 1;
-        min-width: 0;
-        font-size: var(--font-sm);
+        font-size: var(--font-xs);
         color: var(--text-muted);
         letter-spacing: var(--tracking);
         opacity: 0.7;
-    }
-
-    .footer-note.compact .hint-text {
-        font-size: var(--font-xs);
     }
 
     .nav-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
+        min-width: 34px;
+        aspect-ratio: 1;
         border: var(--border-width) solid
             color-mix(in srgb, var(--text-muted) 28%, transparent);
         border-radius: var(--radius-full);
@@ -208,8 +204,7 @@
     }
 
     .footer-note.compact .nav-button {
-        width: 30px;
-        height: 30px;
+        min-width: 28px;
     }
 
     .nav-button:hover:not(:disabled) {
@@ -248,20 +243,16 @@
         transform: scale(0.96);
     }
 
-    .footer-progress-row {
-        width: 100%;
-    }
-
     .progress-track {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
         width: 100%;
     }
 
     .progress-tick {
         flex: 1;
-        height: 6px;
+        height: 4px;
         border-radius: 999px;
         background: color-mix(in srgb, var(--text) 10%, transparent);
         transition:

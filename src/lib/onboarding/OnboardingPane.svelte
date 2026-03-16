@@ -179,17 +179,24 @@
     .pane-header-main {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
+        gap: var(--spacing-md);
         min-width: 0;
         flex: 1;
+    }
+
+    .onboarding-pane.compact .pane-header-main {
+        gap: var(--spacing-sm);
     }
 
     .title-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
+        width: 36px;
+    }
+
+    .onboarding-pane.compact .title-icon {
+        width: 28px;
     }
 
     .title-icon.accent {

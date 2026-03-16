@@ -11,7 +11,11 @@
     $: labels = Array.isArray(label) ? label : [label];
 </script>
 
-<div class="onboarding-card {variant}" class:compact style="--card-index: {index}">
+<div
+    class="onboarding-card {variant}"
+    class:compact
+    style="--card-index: {index}"
+>
     <span class="card-icon" aria-hidden="true">
         <svelte:component this={icon} size={compact ? 24 : 32} />
     </span>
@@ -44,7 +48,11 @@
     }
 
     .onboarding-card.accent {
-        border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
+        border-color: color-mix(
+            in srgb,
+            var(--accent) 35%,
+            var(--border-subtle)
+        );
         background: color-mix(in srgb, var(--accent) 8%, var(--bg-panel));
     }
 
