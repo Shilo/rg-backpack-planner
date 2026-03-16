@@ -501,9 +501,9 @@ function measureMetadataCard(
     const valueText = card.techCrystalsSpent;
     const titleFontSize = Math.round(fontSize * 1.04);
     const valueFontSize = Math.round(fontSize * 0.86);
-    const padH = Math.round(fontSize * 0.55);
-    const padV = Math.round(fontSize * 0.35);
-    const rowGap = Math.round(fontSize * 0.28);
+    const padH = Math.round(fontSize * 0.6);
+    const padV = Math.round(fontSize * 0.32);
+    const rowGap = Math.round(fontSize * 0.22);
     const iconSize = Math.round(valueFontSize * 0.92);
     const iconGap = Math.round(valueFontSize * 0.32);
 
@@ -518,10 +518,10 @@ function measureMetadataCard(
         padV * 2 +
         (titleText ? titleFontSize + rowGap : 0) +
         Math.max(valueFontSize, iconSize);
-    const radius = Math.round(fontSize * 0.5);
-    const borderWidth = Math.max(1, Math.round(fontSize * 0.08));
-    const shadowOffsetY = Math.round(fontSize * 0.25);
-    const shadowBlur = Math.round(fontSize * 0.65);
+    const radius = Math.round(fontSize * 0.4);
+    const borderWidth = Math.max(1, Math.round(fontSize * 0.06));
+    const shadowOffsetY = Math.max(1, Math.round(fontSize * 0.16));
+    const shadowBlur = Math.max(6, Math.round(fontSize * 0.92));
     const edgePad = shadowBlur + borderWidth + 1;
 
     return {
@@ -577,8 +577,8 @@ function drawMetadataCard(
     canvasWidth: number,
     canvasHeight: number,
 ) {
-    const cardBg = resolveThemeColor("--node-locked-bg", "#2a2a30");
-    const cardBorder = resolveThemeColor("--node-locked-border", "#3e3e46");
+    const cardBase = resolveThemeColor("--node-locked-bg", "#24272d");
+    const cardBorderSoft = resolveThemeColor("--border-subtle", "#3e4652");
     const cardText = resolveThemeColor("--text", "#e8e8ec");
     const cardMuted = resolveThemeColor("--text-muted", "#a6afbc");
     const cardHighlight = resolveThemeColor("--bg-raised", "#343a45");
@@ -595,13 +595,13 @@ function drawMetadataCard(
     );
 
     ctx.save();
-    ctx.shadowColor = cardBg + "60";
+    ctx.shadowColor = cardBase + "48";
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = metrics.shadowOffsetY;
     ctx.shadowBlur = metrics.shadowBlur;
 
     drawRoundedRect(ctx, cardX, cardY, metrics.width, metrics.height, metrics.radius);
-    ctx.fillStyle = cardBg;
+    ctx.fillStyle = cardBase;
     ctx.fill();
     drawMetadataCardHighlight(
         ctx,
@@ -614,7 +614,7 @@ function drawMetadataCard(
     );
 
     ctx.shadowColor = "transparent";
-    ctx.strokeStyle = cardBorder;
+    ctx.strokeStyle = cardBorderSoft;
     ctx.lineWidth = metrics.borderWidth;
     ctx.stroke();
     ctx.restore();

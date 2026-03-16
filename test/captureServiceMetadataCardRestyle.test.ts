@@ -47,3 +47,9 @@ if (!/ctx\.font = `600 \$\{valueFontSize\}px \$\{LABEL_FONT\}`/.test(source)) {
         "captureService should draw the tech crystal row with the smaller supporting typography treatment.",
     );
 }
+
+if (!/ctx\.strokeStyle = cardBorderSoft/.test(source)) {
+    throw new Error(
+        "captureService should use a quieter border treatment for the restyled card.",
+    );
+}
