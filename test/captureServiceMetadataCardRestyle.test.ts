@@ -70,9 +70,33 @@ if (!/ctx\.font = `600 \$\{valueFontSize\}px \$\{LABEL_FONT\}`/.test(source)) {
     );
 }
 
-if (!/const iconSize = valueFontSize;/.test(source)) {
+if (/const iconSize = valueFontSize;/.test(source)) {
     throw new Error(
-        "captureService should size the tech crystal icon to match the supporting text height.",
+        "captureService should not leave the tech crystal icon at the raw font-size box when the hex shape reads visually smaller.",
+    );
+}
+
+if (/TECH_CRYSTAL_ICON_OPTICAL_SCALE/.test(source)) {
+    throw new Error(
+        "captureService should not rely on a guessed optical scale for the tech crystal icon.",
+    );
+}
+
+if (!/const valueMetrics = ctx\.measureText\(valueText\);/.test(source)) {
+    throw new Error(
+        "captureService should measure the value row before sizing the tech crystal icon.",
+    );
+}
+
+if (!/actualBoundingBoxAscent/.test(source) || !/actualBoundingBoxDescent/.test(source)) {
+    throw new Error(
+        "captureService should use painted text bounds when matching the tech crystal icon height to the value row.",
+    );
+}
+
+if (!/const iconSize = valuePaintedHeight > 0 \? valuePaintedHeight : valueFontSize;/.test(source)) {
+    throw new Error(
+        "captureService should size the tech crystal icon from the painted text height, with a font-size fallback.",
     );
 }
 

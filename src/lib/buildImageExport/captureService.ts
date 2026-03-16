@@ -512,13 +512,18 @@ function measureMetadataCard(
     const padH = Math.round(fontSize * 0.6);
     const padV = Math.round(fontSize * 0.32);
     const rowGap = Math.round(fontSize * 0.22);
-    const iconSize = valueFontSize;
     const iconGap = Math.round(valueFontSize * 0.32);
 
     ctx.font = `700 ${titleFontSize}px ${LABEL_FONT}`;
     const titleWidth = titleText ? ctx.measureText(titleText).width : 0;
     ctx.font = `600 ${valueFontSize}px ${LABEL_FONT}`;
-    const valueWidth = ctx.measureText(valueText).width;
+    const valueMetrics = ctx.measureText(valueText);
+    const valueWidth = valueMetrics.width;
+    const valuePaintedHeight = Math.round(
+        (valueMetrics.actualBoundingBoxAscent || 0) +
+        (valueMetrics.actualBoundingBoxDescent || 0),
+    );
+    const iconSize = valuePaintedHeight > 0 ? valuePaintedHeight : valueFontSize;
 
     const valueRowWidth = iconSize + iconGap + valueWidth;
     const width = Math.max(titleWidth, valueRowWidth) + padH * 2;
