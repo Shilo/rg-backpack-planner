@@ -35,3 +35,14 @@ if (
         "ComposeScreenshotContent should format each screenshot tech crystal amount with formatNumber.",
     );
 }
+
+if (
+    !/\$techCrystalsSpentGuardian > 0\s*\?\s*formatNumber\(\$techCrystalsSpentGuardian\)\s*:\s*undefined/.test(source) ||
+    !/\$techCrystalsSpentVanguard > 0\s*\?\s*formatNumber\(\$techCrystalsSpentVanguard\)\s*:\s*undefined/.test(source) ||
+    !/\$techCrystalsSpentCannon > 0\s*\?\s*formatNumber\(\$techCrystalsSpentCannon\)\s*:\s*undefined/.test(source) ||
+    !/\$techCrystalsSpent > 0\s*\?\s*formatNumber\(\$techCrystalsSpent\)\s*:\s*undefined/.test(source)
+) {
+    throw new Error(
+        "ComposeScreenshotContent should omit zero-tech-crystal screenshot rows instead of formatting them as visible zero values.",
+    );
+}

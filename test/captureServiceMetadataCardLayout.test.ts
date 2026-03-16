@@ -33,3 +33,21 @@ if (!/textOptions\.buildCard\.techCrystalsSpent/.test(source)) {
         "captureService should render total build tech crystals from the build card payload.",
     );
 }
+
+if (!/if \(!titleText && !valueText\) \{\s*return null;?\s*\}/.test(source)) {
+    throw new Error(
+        "captureService should skip measuring and drawing metadata cards when both the title and tech crystal row are absent.",
+    );
+}
+
+if (!/\(titleText && valueText \? titleFontSize \+ rowGap : 0\)/.test(source)) {
+    throw new Error(
+        "captureService should only add title-to-value spacing when both metadata rows are present.",
+    );
+}
+
+if (!/if \(metrics\.valueText\) \{[\s\S]*drawTechCrystalIcon\(/.test(source)) {
+    throw new Error(
+        "captureService should draw the tech crystal row only when that row has content.",
+    );
+}

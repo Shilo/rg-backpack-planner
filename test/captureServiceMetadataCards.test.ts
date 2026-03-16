@@ -6,15 +6,15 @@ const source = readFileSync(
     "utf8",
 );
 
-if (!/type CaptureTreeCard = \{[\s\S]*title: string;[\s\S]*techCrystalsSpent: string;[\s\S]*\}/.test(source)) {
+if (!/type CaptureTreeCard = \{[\s\S]*title: string;[\s\S]*techCrystalsSpent\?: string;[\s\S]*\}/.test(source)) {
     throw new Error(
-        "captureService should define a tree metadata card type with title and tech crystal text.",
+        "captureService should define a tree metadata card type with a required title and optional tech crystal text.",
     );
 }
 
-if (!/type CaptureBuildCard = \{[\s\S]*techCrystalsSpent: string;[\s\S]*\}/.test(source)) {
+if (!/type CaptureBuildCard = \{[\s\S]*techCrystalsSpent\?: string;[\s\S]*\}/.test(source)) {
     throw new Error(
-        "captureService should define a combined build metadata card type.",
+        "captureService should define a combined build metadata card type with an optional tech crystal row.",
     );
 }
 
@@ -33,5 +33,11 @@ if (!/function drawTechCrystalIcon\(/.test(source)) {
 if (!/anchor:\s*"top-right"\s*\|\s*"bottom-right"/.test(source)) {
     throw new Error(
         "captureService metadata cards should support explicit top-right and bottom-right anchors.",
+    );
+}
+
+if (!/const valueText = card\.techCrystalsSpent\?\.trim\(\);/.test(source)) {
+    throw new Error(
+        "captureService should normalize the metadata card tech crystal row as optional text.",
     );
 }

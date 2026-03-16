@@ -51,7 +51,7 @@
     import ImageDetailsPopover from "./ImageDetailsPopover.svelte";
 
     export let isOpen = false;
-    export let onClose: (() => void) | null = null;
+export let onClose: (() => void) | null = null;
 
     let isLoading = true;
     let closeRequested = false;
@@ -126,15 +126,24 @@
                       treeCards: [
                           {
                               title: $t("trees.guardian"),
-                              techCrystalsSpent: formatNumber($techCrystalsSpentGuardian),
+                              techCrystalsSpent:
+                                  $techCrystalsSpentGuardian > 0
+                                      ? formatNumber($techCrystalsSpentGuardian)
+                                      : undefined,
                           },
                           {
                               title: $t("trees.vanguard"),
-                              techCrystalsSpent: formatNumber($techCrystalsSpentVanguard),
+                              techCrystalsSpent:
+                                  $techCrystalsSpentVanguard > 0
+                                      ? formatNumber($techCrystalsSpentVanguard)
+                                      : undefined,
                           },
                           {
                               title: $t("trees.cannon"),
-                              techCrystalsSpent: formatNumber($techCrystalsSpentCannon),
+                              techCrystalsSpent:
+                                  $techCrystalsSpentCannon > 0
+                                      ? formatNumber($techCrystalsSpentCannon)
+                                      : undefined,
                           },
                       ] as const,
                       buildCard: {
@@ -142,7 +151,10 @@
                               buildName && !isDefaultPresetName(buildName)
                                   ? buildName
                                   : undefined,
-                          techCrystalsSpent: formatNumber($techCrystalsSpent),
+                          techCrystalsSpent:
+                              $techCrystalsSpent > 0
+                                  ? formatNumber($techCrystalsSpent)
+                                  : undefined,
                       },
                   }
                 : undefined;
