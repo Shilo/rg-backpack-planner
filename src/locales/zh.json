@@ -194,7 +194,7 @@
         "fullscreenDescription": "将浏览器切换为全屏模式",
         "themeDescription": "主题色和明暗模式",
         "shareDescription": "链接或截图",
-        "previewDescription": "对比构建",
+        "previewDescription": "推荐和自定义构建",
         "pages": {
             "node": "节点",
             "nodeDescription": "行为和显示",
