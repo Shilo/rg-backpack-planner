@@ -88,6 +88,7 @@
         index: number;
         hideViewOptions: boolean;
     } | null = null;
+    let lastTabContextMenuIndex: number | null = null;
     let quickSettings: { x: number; y: number } | null = null;
     let hasMounted = false;
     let lastActiveTabId = "";
@@ -260,6 +261,10 @@
             $treeLevels,
             activeIndex,
         );
+
+    $: if (tabContextMenu && typeof tabContextMenu.index === "number") {
+        lastTabContextMenuIndex = tabContextMenu.index;
+    }
 
     function clearTabPress() {
         clearLongPress(tabPressState);
@@ -687,7 +692,7 @@
         onFocusInView={focusTabInView}
         onReset={resetTabTree}
         onResetBranch={(branch) => {
-            const idx = tabContextMenu?.index;
+            const idx = lastTabContextMenuIndex;
             if (idx != null) resetBranchByIndex(idx, branch);
         }}
     />
