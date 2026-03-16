@@ -1,11 +1,13 @@
 import type { Component } from "svelte";
 import {
     ArrowCounterClockwiseIcon,
+    ArrowFatLineUpIcon,
     ArrowsOutCardinalIcon,
     CornersOutIcon,
-    CursorClickIcon,
     DotsThreeOutlineIcon,
+    DotsThreeOutlineVerticalIcon,
     EyeIcon,
+    GearSixIcon,
     GraphIcon,
     HandGrabbingIcon,
     HandTapIcon,
@@ -16,7 +18,7 @@ import {
     MouseRightClickIcon,
     MouseScrollIcon,
 } from "phosphor-svelte";
-import { GuardianIcon, RootNodeIcon, TechCrystalIcon } from "../customIcons";
+import { GuardianIcon, RootNodeIcon, TechCrystalIcon, VanguardIcon } from "../customIcons";
 import LongPressIcon from "../icons/LongPressIcon.svelte";
 import PinchIcon from "../icons/PinchIcon.svelte";
 import type { Direction } from "./paneLayout";
@@ -95,11 +97,6 @@ export function createOnboardingSteps({
                 description: translate("onboarding.levelUp"),
             },
             {
-                icon: MouseRightClickIcon,
-                label: translate("onboarding.rightClick"),
-                description: translate("onboarding.options"),
-            },
-            {
                 icon: MouseMiddleClickIcon,
                 label: [
                     translate("onboarding.middleClick"),
@@ -107,12 +104,17 @@ export function createOnboardingSteps({
                 ],
                 description: translate("onboarding.levelDown"),
             },
+            {
+                icon: MouseRightClickIcon,
+                label: translate("onboarding.rightClick"),
+                description: translate("onboarding.options"),
+            },
         ];
 
     const lockedCards = [
         {
-            icon: primaryInputIcon,
-            label: primaryInputLabel,
+            icon: ArrowFatLineUpIcon,
+            label: translate("onboarding.quickLevelViewOptions"),
             description: translate("onboarding.lockedNodeLevel"),
         },
     ];
@@ -120,25 +122,33 @@ export function createOnboardingSteps({
     const hudCards = [
         {
             icon: TechCrystalIcon as unknown as Component,
-            label: primaryInputLabel,
+            label: isTouch
+                ? translate("onboarding.tapTechCrystal")
+                : translate("onboarding.clickTechCrystal"),
             description: translate("onboarding.techCrystalBudget"),
         },
         {
             icon: ArrowCounterClockwiseIcon,
-            label: primaryInputLabel,
-            description: translate("onboarding.resetActiveTree"),
+            label: isTouch
+                ? translate("onboarding.tapResetButton")
+                : translate("onboarding.clickResetButton"),
+            description: translate("onboarding.resetActiveTreeOptions"),
         },
     ];
 
     const rootCards = [
         {
             icon: primaryInputIcon,
-            label: primaryInputLabel,
+            label: isTouch
+                ? translate("onboarding.tapNode")
+                : translate("onboarding.clickNode"),
             description: translate("onboarding.rootQuickSettings"),
         },
         {
-            icon: primaryInputIcon,
-            label: primaryInputLabel,
+            icon: GearSixIcon,
+            label: isTouch
+                ? translate("onboarding.tapOption")
+                : translate("onboarding.clickOption"),
             description: translate("onboarding.rootPrimaryAction"),
         },
     ];
@@ -181,7 +191,7 @@ export function createOnboardingSteps({
 
     const previewCards = [
         {
-            icon: HandTapIcon,
+            icon: isTouch ? HandTapIcon : MouseLeftClickIcon,
             label: primaryInputLabel,
             description: translate("onboarding.previewOptions"),
         },
@@ -191,7 +201,7 @@ export function createOnboardingSteps({
         ? [
             {
                 icon: ListIcon,
-                label: translate("onboarding.tap"),
+                label: translate("onboarding.bottombarTapDrawerButton"),
                 description: translate("onboarding.bottombarToggleMenu"),
             },
             {
@@ -200,20 +210,20 @@ export function createOnboardingSteps({
                 description: translate("onboarding.bottombarSwitchTree"),
             },
             {
-                icon: GuardianIcon as unknown as Component,
-                label: translate("onboarding.longPress"),
+                icon: VanguardIcon as unknown as Component,
+                label: translate("onboarding.bottombarLongPressTab"),
                 description: translate("onboarding.bottombarTreeOptions"),
             },
             {
                 icon: CornersOutIcon,
-                label: translate("onboarding.tap"),
+                label: translate("onboarding.bottombarTapFullscreen"),
                 description: translate("onboarding.bottombarToggleFullscreen"),
             },
         ]
         : [
             {
                 icon: ListIcon,
-                label: translate("onboarding.leftClick"),
+                label: translate("onboarding.bottombarClickDrawerButton"),
                 description: translate("onboarding.bottombarToggleMenu"),
             },
             {
@@ -222,13 +232,13 @@ export function createOnboardingSteps({
                 description: translate("onboarding.bottombarSwitchTree"),
             },
             {
-                icon: GuardianIcon as unknown as Component,
-                label: translate("onboarding.rightClick"),
+                icon: VanguardIcon as unknown as Component,
+                label: translate("onboarding.bottombarRightClickTab"),
                 description: translate("onboarding.bottombarTreeOptions"),
             },
             {
                 icon: CornersOutIcon,
-                label: translate("onboarding.leftClick"),
+                label: translate("onboarding.bottombarClickFullscreen"),
                 description: translate("onboarding.bottombarToggleFullscreen"),
             },
         ];
@@ -275,7 +285,7 @@ export function createOnboardingSteps({
             target: "hud",
             direction: "left",
             title: translate("onboarding.hudSection"),
-            titleIcon: TechCrystalIcon as unknown as Component,
+            titleIcon: DotsThreeOutlineVerticalIcon,
             variant: "muted",
             cards: hudCards,
         },
