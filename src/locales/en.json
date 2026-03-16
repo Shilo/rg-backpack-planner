@@ -194,7 +194,7 @@
         "fullscreenDescription": "Expand browser to fill the screen",
         "themeDescription": "Accent color and light or dark mode",
         "shareDescription": "Link or screenshot",
-        "previewDescription": "Recommended & custom builds",
+        "previewDescription": "Recommended & builds",
         "pages": {
             "node": "Node",
             "nodeDescription": "Behavior and Display",

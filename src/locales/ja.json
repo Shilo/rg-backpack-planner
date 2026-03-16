@@ -194,7 +194,7 @@
         "fullscreenDescription": "ブラウザを全画面表示にする",
         "themeDescription": "アクセントカラーとライト／ダークモード",
         "shareDescription": "リンクやスクショ",
-        "previewDescription": "おすすめ＆カスタムビルド",
+        "previewDescription": "おすすめ＆ビルド",
         "pages": {
             "node": "ノード",
             "nodeDescription": "動作と表示",

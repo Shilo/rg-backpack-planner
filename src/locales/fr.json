@@ -194,7 +194,7 @@
         "fullscreenDescription": "Passer le navigateur en plein écran",
         "themeDescription": "Couleur d'accentuation et mode clair ou sombre",
         "shareDescription": "Lien ou capture d'écran",
-        "previewDescription": "Builds recommandés et personnalisés",
+        "previewDescription": "Recommandés et builds",
         "pages": {
             "node": "Nœud",
             "nodeDescription": "Comportement et affichage",
