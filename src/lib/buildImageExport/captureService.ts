@@ -22,9 +22,49 @@ const COMBINED_TREE_SPACING_PX = 0;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
 
-export type CaptureTextOptions = {
-    treeNames: [string, string, string];
+export type CaptureTreeCard = {
+    title: string;
+    techCrystalsSpent: string;
+};
+
+export type CaptureBuildCard = {
     buildTitle?: string;
+    techCrystalsSpent: string;
+};
+
+export type CaptureTextOptions = {
+    treeCards: readonly [CaptureTreeCard, CaptureTreeCard, CaptureTreeCard];
+    buildCard: CaptureBuildCard;
+};
+
+type MetadataCard = {
+    title?: string;
+    techCrystalsSpent: string;
+    anchor: "top-right" | "bottom-right";
+};
+
+type MeasuredMetadataCard = {
+    titleText?: string;
+    valueText: string;
+    titleWidth: number;
+    valueWidth: number;
+    padH: number;
+    padV: number;
+    rowGap: number;
+    iconSize: number;
+    iconGap: number;
+    width: number;
+    height: number;
+    radius: number;
+    borderWidth: number;
+    shadowOffsetY: number;
+    shadowBlur: number;
+    shadowPad: {
+        top: number;
+        right: number;
+        bottom: number;
+        left: number;
+    };
 };
 
 const SNAPDOM_OPTS = {
@@ -406,65 +446,184 @@ function drawRoundedRect(
     ctx.closePath();
 }
 
-function drawLabelCard(
+function drawTechCrystalIcon(
     ctx: CanvasRenderingContext2D,
-    text: string,
     x: number,
     y: number,
+    size: number,
+    color: string,
+) {
+    const radius = size / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i < 6; i += 1) {
+        const angle = (Math.PI / 3) * i - Math.PI / 6;
+        const px = x + radius + Math.cos(angle) * radius;
+        const py = y + radius + Math.sin(angle) * radius;
+        if (i === 0) {
+            ctx.moveTo(px, py);
+        } else {
+            ctx.lineTo(px, py);
+        }
+    }
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+}
+
+function measureMetadataCard(
+    ctx: CanvasRenderingContext2D,
+    card: MetadataCard,
     fontSize: number,
+): MeasuredMetadataCard {
+    const titleText = card.title?.trim();
+    const valueText = card.techCrystalsSpent;
+    const padH = Math.round(fontSize * 0.55);
+    const padV = Math.round(fontSize * 0.35);
+    const rowGap = Math.round(fontSize * 0.28);
+    const iconSize = Math.round(fontSize * 0.92);
+    const iconGap = Math.round(fontSize * 0.32);
+
+    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+    const titleWidth = titleText ? ctx.measureText(titleText).width : 0;
+    ctx.font = `700 ${fontSize}px ${LABEL_FONT}`;
+    const valueWidth = ctx.measureText(valueText).width;
+
+    const valueRowWidth = iconSize + iconGap + valueWidth;
+    const width = Math.max(titleWidth, valueRowWidth) + padH * 2;
+    const height =
+        padV * 2 +
+        (titleText ? fontSize + rowGap : 0) +
+        Math.max(fontSize, iconSize);
+    const radius = Math.round(fontSize * 0.5);
+    const borderWidth = Math.max(1, Math.round(fontSize * 0.08));
+    const shadowOffsetY = Math.round(fontSize * 0.25);
+    const shadowBlur = Math.round(fontSize * 0.65);
+    const edgePad = shadowBlur + borderWidth + 1;
+
+    return {
+        titleText,
+        valueText,
+        titleWidth,
+        valueWidth,
+        padH,
+        padV,
+        rowGap,
+        iconSize,
+        iconGap,
+        width,
+        height,
+        radius,
+        borderWidth,
+        shadowOffsetY,
+        shadowBlur,
+        shadowPad: {
+            top: edgePad,
+            right: edgePad,
+            bottom: shadowBlur + shadowOffsetY + borderWidth + 1,
+            left: edgePad,
+        },
+    };
+}
+
+function computeMetadataCardPlacement(
+    canvasWidth: number,
+    canvasHeight: number,
+    cardWidth: number,
+    cardHeight: number,
+    anchor: "top-right" | "bottom-right",
+    shadowPad: MeasuredMetadataCard["shadowPad"],
+) {
+    return anchor === "top-right"
+        ? {
+              x: canvasWidth - shadowPad.right - cardWidth,
+              y: shadowPad.top,
+          }
+        : {
+              x: canvasWidth - shadowPad.right - cardWidth,
+              y: canvasHeight - shadowPad.bottom - cardHeight,
+          };
+}
+
+function drawMetadataCard(
+    ctx: CanvasRenderingContext2D,
+    card: MetadataCard,
+    fontSize: number,
+    canvasWidth: number,
+    canvasHeight: number,
 ) {
     const cardBg = resolveThemeColor("--node-locked-bg", "#2a2a30");
     const cardBorder = resolveThemeColor("--node-locked-border", "#3e3e46");
     const cardText = resolveThemeColor("--text", "#e8e8ec");
+    const cardAccent = resolveThemeColor("--accent", "#85b8ff");
+    const metrics = measureMetadataCard(ctx, card, fontSize);
+    const { x: cardX, y: cardY } = computeMetadataCardPlacement(
+        canvasWidth,
+        canvasHeight,
+        metrics.width,
+        metrics.height,
+        card.anchor,
+        metrics.shadowPad,
+    );
 
-    const displayText = text.toUpperCase();
-    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
-
-    const metrics = ctx.measureText(displayText);
-    const textWidth = metrics.width;
-    const padH = Math.round(fontSize * 0.55);
-    const padV = Math.round(fontSize * 0.35);
-    const cardW = textWidth + padH * 2;
-    const cardH = fontSize + padV * 2;
-    const r = Math.round(fontSize * 0.5);
-    const borderW = Math.max(1, Math.round(fontSize * 0.08));
-
-    // Card anchored with its right edge at x, top edge at y
-    const cardX = x - cardW;
-    const cardY = y;
-
-    // Shadow matching --shadow-node (0 4px 10px ${bgHex}60)
     ctx.save();
     ctx.shadowColor = cardBg + "60";
     ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = Math.round(fontSize * 0.25);
-    ctx.shadowBlur = Math.round(fontSize * 0.65);
+    ctx.shadowOffsetY = metrics.shadowOffsetY;
+    ctx.shadowBlur = metrics.shadowBlur;
 
-    // Fill background
-    drawRoundedRect(ctx, cardX, cardY, cardW, cardH, r);
+    drawRoundedRect(ctx, cardX, cardY, metrics.width, metrics.height, metrics.radius);
     ctx.fillStyle = cardBg;
     ctx.fill();
 
-    // Clear shadow before stroke so it doesn't double-shadow
     ctx.shadowColor = "transparent";
-
-    // Border stroke (matches locked node border)
     ctx.strokeStyle = cardBorder;
-    ctx.lineWidth = borderW;
+    ctx.lineWidth = metrics.borderWidth;
     ctx.stroke();
-
     ctx.restore();
 
-    // Text (matches locked node text color)
+    const contentX = cardX + metrics.padH;
+    let rowTop = cardY + metrics.padV;
+    const textRight = cardX + metrics.width - metrics.padH;
+
+    if (metrics.titleText) {
+        ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+        ctx.fillStyle = cardText;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "top";
+        ctx.fillText(metrics.titleText, textRight, rowTop);
+        rowTop += fontSize + metrics.rowGap;
+    }
+
+    ctx.font = `700 ${fontSize}px ${LABEL_FONT}`;
     ctx.fillStyle = cardText;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    ctx.fillText(displayText, x - padH, cardY + cardH / 2);
+    const valueCenterY = rowTop + Math.max(fontSize, metrics.iconSize) / 2;
+    ctx.fillText(metrics.valueText, textRight, valueCenterY);
+
+    const iconX =
+        textRight -
+        metrics.valueWidth -
+        metrics.iconGap -
+        metrics.iconSize;
+    const iconY =
+        rowTop +
+        (Math.max(fontSize, metrics.iconSize) - metrics.iconSize) / 2;
+    drawTechCrystalIcon(
+        ctx,
+        Math.max(contentX, iconX),
+        iconY,
+        metrics.iconSize,
+        cardAccent,
+    );
 }
 
-async function addLabelsToTrees(
+async function addMetadataCardsToTrees(
     trees: ThreeTreeBlobs,
-    names: [string, string, string],
+    cards: readonly [CaptureTreeCard, CaptureTreeCard, CaptureTreeCard],
 ): Promise<ThreeTreeBlobs> {
     const images: (HTMLImageElement | null)[] = [];
     const sizes: { width: number; height: number }[] = [];
@@ -486,14 +645,13 @@ async function addLabelsToTrees(
     if (maxHeight === 0) return trees;
 
     const fontSize = computeLabelFontSize(maxHeight);
-    const shadowSpread = Math.round(fontSize * 0.65) + Math.round(fontSize * 0.25);
-    const margin = Math.round(fontSize * 0.6) + shadowSpread;
     const result: ThreeTreeBlobs = [null, null, null];
 
     for (let i = 0; i < NUM_TREES; i += 1) {
         const img = images[i];
         const size = sizes[i];
-        if (!img || !names[i]) {
+        const card = cards[i];
+        if (!img || !card) {
             if (img) img.src = "";
             result[i] = trees[i];
             continue;
@@ -512,7 +670,17 @@ async function addLabelsToTrees(
         ctx.drawImage(img, 0, 0);
         img.src = "";
 
-        drawLabelCard(ctx, names[i], size.width - margin, margin, fontSize);
+        drawMetadataCard(
+            ctx,
+            {
+                title: card.title,
+                techCrystalsSpent: card.techCrystalsSpent,
+                anchor: "top-right",
+            },
+            fontSize,
+            size.width,
+            size.height,
+        );
 
         const labeled = await canvasToBlob(canvas);
         clearCanvasAndImages(ctx, canvas);
@@ -522,16 +690,14 @@ async function addLabelsToTrees(
     return result;
 }
 
-async function addBuildTitleLabel(
+async function addBuildMetadataCard(
     blob: Blob,
-    title: string,
+    card: CaptureBuildCard,
 ): Promise<Blob> {
     const image = await blobToImage(blob);
     const { width, height } = getImageIntrinsicSize(image);
 
     const fontSize = computeLabelFontSize(height);
-    const shadowSpread = Math.round(fontSize * 0.65) + Math.round(fontSize * 0.25);
-    const margin = Math.round(fontSize * 0.6) + shadowSpread;
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -545,10 +711,17 @@ async function addBuildTitleLabel(
     ctx.drawImage(image, 0, 0);
     image.src = "";
 
-    // Card height for vertical offset from bottom
-    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
-    const cardH = fontSize + Math.round(fontSize * 0.35) * 2;
-    drawLabelCard(ctx, title, width - margin, height - margin - cardH, fontSize);
+    drawMetadataCard(
+        ctx,
+        {
+            title: card.buildTitle,
+            techCrystalsSpent: card.techCrystalsSpent,
+            anchor: "bottom-right",
+        },
+        fontSize,
+        width,
+        height,
+    );
 
     const result = await canvasToBlob(canvas);
     clearCanvasAndImages(ctx, canvas);
@@ -698,8 +871,8 @@ export async function captureAllTreeImages(
     return withCaptureState(async () => {
         let trees = await captureThreeTreeBlobs(bridge);
 
-        if (textOptions?.treeNames) {
-            trees = await addLabelsToTrees(trees, textOptions.treeNames);
+        if (textOptions?.treeCards) {
+            trees = await addMetadataCardsToTrees(trees, textOptions.treeCards);
         }
 
         const [b0, b1, b2] = trees;
@@ -708,8 +881,11 @@ export async function captureAllTreeImages(
                 ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined)
                 : null;
 
-        if (combined && textOptions?.buildTitle) {
-            combined = await addBuildTitleLabel(combined, textOptions.buildTitle);
+        if (combined && textOptions?.buildCard) {
+            combined = await addBuildMetadataCard(combined, {
+                buildTitle: textOptions.buildCard.buildTitle,
+                techCrystalsSpent: textOptions.buildCard.techCrystalsSpent,
+            });
         }
 
         return { combined, trees };

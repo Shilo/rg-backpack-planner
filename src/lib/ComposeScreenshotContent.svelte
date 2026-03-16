@@ -29,7 +29,7 @@
         createComposeImageFilename,
         createComposeImageFilenameSuffix,
     } from "./composeFilename";
-    import { t } from "svelte-whisper";
+    import { formatNumber, t } from "svelte-whisper";
     import { get } from "svelte/store";
     import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
     import {
@@ -41,6 +41,12 @@
         uppercaseText,
         DEFAULT_UPPERCASE_TEXT,
     } from "./uppercaseTextStore";
+    import {
+        techCrystalsSpent,
+        techCrystalsSpentGuardian,
+        techCrystalsSpentVanguard,
+        techCrystalsSpentCannon,
+    } from "./techCrystalStore";
     import Button from "./Button.svelte";
     import ImageDetailsPopover from "./ImageDetailsPopover.svelte";
 
@@ -115,21 +121,32 @@
                 "./buildImageExport/captureService"
             );
             const buildName = $activeBuildName;
-            const result = await captureAllTreeImages(
-                showLabels
-                    ? {
-                          treeNames: [
-                              $t("trees.guardian"),
-                              $t("trees.vanguard"),
-                              $t("trees.cannon"),
-                          ],
+            const captureTextOptions = showLabels
+                ? {
+                      treeCards: [
+                          {
+                              title: $t("trees.guardian"),
+                              techCrystalsSpent: formatNumber($techCrystalsSpentGuardian),
+                          },
+                          {
+                              title: $t("trees.vanguard"),
+                              techCrystalsSpent: formatNumber($techCrystalsSpentVanguard),
+                          },
+                          {
+                              title: $t("trees.cannon"),
+                              techCrystalsSpent: formatNumber($techCrystalsSpentCannon),
+                          },
+                      ] as const,
+                      buildCard: {
                           buildTitle:
                               buildName && !isDefaultPresetName(buildName)
                                   ? buildName
                                   : undefined,
-                      }
-                    : undefined,
-            );
+                          techCrystalsSpent: formatNumber($techCrystalsSpent),
+                      },
+                  }
+                : undefined;
+            const result = await captureAllTreeImages(captureTextOptions);
             if (result) {
                 combinedBlob = result.combined;
                 [guardianBlob, vanguardBlob, cannonBlob] = result.trees;
