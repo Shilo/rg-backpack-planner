@@ -22,9 +22,51 @@ const COMBINED_TREE_SPACING_PX = 0;
 const CROP_PADDING_PX = 1; // 1px preserves anti-aliased edge pixels that pixel-scan misses
 const LABEL_FONT = '"Inter", "Segoe UI", system-ui, sans-serif';
 
-export type CaptureTextOptions = {
-    treeNames: [string, string, string];
+export type CaptureTreeCard = {
+    title: string;
+    techCrystalsSpent?: string;
+};
+
+export type CaptureBuildCard = {
     buildTitle?: string;
+    techCrystalsSpent?: string;
+};
+
+export type CaptureTextOptions = {
+    treeCards: readonly [CaptureTreeCard, CaptureTreeCard, CaptureTreeCard];
+    buildCard: CaptureBuildCard;
+};
+
+type MetadataCard = {
+    title?: string;
+    techCrystalsSpent?: string;
+    anchor: "top-right" | "bottom-right";
+};
+
+type MeasuredMetadataCard = {
+    titleText?: string;
+    valueText?: string;
+    titleWidth: number;
+    valueWidth: number;
+    titleFontSize: number;
+    valueFontSize: number;
+    padH: number;
+    padV: number;
+    rowGap: number;
+    iconSize: number;
+    iconGap: number;
+    width: number;
+    height: number;
+    radius: number;
+    borderWidth: number;
+    shadowOffsetY: number;
+    shadowBlur: number;
+    shadowPad: {
+        top: number;
+        right: number;
+        bottom: number;
+        left: number;
+    };
 };
 
 const SNAPDOM_OPTS = {
@@ -406,65 +448,263 @@ function drawRoundedRect(
     ctx.closePath();
 }
 
-function drawLabelCard(
+function drawTechCrystalIcon(
     ctx: CanvasRenderingContext2D,
-    text: string,
     x: number,
     y: number,
-    fontSize: number,
+    size: number,
+    color: string,
 ) {
-    const cardBg = resolveThemeColor("--node-locked-bg", "#2a2a30");
-    const cardBorder = resolveThemeColor("--node-locked-border", "#3e3e46");
-    const cardText = resolveThemeColor("--text", "#e8e8ec");
+    const radius = size / 2;
 
-    const displayText = text.toUpperCase();
-    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
-
-    const metrics = ctx.measureText(displayText);
-    const textWidth = metrics.width;
-    const padH = Math.round(fontSize * 0.55);
-    const padV = Math.round(fontSize * 0.35);
-    const cardW = textWidth + padH * 2;
-    const cardH = fontSize + padV * 2;
-    const r = Math.round(fontSize * 0.5);
-    const borderW = Math.max(1, Math.round(fontSize * 0.08));
-
-    // Card anchored with its right edge at x, top edge at y
-    const cardX = x - cardW;
-    const cardY = y;
-
-    // Shadow matching --shadow-node (0 4px 10px ${bgHex}60)
     ctx.save();
-    ctx.shadowColor = cardBg + "60";
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = Math.round(fontSize * 0.25);
-    ctx.shadowBlur = Math.round(fontSize * 0.65);
-
-    // Fill background
-    drawRoundedRect(ctx, cardX, cardY, cardW, cardH, r);
-    ctx.fillStyle = cardBg;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i += 1) {
+        const angle = (Math.PI / 3) * i - Math.PI / 6;
+        const px = x + radius + Math.cos(angle) * radius;
+        const py = y + radius + Math.sin(angle) * radius;
+        if (i === 0) {
+            ctx.moveTo(px, py);
+        } else {
+            ctx.lineTo(px, py);
+        }
+    }
+    ctx.closePath();
+    ctx.fillStyle = color;
     ctx.fill();
-
-    // Clear shadow before stroke so it doesn't double-shadow
-    ctx.shadowColor = "transparent";
-
-    // Border stroke (matches locked node border)
-    ctx.strokeStyle = cardBorder;
-    ctx.lineWidth = borderW;
-    ctx.stroke();
-
     ctx.restore();
-
-    // Text (matches locked node text color)
-    ctx.fillStyle = cardText;
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillText(displayText, x - padH, cardY + cardH / 2);
 }
 
-async function addLabelsToTrees(
+function drawMetadataCardHighlight(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+    color: string,
+    baseColor: string,
+) {
+    ctx.save();
+    drawRoundedRect(ctx, x, y, width, height, radius);
+    ctx.clip();
+
+    const gradient = ctx.createLinearGradient(x, y, x, y + height);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(0.42, color);
+    gradient.addColorStop(1, baseColor);
+
+    ctx.globalAlpha = 0.24;
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, width, height);
+    ctx.restore();
+}
+
+function measureMetadataCard(
+    ctx: CanvasRenderingContext2D,
+    card: MetadataCard,
+    fontSize: number,
+): MeasuredMetadataCard | null {
+    const titleText = card.title?.trim();
+    const valueText = card.techCrystalsSpent?.trim();
+    if (!titleText && !valueText) {
+        return null;
+    }
+
+    const titleFontSize = Math.round(fontSize * 1.04);
+    const valueFontSize = Math.round(fontSize * 0.86);
+    const padH = Math.round(fontSize * 0.6);
+    const padV = Math.round(fontSize * 0.32);
+    const rowGap = Math.round(fontSize * 0.22);
+
+    ctx.font = `700 ${titleFontSize}px ${LABEL_FONT}`;
+    const titleWidth = titleText ? ctx.measureText(titleText).width : 0;
+    const {
+        valueWidth,
+        iconSize,
+        iconGap,
+    } = valueText
+        ? (() => {
+              ctx.font = `600 ${valueFontSize}px ${LABEL_FONT}`;
+              const valueMetrics = ctx.measureText(valueText);
+              const valuePaintedHeight = Math.round(
+                  (valueMetrics.actualBoundingBoxAscent || 0) +
+                  (valueMetrics.actualBoundingBoxDescent || 0),
+              );
+              const iconSize = valuePaintedHeight > 0 ? valuePaintedHeight : valueFontSize;
+              return {
+                  valueWidth: valueMetrics.width,
+                  iconSize,
+                  iconGap: Math.round(valueFontSize * 0.32),
+              };
+          })()
+        : {
+              valueWidth: 0,
+              iconSize: 0,
+              iconGap: 0,
+          };
+
+    const valueRowWidth = valueText ? iconSize + iconGap + valueWidth : 0;
+    const width = Math.max(titleWidth, valueRowWidth) + padH * 2;
+    const titleBlockHeight = (titleText && valueText ? titleFontSize + rowGap : 0);
+    const titleOnlyHeight = titleText && !valueText ? titleFontSize : 0;
+    const height =
+        padV * 2 +
+        titleBlockHeight +
+        titleOnlyHeight +
+        (valueText ? Math.max(valueFontSize, iconSize) : 0);
+    const radius = Math.round(fontSize * 0.4);
+    const borderWidth = Math.max(1, Math.round(fontSize * 0.06));
+    const shadowOffsetY = Math.max(1, Math.round(fontSize * 0.16));
+    const shadowBlur = Math.max(6, Math.round(fontSize * 0.92));
+    const edgePad = shadowBlur + borderWidth + 1;
+
+    return {
+        titleText,
+        valueText,
+        titleWidth,
+        valueWidth,
+        titleFontSize,
+        valueFontSize,
+        padH,
+        padV,
+        rowGap,
+        iconSize,
+        iconGap,
+        width,
+        height,
+        radius,
+        borderWidth,
+        shadowOffsetY,
+        shadowBlur,
+        shadowPad: {
+            top: edgePad,
+            right: edgePad,
+            bottom: shadowBlur + shadowOffsetY + borderWidth + 1,
+            left: edgePad,
+        },
+    };
+}
+
+function computeMetadataCardPlacement(
+    canvasWidth: number,
+    canvasHeight: number,
+    cardWidth: number,
+    cardHeight: number,
+    anchor: "top-right" | "bottom-right",
+    shadowPad: MeasuredMetadataCard["shadowPad"],
+) {
+    return anchor === "top-right"
+        ? {
+              x: canvasWidth - shadowPad.right - cardWidth,
+              y: shadowPad.top,
+          }
+        : {
+              x: canvasWidth - shadowPad.right - cardWidth,
+              y: canvasHeight - shadowPad.bottom - cardHeight,
+          };
+}
+
+function drawMetadataCard(
+    ctx: CanvasRenderingContext2D,
+    card: MetadataCard,
+    fontSize: number,
+    canvasWidth: number,
+    canvasHeight: number,
+): boolean {
+    const cardBase = resolveThemeColor("--node-locked-bg", "#24272d");
+    const cardBorderSoft = resolveThemeColor("--border-subtle", "#3e4652");
+    const cardText = resolveThemeColor("--text", "#e8e8ec");
+    const cardMuted = resolveThemeColor("--text-muted", "#a6afbc");
+    const cardHighlight = resolveThemeColor("--bg-raised", "#343a45");
+    const metrics = measureMetadataCard(ctx, card, fontSize);
+    if (!metrics) {
+        return false;
+    }
+
+    const titleFontSize = metrics.titleFontSize;
+    const valueFontSize = metrics.valueFontSize;
+    const { x: cardX, y: cardY } = computeMetadataCardPlacement(
+        canvasWidth,
+        canvasHeight,
+        metrics.width,
+        metrics.height,
+        card.anchor,
+        metrics.shadowPad,
+    );
+
+    ctx.save();
+    ctx.shadowColor = cardBase + "48";
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = metrics.shadowOffsetY;
+    ctx.shadowBlur = metrics.shadowBlur;
+
+    drawRoundedRect(ctx, cardX, cardY, metrics.width, metrics.height, metrics.radius);
+    ctx.fillStyle = cardBase;
+    ctx.fill();
+    drawMetadataCardHighlight(
+        ctx,
+        cardX,
+        cardY,
+        metrics.width,
+        metrics.height,
+        metrics.radius,
+        cardHighlight,
+        cardBase,
+    );
+
+    ctx.shadowColor = "transparent";
+    drawRoundedRect(ctx, cardX, cardY, metrics.width, metrics.height, metrics.radius);
+    ctx.strokeStyle = cardBorderSoft;
+    ctx.lineWidth = metrics.borderWidth;
+    ctx.stroke();
+    ctx.restore();
+
+    const contentX = cardX + metrics.padH;
+    let rowTop = cardY + metrics.padV;
+    const textRight = cardX + metrics.width - metrics.padH;
+
+    if (metrics.titleText) {
+        ctx.font = `700 ${titleFontSize}px ${LABEL_FONT}`;
+        ctx.fillStyle = cardText;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "top";
+        ctx.fillText(metrics.titleText, textRight, rowTop);
+        rowTop += titleFontSize + (metrics.valueText ? metrics.rowGap : 0);
+    }
+
+    if (metrics.valueText) {
+        ctx.font = `600 ${valueFontSize}px ${LABEL_FONT}`;
+        ctx.fillStyle = cardMuted;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        const valueCenterY =
+            rowTop + Math.max(valueFontSize, metrics.iconSize) / 2;
+        ctx.fillText(metrics.valueText, textRight, valueCenterY);
+
+        const iconX =
+            textRight -
+            metrics.valueWidth -
+            metrics.iconGap -
+            metrics.iconSize;
+        const iconY =
+            rowTop +
+            (Math.max(valueFontSize, metrics.iconSize) - metrics.iconSize) / 2;
+        drawTechCrystalIcon(
+            ctx,
+            Math.max(contentX, iconX),
+            iconY,
+            metrics.iconSize,
+            cardMuted,
+        );
+    }
+
+    return true;
+}
+
+async function addMetadataCardsToTrees(
     trees: ThreeTreeBlobs,
-    names: [string, string, string],
+    cards: readonly [CaptureTreeCard, CaptureTreeCard, CaptureTreeCard],
 ): Promise<ThreeTreeBlobs> {
     const images: (HTMLImageElement | null)[] = [];
     const sizes: { width: number; height: number }[] = [];
@@ -486,14 +726,13 @@ async function addLabelsToTrees(
     if (maxHeight === 0) return trees;
 
     const fontSize = computeLabelFontSize(maxHeight);
-    const shadowSpread = Math.round(fontSize * 0.65) + Math.round(fontSize * 0.25);
-    const margin = Math.round(fontSize * 0.6) + shadowSpread;
     const result: ThreeTreeBlobs = [null, null, null];
 
     for (let i = 0; i < NUM_TREES; i += 1) {
         const img = images[i];
         const size = sizes[i];
-        if (!img || !names[i]) {
+        const card = cards[i];
+        if (!img || !card) {
             if (img) img.src = "";
             result[i] = trees[i];
             continue;
@@ -512,7 +751,22 @@ async function addLabelsToTrees(
         ctx.drawImage(img, 0, 0);
         img.src = "";
 
-        drawLabelCard(ctx, names[i], size.width - margin, margin, fontSize);
+        const drewCard = drawMetadataCard(
+            ctx,
+            {
+                title: card.title,
+                techCrystalsSpent: card.techCrystalsSpent,
+                anchor: "top-right",
+            },
+            fontSize,
+            size.width,
+            size.height,
+        );
+        if (!drewCard) {
+            clearCanvasAndImages(ctx, canvas);
+            result[i] = trees[i];
+            continue;
+        }
 
         const labeled = await canvasToBlob(canvas);
         clearCanvasAndImages(ctx, canvas);
@@ -522,16 +776,14 @@ async function addLabelsToTrees(
     return result;
 }
 
-async function addBuildTitleLabel(
+async function addBuildMetadataCard(
     blob: Blob,
-    title: string,
+    card: CaptureBuildCard,
 ): Promise<Blob> {
     const image = await blobToImage(blob);
     const { width, height } = getImageIntrinsicSize(image);
 
     const fontSize = computeLabelFontSize(height);
-    const shadowSpread = Math.round(fontSize * 0.65) + Math.round(fontSize * 0.25);
-    const margin = Math.round(fontSize * 0.6) + shadowSpread;
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -545,10 +797,21 @@ async function addBuildTitleLabel(
     ctx.drawImage(image, 0, 0);
     image.src = "";
 
-    // Card height for vertical offset from bottom
-    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
-    const cardH = fontSize + Math.round(fontSize * 0.35) * 2;
-    drawLabelCard(ctx, title, width - margin, height - margin - cardH, fontSize);
+    const drewCard = drawMetadataCard(
+        ctx,
+        {
+            title: card.buildTitle,
+            techCrystalsSpent: card.techCrystalsSpent,
+            anchor: "bottom-right",
+        },
+        fontSize,
+        width,
+        height,
+    );
+    if (!drewCard) {
+        clearCanvasAndImages(ctx, canvas);
+        return blob;
+    }
 
     const result = await canvasToBlob(canvas);
     clearCanvasAndImages(ctx, canvas);
@@ -698,8 +961,8 @@ export async function captureAllTreeImages(
     return withCaptureState(async () => {
         let trees = await captureThreeTreeBlobs(bridge);
 
-        if (textOptions?.treeNames) {
-            trees = await addLabelsToTrees(trees, textOptions.treeNames);
+        if (textOptions?.treeCards) {
+            trees = await addMetadataCardsToTrees(trees, textOptions.treeCards);
         }
 
         const [b0, b1, b2] = trees;
@@ -708,8 +971,11 @@ export async function captureAllTreeImages(
                 ? await combineTreeImagesHorizontally(b0, b1, b2, isIOSCaptureBug() ? getIOSCaptureBg().css : undefined)
                 : null;
 
-        if (combined && textOptions?.buildTitle) {
-            combined = await addBuildTitleLabel(combined, textOptions.buildTitle);
+        if (combined && textOptions?.buildCard) {
+            combined = await addBuildMetadataCard(combined, {
+                buildTitle: textOptions.buildCard.buildTitle,
+                techCrystalsSpent: textOptions.buildCard.techCrystalsSpent,
+            });
         }
 
         return { combined, trees };
