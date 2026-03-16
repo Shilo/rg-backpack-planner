@@ -186,6 +186,28 @@
         </div>
 
         <div class="qs-rows">
+            <span class="qs-label">{$t("settings.nodeLevelBehavior")}</span>
+            <div
+                class="qs-chips"
+                role="radiogroup"
+                aria-label={$t("settings.nodeLevelBehavior")}
+            >
+                {#each [NodeLevelBehavior.Solo, NodeLevelBehavior.Sync] as behavior (behavior)}
+                    <button
+                        class="qs-chip"
+                        class:qs-chip--active={$nodeLevelBehavior === behavior}
+                        type="button"
+                        role="radio"
+                        aria-checked={$nodeLevelBehavior === behavior}
+                        on:click={() => selectLevelBehavior(behavior)}
+                    >
+                        {behavior === NodeLevelBehavior.Solo
+                            ? $t("settings.nodeLevelBehaviorSolo")
+                            : $t("settings.nodeLevelBehaviorSync")}
+                    </button>
+                {/each}
+            </div>
+
             <span class="qs-label">{clickActionLabel}</span>
             <div
                 class="qs-chips"
@@ -206,28 +228,6 @@
                             : action === NodePrimaryAction.IncrementTen
                               ? $t("nodeMenu.incrementTen")
                               : $t("nodeMenu.incrementTier")}
-                    </button>
-                {/each}
-            </div>
-
-            <span class="qs-label">{$t("settings.nodeLevelBehavior")}</span>
-            <div
-                class="qs-chips"
-                role="radiogroup"
-                aria-label={$t("settings.nodeLevelBehavior")}
-            >
-                {#each [NodeLevelBehavior.Solo, NodeLevelBehavior.Sync] as behavior (behavior)}
-                    <button
-                        class="qs-chip"
-                        class:qs-chip--active={$nodeLevelBehavior === behavior}
-                        type="button"
-                        role="radio"
-                        aria-checked={$nodeLevelBehavior === behavior}
-                        on:click={() => selectLevelBehavior(behavior)}
-                    >
-                        {behavior === NodeLevelBehavior.Solo
-                            ? $t("settings.nodeLevelBehaviorSolo")
-                            : $t("settings.nodeLevelBehaviorSync")}
                     </button>
                 {/each}
             </div>

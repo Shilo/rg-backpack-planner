@@ -5,10 +5,7 @@
 
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
-    import {
-        getTreeIcon,
-        TechCrystalIcon,
-    } from "./customIcons";
+    import { getTreeIcon, TechCrystalIcon } from "./customIcons";
     import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
 
@@ -40,8 +37,8 @@
         treeLevels,
     } from "./treeLevelsStore";
     import type { TreeBranchKey } from "./treeLevelsStore";
-import { openResetTreeChoicesModal } from "./resetTreeModal";
-import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
+    import { openResetTreeChoicesModal } from "./resetTreeModal";
+    import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
@@ -78,7 +75,10 @@ import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
         getFocusViewState?: () => TreeViewState | null;
         getTreeCanvas?: () => HTMLDivElement | null;
         restoreViewState?: (view: TreeViewState | null) => void;
-        getWorldBoundsForCapture?: () => { width: number; height: number } | null;
+        getWorldBoundsForCapture?: () => {
+            width: number;
+            height: number;
+        } | null;
     } | null = null;
     let tabContextMenu: {
         id: string;
@@ -502,7 +502,8 @@ import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
             levels,
             {
                 onResetTree: () => resetTabTree(tab.id),
-                onResetBranch: (branch) => resetBranchByIndex(activeIndex, branch),
+                onResetBranch: (branch) =>
+                    resetBranchByIndex(activeIndex, branch),
             },
             tab.nodes,
             getTreeIcon(tab.id),
@@ -687,7 +688,9 @@ import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
         x={quickSettings?.x ?? 0}
         y={quickSettings?.y ?? 0}
         isOpen={!!quickSettings}
-        onClose={() => { quickSettings = null; }}
+        onClose={() => {
+            quickSettings = null;
+        }}
     />
 </div>
 
