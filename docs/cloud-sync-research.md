@@ -518,6 +518,8 @@ If leaderboard becomes a serious roadmap item, Supabase becomes a stronger conte
 See also:
 
 - [leaderboard-research.md](./leaderboard-research.md)
+- [internal-leaderboard-research.md](./internal-leaderboard-research.md)
+- [external-leaderboard-research.md](./external-leaderboard-research.md)
 
 ## Suggested UX Principles
 
