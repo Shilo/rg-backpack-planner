@@ -40,7 +40,7 @@ This is an important finding because it means the sync problem is small:
 - Sync should work across devices and browsers.
 - The app should avoid asking for personal information if possible.
 - Device-specific settings should stay local-only.
-- A leaderboard or public build gallery is optional and should not dictate the private sync design.
+- A leaderboard or public build gallery is optional, but it can share the same cloud opt-in as sync.
 
 ## Review of Existing Manual Sync Attempt
 
@@ -461,8 +461,9 @@ Use Cloud Firestore as the backend and sync only the `build-presets` blob.
 Preferred identity strategy:
 
 - Start with a very low-friction identity flow
-- Make cross-device sync opt-in
+- Use one combined opt-in for cloud features: `Sync + Leaderboard`
 - Use passkeys or a device-linking flow as the durable identity layer
+- Keep public publishing of a specific preset as a separate deliberate action after opt-in
 
 Recommended variants:
 
@@ -493,7 +494,7 @@ This is the best choice if avoiding personal info is more important than easy ac
 
 ## Optional Leaderboard / Public Builds
 
-The leaderboard should be treated as a separate feature, not as part of private sync.
+The leaderboard should share the same cloud identity opt-in as sync, but it should still use separate public data from the private sync document.
 
 Private sync problem:
 
@@ -505,6 +506,7 @@ Public leaderboard problem:
 
 Recommended separation:
 
+- One toggle enables both cloud sync and leaderboard participation: `Sync + Leaderboard`
 - Private sync uses a private per-user document
 - Public builds require explicit publish action
 - Leaderboard rows should be stored separately from private presets
@@ -513,12 +515,16 @@ This avoids accidental publication of private builds.
 
 If leaderboard becomes a serious roadmap item, Supabase becomes a stronger contender because SQL tables and public querying are a natural fit. If private sync remains the main priority, Firestore still stays simpler.
 
+See also:
+
+- [leaderboard-research.md](./leaderboard-research.md)
+
 ## Suggested UX Principles
 
 - Do not call it "account creation" unless it truly is one
-- Frame it as "Enable Sync"
+- Frame it as "Sync + Leaderboard"
 - Keep local-only mode as the default if desired
-- Make sync opt-in and reversible
+- Use one combined cloud opt-in and make it reversible
 - Keep manual export/import as a backup tool
 - Never auto-publish builds publicly
 - Make public publishing a separate deliberate action
@@ -530,9 +536,10 @@ The most intuitive and simple approach is:
 1. Store the exact `rg-backpack-planner-build-presets` JSON blob in one private cloud document.
 2. Keep `localStorage` as the local cache.
 3. Add realtime subscription so changes from another device appear automatically.
-4. Use a low-friction identity model so the same person can access the same document across devices.
-5. Keep all device settings local-only.
-6. Keep manual sync-code import/export only as a fallback backup or migration tool.
+4. Use one combined opt-in surface, `Sync + Leaderboard`, so the same cloud identity powers private sync and optional public participation.
+5. Keep public publishing of any preset explicit and separate from private sync storage.
+6. Keep all device settings local-only.
+7. Keep manual sync-code import/export only as a fallback backup or migration tool.
 
 Best overall pick:
 
