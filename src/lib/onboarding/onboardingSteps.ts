@@ -3,6 +3,7 @@ import {
     ArrowCounterClockwiseIcon,
     ArrowFatLineUpIcon,
     ArrowsOutCardinalIcon,
+    CopySimpleIcon,
     CornersOutIcon,
     DotsThreeOutlineIcon,
     DotsThreeOutlineVerticalIcon,
@@ -12,11 +13,13 @@ import {
     HandGrabbingIcon,
     HandTapIcon,
     ListIcon,
-    LockIcon,
+    LockSimpleIcon,
+    LockSimpleOpenIcon,
     MouseLeftClickIcon,
     MouseMiddleClickIcon,
     MouseRightClickIcon,
     MouseScrollIcon,
+    WarningCircleIcon,
 } from "phosphor-svelte";
 import { GuardianIcon, RootNodeIcon, TechCrystalIcon, VanguardIcon } from "../customIcons";
 import LongPressIcon from "../icons/LongPressIcon.svelte";
@@ -113,9 +116,14 @@ export function createOnboardingSteps({
 
     const lockedCards = [
         {
+            icon: LockSimpleOpenIcon,
+            label: translate("onboarding.lockedAccessible"),
+            description: translate("onboarding.lockedAccessibleDesc"),
+        },
+        {
             icon: ArrowFatLineUpIcon,
-            label: translate("onboarding.quickLevelViewOptions"),
-            description: translate("onboarding.lockedNodeLevel"),
+            label: translate("onboarding.lockedQuickLevel"),
+            description: translate("onboarding.lockedQuickLevelDesc"),
         },
     ];
 
@@ -193,17 +201,22 @@ export function createOnboardingSteps({
         {
             icon: isTouch ? HandTapIcon : MouseLeftClickIcon,
             label: primaryInputLabel,
-            description: translate("onboarding.previewOptions"),
+            description: translate("onboarding.previewViewOptionsDesc"),
+        },
+        {
+            icon: WarningCircleIcon,
+            label: translate("onboarding.previewTemporary"),
+            description: translate("onboarding.previewTemporaryDesc"),
+        },
+        {
+            icon: CopySimpleIcon,
+            label: translate("onboarding.previewClone"),
+            description: translate("onboarding.previewCloneDesc"),
         },
     ];
 
     const bottombarCards = isTouch
         ? [
-            {
-                icon: ListIcon,
-                label: translate("onboarding.bottombarTapDrawerButton"),
-                description: translate("onboarding.bottombarToggleMenu"),
-            },
             {
                 icon: GuardianIcon as unknown as Component,
                 label: translate("onboarding.bottombarTapTab"),
@@ -213,6 +226,11 @@ export function createOnboardingSteps({
                 icon: VanguardIcon as unknown as Component,
                 label: translate("onboarding.bottombarLongPressTab"),
                 description: translate("onboarding.bottombarTreeOptions"),
+            },
+            {
+                icon: ListIcon,
+                label: translate("onboarding.bottombarTapDrawerButton"),
+                description: translate("onboarding.bottombarToggleMenu"),
             },
             {
                 icon: CornersOutIcon,
@@ -258,7 +276,7 @@ export function createOnboardingSteps({
             target: "locked-node",
             direction: lockedNodeRegion === "right" ? "left" : "right",
             title: translate("onboarding.lockedSection"),
-            titleIcon: LockIcon,
+            titleIcon: LockSimpleIcon,
             variant: "accent",
             cards: lockedCards,
         },
