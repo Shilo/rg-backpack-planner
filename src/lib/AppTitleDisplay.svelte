@@ -3,12 +3,14 @@
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
     import { getCurrentVersion } from "./latestUsedVersionStore";
+    import { onboardingSeen } from "./onboarding/onboardingStore";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
 
     let hideForever = false;
     $: if (isMenuOpen) hideForever = true;
+    $: waitingForOnboarding = !$onboardingSeen;
     const version = getCurrentVersion();
     $: appName = $t("app.name");
     $: versionLabel = version === "unknown" ? "" : `v${version}`;
@@ -38,7 +40,7 @@
     });
 </script>
 
-{#if !hideForever}
+{#if !hideForever && !waitingForOnboarding}
     <div class="app-title-display-wrapper" bind:this={wrapperElement}>
         <Button
             class="app-title-display"

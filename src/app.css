@@ -50,11 +50,11 @@ body.has-onboarding-overlay .hud-safe-area * {
     pointer-events: none !important;
 }
 
-body.has-onboarding-overlay .top-left-actions {
+body.onboarding-step-hud .top-right-actions {
     z-index: var(--z-index-modal);
 }
 
-body.onboarding-step-hud .top-right-actions {
+body.onboarding-step-preview .top-left-actions {
     z-index: var(--z-index-modal);
 }
 
