@@ -5,26 +5,45 @@ html.snapdom-capture *::after {
     animation: none !important;
 }
 
-/* Capture-only normalization: keep badge text single-line and
-   disable zoom-compensation scaling so exports stay stable across viewport sizes. */
+/* Capture-only normalization: disable zoom-compensation scaling so
+   exports stay stable across viewport sizes. */
 html.snapdom-capture .node-badge-icon-stack {
     --node-badge-scale: 1 !important;
 }
 
+/* Pin all layout-critical badge properties during capture.
+   snapdom serializes computed styles into compressed CSS classes embedded
+   in an SVG foreignObject. Svelte-scoped CSS properties from Node.svelte
+   (display, align-items, line-height, padding, etc.) may not survive this
+   pipeline — the same class of bug that required pinning --border-width
+   and --hex-border-width above. Without these pins, badge text centering
+   breaks on platforms with different system-font metrics (Roboto on Android
+   vs SF Pro on iOS vs Segoe UI on Windows), and the capture's 3-4×
+   magnification (EXPORT_DPR × scale) amplifies sub-pixel differences into
+   visible shifts.
+   These rules are universal (no media queries) — platform-specific offsets
+   break the opposite platform. */
 html.snapdom-capture .node-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     white-space: nowrap !important;
+    line-height: 1 !important;
+    padding: 2px calc(var(--radius-sm, 6px) / 2) !important;
+    font-variant-numeric: tabular-nums !important;
+    text-align: center !important;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+    font-weight: bold !important;
+    font-size: var(--font-xxs) !important;
+    letter-spacing: 0 !important;
+    text-box-trim: both !important;
+    text-box-edge: cap alphabetic !important;
 }
 
-/* Badge text sits above visual center in a line-height:1 line box because
-   fonts reserve descender space that digits/letters don't fully use. The
-   offset is imperceptible at runtime scale but capture scale×DPR amplifies
-   it. Asymmetric padding shifts the content down toward visual center.
-   Only needed on mobile (coarse pointer) where the misalignment is visible. */
-@media (hover: none) and (pointer: coarse) {
-    html.snapdom-capture .node-badge {
-        padding-top: 4px !important;
-        padding-bottom: 0px !important;
-    }
+html.snapdom-capture .node-level-badge {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
 }
 
 
@@ -66,6 +85,9 @@ html.snapdom-capture .button.node.node-hexagon {
    DOM cloning. */
 html.snapdom-capture .button.node.locked {
     filter: var(--node-brightness-locked) !important;
+    --hex-fill: var(--bg-locked) !important;
+    --hex-border-color: var(--border-color-locked) !important;
+    --node-icon-color: var(--border-color-locked) !important;
 }
 
 html.snapdom-capture .node-wrapper.available {
@@ -77,12 +99,23 @@ html.snapdom-capture .node-wrapper.available .button.node.available {
     border-color: var(--border-color-locked) !important;
     color: var(--text-color-locked) !important;
     filter: var(--node-brightness-locked) !important;
-    --hex-fill: var(--bg-locked);
-    --hex-border-color: var(--border-color-locked);
+    --hex-fill: var(--bg-locked) !important;
+    --hex-border-color: var(--border-color-locked) !important;
 }
 
 html.snapdom-capture .node-wrapper.available .node-badge-slot {
     z-index: calc(var(--z-index-badge) - 1);
+}
+
+/* Pin scoped CSS custom properties for active/maxed hex node rendering.
+   Same failure class as --border-width: Svelte-scoped rules that set --hex-fill,
+   --hex-border-color, and --node-icon-color may be lost in the snapdom clone,
+   causing hex pseudo-elements to render with transparent backgrounds. */
+html.snapdom-capture .button.node.active,
+html.snapdom-capture .button.node.maxed {
+    --hex-fill: var(--bg-active) !important;
+    --hex-border-color: var(--border-color-active) !important;
+    --node-icon-color: var(--border-color-active) !important;
 }
 
 /* Hide name badges on unleveled (locked/available) nodes during capture —
