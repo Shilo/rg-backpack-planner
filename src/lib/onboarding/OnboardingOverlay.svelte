@@ -263,19 +263,16 @@
             resolveElementRect(".tabs-bar-spacer", 8) ?? { ...EMPTY_RECT };
     }
 
-    function getSpotlightRect(target: OnboardingTarget): Rect {
-        if (target === "node") return nodeSpotlightRect;
-        if (target === "locked-node") return lockedNodeSpotlightRect;
-        if (target === "hud") return hudSpotlightRect;
-        if (target === "root") return rootSpotlightRect;
-        if (target === "preview") return previewSpotlightRect;
-        if (target === "bottombar") return bottombarSpotlightRect;
+    $: activeSpotlightRect = (() => {
+        if (!activeStep) return EMPTY_RECT;
+        if (activeStep.target === "node") return nodeSpotlightRect;
+        if (activeStep.target === "locked-node") return lockedNodeSpotlightRect;
+        if (activeStep.target === "hud") return hudSpotlightRect;
+        if (activeStep.target === "root") return rootSpotlightRect;
+        if (activeStep.target === "preview") return previewSpotlightRect;
+        if (activeStep.target === "bottombar") return bottombarSpotlightRect;
         return treeSpotlightRect;
-    }
-
-    $: activeSpotlightRect = activeStep
-        ? getSpotlightRect(activeStep.target)
-        : EMPTY_RECT;
+    })();
     $: {
         if (typeof document !== "undefined") {
             const target = activeStep?.target;
