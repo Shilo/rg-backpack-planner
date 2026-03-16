@@ -753,7 +753,7 @@
         const rect = rootEl.getBoundingClientRect();
         return {
             x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
+            y: rect.top,
         };
     }
 
@@ -813,13 +813,13 @@
         const wrapper = nodeEl.closest(".node-wrapper");
         const el = (wrapper ?? nodeEl) as Element;
         const rect = el.getBoundingClientRect();
-        const levelSlot = wrapper?.querySelector(".node-badge-slot-level");
-        const bottom = levelSlot
-            ? Math.max(rect.bottom, levelSlot.getBoundingClientRect().bottom)
-            : rect.bottom;
+        const nameSlot = wrapper?.querySelector(".node-badge-slot-name");
+        const top = nameSlot
+            ? Math.min(rect.top, nameSlot.getBoundingClientRect().top)
+            : rect.top;
         return {
             x: rect.left + rect.width / 2,
-            y: bottom + NODE_MENU_GAP,
+            y: top - NODE_MENU_GAP,
         };
     }
 

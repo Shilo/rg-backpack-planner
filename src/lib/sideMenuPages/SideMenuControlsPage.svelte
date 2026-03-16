@@ -488,19 +488,6 @@
                     </p>
                 </li>
                 <li class="control-row">
-                    <span class="control-icon" aria-hidden="true">
-                        <RootNodeIcon />
-                    </span>
-                    <p class="control-inline">
-                        <span class="control-label"
-                            >{$t("controls.hudRootQuickSettingsLabel")}</span
-                        >
-                        <span class="control-desc"
-                            >{$t("controls.hudRootQuickSettingsDescription")}</span
-                        >
-                    </p>
-                </li>
-                <li class="control-row">
                     <span class="control-icon" aria-hidden="true"
                         ><ArrowCounterClockwiseIcon /></span
                     >
@@ -550,6 +537,21 @@
                         <span class="control-desc"
                             >{$t(
                                 "controls.hudPreviewIndicatorDescription",
+                            )}</span
+                        >
+                    </p>
+                </li>
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true">
+                        <RootNodeIcon />
+                    </span>
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudRootQuickSettingsLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t(
+                                "controls.hudRootQuickSettingsDescription",
                             )}</span
                         >
                     </p>

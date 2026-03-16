@@ -158,7 +158,7 @@
     title=""
     ariaLabel={skillId ? $t(`skills.${skillId}`) : "Node"}
     {onClose}
-    anchorBelow={true}
+    anchorAbove={true}
 >
     <div class="menu-content">
         <div class="info-header">

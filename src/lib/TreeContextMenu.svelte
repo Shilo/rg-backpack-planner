@@ -41,7 +41,7 @@
     ariaLabel={title}
     {onClose}
     ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
-    touchAnchorAbove={true}
+    anchorAbove={true}
 >
     <div class="menu-content">
         <TreeContextMenuList

@@ -96,6 +96,7 @@
     let tabPressStart: { x: number; y: number } | null = null;
     let tabPressPoint: { x: number; y: number } | null = null;
     let tabPressPointerId: number | null = null;
+    let tabPressEl: HTMLElement | null = null;
     const backgroundPressState: LongPressState = { timer: null, fired: false };
     let backgroundPressStart: { x: number; y: number } | null = null;
     let backgroundPressPoint: { x: number; y: number } | null = null;
@@ -265,6 +266,7 @@
         tabPressStart = null;
         tabPressPoint = null;
         tabPressPointerId = null;
+        tabPressEl = null;
     }
 
     function isPrimaryPointer(event: PointerEvent) {
@@ -279,18 +281,19 @@
         tabPressStart = { x: event.clientX, y: event.clientY };
         tabPressPoint = { x: event.clientX, y: event.clientY };
         tabPressPointerId = event.pointerId;
+        tabPressEl = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
         startLongPress(tabPressState, () => {
-            const point = tabPressPoint ?? tabPressStart;
-            if (!point) return false;
+            if (!tabPressEl) return false;
             suppressTooltip(tabPressPointerId);
             hideTooltip();
             if (tabPressPointerId !== null)
                 suppressNextPointerUp(tabPressPointerId);
+            const rect = tabPressEl.getBoundingClientRect();
             tabContextMenu = {
                 id: tab.id,
                 label: tab.label,
-                x: point.x,
-                y: point.y,
+                x: rect.left + rect.width / 2,
+                y: rect.top - TREE_MENU_GAP,
                 index,
                 hideViewOptions: true,
             };
@@ -345,6 +348,7 @@
     }
 
     const ROOT_QUICK_SETTINGS_PAD = 32;
+    const TREE_MENU_GAP = 16;
     function openRootQuickSettings(centerX: number, rootTop: number) {
         quickSettings = { x: centerX, y: rootTop - ROOT_QUICK_SETTINGS_PAD };
         treeRef?.cancelGestures?.();
@@ -374,7 +378,7 @@
                 id: activeTab.id,
                 label: activeTab.label,
                 x: point.x,
-                y: point.y,
+                y: point.y - TREE_MENU_GAP,
                 index: activeIndex,
                 hideViewOptions: false,
             };
@@ -399,7 +403,7 @@
             id: activeTab.id,
             label: activeTab.label,
             x: event.clientX,
-            y: event.clientY,
+            y: event.clientY - TREE_MENU_GAP,
             index: activeIndex,
             hideViewOptions: false,
         };
@@ -424,11 +428,15 @@
     function openTabMenu(event: MouseEvent, tab: TabConfig, index: number) {
         event.preventDefault();
         hideTooltip();
+        const el = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+        const rect = el?.getBoundingClientRect();
+        const menuX = rect ? rect.left + rect.width / 2 : event.clientX;
+        const menuY = rect ? rect.top - TREE_MENU_GAP : event.clientY - TREE_MENU_GAP;
         tabContextMenu = {
             id: tab.id,
             label: tab.label,
-            x: event.clientX,
-            y: event.clientY,
+            x: menuX,
+            y: menuY,
             index,
             hideViewOptions: true,
         };
