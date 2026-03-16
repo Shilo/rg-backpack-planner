@@ -540,6 +540,18 @@ This is the best "it just syncs" experience while still giving real recovery.
 
 This is the best choice if avoiding personal info is more important than easy account recovery.
 
+#### Best Discord-community fit
+
+- Supabase
+- Discord login
+- optional guild-membership gate for one server
+
+If the app is mainly being shared inside one Discord community and Discord login should power both sync and leaderboard identity, this becomes the strongest overall fit.
+
+See:
+
+- [discord-auth-research.md](./discord-auth-research.md)
+
 ### Why Firestore is the leading recommendation
 
 - The app's data model is document-shaped already
@@ -572,11 +584,14 @@ This avoids accidental publication of private builds.
 
 If leaderboard becomes a serious roadmap item, Supabase becomes a stronger contender because SQL tables and public querying are a natural fit. If private sync remains the main priority, Firestore still stays simpler.
 
+If Discord login becomes a hard requirement for cloud features, Supabase becomes a stronger overall contender than Firestore because Supabase has a dedicated Discord social-login path and Firestore's simplicity advantage gets weaker once Discord auth glue is added.
+
 See also:
 
 - [leaderboard-research.md](./leaderboard-research.md)
 - [internal-leaderboard-research.md](./internal-leaderboard-research.md)
 - [external-leaderboard-research.md](./external-leaderboard-research.md)
+- [discord-auth-research.md](./discord-auth-research.md)
 
 ## Suggested UX Principles
 
@@ -603,6 +618,10 @@ The most intuitive and simple approach is:
 Best overall pick:
 
 - Cloud Firestore + passkey-backed or otherwise low-friction identity
+
+Best overall pick if Discord login is a hard requirement:
+
+- Supabase + Discord login + optional server-membership gate
 
 Best strict no-account pick:
 

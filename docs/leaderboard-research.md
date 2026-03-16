@@ -10,6 +10,7 @@ The leaderboard research is now split into two separate tracks:
 
 - [internal-leaderboard-research.md](./internal-leaderboard-research.md) for building the leaderboard as part of Backpack Planner
 - [external-leaderboard-research.md](./external-leaderboard-research.md) for using an external service instead of building the leaderboard in-app
+- [discord-auth-research.md](./discord-auth-research.md) for using Discord login as the shared identity for `Sync + Leaderboard`
 
 ## Relationship to Sync
 
@@ -22,6 +23,7 @@ The current product direction is still:
 See:
 
 - [cloud-sync-research.md](./cloud-sync-research.md)
+- [discord-auth-research.md](./discord-auth-research.md)
 
 ## Quick Guidance
 
@@ -46,3 +48,7 @@ Best internal direction:
 Best external direction:
 
 - Softr, with `previewUrl` stored per record so each row can open the exact build in Backpack Planner
+
+Best identity direction if the app is mainly shared in one Discord server:
+
+- Discord login as the shared identity for `Sync + Leaderboard`

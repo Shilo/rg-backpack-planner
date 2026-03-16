@@ -30,6 +30,7 @@ References:
 
 - [cloud-sync-research.md](./cloud-sync-research.md)
 - [external-leaderboard-research.md](./external-leaderboard-research.md)
+- [discord-auth-research.md](./discord-auth-research.md)
 
 ## Core Assumption
 
@@ -89,6 +90,27 @@ Flow:
 7. The user can later update or remove the published entry.
 
 This avoids exposing the full private preset collection.
+
+## Discord-Centered Variant
+
+If Backpack Planner is mainly shared through one Discord server, Discord login is a strong fit for the shared cloud identity.
+
+Practical model:
+
+1. User clicks `Enable Sync + Leaderboard with Discord`.
+2. The app signs the user in with Discord.
+3. The backend optionally verifies that the user belongs to the target Discord server.
+4. The Discord-backed identity owns the private sync record.
+5. The same identity can later publish a preset to the public leaderboard.
+
+Important recommendation:
+
+- Use Discord user ID as the stable owner key.
+- Keep public display name optional instead of forcing Discord naming publicly.
+
+See:
+
+- [discord-auth-research.md](./discord-auth-research.md)
 
 ## Storage Model
 
@@ -255,3 +277,5 @@ Best internal approach:
 - `buildCode` as canonical public build payload
 
 If you want the cleanest user experience and the deepest app integration, internal remains the strongest overall option.
+
+If Discord login is a hard requirement because the app is being distributed inside one community server, `Supabase + Discord login` becomes the strongest backend shape for the internal route.

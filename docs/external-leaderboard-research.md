@@ -36,6 +36,20 @@ Reason:
 - External tools can render a clickable button or link without needing to reconstruct your URL format.
 - If the app’s share-token rules evolve later, storing the full URL reduces coupling to the external tool.
 
+## Discord Login Note
+
+Discord login can still be the identity for `Sync + Leaderboard`, but it should normally stay in Backpack Planner's own backend rather than inside the external leaderboard tool.
+
+Practical implication:
+
+- Use Discord login to establish the app user and private sync ownership
+- Publish only already-approved public build rows to the external service
+- Treat the external service as a public gallery surface, not the source of truth for private identity
+
+See:
+
+- [discord-auth-research.md](./discord-auth-research.md)
+
 ## Best External Recommendation: Softr
 
 - Softr homepage: <https://www.softr.io/>
