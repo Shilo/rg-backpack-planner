@@ -6,6 +6,15 @@ export type Migration = {
     run: () => void;
 };
 
+const MIGRATIONS: Migration[] = [
+    {
+        toVersion: "1.0",
+        run: () => {
+            setItem("onboarding-seen", "false");
+        },
+    },
+];
+
 /**
  * Compare two dotted version strings (e.g. "0.9", "1.0", "1.2").
  * Returns -1 if a < b, 0 if a === b, 1 if a > b.
@@ -26,15 +35,6 @@ export function compareVersions(a: string, b: string): number {
     }
     return 0;
 }
-
-const MIGRATIONS: Migration[] = [
-    {
-        toVersion: "1.0",
-        run: () => {
-            setItem("onboarding-seen", "false");
-        },
-    },
-];
 
 /**
  * Run version migrations synchronously. Call as the first step in main.ts.
