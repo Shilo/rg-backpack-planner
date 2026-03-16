@@ -31,8 +31,11 @@
     export let onClose: (() => void) | null = null;
     export let onResetAll: (() => void) | null = null;
     export let onResetTree: (() => void) | null = null;
+    export let onResetBranch: ((branch: import("../treeLevelsStore").TreeBranchKey) => void) | null = null;
     export let onFocusInView: (() => void) | null = null;
     export let onNavigate: ((page: SettingsPageId) => void) | null = null;
+    export let activeTreeNodes: import("../../types/tree").Node[] = [];
+    export let activeTreeId = "";
 
     let previewButtonElement: HTMLButtonElement | null = null;
     let dropdownMenuOpen = false;
@@ -88,8 +91,11 @@
                 onResetTree?.();
                 onClose?.();
             }}
+            onResetBranch={onResetBranch ?? undefined}
             levelsById={$treeLevels[activeTreeIndex] ?? null}
             treeLabel={activeTreeName}
+            treeNodes={activeTreeNodes}
+            treeId={activeTreeId}
         />
         <ResetAllTreesButton
             onResetAll={() => {

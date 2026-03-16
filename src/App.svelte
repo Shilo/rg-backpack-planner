@@ -526,6 +526,9 @@
         onFocusInView={() => tabsRef?.focusActiveTreeInView?.(true)}
         onResetTree={() => tabsRef?.resetActiveTree?.()}
         onResetAll={() => tabsRef?.resetAllTrees?.()}
+        onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
+        activeTreeNodes={tabs[activeTreeIndex]?.nodes ?? []}
+        activeTreeId={tabs[activeTreeIndex]?.id ?? ""}
         {activeTreeIndex}
         {activeTreeViewState}
         {activeTreeFocusViewState}

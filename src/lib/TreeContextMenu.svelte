@@ -3,6 +3,7 @@
     import TreeContextMenuList from "./TreeContextMenuList.svelte";
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node, LevelsByIndex } from "../types/tree";
+    import type { TreeBranchKey } from "./treeLevelsStore";
     import { t } from "svelte-whisper";
 
     export let tabId = "";
@@ -18,6 +19,7 @@
     export let onClose: (() => void) | null = null;
     export let onFocusInView: ((tabId: string) => void) | null = null;
     export let onReset: ((tabId: string) => void) | null = null;
+    export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
     export let hideViewOptions = false;
 
     // Capture the tab id when the menu opens so closing it won't clear callbacks.
@@ -39,11 +41,13 @@
     ariaLabel={title}
     {onClose}
     ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
+    touchAnchorAbove={true}
 >
     <div class="menu-content">
         <TreeContextMenuList
             onFocusInView={() => onFocusInView?.(menuTabId)}
             onReset={() => onReset?.(menuTabId)}
+            onResetBranch={onResetBranch}
             onButtonPress={onClose}
             {tabId}
             {tabLabel}

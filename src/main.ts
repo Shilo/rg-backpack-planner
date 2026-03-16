@@ -10,7 +10,10 @@ import { showToast } from "./lib/toast";
 import { get } from "svelte/store";
 import { tr, locale } from "svelte-whisper";
 import { initServiceWorkerAutoUpdate } from "./lib/serviceWorkerAutoUpdate";
+import { runMigrations } from "./lib/migrations/runMigrations";
 
+// Run migrations first to avoid storage races; see docs/version-migration-early-run.md
+runMigrations();
 
 const cleanupThemeReactivity = initThemeReactivity();
 const cleanupUppercaseText = initUppercaseTextReactivity();

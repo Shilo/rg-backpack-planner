@@ -40,8 +40,8 @@
         treeLevels,
     } from "./treeLevelsStore";
     import type { TreeBranchKey } from "./treeLevelsStore";
-    import { openResetTreeModal } from "./resetTreeModal";
-    import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
+import { openResetTreeChoicesModal } from "./resetTreeModal";
+import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
@@ -154,7 +154,7 @@
         if (sumLevels(levels) === 0) return;
         if (event.repeat) return;
         event.preventDefault();
-        openResetModalForActiveTab();
+        openResetChoicesForActiveTab();
     }
 
     onMount(() => {
@@ -344,8 +344,9 @@
         return nodeId === "root";
     }
 
-    function openRootQuickSettings(x: number, y: number) {
-        quickSettings = { x, y };
+    const ROOT_QUICK_SETTINGS_PAD = 8;
+    function openRootQuickSettings(centerX: number, rootTop: number) {
+        quickSettings = { x: centerX, y: rootTop - ROOT_QUICK_SETTINGS_PAD };
         treeRef?.cancelGestures?.();
     }
 
@@ -490,12 +491,22 @@
         closeTabMenu();
     }
 
-    function openResetModalForActiveTab() {
+    function openResetChoicesForActiveTab() {
         const tab = tabs[activeIndex];
         if (!tab) return;
         const levels = $treeLevels[activeIndex];
         if (sumLevels(levels) === 0) return;
-        openResetTreeModal($t, tab.label, () => resetTabTree(tab.id));
+        openResetTreeChoicesModal(
+            $t,
+            tab.label,
+            levels,
+            {
+                onResetTree: () => resetTabTree(tab.id),
+                onResetBranch: (branch) => resetBranchByIndex(activeIndex, branch),
+            },
+            tab.nodes,
+            getTreeIcon(tab.id),
+        );
     }
 
     export function resetActiveTree() {
@@ -666,6 +677,10 @@
         onClose={closeTabMenu}
         onFocusInView={focusTabInView}
         onReset={resetTabTree}
+        onResetBranch={(branch) => {
+            const idx = tabContextMenu?.index;
+            if (idx != null) resetBranchByIndex(idx, branch);
+        }}
     />
 
     <RootNodeQuickSettings

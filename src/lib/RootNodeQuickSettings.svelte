@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { onMount, onDestroy, tick } from "svelte";
     import { RootNodeIcon } from "./customIcons";
     import { nodePrimaryAction, NodePrimaryAction } from "./nodePrimaryActionStore";
     import { nodeLevelBehavior, NodeLevelBehavior } from "./nodeLevelBehaviorStore";
@@ -20,8 +20,6 @@
     let backdropHadPointerDown = false;
 
     const MARGIN = 8;
-    const OFFSET_Y = 12;
-    const TOUCH_EXTRA_OFFSET_Y = 32;
 
     onMount(() => {
         const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
@@ -37,12 +35,12 @@
         ),
     });
 
+    /** (x, y) from parent: x = center of root, y = desired bottom edge of panel (e.g. rootTop - padding). */
     function updatePosition() {
         if (!panelEl) return;
         const rect = panelEl.getBoundingClientRect();
-        const offsetY = OFFSET_Y + (isTouchPlatform ? TOUCH_EXTRA_OFFSET_Y : 0);
         let px = x - rect.width / 2;
-        let py = y - rect.height - offsetY;
+        let py = y - rect.height;
         px = Math.max(MARGIN, Math.min(px, window.innerWidth - rect.width - MARGIN));
         py = Math.max(MARGIN, Math.min(py, window.innerHeight - rect.height - MARGIN));
         displayX = px;
@@ -86,6 +84,31 @@
         showSettingToast($t("settings.nodeLevelBehavior"), label);
         onClose?.();
     }
+
+    let escapeListenerCleanup: (() => void) | null = null;
+
+    $: if (isOpen) {
+        escapeListenerCleanup?.();
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                onClose?.();
+            }
+        };
+        window.addEventListener("keydown", handler, true);
+        escapeListenerCleanup = () => {
+            window.removeEventListener("keydown", handler, true);
+            escapeListenerCleanup = null;
+        };
+    } else {
+        escapeListenerCleanup?.();
+        escapeListenerCleanup = null;
+    }
+
+    onDestroy(() => {
+        escapeListenerCleanup?.();
+    });
 
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === "Escape") {

@@ -16,7 +16,7 @@
             triggerHaptic();
         }
         if (onRootNodeClick) {
-            onRootNodeClick(r.left + r.width / 2, r.top + r.height / 2);
+            onRootNodeClick(r.left + r.width / 2, r.top);
         } else {
             onFocusView?.();
         }

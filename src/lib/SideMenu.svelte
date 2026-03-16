@@ -9,6 +9,8 @@
     import type { TabBarItem } from "./TabBar.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import type { TreeViewState } from "./Tree.svelte";
+    import type { Node } from "../types/tree";
+    import type { TreeBranchKey } from "./treeLevelsStore";
     import { get } from "svelte/store";
     import {
         setActiveTab,
@@ -46,9 +48,12 @@
     export let onClose: (() => void) | null = null;
     export let onResetAll: (() => void) | null = null;
     export let onResetTree: (() => void) | null = null;
+    export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
     export let onFocusInView: (() => void) | null = null;
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
+    export let activeTreeNodes: Node[] = [];
+    export let activeTreeId = "";
     export let activeTreeViewState: TreeViewState | null = null;
     export let activeTreeFocusViewState: TreeViewState | null = null;
     let SideMenuSettingsPage: any = null;
@@ -109,16 +114,31 @@
     }
 
     function handleTabKeydown(event: KeyboardEvent) {
-        if (!isOpen || event.key !== "Tab" || sideMenuTabs.length <= 1) return;
+        const isTab = event.key === "Tab";
+        const isArrowLeft = event.key === "ArrowLeft";
+        const isArrowRight = event.key === "ArrowRight";
+        if (
+            !isOpen ||
+            (!isTab && !isArrowLeft && !isArrowRight) ||
+            sideMenuTabs.length <= 1
+        )
+            return;
         if ($isComposeScreenshotOpen) return;
         if (hasOnboardingOverlay()) return;
         if (isFormField(document.activeElement)) return;
         event.preventDefault();
         event.stopImmediatePropagation();
         const currentIndex = sideMenuTabs.findIndex((t) => t.id === activeTab);
+        const delta =
+            isTab
+                ? event.shiftKey
+                    ? -1
+                    : 1
+                : isArrowLeft
+                  ? -1
+                  : 1;
         const nextIndex =
-            (currentIndex + (event.shiftKey ? -1 : 1) + sideMenuTabs.length) %
-            sideMenuTabs.length;
+            (currentIndex + delta + sideMenuTabs.length) % sideMenuTabs.length;
         openTab(sideMenuTabs[nextIndex].id as SideMenuTab, true);
         triggerHaptic();
     }
@@ -152,11 +172,14 @@
                         bind:this={settingsPageRef}
                         {activeTreeName}
                         {activeTreeIndex}
+                        {activeTreeNodes}
+                        {activeTreeId}
                         {activeTreeViewState}
                         {activeTreeFocusViewState}
                         {onClose}
                         {onResetAll}
                         {onResetTree}
+                        onResetBranch={onResetBranch}
                         {onFocusInView}
                         {scrollContentElement}
                     />

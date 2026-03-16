@@ -1,14 +1,5 @@
 <script lang="ts">
-    import {
-        SunIcon,
-        SpiralIcon,
-        ShieldIcon,
-        ShareNetworkIcon,
-        SwordIcon,
-        LinkIcon,
-        KnifeIcon,
-    } from "phosphor-svelte";
-    import type { Component } from "svelte";
+    import { LinkIcon, ShareNetworkIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
@@ -20,7 +11,7 @@
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
     import { t } from "svelte-whisper";
-    import { TechCrystalIcon } from "../customIcons";
+    import { TechCrystalIcon, premadeBuildIcons } from "../customIcons";
     import { calculateTechCrystalsSpent, activeTabs } from "../techCrystalStore";
     import { decodeBuildData } from "../buildData/encoder";
 
@@ -30,14 +21,6 @@
     export let onClose: (() => void) | null = null;
     export let onPreview: (() => void) | null = null;
 
-    // Premade build key (from package.json) → icon component
-    const premadeBuildIcons: Record<string, Component> = {
-        "Starter": SunIcon,
-        "Early Stun": SpiralIcon,
-        "Mid PvE": KnifeIcon,
-        "Late PvE": ShieldIcon,
-        "Late PvP": SwordIcon,
-    };
     const premadeBuildLabelKeys: Record<string, string> = {
         Starter: "preview.premade.starter",
         "Early Stun": "preview.premade.earlyStun",

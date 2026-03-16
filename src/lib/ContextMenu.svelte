@@ -13,6 +13,8 @@
     export let ignoreCloseTargetSelector: string | null = null;
     /** When true, (x,y) is the point just above the menu; menu is positioned with its top at y. */
     export let anchorBelow = false;
+    /** When true and coarse pointer (touch), place menu above the point with bottom at y - TOUCH_OFFSET_Y. */
+    export let touchAnchorAbove = false;
     let menuEl: HTMLDivElement | null = null;
     let displayX = 0;
     let displayY = 0;
@@ -136,31 +138,45 @@
     }
 
     export function updatePosition() {
+        const coarse = isCoarsePointer();
+        const useTouchAbove = touchAnchorAbove && coarse;
+
         if (!menuEl) {
-            const adjustedY =
-                y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
+            const adjustedY = anchorBelow
+                ? 0
+                : useTouchAbove
+                  ? -TOUCH_OFFSET_Y
+                  : coarse
+                    ? TOUCH_OFFSET_Y
+                    : 0;
             displayX = x + dragOffset.x;
-            displayY = adjustedY + dragOffset.y;
+            displayY = (useTouchAbove ? y - TOUCH_OFFSET_Y : y + adjustedY) + dragOffset.y;
             return;
         }
 
-        const adjustedY =
-            y + (anchorBelow ? 0 : isCoarsePointer() ? TOUCH_OFFSET_Y : 0);
-        const baseX = x + dragOffset.x;
-        const baseY = adjustedY + dragOffset.y;
-
-        // Get menu dimensions
         const rect = menuEl.getBoundingClientRect();
         const offsetX = rect.width / 2;
-        const offsetY = anchorBelow ? 0 : rect.height * 0.1;
+        let baseX = x + dragOffset.x;
+        let baseY: number;
+        let offsetY: number;
+        let minY: number;
+        let maxY: number;
 
-        // Calculate bounds - keep menu within viewport
+        if (useTouchAbove) {
+            baseY = y - TOUCH_OFFSET_Y + dragOffset.y;
+            minY = MENU_MARGIN + rect.height;
+            maxY = window.innerHeight - MENU_MARGIN;
+        } else {
+            const adjustedY =
+                y + (anchorBelow ? 0 : coarse ? TOUCH_OFFSET_Y : 0) + dragOffset.y;
+            baseY = adjustedY;
+            offsetY = anchorBelow ? 0 : rect.height * 0.1;
+            minY = MENU_MARGIN + offsetY;
+            maxY = window.innerHeight - MENU_MARGIN - (rect.height - offsetY);
+        }
+
         const minX = MENU_MARGIN + offsetX;
         const maxX = window.innerWidth - MENU_MARGIN - offsetX;
-        const minY = MENU_MARGIN + offsetY;
-        const maxY = window.innerHeight - MENU_MARGIN - (rect.height - offsetY);
-
-        // Clamp position to viewport bounds
         displayX = clamp(baseX, minX, maxX);
         displayY = clamp(baseY, minY, maxY);
     }
@@ -195,9 +211,12 @@
 
         const rect = menuEl.getBoundingClientRect();
         const menuCenterX = rect.left + rect.width / 2;
-        const menuCenterY = anchorBelow
-            ? rect.top
-            : rect.top + rect.height * 0.1;
+        const menuCenterY =
+            touchAnchorAbove && isCoarsePointer()
+                ? rect.top + rect.height
+                : anchorBelow
+                  ? rect.top
+                  : rect.top + rect.height * 0.1;
 
         dragStart = {
             x: event.clientX,
@@ -311,9 +330,12 @@
         tick().then(updatePosition);
     }
 
-    $: transformOrigin = anchorBelow
-        ? "translate(-50%, 0)"
-        : "translate(-50%, -10%)";
+    $: transformOrigin =
+        touchAnchorAbove && isCoarsePointer()
+            ? "translate(-50%, -100%)"
+            : anchorBelow
+              ? "translate(-50%, 0)"
+              : "translate(-50%, -10%)";
 
     // Reset when menu closes
     $: if (!isOpen && wasOpen) {

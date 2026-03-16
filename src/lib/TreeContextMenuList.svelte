@@ -7,6 +7,7 @@
     import ResetTreeButton from "./buttons/ResetTreeButton.svelte";
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node, LevelsByIndex } from "../types/tree";
+    import type { TreeBranchKey } from "./treeLevelsStore";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
@@ -24,6 +25,7 @@
 
     export let onFocusInView: (() => void) | null = null;
     export let onReset: (() => void) | null = null;
+    export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
     export let onButtonPress: (() => void) | null = null;
     export let viewState: TreeViewState | null = null;
     export let focusViewState: TreeViewState | null = null;
@@ -194,8 +196,11 @@
 <div class="menu-actions">
     <ResetTreeButton
         {onReset}
+        onResetBranch={onResetBranch}
         {levelsById}
         treeLabel={tabLabel}
+        treeNodes={nodes}
+        treeId={tabId}
         onPress={onButtonPress}
     />
     {#if !hideViewOptions}

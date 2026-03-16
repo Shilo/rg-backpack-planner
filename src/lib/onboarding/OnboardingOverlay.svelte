@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
+    import { fly } from "svelte/transition";
     import type { Node as NodeType, NodeIndex } from "../../types/tree";
     import {
         CursorClickIcon,
@@ -95,6 +96,11 @@
           ? $t("onboarding.continueTap")
           : $t("onboarding.continueClick");
     $: actionHintIcon = isTouch ? HandTapIcon : CursorClickIcon;
+    const prefersReducedMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stepTransitionDuration = prefersReducedMotion ? 0 : 220;
+    const stepTransitionY = prefersReducedMotion ? 0 : 16;
 
     $: nodeRadius = (targetNode?.radius ?? 1) * NODE_RADIUS_PX;
     $: nodeScreenX = (targetNode?.x ?? 0) * scale + offsetX;
@@ -393,23 +399,29 @@
 
     {#if activeStep}
         {#key activeStep.id}
-            <OnboardingPane
-                anchorRect={activeSpotlightRect}
-                direction={activeStep.direction}
-                title={activeStep.title}
-                titleIcon={activeStep.titleIcon}
-                variant={activeStep.variant}
-                cards={activeStep.cards}
-                stepNumber={currentStepIndex + 1}
-                stepCount={steps.length}
-                {viewportWidth}
-                {viewportHeight}
-                avoidRects={[]}
-                ownSpotlightRect={activeSpotlightRect}
-                edgePadding={effectivePanePadding}
-                bottomEdgePadding={footerReservedSpace}
-                compact={compactLayout}
-            />
+            <div
+                class="onboarding-pane-wrap"
+                in:fly={{ y: stepTransitionY, duration: stepTransitionDuration }}
+                out:fly={{ y: -stepTransitionY, duration: stepTransitionDuration }}
+            >
+                <OnboardingPane
+                    anchorRect={activeSpotlightRect}
+                    direction={activeStep.direction}
+                    title={activeStep.title}
+                    titleIcon={activeStep.titleIcon}
+                    variant={activeStep.variant}
+                    cards={activeStep.cards}
+                    stepNumber={currentStepIndex + 1}
+                    stepCount={steps.length}
+                    {viewportWidth}
+                    {viewportHeight}
+                    avoidRects={[]}
+                    ownSpotlightRect={activeSpotlightRect}
+                    edgePadding={effectivePanePadding}
+                    bottomEdgePadding={footerReservedSpace}
+                    compact={compactLayout}
+                />
+            </div>
         {/key}
     {/if}
 
@@ -450,6 +462,16 @@
         border: 2px dashed color-mix(in srgb, var(--text) 60%, transparent);
         pointer-events: none;
         z-index: 1;
+    }
+
+    .onboarding-pane-wrap {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .onboarding-pane-wrap :global(*) {
+        pointer-events: auto;
     }
 
     .footer-wrap {

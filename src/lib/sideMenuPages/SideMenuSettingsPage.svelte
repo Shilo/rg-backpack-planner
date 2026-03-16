@@ -19,8 +19,11 @@
     export let onClose: (() => void) | null = null;
     export let onResetAll: (() => void) | null = null;
     export let onResetTree: (() => void) | null = null;
+    export let onResetBranch: ((branch: import("../treeLevelsStore").TreeBranchKey) => void) | null = null;
     export let onFocusInView: (() => void) | null = null;
     export let scrollContentElement: HTMLElement | null = null;
+    export let activeTreeNodes: import("../../types/tree").Node[] = [];
+    export let activeTreeId = "";
 
     // --- Lazy loading (cache-variable pattern matching SideMenu.svelte) ---
     let RootPage: any = null;
@@ -164,11 +167,14 @@
                 this={outgoingComponent}
                 {activeTreeName}
                 {activeTreeIndex}
+                {activeTreeNodes}
+                {activeTreeId}
                 {activeTreeViewState}
                 {activeTreeFocusViewState}
                 {onClose}
                 {onResetAll}
                 {onResetTree}
+                onResetBranch={onResetBranch}
                 {onFocusInView}
                 onNavigate={navigateTo}
                 onBack={navigateBack}
@@ -189,11 +195,14 @@
                 this={currentComponent}
                 {activeTreeName}
                 {activeTreeIndex}
+                {activeTreeNodes}
+                {activeTreeId}
                 {activeTreeViewState}
                 {activeTreeFocusViewState}
                 {onClose}
                 {onResetAll}
                 {onResetTree}
+                onResetBranch={onResetBranch}
                 {onFocusInView}
                 onNavigate={navigateTo}
                 onBack={navigateBack}
