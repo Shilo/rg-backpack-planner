@@ -424,6 +424,7 @@
                 e.isTrusted &&
                 !$isComposeScreenshotOpen &&
                 !document.querySelector(".context-menu") &&
+                !document.querySelector(".qs-panel") &&
                 !hasOnboardingOverlay()
             ) {
                 e.preventDefault();
