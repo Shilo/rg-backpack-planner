@@ -507,9 +507,9 @@ function measureMetadataCard(
     const iconSize = Math.round(valueFontSize * 0.92);
     const iconGap = Math.round(valueFontSize * 0.32);
 
-    ctx.font = `600 ${titleFontSize}px ${LABEL_FONT}`;
+    ctx.font = `700 ${titleFontSize}px ${LABEL_FONT}`;
     const titleWidth = titleText ? ctx.measureText(titleText).width : 0;
-    ctx.font = `700 ${valueFontSize}px ${LABEL_FONT}`;
+    ctx.font = `600 ${valueFontSize}px ${LABEL_FONT}`;
     const valueWidth = ctx.measureText(valueText).width;
 
     const valueRowWidth = iconSize + iconGap + valueWidth;
@@ -583,6 +583,8 @@ function drawMetadataCard(
     const cardMuted = resolveThemeColor("--text-muted", "#a6afbc");
     const cardHighlight = resolveThemeColor("--bg-raised", "#343a45");
     const metrics = measureMetadataCard(ctx, card, fontSize);
+    const titleFontSize = metrics.titleFontSize;
+    const valueFontSize = metrics.valueFontSize;
     const { x: cardX, y: cardY } = computeMetadataCardPlacement(
         canvasWidth,
         canvasHeight,
@@ -622,20 +624,20 @@ function drawMetadataCard(
     const textRight = cardX + metrics.width - metrics.padH;
 
     if (metrics.titleText) {
-        ctx.font = `600 ${metrics.titleFontSize}px ${LABEL_FONT}`;
+        ctx.font = `700 ${titleFontSize}px ${LABEL_FONT}`;
         ctx.fillStyle = cardText;
         ctx.textAlign = "right";
         ctx.textBaseline = "top";
         ctx.fillText(metrics.titleText, textRight, rowTop);
-        rowTop += metrics.titleFontSize + metrics.rowGap;
+        rowTop += titleFontSize + metrics.rowGap;
     }
 
-    ctx.font = `700 ${metrics.valueFontSize}px ${LABEL_FONT}`;
+    ctx.font = `600 ${valueFontSize}px ${LABEL_FONT}`;
     ctx.fillStyle = cardMuted;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     const valueCenterY =
-        rowTop + Math.max(metrics.valueFontSize, metrics.iconSize) / 2;
+        rowTop + Math.max(valueFontSize, metrics.iconSize) / 2;
     ctx.fillText(metrics.valueText, textRight, valueCenterY);
 
     const iconX =
@@ -645,8 +647,7 @@ function drawMetadataCard(
         metrics.iconSize;
     const iconY =
         rowTop +
-        (Math.max(metrics.valueFontSize, metrics.iconSize) - metrics.iconSize) /
-            2;
+        (Math.max(valueFontSize, metrics.iconSize) - metrics.iconSize) / 2;
     drawTechCrystalIcon(
         ctx,
         Math.max(contentX, iconX),
