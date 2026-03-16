@@ -48,6 +48,8 @@ type MeasuredMetadataCard = {
     valueText: string;
     titleWidth: number;
     valueWidth: number;
+    titleFontSize: number;
+    valueFontSize: number;
     padH: number;
     padV: number;
     rowGap: number;
@@ -473,6 +475,23 @@ function drawTechCrystalIcon(
     ctx.restore();
 }
 
+function drawMetadataCardHighlight(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+    color: string,
+) {
+    ctx.save();
+    ctx.globalAlpha = 0.16;
+    drawRoundedRect(ctx, x, y, width, Math.max(8, height * 0.46), radius);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+}
+
 function measureMetadataCard(
     ctx: CanvasRenderingContext2D,
     card: MetadataCard,
@@ -480,23 +499,25 @@ function measureMetadataCard(
 ): MeasuredMetadataCard {
     const titleText = card.title?.trim();
     const valueText = card.techCrystalsSpent;
+    const titleFontSize = Math.round(fontSize * 1.04);
+    const valueFontSize = Math.round(fontSize * 0.86);
     const padH = Math.round(fontSize * 0.55);
     const padV = Math.round(fontSize * 0.35);
     const rowGap = Math.round(fontSize * 0.28);
-    const iconSize = Math.round(fontSize * 0.92);
-    const iconGap = Math.round(fontSize * 0.32);
+    const iconSize = Math.round(valueFontSize * 0.92);
+    const iconGap = Math.round(valueFontSize * 0.32);
 
-    ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+    ctx.font = `600 ${titleFontSize}px ${LABEL_FONT}`;
     const titleWidth = titleText ? ctx.measureText(titleText).width : 0;
-    ctx.font = `700 ${fontSize}px ${LABEL_FONT}`;
+    ctx.font = `700 ${valueFontSize}px ${LABEL_FONT}`;
     const valueWidth = ctx.measureText(valueText).width;
 
     const valueRowWidth = iconSize + iconGap + valueWidth;
     const width = Math.max(titleWidth, valueRowWidth) + padH * 2;
     const height =
         padV * 2 +
-        (titleText ? fontSize + rowGap : 0) +
-        Math.max(fontSize, iconSize);
+        (titleText ? titleFontSize + rowGap : 0) +
+        Math.max(valueFontSize, iconSize);
     const radius = Math.round(fontSize * 0.5);
     const borderWidth = Math.max(1, Math.round(fontSize * 0.08));
     const shadowOffsetY = Math.round(fontSize * 0.25);
@@ -508,6 +529,8 @@ function measureMetadataCard(
         valueText,
         titleWidth,
         valueWidth,
+        titleFontSize,
+        valueFontSize,
         padH,
         padV,
         rowGap,
@@ -557,7 +580,8 @@ function drawMetadataCard(
     const cardBg = resolveThemeColor("--node-locked-bg", "#2a2a30");
     const cardBorder = resolveThemeColor("--node-locked-border", "#3e3e46");
     const cardText = resolveThemeColor("--text", "#e8e8ec");
-    const cardAccent = resolveThemeColor("--accent", "#85b8ff");
+    const cardMuted = resolveThemeColor("--text-muted", "#a6afbc");
+    const cardHighlight = resolveThemeColor("--bg-raised", "#343a45");
     const metrics = measureMetadataCard(ctx, card, fontSize);
     const { x: cardX, y: cardY } = computeMetadataCardPlacement(
         canvasWidth,
@@ -577,6 +601,15 @@ function drawMetadataCard(
     drawRoundedRect(ctx, cardX, cardY, metrics.width, metrics.height, metrics.radius);
     ctx.fillStyle = cardBg;
     ctx.fill();
+    drawMetadataCardHighlight(
+        ctx,
+        cardX,
+        cardY,
+        metrics.width,
+        metrics.height,
+        metrics.radius,
+        cardHighlight,
+    );
 
     ctx.shadowColor = "transparent";
     ctx.strokeStyle = cardBorder;
@@ -589,19 +622,20 @@ function drawMetadataCard(
     const textRight = cardX + metrics.width - metrics.padH;
 
     if (metrics.titleText) {
-        ctx.font = `600 ${fontSize}px ${LABEL_FONT}`;
+        ctx.font = `600 ${metrics.titleFontSize}px ${LABEL_FONT}`;
         ctx.fillStyle = cardText;
         ctx.textAlign = "right";
         ctx.textBaseline = "top";
         ctx.fillText(metrics.titleText, textRight, rowTop);
-        rowTop += fontSize + metrics.rowGap;
+        rowTop += metrics.titleFontSize + metrics.rowGap;
     }
 
-    ctx.font = `700 ${fontSize}px ${LABEL_FONT}`;
-    ctx.fillStyle = cardText;
+    ctx.font = `700 ${metrics.valueFontSize}px ${LABEL_FONT}`;
+    ctx.fillStyle = cardMuted;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    const valueCenterY = rowTop + Math.max(fontSize, metrics.iconSize) / 2;
+    const valueCenterY =
+        rowTop + Math.max(metrics.valueFontSize, metrics.iconSize) / 2;
     ctx.fillText(metrics.valueText, textRight, valueCenterY);
 
     const iconX =
@@ -611,13 +645,14 @@ function drawMetadataCard(
         metrics.iconSize;
     const iconY =
         rowTop +
-        (Math.max(fontSize, metrics.iconSize) - metrics.iconSize) / 2;
+        (Math.max(metrics.valueFontSize, metrics.iconSize) - metrics.iconSize) /
+            2;
     drawTechCrystalIcon(
         ctx,
         Math.max(contentX, iconX),
         iconY,
         metrics.iconSize,
-        cardAccent,
+        cardMuted,
     );
 }
 

@@ -66,6 +66,7 @@ const TEST_FILES = [
     "composeScreenshotTabsAndFilename.test.ts",
     "imageFormatExports.test.ts",
     "captureServiceMetadataCards.test.ts",
+    "captureServiceMetadataCardRestyle.test.ts",
     "captureServiceMetadataCardLayout.test.ts",
     "captureServiceBadgeBounds.test.ts",
     "captureServiceCenteredBounds.test.ts",
