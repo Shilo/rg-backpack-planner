@@ -4,6 +4,8 @@
     import { t } from "svelte-whisper";
     import { getCurrentVersion } from "./latestUsedVersionStore";
     import { onboardingSeen } from "./onboarding/onboardingStore";
+    import { activePresetName } from "./buildPresetsStore";
+    import { isPreviewMode } from "./previewModeStore";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
@@ -21,6 +23,10 @@
                   version: versionLabel,
               })
             : appName;
+    $: presetSubtitle =
+        !$isPreviewMode
+            ? $t("preview.buildTitle", { name: $activePresetName })
+            : "";
 
     let wrapperElement: HTMLDivElement;
 
@@ -50,6 +56,9 @@
             arrow="right"
         >
             {appDisplayName}
+            {#if presetSubtitle}
+                <span class="app-title-preset">{presetSubtitle}</span>
+            {/if}
         </Button>
     </div>
 {/if}
@@ -70,6 +79,14 @@
         --app-title-display-fade: 200ms;
         animation: app-title-fade var(--app-title-display-fade) ease-in forwards;
         animation-delay: var(--app-title-display-duration);
+    }
+
+    .app-title-preset {
+        display: block;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-normal);
+        opacity: 0.6;
+        letter-spacing: 0.02em;
     }
 
     @keyframes app-title-fade {
