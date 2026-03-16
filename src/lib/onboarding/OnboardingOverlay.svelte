@@ -563,8 +563,10 @@
 
     .footer-wrap {
         position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+        left: max(var(--bar-pad), var(--safe-left, 0px));
+        right: max(var(--bar-pad), var(--safe-right, 0px));
+        display: flex;
+        justify-content: center;
         z-index: 2;
         pointer-events: none;
     }

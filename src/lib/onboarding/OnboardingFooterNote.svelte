@@ -24,13 +24,25 @@
 <div
     class="footer-note"
     class:compact
+    role="presentation"
     aria-live="polite"
     on:click|stopPropagation
+    on:keydown|stopPropagation
+    on:keyup|stopPropagation
     on:pointerdown|stopPropagation
     on:pointerup|stopPropagation
     on:mousedown|stopPropagation
     on:touchstart|stopPropagation
 >
+    <div class="footer-title-row">
+        <div class="footer-title">
+            <span class="title-icon" aria-hidden="true">
+                <BookOpenIcon size={compact ? 16 : 18} />
+            </span>
+            <span class="title-text">{title}</span>
+        </div>
+        <span class="step-count">{stepNumber} / {stepCount}</span>
+    </div>
     <div class="footer-body">
         <button
             class="nav-button"
@@ -51,20 +63,9 @@
             <CaretRightIcon size={navIconSize} weight="bold" />
         </button>
 
-        <div class="footer-content">
-            <div class="footer-title-row">
-                <div class="footer-title">
-                    <span class="title-icon" aria-hidden="true">
-                        <BookOpenIcon size={compact ? 14 : 16} />
-                    </span>
-                    <span class="title-text">{title}</span>
-                </div>
-                <span class="step-count">{stepNumber} / {stepCount}</span>
-            </div>
-            {#if hintText}
-                <span class="hint-text">{hintText}</span>
-            {/if}
-        </div>
+        {#if hintText}
+            <span class="hint-text">{hintText}</span>
+        {/if}
 
         {#if onSkip}
             <button
@@ -92,21 +93,23 @@
 
 <style>
     .footer-note {
-        max-width: min(460px, calc(100vw - 24px));
         display: flex;
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
         padding: 10px 10px 10px 10px;
-        background:
-            linear-gradient(
-                135deg,
-                color-mix(in srgb, var(--accent) 12%, var(--bg-raised)),
-                color-mix(in srgb, var(--bg-raised) 88%, var(--surface))
-            );
-        border: var(--border-width) solid color-mix(in srgb, var(--accent) 18%, var(--border));
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--accent) 12%, var(--bg-raised)),
+            color-mix(in srgb, var(--bg-raised) 88%, var(--surface))
+        );
+        border: var(--border-width) solid
+            color-mix(in srgb, var(--accent) 18%, var(--border));
         border-radius: calc(var(--radius) + 4px);
-        box-shadow: var(--shadow), 0 8px 24px color-mix(in srgb, var(--shadow-color, black) 12%, transparent);
+        box-shadow:
+            var(--shadow),
+            0 8px 24px
+                color-mix(in srgb, var(--shadow-color, black) 12%, transparent);
         backdrop-filter: blur(var(--blur-md));
         -webkit-backdrop-filter: blur(var(--blur-md));
         color: var(--text-muted);
@@ -121,16 +124,7 @@
     .footer-body {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
-    }
-
-    .footer-content {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 0 var(--spacing-sm);
+        gap: var(--spacing-md);
     }
 
     .footer-title-row {
@@ -144,6 +138,7 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
+        min-width: 0;
     }
 
     .title-icon {
@@ -153,14 +148,17 @@
     }
 
     .title-text {
-        font-size: var(--font-base);
+        font-size: var(--font-lg);
         font-weight: var(--weight-semibold);
         color: var(--text);
         line-height: 1.1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .footer-note.compact .title-text {
-        font-size: var(--font-sm);
+        font-size: var(--font-base);
     }
 
     .step-count {
@@ -177,6 +175,8 @@
     }
 
     .hint-text {
+        flex: 1;
+        min-width: 0;
         font-size: var(--font-sm);
         color: var(--text-muted);
         letter-spacing: var(--tracking);
@@ -193,7 +193,8 @@
         justify-content: center;
         width: 36px;
         height: 36px;
-        border: var(--border-width) solid color-mix(in srgb, var(--text-muted) 28%, transparent);
+        border: var(--border-width) solid
+            color-mix(in srgb, var(--text-muted) 28%, transparent);
         border-radius: var(--radius-full);
         background: transparent;
         color: var(--text);
