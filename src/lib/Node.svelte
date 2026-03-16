@@ -535,12 +535,6 @@
         line-height: var(--leading-none);
         letter-spacing: 0;
         font-variant-numeric: tabular-nums;
-        /* Trim font-specific leading so flex centering aligns to the actual
-           cap-height → baseline box, not the font's ascent/descent box.
-           Without this, Roboto (Android) text appears higher than SF Pro (iOS)
-           or Segoe UI (Windows) because each font has different metrics. */
-        text-box-trim: both;
-        text-box-edge: cap alphabetic;
         /* Dynamic contrast: soft black/white vs badge background; fallback when color-contrast() unsupported */
         color: var(--node-badge-text);
         display: inline-flex;

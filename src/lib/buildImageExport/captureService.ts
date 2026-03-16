@@ -199,6 +199,14 @@ async function canvasToBlob(
 }
 
 
+const SNAPDOM_CAPTURE_ANDROID_CLASS = "snapdom-capture-android";
+
+function isAndroidChromium(): boolean {
+    if (typeof navigator === "undefined") return false;
+    const ua = navigator.userAgent;
+    return /Android/i.test(ua) && /Chrome\//i.test(ua);
+}
+
 async function captureLiveTreeBlob(
     bridge: TreeBridge,
     tabIndex: number,
@@ -897,6 +905,9 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
     incrementCapture();
     if (isFirstCall) {
         rootEl?.classList.add(SNAPDOM_CAPTURE_CLASS);
+        if (isAndroidChromium()) {
+            rootEl?.classList.add(SNAPDOM_CAPTURE_ANDROID_CLASS);
+        }
     }
     try {
         return await callback();
@@ -904,6 +915,7 @@ async function withCaptureState<T>(callback: () => Promise<T>): Promise<T> {
         decrementCapture();
         if (captureInProgressCount === 0) {
             rootEl?.classList.remove(SNAPDOM_CAPTURE_CLASS);
+            rootEl?.classList.remove(SNAPDOM_CAPTURE_ANDROID_CLASS);
         }
     }
 }
