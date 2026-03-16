@@ -2,7 +2,8 @@
     "languageNames": {
         "en": "英語 (English)",
         "ja": "日本語",
-        "zh": "中国語 (中文)"
+        "zh": "中国語 (中文)",
+        "fr": "フランス語 (Français)"
     },
     "app": {
         "name": "Backpack Planner",
@@ -320,8 +321,10 @@
         "viewInBrowser": "ブラウザで表示",
         "shareTooltip": "アプリで共有",
         "refreshTooltip": "スクリーンショットを再生成",
+        "statsErrorToast": "統計画像を生成できません",
         "tabs": {
-            "all": "すべてのツリーを表示"
+            "all": "すべてのツリーを表示",
+            "stats": "統計を表示"
         },
         "imageDetails": {
             "title": "画像の詳細",

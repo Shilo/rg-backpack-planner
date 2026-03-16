@@ -48,7 +48,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 - **Node primary action** — Configure tap/click to add 1, 10, or a full tier of levels.
 - **Level sync** — Choose whether leveling a node syncs connected nodes or changes only the one you tapped.
 - **Haptic feedback** — Vibration on interactions (supported devices).
-- **Languages** — English, Japanese, and Chinese with auto-detection.
+- **Languages** — English, Japanese, Chinese, and French with auto-detection.
 
 ### Works Everywhere
 - **Installable PWA** — Add to your home screen and use it like a native app. Works offline after first load.

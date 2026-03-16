@@ -2,7 +2,8 @@
     "languageNames": {
         "en": "英语 (English)",
         "ja": "日语 (日本語)",
-        "zh": "中文"
+        "zh": "中文",
+        "fr": "法语 (Français)"
     },
     "app": {
         "name": "Backpack Planner",
@@ -320,8 +321,10 @@
         "viewInBrowser": "在浏览器中查看",
         "shareTooltip": "通过应用分享",
         "refreshTooltip": "重新生成截图",
+        "statsErrorToast": "无法生成统计图片",
         "tabs": {
-            "all": "查看所有技能树"
+            "all": "查看所有技能树",
+            "stats": "查看统计"
         },
         "imageDetails": {
             "title": "图片详情",
