@@ -46,6 +46,50 @@ This is an important finding because it means the sync problem is small:
 - Device-specific settings should stay local-only.
 - A leaderboard or public build gallery is optional, but it can share the same cloud opt-in as sync.
 
+## Practical Cost Estimate For This App
+
+Using the example `rg-backpack-planner-build-presets` value above, the synced payload is about `811 bytes`.
+
+That means the actual storage footprint of private sync is extremely small:
+
+- `1 user` storing one preset blob is about `811 bytes`.
+- `10 monthly active users` storing one preset blob each is about `8 KB` total.
+
+For a practical monthly estimate, assume:
+
+- `10 monthly active users`
+- each user opens the app on synced devices about `20 times` per month
+- each user changes and saves presets about `50 times` per month
+
+That works out to roughly:
+
+- `700 reads/month`
+- `500 writes/month`
+- `0.54 MB` outbound transfer/month
+- `8 KB` stored data total
+
+Even a much more aggressive small-app estimate still stays tiny:
+
+- `10 monthly active users`
+- `100 app opens/user/month`
+- `300 preset saves/user/month`
+- about `4,000 reads/month`
+- about `3,000 writes/month`
+- about `3.1 MB` outbound transfer/month
+
+Practical conclusion:
+
+- `Cloud Firestore` is effectively free at this scale and remains the best fit for sync-only.
+- `Supabase` is also effectively free at this scale on the free tier.
+- `Appwrite Cloud` is also effectively free at this scale on the free tier.
+- The first meaningful cost is more likely to come from choosing a paid plan for product reasons, not from actual data size or request volume.
+- `Phone/SMS auth` is the main thing to avoid if the goal is to keep real-world cost near zero.
+
+Scope note:
+
+- This estimate is for private preset sync only.
+- It does not include optional external leaderboard products like Softr or Glide, which have their own plan costs.
+
 ## Review of Existing Manual Sync Attempt
 
 Reviewed commit:
