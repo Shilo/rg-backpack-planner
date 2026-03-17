@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-17
 **Reporter:** User on Android Pixel 8, Japanese language
-**Status:** Investigating — awaiting debug panel data from user
+**Status:** ROOT CAUSE IDENTIFIED — Chrome auto-translation + locale persistence bug
 
 ## Reported Symptoms
 
@@ -201,7 +201,7 @@ Ask the user to: open About page → expand Debug accordion → tap the test but
    ├─ YES → Theory 4 confirmed. Fix: open in full browser.
    └─ NO → continue
 3. Does Locale show "ja"?
-   ├─ NO (shows "en") → Theory 5 confirmed (locale chunk failed).
+   ├─ NO (shows "en") → Theory 5 likely, but check Theory 8 first (see below).
    └─ YES → continue
 4. Do Taps (DOM) and Taps (Svelte) match after tapping?
    ├─ NO (DOM > Svelte) → Svelte runtime broken (Theory 2 or 3). Collect Chrome version from User Agent.
@@ -209,4 +209,138 @@ Ask the user to: open About page → expand Debug accordion → tap the test but
 5. Do Levels Total / Crystals Spent show correct values after leveling nodes?
    ├─ NO (0 despite leveled nodes) → Store hydration issue
    └─ YES → Component subscription issue specific to Tree/Node rendering
+6. Is Locale "en" while Browser Lang starts with "ja"?
+   ├─ YES → Two issues: (a) locale persistence bug overriding browser detection,
+   │        (b) check if user is using Chrome auto-translate (Theory 8).
+   └─ NO → Continue investigating environment-specific issues
 ```
+
+---
+
+## Investigation Results
+
+### Debug Data Comparison
+
+**Developer (Pixel 8 Pro, Brave, working correctly):**
+
+```
+App Version     1.0.1
+Stored Version  1.0.1
+Device          Pixel 8 Pro
+Platform        Android 14.0.0
+Browser         Chromium 134.0.6998.88
+Screen          412x915 @2.625x
+Viewport        412x745
+Memory          8 GB
+CPU Cores       9
+Locale          en
+Browser Lang    en-US
+Display Mode    Standalone (PWA)
+Service Worker  active
+Network         4g
+Levels Total    0
+Crystals Spent  0
+User Agent      Mozilla/5.0 (Linux; Android 10; K) ...Chrome/134.0.6998.88...
+Taps (DOM)      3
+Taps (Svelte)   3
+```
+
+**Reporter (Pixel 8, Chrome, experiencing bugs):**
+
+```
+App Version     1.0.1
+Stored Version  1.0.1
+Screen          412x915 @2.625x
+Viewport        412x698
+Memory          8 GB
+CPU Cores       9
+Locale          en
+Browser Lang    ja-JP, ja, en-US, en, zh-TW, zh
+Display Mode    Standalone (PWA)
+Service Worker  active
+Network         4g
+Levels Total    108
+Crystals Spent  3912
+User Agent      Mozilla/5.0 (Linux; Android 10; K) ...Chrome/134.0.6998.86...
+Taps (DOM)      3
+Taps (Svelte)   3
+```
+
+### Key Observations From Debug Data
+
+1. **App Version matches** (both 1.0.1) → **Theory 1 RULED OUT** (not a stale build)
+2. **Taps match** (3/3 on both) → **Theory 2 RULED OUT** (Svelte reactivity works correctly)
+3. **Chrome versions nearly identical** (134.0.6998.86 vs .88) → **Theory 3 RULED OUT**
+4. **No WebView identifiers in UA** → **Theory 4 RULED OUT**
+5. **Stores work correctly** (Levels 108, Crystals 3912) → Store reactivity chain is sound
+6. **Locale shows `en`** while **Browser Lang starts with `ja-JP`** → The app is showing English despite the user's device being configured for Japanese
+
+### Root Cause: Chrome Auto-Translation (Theory 8 CONFIRMED)
+
+Through direct conversation with the reporter, it was discovered they were using **Chrome's built-in auto-translate feature** (Google Translate) to translate the app from English to Japanese, rather than using the app's built-in Japanese locale.
+
+**Why they were using Chrome translate instead of the app's locale:**
+The app was displaying in English (see secondary finding below), so the user relied on Chrome's translation to read the interface in Japanese.
+
+**How Chrome auto-translate breaks Svelte:**
+
+1. Chrome's translation engine directly modifies DOM text nodes — replacing English text with Japanese translations
+2. Svelte maintains an internal representation of the DOM and expects to be the sole owner of text node content
+3. When Svelte re-renders (e.g., on interaction, store update), it compares its expected DOM state against what Chrome has modified
+4. This causes Svelte to "flash" the original English text before Chrome re-translates — explaining Symptom 1 (English flash on interaction)
+5. Chrome's DOM modifications can interfere with Svelte's diffing algorithm, causing it to skip or misapply reactive updates — explaining Symptom 2 (badges not updating)
+6. The translated DOM nodes may cause Svelte to lose track of component boundaries, leading to derived values not propagating to display — explaining Symptom 3 (crystals showing 0 in the UI, despite stores containing correct values)
+7. Tab switch forces a full component remount via `{#key}`, which rebuilds the DOM from scratch — Svelte reasserts ownership and displays correct values before Chrome re-translates — explaining Symptom 4
+
+**This single root cause explains ALL four reported symptoms.**
+
+### Secondary Finding: Locale Persistence Bug
+
+The investigation revealed why the app was showing English to a Japanese-speaking user in the first place.
+
+**The bug:** `svelte-whisper`'s `init()` function checks localStorage for a previously persisted locale **before** running browser language detection. The priority order is:
+
+1. `persistedLocale` from localStorage → if found, use it and skip detection
+2. `detectBrowserLocale()` → falls back to `navigator.language` prefix matching
+3. `fallbackLocale` → defaults to `"en"`
+
+**What happened:**
+- The user's `navigator.language` is `ja-JP`, which `detectBrowserLocale()` correctly maps to `ja` (a supported locale)
+- However, at some point `"en"` was persisted to localStorage (likely from a prior visit, initial app load, or the app defaulting before Japanese locale support was added)
+- On subsequent visits, `init()` finds `"en"` in localStorage and uses it immediately, **never calling `detectBrowserLocale()`**
+- The user sees English, assumes the app doesn't support Japanese, and enables Chrome auto-translate
+
+**Evidence:** Debug panel shows `Locale: en` and `Browser Lang: ja-JP, ja, en-US, en, zh-TW, zh`. The browser clearly prefers Japanese, but the app ignores this because of the stale localStorage value.
+
+### Theory Resolution Summary
+
+| Theory | Verdict | Evidence |
+|---|---|---|
+| 1. Stale Service Worker | **RULED OUT** | App Version 1.0.1 matches latest |
+| 2. Svelte 5 Reactivity Bug | **RULED OUT** | Taps (DOM) = Taps (Svelte) = 3 |
+| 3. Chrome Version Difference | **RULED OUT** | Nearly identical versions (134.0.6998.86 vs .88) |
+| 4. In-App WebView | **RULED OUT** | Standard Chrome UA string |
+| 5. Failed Locale Chunks | **RULED OUT** | Locale chunks load fine; the issue is which locale is selected |
+| 6. CDN Cache Staleness | **RULED OUT** | Latest version confirmed |
+| 7. Android Battery Optimization | **RULED OUT** | Reactivity probe works, stores update correctly |
+| 8. Browser Extension Interference | **CONFIRMED** | Chrome auto-translate modifying DOM breaks Svelte |
+
+Additionally, a **new issue was discovered** that is not a browser extension per se, but a related concern: **locale persistence priority** in svelte-whisper prevents browser language auto-detection from working when a stale locale is stored.
+
+## Planned Fixes
+
+### Fix 1: Prevent Chrome Auto-Translation
+
+Add `translate="no"` attribute to the root HTML element and/or a `<meta name="google" content="notranslate">` tag. This tells Chrome not to offer or apply auto-translation, since the app handles its own i18n.
+
+**Files:** `index.html`
+
+### Fix 2: Respect Browser Language on Return Visits
+
+Modify the i18n initialization logic so that browser language preferences are not permanently overridden by a stale localStorage value. Options:
+
+- **Option A:** On app startup, if the persisted locale doesn't match the user's top browser language preference (and the browser language is a supported locale), prompt the user or auto-switch
+- **Option B:** Clear persisted locale on version upgrades, allowing fresh detection
+- **Option C:** Only persist locale when the user has explicitly chosen it (not when it was auto-detected or defaulted)
+
+**Files:** `src/lib/i18n.ts` (or wherever `svelte-whisper` `init()` is called)
