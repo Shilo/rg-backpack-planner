@@ -319,7 +319,7 @@ export const Showcase: React.FC = () => {
                             frame={frame}
                             start={SLIDE_2_START + 30}
                         />
-                        <Logo frame={frame} start={SLIDE_2_START + 5} style={{ position: 'absolute', top: '24px', right: '14px' }} />
+                        <Logo frame={frame} start={SLIDE_2_START + 5} style={{ position: 'absolute', top: '24px', right: '60px' }} />
                     </div>
                     <DualFrames
                         leftFile={SCREENSHOT.onboardingStep1}

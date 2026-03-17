@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "remotion preview src/index.ts",
-        "build": "remotion render src/index.ts Showcase out/video.mp4"
+        "build": "remotion render src/index.ts Showcase out/backpack_planner_showcase.mp4"
     },
     "dependencies": {
         "@remotion/cli": "4.0.434",

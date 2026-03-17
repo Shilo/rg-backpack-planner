@@ -47,6 +47,10 @@ async function run() {
         await mPage.locator('button[data-node-id="7"]').click({ button: 'right' });
         await mPage.waitForSelector('.context-menu', { state: 'visible', timeout: 5000 });
         await mPage.waitForTimeout(500);
+        // Click +Tier button in the context menu before capturing
+        console.log('Clicking +Tier button in context menu...');
+        await mPage.locator('.context-menu button.node-ctx-btn.positive').nth(2).click();
+        await mPage.waitForTimeout(1000);
         await shot('mobile_late_pvp_context.png', mPage);
 
         // Slide 3 Left: Statistics page
