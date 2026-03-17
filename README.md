@@ -25,7 +25,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
 ### Track Your Progress
 - **Tech Crystal tracking** — Enter how many crystals you own and see per-tree and total costs at a glance.
-- **Statistics** — View backpack bonuses, crystal spend, and node level totals. Copy or share stats.
+- **Statistics** — View backpack bonuses, crystal spend, and node level totals. Copy stats as text or share as an image.
 - **Visual feedback** — Nodes show locked, available, active, and maxed states. Level-up splash animation on milestones.
 
 ### Save and Organize
@@ -33,27 +33,30 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 - **Auto-save** — Your active build saves automatically.
 
 ### Share With Others
-- **Share links** — Generate a URL that encodes your full build. Anyone with the link can view it.
-- **Screenshot export** — Capture all three trees in one transparent PNG. Copy to clipboard or share directly.
+- **Share links** — Generate a full or short URL that encodes your build. Anyone with the link can view it.
+- **Screenshot export** — Capture all three trees in one transparent PNG. Copy to clipboard, download, or share directly.
 - **Preview mode** — Open a shared link to view a build without overwriting your presets. Clone it when you like it.
+- **Recommended builds** — Browse premade builds for different stages of the game (Early Raid, Early PvE, Mid PvE, Late PvE, Late PvP).
 
 ### Customize
-- **Theme colors** — Choose from preset accent colors (sky, cyan, green, rose, amber, neutral) or pick a custom hue and chroma.
-- **Dark and light mode** — Switch freely; all colors adapt via the OKLCH theming engine.
+- **Theme colors** — Choose from preset accent colors (sky, cyan, green, rose, amber, neutral) or pick any custom color.
+- **Dark and light mode** — Switch freely; all colors adapt automatically.
 - **Colorblind tree colors** — Alternate palette shifts tree region hues for color vision accessibility.
 - **Text size** — Scale the UI font from 0.8x to 2.0x.
 - **Uppercase text** — Toggle uppercase rendering across the interface.
-- **Tree zoom** — Start zoomed to fit or in close-up.
+- **Tree zoom** — Start zoomed to fit, close-up, or detail view.
 - **Node display** — Show or hide tier badges, skill names, and level-up splash animations.
 - **Node primary action** — Configure tap/click to add 1, 10, or a full tier of levels.
 - **Level sync** — Choose whether leveling a node syncs connected nodes or changes only the one you tapped.
 - **Haptic feedback** — Vibration on interactions (supported devices).
+- **Fullscreen** — Expand the app to fill your screen.
 - **Languages** — English, Japanese, Chinese, and French with auto-detection.
 
 ### Works Everywhere
-- **Installable PWA** — Add to your home screen and use it like a native app. Works offline after first load.
+- **Installable** — Add to your home screen and use it like a native app. Works offline after first load.
+- **Auto-updates** — Always on the latest version. Updates apply in the background.
 - **Responsive** — Optimized for phones, tablets, and desktops.
-- **Onboarding tutorial** — Interactive overlay highlights key controls on first launch. Replay anytime from settings.
+- **Onboarding tutorial** — Interactive walkthrough highlights key controls on first launch. Replay anytime from settings.
 
 ### Controls
 
