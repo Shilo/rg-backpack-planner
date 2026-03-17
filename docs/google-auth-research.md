@@ -157,34 +157,53 @@ This is a critical consideration because Backpack Planner is a PWA that users ma
 
 `signInWithRedirect` is the only method that reliably works in all PWA modes.
 
-## Recommended Strategy
+## Recommended Strategy: Cascading Fallback
 
-Use a try-best-then-fallback approach triggered by a user action:
+The goal is one "Enable Cloud Sync" button that always works, using the best available method for the current environment. The app tries each method in order, falling back silently on failure.
+
+### Fallback chain
 
 ```
 User taps "Enable Cloud Sync"
-  → Try Google One Tap (.prompt())
-  → User already signed into Google in this browser?
-     YES → Small embedded card appears, one tap, done
-     NO  → One Tap silently fails, fall back to signInWithRedirect
+  │
+  ├─ Step 1: Try Google One Tap (.prompt())
+  │   → Works if user is signed into Google AND running in a browser tab
+  │   → One tap on the embedded card, done
+  │   → If it fails (not signed in, standalone PWA, cookies unavailable):
+  │
+  ├─ Step 2: Try signInWithPopup
+  │   → Opens a Google sign-in popup window
+  │   → Works in most browser tabs and some standalone PWA environments
+  │   → If it fails (popup blocked, standalone PWA on iOS):
+  │
+  └─ Step 3: signInWithRedirect (final fallback, always works)
+      → Redirects the app window to Google sign-in, then back
+      → Works everywhere: browser, standalone PWA, iOS, Android
 ```
 
-In practice:
+### What the user experiences per environment
 
-- In a browser tab where the user is signed into Google: One Tap works, one click, seamless.
-- In a standalone PWA or when not signed into Google: One Tap silently fails, redirect takes over. The user briefly sees Google's sign-in page and comes back.
-- The user does not notice the difference. They tap "Enable Cloud Sync" and end up signed in either way.
+| Environment | What happens |
+|-------------|-------------|
+| Browser tab, signed into Google | One Tap card appears in-page, one click, seamless |
+| Browser tab, not signed into Google | One Tap silently fails → popup opens with Google sign-in |
+| Standalone PWA (Android) | One Tap likely fails → popup may work → redirect if not |
+| Standalone PWA (iOS) | One Tap fails → popup likely fails → redirect takes over |
 
-Simpler alternative:
+The user never sees the fallback logic. They tap "Enable Cloud Sync" and end up signed in. The method that worked is invisible to them.
 
-- Skip One Tap entirely. Just use `signInWithRedirect` as the only method. It works everywhere. The UX is slightly less seamless but simpler to build and test.
+### Implementation notes
+
+- Each step should fail fast and silently. One Tap has a `notDisplayed` callback. `signInWithPopup` rejects with an error code if blocked.
+- The cascade should complete in under a second for the first two checks. The user only waits if the redirect path is needed.
+- All three methods produce the same Firebase Auth credential. The rest of the app does not need to know which method succeeded.
 
 ## Recommended Product Flow
 
 1. User taps **Enable Cloud Sync**.
-2. Google Sign-In happens (One Tap or redirect).
+2. Cascading sign-in runs (One Tap → popup → redirect).
 3. Identity established. Sync starts.
-4. Any other device: same Google sign-in, same data.
+4. Any other device: same button, same cascade, same data.
 5. Leaderboard: same identity. Display name chosen at publish time, independent of Google account name.
 
 One sign-in per device. No anonymous step. No deferred sign-up. No Discord OAuth.
@@ -213,32 +232,17 @@ Recommended public leaderboard fields:
 - `signInWithRedirect` navigates to the real google.com domain.
 - In all three methods, your site only receives a Firebase Auth credential or JWT token. Your site never handles Google passwords.
 
-## Recommendation By Scenario
-
-If the question is "what is the simplest reliable approach?":
-
-- Firebase `signInWithRedirect` with Google only.
-
-If the question is "what gives the best UX in browsers?":
-
-- Google One Tap with `signInWithRedirect` as fallback.
-
-If the question is "what works best in standalone PWA?":
-
-- Firebase `signInWithRedirect` with Google only.
-
 ## Final Recommendation
 
 Best practical approach for Backpack Planner:
 
 1. Use one opt-in surface: **Enable Cloud Sync**.
 2. Use Google Sign-In as the only identity method.
-3. Use `signInWithRedirect` as the primary (or only) sign-in method for maximum PWA compatibility.
-4. Optionally try Google One Tap first for a smoother browser experience, falling back to redirect.
-5. Skip anonymous auth entirely.
-6. Skip Discord login unless Discord-specific features become a requirement.
-7. Use Firebase Auth UID as the stable owner key for both sync and leaderboard.
-8. Let public display names be chosen at publish time, independent of Google identity.
+3. Use the cascading fallback chain: One Tap → `signInWithPopup` → `signInWithRedirect`. This gives the best UX in browsers while guaranteeing it works in standalone PWA mode.
+4. Skip anonymous auth entirely.
+5. Skip Discord login unless Discord-specific features become a requirement.
+6. Use Firebase Auth UID as the stable owner key for both sync and leaderboard.
+7. Let public display names be chosen at publish time, independent of Google identity.
 
 ## Sources
 

@@ -527,7 +527,7 @@ Recommended variants:
 #### Best overall: Google Sign-In via Firebase
 
 - Firestore
-- Google Sign-In (`signInWithRedirect`, optionally One Tap with redirect fallback)
+- Google Sign-In with cascading fallback (One Tap → `signInWithPopup` → `signInWithRedirect`)
 - No anonymous auth step
 - One sign-in per device
 
@@ -631,7 +631,7 @@ The most intuitive and simple approach is:
 
 Best overall pick:
 
-- Cloud Firestore + Google Sign-In via Firebase Auth (`signInWithRedirect`, optionally One Tap with redirect fallback). See [google-auth-research.md](./google-auth-research.md).
+- Cloud Firestore + Google Sign-In via Firebase Auth with cascading fallback (One Tap → `signInWithPopup` → `signInWithRedirect`). See [google-auth-research.md](./google-auth-research.md).
 
 Best overall pick if Discord login is a hard requirement:
 
