@@ -37,7 +37,7 @@ async function run() {
         console.log(`Navigating to Late PvP (Mobile) with NodeContentMenu...`);
         await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
         await mPage.waitForTimeout(3000);
-        await mPage.locator('[data-node-id="9"]').click({ button: 'right' });
+        await mPage.locator('button[data-node-id="9"]').click({ button: 'right' });
         await mPage.waitForSelector('.context-menu', { state: 'visible', timeout: 5000 });
         await mPage.waitForTimeout(500);
         await shot('mobile_late_pvp_context.png', mPage);
