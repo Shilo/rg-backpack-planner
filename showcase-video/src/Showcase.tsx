@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, Sequence, staticFile } from 'remotion';
+import { AbsoluteFill, Audio, interpolate, spring, useCurrentFrame, Sequence, staticFile } from 'remotion';
 import { CheckCircle2, Link, Github } from 'lucide-react';
 
 // ── Theme (derived from default OKLCH h=234, c=0.18, dark mode) ──
@@ -53,6 +53,10 @@ const SLIDE_4_DURATION = 210; // 7s
 const SLIDE_2_START = SLIDE_1_DURATION;
 const SLIDE_3_START = SLIDE_2_START + SLIDE_2_DURATION;
 const SLIDE_4_START = SLIDE_3_START + SLIDE_3_DURATION;
+
+// ── Music ──
+
+const MUSIC_FILE = 'music.mp3';
 
 // ── Screenshots ──
 
@@ -254,6 +258,8 @@ export const Showcase: React.FC = () => {
             color: COLOR.text,
             fontFamily: 'system-ui, -apple-system, sans-serif',
         }}>
+            <Audio src={staticFile(MUSIC_FILE)} />
+
             {/* Slide 1: Intro */}
             <Sequence durationInFrames={SLIDE_1_DURATION}>
                 <AbsoluteFill style={slideStyle}>
@@ -302,7 +308,7 @@ export const Showcase: React.FC = () => {
             {/* Slide 2: Plan Your Build */}
             <Sequence from={SLIDE_2_START} durationInFrames={SLIDE_2_DURATION}>
                 <AbsoluteFill style={slideStyle}>
-                    <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px` }}>
+                    <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px`, position: 'relative' }}>
                         <Title text="Plan Your Build" frame={frame} start={SLIDE_2_START + 10} />
                         <FeatureList
                             items={[
@@ -313,7 +319,7 @@ export const Showcase: React.FC = () => {
                             frame={frame}
                             start={SLIDE_2_START + 30}
                         />
-                        <Logo frame={frame} start={SLIDE_2_START + 5} style={{ marginTop: '36px', alignSelf: 'flex-end', marginRight: '12px' }} />
+                        <Logo frame={frame} start={SLIDE_2_START + 5} style={{ position: 'absolute', top: '24px', right: '14px' }} />
                     </div>
                     <DualFrames
                         leftFile={SCREENSHOT.onboardingStep1}

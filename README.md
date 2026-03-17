@@ -82,3 +82,5 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 ## Credits
 
 Icons from **[250 Sci-fi Flat Icons](https://katgrabowska.itch.io/250-sci-fi-flat-icons)** by [KatGrabowska](https://katgrabowska.itch.io/) (CC BY 4.0).
+
+Showcase video music from **[Cinematic Trailer Music - Collection](https://gregor-quendel.itch.io/cinematic-trailer-music-collection)** by [Gregor Quendel](https://gregor-quendel.itch.io/) (CC BY-NC 4.0).
