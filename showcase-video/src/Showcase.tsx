@@ -12,8 +12,8 @@ const COLOR = {
     textMuted: '#a7bbc6',
     featureBoxBg: 'rgba(4, 29, 42, 0.7)',
     featureBoxBorder: 'rgba(34, 59, 73, 0.5)',
-    iosBezel: '#6b7d8a',
-    androidBezel: '#1a2a35',
+    appleBezel: '#e8e8e8',
+    pixelBezel: '#2a2a2a',
 } as const;
 
 // ── Animation ──
@@ -22,6 +22,7 @@ const FADE_DURATION = 15;
 const FEATURE_STAGGER = 12;
 const FPS = 30;
 const SPRING_CONFIG = { damping: 10 } as const;
+const SPRING_CONFIG_LOGO = { damping: 12 } as const;
 const CLAMP = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
 function fadeIn(frame: number, start: number, range: [number, number] = [0, 1]) {
@@ -36,15 +37,44 @@ const FRAME_HEIGHT = 880;
 const FRAME_WIDTH = Math.round(FRAME_HEIGHT * (393 / 852));
 const FRAME_GAP = 30;
 const LOGO_SIZE = 80;
+const APPLE_BORDER_RADIUS = 32;
+const PIXEL_BORDER_RADIUS = 26;
+const BEZEL_WIDTH = 5;
+const POLKADOT_SIZE = 2;
+const POLKADOT_GRID = 32;
+
+// ── Slide timing (frames at 30fps) ──
+
+const SLIDE_1_DURATION = 120; // 4s
+const SLIDE_2_DURATION = 210; // 7s
+const SLIDE_3_DURATION = 210; // 7s
+const SLIDE_4_DURATION = 210; // 7s
+
+const SLIDE_2_START = SLIDE_1_DURATION;
+const SLIDE_3_START = SLIDE_2_START + SLIDE_2_DURATION;
+const SLIDE_4_START = SLIDE_3_START + SLIDE_3_DURATION;
+
+// ── Screenshots ──
+
+const SCREENSHOT = {
+    latePve: 'mobile_late_pve.png',
+    latePvpContext: 'mobile_late_pvp_context.png',
+    onboardingStep1: 'mobile_onboarding_step1.png',
+    onboardingStep2: 'mobile_onboarding_step2.png',
+    stats: 'mobile_stats.png',
+    composeStats: 'mobile_compose_stats.png',
+    settings: 'mobile_settings.png',
+    generalSettings: 'mobile_general_settings.png',
+} as const;
 
 // ── Background (TreeTabs-style gradient + polkadot) ──
 
 const bgStyle: React.CSSProperties = {
     backgroundImage: `
-        radial-gradient(circle, rgba(34, 59, 73, 0.3) 2px, transparent 2px),
+        radial-gradient(circle, rgba(34, 59, 73, 0.3) ${POLKADOT_SIZE}px, transparent ${POLKADOT_SIZE}px),
         radial-gradient(circle at 50% 45%, ${COLOR.surface}, ${COLOR.bg} 100%)
     `,
-    backgroundSize: '32px 32px, 100% 100%',
+    backgroundSize: `${POLKADOT_GRID}px ${POLKADOT_GRID}px, 100% 100%`,
 };
 
 const slideStyle: React.CSSProperties = {
@@ -56,10 +86,10 @@ const slideStyle: React.CSSProperties = {
 
 // ── Components ──
 
-const Title: React.FC<{ text: string; frame: number; start: number; color?: string }> = ({ text, frame, start, color = COLOR.text }) => {
-    const isFirstFrame = frame === 0 && start === 0;
-    const opacity = isFirstFrame ? 1 : fadeIn(frame, start);
-    const translateY = isFirstFrame ? 0 : fadeIn(frame, start, [20, 0]);
+const Title: React.FC<{ text: string; frame: number; start: number }> = ({ text, frame, start }) => {
+    const isIntro = frame === 0 && start === 0;
+    const opacity = isIntro ? 1 : fadeIn(frame, start);
+    const translateY = isIntro ? 0 : fadeIn(frame, start, [20, 0]);
 
     return (
         <h1 style={{
@@ -67,7 +97,7 @@ const Title: React.FC<{ text: string; frame: number; start: number; color?: stri
             transform: `translateY(${translateY}px)`,
             fontSize: '64px',
             fontWeight: 'bold',
-            color,
+            color: COLOR.accent,
             textAlign: 'left',
             marginBottom: '32px',
             lineHeight: '1.1',
@@ -109,17 +139,16 @@ const PhoneFrame: React.FC<{
     file: string;
     frame: number;
     start: number;
-    variant: 'ios' | 'android';
+    variant: 'apple' | 'pixel';
 }> = ({ file, frame, start, variant }) => {
-    const isFirstFrame = frame === 0 && start === 0;
-    const opacity = isFirstFrame ? 1 : fadeIn(frame, start);
-    const raw = isFirstFrame ? 1 : spring({ frame: Math.max(0, frame - start), fps: FPS, config: SPRING_CONFIG });
+    const isIntro = frame === 0 && start === 0;
+    const opacity = isIntro ? 1 : fadeIn(frame, start);
+    const raw = isIntro ? 1 : spring({ frame: Math.max(0, frame - start), fps: FPS, config: SPRING_CONFIG });
     const scale = Math.min(raw, 1.02);
 
-    const isIos = variant === 'ios';
-    const bezelColor = isIos ? COLOR.iosBezel : COLOR.androidBezel;
-    const borderWidth = 5;
-    const borderRadius = isIos ? 32 : 26;
+    const isApple = variant === 'apple';
+    const bezelColor = isApple ? COLOR.appleBezel : COLOR.pixelBezel;
+    const borderRadius = isApple ? APPLE_BORDER_RADIUS : PIXEL_BORDER_RADIUS;
 
     return (
         <div style={{
@@ -138,7 +167,7 @@ const PhoneFrame: React.FC<{
                     height: '100%',
                     width: 'auto',
                     borderRadius: `${borderRadius}px`,
-                    border: `${borderWidth}px solid ${bezelColor}`,
+                    border: `${BEZEL_WIDTH}px solid ${bezelColor}`,
                     objectFit: 'contain',
                 }}
             />
@@ -159,8 +188,8 @@ const DualFrames: React.FC<{
         gap: `${FRAME_GAP}px`,
         justifyContent: 'center',
     }}>
-        <PhoneFrame file={leftFile} frame={frame} start={leftStart} variant="ios" />
-        <PhoneFrame file={rightFile} frame={frame} start={rightStart} variant="android" />
+        <PhoneFrame file={leftFile} frame={frame} start={leftStart} variant="pixel" />
+        <PhoneFrame file={rightFile} frame={frame} start={rightStart} variant="apple" />
     </div>
 );
 
@@ -195,8 +224,8 @@ const Logo: React.FC<{
     start: number;
     style?: React.CSSProperties;
 }> = ({ frame, start, style: extraStyle }) => {
-    const isFirstFrame = frame === 0 && start === 0;
-    const scale = isFirstFrame ? 1 : spring({ frame: Math.max(0, frame - start), fps: FPS, config: { damping: 12 } });
+    const isIntro = frame === 0 && start === 0;
+    const scale = isIntro ? 1 : spring({ frame: Math.max(0, frame - start), fps: FPS, config: SPRING_CONFIG_LOGO });
 
     return (
         <img
@@ -216,130 +245,140 @@ const Logo: React.FC<{
 export const Showcase: React.FC = () => {
     const frame = useCurrentFrame();
 
+    // Intro: frame 0 shows everything (midpoint snapshot for thumbnails)
+    const introVisible = frame === 0 ? 1 : undefined;
+
     return (
         <AbsoluteFill style={{
             ...bgStyle,
             color: COLOR.text,
             fontFamily: 'system-ui, -apple-system, sans-serif',
         }}>
-            {/* Slide 1: Intro (0-90) */}
-            <Sequence durationInFrames={90}>
+            {/* Slide 1: Intro */}
+            <Sequence durationInFrames={SLIDE_1_DURATION}>
                 <AbsoluteFill style={slideStyle}>
                     <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px`, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
-                        <Logo frame={frame} start={0} style={{ width: '120px', height: '120px' }} />
+                        <Logo frame={frame} start={0} />
                         <div style={{ textAlign: 'left' }}>
-                            <Title text="Backpack Planner" frame={frame} start={0} color={COLOR.accent} />
+                            <Title text="Backpack Planner" frame={frame} start={0} />
                             <p style={{
                                 fontSize: '42px',
                                 fontWeight: 'bold',
                                 color: COLOR.text,
-                                opacity: frame === 0 ? 1 : fadeIn(frame, 10),
+                                opacity: introVisible ?? fadeIn(frame, 10),
                                 margin: '-16px 0 16px 0',
                             }}>
                                 For Run! Goddess
                             </p>
                             <p style={{
                                 fontSize: '28px',
-                                opacity: frame === 0 ? 1 : fadeIn(frame, 20),
-                                transform: `translateY(${frame === 0 ? 0 : fadeIn(frame, 20, [20, 0])}px)`,
+                                opacity: introVisible ?? fadeIn(frame, 20),
+                                transform: `translateY(${introVisible ? 0 : fadeIn(frame, 20, [20, 0])}px)`,
                                 maxWidth: '500px',
                                 lineHeight: '1.4',
                                 color: COLOR.textMuted,
+                                whiteSpace: 'pre-line',
                             }}>
-                                Plan and share optimized{'\n'}Backpack Tech builds
+                                {"Plan and share optimized\nbackpack builds"}
                             </p>
-                            <UrlBadge frame={frame} start={30} />
-                            <GitHubBadge frame={frame} start={35} />
+                            <div style={{ opacity: introVisible ?? fadeIn(frame, 30) }}>
+                                <UrlBadge frame={introVisible ? 0 : frame} start={introVisible ? 0 : 30} />
+                            </div>
+                            <div style={{ opacity: introVisible ?? fadeIn(frame, 35) }}>
+                                <GitHubBadge frame={introVisible ? 0 : frame} start={introVisible ? 0 : 35} />
+                            </div>
                         </div>
                     </div>
                     <DualFrames
-                        leftFile="mobile_late_pve.png"
-                        rightFile="mobile_late_pvp_context.png"
-                        frame={frame}
+                        leftFile={SCREENSHOT.latePve}
+                        rightFile={SCREENSHOT.latePvpContext}
+                        frame={introVisible ? 0 : frame}
                         leftStart={0}
-                        rightStart={8}
+                        rightStart={introVisible ? 0 : 8}
                     />
                 </AbsoluteFill>
             </Sequence>
 
-            {/* Slide 2: Plan Your Build (90-240) */}
-            <Sequence from={90} durationInFrames={150}>
+            {/* Slide 2: Plan Your Build */}
+            <Sequence from={SLIDE_2_START} durationInFrames={SLIDE_2_DURATION}>
                 <AbsoluteFill style={slideStyle}>
-                    <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px`, position: 'relative' }}>
-                        <Logo frame={frame} start={95} style={{ position: 'absolute', top: '30px', right: '20px' }} />
-                        <Title text="Plan Your Build" frame={frame} start={100} />
+                    <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px` }}>
+                        <Title text="Plan Your Build" frame={frame} start={SLIDE_2_START + 10} />
                         <FeatureList
                             items={[
                                 "Prepare for late game PvE and PvP",
-                                "Quickly manage all skill trees",
-                                "Optimize your strategy and progress",
+                                "Quickly manage every skill tree",
+                                "Optimize your strategy and progression",
                             ]}
                             frame={frame}
-                            start={120}
+                            start={SLIDE_2_START + 30}
                         />
+                        <Logo frame={frame} start={SLIDE_2_START + 5} style={{ marginTop: '36px', alignSelf: 'flex-end', marginRight: '12px' }} />
                     </div>
                     <DualFrames
-                        leftFile="mobile_onboarding_step1.png"
-                        rightFile="mobile_onboarding_step2.png"
+                        leftFile={SCREENSHOT.onboardingStep1}
+                        rightFile={SCREENSHOT.onboardingStep2}
                         frame={frame}
-                        leftStart={110}
-                        rightStart={118}
+                        leftStart={SLIDE_2_START + 20}
+                        rightStart={SLIDE_2_START + 28}
                     />
                 </AbsoluteFill>
             </Sequence>
 
-            {/* Slide 3: Track Your Progress (240-390) */}
-            <Sequence from={240} durationInFrames={150}>
-                <AbsoluteFill style={slideStyle}>
-                    <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px`, position: 'relative' }}>
-                        <Logo frame={frame} start={245} style={{ position: 'absolute', bottom: '30px', right: '20px' }} />
-                        <Title text="Track Your Progress" frame={frame} start={250} />
-                        <FeatureList
-                            items={[
-                                "Track Tech Crystal costs",
-                                "Budget your progress",
-                                "Analyze your stats",
-                            ]}
-                            frame={frame}
-                            start={270}
-                        />
-                    </div>
-                    <DualFrames
-                        leftFile="mobile_stats.png"
-                        rightFile="mobile_compose_stats.png"
-                        frame={frame}
-                        leftStart={260}
-                        rightStart={268}
-                    />
-                </AbsoluteFill>
-            </Sequence>
-
-            {/* Slide 4: Outro (390+) */}
-            <Sequence from={390}>
+            {/* Slide 3: Track Your Progress */}
+            <Sequence from={SLIDE_3_START} durationInFrames={SLIDE_3_DURATION}>
                 <AbsoluteFill style={slideStyle}>
                     <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px` }}>
-                        <div style={{ marginBottom: '24px' }}>
-                            <Logo frame={frame} start={395} style={{ width: '120px', height: '120px' }} />
-                        </div>
-                        <Title text="Plan, Track and Share" frame={frame} start={400} color={COLOR.accent} />
+                        <Title text="Track Your Progress" frame={frame} start={SLIDE_3_START + 10} />
                         <FeatureList
                             items={[
-                                "Create multiple build presets",
-                                "Share and preview builds",
-                                "Use everywhere, offline and any language",
+                                "Monitor Tech Crystals and node levels",
+                                "Budget your progress and plan ahead",
+                                "Review and share your total stats",
                             ]}
                             frame={frame}
-                            start={420}
+                            start={SLIDE_3_START + 30}
                         />
-                        <UrlBadge frame={frame} start={450} size={40} />
-                        <GitHubBadge frame={frame} start={455} size={28} />
+                        <Logo frame={frame} start={SLIDE_3_START + 5} style={{ marginTop: '40px', marginLeft: '8px' }} />
                     </div>
                     <DualFrames
-                        leftFile="mobile_settings.png"
-                        rightFile="mobile_general_settings.png"
+                        leftFile={SCREENSHOT.stats}
+                        rightFile={SCREENSHOT.composeStats}
                         frame={frame}
-                        leftStart={410}
-                        rightStart={418}
+                        leftStart={SLIDE_3_START + 20}
+                        rightStart={SLIDE_3_START + 28}
+                    />
+                </AbsoluteFill>
+            </Sequence>
+
+            {/* Slide 4: Outro */}
+            <Sequence from={SLIDE_4_START}>
+                <AbsoluteFill style={slideStyle}>
+                    <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px` }}>
+                        <Title text="Plan, Track and Share" frame={frame} start={SLIDE_4_START + 10} />
+                        <FeatureList
+                            items={[
+                                "Create and edit multiple build presets",
+                                "Share and preview custom or recommended builds",
+                                "Use everywhere, offline and in your language",
+                            ]}
+                            frame={frame}
+                            start={SLIDE_4_START + 30}
+                        />
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '40px', marginTop: '8px' }}>
+                            <div>
+                                <UrlBadge frame={frame} start={SLIDE_4_START + 65} size={40} />
+                                <GitHubBadge frame={frame} start={SLIDE_4_START + 70} size={28} />
+                            </div>
+                            <Logo frame={frame} start={SLIDE_4_START + 5} style={{ marginBottom: '6px', marginLeft: '20px' }} />
+                        </div>
+                    </div>
+                    <DualFrames
+                        leftFile={SCREENSHOT.settings}
+                        rightFile={SCREENSHOT.generalSettings}
+                        frame={frame}
+                        leftStart={SLIDE_4_START + 20}
+                        rightStart={SLIDE_4_START + 28}
                     />
                 </AbsoluteFill>
             </Sequence>
