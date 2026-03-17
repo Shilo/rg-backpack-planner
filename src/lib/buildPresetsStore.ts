@@ -16,6 +16,7 @@ export interface BuildPreset {
     id: string;
     name: string;
     buildCode: string;
+    updatedAt: number;
 }
 
 export interface BuildPresetsData {
@@ -32,7 +33,7 @@ function defaultPresetsData(): BuildPresetsData {
     return {
         active: defaultId,
         presets: [
-            { id: defaultId, name: DEFAULT_PRESET_NAME, buildCode: emptyBuildCode },
+            { id: defaultId, name: DEFAULT_PRESET_NAME, buildCode: emptyBuildCode, updatedAt: Date.now() },
         ],
     };
 }
@@ -71,6 +72,7 @@ function validatePresetsData(raw: unknown): BuildPresetsData | null {
             id: q.id,
             name: q.name.trim() || "Build",
             buildCode: q.buildCode,
+            updatedAt: typeof q.updatedAt === "number" ? q.updatedAt : Date.now(),
         });
     }
     if (list.length === 0) return null;
@@ -151,6 +153,7 @@ export function addPreset(name: string, buildCode: string): BuildPreset {
         id,
         name: name.trim() || "Build",
         buildCode,
+        updatedAt: Date.now(),
     };
     buildPresetsStore.update((data) => ({
         ...data,
@@ -175,6 +178,7 @@ export function updatePreset(
                 ...(updates.buildCode !== undefined && {
                     buildCode: updates.buildCode,
                 }),
+                updatedAt: Date.now(),
             };
         }),
     }));
@@ -198,7 +202,7 @@ export function updateActivePresetBuildCode(buildCode: string): void {
         return {
             ...data,
             presets: data.presets.map((p) =>
-                p.id === data.active ? { ...p, buildCode } : p,
+                p.id === data.active ? { ...p, buildCode, updatedAt: Date.now() } : p,
             ),
         };
     });

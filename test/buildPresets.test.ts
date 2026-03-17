@@ -72,7 +72,7 @@ try {
     setMockData("build-presets", JSON.stringify({
         active: "1",
         presets: [
-            { id: "1", name: "Valid", buildCode: validBuildCode },
+            { id: "1", name: "Valid", buildCode: validBuildCode, updatedAt: 1000 },
             { id: "2", name: "Missing Code" }, // Invalid
             { id: "3", buildCode: validBuildCode }, // Invalid (missing name)
             { name: "Missing ID", buildCode: validBuildCode }, // Invalid
@@ -82,7 +82,7 @@ try {
         loadPresetsFromStorage(),
         {
             active: "1",
-            presets: [{ id: "1", name: "Valid", buildCode: validBuildCode }],
+            presets: [{ id: "1", name: "Valid", buildCode: validBuildCode, updatedAt: 1000 }],
         },
         "Should skip presets missing required fields",
     );
@@ -91,7 +91,7 @@ try {
     setMockData("build-presets", JSON.stringify({
         active: "1",
         presets: [
-            { id: "1", name: "Valid", buildCode: validBuildCode },
+            { id: "1", name: "Valid", buildCode: validBuildCode, updatedAt: 1000 },
             { id: "2", name: "Invalid Code", buildCode: "totally-invalid-string" },
         ],
     }));
@@ -99,7 +99,7 @@ try {
         loadPresetsFromStorage(),
         {
             active: "1",
-            presets: [{ id: "1", name: "Valid", buildCode: validBuildCode }],
+            presets: [{ id: "1", name: "Valid", buildCode: validBuildCode, updatedAt: 1000 }],
         },
         "Should skip presets with un-decodable build codes",
     );
@@ -108,9 +108,9 @@ try {
     setMockData("build-presets", JSON.stringify({
         active: "duplicate",
         presets: [
-            { id: "duplicate", name: "First", buildCode: validBuildCode },
-            { id: "duplicate", name: "Second", buildCode: validBuildCode },
-            { id: "unique", name: "Third", buildCode: validBuildCode },
+            { id: "duplicate", name: "First", buildCode: validBuildCode, updatedAt: 1000 },
+            { id: "duplicate", name: "Second", buildCode: validBuildCode, updatedAt: 1000 },
+            { id: "unique", name: "Third", buildCode: validBuildCode, updatedAt: 1000 },
         ],
     }));
     assertEqual(
@@ -118,8 +118,8 @@ try {
         {
             active: "duplicate",
             presets: [
-                { id: "duplicate", name: "First", buildCode: validBuildCode },
-                { id: "unique", name: "Third", buildCode: validBuildCode },
+                { id: "duplicate", name: "First", buildCode: validBuildCode, updatedAt: 1000 },
+                { id: "unique", name: "Third", buildCode: validBuildCode, updatedAt: 1000 },
             ],
         },
         "Should deduplicate presets with the same ID, keeping the first occurrence",
@@ -129,17 +129,34 @@ try {
     setMockData("build-presets", JSON.stringify({
         active: "non-existent",
         presets: [
-            { id: "1", name: "Valid", buildCode: validBuildCode },
+            { id: "1", name: "Valid", buildCode: validBuildCode, updatedAt: 1000 },
         ],
     }));
     assertEqual(
         loadPresetsFromStorage(),
         {
             active: "1",
-            presets: [{ id: "1", name: "Valid", buildCode: validBuildCode }],
+            presets: [{ id: "1", name: "Valid", buildCode: validBuildCode, updatedAt: 1000 }],
         },
         "Should fallback active ID if stored active ID is not in presets list",
     );
+
+    // Test 7: validatePresetsData backfills missing updatedAt
+    setMockData("build-presets", JSON.stringify({
+        active: "1",
+        presets: [
+            { id: "1", name: "No Timestamp", buildCode: validBuildCode },
+        ],
+    }));
+    const backfilledData = loadPresetsFromStorage();
+    if (!backfilledData || !backfilledData.presets || backfilledData.presets.length !== 1) {
+        throw new Error("Backfill test: expected one preset");
+    }
+    if (typeof backfilledData.presets[0].updatedAt !== "number" || backfilledData.presets[0].updatedAt <= 0) {
+        throw new Error(
+            `Backfill test: expected updatedAt to be a positive number, got ${JSON.stringify(backfilledData.presets[0].updatedAt)}`,
+        );
+    }
 
 } finally {
     // Restore original
