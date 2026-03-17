@@ -97,7 +97,7 @@ async function captureForLocale(locale = 'en') {
         await mPage.locator('.tab-bar__tab-button').nth(1).click({ timeout: 5000 });
         await mPage.waitForTimeout(2000);
         console.log('Clicking Clone button...');
-        const cloneButton = mPage.locator('.side-menu button').filter({ hasText: /clone/i }).first();
+        const cloneButton = mPage.locator('.side-menu button[data-testid="clone-build-btn"]');
         await cloneButton.click({ timeout: 10000 });
         console.log('Waiting for modal confirmation...');
         const confirmButton = mPage.locator('button[data-modal-confirm]');

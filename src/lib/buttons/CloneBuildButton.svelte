@@ -76,6 +76,7 @@
     {description}
     icon={CopySimpleIcon}
     arrow="right"
+    data-testid="clone-build-btn"
 >
     {label ?? $t("preview.clonePreviewBuild")}
 </Button>
