@@ -145,9 +145,11 @@ async function enqueueWrite(data: BuildPresetsData): Promise<void> {
         console.error("Cloud Save write error:", err);
         const code = (err as { code?: string })?.code;
         if (code === "permission-denied" || code === "resource-exhausted") {
-            import("../toast").then(({ showToast }) => {
-                showToast("Too many builds to sync. Delete some builds to resume syncing.", { tone: "negative" });
-            });
+            Promise.all([import("../toast"), import("svelte-whisper")]).then(
+                ([{ showToast }, { tr }]) => {
+                    showToast(tr("cloudSave.sizeLimitToast"), { tone: "negative" });
+                },
+            );
         }
         updateSyncStore({ status: "error" });
     });
@@ -235,11 +237,12 @@ export async function stopCloudSync(): Promise<void> {
 
 export async function deleteCloudData(): Promise<void> {
     if (!uid) return;
+    const currentUid = uid;
+    await stopCloudSync();
     const { deleteSyncDoc } = await import("./firestore");
-    await deleteSyncDoc(uid);
+    await deleteSyncDoc(currentUid);
     const { signOut } = await import("./auth");
     await signOut();
-    await stopCloudSync();
 }
 
 export async function forceSyncNow(): Promise<void> {

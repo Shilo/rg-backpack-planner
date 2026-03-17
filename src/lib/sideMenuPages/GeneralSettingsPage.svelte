@@ -135,7 +135,7 @@
         try {
             const { signIn } = await import("../cloudSync/auth");
             const { initCloudSync } = await import("../cloudSync/init");
-            initCloudSync();
+            await initCloudSync();
             await signIn();
             showToast($t("cloudSave.enabledToast"));
         } catch (error) {
