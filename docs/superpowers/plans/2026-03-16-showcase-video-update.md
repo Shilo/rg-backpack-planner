@@ -136,7 +136,7 @@ await mPage.waitForTimeout(500);
 await shot('mobile_late_pvp_context.png', mPage);
 ```
 
-- [ ] **Step 3: Remove mid-game PvE capture**
+- [ ] **Step 3: Remove mid-game PvE capture and dead hash entries**
 
 Delete lines 41-44 (the `mobile_mid_pve.png` capture block):
 ```js
@@ -145,6 +145,13 @@ console.log(`Navigating to Mid-Game PvE (Mobile)...`);
 await mPage.goto(`${urlBase}${hashes.mid_pve}`, { waitUntil: 'networkidle' });
 await mPage.waitForTimeout(3000);
 await shot('mobile_mid_pve.png', mPage);
+```
+
+Also remove the now-unused hash entries from the `hashes` object (lines 23-24):
+```js
+// DELETE these two lines:
+mid_pve: ",k..k.'2.k.k..a:3;;;37W",
+full_tier: "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1"
 ```
 
 - [ ] **Step 4: Update desktop context — 1280x720 with onboarding enabled**
