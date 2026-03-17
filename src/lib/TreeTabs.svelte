@@ -4,12 +4,12 @@
 </script>
 
 <script lang="ts">
-    import { ListIcon } from "phosphor-svelte";
     import { getTreeIcon, TechCrystalIcon } from "./customIcons";
     import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
 
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
+    import MenuToggleButton from "./buttons/MenuToggleButton.svelte";
     import Button from "./Button.svelte";
     import Tree from "./Tree.svelte";
     import {
@@ -645,15 +645,7 @@
                 {/each}
             </div>
         </div>
-        <Button
-            class="menu-button"
-            aria-label="Menu"
-            tooltipText={$t("tree.menuButtonTooltip")}
-            on:click={() => onMenuClick?.()}
-            icon={ListIcon}
-            iconClass="menu-button-icon"
-            iconSize={26}
-        ></Button>
+        <MenuToggleButton onClick={() => onMenuClick?.()} />
     </div>
 
     <div
