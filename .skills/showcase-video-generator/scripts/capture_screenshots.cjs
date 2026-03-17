@@ -1,18 +1,22 @@
 const { chromium, devices } = require('playwright');
 const path = require('path');
+const fs = require('fs');
 
-async function run() {
-    console.log('Starting Playwright (Dual-Frame Capture)...');
+async function captureForLocale(locale = 'en') {
+    console.log(`Starting Playwright (Dual-Frame Capture) [locale: ${locale}]...`);
 
     const mobileDevice = devices['iPhone 14 Pro Max'];
     const browser = await chromium.launch({ headless: true });
 
     let mPage;
 
+    const outDir = path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', locale);
+    fs.mkdirSync(outDir, { recursive: true });
+
     const shot = async (name, p_page) => {
-        const p = path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', name);
+        const p = path.join(outDir, name);
         await p_page.screenshot({ path: p });
-        console.log(`[SUCCESS] Saved ${name}`);
+        console.log(`[SUCCESS] [${locale}] Saved ${name}`);
     };
 
     const urlBase = 'http://localhost:5173/#';
@@ -23,15 +27,16 @@ async function run() {
 
     try {
         // ── CONTEXT 1: Onboarding suppressed ──
-        console.log(`--- CONTEXT 1: Mobile (Onboarding Suppressed) ---`);
+        console.log(`--- CONTEXT 1: Mobile (Onboarding Suppressed) [${locale}] ---`);
         const mobileContext = await browser.newContext({
             ...mobileDevice,
             viewport: { width: 393, height: 852 },
             deviceScaleFactor: 3
         });
-        await mobileContext.addInitScript(() => {
+        await mobileContext.addInitScript((loc) => {
             localStorage.setItem('rg-backpack-planner-onboarding-seen', 'true');
-        });
+            localStorage.setItem('rg-backpack-planner-locale', loc);
+        }, locale);
         mPage = await mobileContext.newPage();
 
         // Slide 1 Left: Late PvE
@@ -121,15 +126,16 @@ async function run() {
         await mobileContext.close();
 
         // ── CONTEXT 2: Onboarding enabled ──
-        console.log(`--- CONTEXT 2: Mobile (Onboarding Enabled) ---`);
+        console.log(`--- CONTEXT 2: Mobile (Onboarding Enabled) [${locale}] ---`);
         const onboardingContext = await browser.newContext({
             ...mobileDevice,
             viewport: { width: 393, height: 852 },
             deviceScaleFactor: 3
         });
-        await onboardingContext.addInitScript(() => {
+        await onboardingContext.addInitScript((loc) => {
             localStorage.setItem('rg-backpack-planner-onboarding-seen', 'false');
-        });
+            localStorage.setItem('rg-backpack-planner-locale', loc);
+        }, locale);
         const oPage = await onboardingContext.newPage();
 
         // Slide 2 Left: Onboarding Step 1
@@ -148,15 +154,21 @@ async function run() {
         await onboardingContext.close();
 
     } catch (e) {
-        console.error('Fatal error during capture:', e);
+        console.error(`Fatal error during capture [${locale}]:`, e);
         if (mPage) {
-            const errorPath = path.join(__dirname, '..', '..', '..', 'showcase-video', 'public', 'mobile_error_debug.png');
+            const errorPath = path.join(outDir, 'mobile_error_debug.png');
             await mPage.screenshot({ path: errorPath });
-            console.log(`Saved error diagnostic to mobile_error_debug.png`);
+            console.log(`Saved error diagnostic to ${locale}/mobile_error_debug.png`);
         }
     } finally {
         await browser.close();
     }
 }
 
-run();
+if (require.main === module) {
+    const localeArg = process.argv.find(a => a.startsWith('--locale='));
+    const locale = localeArg ? localeArg.split('=')[1] : 'en';
+    captureForLocale(locale);
+}
+
+module.exports = { captureForLocale };

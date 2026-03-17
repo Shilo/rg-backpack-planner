@@ -1,6 +1,30 @@
 import { AbsoluteFill, Audio, interpolate, spring, useCurrentFrame, Sequence, staticFile } from 'remotion';
 import { CheckCircle2, Link, Github } from 'lucide-react';
 
+// ── Props ──
+
+export type ShowcaseTranslations = {
+    forRunGoddess: string;
+    planAndShare: string;
+    planYourBuild: string;
+    planFeature1: string;
+    planFeature2: string;
+    planFeature3: string;
+    trackYourProgress: string;
+    trackFeature1: string;
+    trackFeature2: string;
+    trackFeature3: string;
+    planTrackShare: string;
+    shareFeature1: string;
+    shareFeature2: string;
+    shareFeature3: string;
+};
+
+export type ShowcaseProps = {
+    locale: string;
+    translations: ShowcaseTranslations;
+};
+
 // ── Theme (derived from default OKLCH h=234, c=0.18, dark mode) ──
 
 const COLOR = {
@@ -57,19 +81,6 @@ const SLIDE_4_START = SLIDE_3_START + SLIDE_3_DURATION;
 // ── Music ──
 
 const MUSIC_FILE = 'music.mp3';
-
-// ── Screenshots ──
-
-const SCREENSHOT = {
-    latePve: 'mobile_late_pve.png',
-    latePvpContext: 'mobile_late_pvp_context.png',
-    onboardingStep1: 'mobile_onboarding_step1.png',
-    onboardingStep2: 'mobile_onboarding_step2.png',
-    stats: 'mobile_stats.png',
-    composeStats: 'mobile_compose_stats.png',
-    settings: 'mobile_settings.png',
-    generalSettings: 'mobile_general_settings.png',
-} as const;
 
 // ── Background (TreeTabs-style gradient + polkadot) ──
 
@@ -246,8 +257,19 @@ const Logo: React.FC<{
 
 // ── Composition ──
 
-export const Showcase: React.FC = () => {
+export const Showcase: React.FC<ShowcaseProps> = ({ locale, translations }) => {
     const frame = useCurrentFrame();
+
+    const SHOT = {
+        latePve: `${locale}/mobile_late_pve.png`,
+        latePvpContext: `${locale}/mobile_late_pvp_context.png`,
+        onboardingStep1: `${locale}/mobile_onboarding_step1.png`,
+        onboardingStep2: `${locale}/mobile_onboarding_step2.png`,
+        stats: `${locale}/mobile_stats.png`,
+        composeStats: `${locale}/mobile_compose_stats.png`,
+        settings: `${locale}/mobile_settings.png`,
+        generalSettings: `${locale}/mobile_general_settings.png`,
+    };
 
     // Intro: frame 0 shows everything (midpoint snapshot for thumbnails)
     const introVisible = frame === 0 ? 1 : undefined;
@@ -274,7 +296,7 @@ export const Showcase: React.FC = () => {
                                 opacity: introVisible ?? fadeIn(frame, 10),
                                 margin: '-16px 0 16px 0',
                             }}>
-                                For Run! Goddess
+                                {translations.forRunGoddess}
                             </p>
                             <p style={{
                                 fontSize: '28px',
@@ -285,7 +307,7 @@ export const Showcase: React.FC = () => {
                                 color: COLOR.textMuted,
                                 whiteSpace: 'pre-line',
                             }}>
-                                {"Plan and share optimized\nbackpack builds"}
+                                {translations.planAndShare}
                             </p>
                             <div style={{ opacity: introVisible ?? fadeIn(frame, 30) }}>
                                 <UrlBadge frame={introVisible ? 0 : frame} start={introVisible ? 0 : 30} />
@@ -296,8 +318,8 @@ export const Showcase: React.FC = () => {
                         </div>
                     </div>
                     <DualFrames
-                        leftFile={SCREENSHOT.latePve}
-                        rightFile={SCREENSHOT.latePvpContext}
+                        leftFile={SHOT.latePve}
+                        rightFile={SHOT.latePvpContext}
                         frame={introVisible ? 0 : frame}
                         leftStart={0}
                         rightStart={introVisible ? 0 : 8}
@@ -309,12 +331,12 @@ export const Showcase: React.FC = () => {
             <Sequence from={SLIDE_2_START} durationInFrames={SLIDE_2_DURATION}>
                 <AbsoluteFill style={slideStyle}>
                     <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px`, position: 'relative' }}>
-                        <Title text="Plan Your Build" frame={frame} start={SLIDE_2_START + 10} />
+                        <Title text={translations.planYourBuild} frame={frame} start={SLIDE_2_START + 10} />
                         <FeatureList
                             items={[
-                                "Prepare for late game PvE and PvP",
-                                "Quickly manage every skill tree",
-                                "Optimize your strategy and progression",
+                                translations.planFeature1,
+                                translations.planFeature2,
+                                translations.planFeature3,
                             ]}
                             frame={frame}
                             start={SLIDE_2_START + 30}
@@ -322,8 +344,8 @@ export const Showcase: React.FC = () => {
                         <Logo frame={frame} start={SLIDE_2_START + 5} style={{ position: 'absolute', top: '24px', right: '60px' }} />
                     </div>
                     <DualFrames
-                        leftFile={SCREENSHOT.onboardingStep1}
-                        rightFile={SCREENSHOT.onboardingStep2}
+                        leftFile={SHOT.onboardingStep1}
+                        rightFile={SHOT.onboardingStep2}
                         frame={frame}
                         leftStart={SLIDE_2_START + 20}
                         rightStart={SLIDE_2_START + 28}
@@ -335,12 +357,12 @@ export const Showcase: React.FC = () => {
             <Sequence from={SLIDE_3_START} durationInFrames={SLIDE_3_DURATION}>
                 <AbsoluteFill style={slideStyle}>
                     <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px` }}>
-                        <Title text="Track Your Progress" frame={frame} start={SLIDE_3_START + 10} />
+                        <Title text={translations.trackYourProgress} frame={frame} start={SLIDE_3_START + 10} />
                         <FeatureList
                             items={[
-                                "Monitor Tech Crystals and node levels",
-                                "Budget your progress and plan ahead",
-                                "Review and share your total stats",
+                                translations.trackFeature1,
+                                translations.trackFeature2,
+                                translations.trackFeature3,
                             ]}
                             frame={frame}
                             start={SLIDE_3_START + 30}
@@ -348,8 +370,8 @@ export const Showcase: React.FC = () => {
                         <Logo frame={frame} start={SLIDE_3_START + 5} style={{ marginTop: '40px', marginLeft: '8px' }} />
                     </div>
                     <DualFrames
-                        leftFile={SCREENSHOT.stats}
-                        rightFile={SCREENSHOT.composeStats}
+                        leftFile={SHOT.stats}
+                        rightFile={SHOT.composeStats}
                         frame={frame}
                         leftStart={SLIDE_3_START + 20}
                         rightStart={SLIDE_3_START + 28}
@@ -361,12 +383,12 @@ export const Showcase: React.FC = () => {
             <Sequence from={SLIDE_4_START}>
                 <AbsoluteFill style={slideStyle}>
                     <div style={{ flex: 1, paddingRight: `${CONTENT_GAP}px` }}>
-                        <Title text="Plan, Track and Share" frame={frame} start={SLIDE_4_START + 10} />
+                        <Title text={translations.planTrackShare} frame={frame} start={SLIDE_4_START + 10} />
                         <FeatureList
                             items={[
-                                "Create and edit multiple build presets",
-                                "Share and preview custom or recommended builds",
-                                "Use everywhere, offline and in your language",
+                                translations.shareFeature1,
+                                translations.shareFeature2,
+                                translations.shareFeature3,
                             ]}
                             frame={frame}
                             start={SLIDE_4_START + 30}
@@ -380,8 +402,8 @@ export const Showcase: React.FC = () => {
                         </div>
                     </div>
                     <DualFrames
-                        leftFile={SCREENSHOT.settings}
-                        rightFile={SCREENSHOT.generalSettings}
+                        leftFile={SHOT.settings}
+                        rightFile={SHOT.generalSettings}
                         frame={frame}
                         leftStart={SLIDE_4_START + 20}
                         rightStart={SLIDE_4_START + 28}

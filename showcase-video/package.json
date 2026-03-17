@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "start": "remotion preview src/index.ts",
-        "build": "remotion render src/index.ts Showcase out/backpack_planner_showcase.mp4"
+        "build": "remotion render src/index.ts Showcase out/en/backpack_planner_showcase.mp4",
+        "build:all": "node scripts/render_all_locales.cjs"
     },
     "dependencies": {
         "@remotion/cli": "4.0.434",
@@ -13,7 +14,8 @@
         "lucide-react": "^0.474.0",
         "react": "18.2.0",
         "react-dom": "18.2.0",
-        "remotion": "4.0.434"
+        "remotion": "4.0.434",
+        "svelte-whisper": "github:Shilo/svelte-whisper"
     },
     "devDependencies": {
         "@types/react": "18.2.0",
