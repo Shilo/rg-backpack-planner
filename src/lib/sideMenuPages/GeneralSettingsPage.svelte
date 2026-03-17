@@ -105,7 +105,17 @@
             confirmLabel: $t("modal.clearAllData.confirmLabel"),
             cancelLabel: $t("common.cancel"),
             confirmNegative: true,
-            onConfirm: () => {
+            onConfirm: async () => {
+                try {
+                    if (CLOUD_SAVE_ENABLED && $cloudSyncStore.enabled) {
+                        const { stopCloudSync } = await import("../cloudSync/service");
+                        const { signOut } = await import("../cloudSync/auth");
+                        await signOut();
+                        await stopCloudSync();
+                    }
+                } catch (error) {
+                    console.error("Cloud Save sign-out during clear all failed:", error);
+                }
                 clearAll();
                 window.location.reload();
             },
