@@ -20,8 +20,6 @@ async function run() {
     const hashes = {
         late_pve: ",k'7.a.a.1,k.k..k.k.'2.a:3;;;9W7",
         late_pvp: "k'4..k.k..a,k'7.a.a.1;k..k.'2.k.k..a,k'7.a.a.1;k'4..k.k..a,k'7.a.a.1;aox",
-        mid_pve: ",k..k.'2.k.k..a:3;;;37W",
-        full_tier: "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1"
     };
 
     try {
@@ -31,17 +29,18 @@ async function run() {
             viewport: { width: 393, height: 852 },
             deviceScaleFactor: 3
         });
+        await mobileContext.addInitScript(() => {
+            localStorage.setItem('rg-backpack-planner-onboarding-seen', 'true');
+        });
         mPage = await mobileContext.newPage();
 
-        console.log(`Navigating to Late PvE (Mobile)...`);
-        await mPage.goto(`${urlBase}${hashes.late_pve}`, { waitUntil: 'networkidle' });
+        console.log(`Navigating to Late PvP (Mobile) with NodeContentMenu...`);
+        await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
         await mPage.waitForTimeout(3000);
-        await shot('mobile_late_pve.png', mPage);
-
-        console.log(`Navigating to Mid-Game PvE (Mobile)...`);
-        await mPage.goto(`${urlBase}${hashes.mid_pve}`, { waitUntil: 'networkidle' });
-        await mPage.waitForTimeout(3000);
-        await shot('mobile_mid_pve.png', mPage);
+        await mPage.locator('[data-node-id="9"]').click({ button: 'right' });
+        await mPage.waitForSelector('.context-menu', { state: 'visible', timeout: 5000 });
+        await mPage.waitForTimeout(500);
+        await shot('mobile_late_pvp_context.png', mPage);
 
         console.log(`Capturing Statistics for Late PvE (Mobile)...`);
         await mPage.goto(`${urlBase}${hashes.late_pve}`, { waitUntil: 'networkidle' });
@@ -101,17 +100,20 @@ async function run() {
 
         await mobileContext.close();
 
-        console.log(`--- CAPTURING DESKTOP ---`);
+        console.log(`--- CAPTURING DESKTOP (1280x720 with Onboarding) ---`);
         desktopContext = await browser.newContext({
-            viewport: { width: 1920, height: 1080 },
+            viewport: { width: 1280, height: 720 },
             deviceScaleFactor: 2
+        });
+        await desktopContext.addInitScript(() => {
+            localStorage.setItem('rg-backpack-planner-onboarding-seen', 'false');
         });
         const dPage = await desktopContext.newPage();
 
-        console.log(`Navigating to Late PvP (Desktop)...`);
+        console.log(`Navigating to Late PvP (Desktop with Onboarding)...`);
         await dPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
         await dPage.waitForTimeout(3000);
-        await shot('desktop_late_pvp.png', dPage);
+        await shot('desktop_plan_onboarding.png', dPage);
 
         await desktopContext.close();
 
