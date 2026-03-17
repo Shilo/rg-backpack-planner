@@ -6,15 +6,17 @@ Svelte 5 + TypeScript PWA for planning and sharing Run! Goddess Backpack Tech bu
 
 - **`src/lib/`** — Components, stores, helpers, and domain logic
   - **`*Store.ts`** — Svelte stores (theme, presets, settings, etc.)
-  - **`buildData/`** — Encoder/decoder and URL handling for share links
-  - **`buildImageExport/`** — Screenshot composer and image export
+  - **`buildData/`** — Encoder/decoder, URL handling for share links, and recommended builds
+  - **`buildImageExport/`** — Screenshot composer, stats image generation, and image export
   - **`sideMenuPages/`** — Settings, statistics, controls, and about pages
-  - **`onboarding/`** — Interactive tutorial overlay and cards
-  - **`modals/`** — Confirm, text input, load build, and fullscreen modals
+  - **`onboarding/`** — Interactive tutorial overlay, cards, step definitions, and pane layout
+  - **`modals/`** — Confirm, text input, load build, reset tree choices, and fullscreen modals
+  - **`migrations/`** — Data migration runner for version upgrades
+  - **`dev/`** — Developer utilities (Playwright indicator)
   - **`themeEngine.ts`**, **`themeApply.ts`** — OKLCH dynamic color generation and application
 - **`src/config/`** — Tree definitions (guardian, vanguard, cannon) and shared metadata
 - **`src/assets/nodes/`** — Skill node SVG icons
-- **`src/locales/`** — i18n (en, ja, zh)
+- **`src/locales/`** — i18n (en, fr, ja, zh)
 - **`src/theme.css`** — Design tokens (spacing, typography, radius, motion, z-index)
 - **`public/`** — Static assets, icons, manifest inputs
 - **`scripts/`** — Build helpers (copy-404, bump-version, generate-pwa-icons)

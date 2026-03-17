@@ -10,6 +10,7 @@ npx tsx test/index.ts            # Test runner only (skip type checks)
 npx tsx test/tierLeveling.test.ts   # Tier contract CLI suite
 npx tsx test/tierTargetLevelFns.test.ts  # Tier math helpers
 npx tsx test/encoder.test.ts     # Build-data codec suite
+npx tsx test/shareUrl.test.ts    # Share URL encoding/decoding suite
 npm run test:ui:tier             # Headed Playwright tier UI suite (only when requested)
 ```
 
@@ -55,6 +56,11 @@ Update tests when changing:
 - Ancestor/descendant traversal or branch isolation
 - Node level behavior mode semantics in `src/lib/tierLeveling.ts`
 - Build-data serialization format
+- Share URL encoding/decoding or recommended build links
 - Build-name encoding/decoding or malformed input handling
+- Tech crystal cost calculations
+- Tree branch reset or partial reset behavior
+- Onboarding step definitions or pane layout logic
+- Data migration logic in `src/lib/migrations/`
 
 When behavior changes intentionally, update `docs/behavior-contracts.md` and keep expectations explicit in `test/tierLeveling.shared.ts`.
