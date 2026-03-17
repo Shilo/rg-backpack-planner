@@ -198,9 +198,43 @@ The user never sees the fallback logic. They tap "Enable Cloud Sync" and end up 
 - The cascade should complete in under a second for the first two checks. The user only waits if the redirect path is needed.
 - All three methods produce the same Firebase Auth credential. The rest of the app does not need to know which method succeeded.
 
+## Opt-In Button Naming
+
+The button label should feel intuitive to gamers and non-technical users. Avoid technical jargon like "Enable Cloud Sync."
+
+### If the button enables cloud save only (sync/backup)
+
+| Option | Feels like | Notes |
+|--------|-----------|-------|
+| **Cloud Save** | A game feature | Players already know this from consoles and mobile games. Implies sync, backup, and cross-device. Strongest option. |
+| **Sign In** | A standard app | Simple. Implies everything comes with it. |
+| **Save to Cloud** | A clear action | No jargon. Slightly more descriptive than "Cloud Save." |
+| **Sync Builds** | Domain-specific | Clear to this audience but slightly technical. |
+| **Back Up & Sync** | A utility | Descriptive but longer. |
+| **Link Devices** | A setup step | Describes the benefit but sounds like a one-time action. |
+
+### If the button enables cloud save and leaderboard together
+
+| Option | Feels like | Notes |
+|--------|-----------|-------|
+| **Cloud Save & Leaderboard** | Two game features | Clear about what you get. Slightly long. |
+| **Go Online** | A game mode toggle | Short. Implies both sync and community features. Familiar from multiplayer games. |
+| **Sign In** | A standard app | Simple. Both features are implied as part of having an account. |
+| **Join Community** | A social action | Emphasizes the leaderboard/social side. May undersell the sync value. |
+| **Connect** | Minimal | Very short. Abstract but clean. |
+| **Cloud Save + Compete** | Two benefits | Action-oriented. Makes the leaderboard feel fun. |
+
+### Recommendation
+
+If cloud save and leaderboard share one opt-in:
+
+- **Cloud Save** is still the strongest primary label. Players understand it instantly.
+- The leaderboard can be mentioned as a secondary benefit in a subtitle or description below the button, e.g., "Cloud Save" with smaller text "Sync builds across devices and join the leaderboard."
+- This avoids cramming two concepts into one button label.
+
 ## Recommended Product Flow
 
-1. User taps **Enable Cloud Sync**.
+1. User taps **Cloud Save** (or chosen label).
 2. Cascading sign-in runs (One Tap → popup → redirect).
 3. Identity established. Sync starts.
 4. Any other device: same button, same cascade, same data.

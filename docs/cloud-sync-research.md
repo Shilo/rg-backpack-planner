@@ -610,7 +610,7 @@ See also:
 ## Suggested UX Principles
 
 - Do not call it "account creation" unless it truly is one
-- Frame it as "Sync + Leaderboard"
+- Use familiar game language like "Cloud Save" instead of technical jargon like "Enable Cloud Sync" or "Sync + Leaderboard". See [google-auth-research.md](./google-auth-research.md) for naming options.
 - Keep local-only mode as the default if desired
 - Use one combined cloud opt-in and make it reversible
 - Keep manual export/import as a backup tool
