@@ -139,6 +139,7 @@ async function bootTierUiSession(): Promise<TierUiSession> {
         await context.addInitScript((version: string) => {
             localStorage.setItem("rg-backpack-planner-latest-used-version", version);
             localStorage.setItem("rg-backpack-planner-node-touch-action", "0");
+            localStorage.setItem("rg-backpack-planner-onboarding-seen", "true");
         }, CURRENT_VERSION);
 
         const page = await context.newPage();
@@ -295,6 +296,7 @@ async function resetTierUiPage(page: Page): Promise<void> {
         localStorage.clear();
         localStorage.setItem("rg-backpack-planner-latest-used-version", version);
         localStorage.setItem("rg-backpack-planner-node-touch-action", "0");
+        localStorage.setItem("rg-backpack-planner-onboarding-seen", "true");
     }, CURRENT_VERSION);
 
     await page.goto(APP_URL);

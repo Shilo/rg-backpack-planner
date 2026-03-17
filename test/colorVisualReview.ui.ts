@@ -104,8 +104,9 @@ async function run() {
                         localStorage.setItem(themeKey, JSON.stringify(theme));
                         localStorage.setItem(darkKey, dark ? "true" : "false");
                         localStorage.setItem(versionKey, version);
-                        // Suppress touch action prompt
+                        // Suppress touch action prompt and onboarding overlay
                         localStorage.setItem("rg-backpack-planner-node-touch-action", "0");
+                        localStorage.setItem("rg-backpack-planner-onboarding-seen", "true");
                     }, {
                         themeKey: THEME_KEY,
                         darkKey: DARK_KEY,

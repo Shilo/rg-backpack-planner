@@ -116,6 +116,7 @@ async function bootCaptureUiSession(): Promise<CaptureUiSession> {
         await context.addInitScript((version: string) => {
             localStorage.setItem("rg-backpack-planner-latest-used-version", version);
             localStorage.setItem("rg-backpack-planner-node-touch-action", "0");
+            localStorage.setItem("rg-backpack-planner-onboarding-seen", "true");
         }, CURRENT_VERSION);
 
         const page = await context.newPage();
@@ -140,6 +141,7 @@ async function resetCapturePage(page: Page): Promise<void> {
         localStorage.clear();
         localStorage.setItem("rg-backpack-planner-latest-used-version", version);
         localStorage.setItem("rg-backpack-planner-node-touch-action", "0");
+        localStorage.setItem("rg-backpack-planner-onboarding-seen", "true");
     }, CURRENT_VERSION);
 
     await page.goto(APP_URL);
@@ -154,14 +156,8 @@ async function getTreeTransform(page: Page): Promise<string> {
 }
 
 async function openComposeScreenshot(page: Page): Promise<void> {
-    // Click menu button to open side menu
-    await page.click('[aria-label="Menu"]');
-    // Navigate to Settings tab (Share button lives there, not on the default Statistics tab)
-    await page.getByRole("button", { name: "Settings" }).click();
-    // Click "Share" button to open share sub-menu
-    await page.getByRole("button", { name: /^Share$/i }).first().click();
-    // Click "Share screenshot" to open compose modal
-    await page.getByRole("button", { name: /Share screenshot/i }).click();
+    // Use F9 keyboard shortcut to open compose modal directly
+    await page.keyboard.press("F9");
     // Wait for compose modal to appear
     await page.waitForSelector(".fullscreen-modal", { state: "visible" });
 }
