@@ -28,6 +28,7 @@
         getCurrentVersion,
         getVersionUpgradeState,
     } from "./lib/latestUsedVersionStore";
+    import { CLOUD_SAVE_ENABLED } from "./config/cloudSave";
 
     import {
         initTechCrystalTrees,
@@ -534,6 +535,12 @@
     }
 
     onMount(() => {
+        if (CLOUD_SAVE_ENABLED) {
+            import("./lib/cloudSync/init").then(({ initCloudSync }) => {
+                initCloudSync();
+            });
+        }
+
         ensureInstallListeners();
 
         // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
