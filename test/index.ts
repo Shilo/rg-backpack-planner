@@ -27,6 +27,7 @@ const TEST_FILES = [
     "resetTreeChoiceModel.test.ts",
 
     // 3. Serialization & Storage
+    "cloudSyncMerge.test.ts",
     "storage.test.ts",
     "latestUsedVersionStore.test.ts",
     "runMigrations.test.ts",
