@@ -4,12 +4,13 @@ Date: 2026-03-16
 
 ## Overview
 
-Add opt-in realtime cloud syncing of build preset data between devices using Firebase. Users sign in with Google, and their `rg-backpack-planner-build-presets` blob syncs automatically across all signed-in devices.
+Add opt-in realtime cloud syncing of build preset data between devices using Firebase. Users sign in with Google, and their build presets sync automatically across all signed-in devices. Each device maintains its own active preset selection independently.
 
 ## Goals
 
 - Automatic cross-device sync of build presets with minimal user friction
 - Google Sign-In as the sole identity provider (lowest friction, broadest reach)
+- Per-preset merge so two devices can edit different presets simultaneously without overwriting each other
 - Forward-compatible data model for a future leaderboard feature
 - No impact on app load time for users who don't use Cloud Save
 
@@ -18,7 +19,7 @@ Add opt-in realtime cloud syncing of build preset data between devices using Fir
 - Leaderboard UI or public build publishing (future work)
 - Discord login (possible future addition)
 - Syncing device-local settings (theme, dark mode, colorblind, text size, haptics, onboarding, tab/menu state)
-- Complex conflict resolution or offline merge strategies
+- Syncing the active preset ID (`active` stays local per device)
 
 ## Architecture
 
@@ -38,13 +39,7 @@ localStorage ←→ buildPresetsStore ←→ cloudSyncService ←→ Firestore d
 
 ### Sync Scope
 
-Only one localStorage key is synced:
-
-```
-rg-backpack-planner-build-presets
-```
-
-Its full JSON value (active preset ID + all presets with names and build codes) is stored as native Firestore fields in a single document per user.
+Only the `presets` array from the `rg-backpack-planner-build-presets` localStorage key is synced. The `active` field stays local — each device can independently choose which preset is active.
 
 Everything else stays device-local.
 
@@ -88,22 +83,56 @@ One flat document per user. No subcollections.
 
 ### Document Shape
 
+Presets are stored as a **Firestore map keyed by preset ID**, not as an array. This enables partial updates — editing one preset doesn't touch others in the document.
+
 ```json
 {
-  "active": "preset-uuid",
-  "presets": [
-    {
-      "id": "preset-uuid",
+  "presets": {
+    "0c686afe-50ea-4659-b688-94852d85e6a0": {
       "name": "Default",
-      "buildCode": "_"
+      "buildCode": "_",
+      "updatedAt": 1710590400000
+    },
+    "8a000c9f-e52d-452c-b8d5-81e5cd60e6fa": {
+      "name": "Mid PvE",
+      "buildCode": ";,k..k.'2.k.k..a:2;;37W",
+      "updatedAt": 1710590400000
     }
+  },
+  "order": [
+    "0c686afe-50ea-4659-b688-94852d85e6a0",
+    "8a000c9f-e52d-452c-b8d5-81e5cd60e6fa"
   ],
   "revision": 42,
   "updatedAt": "<server timestamp>"
 }
 ```
 
-`active` and `presets` are stored as native Firestore fields (not a stringified JSON blob). This makes the document inspectable in the Firebase console and indexable if needed.
+**Field descriptions:**
+
+- `presets` — Map of preset ID → preset data. Each preset has `name`, `buildCode`, and `updatedAt` (client timestamp in ms, used for per-preset merge).
+- `order` — Array of preset IDs defining display order. Kept in sync with the `presets` map keys.
+- `revision` — Server-managed counter, incremented on every write via `increment()`.
+- `updatedAt` — Firestore server timestamp, set on every write.
+
+**What is NOT stored in Firestore:**
+
+- `active` — stays in localStorage only. Each device chooses its own active preset.
+
+### Local `BuildPreset` Type Change
+
+The `BuildPreset` interface gains an `updatedAt` field:
+
+```typescript
+export interface BuildPreset {
+    id: string;
+    name: string;
+    buildCode: string;
+    updatedAt: number; // ms timestamp, used for cloud sync merge
+}
+```
+
+This is a breaking change. No backwards compatibility shims. The `updatedAt` field is set to `Date.now()` on every local preset change and is used by the merge algorithm to determine which version of a preset is newer.
 
 ### Security Rules
 
@@ -132,36 +161,104 @@ The `revision` field uses Firestore's server-side `increment()` operation on eve
 
 Initial revision for a new document: `1`.
 
+### Partial Writes
+
+Firestore writes use `update()` with dot notation to only touch the changed fields:
+
+**On preset edit:**
+```
+update(doc, {
+  "presets.{presetId}.name": "...",
+  "presets.{presetId}.buildCode": "...",
+  "presets.{presetId}.updatedAt": Date.now(),
+  revision: increment(1),
+  updatedAt: serverTimestamp()
+})
+```
+
+**On preset add:**
+```
+update(doc, {
+  "presets.{presetId}": { name, buildCode, updatedAt },
+  order: newOrderArray,
+  revision: increment(1),
+  updatedAt: serverTimestamp()
+})
+```
+
+**On preset delete:**
+```
+update(doc, {
+  "presets.{presetId}": deleteField(),
+  order: newOrderArray,
+  revision: increment(1),
+  updatedAt: serverTimestamp()
+})
+```
+
+**On reorder only:**
+```
+update(doc, {
+  order: newOrderArray,
+  revision: increment(1),
+  updatedAt: serverTimestamp()
+})
+```
+
+This means device A editing preset 1 and device B editing preset 2 don't overwrite each other — Firestore merges the partial writes server-side.
+
+### Per-Preset Merge (On Remote Snapshot)
+
+When a Firestore realtime snapshot arrives, the client merges remote and local state per-preset using `updatedAt`:
+
+1. For each preset ID in **remote**:
+   - If local has it: compare `updatedAt` — take whichever is newer
+   - If local doesn't have it: add it (new from another device)
+
+2. For each preset ID in **local only** (not in remote):
+   - If it was in the previous remote snapshot: it was deleted on another device → remove locally
+   - If it was NOT in the previous remote snapshot: it's a local addition not yet synced → keep
+
+3. **Order:** Use remote order as the base. Append any local-only additions at the end. Remove any IDs that no longer exist in the merged presets.
+
+4. **Active preset validation:** After merge, if the local `active` ID no longer exists in the merged presets, fall back to the first preset's ID. This reuses the same logic as the existing `validatePresetsData` fallback.
+
+5. Write merged result to localStorage and update `buildPresetsStore`.
+
+**Tracking "previous remote snapshot":** The service keeps a `lastRemotePresetIds: Set<string>` in memory, updated each time a remote snapshot is processed. This is needed to distinguish "deleted remotely" from "added locally."
+
 ### On Sign-In (First Time — No Remote Document)
 
 1. Read Firestore document for this user → does not exist
-2. Create it from current localStorage data with `revision: 1`
+2. Create it from current localStorage presets (converted to map format) with `revision: 1`
 3. Attach realtime listener
 
 ### On Sign-In (Existing Remote Document)
 
 1. Read Firestore document → exists
-2. Remote wins. Write remote data to localStorage and update `buildPresetsStore`.
+2. Merge remote presets with local presets using the per-preset merge algorithm
 3. Attach realtime listener
 
-This means if a user signs out, edits locally for a while, and signs back in, remote data overwrites local. This is an accepted tradeoff — the cloud document is the cross-device source of truth. Users who want to preserve local edits should not sign out. This scenario is expected to be extremely rare.
+On first sign-in on a new device, local will typically only have the "Default" preset. The merge adds all remote presets and the Default preset's `updatedAt` determines whether it survives or gets overwritten by the remote version.
 
 ### On Local Preset Change
 
 1. Existing path unchanged: `buildPresetsStore` → localStorage
-2. If Cloud Save active → write to Firestore with `increment(1)` on revision and server timestamp
+2. The changed preset's `updatedAt` is set to `Date.now()`
+3. If Cloud Save active → partial write to Firestore (only the changed preset's fields + revision increment)
 
 ### On Remote Change (Firestore Listener)
 
-1. Compare incoming `revision` to last-known local `revision`
-2. If remote is newer → update localStorage and `buildPresetsStore`
-3. If same or older → ignore (own write echoing back)
+1. Run per-preset merge algorithm (described above)
+2. If merge produces any changes → update localStorage and `buildPresetsStore`
+3. If no changes → ignore (own write echoing back, or remote state matches local)
 
 ### On Sign-Out
 
 1. Detach Firestore listener
-2. Local data stays in localStorage untouched
-3. No cloud data deletion
+2. Clear `lastRemotePresetIds`
+3. Local data stays in localStorage untouched
+4. No cloud data deletion
 
 ### On `clearAll()` (Clear All Data from Settings)
 
@@ -174,16 +271,11 @@ This means if a user signs out, edits locally for a while, and signs back in, re
 
 1. Load from localStorage immediately (fast, offline-capable)
 2. Firestore listener attaches and brings in remote updates within ~1-2 seconds
+3. Per-preset merge runs on the first snapshot
 
 ### Write Failures
 
 If a Firestore write fails (network error, quota, permission), the local change is already saved to localStorage. The failed cloud write is not retried. The next local preset change triggers a new write attempt that brings the cloud document up to date.
-
-### Conflict Strategy
-
-Last-write-wins at the document level using the server-managed `revision` counter. No merge, no conflict UI. The realtime listener naturally serializes edits across simultaneously-open devices in the common case. True simultaneous edits (same 1-2 second window) result in last-write-wins, which is acceptable given the app's discrete edit pattern.
-
-Always write the full document on every sync. Do not use Firestore partial array operations (`arrayUnion`, `arrayRemove`) — they would break the revision-based conflict model.
 
 ## Side Menu UX
 
@@ -258,14 +350,15 @@ A modular component that renders the appropriate icon based on sync state. Used 
 
 - `src/lib/cloudSync/config.ts` — Firebase app initialization and config values (lazy loaded)
 - `src/lib/cloudSync/auth.ts` — Google Sign-In cascade, sign-out, auth state listener (lazy loaded)
-- `src/lib/cloudSync/firestore.ts` — Firestore document read/write/listen (lazy loaded)
-- `src/lib/cloudSync/service.ts` — Orchestrator connecting `buildPresetsStore` ↔ Firestore (lazy loaded)
+- `src/lib/cloudSync/firestore.ts` — Firestore document read/write/listen for the sync document (lazy loaded)
+- `src/lib/cloudSync/merge.ts` — Per-preset merge algorithm: compare local vs remote by `updatedAt`, handle additions/deletions, reconcile order (lazy loaded)
+- `src/lib/cloudSync/service.ts` — Orchestrator connecting `buildPresetsStore` ↔ Firestore, manages `lastRemotePresetIds` (lazy loaded)
 - `src/lib/cloudSyncStore.ts` — Svelte store exposing sync state to UI (eager, tiny, no Firebase dependency). Lives at `src/lib/` level per project convention (`*Store.ts` suffix).
 - `src/lib/cloudSync/CloudSyncIndicator.svelte` — Modular icon component for sync status (eager)
 
 ### Modified Files
 
-- `src/lib/buildPresetsStore.ts` — Add hook/callback for `cloudSyncService` to subscribe to preset changes (store does not import Firebase)
+- `src/lib/buildPresetsStore.ts` — Add `updatedAt` field to `BuildPreset` interface. Set `updatedAt` to `Date.now()` on every preset mutation. Add hook/callback for `cloudSyncService` to subscribe to preset changes. Breaking change — no backwards compatibility shims.
 - Side menu — Add Cloud Save button
 - Side menu toggle button — Extract into modular component, consume `cloudSyncStore` for icon swapping
 - New Cloud Save context menu component
@@ -285,13 +378,13 @@ The initial bundle is unaffected for users who never enable Cloud Save.
 UI components → cloudSyncStore.ts (read-only, eager)
                        ↑
             cloudSync/service.ts (writes to store, lazy)
-              ↙              ↘
-  cloudSync/auth.ts    cloudSync/firestore.ts (lazy)
-              ↘              ↙
+             ↙        ↓          ↘
+cloudSync/auth.ts  cloudSync/merge.ts  cloudSync/firestore.ts (lazy)
+             ↘                         ↙
             cloudSync/config.ts (lazy)
 ```
 
-`buildPresetsStore` does not import Firebase. `cloudSyncService` subscribes to it and bridges the two worlds.
+`buildPresetsStore` does not import Firebase. `cloudSyncService` subscribes to it and bridges the two worlds. `merge.ts` is a pure function module with no Firebase dependency — easy to unit test.
 
 ## Localization
 
@@ -307,17 +400,22 @@ All user-facing strings introduced by Cloud Save need locale entries in `src/loc
 
 ### Unit Tests
 
-- `cloudSync/service.ts` sync logic: sign-in scenarios (new user, existing user), local→remote writes, remote→local updates, revision comparison, sign-out cleanup, `clearAll()` interaction
-- `cloudSync/auth.ts` cascade: mock each sign-in method to verify fallback chain
+- `cloudSync/merge.ts` — Per-preset merge algorithm: both-have-same-preset (newer wins), remote-only (add), local-only-was-in-previous-remote (delete), local-only-new (keep), order reconciliation, active ID invalidation fallback
+- `cloudSync/service.ts` — Sign-in scenarios (new user, existing user), local→remote writes, remote→local updates, sign-out cleanup, `clearAll()` interaction
+- `cloudSync/auth.ts` — Mock each sign-in method to verify fallback chain
+- `buildPresetsStore.ts` — Verify `updatedAt` is set on every mutation
 
 ### Mocking Strategy
 
 - Firebase SDK calls are mocked in tests. The service's dependency on `auth.ts` and `firestore.ts` makes this straightforward since those modules are the only Firebase touchpoints.
+- `merge.ts` is pure functions with no Firebase dependency — tested directly without mocks.
 
 ### Manual Testing
 
 - Sign in on device A, verify data appears on device B
-- Edit on one device with both open, verify realtime update
+- Edit different presets on two devices simultaneously, verify both changes merge
+- Edit the same preset on two devices, verify latest `updatedAt` wins
+- Delete a preset on device A while device B has it active, verify device B falls back to first preset
 - Sign out, verify local data persists
 - Clear all data, verify cloud data survives and restores on re-sign-in
 
