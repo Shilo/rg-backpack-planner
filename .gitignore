@@ -44,4 +44,5 @@ docs/plans/
 .superpowers/
 
 # Codex generated files
-*.pid
+/*.pid
+/*.diff
