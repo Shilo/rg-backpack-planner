@@ -1,3 +1,13 @@
+# What's New in v1.0.0
+-# Changes since v0.5.18
+https://rgbp.app
+
+## Improved
+- Improved the recommended builds browser with a unified dropdown interface and richer build metadata.
+- Added French as a supported language alongside English, Japanese, and Simplified Chinese.
+
+---
+
 # What's New in v0.5.12
 -# Changes since v0.4.15
 https://rgbp.app
