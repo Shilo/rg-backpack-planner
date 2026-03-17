@@ -2,11 +2,15 @@
     import {
         ArrowClockwiseIcon,
         BookOpenTextIcon,
+        CloudCheckIcon,
+        CloudIcon,
         ClockCounterClockwiseIcon,
         TrashSimpleIcon,
         VibrateIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
+    import { CLOUD_SAVE_ENABLED } from "../../config/cloudSave";
+    import { cloudSyncStore } from "../cloudSyncStore";
     import { hapticsEnabled } from "../hapticsStore";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
@@ -103,6 +107,24 @@
             },
         });
     }
+
+    async function handleCloudSaveClick() {
+        if ($cloudSyncStore.enabled) {
+            // Open context menu (Task 15 will wire this up)
+            return;
+        }
+        // Sign in
+        try {
+            const { signIn } = await import("../cloudSync/auth");
+            const { initCloudSync } = await import("../cloudSync/init");
+            initCloudSync();
+            await signIn();
+            showToast($t("cloudSave.enabledToast"));
+        } catch (error) {
+            console.error("Cloud Save sign-in failed:", error);
+            showToast($t("cloudSave.errorToast"), { tone: "negative" });
+        }
+    }
 </script>
 
 <SettingsPage title={$t("settings.pages.general")} {onBack}>
@@ -121,6 +143,16 @@
     <SideMenuSection title={$t("sideMenu.sections.application")}>
         <FullscreenToggle />
         <InstallPwaButton title={true} />
+        {#if CLOUD_SAVE_ENABLED}
+            <Button
+                on:click={handleCloudSaveClick}
+                description={$t("cloudSave.description")}
+                icon={$cloudSyncStore.enabled ? CloudCheckIcon : CloudIcon}
+                positive={$cloudSyncStore.enabled}
+            >
+                {$t("cloudSave.label")}
+            </Button>
+        {/if}
         <Button
             on:click={() => {
                 showOnboarding();

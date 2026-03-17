@@ -605,5 +605,25 @@
         "off": "关",
         "toastHapticsOn": "触觉反馈: 开",
         "toastHapticsOff": "触觉反馈: 关"
+    },
+    "cloudSave": {
+        "label": "Cloud Save",
+        "description": "Sync builds across devices",
+        "enabledToast": "Cloud Save enabled",
+        "errorToast": "Couldn't connect. Try again.",
+        "sizeLimitToast": "Too many builds to sync. Delete some builds to resume syncing.",
+        "signOut": "Sign Out",
+        "deleteCloudData": "Delete Cloud Data",
+        "syncNow": "Sync Now",
+        "lastSynced": "Last synced {time}",
+        "justNow": "just now",
+        "minutesAgo": "{count}m ago",
+        "hoursAgo": "{count}h ago",
+        "buildsSynced": "{count} builds synced",
+        "revision": "Revision {number}",
+        "signOutFooter": "Signing out keeps your builds on this device but stops syncing.",
+        "deleteConfirmTitle": "Delete Cloud Data",
+        "deleteConfirmMessage": "This permanently removes your builds from the cloud. This cannot be undone. Builds on this device will be kept.",
+        "deleteConfirmLabel": "Delete"
     }
 }
