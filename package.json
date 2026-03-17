@@ -1,6 +1,6 @@
 {
     "name": "backpack-planner",
-    "version": "0.5.19",
+    "version": "0.6.0",
     "displayName": "Backpack Planner",
     "description": "Plan and share Backpack Tech builds.",
     "app": {
