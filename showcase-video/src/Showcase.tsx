@@ -102,8 +102,8 @@ const DesktopFrame: React.FC<{ file: string; frame: number; start: number }> = (
         <div style={{
             opacity,
             transform: `scale(${scale})`,
-            width: '800px',
-            height: '450px',
+            width: '1000px',
+            height: '563px',
             filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.5))'
         }}>
             <img
@@ -178,7 +178,7 @@ export const Showcase: React.FC = () => {
                         </div>
                     </div>
                     <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                        <MobileFrame file="mobile_late_pve.png" frame={frame} start={0} />
+                        <MobileFrame file="mobile_late_pvp_context.png" frame={frame} start={0} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
@@ -199,7 +199,7 @@ export const Showcase: React.FC = () => {
                         />
                     </div>
                     <div style={{ flex: 1.5, display: 'flex', justifyContent: 'center' }}>
-                        <DesktopFrame file="desktop_late_pvp.png" frame={frame} start={110} />
+                        <DesktopFrame file="desktop_plan_onboarding.png" frame={frame} start={110} />
                     </div>
                 </AbsoluteFill>
             </Sequence>
@@ -235,9 +235,9 @@ export const Showcase: React.FC = () => {
                         <Title text="Build & Optimize Now" frame={frame} start={400} align="left" color="#00adfc" />
                         <FeatureList
                             items={[
-                                "Multiple Build Presets",
+                                "Create Multiple Build Presets",
                                 "Share and Preview Builds",
-                                "Works Offline & Everywhere"
+                                "Use Anywhere, Offline and in Your Language"
                             ]}
                             frame={frame}
                             start={420}
