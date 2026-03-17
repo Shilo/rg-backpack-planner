@@ -39,6 +39,10 @@
     export let onBack: (() => void) | null = null;
     export let onClose: (() => void) | null = null;
 
+    let cloudSaveMenuOpen = false;
+    let cloudSaveMenuX = 0;
+    let cloudSaveMenuY = 0;
+
     function handleResetSettings() {
         openModal({
             type: "confirm",
@@ -108,9 +112,13 @@
         });
     }
 
-    async function handleCloudSaveClick() {
+    async function handleCloudSaveClick(event: CustomEvent<MouseEvent>) {
         if ($cloudSyncStore.enabled) {
-            // Open context menu (Task 15 will wire this up)
+            const target = event.currentTarget as HTMLElement;
+            const rect = target.getBoundingClientRect();
+            cloudSaveMenuX = rect.left + rect.width / 2;
+            cloudSaveMenuY = rect.top;
+            cloudSaveMenuOpen = true;
             return;
         }
         // Sign in
@@ -152,6 +160,17 @@
             >
                 {$t("cloudSave.label")}
             </Button>
+            {#if cloudSaveMenuOpen}
+                {#await import("../cloudSync/CloudSaveMenu.svelte") then module}
+                    <svelte:component
+                        this={module.default}
+                        isOpen={cloudSaveMenuOpen}
+                        x={cloudSaveMenuX}
+                        y={cloudSaveMenuY}
+                        onClose={() => { cloudSaveMenuOpen = false; }}
+                    />
+                {/await}
+            {/if}
         {/if}
         <Button
             on:click={() => {
