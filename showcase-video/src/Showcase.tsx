@@ -51,12 +51,12 @@ const FeatureList: React.FC<{ items: string[]; frame: number; start: number }> =
                         display: 'flex',
                         alignItems: 'center',
                         gap: '24px',
-                        background: 'rgba(30, 41, 59, 0.4)',
+                        background: 'rgba(7, 19, 26, 0.6)',
                         padding: '24px',
                         borderRadius: '20px',
-                        border: '1px solid rgba(255, 255, 255, 0.08)'
+                        border: '1px solid rgba(167, 187, 198, 0.1)'
                     }}>
-                        <CheckCircle2 size={36} color="#06b6d4" />
+                        <CheckCircle2 size={36} color="#00adfc" />
                         <span style={{ fontSize: '32px', fontWeight: '500' }}>{item}</span>
                     </div>
                 );
@@ -86,7 +86,7 @@ const MobileFrame: React.FC<{ file: string; frame: number; start: number }> = ({
                     height: '100%',
                     width: 'auto',
                     borderRadius: '48px',
-                    border: '12px solid #1e293b',
+                    border: '12px solid #223b49',
                     objectFit: 'contain'
                 }}
             />
@@ -112,7 +112,7 @@ const DesktopFrame: React.FC<{ file: string; frame: number; start: number }> = (
                     width: '100%',
                     height: '100%',
                     borderRadius: '20px',
-                    border: '8px solid #1e293b',
+                    border: '8px solid #223b49',
                     objectFit: 'cover'
                 }}
             />
@@ -127,14 +127,14 @@ export const Showcase: React.FC = () => {
     return (
         <AbsoluteFill
             style={{
-                backgroundColor: '#0f172a',
-                color: 'white',
+                backgroundColor: '#00040e',
+                color: '#d7ebf7',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
             }}
         >
             {/* Intro Scene (0-90) - STATIC START */}
             <Sequence durationInFrames={90}>
-                <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px', backgroundColor: '#0f172a' }}>
+                <AbsoluteFill style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 100px', backgroundColor: '#00040e' }}>
                     <div style={{ flex: 1, paddingRight: '60px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '40px' }}>
                         <img
                             src={staticFile("icon.svg")}
@@ -145,11 +145,11 @@ export const Showcase: React.FC = () => {
                             }}
                         />
                         <div style={{ textAlign: 'left' }}>
-                            <Title text="Backpack Planner" frame={frame} start={0} color="#06b6d4" align="left" />
+                            <Title text="Backpack Planner" frame={frame} start={0} color="#00adfc" align="left" />
                             <p style={{
                                 fontSize: '48px',
                                 fontWeight: 'bold',
-                                color: 'white',
+                                color: '#d7ebf7',
                                 opacity: frame === 0 ? 1 : interpolate(frame, [10, 25], [0, 1]),
                                 margin: '-20px 0 20px 0'
                             }}>
@@ -161,7 +161,7 @@ export const Showcase: React.FC = () => {
                                 transform: `translateY(${frame === 0 ? 0 : interpolate(frame, [20, 40], [20, 0], { extrapolateRight: 'clamp' })}px)`,
                                 maxWidth: '600px',
                                 lineHeight: '1.4',
-                                color: '#94a3b8'
+                                color: '#a7bbc6'
                             }}>
                                 Plan and share optimized Backpack Tech builds.
                             </p>
@@ -172,8 +172,8 @@ export const Showcase: React.FC = () => {
                                 alignItems: 'center',
                                 gap: '16px'
                             }}>
-                                <Link size={36} color="#06b6d4" />
-                                <p style={{ fontSize: '36px', fontWeight: 'bold', margin: 0, color: 'white' }}>rgbp.app</p>
+                                <Link size={36} color="#00adfc" />
+                                <p style={{ fontSize: '36px', fontWeight: 'bold', margin: 0, color: '#d7ebf7' }}>rgbp.app</p>
                             </div>
                         </div>
                     </div>
@@ -232,7 +232,7 @@ export const Showcase: React.FC = () => {
                         <div style={{ marginBottom: '40px' }}>
                             <img src={staticFile("icon.svg")} style={{ width: '120px' }} />
                         </div>
-                        <Title text="Build & Optimize Now" frame={frame} start={400} align="left" color="#06b6d4" />
+                        <Title text="Build & Optimize Now" frame={frame} start={400} align="left" color="#00adfc" />
                         <FeatureList
                             items={[
                                 "Multiple Build Presets",
@@ -249,7 +249,7 @@ export const Showcase: React.FC = () => {
                             alignItems: 'center',
                             gap: '16px'
                         }}>
-                            <Link size={48} color="#06b6d4" />
+                            <Link size={48} color="#00adfc" />
                             <p style={{ fontSize: '48px', fontWeight: 'bold', margin: 0 }}>rgbp.app</p>
                         </div>
                     </div>
