@@ -157,7 +157,9 @@ These can break Svelte's DOM reconciliation by inserting elements or modifying t
 
 ## Debug Panel
 
-A diagnostic section was added to `src/lib/sideMenuPages/AboutSettingsPage.svelte` (the About page in the side menu). It displays:
+A dedicated `DebugInfoSection.svelte` component was added, rendered inside the About page (`AboutSettingsPage.svelte`) as a collapsed Accordion. It includes a **Copy** button that formats all entries as aligned plaintext for easy sharing.
+
+### Fields
 
 | Field | Purpose |
 |---|---|
@@ -168,15 +170,28 @@ A diagnostic section was added to `src/lib/sideMenuPages/AboutSettingsPage.svelt
 | Display Mode | "Standalone (PWA)" vs "Browser Tab" |
 | Service Worker | active / waiting / installing / not registered / error |
 | Network | `navigator.connection.effectiveType` (4g/3g/2g/slow-2g) |
+| Levels Total | Live sum of all `treeLevels` — if 0 while nodes are visually leveled, base store isn't populated |
+| Crystals Spent | Live `techCrystalsSpent` — if 0 while nodes are leveled, derived store chain is broken |
 | User Agent | Full UA string — reveals Chrome version, device, WebView status |
+| Taps (DOM) | Plain JS counter incremented via DOM event — always increments on tap regardless of Svelte |
+| Taps (Svelte) | Svelte reactive counter — only increments if Svelte's reactivity system is working |
 
-### Proposed Additional Diagnostics
+### Reactivity Probe
 
-- **Live `techCrystalsSpent`** — if 0 while nodes are leveled, derived store chain is broken
-- **Live `treeLevels` total** — if 0 while nodes are visually leveled, base store isn't populated
-- **Reactivity probe** — button that increments a counter; if display doesn't update on click, Svelte reactivity itself is broken on the device
+The "Tap to test" button increments two independent counters:
+- **DOM counter** — plain JavaScript variable, written to a `data-` attribute directly
+- **Svelte counter** — standard Svelte reactive variable
+
+Both are displayed on the button (`Tap to test: {svelte} / {dom}`) and included in the copied output. A mismatch (e.g., `Taps (DOM): 5`, `Taps (Svelte): 0`) proves Svelte's reactivity is broken on the device.
+
+### Files
+
+- `src/lib/sideMenuPages/DebugInfoSection.svelte` — self-contained debug component
+- `src/lib/sideMenuPages/AboutSettingsPage.svelte` — renders `<DebugInfoSection />` at bottom
 
 ## Diagnostic Decision Tree
+
+Ask the user to: open About page → expand Debug accordion → tap the test button a few times → tap Copy → paste and send.
 
 ```
 1. Is App Version the latest?
@@ -188,10 +203,10 @@ A diagnostic section was added to `src/lib/sideMenuPages/AboutSettingsPage.svelt
 3. Does Locale show "ja"?
    ├─ NO (shows "en") → Theory 5 confirmed (locale chunk failed).
    └─ YES → continue
-4. Does reactivity probe work? (if added)
-   ├─ NO → Svelte runtime broken (Theory 2 or 3). Collect Chrome version.
+4. Do Taps (DOM) and Taps (Svelte) match after tapping?
+   ├─ NO (DOM > Svelte) → Svelte runtime broken (Theory 2 or 3). Collect Chrome version from User Agent.
    └─ YES → continue
-5. Do treeLevels total / techCrystalsSpent show correct values? (if added)
+5. Do Levels Total / Crystals Spent show correct values after leveling nodes?
    ├─ NO (0 despite leveled nodes) → Store hydration issue
    └─ YES → Component subscription issue specific to Tree/Node rendering
 ```

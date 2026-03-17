@@ -12,6 +12,7 @@
     import AppIcon from "../icons/AppIcon.svelte";
     import { getCurrentVersion } from "../latestUsedVersionStore";
     import { t } from "svelte-whisper";
+    import DebugInfoSection from "./DebugInfoSection.svelte";
 
     export let onBack: (() => void) | null = null;
 
@@ -94,6 +95,8 @@
             items={[0, 1, 2, 3, 4].map((i) => $t(`trees.rules.${i}`))}
         />
     </SideMenuSection>
+
+    <DebugInfoSection />
 </SettingsPage>
 
 <style>
