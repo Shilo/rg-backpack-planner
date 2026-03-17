@@ -1,5 +1,5 @@
 import { getStoredVersion, getCurrentVersion } from "../latestUsedVersionStore";
-import { setItem } from "../storage";
+import { removeItem, setItem } from "../storage";
 
 export type Migration = {
     toVersion: string;
@@ -10,7 +10,19 @@ const MIGRATIONS: Migration[] = [
     {
         toVersion: "1.0",
         run: () => {
+            // Onboarding was improved with more steps.
+            // Users may not know how all controls work
+            // so we show it again.
             setItem("onboarding-seen", "false");
+        },
+    },
+    {
+        toVersion: "1.0.4",
+        run: () => {
+            // Clear stale auto-persisted locale so svelte-whisper re-detects
+            // from navigator.languages on next init. Fixes users stuck on "en"
+            // despite browser preferring another supported locale (e.g. ja-JP).
+            removeItem("locale");
         },
     },
 ];
