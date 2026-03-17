@@ -524,6 +524,19 @@ Preferred identity strategy:
 
 Recommended variants:
 
+#### Best overall: Google Sign-In via Firebase
+
+- Firestore
+- Google Sign-In (`signInWithRedirect`, optionally One Tap with redirect fallback)
+- No anonymous auth step
+- One sign-in per device
+
+This is the strongest fit for Backpack Planner. The app is shared via Discord but does not use Discord-specific features, so Discord OAuth adds friction without benefit. Google Sign-In is lower friction (almost every user has a Google account) and Firebase handles it natively.
+
+See:
+
+- [google-auth-research.md](./google-auth-research.md)
+
 #### Best balance of simplicity and durability
 
 - Firestore
@@ -546,7 +559,7 @@ This is the best choice if avoiding personal info is more important than easy ac
 - Discord login
 - optional guild-membership gate for one server
 
-If the app is mainly being shared inside one Discord community and Discord login should power both sync and leaderboard identity, this becomes the strongest overall fit.
+If the app is mainly being shared inside one Discord community and Discord login should power both sync and leaderboard identity, this becomes the strongest overall fit. Only recommended if Discord-specific features (server gating, Discord identity display) are needed.
 
 See:
 
@@ -591,6 +604,7 @@ See also:
 - [leaderboard-research.md](./leaderboard-research.md)
 - [internal-leaderboard-research.md](./internal-leaderboard-research.md)
 - [external-leaderboard-research.md](./external-leaderboard-research.md)
+- [google-auth-research.md](./google-auth-research.md)
 - [discord-auth-research.md](./discord-auth-research.md)
 
 ## Suggested UX Principles
@@ -617,11 +631,11 @@ The most intuitive and simple approach is:
 
 Best overall pick:
 
-- Cloud Firestore + passkey-backed or otherwise low-friction identity
+- Cloud Firestore + Google Sign-In via Firebase Auth (`signInWithRedirect`, optionally One Tap with redirect fallback). See [google-auth-research.md](./google-auth-research.md).
 
 Best overall pick if Discord login is a hard requirement:
 
-- Supabase + Discord login + optional server-membership gate
+- Supabase + Discord login + optional server-membership gate. See [discord-auth-research.md](./discord-auth-research.md).
 
 Best strict no-account pick:
 
@@ -682,6 +696,18 @@ Best strict no-account pick:
 
 - Apple iCloud Overview
 - <https://support.apple.com/en-au/guide/icloud/mm203ae070a2/icloud>
+
+- Google One Tap for web
+- <https://developers.google.com/identity/gsi/web/guides/display-google-one-tap>
+
+- Google Identity Services overview
+- <https://developers.google.com/identity/gsi/web>
+
+- Firebase Google Sign-In for web
+- <https://firebase.google.com/docs/auth/web/google-signin>
+
+- FedCM (Federated Credential Management)
+- <https://developer.chrome.com/docs/privacy-sandbox/fedcm/>
 
 - Passkeys.dev
 - <https://passkeys.dev/docs/intro/what-are-passkeys/>
