@@ -23,6 +23,19 @@ Add opt-in realtime cloud syncing of build preset data between devices using Fir
 
 ## Architecture
 
+### Kill Switch
+
+A `CLOUD_SAVE_ENABLED` boolean constant in `src/config/cloudSave.ts`. When `false`:
+
+- The Cloud Save button is not rendered in the side menu
+- No Firebase modules are imported (not even lazily)
+- No auth listeners, no Firestore connections, no sync logic executes
+- The `cloudSyncStore` remains at its default idle state
+- The HUD toggle button always shows ListIcon (no sync indicator)
+- The app behaves identically to before Cloud Save was implemented
+
+This is a compile-time constant so the bundler can tree-shake all Cloud Save code paths when disabled.
+
 ### Stack
 
 - Firebase Auth (Google Sign-In only)
