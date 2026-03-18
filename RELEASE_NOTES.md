@@ -1,3 +1,19 @@
+# What's New in v1.0.5
+-# Changes since v1.0.3
+https://rgbp.app
+
+## Improved
+- Added swipe-down gesture to dismiss action sheet modals for smoother navigation.
+- Expanded the debug information panel with system details, reorganized sections, and improved formatting.
+- Improved performance by deferring system info loading until the section is opened.
+- Added a toast notification when reaching the leaf cap in a skill tree.
+
+## Fixed
+- Fixed dropdown menus sometimes appearing above their trigger buttons instead of below.
+- Fixed service worker updates not applying reliably.
+
+---
+
 # What's New in v1.0.3
 -# Changes since v1.0.0
 https://rgbp.app
