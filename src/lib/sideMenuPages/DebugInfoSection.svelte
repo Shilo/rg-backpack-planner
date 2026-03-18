@@ -144,23 +144,33 @@
             : []),
     ] satisfies InfoEntry[];
 
-    $: allEntries = [
-        ...appEntries,
-        ...deviceEntries,
-        ...envEntries,
-        { label: $t("systemInfo.userAgent"), value: userAgent },
-    ];
-
-    function formatForClipboard(items: InfoEntry[]): string {
+    function formatSection(items: InfoEntry[]): string {
         const maxLabel = Math.max(...items.map((e) => e.label.length));
         return items
             .map((e) => `${e.label.padEnd(maxLabel)}  ${e.value}`)
             .join("\n");
     }
 
+    function formatForClipboard(): string {
+        const sections = [
+            { title: $t("systemInfo.sectionApp"), items: appEntries },
+            { title: $t("systemInfo.sectionDevice"), items: deviceEntries },
+            { title: $t("systemInfo.sectionEnvironment"), items: envEntries },
+        ];
+
+        const parts = sections.map(
+            (s) => `${s.title}\n${formatSection(s.items)}`,
+        );
+
+        const uaLabel = $t("systemInfo.userAgent");
+        parts.push(`${uaLabel}\n${userAgent}`);
+
+        return "```\n" + parts.join("\n\n") + "\n```";
+    }
+
     async function copySystemInfo() {
         triggerHaptic();
-        const text = formatForClipboard(allEntries);
+        const text = formatForClipboard();
         try {
             await navigator.clipboard.writeText(text);
             showToast($t("systemInfo.copied"), { tone: "positive" });
