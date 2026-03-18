@@ -15,6 +15,8 @@
 
     export let onBack: (() => void) | null = null;
 
+    let advancedOpened = false;
+
     const version = getCurrentVersion();
 
     const authorName = packageInfo.author?.name ?? "";
@@ -36,7 +38,7 @@
     $: versionLabel = version === "unknown" ? "" : version;
 </script>
 
-<SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")}>
+<SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")} onAdvancedOpen={() => { advancedOpened = true; }}>
     <div class="about-card">
         <div class="about-app-row">
             <span class="about-app-icon" aria-hidden="true">
@@ -96,9 +98,11 @@
     </SideMenuSection>
 
     <svelte:fragment slot="advancedSettings">
-        {#await import("./DebugInfoSection.svelte") then { default: DebugInfoSection }}
-            <svelte:component this={DebugInfoSection} />
-        {/await}
+        {#if advancedOpened}
+            {#await import("./DebugInfoSection.svelte") then { default: DebugInfoSection }}
+                <svelte:component this={DebugInfoSection} />
+            {/await}
+        {/if}
     </svelte:fragment>
 </SettingsPage>
 

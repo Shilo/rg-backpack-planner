@@ -7,6 +7,7 @@
     export let title: string | undefined = undefined;
     export let onBack: (() => void) | null = null;
     export let advancedTitle: string | undefined = undefined;
+    export let onAdvancedOpen: (() => void) | null = null;
 
     let backButtonElement: HTMLButtonElement | null = null;
 
@@ -40,7 +41,7 @@
 </div>
 
 {#if $$slots.advancedSettings}
-    <Accordion title={advancedTitle ?? $t("settings.advanced")}>
+    <Accordion title={advancedTitle ?? $t("settings.advanced")} on:toggle={(e) => { if (e.detail.isOpen) onAdvancedOpen?.(); }}>
         <slot name="advancedSettings" />
     </Accordion>
 {/if}
