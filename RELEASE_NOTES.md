@@ -1,3 +1,16 @@
+# What's New in v1.0.3
+-# Changes since v1.0.0
+https://rgbp.app
+
+## New
+- Added a debug information panel in the About settings page for troubleshooting device and app state.
+
+## Fixed
+- Fixed Japanese and other non-English speakers being stuck on English after the app added their language in a previous update.
+- Fixed Chrome's automatic page translation breaking the app's interface on Android devices.
+
+---
+
 # What's New in v1.0.0
 -# Changes since v0.5.18
 https://rgbp.app
