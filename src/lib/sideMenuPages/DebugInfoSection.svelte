@@ -1,13 +1,11 @@
 <script lang="ts">
     import { CopySimpleIcon } from "phosphor-svelte";
-    import Accordion from "../Accordion.svelte";
     import { getCurrentVersion, getStoredVersion } from "../latestUsedVersionStore";
-    import { techCrystalsSpent } from "../techCrystalStore";
-    import { treeLevels, sumLevels } from "../treeLevelsStore";
-    import { locale } from "svelte-whisper";
+    import { locale, t } from "svelte-whisper";
     import { showToast } from "../toast";
     import { triggerHaptic } from "../hapticsStore";
     import { onMount } from "svelte";
+    import SideMenuSection from "../SideMenuSection.svelte";
 
     type NavigatorUAData = {
         mobile?: boolean;
@@ -39,18 +37,17 @@
     const cpuCores = navigator.hardwareConcurrency ?? null;
     const screenInfo = `${screen.width}x${screen.height} @${devicePixelRatio}x`;
     const viewport = `${window.innerWidth}x${window.innerHeight}`;
+    const touchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const onlineStatus = navigator.onLine;
 
-    let swStatus = "checking...";
+    let swStatus = "…";
+    let storageUsed = "";
     let deviceModel = "";
     let browserVersion = "";
     let platformInfo = "";
-    let reactivityProbe = 0;
-    /** Plain JS counter — incremented outside Svelte's reactivity system. */
-    let domTapCount = 0;
-    let probeBtnEl: HTMLButtonElement | null = null;
 
     onMount(async () => {
-        // Service worker status
         if ("serviceWorker" in navigator) {
             try {
                 const reg = await navigator.serviceWorker.getRegistration();
@@ -59,11 +56,11 @@
                 } else if (reg.installing) {
                     swStatus = "installing";
                 } else if (reg.waiting) {
-                    swStatus = "waiting (update ready)";
+                    swStatus = "waiting";
                 } else if (reg.active) {
                     swStatus = "active";
                 } else {
-                    swStatus = "registered (unknown state)";
+                    swStatus = "registered";
                 }
             } catch {
                 swStatus = "error";
@@ -72,7 +69,6 @@
             swStatus = "not supported";
         }
 
-        // Device info via UA Client Hints (Chromium only)
         const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData })
             .userAgentData;
         if (uaData?.getHighEntropyValues) {
@@ -98,189 +94,213 @@
         if (!platformInfo && uaData?.platform) {
             platformInfo = uaData.platform;
         }
+
+        if (navigator.storage?.estimate) {
+            try {
+                const est = await navigator.storage.estimate();
+                if (est.usage != null && est.quota != null) {
+                    const usedMB = (est.usage / 1024 / 1024).toFixed(1);
+                    const quotaMB = (est.quota / 1024 / 1024).toFixed(0);
+                    storageUsed = `${usedMB} / ${quotaMB} MB`;
+                }
+            } catch {
+                // Storage estimate not available
+            }
+        }
     });
 
-    $: totalLevels = $treeLevels.reduce((sum, t) => sum + sumLevels(t), 0);
+    type InfoEntry = { label: string; value: string };
 
-    type DebugEntry = { label: string; value: string };
+    $: appEntries = [
+        { label: $t("systemInfo.version"), value: version },
+        { label: $t("systemInfo.storedVersion"), value: storedVersion ?? "none" },
+    ] satisfies InfoEntry[];
 
-    $: entries = [
-        { label: "App Version", value: version },
-        { label: "Stored Version", value: storedVersion ?? "none" },
-        ...(deviceModel ? [{ label: "Device", value: deviceModel }] : []),
-        ...(platformInfo ? [{ label: "Platform", value: platformInfo }] : []),
-        ...(browserVersion ? [{ label: "Browser", value: browserVersion }] : []),
-        { label: "Screen", value: screenInfo },
-        { label: "Viewport", value: viewport },
+    $: deviceEntries = [
+        ...(deviceModel ? [{ label: $t("systemInfo.device"), value: deviceModel }] : []),
+        ...(platformInfo ? [{ label: $t("systemInfo.platform"), value: platformInfo }] : []),
+        ...(browserVersion ? [{ label: $t("systemInfo.browser"), value: browserVersion }] : []),
+        { label: $t("systemInfo.screen"), value: screenInfo },
+        { label: $t("systemInfo.viewport"), value: viewport },
         ...(deviceMemory != null
-            ? [{ label: "Memory", value: `${deviceMemory} GB` }]
+            ? [{ label: $t("systemInfo.memory"), value: `${deviceMemory} GB` }]
             : []),
         ...(cpuCores != null
-            ? [{ label: "CPU Cores", value: String(cpuCores) }]
+            ? [{ label: $t("systemInfo.cpuCores"), value: String(cpuCores) }]
             : []),
-        { label: "Locale", value: $locale ?? "unknown" },
-        { label: "Browser Lang", value: langsPref },
-        { label: "Display Mode", value: displayMode },
-        { label: "Service Worker", value: swStatus },
-        { label: "Network", value: networkType },
-        { label: "Levels Total", value: String(totalLevels) },
-        { label: "Crystals Spent", value: String($techCrystalsSpent) },
-        { label: "User Agent", value: userAgent },
-        { label: "Taps (DOM)", value: String(domTapCount) },
-        { label: "Taps (Svelte)", value: String(reactivityProbe) },
-    ] satisfies DebugEntry[];
+        { label: $t("systemInfo.touchSupport"), value: touchSupport ? "yes" : "no" },
+    ] satisfies InfoEntry[];
 
-    function formatForClipboard(items: DebugEntry[]): string {
+    $: envEntries = [
+        { label: $t("systemInfo.locale"), value: $locale ?? "unknown" },
+        { label: $t("systemInfo.browserLang"), value: langsPref },
+        { label: $t("systemInfo.displayMode"), value: displayMode },
+        { label: $t("systemInfo.serviceWorker"), value: swStatus },
+        { label: $t("systemInfo.network"), value: networkType },
+        { label: $t("systemInfo.online"), value: onlineStatus ? "yes" : "no" },
+        { label: $t("systemInfo.reducedMotion"), value: reducedMotion ? "yes" : "no" },
+        ...(storageUsed
+            ? [{ label: $t("systemInfo.storage"), value: storageUsed }]
+            : []),
+    ] satisfies InfoEntry[];
+
+    $: allEntries = [
+        ...appEntries,
+        ...deviceEntries,
+        ...envEntries,
+        { label: $t("systemInfo.userAgent"), value: userAgent },
+    ];
+
+    function formatForClipboard(items: InfoEntry[]): string {
         const maxLabel = Math.max(...items.map((e) => e.label.length));
         return items
             .map((e) => `${e.label.padEnd(maxLabel)}  ${e.value}`)
             .join("\n");
     }
 
-    async function copyDebugInfo() {
+    async function copySystemInfo() {
         triggerHaptic();
-        const text = formatForClipboard(entries);
+        const text = formatForClipboard(allEntries);
         try {
             await navigator.clipboard.writeText(text);
-            showToast("Copied debug info", { tone: "positive" });
+            showToast($t("systemInfo.copied"), { tone: "positive" });
         } catch {
-            showToast("Unable to copy", { tone: "negative" });
+            showToast($t("systemInfo.copyFailed"), { tone: "negative" });
         }
     }
 </script>
 
-<Accordion title="Debug">
-    <div class="debug-card">
-        {#each entries as entry}
-            <div
-                class="debug-row"
-                class:debug-row-wrap={entry.label === "User Agent"}
-            >
-                <span class="debug-label">{entry.label}</span>
-                <span
-                    class="debug-value"
-                    class:debug-value-mono={entry.label === "User Agent"}
-                    >{entry.value}</span
-                >
-            </div>
-        {/each}
-
-        <div class="debug-actions">
-            <button
-                class="debug-probe-btn"
-                bind:this={probeBtnEl}
-                on:click={() => {
-                    domTapCount++;
-                    reactivityProbe++;
-                    triggerHaptic();
-                    if (probeBtnEl) {
-                        probeBtnEl.dataset.domCount = String(domTapCount);
-                    }
-                }}
-            >
-                Tap to test: <span class="probe-svelte">{reactivityProbe}</span>
-                / <span class="probe-dom" data-dom-count={domTapCount}
-                    >{domTapCount}</span
-                >
-            </button>
-
-            <button class="debug-copy-btn" on:click={copyDebugInfo}>
-                <CopySimpleIcon size={14} weight="bold" />
-                Copy
-            </button>
+<div class="system-info">
+    <SideMenuSection title={$t("systemInfo.sectionApp")}>
+        <div class="info-card">
+            {#each appEntries as entry}
+                <div class="info-row">
+                    <span class="info-label">{entry.label}</span>
+                    <span class="info-value">{entry.value}</span>
+                </div>
+            {/each}
         </div>
+    </SideMenuSection>
+
+    <SideMenuSection title={$t("systemInfo.sectionDevice")}>
+        <div class="info-card">
+            {#each deviceEntries as entry}
+                <div class="info-row">
+                    <span class="info-label">{entry.label}</span>
+                    <span class="info-value">{entry.value}</span>
+                </div>
+            {/each}
+        </div>
+    </SideMenuSection>
+
+    <SideMenuSection title={$t("systemInfo.sectionEnvironment")}>
+        <div class="info-card">
+            {#each envEntries as entry}
+                <div class="info-row">
+                    <span class="info-label">{entry.label}</span>
+                    <span class="info-value">{entry.value}</span>
+                </div>
+            {/each}
+        </div>
+    </SideMenuSection>
+
+    <div class="info-card ua-card">
+        <div class="ua-header">{$t("systemInfo.userAgent")}</div>
+        <div class="ua-value">{userAgent}</div>
     </div>
-</Accordion>
+
+    <button class="copy-btn" on:click={copySystemInfo}>
+        <CopySimpleIcon size={16} weight="bold" />
+        {$t("systemInfo.copyAll")}
+    </button>
+</div>
 
 <style>
-    .debug-card {
+    .system-info {
+        display: grid;
+        gap: var(--spacing-lg);
+    }
+
+    .info-card {
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
         overflow: hidden;
     }
 
-    .debug-row {
+    .info-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: var(--spacing-md);
-        padding: var(--spacing-sm) var(--spacing-lg);
+        padding: var(--spacing-md) var(--spacing-lg);
         border-top: var(--border-width) solid var(--border);
     }
 
-    .debug-row:first-child {
+    .info-row:first-child {
         border-top: none;
     }
 
-    .debug-row-wrap {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-xs);
-    }
-
-    .debug-label {
-        font-size: var(--font-sm);
+    .info-label {
+        font-size: var(--font-base);
         color: var(--text-muted);
         flex-shrink: 0;
     }
 
-    .debug-value {
-        font-size: var(--font-sm);
+    .info-value {
+        font-size: var(--font-base);
         color: var(--text-disabled);
         text-align: right;
         min-width: 0;
         overflow-wrap: anywhere;
     }
 
-    .debug-value-mono {
-        text-align: left;
-        font-size: var(--font-xs);
+    .ua-card {
+        padding: var(--spacing-md) var(--spacing-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .ua-header {
+        font-size: var(--font-base);
+        color: var(--text-muted);
+    }
+
+    .ua-value {
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
         line-height: var(--leading);
         word-break: break-all;
     }
 
-    .debug-actions {
-        display: grid;
-        grid-template-columns: 1fr 6rem;
-        border-top: var(--border-width) solid var(--border);
-    }
-
-    .debug-probe-btn,
-    .debug-copy-btn {
-        display: inline-flex;
+    .copy-btn {
+        display: flex;
         align-items: center;
         justify-content: center;
-        gap: var(--spacing-xs);
-        padding: var(--spacing-lg) var(--spacing-lg);
+        gap: var(--spacing-sm);
+        width: 100%;
+        padding: var(--spacing-lg);
         min-height: 3rem;
-        border: none;
+        border: var(--border-width) solid var(--border);
+        border-radius: var(--radius);
         background: var(--bg-input);
         color: var(--text-muted);
-        font-size: var(--font-sm);
+        font-size: var(--font-base);
         cursor: pointer;
         transition:
             filter var(--ease),
             transform var(--ease);
     }
 
-    .debug-copy-btn {
-        border-left: var(--border-width) solid var(--border);
-        gap: var(--spacing-sm);
-        padding-left: var(--spacing-xl);
-        padding-right: var(--spacing-xl);
-    }
-
     @media (hover: hover) {
-        .debug-probe-btn:hover,
-        .debug-copy-btn:hover {
+        .copy-btn:hover {
             filter: var(--brightness-hover);
         }
     }
 
-    .debug-probe-btn:active,
-    .debug-copy-btn:active {
-        transform: scale(0.96);
+    .copy-btn:active {
+        transform: scale(0.97);
         filter: var(--brightness-hover);
     }
 </style>

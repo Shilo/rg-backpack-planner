@@ -76,9 +76,14 @@ export function initServiceWorkerAutoUpdate(
             };
 
             reg.addEventListener("updatefound", handleUpdateFound);
-            attachInstallingWorkerListener(
-                reg.installing ?? reg.waiting,
-            );
+            // Only attach to an actively installing worker on initial check.
+            // A waiting worker is already installed — when it activates,
+            // controllerchange fires (→ toast + reload). Attaching to
+            // reg.waiting can show a permanent toast for a stale worker
+            // that never activates.
+            if (reg.installing) {
+                attachInstallingWorkerListener(reg.installing);
+            }
         })
         .catch((error) => {
             console.error("Failed to watch service worker updates.", error);

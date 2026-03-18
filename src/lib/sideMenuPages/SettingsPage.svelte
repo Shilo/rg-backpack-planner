@@ -6,6 +6,7 @@
 
     export let title: string | undefined = undefined;
     export let onBack: (() => void) | null = null;
+    export let advancedTitle: string | undefined = undefined;
 
     let backButtonElement: HTMLButtonElement | null = null;
 
@@ -39,7 +40,7 @@
 </div>
 
 {#if $$slots.advancedSettings}
-    <Accordion title={$t("settings.advanced")}>
+    <Accordion title={advancedTitle ?? $t("settings.advanced")}>
         <slot name="advancedSettings" />
     </Accordion>
 {/if}

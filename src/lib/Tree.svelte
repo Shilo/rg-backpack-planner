@@ -525,6 +525,12 @@
                     globalLeveledLeafNodeCap: GLOBAL_LEVELED_LEAF_NODE_CAP,
                 })
             ) {
+                showToast(
+                    $t("nodeMenu.leveledLeafCapWarning", {
+                        cap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                    }),
+                    { tone: "negative" },
+                );
                 return false;
             }
         }

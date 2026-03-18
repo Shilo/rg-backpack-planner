@@ -12,7 +12,6 @@
     import AppIcon from "../icons/AppIcon.svelte";
     import { getCurrentVersion } from "../latestUsedVersionStore";
     import { t } from "svelte-whisper";
-    import DebugInfoSection from "./DebugInfoSection.svelte";
 
     export let onBack: (() => void) | null = null;
 
@@ -37,7 +36,7 @@
     $: versionLabel = version === "unknown" ? "" : version;
 </script>
 
-<SettingsPage title={$t("settings.pages.about")} {onBack}>
+<SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")}>
     <div class="about-card">
         <div class="about-app-row">
             <span class="about-app-icon" aria-hidden="true">
@@ -96,7 +95,11 @@
         />
     </SideMenuSection>
 
-    <DebugInfoSection />
+    <svelte:fragment slot="advancedSettings">
+        {#await import("./DebugInfoSection.svelte") then { default: DebugInfoSection }}
+            <svelte:component this={DebugInfoSection} />
+        {/await}
+    </svelte:fragment>
 </SettingsPage>
 
 <style>
