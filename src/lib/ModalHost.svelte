@@ -227,6 +227,12 @@
         params: { sheet?: boolean } = {},
     ): TransitionConfig {
         const isSheet = params.sheet ?? false;
+
+        // Swipe-dismiss already animated the sheet off-screen; skip the Svelte outro.
+        if (isSheet && sheetSwipeDismissing) {
+            return { duration: 0 };
+        }
+
         const distance = isSheet ? 32 : 8;
         const startScale = isSheet ? 1 : 0.96;
 
@@ -243,6 +249,157 @@
     function handleBackdropOutroEnd() {
         if ($modalStore) return;
         renderedModal = null;
+        sheetSwipeDismissing = false;
+        resetSheetDragStyles();
+    }
+
+    // ── Sheet swipe-to-close ──────────────────────────────────────────
+    let sheetShellRef: HTMLDivElement | null = null;
+    let sheetSwipeDismissing = false;
+    let sheetDragStartX = 0;
+    let sheetDragStartY = 0;
+    let sheetDragOffset = 0;
+    let sheetDragActiveTime = 0;
+    let sheetDragging = false;
+    let sheetDragPointerId: number | null = null;
+    let sheetDragSuppressClick = false;
+
+    const SHEET_DRAG_THRESHOLD = 10;
+    const SHEET_DISMISS_DISTANCE = 80;
+    const SHEET_DISMISS_VELOCITY = 500;
+
+    function handleSheetPointerDown(event: PointerEvent) {
+        if (renderedModal?.type !== "resetTreeChoices") return;
+        if (sheetDragPointerId !== null) return;
+        sheetDragStartX = event.clientX;
+        sheetDragStartY = event.clientY;
+        sheetDragOffset = 0;
+        sheetDragActiveTime = 0;
+        sheetDragging = false;
+        sheetDragPointerId = event.pointerId;
+    }
+
+    function handleSheetPointerMove(event: PointerEvent) {
+        if (event.pointerId !== sheetDragPointerId) return;
+        const dy = event.clientY - sheetDragStartY;
+        const dx = event.clientX - sheetDragStartX;
+
+        if (!sheetDragging) {
+            // Horizontal movement dominates — not a swipe-down
+            if (Math.abs(dx) > Math.abs(dy)) {
+                sheetDragPointerId = null;
+                return;
+            }
+            if (dy < SHEET_DRAG_THRESHOLD) return;
+            // Don't drag if the sheet content is scrolled
+            if (sheetShellRef && sheetShellRef.scrollTop > 0) {
+                sheetDragPointerId = null;
+                return;
+            }
+            sheetDragging = true;
+            sheetDragActiveTime = event.timeStamp;
+            (event.currentTarget as HTMLElement).setPointerCapture(
+                event.pointerId,
+            );
+            // Hide scrollbars while the sheet is being dragged / animated out
+            if (sheetShellRef) sheetShellRef.style.overflow = "hidden";
+            const bg = sheetShellRef?.parentElement;
+            if (bg) bg.style.overflow = "hidden";
+        }
+
+        sheetDragOffset = Math.max(0, dy);
+        if (sheetShellRef) {
+            sheetShellRef.style.transform = `translate3d(0, ${sheetDragOffset}px, 0)`;
+            sheetShellRef.style.transition = "none";
+            const backdrop = sheetShellRef.parentElement;
+            if (backdrop) {
+                const progress = Math.min(sheetDragOffset / 300, 1);
+                backdrop.style.opacity = String(1 - progress * 0.6);
+            }
+        }
+    }
+
+    function handleSheetPointerEnd(event: PointerEvent) {
+        if (event.pointerId !== sheetDragPointerId) return;
+        sheetDragPointerId = null;
+
+        if (!sheetDragging) return;
+
+        const elapsed =
+            Math.max(1, event.timeStamp - sheetDragActiveTime) / 1000;
+        const velocity = sheetDragOffset / elapsed;
+        const shouldDismiss =
+            sheetDragOffset > SHEET_DISMISS_DISTANCE ||
+            velocity > SHEET_DISMISS_VELOCITY;
+
+        sheetDragging = false;
+        sheetDragSuppressClick = true;
+        setTimeout(() => {
+            sheetDragSuppressClick = false;
+        }, 300);
+
+        const reducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        ).matches;
+
+        if (shouldDismiss) {
+            if (reducedMotion) {
+                resetSheetDragStyles();
+                sheetSwipeDismissing = true;
+                triggerHaptic();
+                handleCancel();
+                return;
+            }
+            if (sheetShellRef) {
+                sheetShellRef.style.transition =
+                    "transform 150ms cubic-bezier(0.4, 0, 1, 1)";
+                sheetShellRef.style.transform = "translate3d(0, 100%, 0)";
+            }
+            const backdrop = sheetShellRef?.parentElement;
+            if (backdrop) {
+                backdrop.style.transition = "opacity 150ms ease-out";
+                backdrop.style.opacity = "0";
+            }
+            setTimeout(() => {
+                sheetSwipeDismissing = true;
+                triggerHaptic();
+                handleCancel();
+            }, 150);
+        } else {
+            if (sheetShellRef) {
+                sheetShellRef.style.transition =
+                    "transform 200ms cubic-bezier(0.2, 0, 0, 1)";
+                sheetShellRef.style.transform = "";
+            }
+            const backdrop = sheetShellRef?.parentElement;
+            if (backdrop) {
+                backdrop.style.transition = "opacity 200ms ease-out";
+                backdrop.style.opacity = "";
+            }
+            setTimeout(() => resetSheetDragStyles(), 200);
+        }
+    }
+
+    function resetSheetDragStyles() {
+        if (sheetShellRef) {
+            sheetShellRef.style.transform = "";
+            sheetShellRef.style.transition = "";
+            sheetShellRef.style.overflow = "";
+        }
+        const backdrop = sheetShellRef?.parentElement;
+        if (backdrop) {
+            backdrop.style.opacity = "";
+            backdrop.style.transition = "";
+            backdrop.style.overflow = "";
+        }
+    }
+
+    function handleSheetDragClick(event: MouseEvent) {
+        if (sheetDragSuppressClick) {
+            event.stopPropagation();
+            event.preventDefault();
+            sheetDragSuppressClick = false;
+        }
     }
 </script>
 
@@ -255,22 +412,29 @@
         role="button"
         tabindex="0"
         aria-label={$t("common.close")}
-        transition:fade={{ duration: 140 }}
+        transition:fade={{ duration: sheetSwipeDismissing ? 0 : 140 }}
         on:outroend={handleBackdropOutroEnd}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
     >
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
             class="modal-shell"
             class:modal-shell--confirm={renderedModal.type === "confirm"}
             class:modal-shell--input={renderedModal.type === "input"}
             class:modal-shell--textInput={renderedModal.type === "textInput"}
             class:modal-shell--resetTreeChoices={renderedModal.type === "resetTreeChoices"}
+            bind:this={sheetShellRef}
             role="dialog"
             aria-modal="true"
             aria-label={renderedModal.title}
             transition:modalShellTransition={{ sheet: renderedModal.type === "resetTreeChoices" }}
+            on:pointerdown={handleSheetPointerDown}
+            on:pointermove={handleSheetPointerMove}
+            on:pointerup={handleSheetPointerEnd}
+            on:pointercancel={handleSheetPointerEnd}
+            on:click|capture={handleSheetDragClick}
         >
             {#if renderedModal.type === "confirm"}
                 <ConfirmModal
@@ -438,6 +602,7 @@
             calc(100% - max(3.5rem, calc(var(--safe-top, 0px) + 1rem)))
         );
         margin-bottom: 0;
+        gap: 0;
         border-radius: 28px;
         background:
             linear-gradient(
@@ -456,6 +621,7 @@
             var(--shadow-lg);
         transform-origin: bottom center;
         overflow: auto;
+        touch-action: none;
     }
 
     @media (min-width: 48rem) {
