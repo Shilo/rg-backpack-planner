@@ -41,8 +41,25 @@
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const onlineStatus = navigator.onLine;
 
+    function getLocalStorageSize(): string {
+        try {
+            let bytes = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key) {
+                    bytes += (key.length + (localStorage.getItem(key)?.length ?? 0)) * 2;
+                }
+            }
+            if (bytes < 1024) return `${bytes} B`;
+            return `${(bytes / 1024).toFixed(1)} KB`;
+        } catch {
+            return "unavailable";
+        }
+    }
+
+    const localStorageSize = getLocalStorageSize();
+
     let swStatus = "…";
-    let storageUsed = "";
     let deviceModel = "";
     let browserVersion = "";
     let platformInfo = "";
@@ -95,18 +112,6 @@
             platformInfo = uaData.platform;
         }
 
-        if (navigator.storage?.estimate) {
-            try {
-                const est = await navigator.storage.estimate();
-                if (est.usage != null && est.quota != null) {
-                    const usedMB = (est.usage / 1024 / 1024).toFixed(1);
-                    const quotaMB = (est.quota / 1024 / 1024).toFixed(0);
-                    storageUsed = `${usedMB} / ${quotaMB} MB`;
-                }
-            } catch {
-                // Storage estimate not available
-            }
-        }
     });
 
     type InfoEntry = { label: string; value: string };
@@ -139,9 +144,7 @@
         { label: $t("systemInfo.network"), value: networkType },
         { label: $t("systemInfo.online"), value: onlineStatus ? "yes" : "no" },
         { label: $t("systemInfo.reducedMotion"), value: reducedMotion ? "yes" : "no" },
-        ...(storageUsed
-            ? [{ label: $t("systemInfo.storage"), value: storageUsed }]
-            : []),
+        { label: $t("systemInfo.localStorage"), value: localStorageSize },
     ] satisfies InfoEntry[];
 
     function formatSection(items: InfoEntry[]): string {
