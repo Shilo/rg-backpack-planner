@@ -63,6 +63,7 @@
         {isOpen}
         title={$t("preview.previewBuildsTitle")}
         onClose={() => onClose?.()}
+        anchorBelow
     >
         <Button
             icon={LinkIcon}

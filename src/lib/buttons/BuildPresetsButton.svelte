@@ -337,6 +337,7 @@
         isOpen={presetsMenuOpen}
         title={$t("buildPresets.menuTitle")}
         onClose={closePresetsMenu}
+        anchorBelow
     >
         <div class="premade-builds-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
@@ -407,6 +408,7 @@
             isOpen={true}
             title={editMenuTitle}
             onClose={closeEditMenu}
+            anchorBelow
         >
             <div
                 class="button-group move-buttons-row"

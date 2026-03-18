@@ -218,6 +218,7 @@
         isOpen={shareMenuOpen}
         title={resolvedMenuTitle}
         onClose={closeShareMenu}
+        anchorBelow
     >
         {#if showShareToApp}
             <Button
@@ -264,6 +265,7 @@
                     : $t("share.shareLinkMenuTitle")
             }
             onClose={closeLinkMenu}
+            anchorBelow
         >
             {#each recommendedShareChoices ?? [] as choice (choice.id)}
                 <Button

@@ -88,6 +88,7 @@
         {isOpen}
         title={$t("settings.languageLabel")}
         onClose={closeDropdown}
+        anchorBelow
     >
         <div class="language-list">
             {#if preferredLocale}
