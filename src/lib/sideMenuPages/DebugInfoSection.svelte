@@ -119,6 +119,10 @@
     $: appEntries = [
         { label: $t("systemInfo.version"), value: version },
         { label: $t("systemInfo.storedVersion"), value: storedVersion ?? "none" },
+        { label: $t("systemInfo.localStorage"), value: localStorageSize },
+        { label: $t("systemInfo.locale"), value: $locale ?? "unknown" },
+        { label: $t("systemInfo.displayMode"), value: displayMode },
+        { label: $t("systemInfo.serviceWorker"), value: swStatus },
     ] satisfies InfoEntry[];
 
     $: deviceEntries = [
@@ -137,22 +141,11 @@
     ] satisfies InfoEntry[];
 
     $: envEntries = [
-        { label: $t("systemInfo.locale"), value: $locale ?? "unknown" },
         { label: $t("systemInfo.browserLang"), value: langsPref },
-        { label: $t("systemInfo.displayMode"), value: displayMode },
-        { label: $t("systemInfo.serviceWorker"), value: swStatus },
-        { label: $t("systemInfo.network"), value: networkType },
         { label: $t("systemInfo.online"), value: onlineStatus ? "yes" : "no" },
+        { label: $t("systemInfo.network"), value: networkType },
         { label: $t("systemInfo.reducedMotion"), value: reducedMotion ? "yes" : "no" },
-        { label: $t("systemInfo.localStorage"), value: localStorageSize },
     ] satisfies InfoEntry[];
-
-    function formatSection(items: InfoEntry[]): string {
-        const maxLabel = Math.max(...items.map((e) => e.label.length));
-        return items
-            .map((e) => `${e.label.padEnd(maxLabel)}  ${e.value}`)
-            .join("\n");
-    }
 
     function formatForClipboard(): string {
         const sections = [
@@ -161,9 +154,15 @@
             { title: $t("systemInfo.sectionEnvironment"), items: envEntries },
         ];
 
-        const parts = sections.map(
-            (s) => `${s.title}\n${formatSection(s.items)}`,
-        );
+        const allItems = sections.flatMap((s) => s.items);
+        const maxLabel = Math.max(...allItems.map((e) => e.label.length));
+
+        const parts = sections.map((s) => {
+            const rows = s.items
+                .map((e) => `${e.label.padEnd(maxLabel)}  ${e.value}`)
+                .join("\n");
+            return `${s.title}\n${rows}`;
+        });
 
         const uaLabel = $t("systemInfo.userAgent");
         parts.push(`${uaLabel}\n${userAgent}`);
