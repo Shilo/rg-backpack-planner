@@ -55,47 +55,54 @@
             <div
                 class="toast toast--{toast.tone}"
                 class:toast--permanent={toast.durationMs === 0}
+                class:toast--has-action={toast.action}
                 style="--toast-duration: {toast.durationMs}ms"
-                role="button"
-                tabindex="0"
+                role={toast.action ? undefined : "button"}
+                tabindex={toast.action ? undefined : 0}
                 out:fly={{ y: 8, duration: 150 }}
                 on:click={() => {
+                    if (toast.action) return;
                     triggerHaptic();
                     dismissToast(toast.id);
                 }}
                 on:keydown={(event) => {
+                    if (toast.action) return;
                     if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
                         dismissToast(toast.id);
                     }
                 }}
             >
-                {#if toast.showIcon}
-                    <span class="toast__icon" aria-hidden="true">
-                        {#if toast.tone === "negative"}
-                            <WarningCircleIcon size={20} weight="fill" />
-                        {:else}
-                            <CheckCircleIcon size={20} weight="fill" />
-                        {/if}
-                    </span>
-                {/if}
-                {#if toast.showSpinner}
-                    <Spinner
-                        tone={toast.tone === "negative" ? "negative" : "default"}
-                    />
-                {/if}
-                <span class="toast__message">{toast.message}</span>
+                <div class="toast__row">
+                    {#if toast.showIcon}
+                        <span class="toast__icon" aria-hidden="true">
+                            {#if toast.tone === "negative"}
+                                <WarningCircleIcon size={20} weight="fill" />
+                            {:else}
+                                <CheckCircleIcon size={20} weight="fill" />
+                            {/if}
+                        </span>
+                    {/if}
+                    {#if toast.showSpinner}
+                        <Spinner
+                            tone={toast.tone === "negative" ? "negative" : "default"}
+                        />
+                    {/if}
+                    <span class="toast__message">{toast.message}</span>
+                </div>
                 {#if toast.action}
-                    <button
-                        class="toast__action"
-                        on:click|stopPropagation={() => {
-                            triggerHaptic();
-                            toast.action?.onClick();
-                            dismissToast(toast.id);
-                        }}
-                    >
-                        {toast.action.label}
-                    </button>
+                    <div class="toast__action-row">
+                        <button
+                            class="toast__action"
+                            on:click|stopPropagation={() => {
+                                triggerHaptic();
+                                toast.action?.onClick();
+                                dismissToast(toast.id);
+                            }}
+                        >
+                            {toast.action.label}
+                        </button>
+                    </div>
                 {/if}
             </div>
         {/each}
@@ -146,7 +153,16 @@
         animation: toast-enter 0.25s cubic-bezier(0.05, 0.7, 0.1, 1) both;
         overflow: hidden;
         position: relative;
+    }
+
+    .toast:not(.toast--has-action) {
         cursor: pointer;
+    }
+
+    .toast--has-action {
+        flex-direction: column;
+        align-items: stretch;
+        padding-bottom: var(--spacing-md);
     }
 
     .toast--negative {
@@ -177,6 +193,12 @@
         display: none;
     }
 
+    .toast__row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
     .toast__icon {
         display: flex;
         align-items: center;
@@ -192,32 +214,51 @@
         flex: 1;
     }
 
+    .toast__action-row {
+        display: flex;
+        justify-content: flex-end;
+        padding: var(--spacing-xs) var(--spacing-sm) 0 0;
+    }
+
     .toast__action {
         all: unset;
         cursor: pointer;
-        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-md) var(--spacing-lg);
+        min-height: 36px;
+        border-radius: 999px;
         font-size: var(--font-sm);
         font-weight: var(--weight-bold);
         text-transform: uppercase;
-        letter-spacing: 0.02em;
-        color: var(--accent);
+        letter-spacing: 0.03em;
         white-space: nowrap;
-        padding: var(--spacing-xs) var(--spacing-sm);
-        margin: calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-sm));
-        border-radius: var(--radius-sm);
+        transition: opacity 0.15s, transform 0.15s;
+        color: var(--accent);
+        border: var(--border-width) solid
+            color-mix(in srgb, var(--accent) 30%, transparent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
     }
 
     .toast--negative .toast__action {
         color: var(--danger-text);
+        border-color: color-mix(
+            in srgb,
+            var(--danger-text) 30%,
+            transparent
+        );
+        background: color-mix(in srgb, var(--danger-text) 8%, transparent);
     }
 
     @media (hover: hover) {
         .toast__action:hover {
-            opacity: 0.8;
+            opacity: 0.85;
         }
     }
 
     .toast__action:active {
-        opacity: 0.6;
+        opacity: 0.65;
+        transform: scale(0.96);
     }
 </style>
