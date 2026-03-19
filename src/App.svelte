@@ -75,7 +75,7 @@
     } from "./lib/onboarding/onboardingStore";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
-    import { undoHistory } from "./lib/undoHistoryStore";
+    import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/inputStore";
     import { recommendedBuilds } from "./lib/buildData/recommended";
@@ -543,6 +543,33 @@
         // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat) return;
+
+            // Undo/Redo shortcuts
+            if (
+                (e.ctrlKey || e.metaKey) &&
+                !e.altKey &&
+                !isFormField(document.activeElement) &&
+                !hasOnboardingOverlay()
+            ) {
+                const isUndo = e.key === "z" && !e.shiftKey;
+                const isRedo =
+                    e.key === "y" ||
+                    (e.key === "z" && e.shiftKey) ||
+                    (e.key === "Z" && e.shiftKey);
+
+                if (isUndo && get(canUndo)) {
+                    e.preventDefault();
+                    const idx = undoHistory.undo();
+                    if (idx != null) activeTreeIndex = idx;
+                    return;
+                }
+                if (isRedo && get(canRedo)) {
+                    e.preventDefault();
+                    const idx = undoHistory.redo();
+                    if (idx != null) activeTreeIndex = idx;
+                    return;
+                }
+            }
 
             if (
                 e.key === "Escape" &&
