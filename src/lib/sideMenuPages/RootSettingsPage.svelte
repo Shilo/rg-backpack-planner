@@ -31,7 +31,9 @@
     export let onClose: (() => void) | null = null;
     export let onResetAll: (() => void) | null = null;
     export let onResetTree: (() => void) | null = null;
-    export let onResetBranch: ((branch: import("../treeLevelsStore").TreeBranchKey) => void) | null = null;
+    export let onResetBranch:
+        | ((branch: import("../treeLevelsStore").TreeBranchKey) => void)
+        | null = null;
     export let onFocusInView: (() => void) | null = null;
     export let onNavigate: ((page: SettingsPageId) => void) | null = null;
     export let activeTreeNodes: import("../../types/tree").Node[] = [];
@@ -59,8 +61,8 @@
 
 <SettingsPage>
     <SideMenuSection title={$t("sideMenu.sections.build")}>
-        <BuildPresetsButton disabled={$isPreviewMode} />
         <TechCrystalsButton disabled={$isPreviewMode} />
+        <BuildPresetsButton disabled={$isPreviewMode} />
         <div class="button-group build-share-row">
             <ShareBuildButton
                 title={$t("settings.shareButton")}

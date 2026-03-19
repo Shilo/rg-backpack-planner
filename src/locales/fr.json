@@ -240,7 +240,8 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Cristaux Tech\ndépensés",
         "displayTooltipSpentOwned": "Cristaux Tech\ndépensés / possédés",
-        "spentLabel": "Cristaux Tech dépensés :",
+        "spentLabel": "Cristaux Tech dépensés et possédés",
+        "budgetHint": "Modifier le budget de dépenses",
         "changeOwnedTooltip": "Modifier les Cristaux Tech possédés ({subject}) (budget)",
         "ownedModalTitle": "Cristaux Tech possédés",
         "ownedModalTitleWithSubject": "Cristaux Tech possédés ({subject})",

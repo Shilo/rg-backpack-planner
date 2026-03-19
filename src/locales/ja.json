@@ -240,7 +240,8 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "テッククリスタル\n消費済み",
         "displayTooltipSpentOwned": "テッククリスタル\n消費 / 所持",
-        "spentLabel": "テッククリスタル消費：",
+        "spentLabel": "テッククリスタル消費と所持",
+        "budgetHint": "消費予算を変更",
         "changeOwnedTooltip": "{subject}テッククリスタルの所持数（予算）を変更",
         "ownedModalTitle": "テッククリスタル所持数",
         "ownedModalTitleWithSubject": "テッククリスタル所持数（{subject}）",
