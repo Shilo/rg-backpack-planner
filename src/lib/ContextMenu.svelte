@@ -1,7 +1,29 @@
+<script module lang="ts">
+    let menuIdCounter = 0;
+    const openMenuStack: number[] = [];
+
+    function registerMenu(): number {
+        const id = menuIdCounter++;
+        openMenuStack.push(id);
+        return id;
+    }
+
+    function unregisterMenu(id: number): void {
+        const idx = openMenuStack.indexOf(id);
+        if (idx !== -1) openMenuStack.splice(idx, 1);
+    }
+
+    function isTopmostMenu(id: number): boolean {
+        return openMenuStack.length === 0 || openMenuStack[openMenuStack.length - 1] === id;
+    }
+</script>
+
 <script lang="ts">
     import { onMount, tick } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { t } from "svelte-whisper";
+
+    let myMenuId = -1;
 
     export let x = 0;
     export let y = 0;
@@ -89,9 +111,8 @@
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
         if (event.key === "Escape") {
-            // Only close the topmost (last in DOM order) context menu
-            const allMenus = document.querySelectorAll(".context-menu");
-            if (allMenus.length > 1 && allMenus[allMenus.length - 1] !== menuEl) return;
+            // Only close the topmost (most recently opened) context menu
+            if (!isTopmostMenu(myMenuId)) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             onClose?.();
@@ -330,6 +351,11 @@
             });
             document.removeEventListener("keydown", handleKeydown);
             window.removeEventListener("resize", handleResize);
+            // Clean up registry if component is destroyed while open
+            if (myMenuId !== -1) {
+                unregisterMenu(myMenuId);
+                myMenuId = -1;
+            }
         };
     });
 
@@ -338,7 +364,8 @@
         // or when x/y change while menu is already open (programmatic repositioning)
         const justOpened = !wasOpen;
         if (justOpened) {
-            isNested = document.querySelectorAll(".context-menu").length > 0;
+            isNested = openMenuStack.length > 0;
+            myMenuId = registerMenu();
         }
         const positionChanged = wasOpen && (x !== lastX || y !== lastY);
         wasOpen = true;
@@ -361,6 +388,8 @@
 
     // Reset when menu closes
     $: if (!isOpen && wasOpen) {
+        unregisterMenu(myMenuId);
+        myMenuId = -1;
         dragOffset = { x: 0, y: 0 };
         wasOpen = false;
         lastX = 0;
