@@ -582,9 +582,11 @@
                     deltas = capped.deltas;
                     targetLevel = cappedLevel;
                     showToast(
-                        $t("techCrystals.budgetCappedToast", {
-                            level: cappedLevel,
-                        }),
+                        $t("techCrystals.budgetReachedToast") +
+                            "\n" +
+                            $t("techCrystals.budgetCappedToast", {
+                                level: cappedLevel,
+                            }),
                         {
                             tone: "negative",
                             durationMs: 4500,

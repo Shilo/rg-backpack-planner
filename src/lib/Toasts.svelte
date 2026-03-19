@@ -212,6 +212,7 @@
 
     .toast__message {
         flex: 1;
+        white-space: pre-line;
     }
 
     .toast__action-row {
