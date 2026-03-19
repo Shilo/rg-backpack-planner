@@ -20,6 +20,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 ### Plan Your Builds
 - **Interactive skill trees** — Tap or click nodes to level Guardian, Vanguard, and Cannon trees. Pan and zoom to explore.
 - **Smart leveling** — Levels sync along connected paths. Leaf cap enforces the game's 3-leaf limit.
+- **Undo and redo** — Step backward and forward through node leveling and budget changes. History tracks across all trees.
 - **Node context menu** — Right-click or long-press a node to increment/decrement by 1, 10, or tier, or set to max.
 - **Tree context menu** — Right-click or long-press empty space to reset, zoom to fit, or manage the tree.
 
