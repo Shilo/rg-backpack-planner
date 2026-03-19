@@ -741,6 +741,7 @@
             <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
                 {activeTreeIndex}
+                forceShow={!$onboardingSeen && activeTreeOnboardingReady}
                 onUndo={(idx) => { activeTreeIndex = idx; }}
                 onRedo={(idx) => { activeTreeIndex = idx; }}
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}

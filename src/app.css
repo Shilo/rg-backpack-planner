@@ -54,6 +54,10 @@ body.onboarding-step-hud .top-right-actions {
     z-index: var(--z-index-modal);
 }
 
+body.onboarding-step-toolbar .bot-right-actions {
+    z-index: var(--z-index-modal);
+}
+
 body.onboarding-step-preview .top-left-actions {
     z-index: var(--z-index-modal);
 }

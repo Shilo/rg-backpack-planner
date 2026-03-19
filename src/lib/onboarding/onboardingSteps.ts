@@ -1,12 +1,13 @@
 import type { Component } from "svelte";
 import {
+    ArrowArcLeftIcon,
+    ArrowArcRightIcon,
     ArrowCounterClockwiseIcon,
     ArrowFatLineUpIcon,
     ArrowsOutCardinalIcon,
     CopySimpleIcon,
     CornersOutIcon,
     DotsThreeOutlineIcon,
-    DotsThreeOutlineVerticalIcon,
     EyeIcon,
     GearSixIcon,
     GraphIcon,
@@ -32,6 +33,7 @@ export type OnboardingStepId =
     | "root"
     | "tree"
     | "hud"
+    | "toolbar"
     | "preview"
     | "bottombar";
 export type OnboardingTarget =
@@ -40,6 +42,7 @@ export type OnboardingTarget =
     | "hud"
     | "root"
     | "tree"
+    | "toolbar"
     | "preview"
     | "bottombar";
 type TargetRegion = "top-left" | "bottom-left" | "right";
@@ -129,11 +132,33 @@ export function createOnboardingSteps({
 
     const hudCards = [
         {
-            icon: TechCrystalIcon as unknown as Component,
+            icon: isTouch ? HandTapIcon : MouseLeftClickIcon,
             label: isTouch
                 ? translate("onboarding.tapTechCrystal")
                 : translate("onboarding.clickTechCrystal"),
             description: translate("onboarding.techCrystalBudget"),
+        },
+        {
+            icon: GearSixIcon,
+            label: translate("onboarding.budgetIgnoreLabel"),
+            description: translate("onboarding.budgetIgnoreDesc"),
+        },
+    ];
+
+    const toolbarCards = [
+        {
+            icon: ArrowArcLeftIcon,
+            label: isTouch
+                ? translate("onboarding.tapUndoButton")
+                : translate("onboarding.clickUndoButton"),
+            description: translate("onboarding.undoDesc"),
+        },
+        {
+            icon: ArrowArcRightIcon,
+            label: isTouch
+                ? translate("onboarding.tapRedoButton")
+                : translate("onboarding.clickRedoButton"),
+            description: translate("onboarding.redoDesc"),
         },
         {
             icon: ArrowCounterClockwiseIcon,
@@ -303,7 +328,7 @@ export function createOnboardingSteps({
             target: "hud",
             direction: "left",
             title: translate("onboarding.hudSection"),
-            titleIcon: DotsThreeOutlineVerticalIcon,
+            titleIcon: TechCrystalIcon as unknown as Component,
             variant: "muted",
             cards: hudCards,
         },
@@ -315,6 +340,15 @@ export function createOnboardingSteps({
             titleIcon: EyeIcon,
             variant: "muted",
             cards: previewCards,
+        },
+        {
+            id: "toolbar",
+            target: "toolbar",
+            direction: "up",
+            title: translate("onboarding.toolbarSection"),
+            titleIcon: ArrowCounterClockwiseIcon,
+            variant: "muted",
+            cards: toolbarCards,
         },
         {
             id: "bottombar",

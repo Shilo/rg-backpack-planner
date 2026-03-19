@@ -22,6 +22,7 @@
     export let treeLabel = "";
     export let treeId = "";
     export let activeTreeIndex = 0;
+    export let forceShow = false;
 
     /** Half of Tree.svelte's `in:fade` duration — enough for tree to be visible */
     const TREE_FADE_MS = 150;
@@ -33,8 +34,8 @@
     $: activeTreeLevelsTotal = sumLevels(activeLevels);
     $: canResetTree = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
     $: treeIcon = getTreeIcon(treeId);
-    $: showUndoRedo = $canUndo || $canRedo;
-    $: showToolbar = showUndoRedo || canResetTree;
+    $: showUndoRedo = $canUndo || $canRedo || forceShow;
+    $: showToolbar = showUndoRedo || canResetTree || forceShow;
 
     let applyGeneration = 0;
 

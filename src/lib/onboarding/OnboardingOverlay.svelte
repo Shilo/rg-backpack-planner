@@ -52,6 +52,7 @@
     let treeSpotlightRect: Rect = { ...EMPTY_RECT };
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
     let previewSpotlightRect: Rect = { ...EMPTY_RECT };
+    let toolbarSpotlightRect: Rect = { ...EMPTY_RECT };
     let bottombarSpotlightRect: Rect = { ...EMPTY_RECT };
 
     $: targetNode = nodes[targetNodeIndex];
@@ -259,6 +260,9 @@
         previewSpotlightRect =
             resolveElementRect(".preview-indicator-button", 8) ?? { ...EMPTY_RECT };
 
+        toolbarSpotlightRect =
+            resolveElementRect(".bot-right-actions", 8, 8) ?? { ...EMPTY_RECT };
+
         bottombarSpotlightRect =
             resolveElementRect(".tabs-bar-spacer", 8) ?? { ...EMPTY_RECT };
     }
@@ -269,6 +273,7 @@
         if (activeStep.target === "locked-node") return lockedNodeSpotlightRect;
         if (activeStep.target === "hud") return hudSpotlightRect;
         if (activeStep.target === "root") return rootSpotlightRect;
+        if (activeStep.target === "toolbar") return toolbarSpotlightRect;
         if (activeStep.target === "preview") return previewSpotlightRect;
         if (activeStep.target === "bottombar") return bottombarSpotlightRect;
         return treeSpotlightRect;
@@ -285,6 +290,10 @@
                 target === "preview",
             );
             document.body.classList.toggle(
+                "onboarding-step-toolbar",
+                target === "toolbar",
+            );
+            document.body.classList.toggle(
                 "onboarding-step-bottombar",
                 target === "bottombar",
             );
@@ -292,6 +301,7 @@
     }
     $: activeSpotlightIsRect =
         activeStep?.target === "hud" ||
+        activeStep?.target === "toolbar" ||
         activeStep?.target === "preview" ||
         activeStep?.target === "bottombar";
     $: ringTop = Math.max(0, activeSpotlightRect.top);
@@ -397,6 +407,7 @@
             document.body.classList.remove(
                 "has-onboarding-overlay",
                 "onboarding-step-hud",
+                "onboarding-step-toolbar",
                 "onboarding-step-preview",
                 "onboarding-step-bottombar",
             );

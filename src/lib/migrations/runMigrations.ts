@@ -8,7 +8,7 @@ export type Migration = {
 
 const MIGRATIONS: Migration[] = [
     {
-        toVersion: "1.0",
+        toVersion: "1.1",
         run: () => {
             // Onboarding was improved with more steps.
             // Users may not know how all controls work
