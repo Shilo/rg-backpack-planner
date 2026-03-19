@@ -84,6 +84,7 @@
                 title={menuTitle}
                 ariaLabel={$t("contextMenu.previewBuildOptions")}
                 onClose={closeMenu}
+                anchorBelow
             >
                 <PreviewContextMenuList />
             </ContextMenu>
