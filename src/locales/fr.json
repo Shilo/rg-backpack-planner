@@ -251,7 +251,8 @@
         "subjectYour": "votre",
         "subjectPreview": "de l'aperçu",
         "budgetReachedToast": "Budget de Cristaux Tech atteint",
-        "budgetCappedToast": "Limité au niveau {level}"
+        "budgetCappedToast": "Limité au niveau {level}",
+        "ignoreBudgetAction": "Ignorer le budget"
     },
     "buildPresets": {
         "changeTooltip": "Changer de preset de build",

@@ -251,7 +251,8 @@
         "subjectYour": "your",
         "subjectPreview": "preview",
         "budgetReachedToast": "Tech Crystal budget reached",
-        "budgetCappedToast": "Capped to level {level}"
+        "budgetCappedToast": "Capped to level {level}",
+        "ignoreBudgetAction": "Ignore budget"
     },
     "buildPresets": {
         "changeTooltip": "Change build preset",

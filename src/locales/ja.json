@@ -251,7 +251,8 @@
         "subjectYour": "あなたの",
         "subjectPreview": "プレビューの",
         "budgetReachedToast": "テッククリスタル予算に到達",
-        "budgetCappedToast": "レベル{level}に制限"
+        "budgetCappedToast": "レベル{level}に制限",
+        "ignoreBudgetAction": "予算を無視"
     },
     "buildPresets": {
         "changeTooltip": "ビルドプリセットを変更",

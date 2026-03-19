@@ -251,7 +251,8 @@
         "subjectYour": "你的",
         "subjectPreview": "预览的",
         "budgetReachedToast": "已达科技水晶预算上限",
-        "budgetCappedToast": "已限制至等级{level}"
+        "budgetCappedToast": "已限制至等级{level}",
+        "ignoreBudgetAction": "忽略预算"
     },
     "buildPresets": {
         "changeTooltip": "更改构建预设",

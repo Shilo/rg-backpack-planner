@@ -217,7 +217,7 @@
     .toast__action-row {
         display: flex;
         justify-content: flex-end;
-        padding: var(--spacing-xs) var(--spacing-sm) 0 0;
+        padding: var(--spacing-xs) 0 0 0;
     }
 
     .toast__action {
@@ -226,10 +226,9 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: var(--spacing-md) var(--spacing-lg);
-        min-height: 36px;
+        padding: var(--spacing-sm) var(--spacing-md);
         border-radius: 999px;
-        font-size: var(--font-sm);
+        font-size: var(--font-xs);
         font-weight: var(--weight-bold);
         text-transform: uppercase;
         letter-spacing: 0.03em;
@@ -242,13 +241,13 @@
     }
 
     .toast--negative .toast__action {
-        color: var(--danger-text);
+        color: var(--accent);
         border-color: color-mix(
             in srgb,
-            var(--danger-text) 30%,
+            var(--accent) 30%,
             transparent
         );
-        background: color-mix(in srgb, var(--danger-text) 8%, transparent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
     }
 
     @media (hover: hover) {

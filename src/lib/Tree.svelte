@@ -564,7 +564,7 @@
                                 tone: "negative",
                                 durationMs: 4500,
                                 action: {
-                                    label: $t("settings.ignoreTechCrystalBudget"),
+                                    label: $t("techCrystals.ignoreBudgetAction"),
                                     onClick: () => ignoreTechCrystalBudget.set(true),
                                 },
                             },
@@ -589,7 +589,7 @@
                             tone: "negative",
                             durationMs: 4500,
                             action: {
-                                label: $t("settings.ignoreTechCrystalBudget"),
+                                label: $t("techCrystals.ignoreBudgetAction"),
                                 onClick: () => ignoreTechCrystalBudget.set(true),
                             },
                         },
