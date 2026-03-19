@@ -27,6 +27,7 @@
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
     import { showLevelSplash } from "../showLevelSplashStore";
+    import { ignoreTechCrystalBudget } from "../ignoreTechCrystalBudgetStore";
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -57,6 +58,7 @@
                 colorblindTreeColors.resetToDefault();
                 uppercaseText.resetToDefault();
                 showLevelSplash.resetToDefault();
+                ignoreTechCrystalBudget.resetToDefault();
                 void resetLocale();
 
                 showToast($t("modal.resetSettings.toast"));
