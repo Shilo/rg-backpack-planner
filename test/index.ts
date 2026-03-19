@@ -116,6 +116,7 @@ const TEST_FILES = [
     "serviceWorkerAutoUpdateModule.test.ts",
     "serviceWorkerUpdateToast.test.ts",
     "toastSpinnerApi.test.ts",
+    "toastActionRedesign.test.ts",
     "onboardingPaneLayout.test.ts",
     "onboardingStore.test.ts",
 ];
