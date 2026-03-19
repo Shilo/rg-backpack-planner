@@ -5,6 +5,7 @@ import {
     ArrowCounterClockwiseIcon,
     ArrowFatLineUpIcon,
     ArrowsOutCardinalIcon,
+    CoinsIcon,
     CopySimpleIcon,
     CornersOutIcon,
     DotsThreeOutlineIcon,
@@ -139,7 +140,7 @@ export function createOnboardingSteps({
             description: translate("onboarding.techCrystalBudget"),
         },
         {
-            icon: GearSixIcon,
+            icon: CoinsIcon,
             label: translate("onboarding.budgetIgnoreLabel"),
             description: translate("onboarding.budgetIgnoreDesc"),
         },

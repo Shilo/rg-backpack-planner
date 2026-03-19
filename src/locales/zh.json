@@ -535,7 +535,7 @@
         "nodesSection": "节点",
         "rootSection": "根节点",
         "treeSection": "空白区域",
-        "hudSection": "科技水晶预算",
+        "hudSection": "科技水晶消耗 / 预算",
         "levelUp": "升级节点",
         "options": "节点选项",
         "levelDown": "降级节点",

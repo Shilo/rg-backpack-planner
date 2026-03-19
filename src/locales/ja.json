@@ -535,7 +535,7 @@
         "nodesSection": "ノード",
         "rootSection": "ルートノード",
         "treeSection": "空白エリア",
-        "hudSection": "テッククリスタル予算",
+        "hudSection": "テッククリスタル消費 / 予算",
         "levelUp": "ノードレベルアップ",
         "options": "ノードオプション",
         "levelDown": "ノードをレベルダウン",

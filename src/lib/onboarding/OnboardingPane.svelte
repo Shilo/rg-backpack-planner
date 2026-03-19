@@ -127,7 +127,7 @@
 
     .onboarding-pane.compact {
         gap: var(--spacing-sm);
-        max-width: min(236px, calc(100vw - 24px));
+        max-width: min(260px, calc(100vw - 24px));
     }
 
     .pane-header {

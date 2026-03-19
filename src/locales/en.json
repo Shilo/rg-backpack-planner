@@ -535,7 +535,7 @@
         "nodesSection": "Nodes",
         "rootSection": "Root Node",
         "treeSection": "Empty Space",
-        "hudSection": "Tech Crystal Budget",
+        "hudSection": "Tech Crystal Spent / Budget",
         "levelUp": "Level up node",
         "options": "View node options",
         "levelDown": "Level down node",
