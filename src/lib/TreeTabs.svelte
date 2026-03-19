@@ -48,6 +48,7 @@
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
     import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
+    import { undoHistory } from "./undoHistoryStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -485,6 +486,7 @@
 
     function resetLevelsForTab(index: number) {
         resetTreeLevels(index, tabs);
+        undoHistory.pushSnapshot(index);
         treeRef?.triggerFade?.();
     }
 
@@ -494,6 +496,7 @@
 
     function resetBranchByIndex(index: number, branch: TreeBranchKey) {
         resetTreeBranchLevels(index, branch);
+        undoHistory.pushSnapshot(index);
         treeRef?.triggerFade?.();
         showToast(
             $t("tree.resetBranchToast", {
@@ -555,9 +558,9 @@
     export function resetAllTrees() {
         if (tabs.length === 0) return;
         resetAllTreeLevels(tabs);
+        undoHistory.pushSnapshot(activeIndex);
         showToast($t("tree.resetAllTreesToast"), { tone: "negative" });
         treeRef?.triggerFade?.();
-
         closeTabMenu();
     }
 
@@ -577,6 +580,7 @@
 
     function handleLevelsChange(nextLevels: number[]) {
         setTreeLevels(activeIndex, [...nextLevels]);
+        undoHistory.pushSnapshot(activeIndex);
     }
 
     function restoreAfterCapture(index: number, viewState: TreeViewState) {
