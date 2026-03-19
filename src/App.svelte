@@ -75,6 +75,7 @@
     } from "./lib/onboarding/onboardingStore";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
+    import { undoHistory } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/inputStore";
     import { recommendedBuilds } from "./lib/buildData/recommended";
@@ -281,6 +282,7 @@
                 applyBuildData(tabs, buildData);
                 setPreviewMode(true);
                 setPreviewBuildName(build.displayName);
+                undoHistory.clearHistory(activeTreeIndex);
             }
         }
     }
@@ -301,6 +303,7 @@
         } else {
             clearPreviewBuildName();
         }
+        undoHistory.clearHistory(activeTreeIndex);
 
         // Restore URL hash
         if (typeof window !== "undefined") {
@@ -531,6 +534,7 @@
                 persistToActivePreset,
             );
         }
+        undoHistory.clearHistory(activeTreeIndex);
     }
 
     onMount(() => {
