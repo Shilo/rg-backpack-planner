@@ -847,17 +847,6 @@
         align-items: flex-end;
         pointer-events: none;
         z-index: var(--z-index-hud);
-        transition: right 0.15s ease;
-    }
-
-    @media (min-width: 768px) {
-        .bot-right-actions {
-            z-index: var(--z-index-hud-over-side-menu-backdrop);
-        }
-
-        .app-shell.menu-open .bot-right-actions {
-            right: calc(var(--side-menu-width) + 10px);
-        }
     }
 
     .top-left-actions > :global(*),
