@@ -4,6 +4,7 @@
     import {
         ArrowFatUpIcon,
         ArrowCounterClockwiseIcon,
+        TrashSimpleIcon,
         ArrowsOutCardinalIcon,
         BookOpenTextIcon,
         CornersOutIcon,
@@ -489,7 +490,7 @@
                 </li>
                 <li class="control-row">
                     <span class="control-icon" aria-hidden="true"
-                        ><ArrowCounterClockwiseIcon /></span
+                        ><TrashSimpleIcon /></span
                     >
                     <p class="control-inline">
                         <span class="control-label"

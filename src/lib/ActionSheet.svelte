@@ -1,9 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import {
-        ArrowCounterClockwiseIcon,
-        ArrowsCounterClockwiseIcon,
-    } from "phosphor-svelte";
+    import { TrashSimpleIcon } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import type { ActionSheetChoice } from "./actionSheetTypes";
@@ -20,10 +17,7 @@
         null;
 
     $: resolvedCancelLabel = cancelLabel;
-    $: defaultGetChoiceIcon = (choice: ActionSheetChoice) =>
-        choice.id === "tree"
-            ? ArrowsCounterClockwiseIcon
-            : ArrowCounterClockwiseIcon;
+    $: defaultGetChoiceIcon = (_choice: ActionSheetChoice) => TrashSimpleIcon;
     $: resolvedGetChoiceIcon = getChoiceIcon ?? defaultGetChoiceIcon;
 
     function handleChoice(choice: ActionSheetChoice) {
@@ -106,6 +100,7 @@
         gap: clamp(0.5rem, 1.6vw, 0.75rem);
         width: 100%;
         min-width: 0;
+        overflow: clip;
         padding: clamp(0.65rem, 1.8vw, 0.85rem) var(--sheet-inline-padding)
             calc(0.75rem + min(var(--safe-bottom, 0px), 0.75rem))
             var(--sheet-inline-padding);

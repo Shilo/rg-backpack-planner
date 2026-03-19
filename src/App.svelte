@@ -705,6 +705,7 @@
                 onReset={() => tabsRef?.resetActiveTree?.()}
                 treeNodes={tabs[activeTreeIndex]?.nodes ?? []}
                 treeLabel={activeTreeName}
+                treeId={tabs[activeTreeIndex]?.id ?? ""}
             />
         </div>
     </div>

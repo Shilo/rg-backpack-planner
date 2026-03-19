@@ -4,6 +4,7 @@
     import Button from "./Button.svelte";
     import { undoHistory, canUndo, canRedo } from "./undoHistoryStore";
     import { openResetTreeChoicesModal } from "./resetTreeModal";
+    import { getTreeIcon } from "./customIcons";
     import { sumLevels, type TreeBranchKey } from "./treeLevelsStore";
     import { t } from "svelte-whisper";
 
@@ -14,6 +15,7 @@
     export let activeLevels: LevelsByIndex | null = null;
     export let treeNodes: Node[] = [];
     export let treeLabel = "";
+    export let treeId = "";
 
     $: trimmedTreeLabel = treeLabel.trim();
     $: treeName = trimmedTreeLabel
@@ -21,6 +23,7 @@
         : $t("trees.generic");
     $: activeTreeLevelsTotal = sumLevels(activeLevels);
     $: canResetTree = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
+    $: treeIcon = getTreeIcon(treeId);
 
     function handleUndo() {
         const idx = undoHistory.undo();
@@ -40,7 +43,7 @@
             activeLevels,
             { onResetTree: onReset, onResetBranch },
             treeNodes,
-            TrashSimpleIcon,
+            treeIcon,
         );
     }
 </script>
@@ -70,7 +73,6 @@
         icon={TrashSimpleIcon}
         iconClass="undo-redo-toolbar__icon-reset"
         small
-        negative
         disabled={!canResetTree}
         on:click={handleReset}
     />
@@ -80,24 +82,26 @@
     .undo-redo-toolbar {
         display: flex;
         align-items: center;
-        gap: 0;
+        gap: 2px;
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: 999px;
-        padding: 3px;
+        padding: 0 3px;
     }
 
     .undo-redo-toolbar__divider {
         width: 1px;
         height: 20px;
         background: var(--border);
-        margin: 0 2px;
+        margin: 0 1px;
     }
 
     :global(.undo-redo-toolbar__btn) {
         border-radius: 999px !important;
         border: none !important;
         background: transparent !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
     }
 
     :global(.undo-redo-toolbar__btn:not(:disabled):hover) {
@@ -110,5 +114,15 @@
 
     :global(.undo-redo-toolbar__btn:disabled) {
         background: transparent !important;
+    }
+
+    :global(.undo-redo-toolbar__icon-reset) {
+        color: var(--accent-danger);
+        opacity: 0.85;
+    }
+
+    :global(.undo-redo-toolbar__btn:disabled .undo-redo-toolbar__icon-reset) {
+        color: var(--text-disabled);
+        opacity: 0.5;
     }
 </style>
