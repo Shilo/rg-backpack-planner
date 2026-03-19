@@ -373,9 +373,9 @@
 </script>
 
 {#if isOpen}
-    {#if !isNested}
-        <button
+    <button
             class="context-menu-backdrop"
+            class:nested={isNested}
             type="button"
             tabindex="0"
             aria-label={$t("common.close")}
@@ -386,7 +386,6 @@
             on:contextmenu={handleBackdropContextMenu}
             on:keydown={handleBackdropKeydown}
         ></button>
-    {/if}
     <div
         class="context-menu"
         class:dragging={isDragging}
@@ -461,6 +460,13 @@
         z-index: var(--z-index-context-menu-backdrop);
         cursor: default;
         animation: modal-backdrop-in 0.12s ease both;
+    }
+
+    .context-menu-backdrop.nested {
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        animation: none;
     }
 
     @keyframes ctx-menu-enter {
