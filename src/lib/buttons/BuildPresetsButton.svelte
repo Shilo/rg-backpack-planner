@@ -38,6 +38,7 @@
     import { cannonTree } from "../../config/cannonTree";
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
+    import { undoHistory } from "../undoHistoryStore";
 
     export let disabled: boolean | undefined = false;
 
@@ -145,6 +146,7 @@
         if (!buildData) return;
         setActivePresetId(presetId);
         applyBuildData(tabs, buildData);
+        undoHistory.clearHistory(0);
         showToast(
             $t("buildPresets.viewingPresetToast", {
                 name: truncateText(getDisplayPresetName(preset.name)),
@@ -230,6 +232,7 @@
                     setActivePresetId(first.id);
                     const buildData = decodeBuildData(first.buildCode);
                     if (buildData) applyBuildData(tabs, buildData);
+                    undoHistory.clearHistory(0);
                     closeEditMenu();
                 }
             },

@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 
 const modalStoreSource = readFileSync(resolve("src/lib/modalStore.ts"), "utf8");
 const modalHostSource = readFileSync(resolve("src/lib/ModalHost.svelte"), "utf8");
-const activeTreeResetButtonSource = readFileSync(
-    resolve("src/lib/ActiveTreeResetButton.svelte"),
+const undoRedoToolbarSource = readFileSync(
+    resolve("src/lib/UndoRedoToolbar.svelte"),
     "utf8",
 );
 const resetTreeModalSource = readFileSync(
@@ -36,27 +36,27 @@ if (!/<ResetTreeChoicesModal\b/.test(modalHostSource)) {
     );
 }
 
-if (!/export let activeLevels\b/.test(activeTreeResetButtonSource)) {
+if (!/export let activeLevels\b/.test(undoRedoToolbarSource)) {
     throw new Error(
-        "ActiveTreeResetButton should accept activeLevels so it can enable or disable branch choices.",
+        "UndoRedoToolbar should accept activeLevels so it can enable or disable branch choices.",
     );
 }
 
-if (!/export let treeNodes\b/.test(activeTreeResetButtonSource)) {
+if (!/export let treeNodes\b/.test(undoRedoToolbarSource)) {
     throw new Error(
-        "ActiveTreeResetButton should accept treeNodes so reset choices can show accurate Tech Crystal refund totals.",
+        "UndoRedoToolbar should accept treeNodes so reset choices can show accurate Tech Crystal refund totals.",
     );
 }
 
-if (!/export let onResetBranch\b/.test(activeTreeResetButtonSource)) {
+if (!/export let onResetBranch\b/.test(undoRedoToolbarSource)) {
     throw new Error(
-        "ActiveTreeResetButton should accept onResetBranch to trigger orange, blue, or yellow resets.",
+        "UndoRedoToolbar should accept onResetBranch to trigger orange, blue, or yellow resets.",
     );
 }
 
-if (!/openResetTreeChoicesModal/.test(activeTreeResetButtonSource)) {
+if (!/openResetTreeChoicesModal/.test(undoRedoToolbarSource)) {
     throw new Error(
-        "ActiveTreeResetButton should use the shared reset tree choice modal helper.",
+        "UndoRedoToolbar should use the shared reset tree choice modal helper.",
     );
 }
 

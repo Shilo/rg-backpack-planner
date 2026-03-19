@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
+    import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
     import ActionSheet from "../ActionSheet.svelte";
     import type { ActionSheetChoice } from "../actionSheetTypes";
     import type { ResetTreeChoiceConfig } from "../modalStore";
@@ -29,7 +30,8 @@
 
 <ActionSheet
     {title}
-    {sheetIcon}
+    sheetIcon={ArrowCounterClockwiseIcon}
+    headerTrailingIcon={sheetIcon}
     {message}
     choices={sheetChoices}
     cancelLabel={resolvedCancelLabel}

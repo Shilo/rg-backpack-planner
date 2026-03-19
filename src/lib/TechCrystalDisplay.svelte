@@ -7,14 +7,17 @@
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
 
+    export let activeTreeIndex = 0;
+
     $: hasOwned = $techCrystalsOwned > 0;
     $: tooltipText = hasOwned
         ? $t("techCrystals.displayTooltipSpentOwned")
         : $t("techCrystals.displayTooltipSpentOnly");
 
-    type AnimState = "" | "spend" | "free" | "overspend";
+    type AnimState = "" | "pulse" | "overspend";
     let animState: AnimState = "";
     let prevSpent = NaN;
+    let prevOwned = NaN;
     let ready = false;
 
     onMount(() => {
@@ -24,14 +27,14 @@
         return () => cancelAnimationFrame(id);
     });
 
-    $: isOverspent = $techCrystalsSpent > $techCrystalsOwned && hasOwned;
-
-    $: if (ready && $techCrystalsSpent !== prevSpent) {
-        const isIncrement = $techCrystalsSpent > prevSpent;
+    $: if (ready && ($techCrystalsSpent !== prevSpent || $techCrystalsOwned !== prevOwned)) {
+        const isOverBudget = $techCrystalsSpent > $techCrystalsOwned && $techCrystalsOwned > 0;
         prevSpent = $techCrystalsSpent;
-        triggerAnim(isIncrement && isOverspent ? "overspend" : isIncrement ? "spend" : "free");
+        prevOwned = $techCrystalsOwned;
+        triggerAnim(isOverBudget ? "overspend" : "pulse");
     } else {
         prevSpent = $techCrystalsSpent;
+        prevOwned = $techCrystalsOwned;
     }
 
     let wrapperEl: HTMLDivElement;
@@ -51,7 +54,7 @@
 <div
     bind:this={wrapperEl}
     class="currency-anim-wrapper"
-    class:anim-pulse={animState === "spend" || animState === "free"}
+    class:anim-pulse={animState === "pulse"}
     class:anim-shake={animState === "overspend"}
     on:animationend|self={onAnimEnd}
 >
@@ -60,7 +63,7 @@
         type="button"
         aria-label={$t("techCrystals.displayTooltipSpentOwned")}
         {tooltipText}
-        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
+        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeTreeIndex)}
         arrow="right"
     >
         <span

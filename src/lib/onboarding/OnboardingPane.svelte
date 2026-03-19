@@ -1,13 +1,13 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import OnboardingCard from "./OnboardingCard.svelte";
-    import {
-        computePaneRect,
-        type Direction,
-        type Rect,
-    } from "./paneLayout";
+    import { computePaneRect, type Direction, type Rect } from "./paneLayout";
 
-    type CardData = { icon: Component; label: string | string[]; description: string };
+    type CardData = {
+        icon: Component;
+        label: string | string[];
+        description: string;
+    };
 
     export let anchorRect: Rect;
     /** Preferred direction to place the pane relative to the spotlight. */
@@ -121,13 +121,13 @@
         gap: var(--spacing-md);
         pointer-events: none;
         width: max-content;
-        max-width: min(320px, 85vw);
+        max-width: min(340px, 85vw);
         z-index: 3;
     }
 
     .onboarding-pane.compact {
         gap: var(--spacing-sm);
-        max-width: min(236px, calc(100vw - 24px));
+        max-width: min(260px, calc(100vw - 24px));
     }
 
     .pane-header {
@@ -154,12 +154,11 @@
     }
 
     .pane-header-card.accent {
-        background:
-            linear-gradient(
-                135deg,
-                color-mix(in srgb, var(--accent) 13%, var(--bg-raised)),
-                color-mix(in srgb, var(--bg-raised) 92%, var(--surface))
-            );
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--accent) 13%, var(--bg-raised)),
+            color-mix(in srgb, var(--bg-raised) 92%, var(--surface))
+        );
         border-color: color-mix(
             in srgb,
             var(--accent) 22%,

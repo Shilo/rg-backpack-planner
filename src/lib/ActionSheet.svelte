@@ -2,7 +2,7 @@
     import type { Component } from "svelte";
     import {
         ArrowCounterClockwiseIcon,
-        ArrowsCounterClockwiseIcon,
+        TrashSimpleIcon,
     } from "phosphor-svelte";
     import Button from "./Button.svelte";
     import { triggerHaptic } from "./hapticsStore";
@@ -10,20 +10,19 @@
 
     export let title = "";
     export let sheetIcon: Component | null = null;
+    export let headerTrailingIcon: Component | null = null;
     export let message: string | undefined = undefined;
     export let choices: ActionSheetChoice[] = [];
     export let cancelLabel = "";
     export let onConfirm: ((value: string | number) => void) | null = null;
     export let onCancel: (() => void) | null = null;
-    /** Optional: return icon per choice. Defaults to ArrowsCounterClockwise for id "tree", else ArrowCounterClockwise. */
+    /** Optional: return icon per choice. Defaults to TrashSimple for id "tree", else ArrowCounterClockwise. */
     export let getChoiceIcon: ((choice: ActionSheetChoice) => Component) | null =
         null;
 
     $: resolvedCancelLabel = cancelLabel;
     $: defaultGetChoiceIcon = (choice: ActionSheetChoice) =>
-        choice.id === "tree"
-            ? ArrowsCounterClockwiseIcon
-            : ArrowCounterClockwiseIcon;
+        choice.id === "tree" ? TrashSimpleIcon : ArrowCounterClockwiseIcon;
     $: resolvedGetChoiceIcon = getChoiceIcon ?? defaultGetChoiceIcon;
 
     function handleChoice(choice: ActionSheetChoice) {
@@ -40,7 +39,7 @@
                 <svelte:component
                     this={sheetIcon}
                     class="action-sheet__header-icon"
-                    size={42}
+                    size={38}
                 />
             </span>
         {/if}
@@ -50,6 +49,14 @@
                 <p class="action-sheet__message">{message}</p>
             {/if}
         </div>
+        {#if headerTrailingIcon}
+            <span class="action-sheet__trailing-icon" aria-hidden="true">
+                <svelte:component
+                    this={headerTrailingIcon}
+                    size={38}
+                />
+            </span>
+        {/if}
     </header>
 
     <div class="action-sheet__choices">
@@ -106,6 +113,7 @@
         gap: clamp(0.5rem, 1.6vw, 0.75rem);
         width: 100%;
         min-width: 0;
+        overflow: clip;
         padding: clamp(0.65rem, 1.8vw, 0.85rem) var(--sheet-inline-padding)
             calc(0.75rem + min(var(--safe-bottom, 0px), 0.75rem))
             var(--sheet-inline-padding);
@@ -113,32 +121,29 @@
 
     .action-sheet__header {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: center;
         gap: 0.625rem;
+    }
+
+    .action-sheet__trailing-icon {
+        display: grid;
+        place-items: center;
+        color: var(--text-muted);
+        opacity: 0.55;
     }
 
     .action-sheet__icon-badge {
         display: inline-grid;
         place-items: center;
         flex: 0 0 auto;
-        border: var(--border-width) solid
-            color-mix(in srgb, var(--accent) 22%, var(--border) 78%);
-        background: linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--surface) 78%, var(--accent) 22%),
-            color-mix(in srgb, var(--bg-raised) 88%, transparent)
-        );
-        box-shadow: var(--shadow-sm);
-        width: 3rem;
-        height: 3rem;
-        border-radius: 0.95rem;
-        color: var(--accent-light);
+        color: var(--accent-danger);
+        opacity: 0.7;
     }
 
-    .action-sheet__header-icon {
-        width: 2.625rem;
-        height: 2.625rem;
+    :global(.action-sheet__header-icon) {
+        width: 2.375rem;
+        height: 2.375rem;
     }
 
     .action-sheet__header-copy {

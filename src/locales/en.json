@@ -23,7 +23,9 @@
         "close": "Close",
         "none": "None",
         "copy": "Copy",
-        "download": "Download"
+        "download": "Download",
+        "undo": "Undo",
+        "redo": "Redo"
     },
     "sideMenu": {
         "tabs": {
@@ -242,7 +244,7 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Tech Crystals\nspent",
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
-        "spentLabel": "Tech Crystals Spent / Owned",
+        "spentLabel": "Tech Crystals Spent and Owned",
         "budgetHint": "Change spending budget",
         "changeOwnedTooltip": "Change {subject} Tech Crystal owned (budget)",
         "ownedModalTitle": "Tech Crystals Owned",
@@ -533,7 +535,7 @@
         "nodesSection": "Nodes",
         "rootSection": "Root Node",
         "treeSection": "Empty Space",
-        "hudSection": "Top Right HUD",
+        "hudSection": "Tech Crystal Spent / Budget",
         "levelUp": "Level up node",
         "options": "View node options",
         "levelDown": "Level down node",
@@ -568,8 +570,17 @@
         "clickNode": "Left Click Node",
         "tapOption": "Tap Options",
         "clickOption": "Left Click Options",
-        "tapTechCrystal": "Tap Tech Crystal Display",
-        "clickTechCrystal": "Left Click Tech Crystal Display",
+        "tapTechCrystal": "Tap Tech Crystal Button",
+        "clickTechCrystal": "Left Click Tech Crystal Button",
+        "budgetIgnoreLabel": "Optional Budget",
+        "budgetIgnoreDesc": "Ignore budget via Settings > Node > Ignore Tech Crystal Budget",
+        "toolbarSection": "Undo / Redo / Reset",
+        "tapUndoButton": "Tap Undo Button",
+        "clickUndoButton": "Left Click Undo Button",
+        "undoDesc": "Undo last node or budget change",
+        "tapRedoButton": "Tap Redo Button",
+        "clickRedoButton": "Left Click Redo Button",
+        "redoDesc": "Redo previously undone change",
         "tapResetButton": "Tap Reset Button",
         "clickResetButton": "Left Click Reset Button",
         "previewSection": "Preview Indicator",

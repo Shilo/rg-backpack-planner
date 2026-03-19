@@ -2,12 +2,14 @@ import { get } from "svelte/store";
 import { TechCrystalIcon } from "./customIcons";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned, techCrystalsSpent } from "./techCrystalStore";
+import { undoHistory } from "./undoHistoryStore";
 import { tr } from "svelte-whisper";
 import { formatNumber } from "svelte-whisper";
 
 export function openTechCrystalsOwnedModal(
     currentOwned: number,
     tooltipSubject?: string,
+    activeTreeIndex: number = 0,
 ) {
     const defaultSubject = tr("techCrystals.subjectYour");
     const normalizedSubject = tooltipSubject || defaultSubject;
@@ -39,6 +41,7 @@ export function openTechCrystalsOwnedModal(
         onConfirm: (value) => {
             if (typeof value === "number") {
                 setTechCrystalsOwned(value);
+                undoHistory.pushSnapshot(activeTreeIndex);
             }
         },
     });

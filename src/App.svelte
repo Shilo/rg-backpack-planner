@@ -4,7 +4,7 @@
     import type { TabConfig } from "./types/tree";
     import SideMenu from "./lib/SideMenu.svelte";
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
-    import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
+    import UndoRedoToolbar from "./lib/UndoRedoToolbar.svelte";
     import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
     import PreviewBuildIndicator from "./lib/PreviewBuildIndicator.svelte";
     import OnboardingOverlay from "./lib/onboarding/OnboardingOverlay.svelte";
@@ -75,6 +75,7 @@
     } from "./lib/onboarding/onboardingStore";
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
+    import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/inputStore";
     import { recommendedBuilds } from "./lib/buildData/recommended";
@@ -249,6 +250,7 @@
         isPreview: boolean;
         buildName: string | null;
         hash: string;
+        undoState: ReturnType<typeof undoHistory.getState>;
     } | null = null;
 
     function setupOnboardingPreview() {
@@ -265,6 +267,7 @@
             isPreview: currentPreviewMode,
             buildName: currentBuildName,
             hash: currentHash,
+            undoState: undoHistory.getState(),
         };
 
         // Pause subscriptions to prevent persistence/URL updates during onboarding
@@ -281,6 +284,7 @@
                 applyBuildData(tabs, buildData);
                 setPreviewMode(true);
                 setPreviewBuildName(build.displayName);
+                undoHistory.clearHistory(activeTreeIndex);
             }
         }
     }
@@ -301,6 +305,7 @@
         } else {
             clearPreviewBuildName();
         }
+        undoHistory.restoreState(state.undoState);
 
         // Restore URL hash
         if (typeof window !== "undefined") {
@@ -531,14 +536,81 @@
                 persistToActivePreset,
             );
         }
+        undoHistory.clearHistory(activeTreeIndex);
     }
 
     onMount(() => {
         ensureInstallListeners();
 
         // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
+        let undoRedoApplyGen = 0;
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat) return;
+
+            // Undo/Redo shortcuts
+            if (
+                (e.ctrlKey || e.metaKey) &&
+                !e.altKey &&
+                !isFormField(document.activeElement) &&
+                !hasOnboardingOverlay()
+            ) {
+                const isUndo = e.key === "z" && !e.shiftKey;
+                const isRedo =
+                    e.key === "y" ||
+                    (e.key === "z" && e.shiftKey) ||
+                    (e.key === "Z" && e.shiftKey);
+
+                if (isUndo && get(canUndo)) {
+                    e.preventDefault();
+                    const result = undoHistory.undoDeferred();
+                    if (result != null) {
+                        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+                        activeTreeIndex = result.activeTreeIndex;
+                        const gen = ++undoRedoApplyGen;
+                        const TREE_FADE_MS = 150;
+                        tick().then(() => {
+                            if (gen !== undoRedoApplyGen) return;
+                            if (switchedTab) {
+                                setTimeout(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                }, TREE_FADE_MS);
+                            } else {
+                                requestAnimationFrame(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                });
+                            }
+                        });
+                    }
+                    return;
+                }
+                if (isRedo && get(canRedo)) {
+                    e.preventDefault();
+                    const result = undoHistory.redoDeferred();
+                    if (result != null) {
+                        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+                        activeTreeIndex = result.activeTreeIndex;
+                        const gen = ++undoRedoApplyGen;
+                        const TREE_FADE_MS = 150;
+                        tick().then(() => {
+                            if (gen !== undoRedoApplyGen) return;
+                            if (switchedTab) {
+                                setTimeout(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                }, TREE_FADE_MS);
+                            } else {
+                                requestAnimationFrame(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                });
+                            }
+                        });
+                    }
+                    return;
+                }
+            }
 
             if (
                 e.key === "Escape" &&
@@ -665,15 +737,20 @@
             <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
         </div>
         <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
-            <TechCrystalDisplay />
-            <ActiveTreeResetButton
+            <TechCrystalDisplay {activeTreeIndex} />
+        </div>
+        <div class="bot-right-actions">
+            <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
+                {activeTreeIndex}
+                forceShow={!$onboardingSeen && activeTreeOnboardingReady}
+                onUndo={(idx) => { activeTreeIndex = idx; }}
+                onRedo={(idx) => { activeTreeIndex = idx; }}
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
                 onReset={() => tabsRef?.resetActiveTree?.()}
-                treeId={tabs[activeTreeIndex]?.id ?? ""}
                 treeNodes={tabs[activeTreeIndex]?.nodes ?? []}
                 treeLabel={activeTreeName}
-                forceShow={!$onboardingSeen}
+                treeId={tabs[activeTreeIndex]?.id ?? ""}
             />
         </div>
     </div>
@@ -764,8 +841,20 @@
         z-index: var(--z-index-hud-above-context-backdrop);
     }
 
+    .bot-right-actions {
+        position: absolute;
+        bottom: calc(var(--tab-height) + var(--bar-pad));
+        right: 0;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-end;
+        pointer-events: none;
+        z-index: var(--z-index-hud);
+    }
+
     .top-left-actions > :global(*),
-    .top-right-actions > :global(*) {
+    .top-right-actions > :global(*),
+    .bot-right-actions > :global(*) {
         pointer-events: auto;
     }
 </style>

@@ -52,6 +52,7 @@
     let treeSpotlightRect: Rect = { ...EMPTY_RECT };
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
     let previewSpotlightRect: Rect = { ...EMPTY_RECT };
+    let toolbarSpotlightRect: Rect = { ...EMPTY_RECT };
     let bottombarSpotlightRect: Rect = { ...EMPTY_RECT };
 
     $: targetNode = nodes[targetNodeIndex];
@@ -259,6 +260,9 @@
         previewSpotlightRect =
             resolveElementRect(".preview-indicator-button", 8) ?? { ...EMPTY_RECT };
 
+        toolbarSpotlightRect =
+            resolveElementRect(".bot-right-actions", 8, 8) ?? { ...EMPTY_RECT };
+
         bottombarSpotlightRect =
             resolveElementRect(".tabs-bar-spacer", 8) ?? { ...EMPTY_RECT };
     }
@@ -269,6 +273,7 @@
         if (activeStep.target === "locked-node") return lockedNodeSpotlightRect;
         if (activeStep.target === "hud") return hudSpotlightRect;
         if (activeStep.target === "root") return rootSpotlightRect;
+        if (activeStep.target === "toolbar") return toolbarSpotlightRect;
         if (activeStep.target === "preview") return previewSpotlightRect;
         if (activeStep.target === "bottombar") return bottombarSpotlightRect;
         return treeSpotlightRect;
@@ -285,6 +290,10 @@
                 target === "preview",
             );
             document.body.classList.toggle(
+                "onboarding-step-toolbar",
+                target === "toolbar",
+            );
+            document.body.classList.toggle(
                 "onboarding-step-bottombar",
                 target === "bottombar",
             );
@@ -292,6 +301,7 @@
     }
     $: activeSpotlightIsRect =
         activeStep?.target === "hud" ||
+        activeStep?.target === "toolbar" ||
         activeStep?.target === "preview" ||
         activeStep?.target === "bottombar";
     $: ringTop = Math.max(0, activeSpotlightRect.top);
@@ -301,19 +311,51 @@
     $: ringWidth = ringRight - ringLeft;
     $: ringHeight = ringBottom - ringTop;
 
+    $: effectiveFooterBottom = bottomPadding + footerExtraBottom;
     $: footerReservedSpace = Math.max(
-        bottomPadding,
-        footerHeight + bottomPadding + panePadding,
+        effectiveFooterBottom,
+        footerHeight + effectiveFooterBottom + panePadding,
     );
     $: {
         void layoutVersion;
-        const footerTop = viewportHeight - bottomPadding - footerHeight;
+        const footerTop = viewportHeight - effectiveFooterBottom - footerHeight;
         footerBounds = {
             top: footerTop - panePadding,
             bottom: viewportHeight,
             left: 0,
             right: viewportWidth,
         };
+    }
+
+    let footerExtraBottom = 0;
+    $: {
+        void layoutVersion;
+        const botActions = document.querySelector<HTMLElement>(".bot-right-actions");
+        const footerNote = overlayEl?.querySelector<HTMLElement>(".footer-note");
+        if (botActions && footerNote && overlayEl) {
+            const pad = 8;
+            const oRect = overlayEl.getBoundingClientRect();
+            const tb = botActions.getBoundingClientRect();
+            const fn = footerNote.getBoundingClientRect();
+            const natTop = fn.top - oRect.top + footerExtraBottom - pad;
+            const natBottom = fn.bottom - oRect.top + footerExtraBottom + pad;
+            const natLeft = fn.left - oRect.left - pad;
+            const natRight = fn.right - oRect.left + pad;
+            const tbTop = tb.top - oRect.top;
+            const tbBottom = tb.bottom - oRect.top;
+            const tbLeft = tb.left - oRect.left;
+            const tbRight = tb.right - oRect.left;
+            const hOverlap =
+                Math.min(natRight, tbRight) - Math.max(natLeft, tbLeft);
+            const vOverlap =
+                Math.min(natBottom, tbBottom) - Math.max(natTop, tbTop);
+            footerExtraBottom =
+                hOverlap > 0 && vOverlap > 0
+                    ? natBottom - tbTop + pad
+                    : 0;
+        } else {
+            footerExtraBottom = 0;
+        }
     }
 
     function handleAdvance() {
@@ -397,6 +439,7 @@
             document.body.classList.remove(
                 "has-onboarding-overlay",
                 "onboarding-step-hud",
+                "onboarding-step-toolbar",
                 "onboarding-step-preview",
                 "onboarding-step-bottombar",
             );
@@ -504,7 +547,7 @@
     <div
         class="footer-wrap"
         bind:clientHeight={footerHeight}
-        style="bottom: {bottomPadding}px;"
+        style="bottom: {bottomPadding + footerExtraBottom}px;"
     >
         <OnboardingFooterNote
             stepNumber={currentStepIndex + 1}
