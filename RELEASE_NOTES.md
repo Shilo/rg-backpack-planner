@@ -1,4 +1,4 @@
-# What's New in v1.0.7
+# What's New in v1.0.8
 -# Changes since v1.0.0
 https://rgbp.app
 
