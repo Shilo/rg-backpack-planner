@@ -250,6 +250,7 @@
         isPreview: boolean;
         buildName: string | null;
         hash: string;
+        undoState: ReturnType<typeof undoHistory.getState>;
     } | null = null;
 
     function setupOnboardingPreview() {
@@ -266,6 +267,7 @@
             isPreview: currentPreviewMode,
             buildName: currentBuildName,
             hash: currentHash,
+            undoState: undoHistory.getState(),
         };
 
         // Pause subscriptions to prevent persistence/URL updates during onboarding
@@ -303,7 +305,7 @@
         } else {
             clearPreviewBuildName();
         }
-        undoHistory.clearHistory(activeTreeIndex);
+        undoHistory.restoreState(state.undoState);
 
         // Restore URL hash
         if (typeof window !== "undefined") {

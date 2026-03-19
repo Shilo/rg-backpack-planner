@@ -137,6 +137,14 @@ function createUndoHistoryStore() {
                 future: [],
             });
         },
+
+        getState(): UndoHistory {
+            return get(store);
+        },
+
+        restoreState(state: UndoHistory): void {
+            store.set(state);
+        },
     };
 }
 
