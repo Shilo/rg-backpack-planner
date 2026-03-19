@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount, tick } from "svelte";
     import { TechCrystalIcon } from "./customIcons";
     import Button from "./Button.svelte";
     import { openTechCrystalsOwnedModal } from "./techCrystalModal";
@@ -10,35 +11,87 @@
     $: tooltipText = hasOwned
         ? $t("techCrystals.displayTooltipSpentOwned")
         : $t("techCrystals.displayTooltipSpentOnly");
+
+    type AnimState = "" | "spend" | "free" | "overspend";
+    let animState: AnimState = "";
+    let prevSpent = NaN;
+    let ready = false;
+
+    onMount(() => {
+        const id = requestAnimationFrame(() => {
+            ready = true;
+        });
+        return () => cancelAnimationFrame(id);
+    });
+
+    $: isOverspent = $techCrystalsSpent > $techCrystalsOwned && hasOwned;
+
+    $: if (ready && $techCrystalsSpent !== prevSpent) {
+        const isIncrement = $techCrystalsSpent > prevSpent;
+        prevSpent = $techCrystalsSpent;
+        triggerAnim(isIncrement && isOverspent ? "overspend" : isIncrement ? "spend" : "free");
+    } else {
+        prevSpent = $techCrystalsSpent;
+    }
+
+    let wrapperEl: HTMLDivElement;
+
+    async function triggerAnim(state: AnimState) {
+        animState = "";
+        await tick();
+        void wrapperEl?.offsetWidth; // force reflow so the browser sees the class removal
+        animState = state;
+    }
+
+    function onAnimEnd() {
+        animState = "";
+    }
 </script>
 
-<Button
-    class="currency-display"
-    type="button"
-    aria-label={$t("techCrystals.displayTooltipSpentOwned")}
-    {tooltipText}
-    on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
-    arrow="right"
+<div
+    bind:this={wrapperEl}
+    class="currency-anim-wrapper"
+    class:anim-pulse={animState === "spend" || animState === "free"}
+    class:anim-shake={animState === "overspend"}
+    style:--flash-color={animState === "free" ? "var(--accent)" : "var(--accent-danger)"}
+    on:animationend|self={onAnimEnd}
 >
-    <span
-        class="currency-spent"
-        class:is-negative={$techCrystalsSpent > $techCrystalsOwned && hasOwned}
+    <Button
+        class="currency-display"
+        type="button"
+        aria-label={$t("techCrystals.displayTooltipSpentOwned")}
+        {tooltipText}
+        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
+        arrow="right"
     >
-        {formatNumber($techCrystalsSpent)}
-    </span>
-    {#if hasOwned}
-        <span class="currency-separator"> / </span>
-        <span class="currency-owned">{formatNumber($techCrystalsOwned)}</span>
-    {/if}
-    <TechCrystalIcon
-        size={26}
-        weight="fill"
-        aria-hidden="true"
-        style="color: var(--text-muted);"
-    />
-</Button>
+        <span
+            class="currency-spent"
+            class:is-negative={$techCrystalsSpent > $techCrystalsOwned &&
+                hasOwned}
+            class:anim-flash={animState !== ""}
+        >
+            {formatNumber($techCrystalsSpent)}
+        </span>
+        {#if hasOwned}
+            <span class="currency-separator"> / </span>
+            <span class="currency-owned"
+                >{formatNumber($techCrystalsOwned)}</span
+            >
+        {/if}
+        <TechCrystalIcon
+            size={26}
+            weight="fill"
+            aria-hidden="true"
+            style="color: var(--text-muted);"
+        />
+    </Button>
+</div>
 
 <style>
+    .currency-anim-wrapper {
+        display: inline-flex;
+    }
+
     :global(.currency-display) {
         border-radius: var(--radius-lg) !important;
         display: inline-flex;
@@ -77,5 +130,71 @@
 
     .currency-owned {
         color: var(--text-muted);
+    }
+
+    /* ═══ Value-change animations ═══ */
+
+    .currency-anim-wrapper.anim-pulse {
+        animation: currency-pulse 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .currency-anim-wrapper.anim-shake {
+        animation: currency-shake 450ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .currency-spent.anim-flash {
+        animation: currency-text-flash 300ms ease;
+    }
+
+    @keyframes currency-pulse {
+        0% {
+            transform: scale(1);
+        }
+        35% {
+            transform: scale(1.08);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @keyframes currency-shake {
+        0% {
+            transform: translateX(0) scale(1);
+        }
+        12% {
+            transform: translateX(-3px) scale(1.06);
+        }
+        24% {
+            transform: translateX(3px) scale(1.06);
+        }
+        36% {
+            transform: translateX(-2px) scale(1.04);
+        }
+        48% {
+            transform: translateX(2px) scale(1.04);
+        }
+        60% {
+            transform: translateX(-1px) scale(1.02);
+        }
+        72% {
+            transform: translateX(1px);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes currency-text-flash {
+        50% {
+            color: var(--flash-color);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .currency-anim-wrapper.anim-pulse,
+        .currency-anim-wrapper.anim-shake {
+            animation: none;
+        }
     }
 </style>

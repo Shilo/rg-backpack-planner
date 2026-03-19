@@ -18,39 +18,47 @@ When budget is enforced and a level action would exceed the budget, the system s
 
 ### Store: `ignoreTechCrystalBudgetStore.ts`
 
-Follows the same pattern as `showTierStore.ts`:
+Follows the same pattern as `showTierStore.ts` / `showLevelSplashStore.ts`:
 
 ```ts
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-const DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET = false;
+export const DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET = false;
 
-function parse(storedValue: string | null): boolean | null {
+function parseIgnoreTechCrystalBudget(storedValue: string | null): boolean | null {
     if (storedValue === null) return null;
     if (storedValue === "true") return true;
     if (storedValue === "false") return false;
     return null;
 }
 
-function get(): boolean {
-    return parse(getItem("ignore-tech-crystal-budget")) ?? DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET;
+function getIgnoreTechCrystalBudget(): boolean {
+    const stored = parseIgnoreTechCrystalBudget(getItem("ignore-tech-crystal-budget"));
+    return stored ?? DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET;
 }
 
-function persist(value: boolean) {
+function setIgnoreTechCrystalBudget(value: boolean) {
     setItem("ignore-tech-crystal-budget", String(value));
 }
 
-function createStore() {
-    const { subscribe, set } = writable(get());
+function createIgnoreTechCrystalBudgetStore() {
+    const { subscribe, set } = writable(getIgnoreTechCrystalBudget());
+
     return {
         subscribe,
-        set: (value: boolean) => { persist(value); set(value); },
-        resetToDefault: () => { persist(DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET); set(DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET); },
+        set: (value: boolean) => {
+            setIgnoreTechCrystalBudget(value);
+            set(value);
+        },
+        resetToDefault: () => {
+            setIgnoreTechCrystalBudget(DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET);
+            set(DEFAULT_IGNORE_TECH_CRYSTAL_BUDGET);
+        },
     };
 }
 
-export const ignoreTechCrystalBudget = createStore();
+export const ignoreTechCrystalBudget = createIgnoreTechCrystalBudgetStore();
 ```
 
 ### Reset integration
