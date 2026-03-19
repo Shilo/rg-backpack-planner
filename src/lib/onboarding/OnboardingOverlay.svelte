@@ -8,7 +8,7 @@
     import { t } from "svelte-whisper";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
-    import type { Rect } from "./paneLayout";
+    import { overlapArea, type Rect } from "./paneLayout";
     import {
         createOnboardingSteps,
         type OnboardingTarget,
@@ -53,6 +53,7 @@
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
     let previewSpotlightRect: Rect = { ...EMPTY_RECT };
     let toolbarSpotlightRect: Rect = { ...EMPTY_RECT };
+    let toolbarShift = 0;
     let bottombarSpotlightRect: Rect = { ...EMPTY_RECT };
 
     $: targetNode = nodes[targetNodeIndex];
@@ -326,6 +327,40 @@
         };
     }
 
+    $: {
+        void layoutVersion;
+        const botActions = document.querySelector<HTMLElement>(".bot-right-actions");
+        const footerNote = overlayEl?.querySelector<HTMLElement>(".footer-note");
+        if (botActions && footerNote && toolbarSpotlightRect.bottom > 0) {
+            const overlayRect = overlayEl!.getBoundingClientRect();
+            const footerRect = footerNote.getBoundingClientRect();
+            const fRect: Rect = {
+                top: footerRect.top - overlayRect.top,
+                bottom: footerRect.bottom - overlayRect.top,
+                left: footerRect.left - overlayRect.left,
+                right: footerRect.right - overlayRect.left,
+            };
+            const naturalRect: Rect = {
+                top: toolbarSpotlightRect.top + toolbarShift,
+                bottom: toolbarSpotlightRect.bottom + toolbarShift,
+                left: toolbarSpotlightRect.left,
+                right: toolbarSpotlightRect.right,
+            };
+            const overlap = overlapArea(naturalRect, fRect);
+            if (overlap > 0) {
+                const shift = naturalRect.bottom - fRect.top + 8;
+                toolbarShift = shift;
+                botActions.style.transform = `translateY(-${shift}px)`;
+            } else {
+                toolbarShift = 0;
+                botActions.style.transform = "";
+            }
+        } else if (botActions) {
+            toolbarShift = 0;
+            botActions.style.transform = "";
+        }
+    }
+
     function handleAdvance() {
         if (dismissing || !activeStep) return;
         if (currentStepIndex < steps.length - 1) {
@@ -411,6 +446,8 @@
                 "onboarding-step-preview",
                 "onboarding-step-bottombar",
             );
+            const botActions = document.querySelector<HTMLElement>(".bot-right-actions");
+            if (botActions) botActions.style.transform = "";
             window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);
             if (layoutRefreshFrame !== null) {
