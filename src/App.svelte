@@ -736,6 +736,8 @@
         </div>
         <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
             <TechCrystalDisplay {activeTreeIndex} />
+        </div>
+        <div class="bot-right-actions">
             <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
                 {activeTreeIndex}
@@ -836,8 +838,31 @@
         z-index: var(--z-index-hud-above-context-backdrop);
     }
 
+    .bot-right-actions {
+        position: absolute;
+        bottom: calc(var(--tab-height) + var(--bar-pad));
+        right: 0;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-end;
+        pointer-events: none;
+        z-index: var(--z-index-hud);
+        transition: right 0.15s ease;
+    }
+
+    @media (min-width: 768px) {
+        .bot-right-actions {
+            z-index: var(--z-index-hud-over-side-menu-backdrop);
+        }
+
+        .app-shell.menu-open .bot-right-actions {
+            right: calc(var(--side-menu-width) + 10px);
+        }
+    }
+
     .top-left-actions > :global(*),
-    .top-right-actions > :global(*) {
+    .top-right-actions > :global(*),
+    .bot-right-actions > :global(*) {
         pointer-events: auto;
     }
 </style>
