@@ -7,6 +7,11 @@ import { sessionGetItem, sessionRemoveItem, sessionSetItem } from "./storage";
 
 export type ToastTone = "positive" | "negative";
 
+export type ToastAction = {
+    label: string;
+    onClick: () => void;
+};
+
 export type Toast = {
     id: string;
     message: string;
@@ -14,10 +19,11 @@ export type Toast = {
     durationMs: number;
     showIcon: boolean;
     showSpinner: boolean;
+    action?: ToastAction;
 };
 
 type ToastOptions = Partial<
-    Pick<Toast, "tone" | "durationMs" | "showIcon" | "showSpinner">
+    Pick<Toast, "tone" | "durationMs" | "showIcon" | "showSpinner" | "action">
 >;
 
 const DEFAULT_DURATION_MS = 2600;
@@ -40,6 +46,7 @@ export function showToast(
         durationMs: options?.durationMs ?? DEFAULT_DURATION_MS,
         showIcon: options?.showIcon ?? true,
         showSpinner: options?.showSpinner ?? false,
+        action: options?.action,
     };
     toastStore.update((toasts) => {
         const updated = [...toasts, toast];

@@ -85,6 +85,18 @@
                     />
                 {/if}
                 <span class="toast__message">{toast.message}</span>
+                {#if toast.action}
+                    <button
+                        class="toast__action"
+                        on:click|stopPropagation={() => {
+                            triggerHaptic();
+                            toast.action?.onClick();
+                            dismissToast(toast.id);
+                        }}
+                    >
+                        {toast.action.label}
+                    </button>
+                {/if}
             </div>
         {/each}
     </div>
@@ -178,5 +190,34 @@
 
     .toast__message {
         flex: 1;
+    }
+
+    .toast__action {
+        all: unset;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-bold);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: var(--accent);
+        white-space: nowrap;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        margin: calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-sm));
+        border-radius: var(--radius-sm);
+    }
+
+    .toast--negative .toast__action {
+        color: var(--danger-text);
+    }
+
+    @media (hover: hover) {
+        .toast__action:hover {
+            opacity: 0.8;
+        }
+    }
+
+    .toast__action:active {
+        opacity: 0.6;
     }
 </style>
