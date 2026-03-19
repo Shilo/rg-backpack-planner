@@ -58,6 +58,12 @@
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
     import { sumDeltaCosts } from "./nodeActionPreview";
+    import {
+        techCrystalsOwned,
+        techCrystalsAvailable,
+    } from "./techCrystalStore";
+    import { ignoreTechCrystalBudget } from "./ignoreTechCrystalBudgetStore";
+    import { findBudgetCappedLevel } from "./budgetEnforcement";
     import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
 
     export let nodes: NodeType[] = [];
@@ -504,7 +510,7 @@
 
     function applyChange(index: NodeIndex, targetLevel: number) {
         const currentLevel = getLevel(index);
-        const { levels: nextLevels, deltas } = applyLevelChange({
+        let { levels: nextLevels, deltas } = applyLevelChange({
             nodes,
             levels,
             index,
@@ -532,6 +538,63 @@
                     { tone: "negative" },
                 );
                 return false;
+            }
+
+            // Budget enforcement: cap level to what's affordable
+            if (
+                !$ignoreTechCrystalBudget &&
+                $techCrystalsOwned > 0
+            ) {
+                const actionCost = sumDeltaCosts(nodes, levels, deltas);
+                const available = $techCrystalsAvailable;
+                if (actionCost > available) {
+                    const cappedLevel = findBudgetCappedLevel({
+                        nodes,
+                        levels,
+                        index,
+                        targetLevel,
+                        currentLevel,
+                        available,
+                        nodeLevelBehavior: $nodeLevelBehavior,
+                    });
+                    if (cappedLevel === null || cappedLevel === 0) {
+                        showToast(
+                            $t("techCrystals.budgetReachedToast"),
+                            {
+                                tone: "negative",
+                                durationMs: 4500,
+                                action: {
+                                    label: $t("settings.ignoreTechCrystalBudget"),
+                                    onClick: () => ignoreTechCrystalBudget.set(true),
+                                },
+                            },
+                        );
+                        return false;
+                    }
+                    const capped = applyLevelChange({
+                        nodes,
+                        levels,
+                        index,
+                        targetLevel: cappedLevel,
+                        nodeLevelBehavior: $nodeLevelBehavior,
+                    });
+                    nextLevels = capped.levels;
+                    deltas = capped.deltas;
+                    targetLevel = cappedLevel;
+                    showToast(
+                        $t("techCrystals.budgetCappedToast", {
+                            level: cappedLevel,
+                        }),
+                        {
+                            tone: "negative",
+                            durationMs: 4500,
+                            action: {
+                                label: $t("settings.ignoreTechCrystalBudget"),
+                                onClick: () => ignoreTechCrystalBudget.set(true),
+                            },
+                        },
+                    );
+                }
             }
         }
         const prevLevels = levels;
