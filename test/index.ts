@@ -24,6 +24,8 @@ const TEST_FILES = [
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
     "calculateTechCrystalsSpent.test.ts",
+    "budgetEnforcement.test.ts",
+    "ignoreTechCrystalBudgetStore.test.ts",
     "resetTreeChoiceModel.test.ts",
 
     // 3. Serialization & Storage
