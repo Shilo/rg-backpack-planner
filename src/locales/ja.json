@@ -252,6 +252,7 @@
         "subjectPreview": "プレビューの",
         "budgetReachedToast": "テッククリスタル予算に到達",
         "budgetCappedToast": "レベル{level}に制限",
+        "budgetLineageToast": "予算内で系統をレベルアップ",
         "ignoreBudgetAction": "予算を無視"
     },
     "buildPresets": {

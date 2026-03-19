@@ -34,7 +34,10 @@
         nodePrimaryAction,
         NodePrimaryAction,
     } from "./nodePrimaryActionStore";
-    import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
+    import {
+        nodeLevelBehavior,
+        NodeLevelBehavior,
+    } from "./nodeLevelBehaviorStore";
     import { showTier } from "./showTierStore";
     import { showSkillName } from "./showSkillNameStore";
     import { textSize } from "./textSizeStore";
@@ -63,7 +66,10 @@
         techCrystalsAvailable,
     } from "./techCrystalStore";
     import { ignoreTechCrystalBudget } from "./ignoreTechCrystalBudgetStore";
-    import { findBudgetCappedLevel } from "./budgetEnforcement";
+    import {
+        findBudgetCappedLevel,
+        findPartialLineageLevels,
+    } from "./budgetEnforcement";
     import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
 
     export let nodes: NodeType[] = [];
@@ -557,47 +563,69 @@
                         available,
                         nodeLevelBehavior: $nodeLevelBehavior,
                     });
-                    if (cappedLevel === null || cappedLevel === 0) {
+                    const budgetToastOptions = {
+                        tone: "negative" as const,
+                        durationMs: 4500,
+                        key: "budget",
+                        action: {
+                            label: $t("techCrystals.ignoreBudgetAction"),
+                            onClick: () => ignoreTechCrystalBudget.set(true),
+                        },
+                    };
+                    if (cappedLevel !== null && cappedLevel > 0) {
+                        // Normal capping: re-apply at the highest affordable level
+                        const capped = applyLevelChange({
+                            nodes,
+                            levels,
+                            index,
+                            targetLevel: cappedLevel,
+                            nodeLevelBehavior: $nodeLevelBehavior,
+                        });
+                        nextLevels = capped.levels;
+                        deltas = capped.deltas;
+                        targetLevel = cappedLevel;
+                        showToast(
+                            $t("techCrystals.budgetReachedToast") +
+                                "\n" +
+                                $t("techCrystals.budgetCappedToast", {
+                                    level: cappedLevel,
+                                }),
+                            budgetToastOptions,
+                        );
+                    } else if (
+                        cappedLevel === 0 &&
+                        $nodeLevelBehavior === NodeLevelBehavior.Sync
+                    ) {
+                        // Sync mode: greedily fill lineage within budget
+                        const partial = findPartialLineageLevels({
+                            nodes,
+                            levels,
+                            deltas,
+                            available,
+                        });
+                        if (partial) {
+                            nextLevels = partial.levels;
+                            deltas = partial.deltas;
+                            showToast(
+                                $t("techCrystals.budgetReachedToast") +
+                                    "\n" +
+                                    $t("techCrystals.budgetLineageToast"),
+                                budgetToastOptions,
+                            );
+                        } else {
+                            showToast(
+                                $t("techCrystals.budgetReachedToast"),
+                                budgetToastOptions,
+                            );
+                            return false;
+                        }
+                    } else {
                         showToast(
                             $t("techCrystals.budgetReachedToast"),
-                            {
-                                tone: "negative",
-                                durationMs: 4500,
-                                key: "budget",
-                                action: {
-                                    label: $t("techCrystals.ignoreBudgetAction"),
-                                    onClick: () => ignoreTechCrystalBudget.set(true),
-                                },
-                            },
+                            budgetToastOptions,
                         );
                         return false;
                     }
-                    const capped = applyLevelChange({
-                        nodes,
-                        levels,
-                        index,
-                        targetLevel: cappedLevel,
-                        nodeLevelBehavior: $nodeLevelBehavior,
-                    });
-                    nextLevels = capped.levels;
-                    deltas = capped.deltas;
-                    targetLevel = cappedLevel;
-                    showToast(
-                        $t("techCrystals.budgetReachedToast") +
-                            "\n" +
-                            $t("techCrystals.budgetCappedToast", {
-                                level: cappedLevel,
-                            }),
-                        {
-                            tone: "negative",
-                            durationMs: 4500,
-                            key: "budget",
-                            action: {
-                                label: $t("techCrystals.ignoreBudgetAction"),
-                                onClick: () => ignoreTechCrystalBudget.set(true),
-                            },
-                        },
-                    );
                 }
             }
         }
@@ -605,7 +633,8 @@
         updateLevels(nextLevels);
         if ($showLevelSplash) {
             const targetNode = getNodeAt(index);
-            if (targetNode) {
+            const newLevel = getLevelFrom(nextLevels, index);
+            if (targetNode && newLevel !== currentLevel) {
                 const totalCrystalDelta =
                     targetLevel > currentLevel
                         ? sumDeltaCosts(nodes, prevLevels, deltas)

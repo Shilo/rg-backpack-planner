@@ -252,6 +252,7 @@
         "subjectPreview": "预览的",
         "budgetReachedToast": "已达科技水晶预算上限",
         "budgetCappedToast": "已限制至等级{level}",
+        "budgetLineageToast": "在预算内提升了血脉等级",
         "ignoreBudgetAction": "忽略预算"
     },
     "buildPresets": {

@@ -252,6 +252,7 @@
         "subjectPreview": "preview",
         "budgetReachedToast": "Tech Crystal budget reached",
         "budgetCappedToast": "Capped to level {level}",
+        "budgetLineageToast": "Leveled lineage within budget",
         "ignoreBudgetAction": "Ignore budget"
     },
     "buildPresets": {

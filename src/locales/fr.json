@@ -252,6 +252,7 @@
         "subjectPreview": "de l'aperçu",
         "budgetReachedToast": "Budget de Cristaux Tech atteint",
         "budgetCappedToast": "Limité au niveau {level}",
+        "budgetLineageToast": "Lignée nivelée dans le budget",
         "ignoreBudgetAction": "Ignorer le budget"
     },
     "buildPresets": {
