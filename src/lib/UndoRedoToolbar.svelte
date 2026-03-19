@@ -33,6 +33,8 @@
     $: activeTreeLevelsTotal = sumLevels(activeLevels);
     $: canResetTree = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
     $: treeIcon = getTreeIcon(treeId);
+    $: showUndoRedo = $canUndo || $canRedo;
+    $: showToolbar = showUndoRedo || canResetTree;
 
     let applyGeneration = 0;
 
@@ -89,37 +91,43 @@
     }
 </script>
 
-<div class="undo-redo-toolbar">
-    <Button
-        class="undo-redo-toolbar__btn"
-        aria-label={$t("common.undo")}
-        tooltipText={$t("common.undo")}
-        icon={ArrowArcLeftIcon}
-        small
-        disabled={!$canUndo}
-        on:click={handleUndo}
-    />
-    <Button
-        class="undo-redo-toolbar__btn"
-        aria-label={$t("common.redo")}
-        tooltipText={$t("common.redo")}
-        icon={ArrowArcRightIcon}
-        small
-        disabled={!$canRedo}
-        on:click={handleRedo}
-    />
-    <span class="undo-redo-toolbar__divider"></span>
-    <Button
-        class="undo-redo-toolbar__btn"
-        aria-label={$t("modal.resetTree.optionsLabel", { treeName })}
-        tooltipText={$t("modal.resetTree.optionsLabel", { treeName })}
-        icon={TrashSimpleIcon}
-        iconClass="undo-redo-toolbar__icon-reset"
-        small
-        disabled={!canResetTree}
-        on:click={handleReset}
-    />
-</div>
+{#if showToolbar}
+    <div class="undo-redo-toolbar">
+        {#if showUndoRedo}
+            <div class="undo-redo-toolbar__group">
+                <Button
+                    class="undo-redo-toolbar__btn"
+                    aria-label={$t("common.undo")}
+                    tooltipText={$t("common.undo")}
+                    icon={ArrowArcLeftIcon}
+                    small
+                    disabled={!$canUndo}
+                    on:click={handleUndo}
+                />
+                <Button
+                    class="undo-redo-toolbar__btn"
+                    aria-label={$t("common.redo")}
+                    tooltipText={$t("common.redo")}
+                    icon={ArrowArcRightIcon}
+                    small
+                    disabled={!$canRedo}
+                    on:click={handleRedo}
+                />
+                <span class="undo-redo-toolbar__divider"></span>
+            </div>
+        {/if}
+        <Button
+            class="undo-redo-toolbar__btn"
+            aria-label={$t("modal.resetTree.optionsLabel", { treeName })}
+            tooltipText={$t("modal.resetTree.optionsLabel", { treeName })}
+            icon={TrashSimpleIcon}
+            iconClass="undo-redo-toolbar__icon-reset"
+            small
+            disabled={!canResetTree}
+            on:click={handleReset}
+        />
+    </div>
+{/if}
 
 <style>
     .undo-redo-toolbar {
@@ -131,6 +139,12 @@
         border-radius: 999px;
         padding: 0;
         height: 38px;
+    }
+
+    .undo-redo-toolbar__group {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
     }
 
     .undo-redo-toolbar__divider {
