@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from "svelte";
+    import { onDestroy, onMount, tick } from "svelte";
     import { fly } from "svelte/transition";
     import {
         dismissToast,
@@ -60,6 +60,50 @@
         }
     }
 
+    let regionEl: HTMLDivElement | null = null;
+    let extraBottom = 0;
+    const GAP = 8;
+
+    function checkOverlap() {
+        if (!regionEl) return;
+        const toolbar = document.querySelector<HTMLElement>(".bot-right-actions");
+        if (!toolbar) {
+            extraBottom = 0;
+            return;
+        }
+        const tb = toolbar.getBoundingClientRect();
+        if (tb.width === 0 || tb.height === 0) {
+            extraBottom = 0;
+            return;
+        }
+        // Check each actual toast element, not the full-width region
+        const toasts = regionEl.querySelectorAll<HTMLElement>(".toast");
+        let maxShift = 0;
+        toasts.forEach((toast) => {
+            const tr = toast.getBoundingClientRect();
+            // Undo current offset to get the natural (un-shifted) position
+            const natTop = tr.top + extraBottom;
+            const natBottom = tr.bottom + extraBottom;
+            const hOverlap = Math.min(tr.right, tb.right) - Math.max(tr.left, tb.left);
+            const vOverlap = Math.min(natBottom, tb.bottom) - Math.max(natTop, tb.top);
+            if (hOverlap > 0 && vOverlap > 0) {
+                maxShift = Math.max(maxShift, vOverlap + GAP);
+            }
+        });
+        extraBottom = maxShift;
+    }
+
+    $: if ($toastStore.length > 0) {
+        tick().then(checkOverlap);
+    } else {
+        extraBottom = 0;
+    }
+
+    onMount(() => {
+        window.addEventListener("resize", checkOverlap);
+        return () => window.removeEventListener("resize", checkOverlap);
+    });
+
     onDestroy(clearAllTimeouts);
 </script>
 {#snippet toastContent(toast: Toast)}
@@ -83,7 +127,13 @@
 {/snippet}
 
 {#if !paused}
-    <div class="toast-region" aria-live="polite" aria-atomic="true">
+    <div
+        class="toast-region"
+        aria-live="polite"
+        aria-atomic="true"
+        bind:this={regionEl}
+        style={extraBottom > 0 ? `--toast-extra-bottom: ${extraBottom}px` : ''}
+    >
         {#each $toastStore as toast (toast.id)}
             {#if toast.action}
                 <div
@@ -132,7 +182,8 @@
         bottom: calc(
             (var(--bar-pad, 0px) + var(--tab-height, 0px)) *
                 (1 - var(--is-keyboard-open, 0)) + var(--spacing-lg) +
-                var(--keyboard-height, 0px) + var(--safe-bottom, 0px)
+                var(--keyboard-height, 0px) + var(--safe-bottom, 0px) +
+                var(--toast-extra-bottom, 0px)
         );
         display: flex;
         flex-direction: column;

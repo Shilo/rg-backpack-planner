@@ -1,21 +1,24 @@
-# What's New in v1.0.8
+# What's New in v1.1.0
 -# Changes since v1.0.0
 https://rgbp.app
 
 ## New
+- Added undo and redo support with a floating toolbar to step backward and forward through node level changes.
+- Added Ctrl+Z and Ctrl+Y keyboard shortcuts for undo and redo.
 - Added Tech Crystal budget enforcement that caps node upgrades when they would exceed your set budget, with a toast action to override.
 - Added "Ignore Tech Crystal Budget" toggle in Node settings to disable budget enforcement.
 - Added a redesigned Tech Crystals button with clearer budget indication.
 - Added a debug information panel in the About settings page for troubleshooting device and app state.
 
 ## Improved
+- Improved budget enforcement to partially level nodes in sync lineage mode instead of blocking entirely when the budget would be exceeded.
+- Updated the onboarding tutorial to cover the new undo, redo, and reset toolbar.
+- Refined Tech Crystal display with unified animations for budget and spent changes.
 - Added swipe-down gesture to dismiss action sheet modals for smoother navigation.
 - Expanded the debug information panel with system details, reorganized sections, and improved formatting.
 - Improved performance by deferring system info loading until the section is opened.
 - Added a toast notification when reaching the leaf cap in a skill tree.
-- Improved toast notifications with a stacked layout and pill-shaped action buttons for clearer interaction.
-- Improved toast notifications to automatically deduplicate, replacing stale messages instead of stacking.
-- Refined Tech Crystal display colors for better readability.
+- Improved toast notifications with a stacked layout, pill-shaped action buttons, and automatic deduplication.
 
 ## Fixed
 - Fixed dropdown menus sometimes appearing above their trigger buttons instead of below.
