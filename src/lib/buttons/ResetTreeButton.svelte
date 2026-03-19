@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TrashSimpleIcon } from "phosphor-svelte";
+    import { ArrowCounterClockwiseIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { getTreeIcon } from "../customIcons";
     import { openResetTreeChoicesModal } from "../resetTreeModal";
@@ -53,7 +53,7 @@
 <Button
     on:click={handleReset}
     description={$t("settings.resetTreeDescription")}
-    icon={TrashSimpleIcon}
+    icon={ArrowCounterClockwiseIcon}
     arrow="right"
     negative
     {disabled}

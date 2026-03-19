@@ -3,7 +3,7 @@
     import {
         ArrowArcLeftIcon,
         ArrowArcRightIcon,
-        TrashSimpleIcon,
+        ArrowCounterClockwiseIcon,
     } from "phosphor-svelte";
     import type { LevelsByIndex, Node } from "../types/tree";
     import Button from "./Button.svelte";
@@ -120,7 +120,7 @@
             class="undo-redo-toolbar__btn"
             aria-label={$t("modal.resetTree.optionsLabel", { treeName })}
             tooltipText={$t("modal.resetTree.optionsLabel", { treeName })}
-            icon={TrashSimpleIcon}
+            icon={ArrowCounterClockwiseIcon}
             iconClass="undo-redo-toolbar__icon-reset"
             small
             disabled={!canResetTree}
