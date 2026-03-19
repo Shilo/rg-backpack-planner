@@ -1,27 +1,26 @@
-# What's New in v1.0.6
--# Changes since v1.0.3
+# What's New in v1.0.7
+-# Changes since v1.0.0
 https://rgbp.app
+
+## New
+- Added Tech Crystal budget enforcement that caps node upgrades when they would exceed your set budget, with a toast action to override.
+- Added "Ignore Tech Crystal Budget" toggle in Node settings to disable budget enforcement.
+- Added a redesigned Tech Crystals button with clearer budget indication.
+- Added a debug information panel in the About settings page for troubleshooting device and app state.
 
 ## Improved
 - Added swipe-down gesture to dismiss action sheet modals for smoother navigation.
 - Expanded the debug information panel with system details, reorganized sections, and improved formatting.
 - Improved performance by deferring system info loading until the section is opened.
 - Added a toast notification when reaching the leaf cap in a skill tree.
+- Improved toast notifications with a stacked layout and pill-shaped action buttons for clearer interaction.
+- Improved toast notifications to automatically deduplicate, replacing stale messages instead of stacking.
+- Refined Tech Crystal display colors for better readability.
 
 ## Fixed
 - Fixed dropdown menus sometimes appearing above their trigger buttons instead of below.
 - Fixed service worker updates not applying reliably.
-
----
-
-# What's New in v1.0.3
--# Changes since v1.0.0
-https://rgbp.app
-
-## New
-- Added a debug information panel in the About settings page for troubleshooting device and app state.
-
-## Fixed
+- Fixed nested context menus not handling backdrop clicks and Escape key correctly.
 - Fixed Japanese and other non-English speakers being stuck on English after the app added their language in a previous update.
 - Fixed Chrome's automatic page translation breaking the app's interface on Android devices.
 

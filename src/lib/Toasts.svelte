@@ -1,7 +1,13 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { fly } from "svelte/transition";
-    import { dismissToast, suppressedExitIds, toastStore, toastsPaused, type Toast } from "./toast";
+    import {
+        dismissToast,
+        suppressedExitIds,
+        toastStore,
+        toastsPaused,
+        type Toast,
+    } from "./toast";
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
@@ -93,7 +99,9 @@
                     {/if}
                     {#if toast.showSpinner}
                         <Spinner
-                            tone={toast.tone === "negative" ? "negative" : "default"}
+                            tone={toast.tone === "negative"
+                                ? "negative"
+                                : "default"}
                         />
                     {/if}
                     <span class="toast__message">{toast.message}</span>
@@ -242,7 +250,9 @@
         text-transform: uppercase;
         letter-spacing: 0.03em;
         white-space: nowrap;
-        transition: opacity 0.15s, transform 0.15s;
+        transition:
+            opacity 0.15s,
+            transform 0.15s;
         color: var(--accent);
         border: var(--border-width) solid
             color-mix(in srgb, var(--accent) 30%, transparent);
