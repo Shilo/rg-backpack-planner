@@ -1,6 +1,7 @@
 <script lang="ts">
     import {
         ArrowUpIcon,
+        CurrencyCircleDollarIcon,
         GraphIcon,
         TagIcon,
         MedalIcon,
@@ -21,6 +22,7 @@
     } from "../nodeLevelBehaviorStore";
     import { showTier } from "../showTierStore";
     import { showLevelSplash } from "../showLevelSplashStore";
+    import { ignoreTechCrystalBudget } from "../ignoreTechCrystalBudgetStore";
     import { showSkillName } from "../showSkillNameStore";
     import { onMount } from "svelte";
     import { t } from "svelte-whisper";
@@ -94,6 +96,15 @@
             selectedIndex={nodeLevelBehaviorSelectedIndex}
             onChange={handleNodeLevelBehaviorChange}
             description={$t("settings.nodeLevelBehaviorDescription")}
+        />
+        <ToggleSwitch
+            checked={$ignoreTechCrystalBudget}
+            label={$t("settings.ignoreTechCrystalBudget")}
+            ariaLabel={$t("settings.ignoreTechCrystalBudget")}
+            description={$t("settings.ignoreTechCrystalBudgetDescription")}
+            icon={CurrencyCircleDollarIcon as unknown as Component}
+            onToggle={() =>
+                ignoreTechCrystalBudget.set(!$ignoreTechCrystalBudget)}
         />
     </SideMenuSection>
 
