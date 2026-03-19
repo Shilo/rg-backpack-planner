@@ -4,7 +4,7 @@
     import type { TabConfig } from "./types/tree";
     import SideMenu from "./lib/SideMenu.svelte";
     import AppTitleDisplay from "./lib/AppTitleDisplay.svelte";
-    import ActiveTreeResetButton from "./lib/ActiveTreeResetButton.svelte";
+    import UndoRedoToolbar from "./lib/UndoRedoToolbar.svelte";
     import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
     import PreviewBuildIndicator from "./lib/PreviewBuildIndicator.svelte";
     import OnboardingOverlay from "./lib/onboarding/OnboardingOverlay.svelte";
@@ -666,14 +666,14 @@
         </div>
         <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
             <TechCrystalDisplay />
-            <ActiveTreeResetButton
+            <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
+                onUndo={(idx) => { activeTreeIndex = idx; }}
+                onRedo={(idx) => { activeTreeIndex = idx; }}
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
                 onReset={() => tabsRef?.resetActiveTree?.()}
-                treeId={tabs[activeTreeIndex]?.id ?? ""}
                 treeNodes={tabs[activeTreeIndex]?.nodes ?? []}
                 treeLabel={activeTreeName}
-                forceShow={!$onboardingSeen}
             />
         </div>
     </div>
