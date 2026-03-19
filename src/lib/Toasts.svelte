@@ -226,7 +226,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: var(--spacing-sm) var(--spacing-md);
+        padding: var(--spacing-md) var(--spacing-lg);
         border-radius: 999px;
         font-size: var(--font-xs);
         font-weight: var(--weight-bold);
@@ -241,13 +241,9 @@
     }
 
     .toast--negative .toast__action {
-        color: var(--accent);
-        border-color: color-mix(
-            in srgb,
-            var(--accent) 30%,
-            transparent
-        );
-        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--text);
+        border-color: color-mix(in srgb, var(--text) 30%, transparent);
+        background: color-mix(in srgb, var(--text) 8%, transparent);
     }
 
     @media (hover: hover) {
