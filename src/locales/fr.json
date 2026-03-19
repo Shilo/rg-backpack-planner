@@ -23,7 +23,9 @@
         "close": "Fermer",
         "none": "Aucun",
         "copy": "Copier",
-        "download": "Télécharger"
+        "download": "Télécharger",
+        "undo": "Annuler",
+        "redo": "Rétablir"
     },
     "sideMenu": {
         "tabs": {

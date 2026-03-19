@@ -39,12 +39,12 @@ assert.strictEqual(
     "canUndo should be true after pushSnapshot",
 );
 
-// 4. undo restores previous state and returns activeTreeIndex
+// 4. undo restores previous state and returns activeTreeIndex of the undone action
 const undoResult = undoHistory.undo();
 assert.strictEqual(
     undoResult,
-    0,
-    "undo should return the activeTreeIndex of the restored snapshot",
+    1,
+    "undo should return the activeTreeIndex where the undone action happened",
 );
 assert.deepStrictEqual(
     get(treeLevels),
@@ -140,13 +140,13 @@ assert.deepStrictEqual(
     "clearHistory should capture the current state as present",
 );
 
-// 9. FIFO eviction at 30 entries
+// 9. FIFO eviction at 50 entries
 treeLevels.set([[0, 0], [0, 0], [0, 0]]);
 techCrystalsOwned.set(0);
 undoHistory.clearHistory(0);
 
-// Push 31 additional snapshots (present becomes entry 0, then we push 31 more)
-for (let i = 1; i <= 31; i++) {
+// Push 51 additional snapshots (present becomes entry 0, then we push 51 more)
+for (let i = 1; i <= 51; i++) {
     treeLevels.set([[i, i], [i, i], [i, i]]);
     techCrystalsOwned.set(i * 10);
     undoHistory.pushSnapshot(0);
@@ -155,8 +155,8 @@ for (let i = 1; i <= 31; i++) {
 const historyState = get(undoHistory);
 assert.strictEqual(
     historyState.past.length,
-    30,
-    "past should be capped at MAX_HISTORY (30)",
+    50,
+    "past should be capped at MAX_HISTORY (50)",
 );
 // The oldest entry (the clearHistory snapshot, i=0) should be evicted.
 // Entry i=1 should now be the oldest entry remaining in past.
@@ -199,7 +199,7 @@ console.log("    \u2713 undo makes canRedo true");
 console.log("    \u2713 redo restores state and returns activeTreeIndex");
 console.log("    \u2713 pushSnapshot after undo clears redo stack");
 console.log("    \u2713 clearHistory resets all stacks");
-console.log("    \u2713 FIFO eviction at 30 entries");
+console.log("    \u2713 FIFO eviction at 50 entries");
 console.log("    \u2713 undo when past is empty is a no-op");
 console.log("    \u2713 redo when future is empty is a no-op");
 console.log("  \u2713 undoHistory\n");

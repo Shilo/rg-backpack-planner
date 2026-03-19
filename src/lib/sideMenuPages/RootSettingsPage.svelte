@@ -61,7 +61,7 @@
 
 <SettingsPage>
     <SideMenuSection title={$t("sideMenu.sections.build")}>
-        <TechCrystalsButton disabled={$isPreviewMode} />
+        <TechCrystalsButton disabled={$isPreviewMode} {activeTreeIndex} />
         <BuildPresetsButton disabled={$isPreviewMode} />
         <div class="button-group build-share-row">
             <ShareBuildButton

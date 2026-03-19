@@ -42,21 +42,21 @@ undoHistory.pushSnapshot(1);
 setTreeState(2, [1, 2, 3]);
 undoHistory.pushSnapshot(2);
 
-// Undo should return tree 2's snapshot (which was tree 1 state)
+// Undo should return the tab where the undone action happened (tree 2)
 let idx = undoHistory.undo();
-assert.strictEqual(idx, 1, "undo from tree 2 should return tree 1 index");
+assert.strictEqual(idx, 2, "undo from tree 2 should return tree 2 index (where the action was)");
 assert.deepStrictEqual(get(treeLevels)[1].slice(0, 3), [5, 15, 25], "tree 1 levels should be restored after undo");
 // Tree 2 should be back to zeros
 assert.deepStrictEqual(get(treeLevels)[2].slice(0, 3), [0, 0, 0], "tree 2 levels should be zeros after undo");
 
-// Undo again — should return tree 0
+// Undo again — undoing the tree 1 action, so returns tree 1
 idx = undoHistory.undo();
-assert.strictEqual(idx, 0, "second undo should return tree 0 index");
+assert.strictEqual(idx, 1, "second undo should return tree 1 index (where the action was)");
 assert.deepStrictEqual(get(treeLevels)[0].slice(0, 3), [10, 20, 30], "tree 0 levels should be restored");
 // Tree 1 should be back to zeros
 assert.deepStrictEqual(get(treeLevels)[1].slice(0, 3), [0, 0, 0], "tree 1 should be zeros after second undo");
 
-// Undo one more — back to initial state (all zeros)
+// Undo one more — undoing the tree 0 action, returns tree 0
 idx = undoHistory.undo();
 assert.strictEqual(idx, 0, "third undo should return tree 0 index");
 assert.deepStrictEqual(get(treeLevels)[0].slice(0, 3), [0, 0, 0], "tree 0 should be zeros after full undo");
@@ -225,31 +225,31 @@ resetAll();
 setTechCrystalsOwned(10000);
 undoHistory.clearHistory(0);
 
-// Simulate rapid clicking: 50 level changes
-for (let i = 1; i <= 50; i++) {
+// Simulate rapid clicking: 70 level changes
+for (let i = 1; i <= 70; i++) {
     setTreeState(0, [i]);
     undoHistory.pushSnapshot(0);
 }
 
-// Should be capped at 30 past entries
+// Should be capped at 50 past entries
 const rapidState = get(undoHistory);
-assert.strictEqual(rapidState.past.length, 30, "past capped at 30 after 50 pushes");
+assert.strictEqual(rapidState.past.length, 50, "past capped at 50 after 70 pushes");
 
-// Undo all 30 entries
-for (let i = 0; i < 30; i++) {
+// Undo all 50 entries
+for (let i = 0; i < 50; i++) {
     undoHistory.undo();
 }
 
-// After 30 undos, we should be at the oldest surviving snapshot
-// The 50th push is present, 30 undos should get us back to entry 20
-assert.strictEqual(get(canUndo), false, "no more undo after 30 undos");
+// After 50 undos, we should be at the oldest surviving snapshot
+// The 70th push is present, 50 undos should get us back to entry 20
+assert.strictEqual(get(canUndo), false, "no more undo after 50 undos");
 assert.strictEqual(get(treeLevels)[0][0], 20, "oldest surviving snapshot has level 20");
 
-// Redo all 30 back
-for (let i = 0; i < 30; i++) {
+// Redo all 50 back
+for (let i = 0; i < 50; i++) {
     undoHistory.redo();
 }
-assert.strictEqual(get(treeLevels)[0][0], 50, "redo all returns to level 50");
+assert.strictEqual(get(treeLevels)[0][0], 70, "redo all returns to level 70");
 assert.strictEqual(get(canRedo), false, "no more redo");
 
 console.log("  ✓ rapid sequential actions respect FIFO cap and undo/redo correctly");
@@ -339,18 +339,18 @@ undoHistory.pushSnapshot(2);
 setTreeState(0, [25]);
 undoHistory.pushSnapshot(0);
 
-// Undo sequence: should return indices 0, 2, 1, 0
+// Undo sequence: returns the tab where each undone action happened: 0, 2, 1, 0
 idx = undoHistory.undo();
-assert.strictEqual(idx, 2, "undo 1: returns tree 2 index");
+assert.strictEqual(idx, 0, "undo 1: returns tree 0 (where last action was)");
 
 idx = undoHistory.undo();
-assert.strictEqual(idx, 1, "undo 2: returns tree 1 index");
+assert.strictEqual(idx, 2, "undo 2: returns tree 2 (where that action was)");
 
 idx = undoHistory.undo();
-assert.strictEqual(idx, 0, "undo 3: returns tree 0 index");
+assert.strictEqual(idx, 1, "undo 3: returns tree 1 (where that action was)");
 
 idx = undoHistory.undo();
-assert.strictEqual(idx, 0, "undo 4: returns tree 0 index (initial)");
+assert.strictEqual(idx, 0, "undo 4: returns tree 0 (where that action was)");
 
 console.log("  ✓ activeTreeIndex tracked correctly for tab auto-switching");
 

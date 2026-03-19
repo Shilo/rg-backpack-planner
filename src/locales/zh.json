@@ -23,7 +23,9 @@
         "close": "关闭",
         "none": "无",
         "copy": "复制",
-        "download": "下载"
+        "download": "下载",
+        "undo": "撤销",
+        "redo": "重做"
     },
     "sideMenu": {
         "tabs": {

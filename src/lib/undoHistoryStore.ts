@@ -3,12 +3,17 @@ import { treeLevels } from "./treeLevelsStore";
 import { techCrystalsOwned, setTechCrystalsOwned } from "./techCrystalStore";
 import type { LevelsByIndex } from "../types/tree";
 
-const MAX_HISTORY = 30;
+const MAX_HISTORY = 50;
 
 export type Snapshot = {
     treeLevels: LevelsByIndex[];
     techCrystalsOwned: number;
     activeTreeIndex: number;
+};
+
+export type UndoRedoResult = {
+    activeTreeIndex: number;
+    apply: () => void;
 };
 
 type UndoHistory = {
@@ -60,27 +65,48 @@ function createUndoHistoryStore() {
         },
 
         undo(): number | null {
+            const result = this.undoDeferred();
+            if (result == null) return null;
+            result.apply();
+            return result.activeTreeIndex;
+        },
+
+        redo(): number | null {
+            const result = this.redoDeferred();
+            if (result == null) return null;
+            result.apply();
+            return result.activeTreeIndex;
+        },
+
+        /** Like undo(), but does not apply the snapshot. Caller must call result.apply(). */
+        undoDeferred(): UndoRedoResult | null {
             let snapshotToApply: Snapshot | null = null;
+            let actionTreeIndex: number | null = null;
             store.update((state) => {
                 if (state.past.length === 0 || state.present == null)
                     return state;
                 const prev = state.past[state.past.length - 1];
                 const newPast = state.past.slice(0, -1);
                 snapshotToApply = prev;
+                actionTreeIndex = state.present.activeTreeIndex;
                 return {
                     past: newPast,
                     present: prev,
                     future: [...state.future, state.present],
                 };
             });
-            if (snapshotToApply != null) {
-                applySnapshot(snapshotToApply);
-                return (snapshotToApply as Snapshot).activeTreeIndex;
+            if (snapshotToApply != null && actionTreeIndex != null) {
+                const snap = snapshotToApply as Snapshot;
+                return {
+                    activeTreeIndex: actionTreeIndex,
+                    apply: () => applySnapshot(snap),
+                };
             }
             return null;
         },
 
-        redo(): number | null {
+        /** Like redo(), but does not apply the snapshot. Caller must call result.apply(). */
+        redoDeferred(): UndoRedoResult | null {
             let snapshotToApply: Snapshot | null = null;
             store.update((state) => {
                 if (state.future.length === 0 || state.present == null)
@@ -95,8 +121,11 @@ function createUndoHistoryStore() {
                 };
             });
             if (snapshotToApply != null) {
-                applySnapshot(snapshotToApply);
-                return (snapshotToApply as Snapshot).activeTreeIndex;
+                const snap = snapshotToApply as Snapshot;
+                return {
+                    activeTreeIndex: snap.activeTreeIndex,
+                    apply: () => applySnapshot(snap),
+                };
             }
             return null;
         },

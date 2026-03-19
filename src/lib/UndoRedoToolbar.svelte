@@ -1,5 +1,10 @@
 <script lang="ts">
-    import { ArrowArcLeftIcon, ArrowArcRightIcon, TrashSimpleIcon } from "phosphor-svelte";
+    import { tick } from "svelte";
+    import {
+        ArrowArcLeftIcon,
+        ArrowArcRightIcon,
+        TrashSimpleIcon,
+    } from "phosphor-svelte";
     import type { LevelsByIndex, Node } from "../types/tree";
     import Button from "./Button.svelte";
     import { undoHistory, canUndo, canRedo } from "./undoHistoryStore";
@@ -16,6 +21,10 @@
     export let treeNodes: Node[] = [];
     export let treeLabel = "";
     export let treeId = "";
+    export let activeTreeIndex = 0;
+
+    /** Half of Tree.svelte's `in:fade` duration — enough for tree to be visible */
+    const TREE_FADE_MS = 150;
 
     $: trimmedTreeLabel = treeLabel.trim();
     $: treeName = trimmedTreeLabel
@@ -25,14 +34,46 @@
     $: canResetTree = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
     $: treeIcon = getTreeIcon(treeId);
 
-    function handleUndo() {
-        const idx = undoHistory.undo();
-        if (idx != null) onUndo?.(idx);
+    let applyGeneration = 0;
+
+    function waitForFrame(): Promise<void> {
+        return new Promise((resolve) => requestAnimationFrame(() => resolve()));
     }
 
-    function handleRedo() {
-        const idx = undoHistory.redo();
-        if (idx != null) onRedo?.(idx);
+    function waitForFade(): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, TREE_FADE_MS));
+    }
+
+    async function handleUndo() {
+        const result = undoHistory.undoDeferred();
+        if (result == null) return;
+        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+        onUndo?.(result.activeTreeIndex);
+        const gen = ++applyGeneration;
+        await tick();
+        if (switchedTab) {
+            await waitForFade();
+        } else {
+            await waitForFrame();
+        }
+        if (gen !== applyGeneration) return;
+        result.apply();
+    }
+
+    async function handleRedo() {
+        const result = undoHistory.redoDeferred();
+        if (result == null) return;
+        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+        onRedo?.(result.activeTreeIndex);
+        const gen = ++applyGeneration;
+        await tick();
+        if (switchedTab) {
+            await waitForFade();
+        } else {
+            await waitForFrame();
+        }
+        if (gen !== applyGeneration) return;
+        result.apply();
     }
 
     function handleReset() {
@@ -51,7 +92,8 @@
 <div class="undo-redo-toolbar">
     <Button
         class="undo-redo-toolbar__btn"
-        aria-label="Undo"
+        aria-label={$t("common.undo")}
+        tooltipText={$t("common.undo")}
         icon={ArrowArcLeftIcon}
         small
         disabled={!$canUndo}
@@ -59,13 +101,14 @@
     />
     <Button
         class="undo-redo-toolbar__btn"
-        aria-label="Redo"
+        aria-label={$t("common.redo")}
+        tooltipText={$t("common.redo")}
         icon={ArrowArcRightIcon}
         small
         disabled={!$canRedo}
         on:click={handleRedo}
     />
-    <span class="undo-redo-toolbar__divider" />
+    <span class="undo-redo-toolbar__divider"></span>
     <Button
         class="undo-redo-toolbar__btn"
         aria-label={$t("modal.resetTree.optionsLabel", { treeName })}
@@ -82,26 +125,26 @@
     .undo-redo-toolbar {
         display: flex;
         align-items: center;
-        gap: 2px;
+        gap: var(--spacing-sm);
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
         border-radius: 999px;
-        padding: 0 3px;
+        padding: 0;
+        height: 38px;
     }
 
     .undo-redo-toolbar__divider {
         width: 1px;
         height: 20px;
         background: var(--border);
-        margin: 0 1px;
+        margin: 0 var(--spacing-sm);
     }
 
     :global(.undo-redo-toolbar__btn) {
         border-radius: 999px !important;
         border: none !important;
         background: transparent !important;
-        padding-top: 6px !important;
-        padding-bottom: 6px !important;
+        padding: var(--spacing-md) !important;
     }
 
     :global(.undo-redo-toolbar__btn:not(:disabled):hover) {

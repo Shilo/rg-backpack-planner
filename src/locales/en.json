@@ -23,7 +23,9 @@
         "close": "Close",
         "none": "None",
         "copy": "Copy",
-        "download": "Download"
+        "download": "Download",
+        "undo": "Undo",
+        "redo": "Redo"
     },
     "sideMenu": {
         "tabs": {
@@ -242,7 +244,7 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Tech Crystals\nspent",
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
-        "spentLabel": "Tech Crystals Spent / Owned",
+        "spentLabel": "Tech Crystals Spent and Owned",
         "budgetHint": "Change spending budget",
         "changeOwnedTooltip": "Change {subject} Tech Crystal owned (budget)",
         "ownedModalTitle": "Tech Crystals Owned",
@@ -251,9 +253,7 @@
         "subjectYour": "your",
         "subjectPreview": "preview",
         "budgetReachedToast": "Tech Crystal budget reached",
-        "budgetCappedToast": "Capped to level {level}",
-        "budgetLineageToast": "Leveled lineage within budget",
-        "ignoreBudgetAction": "Ignore budget"
+        "budgetCappedToast": "Capped to level {level}"
     },
     "buildPresets": {
         "changeTooltip": "Change build preset",

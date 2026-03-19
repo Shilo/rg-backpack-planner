@@ -541,6 +541,7 @@
         ensureInstallListeners();
 
         // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
+        let undoRedoApplyGen = 0;
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.repeat) return;
 
@@ -559,14 +560,52 @@
 
                 if (isUndo && get(canUndo)) {
                     e.preventDefault();
-                    const idx = undoHistory.undo();
-                    if (idx != null) activeTreeIndex = idx;
+                    const result = undoHistory.undoDeferred();
+                    if (result != null) {
+                        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+                        activeTreeIndex = result.activeTreeIndex;
+                        const gen = ++undoRedoApplyGen;
+                        const TREE_FADE_MS = 150;
+                        tick().then(() => {
+                            if (gen !== undoRedoApplyGen) return;
+                            if (switchedTab) {
+                                setTimeout(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                }, TREE_FADE_MS);
+                            } else {
+                                requestAnimationFrame(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                });
+                            }
+                        });
+                    }
                     return;
                 }
                 if (isRedo && get(canRedo)) {
                     e.preventDefault();
-                    const idx = undoHistory.redo();
-                    if (idx != null) activeTreeIndex = idx;
+                    const result = undoHistory.redoDeferred();
+                    if (result != null) {
+                        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+                        activeTreeIndex = result.activeTreeIndex;
+                        const gen = ++undoRedoApplyGen;
+                        const TREE_FADE_MS = 150;
+                        tick().then(() => {
+                            if (gen !== undoRedoApplyGen) return;
+                            if (switchedTab) {
+                                setTimeout(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                }, TREE_FADE_MS);
+                            } else {
+                                requestAnimationFrame(() => {
+                                    if (gen !== undoRedoApplyGen) return;
+                                    result.apply();
+                                });
+                            }
+                        });
+                    }
                     return;
                 }
             }
@@ -696,9 +735,10 @@
             <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
         </div>
         <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
-            <TechCrystalDisplay />
+            <TechCrystalDisplay {activeTreeIndex} />
             <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
+                {activeTreeIndex}
                 onUndo={(idx) => { activeTreeIndex = idx; }}
                 onRedo={(idx) => { activeTreeIndex = idx; }}
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}

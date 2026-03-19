@@ -12,6 +12,7 @@
 
     export let disabled: boolean | undefined = false;
     export let tooltipSubject = "";
+    export let activeTreeIndex = 0;
 
     // When disabled (preview mode), read from active preset's stored buildCode
     // When enabled (personal mode), use reactive stores
@@ -28,7 +29,7 @@
 
 <Button
     on:click={() => {
-        openTechCrystalsOwnedModal(owned, resolvedTooltipSubject);
+        openTechCrystalsOwnedModal(owned, resolvedTooltipSubject, activeTreeIndex);
     }}
     tooltipText={$t("techCrystals.changeOwnedTooltip", {
         subject: resolvedTooltipSubject,

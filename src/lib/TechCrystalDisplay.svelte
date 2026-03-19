@@ -7,6 +7,8 @@
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
 
+    export let activeTreeIndex = 0;
+
     $: hasOwned = $techCrystalsOwned > 0;
     $: tooltipText = hasOwned
         ? $t("techCrystals.displayTooltipSpentOwned")
@@ -60,7 +62,7 @@
         type="button"
         aria-label={$t("techCrystals.displayTooltipSpentOwned")}
         {tooltipText}
-        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned)}
+        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeTreeIndex)}
         arrow="right"
     >
         <span
