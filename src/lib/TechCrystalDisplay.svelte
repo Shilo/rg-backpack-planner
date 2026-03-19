@@ -17,6 +17,7 @@
     type AnimState = "" | "spend" | "free" | "overspend";
     let animState: AnimState = "";
     let prevSpent = NaN;
+    let prevOwned = NaN;
     let ready = false;
 
     onMount(() => {
@@ -26,14 +27,21 @@
         return () => cancelAnimationFrame(id);
     });
 
-    $: isOverspent = $techCrystalsSpent > $techCrystalsOwned && hasOwned;
+    function resolveAnim(spent: number, owned: number): AnimState {
+        const isOverBudget = spent > owned && owned > 0;
+        if (isOverBudget) return "overspend";
+        if (spent > prevSpent) return "spend";
+        return "free";
+    }
 
-    $: if (ready && $techCrystalsSpent !== prevSpent) {
-        const isIncrement = $techCrystalsSpent > prevSpent;
+    $: if (ready && ($techCrystalsSpent !== prevSpent || $techCrystalsOwned !== prevOwned)) {
+        const anim = resolveAnim($techCrystalsSpent, $techCrystalsOwned);
         prevSpent = $techCrystalsSpent;
-        triggerAnim(isIncrement && isOverspent ? "overspend" : isIncrement ? "spend" : "free");
+        prevOwned = $techCrystalsOwned;
+        triggerAnim(anim);
     } else {
         prevSpent = $techCrystalsSpent;
+        prevOwned = $techCrystalsOwned;
     }
 
     let wrapperEl: HTMLDivElement;
