@@ -53,7 +53,6 @@
     class="currency-anim-wrapper"
     class:anim-pulse={animState === "spend" || animState === "free"}
     class:anim-shake={animState === "overspend"}
-    style:--flash-color={animState === "free" ? "var(--accent)" : "var(--accent-danger)"}
     on:animationend|self={onAnimEnd}
 >
     <Button
@@ -68,7 +67,6 @@
             class="currency-spent"
             class:is-negative={$techCrystalsSpent > $techCrystalsOwned &&
                 hasOwned}
-            class:anim-flash={animState !== ""}
         >
             {formatNumber($techCrystalsSpent)}
         </span>
@@ -142,10 +140,6 @@
         animation: currency-shake 450ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .currency-spent.anim-flash {
-        animation: currency-text-flash 300ms ease;
-    }
-
     @keyframes currency-pulse {
         0% {
             transform: scale(1);
@@ -182,12 +176,6 @@
         }
         100% {
             transform: translateX(0);
-        }
-    }
-
-    @keyframes currency-text-flash {
-        50% {
-            color: var(--flash-color);
         }
     }
 
