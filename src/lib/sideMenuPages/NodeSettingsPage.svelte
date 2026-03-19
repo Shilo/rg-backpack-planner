@@ -1,7 +1,7 @@
 <script lang="ts">
     import {
         ArrowUpIcon,
-        CurrencyCircleDollarIcon,
+        CoinsIcon,
         GraphIcon,
         TagIcon,
         MedalIcon,
@@ -102,7 +102,7 @@
             label={$t("settings.ignoreTechCrystalBudget")}
             ariaLabel={$t("settings.ignoreTechCrystalBudget")}
             description={$t("settings.ignoreTechCrystalBudgetDescription")}
-            icon={CurrencyCircleDollarIcon as unknown as Component}
+            icon={CoinsIcon as unknown as Component}
             onToggle={() =>
                 ignoreTechCrystalBudget.set(!$ignoreTechCrystalBudget)}
         />
