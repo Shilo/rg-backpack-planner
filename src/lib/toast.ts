@@ -20,10 +20,11 @@ export type Toast = {
     showIcon: boolean;
     showSpinner: boolean;
     action?: ToastAction;
+    key?: string;
 };
 
 type ToastOptions = Partial<
-    Pick<Toast, "tone" | "durationMs" | "showIcon" | "showSpinner" | "action">
+    Pick<Toast, "tone" | "durationMs" | "showIcon" | "showSpinner" | "action" | "key">
 >;
 
 const DEFAULT_DURATION_MS = 2600;
@@ -34,11 +35,13 @@ function createId() {
 
 export const toastStore = writable<Toast[]>([]);
 export const toastsPaused = writable(false);
+export const suppressedExitIds = new Set<string>();
 
 export function showToast(
     message: string,
     options?: ToastOptions,
 ) {
+    const key = options?.key;
     const toast: Toast = {
         id: createId(),
         message,
@@ -47,9 +50,17 @@ export function showToast(
         showIcon: options?.showIcon ?? true,
         showSpinner: options?.showSpinner ?? false,
         action: options?.action,
+        key,
     };
     toastStore.update((toasts) => {
-        const updated = [...toasts, toast];
+        const existing = toasts.find(
+            (t) => t.message === message || (key && t.key === key),
+        );
+        if (existing) suppressedExitIds.add(existing.id);
+        const deduped = existing
+            ? toasts.filter((t) => t.id !== existing.id)
+            : toasts;
+        const updated = [...deduped, toast];
         return updated.slice(-3); // Keep only the last 3 toasts
     });
     return toast.id;

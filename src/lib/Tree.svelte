@@ -563,6 +563,7 @@
                             {
                                 tone: "negative",
                                 durationMs: 4500,
+                                key: "budget",
                                 action: {
                                     label: $t("techCrystals.ignoreBudgetAction"),
                                     onClick: () => ignoreTechCrystalBudget.set(true),
@@ -590,6 +591,7 @@
                         {
                             tone: "negative",
                             durationMs: 4500,
+                            key: "budget",
                             action: {
                                 label: $t("techCrystals.ignoreBudgetAction"),
                                 onClick: () => ignoreTechCrystalBudget.set(true),

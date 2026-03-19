@@ -1,10 +1,18 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { fly } from "svelte/transition";
-    import { dismissToast, toastStore, toastsPaused, type Toast } from "./toast";
+    import { dismissToast, suppressedExitIds, toastStore, toastsPaused, type Toast } from "./toast";
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
+
+    function toastExit(node: Element, { id }: { id: string }) {
+        if (suppressedExitIds.has(id)) {
+            suppressedExitIds.delete(id);
+            return { duration: 0 };
+        }
+        return fly(node, { y: 8, duration: 150 });
+    }
 
     const timeouts = new Map<string, number>();
 
@@ -59,7 +67,7 @@
                 style="--toast-duration: {toast.durationMs}ms"
                 role={toast.action ? undefined : "button"}
                 tabindex={toast.action ? undefined : 0}
-                out:fly={{ y: 8, duration: 150 }}
+                out:toastExit={{ id: toast.id }}
                 on:click={() => {
                     if (toast.action) return;
                     triggerHaptic();
