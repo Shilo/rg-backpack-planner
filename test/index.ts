@@ -26,6 +26,7 @@ const TEST_FILES = [
     "calculateTechCrystalsSpent.test.ts",
     "budgetEnforcement.test.ts",
     "ignoreTechCrystalBudgetStore.test.ts",
+    "undoHistory.test.ts",
     "resetTreeChoiceModel.test.ts",
 
     // 3. Serialization & Storage
