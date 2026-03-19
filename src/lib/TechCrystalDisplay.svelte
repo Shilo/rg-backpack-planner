@@ -123,11 +123,11 @@
     }
 
     .currency-separator {
-        color: var(--text-muted);
+        color: var(--text-disabled);
     }
 
     .currency-owned {
-        color: var(--text-muted);
+        color: var(--text-disabled);
     }
 
     /* ═══ Value-change animations ═══ */

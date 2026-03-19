@@ -91,11 +91,11 @@
     }
 
     .tech-crystals-separator {
-        color: var(--text-muted);
+        color: var(--text-disabled);
     }
 
     .tech-crystals-owned {
-        color: var(--text-muted);
+        color: var(--text-disabled);
     }
 
     :global(.button-icon-filled) {
