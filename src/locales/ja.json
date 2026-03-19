@@ -175,6 +175,8 @@
         "colorblindTreeColors": "色覚対応ツリー",
         "colorblindTreeColorsTooltip": "第一色覚・第二色覚・第三色覚異常に対応：オレンジを赤橙色に、黄色をより鮮明な黄色にシフトします",
         "nodePrimaryActionDescription": "ノードをタップした時の増加量",
+        "ignoreTechCrystalBudget": "テッククリスタル予算を無視",
+        "ignoreTechCrystalBudgetDescription": "消費上限を超えてノードをレベルアップ",
         "nodeLevelBehaviorDescription": "1つのノードか系統全体を上げる",
         "showTierDescription": "各ノードにバッジを重ねて表示",
         "showSkillNameDescription": "各ノードに名前ラベルを重ねて表示",
@@ -240,14 +242,16 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "テッククリスタル\n消費済み",
         "displayTooltipSpentOwned": "テッククリスタル\n消費 / 所持",
-        "spentLabel": "テッククリスタル消費と所持",
+        "spentLabel": "テッククリスタル消費 / 所持",
         "budgetHint": "消費予算を変更",
         "changeOwnedTooltip": "{subject}テッククリスタルの所持数（予算）を変更",
         "ownedModalTitle": "テッククリスタル所持数",
         "ownedModalTitleWithSubject": "テッククリスタル所持数（{subject}）",
         "ownedModalInput": "{subject}の予算を設定",
         "subjectYour": "あなたの",
-        "subjectPreview": "プレビューの"
+        "subjectPreview": "プレビューの",
+        "budgetReachedToast": "テッククリスタル予算に到達",
+        "budgetCappedToast": "レベル{level}に制限"
     },
     "buildPresets": {
         "changeTooltip": "ビルドプリセットを変更",

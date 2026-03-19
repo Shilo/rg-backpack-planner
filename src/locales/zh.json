@@ -175,6 +175,8 @@
         "colorblindTreeColors": "色觉辅助树",
         "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色",
         "nodePrimaryActionDescription": "点击节点时的增量",
+        "ignoreTechCrystalBudget": "忽略科技水晶预算",
+        "ignoreTechCrystalBudgetDescription": "超出消费上限升级节点",
         "nodeLevelBehaviorDescription": "单独升级一个节点或整条谱系",
         "showTierDescription": "在每个节点上叠加显示徽章",
         "showSkillNameDescription": "在每个节点上叠加显示名称标签",
@@ -240,14 +242,16 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "科技水晶\n已消耗",
         "displayTooltipSpentOwned": "科技水晶\n已消耗 / 拥有",
-        "spentLabel": "科技水晶消耗与拥有",
+        "spentLabel": "科技水晶消耗 / 拥有",
         "budgetHint": "更改消费预算",
         "changeOwnedTooltip": "更改{subject}科技水晶拥有量（预算）",
         "ownedModalTitle": "拥有的科技水晶",
         "ownedModalTitleWithSubject": "拥有的科技水晶（{subject}）",
         "ownedModalInput": "设置{subject}预算",
         "subjectYour": "你的",
-        "subjectPreview": "预览的"
+        "subjectPreview": "预览的",
+        "budgetReachedToast": "已达科技水晶预算上限",
+        "budgetCappedToast": "已限制至等级{level}"
     },
     "buildPresets": {
         "changeTooltip": "更改构建预设",

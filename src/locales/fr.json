@@ -175,6 +175,8 @@
         "colorblindTreeColors": "Arbre daltonien",
         "colorblindTreeColorsTooltip": "Ajuste les couleurs des zones de l'arbre pour la protanopie, la deutéranopie et la tritanopie : l'orange passe au rouge-orangé, le jaune à un jaune plus pur",
         "nodePrimaryActionDescription": "Incrément par touche sur un nœud",
+        "ignoreTechCrystalBudget": "Ignorer le budget de Cristaux Tech",
+        "ignoreTechCrystalBudgetDescription": "Monter les nœuds au-delà de la limite de dépenses",
         "nodeLevelBehaviorDescription": "Monter un seul nœud ou toute sa lignée",
         "showTierDescription": "Superposition de badge sur chaque nœud",
         "showSkillNameDescription": "Superposition du nom sur chaque nœud",
@@ -240,14 +242,16 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Cristaux Tech\ndépensés",
         "displayTooltipSpentOwned": "Cristaux Tech\ndépensés / possédés",
-        "spentLabel": "Cristaux Tech dépensés et possédés",
+        "spentLabel": "Cristaux Tech dépensés / possédés",
         "budgetHint": "Modifier le budget de dépenses",
         "changeOwnedTooltip": "Modifier les Cristaux Tech possédés ({subject}) (budget)",
         "ownedModalTitle": "Cristaux Tech possédés",
         "ownedModalTitleWithSubject": "Cristaux Tech possédés ({subject})",
         "ownedModalInput": "Définir le budget {subject}",
         "subjectYour": "votre",
-        "subjectPreview": "de l'aperçu"
+        "subjectPreview": "de l'aperçu",
+        "budgetReachedToast": "Budget de Cristaux Tech atteint",
+        "budgetCappedToast": "Limité au niveau {level}"
     },
     "buildPresets": {
         "changeTooltip": "Changer de preset de build",

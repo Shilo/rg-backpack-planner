@@ -175,6 +175,8 @@
         "colorblindTreeColors": "Colorblind Tree",
         "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow",
         "nodePrimaryActionDescription": "Increment per tap on a node",
+        "ignoreTechCrystalBudget": "Ignore Tech Crystal Budget",
+        "ignoreTechCrystalBudgetDescription": "Level nodes beyond spending limit",
         "nodeLevelBehaviorDescription": "Level one node or its full lineage",
         "showTierDescription": "Badge overlay on each node",
         "showSkillNameDescription": "Name label overlay on each node",
@@ -240,14 +242,16 @@
     "techCrystals": {
         "displayTooltipSpentOnly": "Tech Crystals\nspent",
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
-        "spentLabel": "Tech Crystals Spent and Owned",
+        "spentLabel": "Tech Crystals Spent / Owned",
         "budgetHint": "Change spending budget",
         "changeOwnedTooltip": "Change {subject} Tech Crystal owned (budget)",
         "ownedModalTitle": "Tech Crystals Owned",
         "ownedModalTitleWithSubject": "Tech Crystals Owned ({subject})",
         "ownedModalInput": "Set {subject} budget",
         "subjectYour": "your",
-        "subjectPreview": "preview"
+        "subjectPreview": "preview",
+        "budgetReachedToast": "Tech Crystal budget reached",
+        "budgetCappedToast": "Capped to level {level}"
     },
     "buildPresets": {
         "changeTooltip": "Change build preset",
