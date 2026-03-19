@@ -14,7 +14,7 @@
         ? $t("techCrystals.displayTooltipSpentOwned")
         : $t("techCrystals.displayTooltipSpentOnly");
 
-    type AnimState = "" | "spend" | "free" | "overspend";
+    type AnimState = "" | "pulse" | "overspend";
     let animState: AnimState = "";
     let prevSpent = NaN;
     let prevOwned = NaN;
@@ -27,18 +27,11 @@
         return () => cancelAnimationFrame(id);
     });
 
-    function resolveAnim(spent: number, owned: number): AnimState {
-        const isOverBudget = spent > owned && owned > 0;
-        if (isOverBudget) return "overspend";
-        if (spent > prevSpent) return "spend";
-        return "free";
-    }
-
     $: if (ready && ($techCrystalsSpent !== prevSpent || $techCrystalsOwned !== prevOwned)) {
-        const anim = resolveAnim($techCrystalsSpent, $techCrystalsOwned);
+        const isOverBudget = $techCrystalsSpent > $techCrystalsOwned && $techCrystalsOwned > 0;
         prevSpent = $techCrystalsSpent;
         prevOwned = $techCrystalsOwned;
-        triggerAnim(anim);
+        triggerAnim(isOverBudget ? "overspend" : "pulse");
     } else {
         prevSpent = $techCrystalsSpent;
         prevOwned = $techCrystalsOwned;
@@ -61,7 +54,7 @@
 <div
     bind:this={wrapperEl}
     class="currency-anim-wrapper"
-    class:anim-pulse={animState === "spend" || animState === "free"}
+    class:anim-pulse={animState === "pulse"}
     class:anim-shake={animState === "overspend"}
     on:animationend|self={onAnimEnd}
 >
