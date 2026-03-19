@@ -11,8 +11,8 @@ const resetTreeSheetSource = readFileSync(
     resolve("src/lib/modals/ResetTreeChoicesModal.svelte"),
     "utf8",
 );
-const activeTreeResetButtonSource = readFileSync(
-    resolve("src/lib/ActiveTreeResetButton.svelte"),
+const undoRedoToolbarSource = readFileSync(
+    resolve("src/lib/UndoRedoToolbar.svelte"),
     "utf8",
 );
 const appSource = readFileSync(resolve("src/App.svelte"), "utf8");
@@ -72,21 +72,21 @@ if (!/export function getTreeIcon\b/.test(customIconsSource)) {
     );
 }
 
-if (!/export let treeId\b/.test(activeTreeResetButtonSource)) {
+if (!/TrashSimpleIcon/.test(undoRedoToolbarSource)) {
     throw new Error(
-        "ActiveTreeResetButton should accept treeId so it can resolve the active tree icon.",
+        "UndoRedoToolbar should use TrashSimpleIcon for the reset button.",
     );
 }
 
-if (!/getTreeIcon\(treeId\)/.test(activeTreeResetButtonSource)) {
+if (!/openResetTreeChoicesModal/.test(undoRedoToolbarSource)) {
     throw new Error(
-        "ActiveTreeResetButton should reuse the shared getTreeIcon helper.",
+        "UndoRedoToolbar should use the shared reset tree choice modal helper.",
     );
 }
 
-if (!/treeId=\{tabs\[activeTreeIndex\]\?\.id \?\? \"\"\}/.test(appSource)) {
+if (!/UndoRedoToolbar/.test(appSource)) {
     throw new Error(
-        "App should pass the active tab id into ActiveTreeResetButton.",
+        "App should use UndoRedoToolbar instead of ActiveTreeResetButton.",
     );
 }
 

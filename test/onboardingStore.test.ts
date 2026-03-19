@@ -104,9 +104,11 @@ if (!/import\s+\{[\s\S]*onboardingSeen[\s\S]*\}\s+from\s+"\.\/lib\/onboarding\/o
     throw new Error("App.svelte should import onboardingSeen so onboarding can force-show the top-right HUD.");
 }
 
-if (!/forceShow=\{!\$onboardingSeen\}/.test(appSource)) {
+// UndoRedoToolbar is always visible — no forceShow needed.
+// Verify UndoRedoToolbar is present in App.svelte (it replaces forceShow-based ActiveTreeResetButton).
+if (!/UndoRedoToolbar/.test(appSource)) {
     throw new Error(
-        "App.svelte should force-show the top-right reset action while onboarding is active.",
+        "App.svelte should use UndoRedoToolbar (always visible, no forceShow needed for onboarding).",
     );
 }
 
@@ -134,21 +136,11 @@ if (
     );
 }
 
-const activeTreeResetButtonPath = resolve("src/lib/ActiveTreeResetButton.svelte");
-const activeTreeResetButtonSource = readFileSync(
-    activeTreeResetButtonPath,
-    "utf8",
-);
-
-if (!/export let forceShow\b/.test(activeTreeResetButtonSource)) {
+// UndoRedoToolbar is always visible (no forceShow needed) — verify it's used in App.svelte
+const appSvelteSource = readFileSync(resolve("src/App.svelte"), "utf8");
+if (!/UndoRedoToolbar/.test(appSvelteSource)) {
     throw new Error(
-        "ActiveTreeResetButton should accept forceShow so onboarding can reveal the full top-right HUD.",
-    );
-}
-
-if (!/forceShow\s*\|\|/.test(activeTreeResetButtonSource)) {
-    throw new Error(
-        "ActiveTreeResetButton should keep rendering when forceShow is enabled during onboarding.",
+        "App should use UndoRedoToolbar (always visible, replacing forceShow-based ActiveTreeResetButton).",
     );
 }
 
