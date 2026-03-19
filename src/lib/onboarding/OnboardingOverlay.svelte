@@ -8,7 +8,7 @@
     import { t } from "svelte-whisper";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
-    import { overlapArea, type Rect } from "./paneLayout";
+    import type { Rect } from "./paneLayout";
     import {
         createOnboardingSteps,
         type OnboardingTarget,
@@ -53,7 +53,6 @@
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
     let previewSpotlightRect: Rect = { ...EMPTY_RECT };
     let toolbarSpotlightRect: Rect = { ...EMPTY_RECT };
-    let toolbarShift = 0;
     let bottombarSpotlightRect: Rect = { ...EMPTY_RECT };
 
     $: targetNode = nodes[targetNodeIndex];
@@ -312,13 +311,14 @@
     $: ringWidth = ringRight - ringLeft;
     $: ringHeight = ringBottom - ringTop;
 
+    $: effectiveFooterBottom = bottomPadding + footerExtraBottom;
     $: footerReservedSpace = Math.max(
-        bottomPadding,
-        footerHeight + bottomPadding + panePadding,
+        effectiveFooterBottom,
+        footerHeight + effectiveFooterBottom + panePadding,
     );
     $: {
         void layoutVersion;
-        const footerTop = viewportHeight - bottomPadding - footerHeight;
+        const footerTop = viewportHeight - effectiveFooterBottom - footerHeight;
         footerBounds = {
             top: footerTop - panePadding,
             bottom: viewportHeight,
@@ -327,37 +327,34 @@
         };
     }
 
+    let footerExtraBottom = 0;
     $: {
         void layoutVersion;
         const botActions = document.querySelector<HTMLElement>(".bot-right-actions");
         const footerNote = overlayEl?.querySelector<HTMLElement>(".footer-note");
-        if (botActions && footerNote && toolbarSpotlightRect.bottom > 0) {
-            const overlayRect = overlayEl!.getBoundingClientRect();
-            const footerRect = footerNote.getBoundingClientRect();
-            const fRect: Rect = {
-                top: footerRect.top - overlayRect.top,
-                bottom: footerRect.bottom - overlayRect.top,
-                left: footerRect.left - overlayRect.left,
-                right: footerRect.right - overlayRect.left,
-            };
-            const naturalRect: Rect = {
-                top: toolbarSpotlightRect.top + toolbarShift,
-                bottom: toolbarSpotlightRect.bottom + toolbarShift,
-                left: toolbarSpotlightRect.left,
-                right: toolbarSpotlightRect.right,
-            };
-            const overlap = overlapArea(naturalRect, fRect);
-            if (overlap > 0) {
-                const shift = naturalRect.bottom - fRect.top + 8;
-                toolbarShift = shift;
-                botActions.style.transform = `translateY(-${shift}px)`;
-            } else {
-                toolbarShift = 0;
-                botActions.style.transform = "";
-            }
-        } else if (botActions) {
-            toolbarShift = 0;
-            botActions.style.transform = "";
+        if (botActions && footerNote && overlayEl) {
+            const pad = 8;
+            const oRect = overlayEl.getBoundingClientRect();
+            const tb = botActions.getBoundingClientRect();
+            const fn = footerNote.getBoundingClientRect();
+            const natTop = fn.top - oRect.top + footerExtraBottom - pad;
+            const natBottom = fn.bottom - oRect.top + footerExtraBottom + pad;
+            const natLeft = fn.left - oRect.left - pad;
+            const natRight = fn.right - oRect.left + pad;
+            const tbTop = tb.top - oRect.top;
+            const tbBottom = tb.bottom - oRect.top;
+            const tbLeft = tb.left - oRect.left;
+            const tbRight = tb.right - oRect.left;
+            const hOverlap =
+                Math.min(natRight, tbRight) - Math.max(natLeft, tbLeft);
+            const vOverlap =
+                Math.min(natBottom, tbBottom) - Math.max(natTop, tbTop);
+            footerExtraBottom =
+                hOverlap > 0 && vOverlap > 0
+                    ? natBottom - tbTop + pad
+                    : 0;
+        } else {
+            footerExtraBottom = 0;
         }
     }
 
@@ -446,8 +443,6 @@
                 "onboarding-step-preview",
                 "onboarding-step-bottombar",
             );
-            const botActions = document.querySelector<HTMLElement>(".bot-right-actions");
-            if (botActions) botActions.style.transform = "";
             window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);
             if (layoutRefreshFrame !== null) {
@@ -552,7 +547,7 @@
     <div
         class="footer-wrap"
         bind:clientHeight={footerHeight}
-        style="bottom: {bottomPadding}px;"
+        style="bottom: {bottomPadding + footerExtraBottom}px;"
     >
         <OnboardingFooterNote
             stepNumber={currentStepIndex + 1}
