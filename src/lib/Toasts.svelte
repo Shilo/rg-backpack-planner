@@ -62,51 +62,37 @@
 
     onDestroy(clearAllTimeouts);
 </script>
+{#snippet toastContent(toast: Toast)}
+    <div class="toast__row">
+        {#if toast.showIcon}
+            <span class="toast__icon" aria-hidden="true">
+                {#if toast.tone === "negative"}
+                    <WarningCircleIcon size={20} weight="fill" />
+                {:else}
+                    <CheckCircleIcon size={20} weight="fill" />
+                {/if}
+            </span>
+        {/if}
+        {#if toast.showSpinner}
+            <Spinner
+                tone={toast.tone === "negative" ? "negative" : "default"}
+            />
+        {/if}
+        <span class="toast__message">{toast.message}</span>
+    </div>
+{/snippet}
 
 {#if !paused}
     <div class="toast-region" aria-live="polite" aria-atomic="true">
         {#each $toastStore as toast (toast.id)}
-            <div
-                class="toast toast--{toast.tone}"
-                class:toast--permanent={toast.durationMs === 0}
-                class:toast--has-action={toast.action}
-                style="--toast-duration: {toast.durationMs}ms"
-                role={toast.action ? undefined : "button"}
-                tabindex={toast.action ? undefined : 0}
-                out:toastExit={{ id: toast.id }}
-                on:click={() => {
-                    if (toast.action) return;
-                    triggerHaptic();
-                    dismissToast(toast.id);
-                }}
-                on:keydown={(event) => {
-                    if (toast.action) return;
-                    if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        dismissToast(toast.id);
-                    }
-                }}
-            >
-                <div class="toast__row">
-                    {#if toast.showIcon}
-                        <span class="toast__icon" aria-hidden="true">
-                            {#if toast.tone === "negative"}
-                                <WarningCircleIcon size={20} weight="fill" />
-                            {:else}
-                                <CheckCircleIcon size={20} weight="fill" />
-                            {/if}
-                        </span>
-                    {/if}
-                    {#if toast.showSpinner}
-                        <Spinner
-                            tone={toast.tone === "negative"
-                                ? "negative"
-                                : "default"}
-                        />
-                    {/if}
-                    <span class="toast__message">{toast.message}</span>
-                </div>
-                {#if toast.action}
+            {#if toast.action}
+                <div
+                    class="toast toast--{toast.tone} toast--has-action"
+                    class:toast--permanent={toast.durationMs === 0}
+                    style="--toast-duration: {toast.durationMs}ms"
+                    out:toastExit={{ id: toast.id }}
+                >
+                    {@render toastContent(toast)}
                     <div class="toast__action-row">
                         <button
                             class="toast__action"
@@ -119,8 +105,21 @@
                             {toast.action.label}
                         </button>
                     </div>
-                {/if}
-            </div>
+                </div>
+            {:else}
+                <button
+                    class="toast toast--{toast.tone}"
+                    class:toast--permanent={toast.durationMs === 0}
+                    style="--toast-duration: {toast.durationMs}ms"
+                    out:toastExit={{ id: toast.id }}
+                    on:click={() => {
+                        triggerHaptic();
+                        dismissToast(toast.id);
+                    }}
+                >
+                    {@render toastContent(toast)}
+                </button>
+            {/if}
         {/each}
     </div>
 {/if}
@@ -172,6 +171,14 @@
     }
 
     .toast:not(.toast--has-action) {
+        cursor: pointer;
+    }
+
+    button.toast {
+        appearance: none;
+        font: inherit;
+        color: inherit;
+        text-align: left;
         cursor: pointer;
     }
 

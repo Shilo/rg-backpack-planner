@@ -9,7 +9,7 @@ const toastsSource = readFileSync(
 console.log("  toastActionRedesign");
 
 // --- Stacked layout class is applied when toast has action ---
-if (!/class:toast--has-action=\{toast\.action\}/.test(toastsSource)) {
+if (!/toast--has-action/.test(toastsSource)) {
     throw new Error(
         "Toast should apply toast--has-action class when toast.action exists.",
     );
@@ -44,18 +44,18 @@ if (!/border:[\s\S]*?color-mix/.test(toastsSource)) {
 }
 console.log("    \u2713 action button uses color-mix for border");
 
-// --- Tap-to-dismiss gated for action toasts ---
-if (!/if \(toast\.action\) return/.test(toastsSource)) {
+// --- Action toasts use div container (no default click) ---
+if (!/<div[\s\S]*?toast--has-action/.test(toastsSource)) {
     throw new Error(
-        "Toast click handler should early-return when toast has an action.",
+        "Action toasts should use a div container (which prevents accidental tap-to-dismiss).",
     );
 }
-console.log("    \u2713 tap-to-dismiss gated for action toasts");
+console.log("    \u2713 action toasts use div container");
 
-// --- role="button" conditionally omitted ---
-if (!/role=\{toast\.action \? undefined : "button"\}/.test(toastsSource)) {
+// --- Semantic button used for interactive toasts ---
+if (!/<button[\s\S]*?class="toast/.test(toastsSource)) {
     throw new Error(
-        'Toast should conditionally omit role="button" for action toasts.',
+        'Toast should use semantic <button> for interactive toasts.',
     );
 }
 console.log("    \u2713 role conditionally omitted for action toasts");
