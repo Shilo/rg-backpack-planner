@@ -65,7 +65,7 @@ if (!/import\s+RootNodeIcon\s+from\s+"\.\/RootNodeIcon\.svelte"/.test(customIcon
     );
 }
 
-if (!/export\s+\{\s*TechCrystalIcon,\s*RootNodeIcon\s*\}/.test(customIconsSource)) {
+if (!/export\s+\{[^}]*TechCrystalIcon[^}]*RootNodeIcon[^}]*\}/.test(customIconsSource)) {
     throw new Error(
         "customIcons should re-export RootNodeIcon alongside TechCrystalIcon.",
     );
