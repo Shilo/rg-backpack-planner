@@ -15,7 +15,7 @@ if (
 }
 
 if (
-    !/function handleBackgroundSecondary\(\) \{[\s\S]*?isRootTarget\(lastBackgroundPointerTarget\)[\s\S]*?\)\s*return;/m.test(
+    !/function handleBackgroundSecondary\(\)[\s\S]*?\{[\s\S]*?isRootTarget\(lastBackgroundPointerTarget\)[\s\S]*?\)\s*return\s*false?;/m.test(
         treeTabsSource,
     )
 ) {

@@ -808,6 +808,7 @@
         const capturedIds = [...pointers.keys(), ...middleClickCandidates.keys()];
         pointers.clear();
         middleClickCandidates.clear();
+        clearLongPress(longPressState);
         if (viewportEl) {
             for (const pointerId of capturedIds) {
                 try {
@@ -1241,7 +1242,28 @@
         if (!hadMiddle && !hadPointer) return;
 
         clearLongPress(longPressState);
-        if (pointers.size === 0 && middleClickCandidates.size === 0) {
+        if (pointers.size === 1 && middleClickCandidates.size === 0) {
+            // Transition remaining pointer to single-pointer pan mode
+            // (e.g. one finger lost during a pinch).
+            const remainingId = Array.from(pointers.keys())[0];
+            const remaining = Array.from(pointers.values())[0];
+            primaryPointerId = remainingId;
+            primaryStart = {
+                x: remaining.x,
+                y: remaining.y,
+                nodeIndex: remaining.nodeIndex,
+                isRoot: remaining.isRoot,
+            };
+            panActive = false;
+            panStart = {
+                x: remaining.x,
+                y: remaining.y,
+                offsetX,
+                offsetY,
+            };
+            pinchStart = null;
+            multiTouchGestureActive = false;
+        } else if (pointers.size === 0 && middleClickCandidates.size === 0) {
             panStart = null;
             pinchStart = null;
             primaryPointerId = null;
@@ -1557,6 +1579,8 @@
 
         return () => {
             hasMounted = false;
+            clearLongPress(longPressState);
+            cancelActiveGestures();
             window.removeEventListener("resize", handleResize);
             if (resizeObserver) {
                 resizeObserver.disconnect();

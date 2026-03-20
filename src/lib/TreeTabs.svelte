@@ -278,15 +278,15 @@
         treeRef?.cancelGestures?.();
     }
 
-    function handleBackgroundSecondary() {
+    function handleBackgroundSecondary(): boolean | void {
         if (
             isContextMenuTarget(lastBackgroundPointerTarget) ||
             isNodeTarget(lastBackgroundPointerTarget) ||
             isRootTarget(lastBackgroundPointerTarget)
         )
-            return;
+            return false;
         const activeTab = tabs[activeIndex];
-        if (!activeTab) return;
+        if (!activeTab) return false;
         hideTooltip();
         tabContextMenu = {
             id: activeTab.id,

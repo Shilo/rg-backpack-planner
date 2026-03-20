@@ -44,10 +44,13 @@ export function primary(
  * use:secondary — fires on contextmenu (mouse) or long-press (all pointer types).
  * Click/contextmenu suppressed after long-press fires via longPress.ts.
  * Touch modifier always "none" even if physical modifier held.
+ *
+ * Handler may return false to indicate it declined the action (e.g. target
+ * was not relevant). When false, haptic and pointerup suppression are skipped.
  */
 export function secondary(
     node: HTMLElement,
-    handler: (action: InputAction) => void,
+    handler: (action: InputAction) => boolean | void,
 ): ActionReturn {
     const pressState: LongPressState = { timer: null, fired: false };
     let startX = 0;
@@ -60,8 +63,8 @@ export function secondary(
         const modifier = resolveModifier(state);
         const action = resolveAction(2, modifier, "mouse");
         if (!action) return;
+        if (handler(action) === false) return;
         triggerHaptic();
-        handler(action);
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -71,13 +74,13 @@ export function secondary(
         startY = event.clientY;
 
         startLongPress(pressState, () => {
-            suppressNextPointerUp(event.pointerId);
             const device = event.pointerType === "touch" ? "touch" : "mouse";
             const modifier = device === "touch" ? "none" : resolveModifier(get(inputStore));
             const action = resolveAction(2, modifier, device);
             if (!action) return false;
+            if (handler(action) === false) return false;
+            suppressNextPointerUp(event.pointerId);
             triggerHaptic();
-            handler(action);
         });
     }
 
