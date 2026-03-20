@@ -71,12 +71,12 @@
 
     $: incrementOp = (() => {
         const action = resolveAction(0, modifier, "mouse");
-        return action ? resolveNodeAction(action, $nodePrimaryAction) : null;
+        return action ? resolveNodeAction(action) : null;
     })();
 
     $: decrementOp = (() => {
         const action = resolveAction(1, modifier, "mouse");
-        return action ? resolveNodeAction(action, $nodePrimaryAction) : null;
+        return action ? resolveNodeAction(action) : null;
     })();
 
     // Only compute expensive previews for the hovered node (not all mounted nodes).

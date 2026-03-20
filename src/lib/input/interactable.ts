@@ -57,7 +57,9 @@ export function secondary(
 
     function onContextMenu(event: Event) {
         event.preventDefault();
-        const action = resolveAction(2, "none", "mouse");
+        const state = get(inputStore);
+        const modifier = resolveModifier(state);
+        const action = resolveAction(2, modifier, "mouse");
         if (!action) return;
         triggerHaptic();
         handler(action);

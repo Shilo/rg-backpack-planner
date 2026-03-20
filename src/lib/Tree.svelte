@@ -1153,7 +1153,7 @@
                 const modifier = resolveModifier($inputStore);
                 const action = resolveAction(event.button, modifier, event.pointerType);
                 if (action) {
-                    const nodeOp = resolveNodeAction(action, $nodePrimaryAction);
+                    const nodeOp = resolveNodeAction(action);
                     applyNodeOperation(nodeOp, middleClick.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
                 }
             }
@@ -1185,7 +1185,7 @@
                 const modifier = resolveModifier($inputStore);
                 const action = resolveAction(event.button, modifier, event.pointerType);
                 if (action) {
-                    const nodeOp = resolveNodeAction(action, $nodePrimaryAction);
+                    const nodeOp = resolveNodeAction(action);
                     applyNodeOperation(nodeOp, pointer.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
                 }
             }

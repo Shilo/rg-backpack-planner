@@ -1,6 +1,5 @@
 import type { InputAction } from "./inputAction";
 import type { NodeIndex } from "../../types/tree";
-import { NodePrimaryAction } from "../nodePrimaryActionStore";
 
 export type NodeOperation =
     | { op: "incrementByStore" }
@@ -30,7 +29,6 @@ export type RootOperation =
  */
 export function resolveNodeAction(
     action: InputAction,
-    _store: NodePrimaryAction,
 ): NodeOperation {
     if (action.type === "secondary") {
         return { op: "contextMenu" };
