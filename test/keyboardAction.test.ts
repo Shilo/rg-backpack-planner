@@ -154,6 +154,53 @@ console.log("  isKeyboardAction");
     console.log("    ✓ isKeyboardAction matches action bindings correctly");
 }
 
+// Negated activate pattern (!isKeyboardAction used in ContextMenu, ModalHost, SegmentedControl, ColorPickerDialog)
+{
+    assert.equal(isKeyboardAction(mockEvent({ key: "Escape" }), "activate"), false);
+    assert.equal(isKeyboardAction(mockEvent({ key: "Tab" }), "activate"), false);
+    assert.equal(isKeyboardAction(mockEvent({ key: "Backspace" }), "activate"), false);
+    assert.equal(isKeyboardAction(mockEvent({ key: "x" }), "activate"), false);
+    console.log("    ✓ non-activate keys return false (negation guard)");
+}
+
+// Remaining actions: back, console, redo, screenshot
+{
+    assert.equal(isKeyboardAction(mockEvent({ key: "Backspace" }), "back"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "Enter" }), "back"), false);
+    assert.equal(isKeyboardAction(mockEvent({ key: "`" }), "console"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "Enter" }), "console"), false);
+    assert.equal(isKeyboardAction(mockEvent({ key: "y", ctrlKey: true }), "redo"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "z", ctrlKey: true, shiftKey: true }), "redo"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "y" }), "redo"), false, "y without Ctrl is not redo");
+    assert.equal(isKeyboardAction(mockEvent({ key: "F9" }), "screenshot"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "F1" }), "screenshot"), false);
+    console.log("    ✓ isKeyboardAction covers back, console, redo, screenshot");
+}
+
+// Dismiss ignores modifiers (mirrors resolveKeyboardAction test)
+{
+    assert.equal(isKeyboardAction(mockEvent({ key: "Escape", ctrlKey: true }), "dismiss"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "Escape", shiftKey: true, altKey: true }), "dismiss"), true);
+    console.log("    ✓ isKeyboardAction dismiss ignores modifiers");
+}
+
+// Budget blocked by Ctrl
+{
+    assert.equal(isKeyboardAction(mockEvent({ key: "b" }), "budget"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "b", ctrlKey: true }), "budget"), false, "Ctrl+B is not budget");
+    console.log("    ✓ isKeyboardAction budget respects ctrl constraint");
+}
+
+// focusTrap: Tab only (distinct from cycle which also matches ArrowLeft/ArrowRight)
+{
+    assert.equal(isKeyboardAction(mockEvent({ key: "Tab" }), "focusTrap"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "Tab", shiftKey: true }), "focusTrap"), true, "Shift+Tab is also focusTrap");
+    assert.equal(isKeyboardAction(mockEvent({ key: "ArrowLeft" }), "focusTrap"), false, "ArrowLeft is NOT focusTrap");
+    assert.equal(isKeyboardAction(mockEvent({ key: "ArrowRight" }), "focusTrap"), false, "ArrowRight is NOT focusTrap");
+    assert.equal(isKeyboardAction(mockEvent({ key: "Enter" }), "focusTrap"), false);
+    console.log("    ✓ isKeyboardAction focusTrap matches Tab only, not arrows");
+}
+
 console.log("  ✓ isKeyboardAction\n");
 
 // --- getCycleDirection ---
@@ -174,15 +221,28 @@ console.log("  keyForAction");
 
 {
     assert.equal(keyForAction("dismiss"), "Escape");
-    assert.equal(keyForAction("confirm"), "Enter");
+    assert.equal(keyForAction("back"), "Backspace");
     assert.equal(keyForAction("cycle"), "Tab");
+    assert.equal(keyForAction("confirm"), "Enter");
+    assert.equal(keyForAction("activate"), "Enter");
+    assert.equal(keyForAction("console"), "`");
+    assert.equal(keyForAction("undo"), "z");
+    assert.equal(keyForAction("redo"), "y");
+    assert.equal(keyForAction("screenshot"), "F9");
+    assert.equal(keyForAction("budget"), "b");
+    assert.equal(keyForAction("focusTrap"), "Tab");
     // Every action in KEYBOARD_ACTION_BINDINGS should return a non-empty string
     const allActions: KeyboardActionType[] = [
-        "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget",
+        "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget", "focusTrap",
     ];
     for (const action of allActions) {
         assert.ok(keyForAction(action).length > 0, `keyForAction("${action}") should return a non-empty string`);
     }
+    // Unknown action throws
+    assert.throws(
+        () => keyForAction("nonexistent" as KeyboardActionType),
+        { message: /No key binding for action/ },
+    );
     console.log("    ✓ keyForAction returns first bound key for each action");
 }
 

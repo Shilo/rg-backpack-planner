@@ -646,7 +646,8 @@
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y",
             "screenshot": "F9",
-            "budget": "B"
+            "budget": "B",
+            "focusTrap": "Tab"
         }
     },
     "systemInfo": {

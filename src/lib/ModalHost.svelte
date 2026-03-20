@@ -146,7 +146,7 @@
     }
 
     function handleModalTabKeydown(event: KeyboardEvent) {
-        if (event.key !== "Tab" || !renderedModal) return;
+        if (!isKeyboardAction(event, "focusTrap") || !renderedModal) return;
         const backdrop = document.querySelector(".modal-backdrop");
         if (!backdrop || !backdrop.contains(document.activeElement)) return;
 
@@ -180,7 +180,7 @@
     function handleKeydown(event: KeyboardEvent) {
         if (!renderedModal) return;
 
-        if (event.key === "Tab") {
+        if (isKeyboardAction(event, "focusTrap")) {
             handleModalTabKeydown(event);
             return;
         }
