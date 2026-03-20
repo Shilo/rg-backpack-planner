@@ -522,6 +522,8 @@
         "keyboardUndoDescription": "Annuler la dernière modification de nœud ou de budget",
         "keyboardRedoLabel": "Rétablir",
         "keyboardRedoDescription": "Rétablir la modification précédemment annulée",
+        "keyboardBudgetLabel": "Budget Cristaux Tech",
+        "keyboardBudgetDescription": "Ouvrir la fenêtre de budget des Cristaux Tech",
         "hudTechCrystalsLabel": "Cristaux Tech (monnaie)",
         "hudTechCrystalsDescription": "Voir les dépenses et définir la quantité possédée",
         "hudRootQuickSettingsLabel": "Nœud racine (centre de l'arbre)",
@@ -642,7 +644,8 @@
             "console": "` (Tilde)",
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y",
-            "screenshot": "F9"
+            "screenshot": "F9",
+            "budget": "B"
         }
     },
     "systemInfo": {

@@ -7,6 +7,7 @@
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
     import { formatCompact } from "./mathUtil";
+    import { getKeyboardActionLabel } from "./input";
 
     export let activeTreeIndex = 0;
 
@@ -64,6 +65,7 @@
         type="button"
         aria-label={$t("techCrystals.displayTooltipSpentOwned")}
         {tooltipText}
+        shortcut={getKeyboardActionLabel("budget", $t)}
         on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeTreeIndex)}
         arrow="right"
     >

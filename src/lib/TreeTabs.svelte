@@ -39,7 +39,8 @@
     import { showToast } from "./toast";
     import { hideTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
-    import { techCrystalsSpentByTree } from "./techCrystalStore";
+    import { techCrystalsSpentByTree, techCrystalsOwned } from "./techCrystalStore";
+    import { openTechCrystalsOwnedModal } from "./techCrystalModal";
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
     import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
@@ -156,6 +157,16 @@
         openRootQuickSettings(rect.left + rect.width / 2, rect.top);
     }
 
+    function handleBudgetKeydown(event: KeyboardEvent) {
+        if (event.key !== "b" && event.key !== "B") return;
+        if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+        if (hasOnboardingOverlay()) return;
+        if (isFormField(document.activeElement)) return;
+        if (event.repeat) return;
+        event.preventDefault();
+        openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeIndex);
+    }
+
     onMount(() => {
         hasMounted = true;
         // Restore active tab from localStorage (only set index, don't call setActive to avoid interfering with tree positioning)
@@ -171,11 +182,13 @@
         window.addEventListener("keydown", handleTabKeydown, true);
         window.addEventListener("keydown", handleBackspaceKeydown, true);
         window.addEventListener("keydown", handleConsoleKeydown, true);
+        window.addEventListener("keydown", handleBudgetKeydown, true);
         if (!tabsBarEl) {
             return () => {
                 window.removeEventListener("keydown", handleTabKeydown, true);
                 window.removeEventListener("keydown", handleBackspaceKeydown, true);
                 window.removeEventListener("keydown", handleConsoleKeydown, true);
+                window.removeEventListener("keydown", handleBudgetKeydown, true);
             };
         }
         const observer = new ResizeObserver(() => {
@@ -187,6 +200,7 @@
             window.removeEventListener("keydown", handleTabKeydown, true);
             window.removeEventListener("keydown", handleBackspaceKeydown, true);
             window.removeEventListener("keydown", handleConsoleKeydown, true);
+            window.removeEventListener("keydown", handleBudgetKeydown, true);
             observer.disconnect();
         };
     });

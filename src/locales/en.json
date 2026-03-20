@@ -522,7 +522,9 @@
         "keyboardUndoDescription": "Undo last node or budget change",
         "keyboardRedoLabel": "Redo",
         "keyboardRedoDescription": "Redo previously undone change",
-        "hudTechCrystalsLabel": "Tech Crystals (Currency)",
+        "keyboardBudgetLabel": "Tech Crystal Budget",
+        "keyboardBudgetDescription": "Open Tech Crystal budget modal",
+        "hudTechCrystalsLabel": "Tech Crystal (Currency)",
         "hudTechCrystalsDescription": "View spent and set owned amount",
         "hudRootQuickSettingsLabel": "Root Node (Tree Center)",
         "hudRootQuickSettingsDescription": "{action} to open Node Quick Settings",
@@ -642,7 +644,8 @@
             "console": "` (Tilde)",
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y",
-            "screenshot": "F9"
+            "screenshot": "F9",
+            "budget": "B"
         }
     },
     "systemInfo": {

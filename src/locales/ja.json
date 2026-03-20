@@ -522,6 +522,8 @@
         "keyboardUndoDescription": "直前のノードまたは予算の変更を元に戻す",
         "keyboardRedoLabel": "やり直す",
         "keyboardRedoDescription": "元に戻した変更をやり直す",
+        "keyboardBudgetLabel": "テッククリスタル予算",
+        "keyboardBudgetDescription": "テッククリスタル予算モーダルを開く",
         "hudTechCrystalsLabel": "テッククリスタル（通貨）",
         "hudTechCrystalsDescription": "消費済みを表示、所持数を設定",
         "hudRootQuickSettingsLabel": "ルートノード（ツリー中央）",
@@ -642,7 +644,8 @@
             "console": "` (チルダ)",
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y",
-            "screenshot": "F9"
+            "screenshot": "F9",
+            "budget": "B"
         }
     },
     "systemInfo": {

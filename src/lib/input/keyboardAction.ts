@@ -9,6 +9,7 @@
  * undo     — Ctrl+Z
  * redo     — Ctrl+Y / Ctrl+Shift+Z
  * screenshot — F9
+ * budget   — B (open tech crystal budget modal)
  */
 export type KeyboardActionType =
     | "dismiss"
@@ -18,7 +19,8 @@ export type KeyboardActionType =
     | "console"
     | "undo"
     | "redo"
-    | "screenshot";
+    | "screenshot"
+    | "budget";
 
 /**
  * Maps a keyboard event to a semantic KeyboardActionType.
@@ -38,5 +40,6 @@ export function resolveKeyboardAction(
     if (mod && key === "z" && !shiftKey) return "undo";
     if (mod && (key === "y" || (key === "z" && shiftKey) || (key === "Z" && shiftKey))) return "redo";
     if (key === "F9") return "screenshot";
+    if (!mod && (key === "b" || key === "B")) return "budget";
     return null;
 }

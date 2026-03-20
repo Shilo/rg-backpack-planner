@@ -92,6 +92,7 @@
     $: keyCycle = getKeyboardActionLabel("cycle", $t);
     $: keyScreenshot = getKeyboardActionLabel("screenshot", $t);
     $: keyConsole = getKeyboardActionLabel("console", $t);
+    $: keyBudget = getKeyboardActionLabel("budget", $t);
     $: keyUndo = getKeyboardActionLabel("undo", $t);
     $: keyRedo = getKeyboardActionLabel("redo", $t);
     $: hudPrimaryAction =
@@ -487,6 +488,22 @@
                             <span class="control-shortcut">{keyRedo}</span>
                         </p>
                     </li>
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <TechCrystalIcon weight="fill" />
+                        </span>
+                        <p class="control-inline">
+                            <span class="control-label"
+                                >{$t("controls.keyboardBudgetLabel")}</span
+                            >
+                            <span class="control-desc"
+                                >{$t(
+                                    "controls.keyboardBudgetDescription",
+                                )}</span
+                            >
+                            <span class="control-shortcut">{keyBudget}</span>
+                        </p>
+                    </li>
                 </ul>
             </Accordion>
         {/if}
@@ -506,6 +523,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudTechCrystalsDescription")}</span
                         >
+                        <span class="control-shortcut">{keyBudget}</span>
                     </p>
                 </li>
                 <li class="control-row">

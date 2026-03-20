@@ -522,6 +522,8 @@
         "keyboardUndoDescription": "撤销上一次节点或预算更改",
         "keyboardRedoLabel": "重做",
         "keyboardRedoDescription": "重做之前撤销的更改",
+        "keyboardBudgetLabel": "科技水晶预算",
+        "keyboardBudgetDescription": "打开科技水晶预算窗口",
         "hudTechCrystalsLabel": "科技水晶（货币）",
         "hudTechCrystalsDescription": "查看已消耗并设置拥有数量",
         "hudRootQuickSettingsLabel": "根节点（树中心）",
@@ -642,7 +644,8 @@
             "console": "` (波浪号)",
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y",
-            "screenshot": "F9"
+            "screenshot": "F9",
+            "budget": "B"
         }
     },
     "systemInfo": {
