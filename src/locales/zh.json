@@ -227,6 +227,8 @@
         "incrementOne": "+1",
         "incrementTen": "+10",
         "incrementTier": "+阶",
+        "decrementTier": "-阶",
+        "min": "最小",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "重置",

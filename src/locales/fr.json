@@ -227,6 +227,8 @@
         "incrementOne": "+1",
         "incrementTen": "+10",
         "incrementTier": "+Palier",
+        "decrementTier": "-Palier",
+        "min": "Min",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "Réinitialiser",
