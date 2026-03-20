@@ -24,6 +24,7 @@ const TEST_FILES = [
     "resolveAction.test.ts",
     "resolveNodeAction.test.ts",
     "inputLabels.test.ts",
+    "keyboardAction.test.ts",
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
     "calculateTechCrystalsSpent.test.ts",

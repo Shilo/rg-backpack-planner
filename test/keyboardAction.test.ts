@@ -1,0 +1,126 @@
+import assert from "node:assert/strict";
+import { Key, canonicalKey, resolveKeyboardAction, KEYBOARD_ACTION_BINDINGS } from "../src/lib/input/keyboardAction.ts";
+
+// --- canonicalKey ---
+console.log("  canonicalKey");
+
+{
+    assert.equal(canonicalKey("z"), "z");
+    assert.equal(canonicalKey("Z"), "z", "uppercase Z normalized to z");
+    assert.equal(canonicalKey("b"), "b");
+    assert.equal(canonicalKey("B"), "b", "uppercase B normalized to b");
+    assert.equal(canonicalKey("`"), "`");
+    assert.equal(canonicalKey(" "), " ");
+    assert.equal(canonicalKey("Escape"), "Escape", "named keys pass through");
+    assert.equal(canonicalKey("ArrowLeft"), "ArrowLeft");
+    assert.equal(canonicalKey("F9"), "F9");
+    console.log("    ✓ normalizes single-char keys to lowercase, passes named keys through");
+}
+
+console.log("  ✓ canonicalKey\n");
+
+// --- resolveKeyboardAction ---
+console.log("  resolveKeyboardAction");
+
+function mockEvent(overrides: Partial<KeyboardEvent>): KeyboardEvent {
+    return {
+        key: "",
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+        altKey: false,
+        ...overrides,
+    } as KeyboardEvent;
+}
+
+// Basic action bindings
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "Escape" })), "dismiss");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "Backspace" })), "back");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "Tab" })), "cycle");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "ArrowLeft" })), "cycle");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "ArrowRight" })), "cycle");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "Enter" })), "confirm");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: " " })), "confirm");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "`" })), "console");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "F9" })), "screenshot");
+    console.log("    ✓ basic action bindings");
+}
+
+// Undo: Ctrl+Z (no shift, no alt)
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "z", ctrlKey: true })), "undo");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "z", metaKey: true })), "undo");
+    console.log("    ✓ Ctrl+Z and Meta+Z → undo");
+}
+
+// Undo blocked by shift or alt
+{
+    assert.notEqual(resolveKeyboardAction(mockEvent({ key: "z", ctrlKey: true, shiftKey: true })), "undo");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "z", ctrlKey: true, altKey: true })), null);
+    console.log("    ✓ Ctrl+Shift+Z → not undo, Ctrl+Alt+Z → null");
+}
+
+// Redo: Ctrl+Y, Ctrl+Shift+Z
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "y", ctrlKey: true })), "redo");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "z", ctrlKey: true, shiftKey: true })), "redo");
+    console.log("    ✓ Ctrl+Y and Ctrl+Shift+Z → redo");
+}
+
+// Redo blocked by alt
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "y", ctrlKey: true, altKey: true })), null);
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "z", ctrlKey: true, shiftKey: true, altKey: true })), null);
+    console.log("    ✓ Ctrl+Alt+Y and Ctrl+Alt+Shift+Z → null");
+}
+
+// Budget: b without Ctrl
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "b" })), "budget");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "b", ctrlKey: true })), null, "Ctrl+B should not trigger budget");
+    console.log("    ✓ b → budget, Ctrl+B → null");
+}
+
+// Caps Lock bugfix: Z without shift should still be undo when Ctrl held
+{
+    assert.equal(
+        resolveKeyboardAction(mockEvent({ key: "Z", ctrlKey: true, shiftKey: false })),
+        "undo",
+        "Caps Lock + Ctrl+Z (event.key='Z', shiftKey=false) should resolve to undo",
+    );
+    console.log("    ✓ Caps Lock + Ctrl+Z → undo (bugfix)");
+}
+
+// Caps Lock bugfix: B without Ctrl should be budget
+{
+    assert.equal(
+        resolveKeyboardAction(mockEvent({ key: "B" })),
+        "budget",
+        "Caps Lock + B (event.key='B') should resolve to budget",
+    );
+    console.log("    ✓ Caps Lock + B → budget (bugfix)");
+}
+
+// Unknown key → null
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "x" })), null);
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "F1" })), null);
+    console.log("    ✓ unknown keys → null");
+}
+
+// Dismiss works regardless of modifiers held
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "Escape", ctrlKey: true })), "dismiss");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "Escape", shiftKey: true, altKey: true })), "dismiss");
+    console.log("    ✓ Escape resolves to dismiss regardless of modifiers");
+}
+
+// KEYBOARD_ACTION_BINDINGS is a frozen/readonly array
+{
+    assert.ok(Array.isArray(KEYBOARD_ACTION_BINDINGS), "bindings is an array");
+    assert.ok(KEYBOARD_ACTION_BINDINGS.length > 0, "bindings is not empty");
+    console.log("    ✓ KEYBOARD_ACTION_BINDINGS is a non-empty array");
+}
+
+console.log("  ✓ resolveKeyboardAction\n");

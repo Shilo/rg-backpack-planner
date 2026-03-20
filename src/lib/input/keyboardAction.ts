@@ -22,24 +22,77 @@ export type KeyboardActionType =
     | "screenshot"
     | "budget";
 
+/** All KeyboardEvent.key values used in the app, in canonical form. */
+export const Key = {
+    Escape: "Escape",
+    Backspace: "Backspace",
+    Tab: "Tab",
+    Enter: "Enter",
+    Space: " ",
+    Backtick: "`",
+    ArrowLeft: "ArrowLeft",
+    ArrowRight: "ArrowRight",
+    Shift: "Shift",
+    Control: "Control",
+    F9: "F9",
+    z: "z",
+    y: "y",
+    b: "b",
+} as const;
+
+/**
+ * Returns the canonical form of a KeyboardEvent.key value.
+ * Lowercases single-character keys so comparisons are
+ * independent of Caps Lock or Shift casing.
+ */
+export function canonicalKey(key: string): string {
+    return key.length === 1 ? key.toLowerCase() : key;
+}
+
+export type KeyBinding = {
+    action: KeyboardActionType;
+    key: string;
+    /** true = require Ctrl/Meta, false = require NO Ctrl/Meta, undefined = either */
+    ctrl?: boolean;
+    /** true = require Shift, false = require NO Shift, undefined = either */
+    shift?: boolean;
+    /** true = require Alt, false = require NO Alt, undefined = either */
+    alt?: boolean;
+};
+
+export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
+    { action: "dismiss", key: Key.Escape },
+    { action: "back", key: Key.Backspace },
+    { action: "cycle", key: Key.Tab },
+    { action: "cycle", key: Key.ArrowLeft },
+    { action: "cycle", key: Key.ArrowRight },
+    { action: "confirm", key: Key.Enter },
+    { action: "confirm", key: Key.Space },
+    { action: "console", key: Key.Backtick },
+    { action: "undo", key: Key.z, ctrl: true, shift: false, alt: false },
+    { action: "redo", key: Key.y, ctrl: true, alt: false },
+    { action: "redo", key: Key.z, ctrl: true, shift: true, alt: false },
+    { action: "screenshot", key: Key.F9 },
+    { action: "budget", key: Key.b, ctrl: false },
+];
+
 /**
  * Maps a keyboard event to a semantic KeyboardActionType.
- * Returns null for unrecognized or unhandled keys.
+ * Returns null for unrecognized or unhandled key combinations.
  */
 export function resolveKeyboardAction(
     event: KeyboardEvent,
 ): KeyboardActionType | null {
-    const { key, ctrlKey, metaKey, shiftKey } = event;
-    const mod = ctrlKey || metaKey;
+    const { ctrlKey, metaKey, shiftKey, altKey } = event;
+    const ctrl = ctrlKey || metaKey;
+    const key = canonicalKey(event.key);
 
-    if (key === "Escape") return "dismiss";
-    if (key === "Backspace") return "back";
-    if (key === "Tab") return "cycle";
-    if (key === "Enter" || key === " ") return "confirm";
-    if (key === "`") return "console";
-    if (mod && key === "z" && !shiftKey) return "undo";
-    if (mod && (key === "y" || (key === "z" && shiftKey) || (key === "Z" && shiftKey))) return "redo";
-    if (key === "F9") return "screenshot";
-    if (!mod && (key === "b" || key === "B")) return "budget";
+    for (const binding of KEYBOARD_ACTION_BINDINGS) {
+        if (binding.key !== key) continue;
+        if (binding.ctrl !== undefined && binding.ctrl !== ctrl) continue;
+        if (binding.shift !== undefined && binding.shift !== shiftKey) continue;
+        if (binding.alt !== undefined && binding.alt !== altKey) continue;
+        return binding.action;
+    }
     return null;
 }
