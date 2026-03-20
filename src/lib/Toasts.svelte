@@ -9,7 +9,7 @@
         type Toast,
     } from "./toast";
     import { triggerHaptic } from "./hapticsStore";
-    import { CheckCircleIcon, WarningCircleIcon } from "phosphor-svelte";
+    import { CheckCircleIcon, WarningCircleIcon, XIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
 
     function toastExit(node: Element, { id }: { id: string }) {
@@ -66,7 +66,8 @@
 
     function checkOverlap() {
         if (!regionEl) return;
-        const toolbar = document.querySelector<HTMLElement>(".bot-right-actions");
+        const toolbar =
+            document.querySelector<HTMLElement>(".bot-right-actions");
         if (!toolbar) {
             extraBottom = 0;
             return;
@@ -84,8 +85,10 @@
             // Undo current offset to get the natural (un-shifted) position
             const natTop = tr.top + extraBottom;
             const natBottom = tr.bottom + extraBottom;
-            const hOverlap = Math.min(tr.right, tb.right) - Math.max(tr.left, tb.left);
-            const vOverlap = Math.min(natBottom, tb.bottom) - Math.max(natTop, tb.top);
+            const hOverlap =
+                Math.min(tr.right, tb.right) - Math.max(tr.left, tb.left);
+            const vOverlap =
+                Math.min(natBottom, tb.bottom) - Math.max(natTop, tb.top);
             if (hOverlap > 0 && vOverlap > 0) {
                 maxShift = Math.max(maxShift, vOverlap + GAP);
             }
@@ -106,14 +109,15 @@
 
     onDestroy(clearAllTimeouts);
 </script>
+
 {#snippet toastContent(toast: Toast)}
     <div class="toast__row">
         {#if toast.showIcon}
             <span class="toast__icon" aria-hidden="true">
                 {#if toast.tone === "negative"}
-                    <WarningCircleIcon size={20} weight="fill" />
+                    <WarningCircleIcon size={18} weight="fill" />
                 {:else}
-                    <CheckCircleIcon size={20} weight="fill" />
+                    <CheckCircleIcon size={18} weight="fill" />
                 {/if}
             </span>
         {/if}
@@ -132,7 +136,7 @@
         aria-live="polite"
         aria-atomic="true"
         bind:this={regionEl}
-        style={extraBottom > 0 ? `--toast-extra-bottom: ${extraBottom}px` : ''}
+        style={extraBottom > 0 ? `--toast-extra-bottom: ${extraBottom}px` : ""}
     >
         {#each $toastStore as toast (toast.id)}
             {#if toast.action}
@@ -144,6 +148,16 @@
                 >
                     {@render toastContent(toast)}
                     <div class="toast__action-row">
+                        <button
+                            class="toast__dismiss"
+                            aria-label="Dismiss"
+                            on:click|stopPropagation={() => {
+                                triggerHaptic();
+                                dismissToast(toast.id);
+                            }}
+                        >
+                            <XIcon size={18} weight="bold" />
+                        </button>
                         <button
                             class="toast__action"
                             on:click|stopPropagation={() => {
@@ -180,15 +194,16 @@
         left: 0;
         right: 0;
         bottom: calc(
-            (var(--bar-pad, 0px) + var(--tab-height, 0px)) *
-                (1 - var(--is-keyboard-open, 0)) + var(--spacing-lg) +
-                var(--keyboard-height, 0px) + var(--safe-bottom, 0px) +
-                var(--toast-extra-bottom, 0px)
+            (
+                    max(var(--bar-pad, 0px), var(--safe-bottom, 0px)) +
+                        var(--tab-height, 0px)
+                ) * (1 - var(--is-keyboard-open, 0)) + var(--spacing-lg) +
+                var(--keyboard-height, 0px) + var(--toast-extra-bottom, 0px)
         );
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-md);
         z-index: var(--z-index-toast);
         pointer-events: none;
         transition: bottom 0.2s ease;
@@ -199,22 +214,22 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-md);
-        padding: var(--spacing-lg) calc(var(--spacing-lg) + var(--spacing-md));
+        padding: var(--spacing-md) var(--spacing-lg);
         max-width: min(
             calc(
                 100vw - 2 * var(--bar-pad) - var(--safe-left, 0px) -
                     var(--safe-right, 0px)
             ),
-            400px
+            360px
         );
         width: fit-content;
-        border-radius: var(--radius);
+        border-radius: var(--radius-sm);
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border-subtle);
         box-shadow: var(--shadow);
         color: var(--text-muted);
-        font-size: var(--font-lg);
-        font-weight: var(--weight-bold);
+        font-size: var(--font-base);
+        font-weight: var(--weight-semibold);
         line-height: var(--leading);
         animation: toast-enter 0.25s cubic-bezier(0.05, 0.7, 0.1, 1) both;
         overflow: hidden;
@@ -236,7 +251,7 @@
     .toast--has-action {
         flex-direction: column;
         align-items: stretch;
-        padding-bottom: var(--spacing-md);
+        padding-bottom: 0;
     }
 
     .toast--negative {
@@ -253,7 +268,7 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 3px;
+        height: 2px;
         background: color-mix(in srgb, var(--accent) 50%, var(--border-subtle));
         transform-origin: left;
         animation: toast-progress var(--toast-duration, 3s) linear forwards;
@@ -291,8 +306,38 @@
 
     .toast__action-row {
         display: flex;
-        justify-content: flex-end;
-        padding: var(--spacing-xs) 0 0 0;
+        justify-content: space-between;
+        align-items: center;
+        margin: var(--spacing-xs) calc(-1 * var(--spacing-lg)) 0;
+        padding: 0 var(--spacing-lg) var(--spacing-md);
+    }
+
+    .toast__dismiss {
+        all: unset;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: calc(-1 * var(--spacing-lg));
+        margin-bottom: calc(-1 * var(--spacing-md));
+        padding: var(--spacing-md) var(--spacing-lg) calc(2 * var(--spacing-md));
+        border-radius: 0 var(--radius-sm) 0 var(--radius-sm);
+        color: var(--text-muted);
+        opacity: 0.6;
+        transition:
+            opacity 0.15s,
+            background 0.15s;
+    }
+
+    @media (hover: hover) {
+        .toast__dismiss:hover {
+            opacity: 1;
+            background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+        }
+    }
+
+    .toast__dismiss:active {
+        opacity: 1;
     }
 
     .toast__action {
