@@ -150,6 +150,10 @@
 
     $: decrementTierIsReset = previousTierLevel === 0;
 
+    /** button-sm height (32px) + flex gap (--spacing-md = 8px) */
+    const RESET_BUTTON_RESERVE = 40;
+    $: menuY = decrementTierIsReset ? y - RESET_BUTTON_RESERVE : y;
+
     $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
     $: totalTiers = maxLevel > 1 ? 5 : 1;
@@ -172,7 +176,7 @@
 
 <ContextMenu
     {x}
-    {y}
+    y={menuY}
     {isOpen}
     title=""
     ariaLabel={skillId ? $t(`skills.${skillId}`) : "Node"}
@@ -330,7 +334,7 @@
                 }}
             />
         </div>
-        <div class="reset-wrapper" class:reset-hidden={decrementTierIsReset}>
+        {#if !decrementTierIsReset}
             <Button
                 ghost
                 negative
@@ -347,7 +351,7 @@
             >
                 {$t("nodeMenu.reset")}{#if actionCosts?.reset != null}<span class="reset-crystal"><TechCrystalIcon weight="fill" size={12} aria-hidden={true} /> +{formatNumber(actionCosts.reset)}</span>{/if}
             </Button>
-        </div>
+        {/if}
     </div>
 </ContextMenu>
 
@@ -356,6 +360,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
+        min-width: 310px;
         width: min-content;
         align-items: stretch;
     }
@@ -519,7 +524,7 @@
 
     .button-grid {
         display: grid;
-        width: max-content;
+        width: 100%;
         grid-template-columns:
             minmax(8.5ch, 1fr)
             minmax(calc(10ch - 5px), max-content)
@@ -530,15 +535,6 @@
     .button-grid.stacked {
         grid-template-columns: 1fr;
         min-width: 15rem;
-    }
-
-    .reset-wrapper :global(.button) {
-        width: 100%;
-    }
-
-    .reset-wrapper.reset-hidden {
-        visibility: hidden;
-        pointer-events: none;
     }
 
     .reset-crystal {
