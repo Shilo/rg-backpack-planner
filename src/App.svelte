@@ -75,7 +75,7 @@
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/input/inputStore";
-    import { resolveKeyboardAction, Key } from "./lib/input";
+    import { resolveKeyboardAction, Key, onKeyDown } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {
@@ -538,125 +538,125 @@
         }
     }
 
-    onMount(() => {
-        ensureInstallListeners();
+    // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
+    let undoRedoApplyGen = 0;
+    let lastUndoRedoTime = 0;
+    const UNDO_REDO_REPEAT_MS = 250;
+    const handleKeyDown = (e: KeyboardEvent) => {
+        const action = resolveKeyboardAction(e);
+        if (!action) return;
 
-        // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
-        let undoRedoApplyGen = 0;
-        let lastUndoRedoTime = 0;
-        const UNDO_REDO_REPEAT_MS = 250;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const action = resolveKeyboardAction(e);
-            if (!action) return;
-
-            // Undo/Redo — special: allows e.repeat with throttling
-            if (
-                (action === "undo" || action === "redo") &&
-                !isFormField(document.activeElement) &&
-                !hasOnboardingOverlay()
-            ) {
-                if (action === "undo" && get(canUndo)) {
-                    e.preventDefault();
-                    if (
-                        e.repeat &&
-                        Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS
-                    )
-                        return;
-                    lastUndoRedoTime = Date.now();
-                    const result = undoHistory.undoDeferred();
-                    if (result != null) {
-                        const switchedTab =
-                            result.activeTreeIndex !== activeTreeIndex;
-                        activeTreeIndex = result.activeTreeIndex;
-                        const gen = ++undoRedoApplyGen;
-                        const TREE_FADE_MS = 150;
-                        tick().then(() => {
-                            if (gen !== undoRedoApplyGen) return;
-                            if (switchedTab) {
-                                setTimeout(() => {
-                                    if (gen !== undoRedoApplyGen) return;
-                                    result.apply();
-                                }, TREE_FADE_MS);
-                            } else {
-                                requestAnimationFrame(() => {
-                                    if (gen !== undoRedoApplyGen) return;
-                                    result.apply();
-                                });
-                            }
-                        });
-                    }
+        // Undo/Redo — special: allows e.repeat with throttling
+        if (
+            (action === "undo" || action === "redo") &&
+            !isFormField(document.activeElement) &&
+            !hasOnboardingOverlay()
+        ) {
+            if (action === "undo" && get(canUndo)) {
+                e.preventDefault();
+                if (
+                    e.repeat &&
+                    Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS
+                )
                     return;
-                }
-                if (action === "redo" && get(canRedo)) {
-                    e.preventDefault();
-                    if (
-                        e.repeat &&
-                        Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS
-                    )
-                        return;
-                    lastUndoRedoTime = Date.now();
-                    const result = undoHistory.redoDeferred();
-                    if (result != null) {
-                        const switchedTab =
-                            result.activeTreeIndex !== activeTreeIndex;
-                        activeTreeIndex = result.activeTreeIndex;
-                        const gen = ++undoRedoApplyGen;
-                        const TREE_FADE_MS = 150;
-                        tick().then(() => {
-                            if (gen !== undoRedoApplyGen) return;
-                            if (switchedTab) {
-                                setTimeout(() => {
-                                    if (gen !== undoRedoApplyGen) return;
-                                    result.apply();
-                                }, TREE_FADE_MS);
-                            } else {
-                                requestAnimationFrame(() => {
-                                    if (gen !== undoRedoApplyGen) return;
-                                    result.apply();
-                                });
-                            }
-                        });
-                    }
-                    return;
-                }
-            }
-
-            if (e.repeat) return;
-
-            switch (action) {
-                case "dismiss":
-                    if (e.defaultPrevented || !e.isTrusted) break;
-                    if (
-                        $isComposeScreenshotOpen ||
-                        document.querySelector(".context-menu") ||
-                        document.querySelector(".qs-panel") ||
-                        hasOnboardingOverlay()
-                    ) break;
-                    e.preventDefault();
-                    if (isMenuOpen) {
-                        if (!sideMenuRef?.tryGoBack?.()) {
-                            closeMenu();
+                lastUndoRedoTime = Date.now();
+                const result = undoHistory.undoDeferred();
+                if (result != null) {
+                    const switchedTab =
+                        result.activeTreeIndex !== activeTreeIndex;
+                    activeTreeIndex = result.activeTreeIndex;
+                    const gen = ++undoRedoApplyGen;
+                    const TREE_FADE_MS = 150;
+                    tick().then(() => {
+                        if (gen !== undoRedoApplyGen) return;
+                        if (switchedTab) {
+                            setTimeout(() => {
+                                if (gen !== undoRedoApplyGen) return;
+                                result.apply();
+                            }, TREE_FADE_MS);
+                        } else {
+                            requestAnimationFrame(() => {
+                                if (gen !== undoRedoApplyGen) return;
+                                result.apply();
+                            });
                         }
-                    } else {
-                        isMenuOpen = true;
-                    }
-                    break;
-                case "back":
-                    if (!isMenuOpen || e.defaultPrevented || !e.isTrusted) break;
-                    if (isFormField(document.activeElement) || hasOnboardingOverlay()) break;
-                    e.preventDefault();
+                    });
+                }
+                return;
+            }
+            if (action === "redo" && get(canRedo)) {
+                e.preventDefault();
+                if (
+                    e.repeat &&
+                    Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS
+                )
+                    return;
+                lastUndoRedoTime = Date.now();
+                const result = undoHistory.redoDeferred();
+                if (result != null) {
+                    const switchedTab =
+                        result.activeTreeIndex !== activeTreeIndex;
+                    activeTreeIndex = result.activeTreeIndex;
+                    const gen = ++undoRedoApplyGen;
+                    const TREE_FADE_MS = 150;
+                    tick().then(() => {
+                        if (gen !== undoRedoApplyGen) return;
+                        if (switchedTab) {
+                            setTimeout(() => {
+                                if (gen !== undoRedoApplyGen) return;
+                                result.apply();
+                            }, TREE_FADE_MS);
+                        } else {
+                            requestAnimationFrame(() => {
+                                if (gen !== undoRedoApplyGen) return;
+                                result.apply();
+                            });
+                        }
+                    });
+                }
+                return;
+            }
+        }
+
+        if (e.repeat) return;
+
+        switch (action) {
+            case "dismiss":
+                if (e.defaultPrevented || !e.isTrusted) break;
+                if (
+                    $isComposeScreenshotOpen ||
+                    document.querySelector(".context-menu") ||
+                    document.querySelector(".qs-panel") ||
+                    hasOnboardingOverlay()
+                ) break;
+                e.preventDefault();
+                if (isMenuOpen) {
                     if (!sideMenuRef?.tryGoBack?.()) {
                         closeMenu();
                     }
-                    break;
-                case "screenshot":
-                    if (hasOnboardingOverlay()) break;
-                    e.preventDefault();
-                    openComposeScreenshot();
-                    break;
-            }
-        };
-        window.addEventListener("keydown", handleKeyDown, true);
+                } else {
+                    isMenuOpen = true;
+                }
+                break;
+            case "back":
+                if (!isMenuOpen || e.defaultPrevented || !e.isTrusted) break;
+                if (isFormField(document.activeElement) || hasOnboardingOverlay()) break;
+                e.preventDefault();
+                if (!sideMenuRef?.tryGoBack?.()) {
+                    closeMenu();
+                }
+                break;
+            case "screenshot":
+                if (hasOnboardingOverlay()) break;
+                e.preventDefault();
+                openComposeScreenshot();
+                break;
+        }
+    };
+    onKeyDown(handleKeyDown);
+
+    onMount(() => {
+        ensureInstallListeners();
 
         function handleCloseSideMenu() {
             closeMenu();
@@ -708,7 +708,6 @@
             }
             if (typeof window !== "undefined") {
                 window.removeEventListener("hashchange", handleHashchange);
-                window.removeEventListener("keydown", handleKeyDown, true);
             }
         };
     });
