@@ -10,8 +10,9 @@
  * undo       — Ctrl+Z
  * redo       — Ctrl+Y / Ctrl+Shift+Z
  * screenshot — F9
- * budget     — B (open tech crystal budget modal)
- * focusTrap  — Tab only (modal focus trapping — distinct from cycle which also matches ←/→)
+ * budget              — B (open tech crystal budget modal)
+ * focusTrap           — Tab only (modal focus trapping — distinct from cycle which also matches ←/→)
+ * cyclePrimaryAction  — N (cycle node primary action: +1 / +10 / +Tier)
  */
 export type KeyboardActionType =
     | "dismiss"
@@ -24,7 +25,8 @@ export type KeyboardActionType =
     | "redo"
     | "screenshot"
     | "budget"
-    | "focusTrap";
+    | "focusTrap"
+    | "cyclePrimaryAction";
 
 /** All KeyboardEvent.key values used in the app, in canonical form. */
 const Key = {
@@ -42,6 +44,7 @@ const Key = {
     z: "z",
     y: "y",
     b: "b",
+    n: "n",
 } as const;
 
 /**
@@ -79,6 +82,7 @@ export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
     { action: "redo", key: Key.z, ctrl: true, shift: true, alt: false },
     { action: "screenshot", key: Key.F9 },
     { action: "budget", key: Key.b, ctrl: false },
+    { action: "cyclePrimaryAction", key: Key.n, ctrl: false },
     { action: "focusTrap", key: Key.Tab },
 ];
 
