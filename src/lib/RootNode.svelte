@@ -2,6 +2,7 @@
     import { t } from "svelte-whisper";
     import { RootNodeIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
+    import { tooltip } from "./tooltip";
 
     const ROOT_SIZE = 44;
 
@@ -34,6 +35,7 @@
 <div
     class="root-wrapper"
     style="left: {x}px; top: {y}px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px"
+    use:tooltip={{ content: $t("quickSettings.title"), hoverOnly: true }}
 >
     <button
         type="button"

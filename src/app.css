@@ -229,6 +229,7 @@ textarea,
     row-gap: var(--spacing-xs, 4px);
     margin-top: var(--spacing-xs, 4px);
     align-items: center;
+    justify-items: start;
     white-space: nowrap;
 }
 
