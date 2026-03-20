@@ -41,8 +41,7 @@ export function primary(
 }
 
 /**
- * use:secondary — fires on contextmenu (mouse) or long-press (touch).
- * Long-press auto-detected from pointerType === "touch".
+ * use:secondary — fires on contextmenu (mouse) or long-press (all pointer types).
  * Click/contextmenu suppressed after long-press fires via longPress.ts.
  * Touch modifier always "none" even if physical modifier held.
  */
@@ -66,7 +65,6 @@ export function secondary(
     }
 
     function onPointerDown(event: PointerEvent) {
-        if (event.pointerType !== "touch") return;
         if (event.button !== 0) return;
         activePointerId = event.pointerId;
         startX = event.clientX;
@@ -74,7 +72,9 @@ export function secondary(
 
         startLongPress(pressState, () => {
             suppressNextPointerUp(event.pointerId);
-            const action = resolveAction(2, "none", "touch");
+            const device = event.pointerType === "touch" ? "touch" : "mouse";
+            const modifier = device === "touch" ? "none" : resolveModifier(get(inputStore));
+            const action = resolveAction(2, modifier, device);
             if (!action) return false;
             triggerHaptic();
             handler(action);
