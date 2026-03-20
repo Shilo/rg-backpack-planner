@@ -2,6 +2,8 @@
     import type { Component } from "svelte";
     import { onMount } from "svelte";
     import {
+        ArrowArcLeftIcon,
+        ArrowArcRightIcon,
         ArrowFatUpIcon,
         ArrowCounterClockwiseIcon,
         TrashSimpleIcon,
@@ -89,6 +91,8 @@
     $: keyBack = getKeyboardActionLabel("back", $t);
     $: keyCycle = getKeyboardActionLabel("cycle", $t);
     $: keyScreenshot = getKeyboardActionLabel("screenshot", $t);
+    $: keyUndo = getKeyboardActionLabel("undo", $t);
+    $: keyRedo = getKeyboardActionLabel("redo", $t);
     $: hudPrimaryAction =
         showMouse && showTouch
             ? `${mouse.primary} / ${touch.primary}`
@@ -530,6 +534,32 @@
                             >
                         </p>
                     </li>
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <ArrowArcLeftIcon />
+                        </span>
+                        <p class="control-inline">
+                            <span class="control-label"
+                                >{$t("controls.keyboardUndoLabel", { action: keyUndo })}</span
+                            >
+                            <span class="control-desc"
+                                >{$t("controls.keyboardUndoDescription")}</span
+                            >
+                        </p>
+                    </li>
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <ArrowArcRightIcon />
+                        </span>
+                        <p class="control-inline">
+                            <span class="control-label"
+                                >{$t("controls.keyboardRedoLabel", { action: keyRedo })}</span
+                            >
+                            <span class="control-desc"
+                                >{$t("controls.keyboardRedoDescription")}</span
+                            >
+                        </p>
+                    </li>
                 </ul>
             </Accordion>
         {/if}
@@ -602,6 +632,32 @@
                             >{$t(
                                 "controls.hudPreviewIndicatorDescription",
                             )}</span
+                        >
+                    </p>
+                </li>
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true">
+                        <ArrowArcLeftIcon />
+                    </span>
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudUndoLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t("controls.hudUndoDescription")}</span
+                        >
+                    </p>
+                </li>
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true">
+                        <ArrowArcRightIcon />
+                    </span>
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudRedoLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t("controls.hudRedoDescription")}</span
                         >
                     </p>
                 </li>
