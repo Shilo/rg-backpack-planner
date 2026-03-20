@@ -222,32 +222,49 @@ textarea,
     display: block;
 }
 
-.tooltip-cost-line {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-xs, 4px);
+.tooltip-action-grid {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    column-gap: var(--spacing-sm, 6px);
+    row-gap: var(--spacing-xs, 4px);
     margin-top: var(--spacing-xs, 4px);
+    align-items: center;
+    white-space: nowrap;
 }
 
-.tooltip-cost-line .tooltip-cost-icon {
+.tooltip-action-line {
+    display: contents;
+}
+
+.tooltip-action-arrow {
+    font-size: 0.75em;
+    color: var(--accent-light);
+}
+
+.tooltip-action-level {
+    color: var(--accent-light);
+    font-variant-numeric: tabular-nums;
+}
+
+.tooltip-action-line .tooltip-action-crystal {
     color: var(--text-muted);
-    flex-shrink: 0;
 }
 
-.tooltip-cost-line .tooltip-cost-value {
+.tooltip-action-cost {
+    color: var(--accent-danger);
+    font-variant-numeric: tabular-nums;
+}
+
+.tooltip-action-down .tooltip-action-arrow {
     color: var(--accent-danger);
 }
 
-.tooltip-cost-line.refund .tooltip-cost-value {
-    color: var(--success-text);
+.tooltip-action-down .tooltip-action-level {
+    color: var(--accent-danger);
 }
 
-.tooltip-level-line {
-    display: block;
-    color: var(--text-muted);
-    font-size: inherit;
-    margin-top: var(--spacing-xs, 4px);
+.tooltip-action-down .tooltip-action-cost {
+    color: var(--success-text);
 }
 
 @media (hover: none) {

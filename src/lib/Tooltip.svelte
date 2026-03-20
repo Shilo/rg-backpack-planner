@@ -2,6 +2,7 @@
     import { onMount, tick } from "svelte";
     import { TechCrystalIcon } from "./customIcons";
     import { tooltipStore } from "./tooltip";
+    import { formatNumber } from "svelte-whisper";
     import { portal } from "./portal";
     import { textSize } from "./textSizeStore";
 
@@ -156,28 +157,42 @@
                 {#each $tooltipStore.sections as section}
                     {#if section.type === "text"}
                         <div class="tooltip-line">{section.value}</div>
-                    {:else if section.type === "crystal-cost"}
-                        <div
-                            class="tooltip-cost-line"
-                            class:refund={section.refund}
-                        >
-                            <TechCrystalIcon
-                                size={14}
-                                weight="fill"
-                                class="tooltip-cost-icon"
-                            />
-                            <span class="tooltip-cost-value"
-                                >{section.refund
-                                    ? "+"
-                                    : "-"}{section.value}</span
-                            >
-                        </div>
-                    {:else if section.type === "level-preview"}
-                        <div class="tooltip-level-line">
-                            Lv. {section.from} → {section.to}
-                        </div>
                     {/if}
                 {/each}
+                {#if $tooltipStore.sections.some((s) => s.type === "action-preview")}
+                    <div class="tooltip-action-grid">
+                        {#each $tooltipStore.sections as section}
+                            {#if section.type === "action-preview"}
+                                <div
+                                    class="tooltip-action-line"
+                                    class:tooltip-action-down={section.direction ===
+                                        "down"}
+                                >
+                                    <span class="tooltip-action-arrow"
+                                        >{section.direction === "up"
+                                            ? "\u25B2"
+                                            : "\u25BC"}</span
+                                    >
+                                    <span class="tooltip-action-level"
+                                        >Lv {formatNumber(
+                                            section.targetLevel,
+                                        )}</span
+                                    >
+                                    <TechCrystalIcon
+                                        size={14}
+                                        weight="fill"
+                                        class="tooltip-action-crystal"
+                                    />
+                                    <span class="tooltip-action-cost"
+                                        >{section.direction === "up"
+                                            ? "\u2212"
+                                            : "+"}{section.crystalCost}</span
+                                    >
+                                </div>
+                            {/if}
+                        {/each}
+                    </div>
+                {/if}
             </div>
         </div>
     </div>

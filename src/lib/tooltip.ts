@@ -3,8 +3,12 @@ import { LONG_PRESS_MOVE_THRESHOLD, LONG_PRESS_MS } from "./input/longPress";
 
 export type TooltipSection =
     | { type: "text"; value: string }
-    | { type: "crystal-cost"; value: string; refund: boolean }
-    | { type: "level-preview"; from: number; to: number };
+    | {
+          type: "action-preview";
+          direction: "up" | "down";
+          targetLevel: number;
+          crystalCost: string;
+      };
 
 export type TooltipContent = string | TooltipSection[];
 

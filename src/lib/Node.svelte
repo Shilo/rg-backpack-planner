@@ -114,26 +114,18 @@
 
         if (incrementPreview != null) {
             sections.push({
-                type: "level-preview",
-                from: level,
-                to: incrementPreview.targetLevel,
-            });
-            sections.push({
-                type: "crystal-cost",
-                value: formatNumber(incrementPreview.totalCost),
-                refund: false,
+                type: "action-preview",
+                direction: "up",
+                targetLevel: incrementPreview.targetLevel,
+                crystalCost: formatNumber(incrementPreview.totalCost),
             });
         }
         if (decrementPreview != null) {
             sections.push({
-                type: "level-preview",
-                from: level,
-                to: decrementPreview.targetLevel,
-            });
-            sections.push({
-                type: "crystal-cost",
-                value: formatNumber(decrementPreview.totalCost),
-                refund: true,
+                type: "action-preview",
+                direction: "down",
+                targetLevel: decrementPreview.targetLevel,
+                crystalCost: formatNumber(decrementPreview.totalCost),
             });
         }
         return sections;
