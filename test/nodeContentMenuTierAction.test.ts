@@ -99,8 +99,11 @@ if (!/"incrementTier"\s*:/.test(zhLocaleSource)) {
     throw new Error("Chinese locale should define nodeMenu.incrementTier.");
 }
 
-const localePaths = [enLocalePath, jaLocalePath, zhLocalePath];
-const localeSources = [enLocaleSource, jaLocaleSource, zhLocaleSource];
+const frLocalePath = resolve("src/locales/fr.json");
+const frLocaleSource = readFileSync(frLocalePath, "utf8");
+
+const localePaths = [enLocalePath, frLocalePath, jaLocalePath, zhLocalePath];
+const localeSources = [enLocaleSource, frLocaleSource, jaLocaleSource, zhLocaleSource];
 for (let i = 0; i < localePaths.length; i++) {
     if (!/"decrementTier"\s*:/.test(localeSources[i])) {
         throw new Error(
