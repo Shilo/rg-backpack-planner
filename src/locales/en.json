@@ -529,7 +529,15 @@
         "hudFullscreenLabel": "Fullscreen",
         "hudFullscreenDescription": "Toggle fullscreen mode",
         "hudPreviewIndicatorLabel": "Preview Build Indicator",
-        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options"
+        "hudPreviewIndicatorDescription": "View and edit a shared build; access preview build options",
+        "pointerNodeIncrementTierLabel": "Shift + Left Click a Node",
+        "pointerNodeIncrementTierDescription": "Level up one tier",
+        "pointerNodeDecrementTierLabel": "Shift + Middle Click a Node",
+        "pointerNodeDecrementTierDescription": "Level down one tier",
+        "pointerNodeIncrementOneLabel": "Ctrl + Left Click a Node",
+        "pointerNodeIncrementOneDescription": "Level up one level",
+        "pointerNodeDecrementOneLabel": "Ctrl + Middle Click a Node",
+        "pointerNodeDecrementOneDescription": "Level down one level"
     },
     "onboarding": {
         "nodesSection": "Nodes",
@@ -624,6 +632,14 @@
         "off": "Off",
         "toastHapticsOn": "Haptics on",
         "toastHapticsOff": "Haptics off"
+    },
+    "input": {
+        "primary": { "mouse": "Left Click", "touch": "Tap" },
+        "secondary": { "mouse": "Right Click", "touch": "Long Press" },
+        "auxiliary": { "mouse": "Middle Click" },
+        "macro": "Shift",
+        "micro": "Ctrl",
+        "modifierSeparator": " + "
     },
     "systemInfo": {
         "sectionApp": "App",

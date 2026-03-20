@@ -529,7 +529,15 @@
         "hudFullscreenLabel": "Plein écran",
         "hudFullscreenDescription": "Basculer en mode plein écran",
         "hudPreviewIndicatorLabel": "Indicateur de build d'aperçu",
-        "hudPreviewIndicatorDescription": "Voir et modifier un build partagé ; accéder aux options du build d'aperçu"
+        "hudPreviewIndicatorDescription": "Voir et modifier un build partagé ; accéder aux options du build d'aperçu",
+        "pointerNodeIncrementTierLabel": "Maj + Clic Gauche sur un Nœud",
+        "pointerNodeIncrementTierDescription": "Monter d'un palier",
+        "pointerNodeDecrementTierLabel": "Maj + Clic Molette sur un Nœud",
+        "pointerNodeDecrementTierDescription": "Descendre d'un palier",
+        "pointerNodeIncrementOneLabel": "Ctrl + Clic Gauche sur un Nœud",
+        "pointerNodeIncrementOneDescription": "Monter d'un niveau",
+        "pointerNodeDecrementOneLabel": "Ctrl + Clic Molette sur un Nœud",
+        "pointerNodeDecrementOneDescription": "Descendre d'un niveau"
     },
     "onboarding": {
         "nodesSection": "Nœuds",
@@ -624,6 +632,14 @@
         "off": "Off",
         "toastHapticsOn": "Retour haptique : activé",
         "toastHapticsOff": "Retour haptique : désactivé"
+    },
+    "input": {
+        "primary": { "mouse": "Clic Gauche", "touch": "Appui" },
+        "secondary": { "mouse": "Clic Droit", "touch": "Appui Long" },
+        "auxiliary": { "mouse": "Clic Molette" },
+        "macro": "Maj",
+        "micro": "Ctrl",
+        "modifierSeparator": " + "
     },
     "systemInfo": {
         "sectionApp": "Application",

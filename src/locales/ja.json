@@ -529,7 +529,15 @@
         "hudFullscreenLabel": "フルスクリーン",
         "hudFullscreenDescription": "フルスクリーンモードを切り替え",
         "hudPreviewIndicatorLabel": "プレビュービルド表示",
-        "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス"
+        "hudPreviewIndicatorDescription": "共有ビルドを表示・編集し、プレビュービルドオプションにアクセス",
+        "pointerNodeIncrementTierLabel": "Shift + ノードを左クリック",
+        "pointerNodeIncrementTierDescription": "1ティアレベルアップ",
+        "pointerNodeDecrementTierLabel": "Shift + ノードを中クリック",
+        "pointerNodeDecrementTierDescription": "1ティアレベルダウン",
+        "pointerNodeIncrementOneLabel": "Ctrl + ノードを左クリック",
+        "pointerNodeIncrementOneDescription": "1レベルアップ",
+        "pointerNodeDecrementOneLabel": "Ctrl + ノードを中クリック",
+        "pointerNodeDecrementOneDescription": "1レベルダウン"
     },
     "onboarding": {
         "nodesSection": "ノード",
@@ -624,6 +632,14 @@
         "off": "OFF",
         "toastHapticsOn": "触覚フィードバック: ON",
         "toastHapticsOff": "触覚フィードバック: OFF"
+    },
+    "input": {
+        "primary": { "mouse": "左クリック", "touch": "タップ" },
+        "secondary": { "mouse": "右クリック", "touch": "長押し" },
+        "auxiliary": { "mouse": "中クリック" },
+        "macro": "Shift",
+        "micro": "Ctrl",
+        "modifierSeparator": " + "
     },
     "systemInfo": {
         "sectionApp": "アプリ",

@@ -529,7 +529,15 @@
         "hudFullscreenLabel": "全屏",
         "hudFullscreenDescription": "切换全屏模式",
         "hudPreviewIndicatorLabel": "预览构建指示器",
-        "hudPreviewIndicatorDescription": "查看和编辑分享的构建；访问预览构建选项"
+        "hudPreviewIndicatorDescription": "查看和编辑分享的构建；访问预览构建选项",
+        "pointerNodeIncrementTierLabel": "Shift + 左键点击节点",
+        "pointerNodeIncrementTierDescription": "升一阶",
+        "pointerNodeDecrementTierLabel": "Shift + 中键点击节点",
+        "pointerNodeDecrementTierDescription": "降一阶",
+        "pointerNodeIncrementOneLabel": "Ctrl + 左键点击节点",
+        "pointerNodeIncrementOneDescription": "升一级",
+        "pointerNodeDecrementOneLabel": "Ctrl + 中键点击节点",
+        "pointerNodeDecrementOneDescription": "降一级"
     },
     "onboarding": {
         "nodesSection": "节点",
@@ -624,6 +632,14 @@
         "off": "关",
         "toastHapticsOn": "触觉反馈: 开",
         "toastHapticsOff": "触觉反馈: 关"
+    },
+    "input": {
+        "primary": { "mouse": "左键点击", "touch": "轻触" },
+        "secondary": { "mouse": "右键点击", "touch": "长按" },
+        "auxiliary": { "mouse": "中键点击" },
+        "macro": "Shift",
+        "micro": "Ctrl",
+        "modifierSeparator": " + "
     },
     "systemInfo": {
         "sectionApp": "应用",
