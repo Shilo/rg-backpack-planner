@@ -21,7 +21,7 @@ The fix: one modifier for direction (decrement), one for smart amount toggling, 
 | **reverse** | Shift | Reverses direction: increment becomes decrement |
 | **alternate** | Ctrl | Toggles amount: if primary is +1 → +Tier; if primary is +10 or +Tier → +1 |
 
-Both are independent and composable (Shift+Ctrl is valid).
+Both are independent and composable (Shift+Ctrl is valid). This is a behavioral change from the current system where macro (Shift) takes priority when both are held — now both are independently active.
 
 ### Interaction Matrix
 
@@ -96,7 +96,7 @@ type ModifierKeyMap = {
 };
 ```
 
-### resolveModifier return type
+### resolveModifiers return type
 
 ```ts
 // Before
@@ -105,6 +105,58 @@ function resolveModifier(state: InputState): InputModifier;
 // After
 function resolveModifiers(state: InputState): { reverse: boolean; alternate: boolean };
 ```
+
+### resolveAction signature
+
+```ts
+// Before
+function resolveAction(
+    button: number,
+    modifier: InputModifier,
+    pointerType: string,
+): InputAction | null;
+
+// After
+function resolveAction(
+    button: number,
+    modifiers: { reverse: boolean; alternate: boolean },
+    pointerType: string,
+): InputAction | null;
+```
+
+Touch devices still force modifiers to `{ reverse: false, alternate: false }` — the existing touch-forces-none behavior maps directly.
+
+### DeviceInputLabels
+
+The `DeviceInputLabels` type and `getDeviceInputLabels` function use field names based on the old modifier naming (`macroPrimary`, `microPrimary`, `macroAuxiliary`, `microAuxiliary`). These rename to match the new semantics:
+
+```ts
+// Before
+type DeviceInputLabels = {
+    primary: string;
+    secondary: string;
+    auxiliary?: string;
+    macroPrimary: string;
+    microPrimary: string;
+    macroAuxiliary?: string;
+    microAuxiliary?: string;
+};
+
+// After
+type DeviceInputLabels = {
+    primary: string;
+    secondary: string;
+    auxiliary?: string;
+    reversePrimary: string;
+    alternatePrimary: string;
+    reverseAuxiliary?: string;
+    alternateAuxiliary?: string;
+};
+```
+
+`auxiliary`, `reverseAuxiliary`, and `alternateAuxiliary` remain optional — they are only populated for `device === "mouse"` (touch has no auxiliary/middle click).
+
+`getInputLabel` currently takes a single `InputModifier` string. It changes to accept a modifier name string (`"reverse" | "alternate"`) used purely for label construction — this is a display concern, not a runtime modifier object.
 
 ### NodeOperation simplification
 
@@ -137,7 +189,7 @@ type NodeOperation =
 | File | Change |
 |---|---|
 | `src/lib/input/inputAction.ts` | Replace `modifier: InputModifier` with `modifiers: { reverse: boolean; alternate: boolean }`. Remove `InputModifier` type. |
-| `src/lib/input/modifierKeyMap.ts` | Rename `macro`/`micro` → `reverse`/`alternate`. |
+| `src/lib/input/modifierKeyMap.ts` | Rename `macro`/`micro` → `reverse`/`alternate` in both the type and the `DEFAULT_MODIFIER_KEY_MAP` constant (`{ reverse: "shiftKey", alternate: "ctrlKey" }`). |
 | `src/lib/input/resolveAction.ts` | `resolveModifier` → `resolveModifiers`, returns object. `resolveAction` passes modifiers object through. |
 
 ### Node actions
@@ -151,17 +203,21 @@ type NodeOperation =
 
 | File | Change |
 |---|---|
-| `src/lib/input/inputLabels.ts` | Update `getModifierLabel` for `reverse`/`alternate`. |
-| `src/lib/sideMenuPages/SideMenuControlsPage.svelte` | Update help page: Shift = decrement, Ctrl = alternate. |
-| `src/locales/en.json` (+ other locales) | Rename `macro`/`micro` translation keys to `reverse`/`alternate`. |
+| `src/lib/input/inputLabels.ts` | Rename `DeviceInputLabels` fields (`macroPrimary` → `reversePrimary`, etc.). Update `getModifierLabel`, `getInputLabel`, `getDeviceInputLabels`, and `getKeyboardActionLabel` for new naming. `getKeyboardActionLabel("cycle")` references `input.macro` for the Shift label — update to `input.reverse`. |
+| `src/lib/sideMenuPages/SideMenuControlsPage.svelte` | Update help page: Shift = decrement, Ctrl = alternate. Update `DeviceInputLabels` field references. |
+| `src/lib/NodeContextMenu.svelte` | Update shortcut hints from `mouse.microPrimary`/`mouse.macroPrimary`/etc. to new `DeviceInputLabels` field names. Context menu buttons are direct actions (increment one, increment tier, etc.) — shortcut hints become static labels showing which modifier combo achieves each action (e.g., "Shift + Click" for decrement, "Ctrl + Click" for alternate). These labels are not dynamic based on the primary action store — they describe the modifier key, not the resolved amount. |
+| `src/lib/TreeTabs.svelte` | Update `DeviceInputLabels` field references. |
+| `src/lib/onboarding/onboardingSteps.ts` | Update `input.macro`/`input.micro` translation key references to `input.reverse`/`input.alternate`. Update onboarding descriptions to reflect new semantics (Shift = decrement, Ctrl = alternate). |
+| `src/locales/en.json`, `fr.json`, `ja.json`, `zh.json` | Rename `macro`/`micro` translation keys to `reverse`/`alternate`. Update `modifierTierLabel`/`modifierOneLabel` descriptions. |
 
 ### Consumers
 
 | File | Change |
 |---|---|
+| `src/lib/input/index.ts` | Remove `InputModifier` re-export. |
 | `src/lib/Node.svelte` | Update reactive blocks calling `resolveAction`/`resolveNodeAction`. |
-| `src/lib/nodeActionPreview.ts` | Update preview logic for new operation names. |
-| `src/lib/input/interactable.ts` | `use:primary`/`use:auxiliary` pass new modifier shape. |
+| `src/lib/nodeActionPreview.ts` | Replace `incrementTier`/`decrementTier`/`incrementOne`/`decrementOne` switch cases with `incrementByAlternate`/`decrementByAlternate`. These new cases must resolve the concrete amount at preview time using the same alternate logic: if primary is +1 → alternate previews +Tier, else → +1. This is a logic change, not just a rename. |
+| `src/lib/input/interactable.ts` | `use:primary`/`use:auxiliary`/`use:secondary` pass new modifier shape. The secondary handler's touch path currently constructs `"none"` — update to `{ reverse: false, alternate: false }`. |
 
 ### Tests
 
@@ -169,6 +225,7 @@ type NodeOperation =
 |---|---|
 | `test/resolveAction.test.ts` | Rewrite expectations from `"macro"`/`"micro"` strings to `{ reverse, alternate }` objects. |
 | `test/resolveNodeAction.test.ts` | Replace tier/one operation tests with alternate operation tests. |
+| `test/inputLabels.test.ts` | Update modifier label tests for `"reverse"`/`"alternate"` naming. |
 
 ## Context Menu
 
