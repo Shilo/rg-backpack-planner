@@ -394,7 +394,7 @@ New mouse controls:
 | `longPress.ts` | Used internally by `use:secondary` |
 | `tooltip.ts` directive | Separate concern |
 | `hapticsStore.ts` | Called by Svelte actions internally |
-| `NodeContentMenu.svelte` | Keeps callback-prop pattern; Tree.svelte passes convenience wrappers instead of inline functions |
+| `NodeContextMenu.svelte` | Keeps callback-prop pattern; Tree.svelte passes convenience wrappers instead of inline functions |
 | Keyboard shortcuts (F9, Tab, Esc, Backspace) | Separate from pointer/touch input |
 
 ## Behavior Changes

@@ -5,7 +5,7 @@
 
 ## Problem
 
-The current `NodeContentMenu` button grid has an asymmetric layout:
+The current `NodeContextMenu` button grid has an asymmetric layout:
 
 ```
 +1    +10    +Tier
@@ -82,7 +82,7 @@ Add `ghost` boolean prop:
 - On hover, inherits the semantic background from the variant (e.g. `.button-negative.button-ghost:hover` gets `background: var(--danger-bg)`).
 - Works in combination with `negative`, `positive`, or `accent` props.
 
-### 2. `src/lib/NodeContentMenu.svelte`
+### 2. `src/lib/NodeContextMenu.svelte`
 
 - Add `onDecrementTier` callback prop.
 - Add `-Tier` button using `NodeContextButton` in the grid (position row 2, column 3), inside the existing `!isSingleLevel` conditional.
@@ -92,7 +92,7 @@ Add `ghost` boolean prop:
 
 ### 3. `src/lib/Tree.svelte`
 
-- Pass `onDecrementTier` to `NodeContentMenu`, wiring `nodeCallbacks.decrementTier`.
+- Pass `onDecrementTier` to `NodeContextMenu`, wiring `nodeCallbacks.decrementTier`.
 - (`levelDownTier` handler already exists — just needs wiring to the menu.)
 
 ### 4. `src/locales/*.json` (en, fr, ja, zh)

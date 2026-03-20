@@ -81,7 +81,10 @@ export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
 
 /**
  * Maps a keyboard event to a semantic KeyboardActionType.
- * Returns null for unrecognized or unhandled key combinations.
+ * Returns the first matching action from KEYBOARD_ACTION_BINDINGS, or null.
+ *
+ * Note: Enter returns "confirm" (first match), not "activate".
+ * Use isKeyboardAction(event, "activate") to test the activate binding.
  */
 export function resolveKeyboardAction(
     event: KeyboardEvent,

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Update the showcase video to match the app's default theme, feature NodeContentMenu in the intro, show onboarding on "Plan Your Builds", and refresh outro copy.
+**Goal:** Update the showcase video to match the app's default theme, feature NodeContextMenu in the intro, show onboarding on "Plan Your Builds", and refresh outro copy.
 
 **Architecture:** Two primary files change — the Remotion component (`Showcase.tsx`) for colors/content/sizing, and the Playwright capture script for screenshot flow. The SKILL.md doc is updated to match.
 
@@ -123,11 +123,11 @@ await mobileContext.addInitScript(() => {
 });
 ```
 
-- [ ] **Step 2: Replace intro capture with Late_PvP + NodeContentMenu**
+- [ ] **Step 2: Replace intro capture with Late_PvP + NodeContextMenu**
 
 Replace lines 36-39 (Late PvE mobile capture) with:
 ```js
-console.log(`Navigating to Late PvP (Mobile) with NodeContentMenu...`);
+console.log(`Navigating to Late PvP (Mobile) with NodeContextMenu...`);
 await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
 await mPage.waitForTimeout(3000);
 await mPage.locator('[data-node-id="9"]').click({ button: 'right' });
@@ -195,10 +195,10 @@ git commit -m "feat(video): update capture script for new theme screenshots"
 Key changes:
 - **Line 13 (Mobile):** Add note about onboarding suppression via `addInitScript`
 - **Line 14 (Desktop):** Change resolution from 1080p to `1280x720 @ 2x`. Note onboarding is **enabled** for this capture.
-- **Line 15 (Authentic Flow):** Keep Clone sequence description, add that intro captures `NodeContentMenu` via right-click on node 9.
+- **Line 15 (Authentic Flow):** Keep Clone sequence description, add that intro captures `NodeContextMenu` via right-click on node 9.
 - **Line 20 (Layout):** Note `DesktopFrame` is `1000x563px`.
 - **Line 26-31 (Capture Script):** Update screenshot names: `mobile_late_pvp_context.png`, `desktop_plan_onboarding.png`. Remove `mobile_mid_pve.png` reference.
-- **Line 36 (Intro):** Update to show Late PvP build with `NodeContentMenu` open.
+- **Line 36 (Intro):** Update to show Late PvP build with `NodeContextMenu` open.
 - **Line 37 (Content Strategy):** Update outro items: "Create Multiple Build Presets", "Share and Preview Builds", "Use Anywhere, Offline and in Your Language".
 - **Line 58 (Colors):** Replace cyan `#06b6d4` with sky-blue `#00adfc`. Note background is `#00040e`.
 - **Latest Results section:** Update all slide descriptions to match new content.

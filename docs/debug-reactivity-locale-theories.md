@@ -6,7 +6,7 @@
 
 ## Reported Symptoms
 
-1. **English flash on interaction** — Opening NodeContentMenu or switching TreeTabs briefly shows English locale strings on Node badges before reverting to Japanese.
+1. **English flash on interaction** — Opening NodeContextMenu or switching TreeTabs briefly shows English locale strings on Node badges before reverting to Japanese.
 2. **Node badge not reactively updating** — Leveling a node via NodeContextButton does not update the Node badge level display until a tab switch forces a remount.
 3. **Tech crystal count always 0** — TechCrystalDisplay shows 0 regardless of leveled nodes.
 4. **Tab switch forces correct state** — Switching away from a tab and back causes badge levels to display correctly, confirming the underlying store data is correct.
@@ -18,7 +18,7 @@ The reactivity chain was audited and found to be architecturally sound:
 - `techCrystalsSpent` is fully derived from `treeLevels` — never manually set
 - Tree context (`treeData`) is always replaced via `.set()`, never mutated
 - `updateLevels()` is synchronous — no debouncing or async in the update path
-- Node.svelte and NodeContentMenu.svelte both read from the same context store
+- Node.svelte and NodeContextMenu.svelte both read from the same context store
 
 This means the bugs are not caused by a logic error in the current codebase. Something in the user's environment is different.
 
@@ -56,7 +56,7 @@ The codebase uses Svelte 4 syntax (`export let`, `$:` reactive statements, `on:c
 
 - **Derived store batching:** Svelte 5 changed how reactivity is batched. `$:` blocks depending on store subscriptions (`$treeData`, `$treeLevels`) might not fire in the same microtask under certain conditions.
 - **`{#key}` block interaction:** Tree remounts via `{#key tabs[activeIndex].id}` in TreeTabs.svelte. If Svelte 5's compatibility layer has a bug where store subscriptions inside `{#key}` blocks lose their dependency tracking after initial mount, that would match all symptoms.
-- **Context store subscriptions:** Node.svelte and NodeContentMenu.svelte use `getContext("tree")` to get a writable store, then subscribe via `$treeData`. A race condition in how context subscriptions are established during component initialization could cause missed updates.
+- **Context store subscriptions:** Node.svelte and NodeContextMenu.svelte use `getContext("tree")` to get a writable store, then subscribe via `$treeData`. A race condition in how context subscriptions are established during component initialization could cause missed updates.
 
 **Chrome version matters here** — different V8 versions have different microtask scheduling behavior, and Svelte 5's signals-based reactivity interacts with this. A subtle timing difference in Promise/microtask resolution order could cause derived stores to miss an update on one Chrome version but not another.
 

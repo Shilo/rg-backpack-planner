@@ -42,6 +42,7 @@ function mockEvent(overrides: Partial<KeyboardEvent>): KeyboardEvent {
     assert.equal(resolveKeyboardAction(mockEvent({ key: "ArrowLeft" })), "cycle");
     assert.equal(resolveKeyboardAction(mockEvent({ key: "ArrowRight" })), "cycle");
     assert.equal(resolveKeyboardAction(mockEvent({ key: "Enter" })), "confirm");
+    assert.notEqual(resolveKeyboardAction(mockEvent({ key: "Enter" })), "activate", "Enter resolves to confirm, not activate");
     assert.equal(resolveKeyboardAction(mockEvent({ key: " " })), "activate");
     assert.equal(resolveKeyboardAction(mockEvent({ key: "`" })), "console");
     assert.equal(resolveKeyboardAction(mockEvent({ key: "F9" })), "screenshot");
@@ -147,6 +148,7 @@ console.log("  isKeyboardAction");
     // undo respects modifiers
     assert.equal(isKeyboardAction(mockEvent({ key: "z", ctrlKey: true }), "undo"), true);
     assert.equal(isKeyboardAction(mockEvent({ key: "z" }), "undo"), false, "z without Ctrl is not undo");
+    assert.equal(isKeyboardAction(mockEvent({ key: "z", ctrlKey: true, shiftKey: true }), "undo"), false, "Ctrl+Shift+Z is not undo");
     // canonicalKey: Caps Lock B → budget
     assert.equal(isKeyboardAction(mockEvent({ key: "B" }), "budget"), true);
     console.log("    ✓ isKeyboardAction matches action bindings correctly");

@@ -45,8 +45,8 @@ async function captureForLocale(locale = 'en') {
         await mPage.waitForTimeout(3000);
         await shot('mobile_late_pve.png', mPage);
 
-        // Slide 1 Right: Late PvP with NodeContentMenu on node 7
-        console.log('Capturing Late PvP with NodeContentMenu on node 7 (Slide 1 Right)...');
+        // Slide 1 Right: Late PvP with NodeContextMenu on node 7
+        console.log('Capturing Late PvP with NodeContextMenu on node 7 (Slide 1 Right)...');
         await mPage.goto(`${urlBase}${hashes.late_pvp}`, { waitUntil: 'networkidle' });
         await mPage.waitForTimeout(3000);
         await mPage.locator('button[data-node-id="7"]').click({ button: 'right' });

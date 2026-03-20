@@ -14,7 +14,7 @@
     import { fade } from "svelte/transition";
     import Node, { type NodeState } from "./Node.svelte";
     import RootNode from "./RootNode.svelte";
-    import NodeContentMenu from "./NodeContentMenu.svelte";
+    import NodeContextMenu from "./NodeContextMenu.svelte";
     import {
         LONG_PRESS_MOVE_THRESHOLD,
         clearLongPress,
@@ -1680,7 +1680,7 @@
                 {/each}
             </div>
 
-            <NodeContentMenu
+            <NodeContextMenu
                 nodeIndex={contextMenu?.index ?? null}
                 x={contextMenu?.x ?? 0}
                 y={contextMenu?.y ?? 0}

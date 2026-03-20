@@ -4,7 +4,7 @@
 
 **Goal:** Add a -Tier button to the node menu grid and relocate Reset below the grid as a ghost outline button.
 
-**Architecture:** The tier logic (`previousTierTargetLevel`, `levelDownTier`) already exists from the input system rework. This plan adds the UI: a `ghost` Button variant, wires -Tier into the node menu grid, and relocates Reset to a full-width ghost button below the grid. All callback wiring flows through Tree.svelte → NodeContentMenu.
+**Architecture:** The tier logic (`previousTierTargetLevel`, `levelDownTier`) already exists from the input system rework. This plan adds the UI: a `ghost` Button variant, wires -Tier into the node menu grid, and relocates Reset to a full-width ghost button below the grid. All callback wiring flows through Tree.svelte → NodeContextMenu.
 
 **Tech Stack:** Svelte 4 (legacy mode in Svelte 5 — uses `export let`, `$:`, `on:event`), TypeScript, phosphor-svelte icons, svelte-whisper i18n
 
@@ -131,12 +131,12 @@ git commit -m "feat(Button): add ghost variant for outline-style buttons"
 
 ---
 
-### Task 3: Add -Tier button and relocate Reset in NodeContentMenu
+### Task 3: Add -Tier button and relocate Reset in NodeContextMenu
 
 **Files:**
-- Modify: `src/lib/NodeContentMenu.svelte`
+- Modify: `src/lib/NodeContextMenu.svelte`
 
-**Context:** NodeContentMenu uses Svelte 4 legacy syntax. The `button-grid` div has 6 `NodeContextButton` children. Cost computation is an IIFE reactive block (`$: actionCosts = (() => { ... })()`, line 68-130) where each entry uses `computeTotalCost({...}).totalCost` guarded by `canUp`/`canDown`. Reset is the last button in the grid (line 300-313), always rendered (outside `!isSingleLevel`). Reset uses `NodeContextButton` with `negative` prop, inline `onClick`, and conditional `toastMessage`.
+**Context:** NodeContextMenu uses Svelte 4 legacy syntax. The `button-grid` div has 6 `NodeContextButton` children. Cost computation is an IIFE reactive block (`$: actionCosts = (() => { ... })()`, line 68-130) where each entry uses `computeTotalCost({...}).totalCost` guarded by `canUp`/`canDown`. Reset is the last button in the grid (line 300-313), always rendered (outside `!isSingleLevel`). Reset uses `NodeContextButton` with `negative` prop, inline `onClick`, and conditional `toastMessage`.
 
 - [ ] **Step 1: Add imports**
 
@@ -268,8 +268,8 @@ Notes:
 
 ```bash
 npm run check
-git add src/lib/NodeContentMenu.svelte
-git commit -m "feat(NodeContentMenu): add -Tier button, relocate Reset as ghost button"
+git add src/lib/NodeContextMenu.svelte
+git commit -m "feat(NodeContextMenu): add -Tier button, relocate Reset as ghost button"
 ```
 
 ---
@@ -279,11 +279,11 @@ git commit -m "feat(NodeContentMenu): add -Tier button, relocate Reset as ghost 
 **Files:**
 - Modify: `src/lib/Tree.svelte` (~line 1624)
 
-**Context:** Tree.svelte renders `<NodeContentMenu>` at line 1624-1640 with callback props. `levelDownTier` already exists (line 707) and is in `nodeCallbacks.decrementTier` (line 728). It just needs passing to the menu.
+**Context:** Tree.svelte renders `<NodeContextMenu>` at line 1624-1640 with callback props. `levelDownTier` already exists (line 707) and is in `nodeCallbacks.decrementTier` (line 728). It just needs passing to the menu.
 
-- [ ] **Step 1: Add `onDecrementTier` prop to NodeContentMenu rendering**
+- [ ] **Step 1: Add `onDecrementTier` prop to NodeContextMenu rendering**
 
-In the `<NodeContentMenu>` block (around line 1624), add after `onIncrementTier={levelUpTier}`:
+In the `<NodeContextMenu>` block (around line 1624), add after `onIncrementTier={levelUpTier}`:
 
 ```svelte
 onDecrementTier={levelDownTier}
@@ -294,7 +294,7 @@ onDecrementTier={levelDownTier}
 ```bash
 npm run check
 git add src/lib/Tree.svelte
-git commit -m "feat(Tree): wire onDecrementTier to NodeContentMenu"
+git commit -m "feat(Tree): wire onDecrementTier to NodeContextMenu"
 ```
 
 ---
@@ -302,7 +302,7 @@ git commit -m "feat(Tree): wire onDecrementTier to NodeContentMenu"
 ### Task 5: Update validation tests
 
 **Files:**
-- Modify: `test/nodeContentMenuTierAction.test.ts`
+- Modify: `test/nodeContextMenuTierAction.test.ts`
 
 **Context:** This test reads source files as strings and validates patterns with regex. Current checks: `onIncrementTier` prop, `computeTotalCost` usage, tier label switch logic, single-level conditional, Tree.svelte handler, and locale keys (en, ja, zh).
 
@@ -313,25 +313,25 @@ After the existing checks on `menuSource`, add:
 ```typescript
 if (!/onDecrementTier/.test(menuSource)) {
     throw new Error(
-        "NodeContentMenu should have onDecrementTier callback prop.",
+        "NodeContextMenu should have onDecrementTier callback prop.",
     );
 }
 
 if (!/previousTierTargetLevel/.test(menuSource)) {
     throw new Error(
-        "NodeContentMenu should use previousTierTargetLevel for -Tier cost.",
+        "NodeContextMenu should use previousTierTargetLevel for -Tier cost.",
     );
 }
 
 if (!/nodeMenu\.min/.test(menuSource)) {
     throw new Error(
-        "NodeContentMenu should use nodeMenu.min label for -Tier at tier 1.",
+        "NodeContextMenu should use nodeMenu.min label for -Tier at tier 1.",
     );
 }
 
 if (!/button-ghost|ghost/.test(menuSource)) {
     throw new Error(
-        "NodeContentMenu Reset button should use ghost Button variant.",
+        "NodeContextMenu Reset button should use ghost Button variant.",
     );
 }
 ```
@@ -341,7 +341,7 @@ After the existing checks on `treeSource`, add:
 ```typescript
 if (!/onDecrementTier/.test(treeSource)) {
     throw new Error(
-        "Tree should pass onDecrementTier to NodeContentMenu.",
+        "Tree should pass onDecrementTier to NodeContextMenu.",
     );
 }
 ```
@@ -362,7 +362,7 @@ Note: Skip validating the `"min"` key by regex — the string is too short and w
 
 ```bash
 npm test
-git add test/nodeContentMenuTierAction.test.ts
+git add test/nodeContextMenuTierAction.test.ts
 git commit -m "test: validate -Tier button and ghost Reset in node menu"
 ```
 

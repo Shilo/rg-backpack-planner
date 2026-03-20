@@ -1,19 +1,19 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const nodeMenuPath = resolve("src/lib/NodeContentMenu.svelte");
+const nodeMenuPath = resolve("src/lib/NodeContextMenu.svelte");
 const nodeMenuSource = readFileSync(nodeMenuPath, "utf8");
 const nodeMenuNormalized = nodeMenuSource.replace(/\s+/g, " ");
 
 if (!/export let onIncrementTier: \(\(index: NodeIndex\) => void\) \| null = null;/.test(nodeMenuNormalized)) {
     throw new Error(
-        "NodeContentMenu should expose onIncrementTier callback prop.",
+        "NodeContextMenu should expose onIncrementTier callback prop.",
     );
 }
 
 if (!/incrementTier: canUp \? computeTotalCost\(/.test(nodeMenuNormalized)) {
     throw new Error(
-        "NodeContentMenu should compute tier action cost via computeTotalCost.",
+        "NodeContextMenu should compute tier action cost via computeTotalCost.",
     );
 }
 
@@ -31,25 +31,25 @@ if (!/\{#if !isSingleLevel\}[\s\S]*nodeMenu\.incrementOne[\s\S]*nodeMenu\.increm
 
 if (!/onDecrementTier/.test(nodeMenuSource)) {
     throw new Error(
-        "NodeContentMenu should have onDecrementTier callback prop.",
+        "NodeContextMenu should have onDecrementTier callback prop.",
     );
 }
 
 if (!/previousTierTargetLevel/.test(nodeMenuSource)) {
     throw new Error(
-        "NodeContentMenu should use previousTierTargetLevel for -Tier cost.",
+        "NodeContextMenu should use previousTierTargetLevel for -Tier cost.",
     );
 }
 
 if (!/decrementTierIsReset/.test(nodeMenuSource)) {
     throw new Error(
-        "NodeContentMenu should use decrementTierIsReset to swap -Tier to Reset when at tier 1.",
+        "NodeContextMenu should use decrementTierIsReset to swap -Tier to Reset when at tier 1.",
     );
 }
 
 if (!/button-ghost|ghost/.test(nodeMenuSource)) {
     throw new Error(
-        "NodeContentMenu Reset button should use ghost Button variant.",
+        "NodeContextMenu Reset button should use ghost Button variant.",
     );
 }
 
@@ -69,13 +69,13 @@ if (!/const nextLevel = nextTierTargetLevel\(level, node.maxLevel\);/.test(treeN
 
 if (!/onIncrementTier=\{levelUpTier\}/.test(treeNormalized)) {
     throw new Error(
-        "Tree should pass levelUpTier to NodeContentMenu as onIncrementTier.",
+        "Tree should pass levelUpTier to NodeContextMenu as onIncrementTier.",
     );
 }
 
 if (!/onDecrementTier/.test(treeSource)) {
     throw new Error(
-        "Tree should pass onDecrementTier to NodeContentMenu.",
+        "Tree should pass onDecrementTier to NodeContextMenu.",
     );
 }
 

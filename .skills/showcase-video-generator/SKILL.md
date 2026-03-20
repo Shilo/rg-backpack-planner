@@ -49,7 +49,7 @@ Located at `.skills/showcase-video-generator/scripts/capture_screenshots.cjs`.
 - **Index Navigation**: Uses `.nth(i).click()` on tab buttons for locale-safe navigation.
 - **Onboarding Control**: Uses `addInitScript` to set `rg-backpack-planner-onboarding-seen` in `localStorage`.
 - **State Management**: Performs authentic Clone sequence for settings screenshots.
-- **Context Menu**: Right-clicks node 7 (`button[data-node-id="7"]`) for NodeContentMenu, then clicks +Tier button (`.context-menu button.node-ctx-btn.positive` nth 2) before capturing.
+- **Context Menu**: Right-clicks node 7 (`button[data-node-id="7"]`) for NodeContextMenu, then clicks +Tier button (`.context-menu button.node-ctx-btn.positive` nth 2) before capturing.
 - **ComposeScreenshot**: Opens via `F9` key, switches to stats tab via `.nth(1)`.
 - **General Settings**: Navigates via `[data-page="general"]` selector.
 - **Onboarding Steps**: Advances via `button[aria-label="Next step"]`.
@@ -72,7 +72,7 @@ Per locale, saved to `showcase-video/public/{locale}/`:
 | File | Context | Content |
 |------|---------|---------|
 | `mobile_late_pve.png` | Suppressed | Late PvE build (Slide 1 Left) |
-| `mobile_late_pvp_context.png` | Suppressed | Late PvP with NodeContentMenu on node 7, +Tier clicked (Slide 1 Right) |
+| `mobile_late_pvp_context.png` | Suppressed | Late PvP with NodeContextMenu on node 7, +Tier clicked (Slide 1 Right) |
 | `mobile_onboarding_step1.png` | Enabled | Onboarding Step 1 (Slide 2 Left) |
 | `mobile_onboarding_step2.png` | Enabled | Onboarding Step 2 (Slide 2 Right) |
 | `mobile_stats.png` | Suppressed | Late PvE statistics (Slide 3 Left) |

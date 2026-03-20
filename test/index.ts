@@ -53,7 +53,7 @@ const TEST_FILES = [
     "globalContextMenu.test.ts",
     "nodeBadge.test.ts",
     "nodeBadgeTypographyConsistency.test.ts",
-    "nodeContentMenuTierAction.test.ts",
+    "nodeContextMenuTierAction.test.ts",
     "nodeFocusStyle.test.ts",
     "rootNodeGearStructure.test.ts",
     "rootNodeQuickSettingsBackdropTouchGuard.test.ts",

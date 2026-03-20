@@ -2,7 +2,7 @@
 
 ## Goal
 
-Update the showcase video generator to match the app's default theme colors, feature the `NodeContentMenu` in the intro, show the onboarding system on the "Plan Your Builds" slide, and refresh the outro copy.
+Update the showcase video generator to match the app's default theme colors, feature the `NodeContextMenu` in the intro, show the onboarding system on the "Plan Your Builds" slide, and refresh the outro copy.
 
 ## Changes
 
@@ -37,13 +37,13 @@ await mobileContext.addInitScript(() => {
 
 For the desktop context that captures the "Plan Your Builds" slide, set `"false"` instead so the first onboarding step renders.
 
-#### Intro Screenshot (Mobile Late_PvP + NodeContentMenu)
+#### Intro Screenshot (Mobile Late_PvP + NodeContextMenu)
 
 Replace the current `mobile_late_pve.png` capture:
 1. Navigate to Late_PvP hash on mobile (393x852 @ 3x)
 2. Wait for render (3s)
 3. Right-click node 9: `page.locator('[data-node-id="9"]').click({ button: 'right' })`
-   - Playwright dispatches a `contextmenu` event even in mobile-emulation mode, which the app's `Tree.svelte` handler intercepts to open the `NodeContentMenu`.
+   - Playwright dispatches a `contextmenu` event even in mobile-emulation mode, which the app's `Tree.svelte` handler intercepts to open the `NodeContextMenu`.
 4. Wait for menu: `await page.waitForSelector('.context-menu', { state: 'visible', timeout: 5000 })`
 5. Capture as `mobile_late_pvp_context.png`
 
