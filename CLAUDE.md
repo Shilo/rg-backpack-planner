@@ -8,11 +8,7 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
   - `buildData/`, `buildImageExport/`, `sideMenuPages/`, `onboarding/`, `modals/`, `input/`, `buttons/`, `icons/`, `migrations/`, `dev/`
   - `themeEngine.ts`, `themeApply.ts` — OKLCH color system
 - `src/config/` — Tree defs (base, guardian, vanguard, cannon), skill metadata/icons/values
-- `src/locales/` — i18n (en, fr, ja, zh)
-- `src/theme.css` — Design tokens
-- `scripts/` — Build helpers (copy-404, bump-version, generate-pwa-icons, theme-defaults)
 - `test/` — CLI test suites; see [test/README.md](test/README.md)
-- `docs/` — Research, design critiques, plans/specs
 
 ## Commands
 
@@ -35,7 +31,7 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 - `npm test` mirrors to `test/index.output.log`, exits 1 on first failure.
 - When committing, use `npm test` only. Skip `test:ui:tier` unless requested.
 - Client-only PWA, no backend. `npm run dev` is all needed.
-- Skills in `.skills/`: `regenerate-locales`, `release-notes`, `showcase-video-generator`, `sync-docs`.
+- Skills in `.skills/`.
 
 ## Design
 
