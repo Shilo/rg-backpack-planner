@@ -22,7 +22,7 @@
     import { onMount, tick } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { t } from "svelte-whisper";
-    import { Key } from "./input";
+    import { Key, onKeyDown } from "./input";
 
     let myMenuId = -1;
 
@@ -343,11 +343,12 @@
         pointerId = null;
     }
 
+    onKeyDown(handleKeydown);
+
     onMount(() => {
         document.addEventListener("pointerup", handleDocumentPointerUp, {
             capture: true,
         });
-        document.addEventListener("keydown", handleKeydown);
         const handleResize = () => {
             if (isOpen) {
                 updatePosition();
@@ -358,7 +359,6 @@
             document.removeEventListener("pointerup", handleDocumentPointerUp, {
                 capture: true,
             });
-            document.removeEventListener("keydown", handleKeydown);
             window.removeEventListener("resize", handleResize);
             // Clean up registry if component is destroyed while open
             if (myMenuId !== -1) {
