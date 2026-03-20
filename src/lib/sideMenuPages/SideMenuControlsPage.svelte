@@ -91,6 +91,7 @@
     $: keyBack = getKeyboardActionLabel("back", $t);
     $: keyCycle = getKeyboardActionLabel("cycle", $t);
     $: keyScreenshot = getKeyboardActionLabel("screenshot", $t);
+    $: keyConsole = getKeyboardActionLabel("console", $t);
     $: keyUndo = getKeyboardActionLabel("undo", $t);
     $: keyRedo = getKeyboardActionLabel("redo", $t);
     $: hudPrimaryAction =
@@ -402,13 +403,14 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardScreenshotLabel", { action: keyScreenshot })}</span
+                                >{$t("controls.keyboardScreenshotLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
                                     "controls.keyboardScreenshotDescription",
                                 )}</span
                             >
+                            <span class="control-shortcut">{keyScreenshot}</span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -417,14 +419,14 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardCycleTabsLabel", { action: keyCycle })}</span
+                                >{$t("controls.keyboardCycleTabsLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
                                     "controls.keyboardCycleTabsDescription",
-                                    { action: keyCycle },
                                 )}</span
                             >
+                            <span class="control-shortcut">{keyCycle}</span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -433,11 +435,12 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardEscLabel", { action: keyDismiss })}</span
+                                >{$t("controls.keyboardEscLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t("controls.keyboardEscDescription")}</span
                             >
+                            <span class="control-shortcut">{keyDismiss}</span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -446,13 +449,14 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardBackspaceLabel", { action: keyBack })}</span
+                                >{$t("controls.keyboardBackspaceLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
                                     "controls.keyboardBackspaceDescription",
                                 )}</span
                             >
+                            <span class="control-shortcut">{keyBack}</span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -461,11 +465,12 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardUndoLabel", { action: keyUndo })}</span
+                                >{$t("controls.keyboardUndoLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t("controls.keyboardUndoDescription")}</span
                             >
+                            <span class="control-shortcut">{keyUndo}</span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -474,11 +479,12 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardRedoLabel", { action: keyRedo })}</span
+                                >{$t("controls.keyboardRedoLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t("controls.keyboardRedoDescription")}</span
                             >
+                            <span class="control-shortcut">{keyRedo}</span>
                         </p>
                     </li>
                 </ul>
@@ -513,6 +519,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudResetTreeDescription")}</span
                         >
+                        <span class="control-shortcut">{keyBack}</span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -526,6 +533,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudSideMenuDescription")}</span
                         >
+                        <span class="control-shortcut">{keyDismiss}</span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -567,6 +575,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudUndoDescription")}</span
                         >
+                        <span class="control-shortcut">{keyUndo}</span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -580,6 +589,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudRedoDescription")}</span
                         >
+                        <span class="control-shortcut">{keyRedo}</span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -596,6 +606,7 @@
                                 { action: hudPrimaryAction },
                             )}</span
                         >
+                        <span class="control-shortcut">{keyConsole}</span>
                     </p>
                 </li>
             </ul>
@@ -635,7 +646,7 @@
 
     .control-inline {
         margin: 0;
-        font-size: var(--font);
+        font-size: var(--font-base);
         line-height: var(--leading);
         overflow-wrap: break-word;
         min-width: 0;
@@ -651,6 +662,21 @@
 
     .control-inline > .control-desc::before {
         content: " — ";
+    }
+
+    .control-shortcut {
+        display: block;
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        line-height: var(--leading-none);
+        margin-top: var(--spacing-xs);
+    }
+
+    /* Hide keyboard shortcuts on touch-only devices */
+    @media (hover: none) {
+        .control-shortcut {
+            display: none;
+        }
     }
 
     /* Icon styles */
@@ -674,7 +700,7 @@
 
     .control-label {
         margin: 0;
-        font-size: var(--font);
+        font-size: var(--font-base);
         color: var(--text);
         overflow-wrap: break-word;
         min-width: 0;

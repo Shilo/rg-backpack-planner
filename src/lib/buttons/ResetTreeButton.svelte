@@ -8,6 +8,7 @@
     import type { Node } from "../../types/tree";
     import type { TreeBranchKey } from "../treeLevelsStore";
     import { t } from "svelte-whisper";
+    import { getKeyboardActionLabel } from "../input";
 
     export let onReset: (() => void) | null = null;
     export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
@@ -53,6 +54,7 @@
 <Button
     on:click={handleReset}
     description={$t("settings.resetTreeDescription")}
+    shortcut={getKeyboardActionLabel("back", $t)}
     icon={ArrowCounterClockwiseIcon}
     arrow="right"
     negative

@@ -23,6 +23,7 @@
     import type { BuildData } from "../buildData/encoder";
     import { truncateText } from "../stringUtil";
     import { t } from "svelte-whisper";
+    import { getKeyboardActionLabel } from "../input";
     import { isPreviewMode } from "../previewModeStore";
 
     export let title: string | undefined;
@@ -244,6 +245,7 @@
             <Button
                 on:click={handleComposeScreenshot}
                 tooltipText={$t("share.copyScreenshotTooltip")}
+                shortcut={getKeyboardActionLabel("screenshot", $t)}
                 icon={ImageIcon}
                 arrow="right"
             >

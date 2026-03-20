@@ -12,6 +12,7 @@
     import { getTreeIcon } from "./customIcons";
     import { sumLevels, type TreeBranchKey } from "./treeLevelsStore";
     import { t } from "svelte-whisper";
+    import { getKeyboardActionLabel } from "./input";
 
     export let onUndo: ((activeTreeIndex: number) => void) | null = null;
     export let onRedo: ((activeTreeIndex: number) => void) | null = null;
@@ -34,6 +35,9 @@
     $: activeTreeLevelsTotal = sumLevels(activeLevels);
     $: canResetTree = activeTreeLevelsTotal > 0 && !!onReset && !!onResetBranch;
     $: treeIcon = getTreeIcon(treeId);
+    $: keyUndo = getKeyboardActionLabel("undo", $t);
+    $: keyRedo = getKeyboardActionLabel("redo", $t);
+    $: keyBack = getKeyboardActionLabel("back", $t);
     $: showUndoRedo = $canUndo || $canRedo || forceShow;
     $: showToolbar = showUndoRedo || canResetTree || forceShow;
 
@@ -100,6 +104,7 @@
                     class="undo-redo-toolbar__btn"
                     aria-label={$t("common.undo")}
                     tooltipText={$t("common.undo")}
+                    shortcut={keyUndo}
                     icon={ArrowArcLeftIcon}
                     small
                     disabled={!$canUndo}
@@ -109,6 +114,7 @@
                     class="undo-redo-toolbar__btn"
                     aria-label={$t("common.redo")}
                     tooltipText={$t("common.redo")}
+                    shortcut={keyRedo}
                     icon={ArrowArcRightIcon}
                     small
                     disabled={!$canRedo}
@@ -121,6 +127,7 @@
             class="undo-redo-toolbar__btn"
             aria-label={$t("modal.resetTree.optionsLabel", { treeName })}
             tooltipText={$t("modal.resetTree.optionsLabel", { treeName })}
+            shortcut={keyBack}
             icon={ArrowCounterClockwiseIcon}
             iconClass="undo-redo-toolbar__icon-reset"
             small

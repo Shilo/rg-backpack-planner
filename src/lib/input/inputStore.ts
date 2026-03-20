@@ -13,8 +13,8 @@ const initialState: InputState = {
 /** Global input state (modifier keys). Updated by useInputStore. */
 export const inputStore = writable<InputState>({ ...initialState });
 
-/** Only attach key listeners when device likely has a keyboard. */
-function hasKeyboard(): boolean {
+/** True when device likely has a keyboard (hover + fine pointer). */
+export function hasKeyboard(): boolean {
     return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 

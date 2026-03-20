@@ -4,6 +4,8 @@
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { formatNumber } from "svelte-whisper";
+    import { buildShortcutTooltip } from "./input";
+    import { tooltip } from "./tooltip";
 
     export let icon: Component | null = null;
     export let label: string;
@@ -13,7 +15,10 @@
     export let disabled: boolean | undefined = undefined;
     export let toastMessage: string | undefined = undefined;
     export let toastNegative = false;
+    export let shortcut: string | undefined = undefined;
     export let onClick: (() => void) | null = null;
+
+    $: tooltipParam = buildShortcutTooltip(undefined, shortcut);
 </script>
 
 <button
@@ -21,6 +26,7 @@
     class:positive
     class:negative
     {disabled}
+    use:tooltip={tooltipParam}
     on:click={() => {
         if (onClick || toastMessage) triggerHaptic();
         if (onClick) onClick();
@@ -159,4 +165,5 @@
     :disabled .action-icon :global(svg) {
         color: var(--text-disabled);
     }
+
 </style>

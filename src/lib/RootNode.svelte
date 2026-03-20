@@ -3,6 +3,7 @@
     import { RootNodeIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
+    import { buildShortcutTooltip, getKeyboardActionLabel } from "./input";
 
     const ROOT_SIZE = 44;
 
@@ -30,12 +31,15 @@
     function handleContextMenu(event: MouseEvent) {
         openQuickSettings(event.currentTarget as HTMLElement);
     }
+
+    $: rootTooltipContent = buildShortcutTooltip($t("quickSettings.title"), getKeyboardActionLabel("console", $t));
+    $: rootTooltipParam = rootTooltipContent != null ? { content: rootTooltipContent, hoverOnly: true } : undefined;
 </script>
 
 <div
     class="root-wrapper"
     style="left: {x}px; top: {y}px; width: {ROOT_SIZE}px; height: {ROOT_SIZE}px"
-    use:tooltip={{ content: $t("quickSettings.title"), hoverOnly: true }}
+    use:tooltip={rootTooltipParam}
 >
     <button
         type="button"

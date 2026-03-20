@@ -19,7 +19,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary } from "./input";
+    import { secondary, getKeyboardActionLabel, getDeviceInputLabels } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -138,6 +138,24 @@
         openResetChoicesForActiveTab();
     }
 
+    function handleConsoleKeydown(event: KeyboardEvent) {
+        if (event.key !== "`" || !tabsRootEl) return;
+        if (isMenuOpen || $isComposeScreenshotOpen) return;
+        if (hasOnboardingOverlay()) return;
+        if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
+            return;
+        if (event.repeat) return;
+        event.preventDefault();
+        if (quickSettings) {
+            quickSettings = null;
+            return;
+        }
+        const rootEl = tabsRootEl.querySelector('[data-node-id="root"]');
+        if (!rootEl) return;
+        const rect = rootEl.getBoundingClientRect();
+        openRootQuickSettings(rect.left + rect.width / 2, rect.top);
+    }
+
     onMount(() => {
         hasMounted = true;
         // Restore active tab from localStorage (only set index, don't call setActive to avoid interfering with tree positioning)
@@ -152,14 +170,12 @@
         isInitialRestore = false;
         window.addEventListener("keydown", handleTabKeydown, true);
         window.addEventListener("keydown", handleBackspaceKeydown, true);
+        window.addEventListener("keydown", handleConsoleKeydown, true);
         if (!tabsBarEl) {
             return () => {
                 window.removeEventListener("keydown", handleTabKeydown, true);
-                window.removeEventListener(
-                    "keydown",
-                    handleBackspaceKeydown,
-                    true,
-                );
+                window.removeEventListener("keydown", handleBackspaceKeydown, true);
+                window.removeEventListener("keydown", handleConsoleKeydown, true);
             };
         }
         const observer = new ResizeObserver(() => {
@@ -170,6 +186,7 @@
         return () => {
             window.removeEventListener("keydown", handleTabKeydown, true);
             window.removeEventListener("keydown", handleBackspaceKeydown, true);
+            window.removeEventListener("keydown", handleConsoleKeydown, true);
             observer.disconnect();
         };
     });
@@ -233,6 +250,7 @@
         }
     }
 
+    $: mouse = getDeviceInputLabels("mouse", $t);
     $: ensureTreeLevels(tabs);
     $: globalLeveledLeafNodesOutsideActiveTreeCount =
         countGlobalLeveledLeafNodesOutsideActiveTree(
@@ -476,6 +494,8 @@
                         icon={getTabIcon(tab.id)}
                         iconSize={18}
                         iconClass="tree-tab-icon"
+                        tooltipText={$t("trees.named", { label: tab.label })}
+                        shortcut={mouse.secondary}
                         on:click={() => onTabClick(index)}
                         on:contextmenu={(event: Event) =>
                             openTabMenu(event, tab, index)}
@@ -493,6 +513,7 @@
             class="menu-button"
             aria-label="Menu"
             tooltipText={$t("tree.menuButtonTooltip")}
+            shortcut={getKeyboardActionLabel("dismiss", $t)}
             on:click={() => onMenuClick?.()}
             icon={ListIcon}
             iconClass="menu-button-icon"
@@ -559,6 +580,10 @@
         x={quickSettings?.x ?? 0}
         y={quickSettings?.y ?? 0}
         isOpen={!!quickSettings}
+        treeLabel={activeLabel}
+        activeLevels={$treeLevels[activeIndex] ?? null}
+        onResetBranch={(branch) => resetBranchByIndex(activeIndex, branch)}
+        onResetTree={() => resetTreeByIndex(activeIndex)}
         onClose={() => {
             quickSettings = null;
         }}

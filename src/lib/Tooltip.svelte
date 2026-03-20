@@ -157,6 +157,8 @@
                 {#each $tooltipStore.sections as section}
                     {#if section.type === "text"}
                         <div class="tooltip-line">{section.value}</div>
+                    {:else if section.type === "shortcut"}
+                        <div class="tooltip-shortcut">{section.value}</div>
                     {/if}
                 {/each}
                 {#if $tooltipStore.sections.some((s) => s.type === "action-preview")}

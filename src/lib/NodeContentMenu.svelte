@@ -30,6 +30,7 @@
     import type { Writable } from "svelte/store";
     import { computeTotalCost } from "./nodeActionPreview";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
+    import { getDeviceInputLabels } from "./input";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -181,6 +182,8 @@
         skillId === "final_damage_boost" &&
         level === 0 &&
         isGlobalIncrementLocked;
+
+    $: mouse = getDeviceInputLabels("mouse", $t);
 </script>
 
 <ContextMenu
@@ -268,6 +271,7 @@
                 <NodeContextButton
                     icon={CaretUpIcon}
                     label={$t("nodeMenu.incrementOne")}
+                    shortcut={mouse.microPrimary}
                     crystalValue={actionCosts?.increment1 ?? null}
                     positive
                     disabled={nodeIndex === null ||
@@ -297,6 +301,7 @@
                 label={tierTargetLevel >= maxLevel
                     ? $t("nodeMenu.max")
                     : $t("nodeMenu.incrementTier")}
+                shortcut={mouse.macroPrimary}
                 crystalValue={actionCosts?.incrementTier ?? null}
                 positive
                 disabled={nodeIndex === null ||
@@ -311,6 +316,7 @@
                 <NodeContextButton
                     icon={CaretDownIcon}
                     label={$t("nodeMenu.decrementOne")}
+                    shortcut={mouse.microAuxiliary}
                     crystalValue={actionCosts?.decrement1 ?? null}
                     negative
                     disabled={nodeIndex === null || level <= 0}
@@ -336,6 +342,7 @@
                 label={decrementTierIsReset
                     ? $t("nodeMenu.reset")
                     : $t("nodeMenu.decrementTier")}
+                shortcut={mouse.macroAuxiliary}
                 crystalValue={actionCosts?.decrementTier ?? null}
                 negative
                 disabled={nodeIndex === null || level <= 0}

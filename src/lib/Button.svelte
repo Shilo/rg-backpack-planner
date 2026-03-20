@@ -3,7 +3,7 @@
     import { createEventDispatcher } from "svelte";
     import { showToast } from "./toast";
     import { tooltip, type TooltipContent } from "./tooltip";
-    import { primary, secondary } from "./input";
+    import { primary, secondary, buildShortcutTooltip } from "./input";
     import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
     export let icon: Component | null = null;
@@ -35,17 +35,19 @@
     export let arrow: "right" | "down" | undefined = undefined;
     export let description: string | undefined = undefined;
     export let descriptionIcon: Component | null = null;
+    export let shortcut: string | undefined = undefined;
 
     let restClass: string | undefined;
     let buttonProps: Record<string, unknown> = {};
 
     $: ({ class: restClass, ...buttonProps } = $$restProps);
+    $: resolvedTooltip = buildShortcutTooltip(tooltipText, shortcut);
     $: tooltipParam =
-        tooltipText == null
+        resolvedTooltip == null
             ? undefined
             : tooltipHoverOnly
-              ? { content: tooltipText, hoverOnly: true }
-              : tooltipText;
+              ? { content: resolvedTooltip, hoverOnly: true }
+              : resolvedTooltip;
 
     $: computedClass = [
         "button",
@@ -344,4 +346,5 @@
         white-space: normal;
         overflow-wrap: anywhere;
     }
+
 </style>

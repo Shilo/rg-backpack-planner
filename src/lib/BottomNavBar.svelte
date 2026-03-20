@@ -5,6 +5,7 @@
     import { tooltip } from "./tooltip";
     import { t } from "svelte-whisper";
     import { triggerHaptic } from "./hapticsStore";
+    import { getKeyboardActionLabel, buildShortcutTooltip } from "./input";
 
     export let tabs: TabBarItem[];
     export let activeTab: string;
@@ -22,7 +23,7 @@
     <button
         class="bottom-nav-bar__close-button"
         aria-label={$t("common.close")}
-        use:tooltip={$t("common.close")}
+        use:tooltip={buildShortcutTooltip($t("common.close"), getKeyboardActionLabel("dismiss", $t))}
         on:click={handleCloseClick}
         type="button"
     >

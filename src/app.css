@@ -222,6 +222,12 @@ textarea,
     display: block;
 }
 
+.tooltip-shortcut {
+    display: block;
+    font-size: var(--font-sm);
+    color: var(--text-disabled);
+}
+
 .tooltip-action-grid {
     display: grid;
     grid-template-columns: auto auto auto auto;

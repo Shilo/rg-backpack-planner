@@ -3,8 +3,9 @@
  *
  * dismiss  — Escape (close menu, cancel, back out)
  * back     — Backspace (undo last step, reset state)
- * cycle    — Tab (navigate between tabs/sections)
+ * cycle    — Tab / ← / → (cycle between tabs/sections)
  * confirm  — Enter / Space (activate, submit)
+ * console  — ` (backtick / tilde — toggle overlay panel, e.g. quick settings)
  * undo     — Ctrl+Z
  * redo     — Ctrl+Y / Ctrl+Shift+Z
  * screenshot — F9
@@ -14,6 +15,7 @@ export type KeyboardActionType =
     | "back"
     | "cycle"
     | "confirm"
+    | "console"
     | "undo"
     | "redo"
     | "screenshot";
@@ -32,6 +34,7 @@ export function resolveKeyboardAction(
     if (key === "Backspace") return "back";
     if (key === "Tab") return "cycle";
     if (key === "Enter" || key === " ") return "confirm";
+    if (key === "`") return "console";
     if (mod && key === "z" && !shiftKey) return "undo";
     if (mod && (key === "y" || (key === "z" && shiftKey) || (key === "Z" && shiftKey))) return "redo";
     if (key === "F9") return "screenshot";
