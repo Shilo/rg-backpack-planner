@@ -33,7 +33,7 @@
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { t } from "svelte-whisper";
     import { showOnboarding } from "../onboarding/onboardingStore";
-    import { getDeviceInputLabels } from "../input";
+    import { getDeviceInputLabels, getKeyboardActionLabel } from "../input";
 
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
@@ -85,6 +85,10 @@
     let controls: ControlItem[] = [];
     $: mouse = getDeviceInputLabels("mouse", $t);
     $: touch = getDeviceInputLabels("touch", $t);
+    $: keyDismiss = getKeyboardActionLabel("dismiss", $t);
+    $: keyBack = getKeyboardActionLabel("back", $t);
+    $: keyCycle = getKeyboardActionLabel("cycle", $t);
+    $: keyScreenshot = getKeyboardActionLabel("screenshot", $t);
     $: hudPrimaryAction =
         showMouse && showTouch
             ? `${mouse.primary} / ${touch.primary}`
@@ -473,7 +477,7 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardScreenshotLabel")}</span
+                                >{$t("controls.keyboardScreenshotLabel", { action: keyScreenshot })}</span
                             >
                             <span class="control-desc"
                                 >{$t(
@@ -488,11 +492,12 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardCycleTabsLabel")}</span
+                                >{$t("controls.keyboardCycleTabsLabel", { action: keyCycle })}</span
                             >
                             <span class="control-desc"
                                 >{$t(
                                     "controls.keyboardCycleTabsDescription",
+                                    { action: keyCycle },
                                 )}</span
                             >
                         </p>
@@ -503,7 +508,7 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardEscLabel")}</span
+                                >{$t("controls.keyboardEscLabel", { action: keyDismiss })}</span
                             >
                             <span class="control-desc"
                                 >{$t("controls.keyboardEscDescription")}</span
@@ -516,7 +521,7 @@
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardBackspaceLabel")}</span
+                                >{$t("controls.keyboardBackspaceLabel", { action: keyBack })}</span
                             >
                             <span class="control-desc"
                                 >{$t(
