@@ -19,7 +19,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, Key } from "./input";
+    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, Key, onKeyDown } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -162,6 +162,8 @@
         }
     }
 
+    onKeyDown(handleGlobalKeydown);
+
     onMount(() => {
         hasMounted = true;
         // Restore active tab from localStorage (only set index, don't call setActive to avoid interfering with tree positioning)
@@ -174,11 +176,8 @@
         }
         // Mark that initial restore is complete
         isInitialRestore = false;
-        window.addEventListener("keydown", handleGlobalKeydown, true);
         if (!tabsBarEl) {
-            return () => {
-                window.removeEventListener("keydown", handleGlobalKeydown, true);
-            };
+            return;
         }
         const observer = new ResizeObserver(() => {
             bottomInset = tabsBarEl ? tabsBarEl.offsetHeight : 0;
@@ -186,7 +185,6 @@
         observer.observe(tabsBarEl);
         bottomInset = tabsBarEl.offsetHeight;
         return () => {
-            window.removeEventListener("keydown", handleGlobalKeydown, true);
             observer.disconnect();
         };
     });
