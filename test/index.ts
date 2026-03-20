@@ -22,6 +22,7 @@ const TEST_FILES = [
     "tierTargetLevelFns.test.ts",
     "nodeActionPreview.test.ts",
     "resolveAction.test.ts",
+    "resolveNodeAction.test.ts",
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
     "calculateTechCrystalsSpent.test.ts",
