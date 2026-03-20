@@ -12,6 +12,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
+    import { getInputLabel } from "./input";
 
     export let x = 0;
     export let y = 0;
@@ -36,10 +37,11 @@
     });
 
     $: clickActionLabel = $t("settings.nodePrimaryActionTitle", {
-        primaryAction: $t(
-            isTouchPlatform
-                ? "settings.nodePrimaryActionTouch"
-                : "settings.nodePrimaryActionLeftClick",
+        primaryAction: getInputLabel(
+            "primary",
+            "none",
+            isTouchPlatform ? "touch" : "mouse",
+            $t,
         ),
     });
 

@@ -6,6 +6,7 @@
     import { NODE_RADIUS_PX } from "../Node.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
+    import { getInputLabel } from "../input";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
     import type { Rect } from "./paneLayout";
@@ -80,9 +81,12 @@
         : panePadding;
 
     $: primaryInputIcon = isTouch ? HandTapIcon : MouseLeftClickIcon;
-    $: primaryInputLabel = isTouch
-        ? $t("onboarding.tap")
-        : $t("onboarding.leftClick");
+    $: primaryInputLabel = getInputLabel(
+        "primary",
+        "none",
+        isTouch ? "touch" : "mouse",
+        $t,
+    );
 
     $: steps = createOnboardingSteps({
         translate: (key, params) => $t(key, params),
