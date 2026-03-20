@@ -84,6 +84,23 @@ function mockEvent(overrides: Partial<KeyboardEvent>): KeyboardEvent {
     console.log("    ✓ b → budget, Ctrl+B → null");
 }
 
+// cyclePrimaryAction: n without Ctrl
+{
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "n" })), "cyclePrimaryAction");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "n", ctrlKey: true })), null, "Ctrl+N should not trigger cyclePrimaryAction");
+    console.log("    ✓ n → cyclePrimaryAction, Ctrl+N → null");
+}
+
+// Caps Lock bugfix: N without Ctrl should be cyclePrimaryAction
+{
+    assert.equal(
+        resolveKeyboardAction(mockEvent({ key: "N" })),
+        "cyclePrimaryAction",
+        "Caps Lock + N (event.key='N') should resolve to cyclePrimaryAction",
+    );
+    console.log("    ✓ Caps Lock + N → cyclePrimaryAction (bugfix)");
+}
+
 // Caps Lock bugfix: Z without shift should still be undo when Ctrl held
 {
     assert.equal(
@@ -191,6 +208,14 @@ console.log("  isKeyboardAction");
     console.log("    ✓ isKeyboardAction budget respects ctrl constraint");
 }
 
+// cyclePrimaryAction blocked by Ctrl
+{
+    assert.equal(isKeyboardAction(mockEvent({ key: "n" }), "cyclePrimaryAction"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "n", ctrlKey: true }), "cyclePrimaryAction"), false, "Ctrl+N is not cyclePrimaryAction");
+    assert.equal(isKeyboardAction(mockEvent({ key: "N" }), "cyclePrimaryAction"), true, "Caps Lock + N is cyclePrimaryAction");
+    console.log("    ✓ isKeyboardAction cyclePrimaryAction respects ctrl constraint");
+}
+
 // focusTrap: Tab only (distinct from cycle which also matches ArrowLeft/ArrowRight)
 {
     assert.equal(isKeyboardAction(mockEvent({ key: "Tab" }), "focusTrap"), true);
@@ -231,9 +256,10 @@ console.log("  keyForAction");
     assert.equal(keyForAction("screenshot"), "F9");
     assert.equal(keyForAction("budget"), "b");
     assert.equal(keyForAction("focusTrap"), "Tab");
+    assert.equal(keyForAction("cyclePrimaryAction"), "n");
     // Every action in KEYBOARD_ACTION_BINDINGS should return a non-empty string
     const allActions: KeyboardActionType[] = [
-        "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget", "focusTrap",
+        "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget", "focusTrap", "cyclePrimaryAction",
     ];
     for (const action of allActions) {
         assert.ok(keyForAction(action).length > 0, `keyForAction("${action}") should return a non-empty string`);
