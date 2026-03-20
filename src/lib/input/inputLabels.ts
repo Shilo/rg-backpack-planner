@@ -73,7 +73,9 @@ export function getKeyboardActionLabel(action: KeyboardActionType, t: TranslateF
     }
     if (action === "cycle") {
         const sep = t("input.keyboardSeparator");
-        return t("input.keyboard.cycle") + sep + t("input.keyboard.arrowLeft") + sep + t("input.keyboard.arrowRight");
+        const tab = t("input.keyboard.cycle");
+        const shiftTab = t("input.macro") + t("input.modifierSeparator") + tab;
+        return tab + sep + shiftTab + sep + t("input.keyboard.arrowLeft") + sep + t("input.keyboard.arrowRight");
     }
     return t(`input.keyboard.${action}`);
 }

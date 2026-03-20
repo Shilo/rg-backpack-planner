@@ -32,7 +32,8 @@
     } from "./treeLevelsStore";
     import type { TreeBranchKey } from "./treeLevelsStore";
     import { openResetTreeChoicesModal } from "./resetTreeModal";
-    import { isKeyboardShortcutTarget, hasOnboardingOverlay } from "./domUtil";
+    import { modalStore } from "./modalStore";
+    import { isKeyboardShortcutTarget, isFormField, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
@@ -140,10 +141,9 @@
 
     function handleConsoleKeydown(event: KeyboardEvent) {
         if (event.key !== "`" || !tabsRootEl) return;
-        if (isMenuOpen || $isComposeScreenshotOpen) return;
+        if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
         if (hasOnboardingOverlay()) return;
-        if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
-            return;
+        if (isFormField(document.activeElement)) return;
         if (event.repeat) return;
         event.preventDefault();
         if (quickSettings) {
