@@ -1,19 +1,22 @@
-import type { InputAction, InputModifier, PointerDevice } from "./inputAction";
+import type { InputAction, InputModifiers, PointerDevice } from "./inputAction";
 import type { InputState } from "./inputStore";
 import type { ModifierKeyMap } from "./modifierKeyMap";
 import { DEFAULT_MODIFIER_KEY_MAP } from "./modifierKeyMap";
 
+const NO_MODIFIERS: InputModifiers = { reverse: false, alternate: false };
+
 /**
- * Translates physical key state to abstract modifier.
- * Macro takes priority if both keys are held.
+ * Translates physical key state to composable modifier object.
+ * Both reverse and alternate are independently active.
  */
-export function resolveModifier(
+export function resolveModifiers(
     state: InputState,
     keyMap: ModifierKeyMap = DEFAULT_MODIFIER_KEY_MAP,
-): InputModifier {
-    if (state[keyMap.macro]) return "macro";
-    if (state[keyMap.micro]) return "micro";
-    return "none";
+): InputModifiers {
+    return {
+        reverse: state[keyMap.reverse],
+        alternate: state[keyMap.alternate],
+    };
 }
 
 function normalizeDevice(pointerType: string): PointerDevice {
@@ -22,26 +25,26 @@ function normalizeDevice(pointerType: string): PointerDevice {
 
 /**
  * Pure function: raw event data in, semantic action out.
- * Accepts raw pointerType string — normalizes "pen" to "mouse" internally.
+ * Touch devices force modifiers to { reverse: false, alternate: false }.
  * Returns null for unsupported button/device combinations.
  */
 export function resolveAction(
     button: number,
-    modifier: InputModifier,
+    modifiers: InputModifiers,
     pointerType: string,
 ): InputAction | null {
     const device = normalizeDevice(pointerType);
-    const resolvedModifier = device === "touch" ? "none" : modifier;
+    const resolved = device === "touch" ? NO_MODIFIERS : modifiers;
 
     if (button === 0) {
-        return { type: "primary", modifier: resolvedModifier, device };
+        return { type: "primary", modifiers: resolved, device };
     }
     if (button === 1) {
         if (device === "touch") return null;
-        return { type: "auxiliary", modifier: resolvedModifier, device };
+        return { type: "auxiliary", modifiers: resolved, device };
     }
     if (button === 2) {
-        return { type: "secondary", modifier: resolvedModifier, device };
+        return { type: "secondary", modifiers: resolved, device };
     }
     return null;
 }
