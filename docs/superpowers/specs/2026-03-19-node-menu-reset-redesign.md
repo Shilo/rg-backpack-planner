@@ -67,16 +67,14 @@ No change. The `isSingleLevel` branch already hides the ±1/±10 buttons and onl
 
 The -Tier button is hidden for single-level nodes (same conditional as ±1/±10), since +Tier toggles between 0 and 1.
 
-## Changes
+## Already Implemented (from input system rework)
 
-### 1. `src/lib/tierLeveling.ts`
+- `previousTierTargetLevel(level, maxLevel)` in `src/lib/tierLeveling.ts` — fully implemented.
+- `levelDownTier(index)` handler in `src/lib/Tree.svelte` — fully implemented, available in `nodeCallbacks.decrementTier`.
 
-Add `previousTierTargetLevel(level, maxLevel)`:
+## Remaining Changes
 
-- Uses existing `tierIndex()` and `tierUpper()` helpers.
-- Returns the upper bound of the previous tier, or 0 if in tier 1.
-
-### 2. `src/lib/Button.svelte`
+### 1. `src/lib/Button.svelte`
 
 Add `ghost` boolean prop:
 
@@ -84,7 +82,7 @@ Add `ghost` boolean prop:
 - On hover, inherits the semantic background from the variant (e.g. `.button-negative.button-ghost:hover` gets `background: var(--danger-bg)`).
 - Works in combination with `negative`, `positive`, or `accent` props.
 
-### 3. `src/lib/NodeContentMenu.svelte`
+### 2. `src/lib/NodeContentMenu.svelte`
 
 - Add `onDecrementTier` callback prop.
 - Add `-Tier` button using `NodeContextButton` in the grid (position row 2, column 3), inside the existing `!isSingleLevel` conditional.
@@ -92,18 +90,18 @@ Add `ghost` boolean prop:
 - Add `decrementTier` cost to `actionCosts` reactive block.
 - Compute `previousTierTargetLevel` for the -Tier label (show "Min" when appropriate).
 
-### 4. `src/lib/Tree.svelte`
+### 3. `src/lib/Tree.svelte`
 
-- Add `levelDownTier(index)` handler using `previousTierTargetLevel`.
-- Pass `onDecrementTier={levelDownTier}` to `NodeContentMenu`.
+- Pass `onDecrementTier` to `NodeContentMenu`, wiring `nodeCallbacks.decrementTier`.
+- (`levelDownTier` handler already exists — just needs wiring to the menu.)
 
-### 5. `src/locales/*.json` (en, fr, ja, zh)
+### 4. `src/locales/*.json` (en, fr, ja, zh)
 
 Add keys:
 - `nodeMenu.decrementTier`: "-Tier"
 - `nodeMenu.min`: "Min"
 
-### 6. `src/lib/nodeActionPreview.ts`
+### 5. `src/lib/nodeActionPreview.ts`
 
 No changes — `computeTotalCost` already accepts any `targetLevel`. The new `-Tier` action just passes `previousTierTargetLevel(level, maxLevel)` as the target.
 

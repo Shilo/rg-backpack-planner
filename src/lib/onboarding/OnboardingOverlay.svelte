@@ -103,9 +103,9 @@
         currentStepIndex = steps.length - 1;
     }
     $: activeStep = steps[currentStepIndex] ?? null;
-    $: actionHint = isTouch
-        ? $t("onboarding.continueTap")
-        : $t("onboarding.continueClick");
+    $: actionHint = $t("onboarding.continueAction", {
+        action: primaryInputLabel,
+    });
     const prefersReducedMotion =
         typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;

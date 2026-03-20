@@ -242,14 +242,9 @@ for (const localePath of [
     if (typeof locale.onboarding?.hudSection !== "string") {
         throw new Error(`${localePath}: onboarding.hudSection key is required.`);
     }
-    if (typeof locale.onboarding?.continueClick !== "string") {
+    if (typeof locale.onboarding?.continueAction !== "string") {
         throw new Error(
-            `${localePath}: onboarding.continueClick key is required.`,
-        );
-    }
-    if (typeof locale.onboarding?.continueTap !== "string") {
-        throw new Error(
-            `${localePath}: onboarding.continueTap key is required.`,
+            `${localePath}: onboarding.continueAction key is required.`,
         );
     }
 }

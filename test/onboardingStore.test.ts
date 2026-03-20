@@ -43,12 +43,6 @@ for (const localePath of localePaths) {
     if (!/"onboarding"\s*:\s*\{/.test(source)) {
         throw new Error(`${localePath}: onboarding translation section is required.`);
     }
-    if (!/"dismissClick"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.dismissClick key is required.`);
-    }
-    if (!/"dismissTap"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.dismissTap key is required.`);
-    }
     if (!/"nodesSection"/.test(source)) {
         throw new Error(`${localePath}: onboarding.nodesSection key is required.`);
     }
@@ -58,11 +52,8 @@ for (const localePath of localePaths) {
     if (!/"showTutorial"/.test(source)) {
         throw new Error(`${localePath}: onboarding.showTutorial key is required.`);
     }
-    if (!/"continueClick"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.continueClick key is required.`);
-    }
-    if (!/"continueTap"/.test(source)) {
-        throw new Error(`${localePath}: onboarding.continueTap key is required.`);
+    if (!/"continueAction"/.test(source)) {
+        throw new Error(`${localePath}: onboarding.continueAction key is required.`);
     }
 }
 

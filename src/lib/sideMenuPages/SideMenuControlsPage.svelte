@@ -104,19 +104,6 @@
             label: $t("controls.pointerNodeMiddleDecrementLabel", { action: mouse.auxiliary }),
             description: $t("controls.pointerNodeDecrementDescription"),
             icon: MouseMiddleClickIcon,
-            titleRows: [
-                {
-                    label: $t("controls.pointerNodeMiddleDecrementLabel", { action: mouse.auxiliary }),
-                    icon: MouseMiddleClickIcon,
-                },
-                {
-                    label: $t("controls.pointerNodeDecrementLabel", { action: mouse.macroPrimary }),
-                    icon: ArrowFatUpIcon,
-                    iconSecondary: MouseLeftClickIcon,
-                    iconSeparator: "+",
-                    iconKeycap: true,
-                },
-            ],
             device: "pointer",
         },
         {
@@ -175,7 +162,7 @@
         },
         {
             id: "pointer-pan",
-            label: $t("controls.pointerPanLabel"),
+            label: $t("controls.pointerPanLabel", { action: mouse.primary }),
             description: $t("controls.pointerPanDescription"),
             icon: ArrowsOutCardinalIcon,
             device: "pointer",

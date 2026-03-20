@@ -206,7 +206,7 @@ export function createOnboardingSteps({
             },
             {
                 icon: ArrowsOutCardinalIcon,
-                label: translate("onboarding.clickDrag"),
+                label: translate("onboarding.clickDrag", { action: translate("input.primary.mouse") }),
                 description: translate("onboarding.pan"),
             },
             {
