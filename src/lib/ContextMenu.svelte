@@ -22,7 +22,7 @@
     import { onMount, tick } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { t } from "svelte-whisper";
-    import { Key, onKeyDown } from "./input";
+    import { isKeyboardAction, onKeyDown } from "./input";
 
     let myMenuId = -1;
 
@@ -114,7 +114,7 @@
 
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
-        if (event.key === Key.Escape) {
+        if (isKeyboardAction(event, "dismiss")) {
             // Only close the topmost (most recently opened) context menu
             if (!isTopmostMenu(myMenuId)) return;
             event.preventDefault();
@@ -154,7 +154,7 @@
 
     function handleBackdropKeydown(event: KeyboardEvent) {
         if (event.target !== event.currentTarget) return;
-        if (event.key !== Key.Enter && event.key !== Key.Space) return;
+        if (!isKeyboardAction(event, "activate")) return;
         event.preventDefault();
         triggerHaptic();
         onClose?.();

@@ -6,7 +6,7 @@
     import { NODE_RADIUS_PX } from "../Node.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
-    import { getInputLabel, Key, onKeyDown } from "../input";
+    import { getInputLabel, isKeyboardAction, onKeyDown } from "../input";
     import { triggerHaptic } from "../hapticsStore";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
@@ -413,7 +413,7 @@
     function handleKeydown(event: KeyboardEvent) {
         blockEvent(event);
         if (dismissing) return;
-        if (event.key === Key.Enter || event.key === Key.Space) {
+        if (isKeyboardAction(event, "activate")) {
             handleAdvance();
         }
     }
