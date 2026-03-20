@@ -3,7 +3,7 @@
     import { createEventDispatcher } from "svelte";
     import { showToast } from "./toast";
     import { tooltip, type TooltipContent } from "./tooltip";
-    import { triggerHaptic } from "./hapticsStore";
+    import { primary, secondary } from "./input";
     import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
     export let icon: Component | null = null;
@@ -70,8 +70,6 @@
     const forward = (event: Event) => {
         dispatch(
             event.type as
-                | "click"
-                | "contextmenu"
                 | "pointerdown"
                 | "pointermove"
                 | "pointerup"
@@ -81,15 +79,18 @@
         );
     };
 
-    const handleClick = (event: MouseEvent) => {
-        forward(event);
-        triggerHaptic();
+    const handlePrimary = () => {
+        dispatch("click", {} as MouseEvent);
         if (toastMessage) {
             showToast(toastMessage, {
                 tone: toastNegative ? "negative" : "positive",
                 durationMs: toastDurationMs,
             });
         }
+    };
+
+    const handleSecondary = () => {
+        dispatch("contextmenu", {} as MouseEvent);
     };
 
     const handlePointerDown = (event: PointerEvent) => {
@@ -103,8 +104,8 @@
     bind:this={element}
     {disabled}
     use:tooltip={tooltipParam}
-    on:click={handleClick}
-    on:contextmenu={forward}
+    use:primary={handlePrimary}
+    use:secondary={handleSecondary}
     on:pointerdown={handlePointerDown}
     on:pointermove={forward}
     on:pointerup={forward}
