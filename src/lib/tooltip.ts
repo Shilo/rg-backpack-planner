@@ -3,6 +3,7 @@ import { LONG_PRESS_MOVE_THRESHOLD, LONG_PRESS_MS } from "./input/longPress";
 
 export type TooltipSection =
     | { type: "text"; value: string }
+    | { type: "shortcut"; value: string }
     | {
           type: "action-preview";
           direction: "up" | "down";
@@ -117,6 +118,10 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     let globalPointerEnd: ((event: PointerEvent) => void) | null = null;
     let hoverSuppressed = false;
     let isPointerOver = false;
+    /** True while a pointer button is physically held down. Distinguishes
+     *  capture-induced leave (during press) from genuine leave (after release). */
+    let pressActive = false;
+    let pressEndCleanup: (() => void) | null = null;
 
     const canHover = () =>
         window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -182,19 +187,42 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
             return;
         }
         lastPoint = { x: event.clientX, y: event.clientY };
-        hoverSuppressed = false;
     };
 
     const handlePointerLeave = () => {
         isPointerOver = false;
-        hoverSuppressed = false;
+        // Only clear suppression on genuine leave (button already released).
+        // Capture-induced leave fires while button is still held and must not unsuppress.
+        if (!pressActive) {
+            hoverSuppressed = false;
+        }
         clearHoverTimer();
         hideTooltip(node);
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+        pressActive = true;
         clearHoverTimer();
         hoverSuppressed = true;
+
+        // Track press end globally — pointerup may fire on a different element
+        // (e.g. viewport during pointer capture) so the local handler won't see it.
+        pressEndCleanup?.();
+        const pointerId = event.pointerId;
+        const onEnd = (e: PointerEvent) => {
+            if (e.pointerId !== pointerId) return;
+            pressActive = false;
+            cleanup();
+        };
+        const cleanup = () => {
+            window.removeEventListener("pointerup", onEnd, true);
+            window.removeEventListener("pointercancel", onEnd, true);
+            pressEndCleanup = null;
+        };
+        pressEndCleanup = cleanup;
+        window.addEventListener("pointerup", onEnd, true);
+        window.addEventListener("pointercancel", onEnd, true);
+
         if (!hoverOnly) schedulePress(event);
         if (event.pointerType === "touch") {
             attachGlobalPointerEnd(event.pointerId);
@@ -265,6 +293,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
             clearPressTimer();
             hideTooltip(node);
             pressStart = null;
+            pressEndCleanup?.();
             if (globalPointerEnd) {
                 window.removeEventListener("pointerup", globalPointerEnd, true);
                 window.removeEventListener(
