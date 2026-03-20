@@ -175,6 +175,7 @@
         : ''} {isImportantNode
         ? 'node-wrapper-important'
         : ''} {cursorNotAllowed ? 'cursor-not-allowed' : ''}"
+    role="group"
     data-node-id={String(id)}
     style="left: {x - NODE_RADIUS_PX * radius}px; top: {y -
         NODE_RADIUS_PX * radius}px; width: {NODE_DIAMETER_PX *
