@@ -4,6 +4,7 @@
     import type { TabBarItem } from "./TabBar.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { isKeyboardShortcutTarget } from "./domUtil";
+    import { Key } from "./input";
 
     export let isOpen = false;
     export let tabs: TabBarItem[];
@@ -25,10 +26,10 @@
 
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
-        const isTab = event.key === "Tab";
-        const isArrowLeft = event.key === "ArrowLeft";
-        const isArrowRight = event.key === "ArrowRight";
-        if (event.key === "Escape") {
+        const isTab = event.key === Key.Tab;
+        const isArrowLeft = event.key === Key.ArrowLeft;
+        const isArrowRight = event.key === Key.ArrowRight;
+        if (event.key === Key.Escape) {
             // Let context menus and fab menus handle Escape first
             if (document.querySelector(".context-menu") || document.querySelector(".fab-menu--open")) return;
             event.preventDefault();

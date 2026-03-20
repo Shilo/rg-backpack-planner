@@ -2,6 +2,7 @@
     import type { Component } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
+    import { Key } from "./input";
 
     type SegmentOption = {
         index: number;
@@ -43,7 +44,7 @@
     }
 
     function handleSegmentKeydown(event: KeyboardEvent, index: number) {
-        if (event.key !== " " && event.key !== "Enter") return;
+        if (event.key !== Key.Space && event.key !== Key.Enter) return;
         event.preventDefault();
         handleSelect(index);
     }

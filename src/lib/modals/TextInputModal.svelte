@@ -5,6 +5,7 @@
     import Button from "../Button.svelte";
     import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
+    import { Key } from "../input";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -41,7 +42,7 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === "Enter" && !isConfirmDisabled) {
+        if (event.key === Key.Enter && !isConfirmDisabled) {
             event.preventDefault();
             event.stopPropagation();
             handleConfirm();

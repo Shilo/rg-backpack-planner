@@ -12,6 +12,7 @@
     import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
     import { evaluateSimpleMath } from "../mathUtil";
+    import { Key } from "../input";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -89,7 +90,7 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === "Enter") {
+        if (event.key === Key.Enter) {
             event.preventDefault();
             event.stopPropagation();
             handleConfirm();
