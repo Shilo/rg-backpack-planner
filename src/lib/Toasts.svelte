@@ -64,35 +64,34 @@
     let extraBottom = 0;
     const GAP = 8;
 
+    const HUD_OVERLAP_SELECTORS = [".bot-right-actions", ".bot-left-actions"];
+
     function checkOverlap() {
         if (!regionEl) return;
-        const toolbar =
-            document.querySelector<HTMLElement>(".bot-right-actions");
-        if (!toolbar) {
-            extraBottom = 0;
-            return;
-        }
-        const tb = toolbar.getBoundingClientRect();
-        if (tb.width === 0 || tb.height === 0) {
-            extraBottom = 0;
-            return;
-        }
-        // Check each actual toast element, not the full-width region
         const toasts = regionEl.querySelectorAll<HTMLElement>(".toast");
+        if (toasts.length === 0) {
+            extraBottom = 0;
+            return;
+        }
         let maxShift = 0;
-        toasts.forEach((toast) => {
-            const tr = toast.getBoundingClientRect();
-            // Undo current offset to get the natural (un-shifted) position
-            const natTop = tr.top + extraBottom;
-            const natBottom = tr.bottom + extraBottom;
-            const hOverlap =
-                Math.min(tr.right, tb.right) - Math.max(tr.left, tb.left);
-            const vOverlap =
-                Math.min(natBottom, tb.bottom) - Math.max(natTop, tb.top);
-            if (hOverlap > 0 && vOverlap > 0) {
-                maxShift = Math.max(maxShift, vOverlap + GAP);
-            }
-        });
+        for (const selector of HUD_OVERLAP_SELECTORS) {
+            const el = document.querySelector<HTMLElement>(selector);
+            if (!el) continue;
+            const eb = el.getBoundingClientRect();
+            if (eb.width === 0 || eb.height === 0) continue;
+            toasts.forEach((toast) => {
+                const tr = toast.getBoundingClientRect();
+                const natTop = tr.top + extraBottom;
+                const natBottom = tr.bottom + extraBottom;
+                const hOverlap =
+                    Math.min(tr.right, eb.right) - Math.max(tr.left, eb.left);
+                const vOverlap =
+                    Math.min(natBottom, eb.bottom) - Math.max(natTop, eb.top);
+                if (hOverlap > 0 && vOverlap > 0) {
+                    maxShift = Math.max(maxShift, vOverlap + GAP);
+                }
+            });
+        }
         extraBottom = maxShift;
     }
 
