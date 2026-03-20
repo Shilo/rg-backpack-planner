@@ -75,7 +75,7 @@
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/input/inputStore";
-    import { resolveKeyboardAction, keyForAction, onKeyDown } from "./lib/input";
+    import { resolveKeyboardAction, keyForAction, onKeyDown, triggerShortcutFlash } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {
@@ -560,6 +560,7 @@
                 )
                     return;
                 lastUndoRedoTime = Date.now();
+                triggerShortcutFlash("undo");
                 const result = undoHistory.undoDeferred();
                 if (result != null) {
                     const switchedTab =
@@ -592,6 +593,7 @@
                 )
                     return;
                 lastUndoRedoTime = Date.now();
+                triggerShortcutFlash("redo");
                 const result = undoHistory.redoDeferred();
                 if (result != null) {
                     const switchedTab =
