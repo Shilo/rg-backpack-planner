@@ -1,9 +1,13 @@
 export type InputActionType = "primary" | "secondary" | "auxiliary";
-export type InputModifier = "none" | "macro" | "micro";
 export type PointerDevice = "mouse" | "touch";
+
+export type InputModifiers = {
+    reverse: boolean;
+    alternate: boolean;
+};
 
 export type InputAction = {
     type: InputActionType;
-    modifier: InputModifier;
+    modifiers: InputModifiers;
     device: PointerDevice;
 };
