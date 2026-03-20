@@ -1016,11 +1016,20 @@ Update the shortcut props on the 4 action buttons:
 
 - [ ] **Step 2: Update SideMenuControlsPage.svelte**
 
-Rename all field references:
+Rename `DeviceInputLabels` field references:
 - Line 123: `mouse.macroPrimary` → `mouse.reversePrimary`
 - Line 131: `mouse.macroAuxiliary` → `mouse.reverseAuxiliary`
 - Line 139: `mouse.microPrimary` → `mouse.alternatePrimary`
 - Line 147: `mouse.microAuxiliary` → `mouse.alternateAuxiliary`
+
+Rework the 4 modifier control items to describe new semantics. The control item IDs, icons, labels, descriptions, and translation keys must all reflect Shift = reverse direction and Ctrl = alternate amount:
+
+- `pointer-node-increment-tier` → `pointer-node-reverse` (ShiftKeyIcon + MouseLeftClickIcon): Shift + Click = decrement by primary action
+- `pointer-node-decrement-tier` → `pointer-node-reverse-auxiliary` (ShiftKeyIcon + MouseMiddleClickIcon): Shift + Middle Click = decrement (redundant)
+- `pointer-node-increment-one` → `pointer-node-alternate` (CtrlKeyIcon + MouseLeftClickIcon): Ctrl + Click = increment by alternate amount
+- `pointer-node-decrement-one` → `pointer-node-alternate-auxiliary` (CtrlKeyIcon + MouseMiddleClickIcon): Ctrl + Middle Click = decrement by alternate amount
+
+Update en.json translation keys accordingly (rename `pointerNodeIncrementTierDescription` etc. to `pointerNodeReverseDescription` etc. with new descriptions). Update other locale files with English placeholders.
 
 - [ ] **Step 3: Update onboardingSteps.ts**
 

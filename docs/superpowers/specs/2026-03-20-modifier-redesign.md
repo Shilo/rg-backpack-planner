@@ -204,9 +204,8 @@ type NodeOperation =
 | File | Change |
 |---|---|
 | `src/lib/input/inputLabels.ts` | Rename `DeviceInputLabels` fields (`macroPrimary` → `reversePrimary`, etc.). Update `getModifierLabel`, `getInputLabel`, `getDeviceInputLabels`, and `getKeyboardActionLabel` for new naming. `getKeyboardActionLabel("cycle")` references `input.macro` for the Shift label — update to `input.reverse`. |
-| `src/lib/sideMenuPages/SideMenuControlsPage.svelte` | Update help page: Shift = decrement, Ctrl = alternate. Update `DeviceInputLabels` field references. |
-| `src/lib/NodeContextMenu.svelte` | Update shortcut hints from `mouse.microPrimary`/`mouse.macroPrimary`/etc. to new `DeviceInputLabels` field names. Context menu buttons are direct actions (increment one, increment tier, etc.) — shortcut hints become static labels showing which modifier combo achieves each action (e.g., "Shift + Click" for decrement, "Ctrl + Click" for alternate). These labels are not dynamic based on the primary action store — they describe the modifier key, not the resolved amount. |
-| `src/lib/TreeTabs.svelte` | Update `DeviceInputLabels` field references. |
+| `src/lib/sideMenuPages/SideMenuControlsPage.svelte` | Update help page: Shift = decrement, Ctrl = alternate. Rename `DeviceInputLabels` field references. Rework control item descriptions and translation keys to describe new semantics (Shift = reverse direction, Ctrl = alternate amount) instead of old fixed-action descriptions (+Tier, +1). |
+| `src/lib/NodeContextMenu.svelte` | Replace static shortcut hints with dynamic hints computed reactively from `$nodePrimaryAction`. Each context menu action button (+1, +Tier, -1, -Tier) shows the shortcut that currently maps to it (e.g., if primary is +1, the +Tier button shows "Ctrl + Click" since alternate = +Tier). When no single-modifier shortcut exists for an action in the current primary state, no hint is shown. |
 | `src/lib/onboarding/onboardingSteps.ts` | Update `input.macro`/`input.micro` translation key references to `input.reverse`/`input.alternate`. Update onboarding descriptions to reflect new semantics (Shift = decrement, Ctrl = alternate). |
 | `src/locales/en.json`, `fr.json`, `ja.json`, `zh.json` | Rename `macro`/`micro` translation keys to `reverse`/`alternate`. Update `modifierTierLabel`/`modifierOneLabel` descriptions. |
 
