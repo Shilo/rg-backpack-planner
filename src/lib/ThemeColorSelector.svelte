@@ -87,6 +87,7 @@
     }
 
     function openCustomPicker() {
+        triggerHaptic();
         closeDropdown();
         pickerInitialColor = { ...$themeColor };
         pickerOpen = true;

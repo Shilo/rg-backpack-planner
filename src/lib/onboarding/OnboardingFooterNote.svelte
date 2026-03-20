@@ -5,6 +5,7 @@
         CaretLineRightIcon,
         CaretRightIcon,
     } from "phosphor-svelte";
+    import { triggerHaptic } from "../hapticsStore";
 
     export let stepNumber = 1;
     export let stepCount = 1;
@@ -40,7 +41,7 @@
             type="button"
             aria-label="Previous step"
             disabled={isFirstStep}
-            on:click|stopPropagation={() => onBack?.()}
+            on:click|stopPropagation={() => { triggerHaptic(); onBack?.(); }}
         >
             <CaretLeftIcon size={navIconSize} weight="bold" />
         </button>
@@ -49,7 +50,7 @@
             class="nav-button"
             type="button"
             aria-label="Next step"
-            on:click|stopPropagation={() => onForward?.()}
+            on:click|stopPropagation={() => { triggerHaptic(); onForward?.(); }}
         >
             <CaretRightIcon size={navIconSize} weight="bold" />
         </button>
@@ -72,7 +73,7 @@
                 class="nav-button nav-skip"
                 type="button"
                 aria-label="Skip tutorial"
-                on:click|stopPropagation={onSkip}
+                on:click|stopPropagation={() => { triggerHaptic(); onSkip?.(); }}
             >
                 <CaretLineRightIcon size={navIconSize} weight="bold" />
             </button>

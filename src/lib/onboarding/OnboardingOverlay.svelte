@@ -7,6 +7,7 @@
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
     import { getInputLabel } from "../input";
+    import { triggerHaptic } from "../hapticsStore";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
     import type { Rect } from "./paneLayout";
@@ -405,6 +406,7 @@
     function handleAdvanceClick(event: MouseEvent) {
         blockEvent(event);
         if (dismissing) return;
+        triggerHaptic();
         handleAdvance();
     }
 

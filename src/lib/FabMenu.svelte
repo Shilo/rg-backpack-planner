@@ -61,7 +61,7 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
         class="fab-menu__scrim"
-        on:click={close}
+        on:click={() => { triggerHaptic(); close(); }}
         role="presentation"
         aria-hidden="true"
     ></div>

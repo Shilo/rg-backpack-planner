@@ -150,6 +150,7 @@
         event.preventDefault();
         event.stopPropagation();
         if (!backdropHadPointerDown) return;
+        triggerHaptic();
         onClose?.();
     }
 
