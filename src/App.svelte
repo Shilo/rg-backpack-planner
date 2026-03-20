@@ -546,8 +546,9 @@
 
         // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
         let undoRedoApplyGen = 0;
+        let lastUndoRedoTime = 0;
+        const UNDO_REDO_REPEAT_MS = 150;
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.repeat) return;
 
             // Undo/Redo shortcuts
             if (
@@ -564,6 +565,8 @@
 
                 if (isUndo && get(canUndo)) {
                     e.preventDefault();
+                    if (e.repeat && Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS) return;
+                    lastUndoRedoTime = Date.now();
                     const result = undoHistory.undoDeferred();
                     if (result != null) {
                         const switchedTab = result.activeTreeIndex !== activeTreeIndex;
@@ -589,6 +592,8 @@
                 }
                 if (isRedo && get(canRedo)) {
                     e.preventDefault();
+                    if (e.repeat && Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS) return;
+                    lastUndoRedoTime = Date.now();
                     const result = undoHistory.redoDeferred();
                     if (result != null) {
                         const switchedTab = result.activeTreeIndex !== activeTreeIndex;
@@ -613,6 +618,8 @@
                     return;
                 }
             }
+
+            if (e.repeat) return;
 
             if (
                 e.key === "Escape" &&
