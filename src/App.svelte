@@ -536,7 +536,9 @@
                 persistToActivePreset,
             );
         }
-        undoHistory.clearHistory(activeTreeIndex);
+        if (!undoHistory.restoreFromSession(activeTreeIndex)) {
+            undoHistory.clearHistory(activeTreeIndex);
+        }
     }
 
     onMount(() => {

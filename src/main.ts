@@ -10,6 +10,7 @@ import { showToast } from "./lib/toast";
 import { get } from "svelte/store";
 import { tr, locale } from "svelte-whisper";
 import { initServiceWorkerAutoUpdate } from "./lib/serviceWorkerAutoUpdate";
+import { undoHistory } from "./lib/undoHistoryStore";
 import { runMigrations } from "./lib/migrations/runMigrations";
 
 // Run migrations first to avoid storage races; see docs/version-migration-early-run.md
@@ -40,6 +41,9 @@ const cleanupServiceWorkerAutoUpdate = initServiceWorkerAutoUpdate({
             durationMs: 0,
             showSpinner: true,
         });
+    },
+    beforeReload: () => {
+        undoHistory.persistToSession();
     },
 });
 

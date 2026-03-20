@@ -4,6 +4,7 @@ import { techCrystalsOwned, setTechCrystalsOwned } from "./techCrystalStore";
 import type { LevelsByIndex } from "../types/tree";
 
 const MAX_HISTORY = 50;
+const SESSION_KEY = "undo-history";
 
 export type Snapshot = {
     treeLevels: LevelsByIndex[];
@@ -144,6 +145,34 @@ function createUndoHistoryStore() {
 
         restoreState(state: UndoHistory): void {
             store.set(state);
+        },
+
+        persistToSession(): void {
+            try {
+                const state = get(store);
+                if (state.present == null) return;
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
+            } catch {
+                // sessionStorage may be unavailable or full
+            }
+        },
+
+        restoreFromSession(activeTreeIndex: number): boolean {
+            try {
+                const raw = sessionStorage.getItem(SESSION_KEY);
+                sessionStorage.removeItem(SESSION_KEY);
+                if (!raw) return false;
+                const state = JSON.parse(raw) as UndoHistory;
+                if (state.present == null) return false;
+                // Replace present with a fresh capture so it matches the
+                // build state that initializeFromUrl already loaded from
+                // localStorage/URL, avoiding redundant store writes.
+                state.present = captureSnapshot(activeTreeIndex);
+                store.set(state);
+                return true;
+            } catch {
+                return false;
+            }
         },
     };
 }

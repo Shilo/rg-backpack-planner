@@ -1,5 +1,6 @@
 export interface ServiceWorkerAutoUpdateOptions {
     showUpdatingToast: () => void;
+    beforeReload?: () => void;
 }
 
 export function initServiceWorkerAutoUpdate(
@@ -9,7 +10,7 @@ export function initServiceWorkerAutoUpdate(
         return () => { };
     }
 
-    const { showUpdatingToast } = options;
+    const { showUpdatingToast, beforeReload } = options;
     const hadController = !!navigator.serviceWorker.controller;
     let updatingToastShown = false;
 
@@ -56,6 +57,7 @@ export function initServiceWorkerAutoUpdate(
         if (!hadController) return;
 
         showUpdatingToastOnce();
+        beforeReload?.();
         window.location.reload();
     };
     navigator.serviceWorker.addEventListener(

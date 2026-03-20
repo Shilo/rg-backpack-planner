@@ -31,6 +31,7 @@ const TEST_FILES = [
     "ignoreTechCrystalBudgetStore.test.ts",
     "undoHistory.test.ts",
     "undoHistoryEdgeCases.test.ts",
+    "undoHistorySession.test.ts",
     "resetTreeChoiceModel.test.ts",
 
     // 3. Serialization & Storage
