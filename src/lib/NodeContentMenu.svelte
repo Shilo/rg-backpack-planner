@@ -157,8 +157,8 @@
 
     $: {
         if (isOpen && !menuWasOpen) {
-            // Always offset as if the reset button is showing so the top is consistent
-            menuY = decrementTierIsReset ? y - RESET_BUTTON_RESERVE : y;
+            // Always position as if reset button is hidden (min height) for consistency
+            menuY = decrementTierIsReset ? y : y + RESET_BUTTON_RESERVE;
         }
         menuWasOpen = isOpen;
     }
