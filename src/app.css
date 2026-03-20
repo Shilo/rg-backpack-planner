@@ -222,13 +222,16 @@ textarea,
     display: block;
 }
 
+.tooltip-line + .tooltip-shortcut {
+    margin-top: var(--spacing-sm);
+}
+
 .tooltip-shortcut {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
-    margin-top: var(--spacing-sm);
     font-size: var(--font-sm);
     color: var(--text-disabled);
 }
