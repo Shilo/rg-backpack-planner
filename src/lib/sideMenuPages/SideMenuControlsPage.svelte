@@ -85,6 +85,12 @@
     let controls: ControlItem[] = [];
     $: mouse = getDeviceInputLabels("mouse", $t);
     $: touch = getDeviceInputLabels("touch", $t);
+    $: hudPrimaryAction =
+        showMouse && showTouch
+            ? `${mouse.primary} / ${touch.primary}`
+            : showTouch
+              ? touch.primary
+              : mouse.primary;
     $: controls = [
         {
             id: "pointer-node",
@@ -618,6 +624,7 @@
                         <span class="control-desc"
                             >{$t(
                                 "controls.hudRootQuickSettingsDescription",
+                                { action: hudPrimaryAction },
                             )}</span
                         >
                     </p>

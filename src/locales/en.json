@@ -520,7 +520,7 @@
         "hudTechCrystalsLabel": "Tech Crystals (Currency)",
         "hudTechCrystalsDescription": "View spent and set owned amount",
         "hudRootQuickSettingsLabel": "Root Node (Tree Center)",
-        "hudRootQuickSettingsDescription": "Click or tap to open Node Quick Settings",
+        "hudRootQuickSettingsDescription": "{action} to open Node Quick Settings",
         "hudResetTreeLabel": "Reset Active Tree",
         "hudResetTreeDescription": "Refund Tech Crystals for tree",
         "hudSideMenuLabel": "Side Menu Button",

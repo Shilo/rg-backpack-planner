@@ -520,7 +520,7 @@
         "hudTechCrystalsLabel": "Cristaux Tech (monnaie)",
         "hudTechCrystalsDescription": "Voir les dépenses et définir la quantité possédée",
         "hudRootQuickSettingsLabel": "Nœud racine (centre de l'arbre)",
-        "hudRootQuickSettingsDescription": "Cliquer ou toucher pour ouvrir les paramètres rapides du nœud",
+        "hudRootQuickSettingsDescription": "{action} pour ouvrir les paramètres rapides du nœud",
         "hudResetTreeLabel": "Réinitialiser l'arbre actif",
         "hudResetTreeDescription": "Rembourser les Cristaux Tech de l'arbre",
         "hudSideMenuLabel": "Bouton du menu latéral",

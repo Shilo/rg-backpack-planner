@@ -520,7 +520,7 @@
         "hudTechCrystalsLabel": "科技水晶（货币）",
         "hudTechCrystalsDescription": "查看已消耗并设置拥有数量",
         "hudRootQuickSettingsLabel": "根节点（树中心）",
-        "hudRootQuickSettingsDescription": "点击或轻触打开节点快速设置",
+        "hudRootQuickSettingsDescription": "{action}打开节点快速设置",
         "hudResetTreeLabel": "重置当前技能树",
         "hudResetTreeDescription": "退还技能树的科技水晶",
         "hudSideMenuLabel": "侧边菜单按钮",

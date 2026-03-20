@@ -520,7 +520,7 @@
         "hudTechCrystalsLabel": "テッククリスタル（通貨）",
         "hudTechCrystalsDescription": "消費済みを表示、所持数を設定",
         "hudRootQuickSettingsLabel": "ルートノード（ツリー中央）",
-        "hudRootQuickSettingsDescription": "クリックまたはタップでノードクイック設定を開く",
+        "hudRootQuickSettingsDescription": "{action}でノードクイック設定を開く",
         "hudResetTreeLabel": "アクティブツリーをリセット",
         "hudResetTreeDescription": "ツリーのテッククリスタルを返還",
         "hudSideMenuLabel": "サイドメニューボタン",
