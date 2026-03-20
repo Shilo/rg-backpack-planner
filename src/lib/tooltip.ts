@@ -112,6 +112,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     let pressStart: Point | null = null;
     let globalPointerEnd: ((event: PointerEvent) => void) | null = null;
     let hoverSuppressed = false;
+    let isPointerOver = false;
 
     const canHover = () =>
         window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -135,9 +136,9 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     const scheduleHover = (event: PointerEvent) => {
         if (event.pointerType === "touch") return;
         if (event.buttons !== 0) return;
+        lastPoint = { x: event.clientX, y: event.clientY };
         if (hoverSuppressed) return;
         if (!canHover() || !hasContent()) return;
-        lastPoint = { x: event.clientX, y: event.clientY };
         clearHoverTimer();
         hoverTimer = window.setTimeout(() => {
             showTooltip(node, sections, lastPoint);
@@ -158,6 +159,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     };
 
     const handlePointerEnter = (event: PointerEvent) => {
+        isPointerOver = true;
         scheduleHover(event);
     };
 
@@ -180,6 +182,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     };
 
     const handlePointerLeave = () => {
+        isPointerOver = false;
         clearHoverTimer();
         hideTooltip(node);
     };
@@ -239,8 +242,18 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     node.addEventListener("pointercancel", handlePointerCancel);
     return {
         update(nextValue?: TooltipParam) {
+            const hadContent = hasContent();
             ({ sections, hoverOnly } = parseTooltipParam(nextValue));
-            updateTooltipText(node, sections);
+            if (currentOwner === node) {
+                // Tooltip already showing — update text live
+                updateTooltipText(node, sections);
+            } else if (!hadContent && hasContent() && isPointerOver && !hoverSuppressed && canHover()) {
+                // Content became available while pointer is over element — schedule tooltip
+                clearHoverTimer();
+                hoverTimer = window.setTimeout(() => {
+                    showTooltip(node, sections, lastPoint);
+                }, HOVER_DELAY_MS);
+            }
         },
         destroy() {
             clearHoverTimer();
