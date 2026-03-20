@@ -152,7 +152,16 @@
 
     /** button-sm height (32px) + flex gap (--spacing-md = 8px) */
     const RESET_BUTTON_RESERVE = 40;
-    $: menuY = decrementTierIsReset ? y - RESET_BUTTON_RESERVE : y;
+    let menuY = 0;
+    let menuWasOpen = false;
+
+    $: {
+        if (isOpen && !menuWasOpen) {
+            // Always offset as if the reset button is showing so the top is consistent
+            menuY = decrementTierIsReset ? y - RESET_BUTTON_RESERVE : y;
+        }
+        menuWasOpen = isOpen;
+    }
 
     $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
@@ -182,6 +191,7 @@
     ariaLabel={skillId ? $t(`skills.${skillId}`) : "Node"}
     {onClose}
     anchorAbove={true}
+    stableTop
 >
     <div class="menu-content">
         <div class="info-header">

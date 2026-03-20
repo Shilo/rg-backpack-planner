@@ -37,6 +37,8 @@
     export let anchorBelow = false;
     /** When true, (x,y) is the point just below the menu; menu is positioned with its bottom at y (opens upward). */
     export let anchorAbove = false;
+    /** When true with anchorAbove, pins the top edge on first render so content-height changes only shift the bottom. */
+    export let stableTop = false;
     /** When true and coarse pointer (touch), place menu above the point with bottom at y - TOUCH_OFFSET_Y. */
     export let touchAnchorAbove = false;
     let menuEl: HTMLDivElement | null = null;
@@ -53,6 +55,7 @@
     let isDragging = false;
     let backdropHadPointerDown = false;
     let dragOffset = { x: 0, y: 0 }; // Offset from original position
+    let pinnedHeight = 0; // Height captured on first render for stableTop mode
     let dragStart: {
         x: number;
         y: number;
@@ -193,6 +196,10 @@
         }
 
         const rect = menuEl.getBoundingClientRect();
+        // Capture height on first measurement for stableTop mode
+        if (stableTop && anchorAbove && pinnedHeight === 0) {
+            pinnedHeight = rect.height;
+        }
         const offsetX = rect.width / 2;
         let baseX = x + dragOffset.x;
         let baseY: number;
@@ -201,7 +208,8 @@
 
         if (anchorAbove) {
             baseY = y + dragOffset.y;
-            minY = safe.top + MENU_MARGIN + rect.height;
+            const boundHeight = stableTop && pinnedHeight > 0 ? Math.max(pinnedHeight, rect.height) : rect.height;
+            minY = safe.top + MENU_MARGIN + boundHeight;
             maxY = window.innerHeight - safe.bottom - MENU_MARGIN;
         } else if (useTouchAbove) {
             baseY = y - TOUCH_OFFSET_Y + dragOffset.y;
@@ -254,7 +262,7 @@
         const menuCenterX = rect.left + rect.width / 2;
         const menuCenterY =
             anchorAbove || (touchAnchorAbove && isCoarsePointer())
-                ? rect.top + rect.height
+                ? rect.top + (stableTop && pinnedHeight > 0 ? pinnedHeight : rect.height)
                 : anchorBelow
                   ? rect.top
                   : rect.top + rect.height * 0.1;
@@ -381,7 +389,9 @@
 
     $: transformOrigin =
         anchorAbove || (touchAnchorAbove && isCoarsePointer())
-            ? "translate(-50%, -100%)"
+            ? (stableTop && pinnedHeight > 0
+                ? `translate(-50%, -${pinnedHeight}px)`
+                : "translate(-50%, -100%)")
             : anchorBelow
               ? "translate(-50%, 0)"
               : "translate(-50%, -10%)";
@@ -398,6 +408,7 @@
         dragStart = null;
         pointerId = null;
         backdropHadPointerDown = false;
+        pinnedHeight = 0;
     }
 </script>
 
