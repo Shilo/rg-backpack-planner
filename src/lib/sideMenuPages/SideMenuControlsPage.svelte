@@ -111,6 +111,46 @@
             device: "pointer",
         },
         {
+            id: "pointer-node-increment-tier",
+            label: $t("controls.pointerNodeIncrementTierLabel"),
+            description: $t("controls.pointerNodeIncrementTierDescription"),
+            icon: ArrowFatUpIcon,
+            iconSecondary: MouseLeftClickIcon,
+            iconSeparator: "+",
+            iconKeycap: true,
+            device: "pointer",
+        },
+        {
+            id: "pointer-node-decrement-tier",
+            label: $t("controls.pointerNodeDecrementTierLabel"),
+            description: $t("controls.pointerNodeDecrementTierDescription"),
+            icon: ArrowFatUpIcon,
+            iconSecondary: MouseMiddleClickIcon,
+            iconSeparator: "+",
+            iconKeycap: true,
+            device: "pointer",
+        },
+        {
+            id: "pointer-node-increment-one",
+            label: $t("controls.pointerNodeIncrementOneLabel"),
+            description: $t("controls.pointerNodeIncrementOneDescription"),
+            icon: ArrowFatUpIcon,
+            iconSecondary: MouseLeftClickIcon,
+            iconSeparator: "+",
+            iconKeycap: true,
+            device: "pointer",
+        },
+        {
+            id: "pointer-node-decrement-one",
+            label: $t("controls.pointerNodeDecrementOneLabel"),
+            description: $t("controls.pointerNodeDecrementOneDescription"),
+            icon: ArrowFatUpIcon,
+            iconSecondary: MouseMiddleClickIcon,
+            iconSeparator: "+",
+            iconKeycap: true,
+            device: "pointer",
+        },
+        {
             id: "pointer-node-menu",
             label: $t("controls.pointerNodeMenuLabel"),
             description: $t("controls.pointerNodeMenuDescription"),
@@ -386,8 +426,30 @@
                                     {/each}
                                 </div>
                             {:else}
-                                <span class="control-icon" aria-hidden="true">
-                                    <svelte:component this={control.icon} />
+                                <span
+                                    class="control-icon"
+                                    class:control-icon-combo={!!control.iconSecondary}
+                                    aria-hidden="true"
+                                >
+                                    {#if control.iconKeycap}
+                                        <span class="control-keycap">
+                                            <svelte:component
+                                                this={control.icon}
+                                            />
+                                        </span>
+                                    {:else}
+                                        <svelte:component
+                                            this={control.icon}
+                                        />
+                                    {/if}
+                                    {#if control.iconSecondary}
+                                        <span class="control-icon-joiner">
+                                            {control.iconSeparator ?? "+"}
+                                        </span>
+                                        <svelte:component
+                                            this={control.iconSecondary}
+                                        />
+                                    {/if}
                                 </span>
                                 <p class="control-inline">
                                     <span class="control-label"
