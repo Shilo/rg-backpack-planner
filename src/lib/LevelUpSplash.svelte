@@ -12,6 +12,7 @@
     export let onDone: (() => void) | null = null;
 
     const DURATION_MS = 1200;
+    const OVERLAP_SPACING = 12;
     const ARROW_UP = "\u25B2";
     const ARROW_DOWN = "\u25BC";
     const HEXAGON = "\u2B22";
@@ -63,6 +64,32 @@
                 nudgeY = (insetTop - rect.top) / scale;
             } else if (rect.bottom > vh - insetBottom) {
                 nudgeY = (vh - insetBottom - rect.bottom) / scale;
+            }
+
+            // Avoid overlapping the context menu
+            const contextMenuEl = document.querySelector('.context-menu');
+            if (contextMenuEl) {
+                const menuRect = contextMenuEl.getBoundingClientRect();
+                const splashTop = rect.top + nudgeY * scale;
+                const splashBottom = rect.bottom + nudgeY * scale;
+                const splashLeft = rect.left + nudgeX * scale;
+                const splashRight = rect.right + nudgeX * scale;
+
+                const overlaps =
+                    splashTop < menuRect.bottom &&
+                    splashBottom > menuRect.top &&
+                    splashLeft < menuRect.right &&
+                    splashRight > menuRect.left;
+
+                if (overlaps) {
+                    const belowBottom = menuRect.bottom + OVERLAP_SPACING + rect.height;
+
+                    if (belowBottom <= vh - insetBottom) {
+                        nudgeY = (menuRect.bottom + OVERLAP_SPACING - rect.top) / scale;
+                    } else {
+                        nudgeY = (menuRect.top - OVERLAP_SPACING - rect.bottom) / scale;
+                    }
+                }
             }
         }
         restartTimer();
