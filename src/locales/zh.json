@@ -547,11 +547,8 @@
         "hudPrimaryActionDescription": "在+1、+10和+阶增量模式之间切换",
         "pointerNodeReverseLabel": "{action}",
         "pointerNodeReverseDescription": "Decrement by primary action amount",
-        "pointerNodeReverseAuxiliaryLabel": "{action}",
-        "pointerNodeReverseAuxiliaryDescription": "Decrement by primary action amount (redundant)",
         "pointerNodeAlternateLabel": "{action}",
         "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
-        "pointerNodeAlternateAuxiliaryLabel": "{action}",
         "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
     },
     "onboarding": {

@@ -23,7 +23,7 @@
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import type { TooltipSection } from "./tooltip";
     import { inputStore } from "./input/inputStore";
-    import { resolveModifiers, resolveAction, resolveNodeAction } from "./input";
+    import { resolveModifiers } from "./input";
 
     export let id: number;
     export let x: number = 0;
@@ -67,17 +67,15 @@
 
     let hovered = false;
 
-    $: modifiers = resolveModifiers($inputStore);
+    $: isAlternate = resolveModifiers($inputStore).alternate;
 
-    $: incrementOp = (() => {
-        const action = resolveAction(0, modifiers, "mouse");
-        return action ? resolveNodeAction(action) : null;
-    })();
+    $: incrementOp = isAlternate
+        ? { op: "incrementByAlternate" as const }
+        : { op: "incrementByStore" as const };
 
-    $: decrementOp = (() => {
-        const action = resolveAction(1, modifiers, "mouse");
-        return action ? resolveNodeAction(action) : null;
-    })();
+    $: decrementOp = isAlternate
+        ? { op: "decrementByAlternate" as const }
+        : { op: "decrementByStore" as const };
 
     // Only compute expensive previews for the hovered node (not all mounted nodes).
     $: incrementPreview = hovered && skillId != null && incrementOp

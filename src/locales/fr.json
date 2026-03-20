@@ -547,11 +547,8 @@
         "hudPrimaryActionDescription": "Alterner entre les modes d'incrémentation +1, +10 et +Palier",
         "pointerNodeReverseLabel": "{action}",
         "pointerNodeReverseDescription": "Decrement by primary action amount",
-        "pointerNodeReverseAuxiliaryLabel": "{action}",
-        "pointerNodeReverseAuxiliaryDescription": "Decrement by primary action amount (redundant)",
         "pointerNodeAlternateLabel": "{action}",
         "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
-        "pointerNodeAlternateAuxiliaryLabel": "{action}",
         "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
     },
     "onboarding": {

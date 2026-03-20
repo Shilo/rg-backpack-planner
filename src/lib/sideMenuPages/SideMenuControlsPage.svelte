@@ -130,8 +130,8 @@
         },
         {
             id: "pointer-node-reverse-auxiliary",
-            label: $t("controls.pointerNodeReverseAuxiliaryLabel", { action: mouse.reverseAuxiliary }),
-            description: $t("controls.pointerNodeReverseAuxiliaryDescription"),
+            label: $t("controls.pointerNodeReverseLabel", { action: mouse.reverseAuxiliary }),
+            description: $t("controls.pointerNodeReverseDescription"),
             icon: ShiftKeyIcon,
             iconSecondary: MouseMiddleClickIcon,
             device: "pointer",
@@ -146,7 +146,7 @@
         },
         {
             id: "pointer-node-alternate-auxiliary",
-            label: $t("controls.pointerNodeAlternateAuxiliaryLabel", { action: mouse.alternateAuxiliary }),
+            label: $t("controls.pointerNodeAlternateLabel", { action: mouse.alternateAuxiliary }),
             description: $t("controls.pointerNodeAlternateAuxiliaryDescription"),
             icon: CtrlKeyIcon,
             iconSecondary: MouseMiddleClickIcon,

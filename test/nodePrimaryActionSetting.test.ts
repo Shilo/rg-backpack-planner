@@ -102,9 +102,9 @@ if (!/function\s+levelDownTier\s*\(index:\s*NodeIndex\)/.test(treeSource)) {
     throw new Error("Tree should define levelDownTier helper.");
 }
 
-if (!/resolveModifier/.test(treeSource)) {
+if (!/resolveModifiers/.test(treeSource)) {
     throw new Error(
-        "Tree should use resolveModifier from the input resolver pipeline.",
+        "Tree should use resolveModifiers from the input resolver pipeline.",
     );
 }
 
