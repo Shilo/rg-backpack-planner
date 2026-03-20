@@ -187,6 +187,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
 
     const handlePointerLeave = () => {
         isPointerOver = false;
+        hoverSuppressed = false;
         clearHoverTimer();
         hideTooltip(node);
     };
