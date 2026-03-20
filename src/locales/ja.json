@@ -545,14 +545,14 @@
         "hudRedoDescription": "元に戻した変更をやり直す",
         "hudPrimaryActionLabel": "プライマリアクション インジケーター",
         "hudPrimaryActionDescription": "+1、+10、+ティアの増加モードを切り替える",
-        "pointerNodeIncrementTierLabel": "ノードを{action}",
-        "pointerNodeIncrementTierDescription": "1ティアレベルアップ",
-        "pointerNodeDecrementTierLabel": "ノードを{action}",
-        "pointerNodeDecrementTierDescription": "1ティアレベルダウン",
-        "pointerNodeIncrementOneLabel": "ノードを{action}",
-        "pointerNodeIncrementOneDescription": "1レベルアップ",
-        "pointerNodeDecrementOneLabel": "ノードを{action}",
-        "pointerNodeDecrementOneDescription": "1レベルダウン"
+        "pointerNodeReverseLabel": "{action}",
+        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseAuxiliaryLabel": "{action}",
+        "pointerNodeReverseAuxiliaryDescription": "Decrement by primary action amount (redundant)",
+        "pointerNodeAlternateLabel": "{action}",
+        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryLabel": "{action}",
+        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "ノード",

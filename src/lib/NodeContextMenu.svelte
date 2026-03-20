@@ -31,6 +31,8 @@
     import { computeTotalCost } from "./nodeActionPreview";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import { getDeviceInputLabels } from "./input";
+    import { nodePrimaryAction } from "./nodePrimaryActionStore";
+    import { NodePrimaryAction } from "./nodePrimaryActionStore";
 
     export let nodeIndex: NodeIndex | null = null;
     export let x = 0;
@@ -184,6 +186,24 @@
         isGlobalIncrementLocked;
 
     $: mouse = getDeviceInputLabels("mouse", $t);
+
+    $: incrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
+        ? mouse.primary
+        : mouse.alternatePrimary;
+
+    $: incrementTierShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTier
+        ? mouse.primary
+        : $nodePrimaryAction === NodePrimaryAction.IncrementOne
+            ? mouse.alternatePrimary
+            : undefined;
+
+    $: decrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
+        ? mouse.reversePrimary
+        : undefined;
+
+    $: decrementTierShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTier
+        ? mouse.reversePrimary
+        : undefined;
 </script>
 
 <ContextMenu
@@ -271,7 +291,7 @@
                 <NodeContextButton
                     icon={CaretUpIcon}
                     label={$t("nodeMenu.incrementOne")}
-                    shortcut={mouse.microPrimary}
+                    shortcut={incrementOneShortcut}
                     crystalValue={actionCosts?.increment1 ?? null}
                     positive
                     disabled={nodeIndex === null ||
@@ -301,7 +321,7 @@
                 label={tierTargetLevel >= maxLevel
                     ? $t("nodeMenu.max")
                     : $t("nodeMenu.incrementTier")}
-                shortcut={mouse.macroPrimary}
+                shortcut={incrementTierShortcut}
                 crystalValue={actionCosts?.incrementTier ?? null}
                 positive
                 disabled={nodeIndex === null ||
@@ -316,7 +336,7 @@
                 <NodeContextButton
                     icon={CaretDownIcon}
                     label={$t("nodeMenu.decrementOne")}
-                    shortcut={mouse.microAuxiliary}
+                    shortcut={decrementOneShortcut}
                     crystalValue={actionCosts?.decrement1 ?? null}
                     negative
                     disabled={nodeIndex === null || level <= 0}
@@ -342,7 +362,7 @@
                 label={decrementTierIsReset
                     ? $t("nodeMenu.reset")
                     : $t("nodeMenu.decrementTier")}
-                shortcut={mouse.macroAuxiliary}
+                shortcut={decrementTierShortcut}
                 crystalValue={actionCosts?.decrementTier ?? null}
                 negative
                 disabled={nodeIndex === null || level <= 0}

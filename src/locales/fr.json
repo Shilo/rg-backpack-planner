@@ -545,14 +545,14 @@
         "hudRedoDescription": "Rétablir la modification précédemment annulée",
         "hudPrimaryActionLabel": "Indicateur d'action principale",
         "hudPrimaryActionDescription": "Alterner entre les modes d'incrémentation +1, +10 et +Palier",
-        "pointerNodeIncrementTierLabel": "{action} sur un Nœud",
-        "pointerNodeIncrementTierDescription": "Monter d'un palier",
-        "pointerNodeDecrementTierLabel": "{action} sur un Nœud",
-        "pointerNodeDecrementTierDescription": "Descendre d'un palier",
-        "pointerNodeIncrementOneLabel": "{action} sur un Nœud",
-        "pointerNodeIncrementOneDescription": "Monter d'un niveau",
-        "pointerNodeDecrementOneLabel": "{action} sur un Nœud",
-        "pointerNodeDecrementOneDescription": "Descendre d'un niveau"
+        "pointerNodeReverseLabel": "{action}",
+        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseAuxiliaryLabel": "{action}",
+        "pointerNodeReverseAuxiliaryDescription": "Decrement by primary action amount (redundant)",
+        "pointerNodeAlternateLabel": "{action}",
+        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryLabel": "{action}",
+        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "Nœuds",

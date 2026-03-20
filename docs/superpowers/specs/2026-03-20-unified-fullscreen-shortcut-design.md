@@ -39,7 +39,7 @@ case "fullscreen":
     break;
 ```
 
-Import `toggleFullscreen` from `../lib/fullscreen`. No guard for `hasOnboardingOverlay()` needed — fullscreen is harmless during onboarding.
+Import `toggleFullscreen` from `"./lib/fullscreen"`. The returned promise is intentionally not awaited — `fullscreenchange` handles state updates asynchronously, and error feedback is unnecessary for a keyboard shortcut (the user can just press F11 again). No guard for `hasOnboardingOverlay()` needed — fullscreen is harmless during onboarding.
 
 ### 3. `src/lib/buttons/FullscreenToggle.svelte` — Tooltip shortcut + flash
 

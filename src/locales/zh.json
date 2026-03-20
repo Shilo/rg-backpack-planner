@@ -545,14 +545,14 @@
         "hudRedoDescription": "重做之前撤销的更改",
         "hudPrimaryActionLabel": "主要操作指示器",
         "hudPrimaryActionDescription": "在+1、+10和+阶增量模式之间切换",
-        "pointerNodeIncrementTierLabel": "{action}节点",
-        "pointerNodeIncrementTierDescription": "升一阶",
-        "pointerNodeDecrementTierLabel": "{action}节点",
-        "pointerNodeDecrementTierDescription": "降一阶",
-        "pointerNodeIncrementOneLabel": "{action}节点",
-        "pointerNodeIncrementOneDescription": "升一级",
-        "pointerNodeDecrementOneLabel": "{action}节点",
-        "pointerNodeDecrementOneDescription": "降一级"
+        "pointerNodeReverseLabel": "{action}",
+        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseAuxiliaryLabel": "{action}",
+        "pointerNodeReverseAuxiliaryDescription": "Decrement by primary action amount (redundant)",
+        "pointerNodeAlternateLabel": "{action}",
+        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryLabel": "{action}",
+        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "节点",

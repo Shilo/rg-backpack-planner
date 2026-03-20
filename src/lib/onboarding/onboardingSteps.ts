@@ -120,13 +120,13 @@ export function createOnboardingSteps({
             },
             {
                 icon: ShiftKeyIcon,
-                label: translate("onboarding.modifierTierLabel", { action: translate("input.macro") }),
-                description: translate("onboarding.modifierTier"),
+                label: translate("onboarding.modifierReverseLabel", { action: translate("input.reverse") }),
+                description: translate("onboarding.modifierReverse"),
             },
             {
                 icon: CtrlKeyIcon,
-                label: translate("onboarding.modifierOneLabel", { action: translate("input.micro") }),
-                description: translate("onboarding.modifierOne"),
+                label: translate("onboarding.modifierAlternateLabel", { action: translate("input.alternate") }),
+                description: translate("onboarding.modifierAlternate"),
             },
         ];
 

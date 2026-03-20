@@ -545,14 +545,14 @@
         "hudRedoDescription": "Redo previously undone change",
         "hudPrimaryActionLabel": "Primary Action Indicator",
         "hudPrimaryActionDescription": "Cycle between +1, +10, and +Tier increment modes",
-        "pointerNodeIncrementTierLabel": "{action} a Node",
-        "pointerNodeIncrementTierDescription": "Level up one tier",
-        "pointerNodeDecrementTierLabel": "{action} a Node",
-        "pointerNodeDecrementTierDescription": "Level down one tier",
-        "pointerNodeIncrementOneLabel": "{action} a Node",
-        "pointerNodeIncrementOneDescription": "Level up one level",
-        "pointerNodeDecrementOneLabel": "{action} a Node",
-        "pointerNodeDecrementOneDescription": "Level down one level"
+        "pointerNodeReverseLabel": "{action}",
+        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseAuxiliaryLabel": "{action}",
+        "pointerNodeReverseAuxiliaryDescription": "Decrement by primary action amount (redundant)",
+        "pointerNodeAlternateLabel": "{action}",
+        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryLabel": "{action}",
+        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "Nodes",
