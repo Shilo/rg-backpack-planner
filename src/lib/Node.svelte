@@ -65,6 +65,8 @@
 
     $: isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(pointer: fine)").matches;
 
+    let hovered = false;
+
     $: modifier = resolveModifier($inputStore);
 
     $: incrementOp = (() => {
@@ -77,7 +79,8 @@
         return action ? resolveNodeAction(action, $nodePrimaryAction) : null;
     })();
 
-    $: incrementPreview = skillId != null && incrementOp
+    // Only compute expensive previews for the hovered node (not all mounted nodes).
+    $: incrementPreview = hovered && skillId != null && incrementOp
         ? getNodeActionPreviewFromOp({
             nodes: $treeData.nodes,
             levels: $treeData.levels,
@@ -88,7 +91,7 @@
         })
         : null;
 
-    $: decrementPreview = skillId != null && decrementOp
+    $: decrementPreview = hovered && skillId != null && decrementOp
         ? getNodeActionPreviewFromOp({
             nodes: $treeData.nodes,
             levels: $treeData.levels,
@@ -179,6 +182,8 @@
         radius}px; --node-radius: {radius}; --icon-scale: {radius}; --node-diameter-px: {NODE_DIAMETER_PX *
         radius}px;"
     use:tooltip={tooltipParam}
+    on:pointerenter={() => { hovered = true; }}
+    on:pointerleave={() => { hovered = false; }}
 >
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
