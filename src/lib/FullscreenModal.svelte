@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import BottomNavBar from "./BottomNavBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { isKeyboardShortcutTarget } from "./domUtil";
-    import { Key } from "./input";
+    import { Key, onKeyDown } from "./input";
 
     export let isOpen = false;
     export let tabs: TabBarItem[];
@@ -54,11 +53,7 @@
         }
     }
 
-    onMount(() => {
-        document.addEventListener("keydown", handleKeydown, true);
-        return () =>
-            document.removeEventListener("keydown", handleKeydown, true);
-    });
+    onKeyDown(handleKeydown);
 </script>
 
 {#if isOpen}

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import {
         ChartBarIcon,
         GameControllerIcon,
@@ -21,7 +20,7 @@
     import { t } from "svelte-whisper";
     import { isFormField, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
-    import { Key } from "./input";
+    import { Key, onKeyDown } from "./input";
 
     let sideMenuTabs: TabBarItem[] = [];
     $: sideMenuTabs = [
@@ -144,11 +143,7 @@
         triggerHaptic();
     }
 
-    onMount(() => {
-        window.addEventListener("keydown", handleTabKeydown, true);
-        return () =>
-            window.removeEventListener("keydown", handleTabKeydown, true);
-    });
+    onKeyDown(handleTabKeydown);
 </script>
 
 <button

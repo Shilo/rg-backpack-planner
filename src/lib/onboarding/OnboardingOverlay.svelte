@@ -6,7 +6,7 @@
     import { NODE_RADIUS_PX } from "../Node.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
-    import { getInputLabel, Key } from "../input";
+    import { getInputLabel, Key, onKeyDown } from "../input";
     import { triggerHaptic } from "../hapticsStore";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
@@ -418,6 +418,8 @@
         }
     }
 
+    onKeyDown(handleKeydown);
+
     onMount(() => {
         toastsPaused.set(true);
         isTouch = window.matchMedia("(pointer: coarse)").matches;
@@ -433,7 +435,6 @@
         bottomPadding = tabHeight + footerBottomOffset + panePadding;
 
         document.body.classList.add("has-onboarding-overlay");
-        window.addEventListener("keydown", handleKeydown, true);
         scheduleLayoutRefresh();
         void tick().then(() => {
             overlayEl?.focus();
@@ -449,7 +450,6 @@
                 "onboarding-step-preview",
                 "onboarding-step-bottombar",
             );
-            window.removeEventListener("keydown", handleKeydown, true);
             if (dismissTimer) clearTimeout(dismissTimer);
             if (layoutRefreshFrame !== null) {
                 cancelAnimationFrame(layoutRefreshFrame);
