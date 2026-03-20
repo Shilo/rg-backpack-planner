@@ -175,7 +175,7 @@
         "uppercaseTextTooltip": "以大写方式显示所有文本",
         "colorblindTreeColors": "色觉辅助树",
         "colorblindTreeColorsTooltip": "为红色盲、绿色盲和蓝黄色盲调整树区域颜色：橙色调整为红橙色，黄色调整为更纯正的黄色",
-        "nodePrimaryActionDescription": "点击节点时的增量",
+        "nodePrimaryActionDescription": "点击节点时的添加量",
         "ignoreTechCrystalBudget": "忽略科技水晶预算",
         "ignoreTechCrystalBudgetDescription": "超出消费上限升级节点",
         "nodeLevelBehaviorDescription": "单独升级一个节点或整条谱系",
@@ -546,10 +546,10 @@
         "hudPrimaryActionLabel": "主要操作指示器",
         "hudPrimaryActionDescription": "在+1、+10和+阶增量模式之间切换",
         "pointerNodeReverseLabel": "{action}",
-        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseDescription": "Remove by primary action amount",
         "pointerNodeAlternateLabel": "{action}",
-        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
-        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
+        "pointerNodeAlternateDescription": "Add by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryDescription": "Remove by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "节点",
@@ -560,7 +560,7 @@
         "options": "节点选项",
         "levelDown": "降级节点（根据操作设置）",
         "modifierReverseLabel": "{action} + Click / Middle Click",
-        "modifierReverse": "Decrement (reverse direction)",
+        "modifierReverse": "Remove (reverse direction)",
         "modifierAlternateLabel": "{action} + Click",
         "modifierAlternate": "Alternate amount (+1 or +Tier)",
         "treeOptions": "技能树选项",

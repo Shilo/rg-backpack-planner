@@ -175,7 +175,7 @@
         "uppercaseTextTooltip": "すべてのテキストを大文字で表示",
         "colorblindTreeColors": "色覚対応ツリー",
         "colorblindTreeColorsTooltip": "第一色覚・第二色覚・第三色覚異常に対応：オレンジを赤橙色に、黄色をより鮮明な黄色にシフトします",
-        "nodePrimaryActionDescription": "ノードをタップした時の増加量",
+        "nodePrimaryActionDescription": "ノードをタップした時の追加量",
         "ignoreTechCrystalBudget": "テッククリスタル予算を無視",
         "ignoreTechCrystalBudgetDescription": "消費上限を超えてノードをレベルアップ",
         "nodeLevelBehaviorDescription": "1つのノードか系統全体を上げる",
@@ -546,10 +546,10 @@
         "hudPrimaryActionLabel": "プライマリアクション インジケーター",
         "hudPrimaryActionDescription": "+1、+10、+ティアの増加モードを切り替える",
         "pointerNodeReverseLabel": "{action}",
-        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseDescription": "Remove by primary action amount",
         "pointerNodeAlternateLabel": "{action}",
-        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
-        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
+        "pointerNodeAlternateDescription": "Add by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryDescription": "Remove by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "ノード",
@@ -560,7 +560,7 @@
         "options": "ノードオプション",
         "levelDown": "ノードをレベルダウン（アクション設定に準じる）",
         "modifierReverseLabel": "{action} + Click / Middle Click",
-        "modifierReverse": "Decrement (reverse direction)",
+        "modifierReverse": "Remove (reverse direction)",
         "modifierAlternateLabel": "{action} + Click",
         "modifierAlternate": "Alternate amount (+1 or +Tier)",
         "treeOptions": "ツリーオプション",

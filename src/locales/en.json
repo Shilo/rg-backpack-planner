@@ -175,7 +175,7 @@
         "uppercaseTextTooltip": "Display all text in uppercase",
         "colorblindTreeColors": "Colorblind Tree",
         "colorblindTreeColorsTooltip": "Adjusts tree region colors for protanopia, deuteranopia, and tritanopia: orange shifts to red-orange, yellow to a cleaner yellow",
-        "nodePrimaryActionDescription": "Increment per tap on a node",
+        "nodePrimaryActionDescription": "Add per tap on a node",
         "ignoreTechCrystalBudget": "Ignore Tech Crystal Budget",
         "ignoreTechCrystalBudgetDescription": "Level nodes beyond spending limit",
         "nodeLevelBehaviorDescription": "Level one node or its full lineage",
@@ -546,10 +546,10 @@
         "hudPrimaryActionLabel": "Primary Action Indicator",
         "hudPrimaryActionDescription": "Cycle between +1, +10, and +Tier increment modes",
         "pointerNodeReverseLabel": "{action}",
-        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseDescription": "Remove by primary action amount",
         "pointerNodeAlternateLabel": "{action}",
-        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
-        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
+        "pointerNodeAlternateDescription": "Add by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryDescription": "Remove by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "Nodes",
@@ -560,7 +560,7 @@
         "options": "View node options",
         "levelDown": "Level down node (per action setting)",
         "modifierReverseLabel": "{action} + Click / Middle Click",
-        "modifierReverse": "Decrement (reverse direction)",
+        "modifierReverse": "Remove (reverse direction)",
         "modifierAlternateLabel": "{action} + Click",
         "modifierAlternate": "Alternate amount (+1 or +Tier)",
         "treeOptions": "View tree options",

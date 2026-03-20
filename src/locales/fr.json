@@ -175,7 +175,7 @@
         "uppercaseTextTooltip": "Afficher tout le texte en majuscules",
         "colorblindTreeColors": "Arbre daltonien",
         "colorblindTreeColorsTooltip": "Ajuste les couleurs des zones de l'arbre pour la protanopie, la deutéranopie et la tritanopie : l'orange passe au rouge-orangé, le jaune à un jaune plus pur",
-        "nodePrimaryActionDescription": "Incrément par touche sur un nœud",
+        "nodePrimaryActionDescription": "Ajout par touche sur un nœud",
         "ignoreTechCrystalBudget": "Ignorer le budget de Cristaux Tech",
         "ignoreTechCrystalBudgetDescription": "Monter les nœuds au-delà de la limite de dépenses",
         "nodeLevelBehaviorDescription": "Monter un seul nœud ou toute sa lignée",
@@ -546,10 +546,10 @@
         "hudPrimaryActionLabel": "Indicateur d'action principale",
         "hudPrimaryActionDescription": "Alterner entre les modes d'incrémentation +1, +10 et +Palier",
         "pointerNodeReverseLabel": "{action}",
-        "pointerNodeReverseDescription": "Decrement by primary action amount",
+        "pointerNodeReverseDescription": "Remove by primary action amount",
         "pointerNodeAlternateLabel": "{action}",
-        "pointerNodeAlternateDescription": "Increment by alternate amount (+1 or +Tier)",
-        "pointerNodeAlternateAuxiliaryDescription": "Decrement by alternate amount (+1 or +Tier)"
+        "pointerNodeAlternateDescription": "Add by alternate amount (+1 or +Tier)",
+        "pointerNodeAlternateAuxiliaryDescription": "Remove by alternate amount (+1 or +Tier)"
     },
     "onboarding": {
         "nodesSection": "Nœuds",
@@ -560,7 +560,7 @@
         "options": "Options du nœud",
         "levelDown": "Baisser le niveau du nœud (selon le réglage d'action)",
         "modifierReverseLabel": "{action} + Click / Middle Click",
-        "modifierReverse": "Decrement (reverse direction)",
+        "modifierReverse": "Remove (reverse direction)",
         "modifierAlternateLabel": "{action} + Click",
         "modifierAlternate": "Alternate amount (+1 or +Tier)",
         "treeOptions": "Options de l'arbre",
