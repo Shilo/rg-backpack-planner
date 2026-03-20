@@ -6,7 +6,7 @@
 
 **Architecture:** Two independent boolean modifiers replace a single priority-based enum. Direction is determined by `isDecrement = auxiliary || reverse`. Amount toggle is `isAlternate = alternate`. NodeOperation simplifies from 7 to 5 variants — alternate ops resolve at callback time against the primary action store.
 
-**Tech Stack:** Svelte 4, TypeScript, node:assert tests
+**Tech Stack:** Svelte 5 (legacy mode), TypeScript, node:assert tests
 
 **Spec:** `docs/superpowers/specs/2026-03-20-modifier-redesign.md`
 
@@ -26,9 +26,8 @@
 | `src/lib/nodeActionPreview.ts` | Tooltip previews | New alternate resolution logic |
 | `src/lib/Node.svelte` | Node component | Update reactive modifier/op blocks |
 | `src/lib/Tree.svelte` | Tree orchestrator | Update nodeCallbacks + call sites |
-| `src/lib/NodeContextMenu.svelte` | Context menu | Rename shortcut hint fields |
+| `src/lib/NodeContextMenu.svelte` | Context menu | Dynamic shortcut hints based on primary action |
 | `src/lib/sideMenuPages/SideMenuControlsPage.svelte` | Help page | Rename field references |
-| `src/lib/TreeTabs.svelte` | Tab bar | Rename field references (secondary only) |
 | `src/lib/onboarding/onboardingSteps.ts` | Onboarding flow | Update modifier labels + descriptions |
 | `src/locales/en.json`, `fr.json`, `ja.json`, `zh.json` | Translations | Rename keys + update descriptions |
 | `test/resolveAction.test.ts` | Unit tests | Rewrite for object modifiers |
@@ -770,7 +769,7 @@ Same key renames. In the `"input"` section:
 - `"macro": "Maj"` → `"reverse": "Maj"`
 - `"micro": "Ctrl"` → `"alternate": "Ctrl"`
 
-Update `"onboarding"` keys to match the new key names (keep existing French translations, update descriptions).
+Update `"onboarding"` keys to match the new key names. For the description values, use the English text as placeholder — these will be translated separately.
 
 - [ ] **Step 3: Update ja.json and zh.json**
 
@@ -778,7 +777,7 @@ Same key renames in both files. In the `"input"` section:
 - `"macro": "Shift"` → `"reverse": "Shift"`
 - `"micro": "Ctrl"` → `"alternate": "Ctrl"`
 
-Update `"onboarding"` keys to match the new key names.
+Update `"onboarding"` keys to match the new key names. Use English text as placeholder for the new description values.
 
 - [ ] **Step 4: Commit**
 
@@ -966,21 +965,54 @@ git commit -m "refactor: update Node.svelte for composable modifiers"
 
 ---
 
-### Task 12: UI Consumers — Context Menu, Controls, Tabs, Onboarding
+### Task 12: UI Consumers — Context Menu, Controls, Onboarding
 
 **Files:**
 - Modify: `src/lib/NodeContextMenu.svelte`
 - Modify: `src/lib/sideMenuPages/SideMenuControlsPage.svelte`
-- Modify: `src/lib/TreeTabs.svelte`
 - Modify: `src/lib/onboarding/onboardingSteps.ts`
 
-- [ ] **Step 1: Update NodeContextMenu.svelte**
+Note: `TreeTabs.svelte` only uses `mouse.secondary` which is unchanged — no modifications needed.
 
-Rename all `DeviceInputLabels` field references:
-- Line 274: `shortcut={mouse.microPrimary}` → `shortcut={mouse.alternatePrimary}`
-- Line 304: `shortcut={mouse.macroPrimary}` → `shortcut={mouse.reversePrimary}`
-- Line 319: `shortcut={mouse.microAuxiliary}` → `shortcut={mouse.alternateAuxiliary}`
-- Line 345: `shortcut={mouse.macroAuxiliary}` → `shortcut={mouse.reverseAuxiliary}`
+- [ ] **Step 1: Update NodeContextMenu.svelte — dynamic shortcut hints**
+
+The context menu buttons are direct actions (+1, +Tier, -1, -Tier) but the new modifiers are dynamic (depend on primary action store). Compute shortcuts reactively — show a shortcut only when a single modifier maps to that action.
+
+Import `NodePrimaryAction` and `nodePrimaryAction` store (if not already imported).
+
+Add reactive shortcut computations:
+
+```ts
+    $: alternateAction = $nodePrimaryAction === NodePrimaryAction.IncrementOne
+        ? NodePrimaryAction.IncrementTier
+        : NodePrimaryAction.IncrementOne;
+
+    // Increment shortcuts: primary click if store matches, alternate click if alternate matches
+    $: incrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
+        ? mouse.primary
+        : mouse.alternatePrimary;
+
+    $: incrementTierShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTier
+        ? mouse.primary
+        : $nodePrimaryAction === NodePrimaryAction.IncrementOne
+            ? mouse.alternatePrimary
+            : undefined;
+
+    // Decrement shortcuts: reverse click if store matches (compound Ctrl+Shift has no simple label)
+    $: decrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
+        ? mouse.reversePrimary
+        : undefined;
+
+    $: decrementTierShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTier
+        ? mouse.reversePrimary
+        : undefined;
+```
+
+Update the shortcut props on the 4 action buttons:
+- Line 274 (`shortcut={mouse.microPrimary}`): → `shortcut={incrementOneShortcut}`
+- Line 304 (`shortcut={mouse.macroPrimary}`): → `shortcut={incrementTierShortcut}`
+- Line 319 (`shortcut={mouse.microAuxiliary}`): → `shortcut={decrementOneShortcut}`
+- Line 345 (`shortcut={mouse.macroAuxiliary}`): → `shortcut={decrementTierShortcut}`
 
 - [ ] **Step 2: Update SideMenuControlsPage.svelte**
 
@@ -1009,8 +1041,8 @@ At lines 122-129, update the modifier card entries:
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/lib/NodeContextMenu.svelte src/lib/sideMenuPages/SideMenuControlsPage.svelte src/lib/TreeTabs.svelte src/lib/onboarding/onboardingSteps.ts
-git commit -m "refactor: update UI consumers for reverse/alternate field names"
+git add src/lib/NodeContextMenu.svelte src/lib/sideMenuPages/SideMenuControlsPage.svelte src/lib/onboarding/onboardingSteps.ts
+git commit -m "refactor: dynamic context menu shortcuts, update UI consumers for reverse/alternate"
 ```
 
 ---
