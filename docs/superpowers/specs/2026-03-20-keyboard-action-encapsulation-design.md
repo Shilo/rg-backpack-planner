@@ -6,7 +6,7 @@ Encapsulate the `Key` constant object inside `src/lib/input/` so no external fil
 
 ## Motivation
 
-Currently 13 component files import `Key` and compare `event.key === Key.X` directly. This couples them to physical key values. Changing a key mapping requires updating every consumer. The action system should be the single source of truth — consumers express intent ("is this a dismiss?"), not mechanics ("is this Escape?").
+Currently 14 files outside `src/lib/input/` import `Key` and compare `event.key === Key.X` directly. This couples them to physical key values. Changing a key mapping requires updating every consumer. The action system should be the single source of truth — consumers express intent ("is this a dismiss?"), not mechanics ("is this Escape?").
 
 ## Action Type Changes
 
@@ -46,7 +46,11 @@ Updated bindings:
 { action: "activate", key: Key.Space },
 ```
 
-Note: `resolveKeyboardAction` returns the first match, so `"confirm"` (Enter) will be returned before `"activate"` (Enter) for an Enter keypress. This only matters for App.svelte's global handler, which doesn't currently handle either action. For `isKeyboardAction`, both `"confirm"` and `"activate"` will correctly match Enter events since it checks all bindings for the given action.
+**Behavioral change for `resolveKeyboardAction`:** With the old bindings, `resolveKeyboardAction(spaceEvent)` returned `"confirm"`. With the new bindings, it returns `"activate"` (since Space is no longer bound to `"confirm"`). This is the intended semantic correction — Space activates buttons, it doesn't submit forms.
+
+For Enter keypresses, `resolveKeyboardAction` returns `"confirm"` (first match) rather than `"activate"`. This only matters for callers that switch on the resolved action (App.svelte, TreeTabs). Neither currently handles `"confirm"` or `"activate"`, so no runtime change.
+
+For `isKeyboardAction`, both `"confirm"` and `"activate"` correctly match Enter events since it checks all bindings for the given action.
 
 ## New API (3 functions)
 
@@ -123,7 +127,6 @@ export function keyForAction(action: KeyboardActionType): string {
 | File | Lines |
 |------|-------|
 | FullscreenModal.svelte | 1 usage |
-| SideMenu.svelte | (verify — may not have direct Escape check) |
 | ContextMenu.svelte | 1 usage |
 | FabMenu.svelte | 1 usage |
 | ColorPickerDialog.svelte | 1 usage |
@@ -168,11 +171,9 @@ export function keyForAction(action: KeyboardActionType): string {
 
 ModalHost uses `event.key === Key.Tab` for focus trapping (constraining Tab/Shift+Tab within the modal). This is an accessibility primitive tied to the browser's Tab navigation, not a semantic "cycle" action. Using `isKeyboardAction(event, "cycle")` would incorrectly match ArrowLeft/ArrowRight, which don't move focus.
 
-**Solution:** ModalHost uses `isKeyboardAction(event, "cycle")` to detect cycle keys generally, then checks the raw `event.key === "Tab"` string for the specific focus trapping branch. The "Tab" string is a DOM spec constant. This is the only justified exception — one raw string comparison for a browser accessibility mechanism.
+**Solution:** ModalHost uses `event.key === "Tab"` (raw DOM spec string) for both Tab-checking call sites — the `handleModalTabKeydown` guard and the `handleKeydown` dispatch to it. The `"Tab"` string is a DOM spec constant that won't change. This is the only justified exception — two raw string comparisons for a browser accessibility mechanism.
 
-Alternatively: combine cycle detection with direction. Tab produces direction values, as do arrows. The focus trap handler can check `isKeyboardAction(event, "cycle")` and then use `event.shiftKey` for direction — but this still routes ArrowLeft/Right into the focus trap incorrectly.
-
-The cleanest path: `event.key === "Tab"` for the focus trap guard, `isKeyboardAction` for everything else in ModalHost.
+All other key checks in ModalHost (dismiss, confirm, activate for backdrop) use `isKeyboardAction`.
 
 ## Test Changes
 
@@ -180,8 +181,16 @@ The cleanest path: `event.key === "Tab"` for the focus trap guard, `isKeyboardAc
 
 - Replace `Key.X` references with raw DOM strings (`"Escape"`, `"Enter"`, `" "`, etc.)
 - Tests verify the public API with standard DOM key values
-- Add tests for `isKeyboardAction`, `getCycleDirection`, `keyForAction`
-- Add tests for the confirm/activate split
+- **Breaking test change:** The existing assertion that Space resolves to `"confirm"` must be updated — Space now resolves to `"activate"` (intentional semantic correction)
+- Add tests for new functions:
+  - `isKeyboardAction(enterEvent, "confirm")` → `true`
+  - `isKeyboardAction(spaceEvent, "confirm")` → `false` (critical: Space is not confirm)
+  - `isKeyboardAction(enterEvent, "activate")` → `true`
+  - `isKeyboardAction(spaceEvent, "activate")` → `true`
+  - `getCycleDirection(tabEvent)` → `1`, `getCycleDirection(shiftTabEvent)` → `-1`
+  - `getCycleDirection(arrowLeftEvent)` → `-1`, `getCycleDirection(arrowRightEvent)` → `1`
+  - `keyForAction("dismiss")` → `"Escape"`
+  - `keyForAction` with every action returns a non-empty string
 
 ## Internal File (`inputStore.ts`)
 
