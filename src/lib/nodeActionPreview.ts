@@ -131,20 +131,16 @@ export function getNodeActionPreviewFromOp(params: {
             action = primaryAction;
             isRefund = true;
             break;
-        case "incrementTier":
-            action = NodePrimaryAction.IncrementTier;
+        case "incrementByAlternate":
+            action = primaryAction === NodePrimaryAction.IncrementOne
+                ? NodePrimaryAction.IncrementTier
+                : NodePrimaryAction.IncrementOne;
             isRefund = false;
             break;
-        case "decrementTier":
-            action = NodePrimaryAction.IncrementTier;
-            isRefund = true;
-            break;
-        case "incrementOne":
-            action = NodePrimaryAction.IncrementOne;
-            isRefund = false;
-            break;
-        case "decrementOne":
-            action = NodePrimaryAction.IncrementOne;
+        case "decrementByAlternate":
+            action = primaryAction === NodePrimaryAction.IncrementOne
+                ? NodePrimaryAction.IncrementTier
+                : NodePrimaryAction.IncrementOne;
             isRefund = true;
             break;
     }
