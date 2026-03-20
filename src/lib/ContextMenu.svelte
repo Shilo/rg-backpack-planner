@@ -1,4 +1,4 @@
-<script module lang="ts">
+<script lang="ts" context="module">
     let menuIdCounter = 0;
     const openMenuStack: number[] = [];
 

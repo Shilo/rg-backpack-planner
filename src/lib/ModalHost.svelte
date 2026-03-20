@@ -418,7 +418,7 @@
         on:click={handleBackdropClick}
         on:keydown={handleBackdropKeydown}
     >
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
         <div
             class="modal-shell"
             class:modal-shell--confirm={renderedModal.type === "confirm"}
@@ -427,6 +427,7 @@
             class:modal-shell--resetTreeChoices={renderedModal.type === "resetTreeChoices"}
             bind:this={sheetShellRef}
             role="dialog"
+            tabindex="-1"
             aria-modal="true"
             aria-label={renderedModal.title}
             transition:modalShellTransition={{ sheet: renderedModal.type === "resetTreeChoices" }}

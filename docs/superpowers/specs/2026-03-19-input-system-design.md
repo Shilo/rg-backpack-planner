@@ -94,7 +94,7 @@ Accepts raw `pointerType` string from the event (`"mouse"`, `"touch"`, `"pen"`).
 
 ### resolveNodeAction()
 
-Maps InputAction to a concrete node operation, consulting `nodePrimaryActionStore`:
+Maps InputAction to a concrete node operation. Direction is determined by button (primary = increment, auxiliary = decrement). Modifiers override amount only, never direction. Store resolution is deferred to `applyNodeOperation` at execution time.
 
 ```ts
 type NodeOperation =
@@ -106,7 +106,7 @@ type NodeOperation =
     | { op: "decrementOne" }
     | { op: "contextMenu" };
 
-resolveNodeAction(action: InputAction, store: NodePrimaryAction): NodeOperation
+resolveNodeAction(action: InputAction): NodeOperation
 ```
 
 ### Node Action Table
@@ -170,12 +170,12 @@ Both primary and secondary inputs open quick settings (preserving current behavi
 Dispatcher that executes a `NodeOperation` on a node. Used by Tree.svelte after resolving the action:
 
 ```ts
-function applyNodeOperation(op: NodeOperation, index: NodeIndex, pos?: {x: number, y: number}): void
+function applyNodeOperation(op: NodeOperation, index: NodeIndex, callbacks: NodeOperationCallbacks, pos?: {x: number, y: number}): void
 ```
 
-Switches on `op.op` and delegates to the convenience wrappers below. The `pos` parameter is required when `op` is `contextMenu` (to position the menu) and ignored for all other operations. Implementation should throw if `pos` is missing for `contextMenu`.
+Switches on `op.op` and delegates to the provided callbacks. The `callbacks` parameter decouples the dispatcher from Tree.svelte's internal state (levels, budget enforcement, splash effects), making the function reusable and testable. The `pos` parameter is required when `op` is `contextMenu` (to position the menu) and ignored for all other operations. Implementation should throw if `pos` is missing for `contextMenu`.
 
-`incrementByStore` / `decrementByStore` resolve to the concrete delta at execution time, consulting the current `NodePrimaryAction` value from `nodePrimaryActionStore`. The operation type is abstract — it does not encode the amount until execution.
+`incrementByStore` / `decrementByStore` resolve to the concrete delta at execution time via the callbacks, which consult the current `NodePrimaryAction` value from `nodePrimaryActionStore`. The operation type is abstract — it does not encode the amount until execution.
 
 ### Convenience Wrappers
 
