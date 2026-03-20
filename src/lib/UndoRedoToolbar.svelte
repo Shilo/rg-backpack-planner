@@ -108,6 +108,7 @@
                     icon={ArrowArcLeftIcon}
                     small
                     disabled={!$canUndo}
+                    flashOnAction="undo"
                     on:click={handleUndo}
                 />
                 <Button
@@ -118,6 +119,7 @@
                     icon={ArrowArcRightIcon}
                     small
                     disabled={!$canRedo}
+                    flashOnAction="redo"
                     on:click={handleRedo}
                 />
                 <span class="undo-redo-toolbar__divider"></span>
