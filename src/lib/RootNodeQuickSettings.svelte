@@ -1,7 +1,11 @@
 <script lang="ts">
     import { onMount, onDestroy, tick } from "svelte";
     import { RootNodeIcon } from "./customIcons";
-    import { ArrowUpIcon, GraphIcon } from "phosphor-svelte";
+    import {
+        ArrowCounterClockwiseIcon,
+        ArrowUpIcon,
+        GraphIcon,
+    } from "phosphor-svelte";
     import {
         nodePrimaryAction,
         NodePrimaryAction,
@@ -10,6 +14,12 @@
         nodeLevelBehavior,
         NodeLevelBehavior,
     } from "./nodeLevelBehaviorStore";
+    import {
+        sumLevels,
+        sumTreeBranchLevels,
+        type TreeBranchKey,
+    } from "./treeLevelsStore";
+    import type { LevelsByIndex } from "../types/tree";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
@@ -19,6 +29,10 @@
     export let y = 0;
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
+    export let treeLabel = "";
+    export let activeLevels: LevelsByIndex | null = null;
+    export let onResetBranch: ((branch: TreeBranchKey) => void) | null = null;
+    export let onResetTree: (() => void) | null = null;
 
     let panelEl: HTMLDivElement | null = null;
     let displayX = 0;
@@ -88,6 +102,30 @@
                   ? $t("nodeMenu.incrementTen")
                   : $t("nodeMenu.incrementTier");
         showSettingToast(clickActionLabel, label);
+        onClose?.();
+    }
+
+    const BRANCHES: TreeBranchKey[] = ["orange", "blue", "yellow"];
+
+    $: resetLabel = $t("tree.resetBranchToast", { branchName: treeLabel });
+
+    function isBranchEmpty(branch: TreeBranchKey): boolean {
+        return sumTreeBranchLevels(activeLevels, branch) === 0;
+    }
+
+    $: isTreeEmpty = sumLevels(activeLevels) === 0;
+
+    function handleResetBranch(branch: TreeBranchKey) {
+        if (isBranchEmpty(branch)) return;
+        triggerHaptic();
+        onResetBranch?.(branch);
+        onClose?.();
+    }
+
+    function handleResetTree() {
+        if (isTreeEmpty) return;
+        triggerHaptic();
+        onResetTree?.();
         onClose?.();
     }
 
@@ -187,6 +225,35 @@
         <div class="qs-header">
             <RootNodeIcon class="qs-header-icon" aria-hidden="true" />
             <span class="qs-header-title">{$t("quickSettings.title")}</span>
+        </div>
+
+        <div class="qs-reset-row">
+            <span class="qs-reset-label">
+                <ArrowCounterClockwiseIcon size={14} weight="bold" />
+                {resetLabel}
+            </span>
+            <div class="qs-reset-chips">
+                {#each BRANCHES as branch (branch)}
+                    {@const empty = isBranchEmpty(branch)}
+                    <button
+                        class="qs-reset-chip qs-reset-chip--{branch}"
+                        type="button"
+                        disabled={empty}
+                        on:click={() => handleResetBranch(branch)}
+                    >
+                        {$t(`theme.colorNames.${branch}`)}
+                    </button>
+                {/each}
+                <span class="qs-reset-divider"></span>
+                <button
+                    class="qs-reset-chip qs-reset-chip--all"
+                    type="button"
+                    disabled={isTreeEmpty}
+                    on:click={handleResetTree}
+                >
+                    {$t("modal.resetTree.choiceTreeLabel")}
+                </button>
+            </div>
         </div>
 
         <div class="qs-rows">
@@ -331,10 +398,120 @@
     }
 
     /* Divider between rows */
-    .qs-label:nth-child(3),
-    .qs-chips:nth-child(4) {
+    .qs-label:nth-child(n + 3),
+    .qs-chips:nth-child(n + 4) {
         border-top: var(--border-width) solid
             color-mix(in srgb, var(--border) 60%, transparent);
+    }
+
+    /* ── Reset row ── */
+    .qs-reset-row {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        background: var(--danger-bg);
+        border-bottom: var(--border-width) solid
+            color-mix(in srgb, var(--danger-border) 50%, var(--border));
+    }
+
+    .qs-reset-label {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-size: var(--font-xs);
+        color: var(--danger-text);
+        letter-spacing: var(--tracking);
+        white-space: nowrap;
+        line-height: var(--leading);
+    }
+
+    .qs-reset-chips {
+        display: flex;
+        gap: var(--spacing-xs);
+    }
+
+    .qs-reset-divider {
+        width: var(--border-width);
+        align-self: stretch;
+        margin: var(--spacing-xs) var(--spacing-xs);
+        background: color-mix(in srgb, var(--danger-border) 50%, var(--border));
+    }
+
+    .qs-reset-chip {
+        flex: 1;
+        min-height: 32px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-sm);
+        font-family: inherit;
+        cursor: pointer;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+            background var(--ease),
+            color var(--ease),
+            border-color var(--ease),
+            opacity var(--ease),
+            scale var(--ease);
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        --chip-accent: var(--danger-text);
+        border: var(--border-width) solid
+            color-mix(in srgb, var(--chip-accent) 35%, var(--border));
+        background: color-mix(
+            in srgb,
+            var(--surface) 82%,
+            var(--chip-accent) 18%
+        );
+        color: var(--text-muted);
+    }
+
+    .qs-reset-chip--orange {
+        --chip-accent: var(--region-orange-accent);
+    }
+
+    .qs-reset-chip--blue {
+        --chip-accent: var(--region-blue-accent);
+    }
+
+    .qs-reset-chip--yellow {
+        --chip-accent: var(--region-yellow-accent);
+    }
+
+    .qs-reset-chip--all {
+        --chip-accent: var(--danger-text);
+    }
+
+    .qs-reset-chip:disabled {
+        --chip-accent: var(--text-disabled);
+        opacity: 0.4;
+        cursor: default;
+        pointer-events: none;
+        color: var(--text-disabled);
+        background: color-mix(in srgb, var(--surface) 92%, var(--bg-input) 8%);
+        border-color: var(--border);
+    }
+
+    .qs-reset-chip:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
+    .qs-reset-chip:active:not(:disabled) {
+        scale: 0.95;
+    }
+
+    @media (hover: hover) {
+        .qs-reset-chip:not(:disabled):hover {
+            background: color-mix(
+                in srgb,
+                var(--surface) 65%,
+                var(--chip-accent) 35%
+            );
+        }
     }
 
     .qs-chip {
