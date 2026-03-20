@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import { createEventDispatcher } from "svelte";
     import { showToast } from "./toast";
     import { tooltip, type TooltipContent } from "./tooltip";
-    import { primary, secondary, buildShortcutTooltip, shortcutFlash } from "./input";
+    import { primary, secondary, buildShortcutTooltip, shortcutFlashFor } from "./input";
     import type { KeyboardActionType } from "./input";
     import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
@@ -51,11 +51,7 @@
               ? { content: resolvedTooltip, hoverOnly: true }
               : resolvedTooltip;
 
-    let isFlashing = false;
-    const unsubFlash = flashOnAction
-        ? shortcutFlash.subscribe((v) => { isFlashing = v === flashOnAction; })
-        : undefined;
-    onDestroy(() => unsubFlash?.());
+    const flashStore = shortcutFlashFor(flashOnAction);
 
     $: computedClass = [
         "button",
@@ -65,7 +61,7 @@
         restClass,
         icon || arrow ? "with-icon" : "",
         arrow ? "with-arrow" : "",
-        isFlashing ? "button-flash" : "",
+        $flashStore ? "button-flash" : "",
     ]
         .filter(Boolean)
         .join(" ");
