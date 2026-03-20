@@ -7,6 +7,7 @@
     import UndoRedoToolbar from "./lib/UndoRedoToolbar.svelte";
     import TechCrystalDisplay from "./lib/TechCrystalDisplay.svelte";
     import PreviewBuildIndicator from "./lib/PreviewBuildIndicator.svelte";
+    import PrimaryActionIndicator from "./lib/PrimaryActionIndicator.svelte";
     import OnboardingOverlay from "./lib/onboarding/OnboardingOverlay.svelte";
     import Tooltip from "./lib/Tooltip.svelte";
     import Toasts from "./lib/Toasts.svelte";
@@ -774,6 +775,12 @@
                 treeId={tabs[activeTreeIndex]?.id ?? ""}
             />
         </div>
+        <div
+            class="bot-left-actions"
+            class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
+        >
+            <PrimaryActionIndicator />
+        </div>
     </div>
     <main class="app-main">
         <h1 class="visually-hidden">
@@ -861,7 +868,8 @@
     }
 
     .top-right-actions.above-backdrop,
-    .bot-right-actions.above-backdrop {
+    .bot-right-actions.above-backdrop,
+    .bot-left-actions.above-backdrop {
         z-index: var(--z-index-hud-above-context-backdrop);
     }
 
@@ -876,9 +884,21 @@
         z-index: var(--z-index-hud);
     }
 
+    .bot-left-actions {
+        position: absolute;
+        bottom: calc(var(--tab-height) + var(--bar-pad));
+        left: 0;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        pointer-events: none;
+        z-index: var(--z-index-hud);
+    }
+
     .top-left-actions > :global(*),
     .top-right-actions > :global(*),
-    .bot-right-actions > :global(*) {
+    .bot-right-actions > :global(*),
+    .bot-left-actions > :global(*) {
         pointer-events: auto;
     }
 </style>
