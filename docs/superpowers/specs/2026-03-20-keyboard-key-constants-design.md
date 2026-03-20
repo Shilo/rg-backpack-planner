@@ -58,7 +58,7 @@ type KeyBinding = {
     action: KeyboardActionType;
     key: string;
     /** true = require Ctrl/Meta, false = require NO Ctrl/Meta, undefined = either */
-    mod?: boolean;
+    ctrl?: boolean;
     /** true = require Shift, false = require NO Shift, undefined = either */
     shift?: boolean;
     /** true = require Alt, false = require NO Alt, undefined = either */
@@ -74,11 +74,11 @@ export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
     { action: "confirm", key: Key.Enter },
     { action: "confirm", key: Key.Space },
     { action: "console", key: Key.Backtick },
-    { action: "undo", key: Key.z, mod: true, shift: false, alt: false },
-    { action: "redo", key: Key.y, mod: true, alt: false },
-    { action: "redo", key: Key.z, mod: true, shift: true, alt: false },
+    { action: "undo", key: Key.z, ctrl: true, shift: false, alt: false },
+    { action: "redo", key: Key.y, ctrl: true, alt: false },
+    { action: "redo", key: Key.z, ctrl: true, shift: true, alt: false },
     { action: "screenshot", key: Key.F9 },
-    { action: "budget", key: Key.b, mod: false },
+    { action: "budget", key: Key.b, ctrl: false },
 ];
 ```
 
@@ -93,12 +93,12 @@ export function resolveKeyboardAction(
     event: KeyboardEvent,
 ): KeyboardActionType | null {
     const { ctrlKey, metaKey, shiftKey, altKey } = event;
-    const mod = ctrlKey || metaKey;
+    const ctrl = ctrlKey || metaKey;
     const key = canonicalKey(event.key);
 
     for (const binding of KEYBOARD_ACTION_BINDINGS) {
         if (binding.key !== key) continue;
-        if (binding.mod !== undefined && binding.mod !== mod) continue;
+        if (binding.ctrl !== undefined && binding.ctrl !== ctrl) continue;
         if (binding.shift !== undefined && binding.shift !== shiftKey) continue;
         if (binding.alt !== undefined && binding.alt !== altKey) continue;
         return binding.action;
