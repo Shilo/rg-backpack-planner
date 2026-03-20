@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
     import { showToast } from "./toast";
     import { tooltip, type TooltipContent } from "./tooltip";
     import { primary, secondary, buildShortcutTooltip, shortcutFlash } from "./input";
@@ -51,7 +51,12 @@
               ? { content: resolvedTooltip, hoverOnly: true }
               : resolvedTooltip;
 
-    $: isFlashing = !!flashOnAction && $shortcutFlash === flashOnAction;
+    let isFlashing = false;
+    const unsubFlash = flashOnAction
+        ? shortcutFlash.subscribe((v) => { isFlashing = v === flashOnAction; })
+        : undefined;
+    onDestroy(() => unsubFlash?.());
+
     $: computedClass = [
         "button",
         small ? "button-sm" : "button-md",
@@ -259,8 +264,9 @@
     }
 
     .button.button-flash:not(:disabled) {
-        filter: var(--brightness-hover);
-        transform: scale(0.96);
+        filter: brightness(1.4);
+        transform: scale(0.85);
+        background: var(--bg-input);
     }
 
     .button-sm {

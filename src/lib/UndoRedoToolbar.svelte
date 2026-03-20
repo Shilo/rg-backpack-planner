@@ -179,6 +179,10 @@
         background: var(--bg-input) !important;
     }
 
+    :global(.undo-redo-toolbar__btn.button-flash:not(:disabled)) {
+        background: var(--bg-input) !important;
+    }
+
     :global(.undo-redo-toolbar__btn:disabled) {
         background: transparent !important;
     }
