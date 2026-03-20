@@ -19,7 +19,7 @@ A minimal store that broadcasts which `KeyboardActionType` was just activated.
 
 **Exports:**
 - `shortcutFlash` — readable store of `KeyboardActionType | null`
-- `triggerShortcutFlash(action: KeyboardActionType)` — sets the store value and auto-clears it after `FLASH_DURATION_MS` (~150ms)
+- `triggerShortcutFlash(action: KeyboardActionType)` — sets the store value and auto-clears it after `FLASH_DURATION_MS` (250ms — must exceed the CSS `--ease` transition duration of 200ms so the button fully reaches the pressed state before releasing)
 
 **Behavior:**
 - Calling `triggerShortcutFlash` while a previous flash is active cancels the previous timer and starts a new one (so rapid Ctrl+Z presses each get their own flash).
@@ -35,9 +35,20 @@ export let flashOnAction: KeyboardActionType | undefined = undefined;
 ```
 
 **Behavior:**
-- When `flashOnAction` is set, Button subscribes to `shortcutFlash`.
-- When the store value matches `flashOnAction`, Button applies the CSS class `button-flash` to the `<button>` element.
-- The class is removed when the store resets to `null`.
+- Button uses `$shortcutFlash` auto-subscription (Svelte store syntax) to reactively derive an `isFlashing` boolean.
+- `isFlashing` is true when `flashOnAction` is defined and `$shortcutFlash === flashOnAction`.
+- The `button-flash` class is added to the existing `computedClass` reactive builder:
+```javascript
+$: isFlashing = !!flashOnAction && $shortcutFlash === flashOnAction;
+$: computedClass = [
+    "button",
+    // ...existing classes...
+    isFlashing ? "button-flash" : "",
+]
+    .filter(Boolean)
+    .join(" ");
+```
+- The class is removed automatically when the store resets to `null`.
 
 **CSS class `button-flash`:**
 Reuses the existing `:active` visual treatment:
@@ -48,11 +59,7 @@ Reuses the existing `:active` visual treatment:
 }
 ```
 
-The existing `.button` already has `transition: transform var(--ease), filter var(--ease)` — so both the press-in and release will animate smoothly with no additional transition rules needed.
-
-**Subscription lifecycle:**
-- Only subscribes when `flashOnAction` is defined (reactive — if the prop changes to `undefined`, unsubscribes).
-- Uses `onDestroy` to clean up the subscription.
+The existing `.button` already has `transition: transform var(--ease), filter var(--ease)` — so both the press-in and release will animate smoothly with no additional transition rules needed. The flash duration (250ms) exceeds the transition duration (200ms from `--ease`), ensuring the button fully reaches the pressed state before the release animation begins.
 
 ### 3. App.svelte Integration
 
@@ -102,6 +109,7 @@ Any button can opt in by adding `flashOnAction="screenshot"` (or `"budget"`, etc
 ## Edge Cases
 
 - **Disabled buttons**: The `button-flash` selector includes `:not(:disabled)`, so disabled buttons don't flash. This matches the behavior that disabled undo/redo shortcuts are no-ops.
-- **Rapid key repeat**: Each `triggerShortcutFlash` call resets the timer, so rapid presses produce a sustained visual state that releases 150ms after the last press.
+- **Rapid key repeat**: Each `triggerShortcutFlash` call resets the timer, so rapid presses produce a sustained visual state that releases 250ms after the last press. Throttled held-key repeats (which App.svelte debounces at 250ms) correctly produce distinct flashes.
+- **Held key (e.repeat)**: App.svelte already throttles repeated keydown events at 250ms intervals. Each throttled repeat calls `triggerShortcutFlash`, producing a continuous held-down appearance with brief releases between repeats.
 - **Tab switching during undo/redo**: The flash fires immediately regardless of tab switch delays — it confirms the keypress was received, not that the operation completed.
 - **No keyboard**: On touch-only devices, `flashOnAction` is inert — the store is never triggered since keyboard shortcuts don't fire.
