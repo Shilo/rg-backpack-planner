@@ -19,9 +19,11 @@
     import { getContext } from "svelte";
     import type { Writable } from "svelte/store";
     import type { Node as NodeType, LevelsByIndex } from "../types/tree";
-    import { getNodeActionPreview } from "./nodeActionPreview";
+    import { getNodeActionPreviewFromOp } from "./nodeActionPreview";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import type { TooltipSection } from "./tooltip";
+    import { inputStore } from "./inputStore";
+    import { resolveModifier, resolveAction, resolveNodeAction } from "./input";
 
     export let id: number;
     export let x: number = 0;
@@ -61,39 +63,74 @@
         skillId != null &&
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
-    $: isRefund = false;
-    $: actionPreview =
-        skillId != null
-            ? getNodeActionPreview({
-                  nodes: $treeData.nodes,
-                  levels: $treeData.levels,
-                  index: id,
-                  action: $nodePrimaryAction,
-                  nodeLevelBehavior: $nodeLevelBehavior,
-                  isRefund,
-              })
-            : null;
+    $: isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(pointer: fine)").matches;
+
+    $: modifier = resolveModifier($inputStore);
+
+    $: incrementOp = (() => {
+        const action = resolveAction(0, modifier, "mouse");
+        return action ? resolveNodeAction(action, $nodePrimaryAction) : null;
+    })();
+
+    $: decrementOp = (() => {
+        const action = resolveAction(1, modifier, "mouse");
+        return action ? resolveNodeAction(action, $nodePrimaryAction) : null;
+    })();
+
+    $: incrementPreview = skillId != null && incrementOp
+        ? getNodeActionPreviewFromOp({
+            nodes: $treeData.nodes,
+            levels: $treeData.levels,
+            index: id,
+            operation: incrementOp,
+            nodeLevelBehavior: $nodeLevelBehavior,
+            primaryAction: $nodePrimaryAction,
+        })
+        : null;
+
+    $: decrementPreview = skillId != null && decrementOp
+        ? getNodeActionPreviewFromOp({
+            nodes: $treeData.nodes,
+            levels: $treeData.levels,
+            index: id,
+            operation: decrementOp,
+            nodeLevelBehavior: $nodeLevelBehavior,
+            primaryAction: $nodePrimaryAction,
+        })
+        : null;
 
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
     $: tooltipSections = (() => {
+        if (isTouch) return [];
         const sections: TooltipSection[] = [];
         if (tooltipLine1) {
             sections.push({ type: "text", value: tooltipLine1 });
         }
-        if (
-            actionPreview != null &&
-            !(state === "locked" && isGlobalIncrementLocked)
-        ) {
+        if (state === "locked" && isGlobalIncrementLocked) return sections;
+
+        if (incrementPreview != null) {
             sections.push({
                 type: "level-preview",
                 from: level,
-                to: actionPreview.targetLevel,
+                to: incrementPreview.targetLevel,
             });
             sections.push({
                 type: "crystal-cost",
-                value: formatNumber(actionPreview.totalCost),
-                refund: actionPreview.isRefund,
+                value: formatNumber(incrementPreview.totalCost),
+                refund: false,
+            });
+        }
+        if (decrementPreview != null) {
+            sections.push({
+                type: "level-preview",
+                from: level,
+                to: decrementPreview.targetLevel,
+            });
+            sections.push({
+                type: "crystal-cost",
+                value: formatNumber(decrementPreview.totalCost),
+                refund: true,
             });
         }
         return sections;
