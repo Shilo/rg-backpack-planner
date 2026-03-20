@@ -281,10 +281,11 @@ function getNodeActionPreviewFromOp(params: {
     index: NodeIndex;
     operation: NodeOperation;
     nodeLevelBehavior: NodeLevelBehavior;
+    primaryAction: NodePrimaryAction;
 }): NodeActionPreview | null
 ```
 
-The `nodeLevelBehavior` parameter (from `nodeLevelBehaviorStore`) is needed to resolve `incrementByStore` / `decrementByStore` operations into concrete level deltas. Fixed-amount operations (`incrementOne`, `incrementTier`, etc.) ignore it. Returns `null` for `contextMenu` (no preview applicable).
+The `nodeLevelBehavior` parameter (from `nodeLevelBehaviorStore`) is needed to resolve level deltas with sync/solo behavior. The `primaryAction` parameter (from `nodePrimaryActionStore`) is needed to resolve `incrementByStore` / `decrementByStore` operations into concrete level deltas. Fixed-amount operations (`incrementOne`, `incrementTier`, etc.) ignore `primaryAction`. Returns `null` for `contextMenu` (no preview applicable).
 
 ## Input Label Helpers
 
