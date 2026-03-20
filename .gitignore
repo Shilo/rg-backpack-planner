@@ -35,6 +35,7 @@ test/**/*.webp
 /*.txt
 /*.cjs
 /*.js
+/*.patch
 
 # Cursor generated files
 docs/plans/
