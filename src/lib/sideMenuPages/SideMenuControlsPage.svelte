@@ -27,6 +27,7 @@
     import { TechCrystalIcon, RootNodeIcon } from "../customIcons";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
+    import CyclingIcon from "../CyclingIcon.svelte";
     import Accordion from "../Accordion.svelte";
     import NumberedList from "../NumberedList.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -65,24 +66,25 @@
     $: versionLabel = version === "unknown" ? "" : version;
 
     type ControlDevice = "pointer" | "touch" | "both";
-    type ControlTitleRow = {
-        label: string;
-        icon: Component;
-        iconSecondary?: Component;
-        iconSeparator?: string;
-        iconKeycap?: boolean;
-    };
     type ControlItem = {
         id: string;
         label: string;
         description: string;
         icon: Component;
         iconSecondary?: Component;
-        iconSeparator?: string;
         iconKeycap?: boolean;
-        titleRows?: ControlTitleRow[];
         device: ControlDevice;
     };
+
+    function buildIconEntries(control: ControlItem) {
+        const entries: { component: Component; keycap?: boolean }[] = [
+            { component: control.icon, keycap: control.iconKeycap },
+        ];
+        if (control.iconSecondary) {
+            entries.push({ component: control.iconSecondary });
+        }
+        return entries;
+    }
 
     let controls: ControlItem[] = [];
     $: mouse = getDeviceInputLabels("mouse", $t);
@@ -120,7 +122,6 @@
             description: $t("controls.pointerNodeIncrementTierDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseLeftClickIcon,
-            iconSeparator: "+",
             iconKeycap: true,
             device: "pointer",
         },
@@ -130,7 +131,6 @@
             description: $t("controls.pointerNodeDecrementTierDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseMiddleClickIcon,
-            iconSeparator: "+",
             iconKeycap: true,
             device: "pointer",
         },
@@ -140,7 +140,6 @@
             description: $t("controls.pointerNodeIncrementOneDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseLeftClickIcon,
-            iconSeparator: "+",
             iconKeycap: true,
             device: "pointer",
         },
@@ -150,7 +149,6 @@
             description: $t("controls.pointerNodeDecrementOneDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseMiddleClickIcon,
-            iconSeparator: "+",
             iconKeycap: true,
             device: "pointer",
         },
@@ -355,7 +353,9 @@
                     {#each touchControls as control (control.id)}
                         <li class="control-row">
                             <span class="control-icon" aria-hidden="true">
-                                <svelte:component this={control.icon} />
+                                <CyclingIcon
+                                    icons={buildIconEntries(control)}
+                                />
                             </span>
                             <p class="control-inline">
                                 <span class="control-label"
@@ -378,92 +378,19 @@
                 <ul class="control-list">
                     {#each pointerControls as control (control.id)}
                         <li class="control-row">
-                            {#if control.titleRows && control.titleRows.length > 0}
-                                <div class="control-alt-group">
-                                    {#each control.titleRows as titleRow, titleIndex (`${control.id}-${titleIndex}`)}
-                                        <div class="control-alt-row">
-                                            <span
-                                                class="control-icon"
-                                                class:control-icon-combo={!!titleRow.iconSecondary}
-                                                aria-hidden="true"
-                                            >
-                                                {#if titleRow.iconKeycap}
-                                                    <span
-                                                        class="control-keycap"
-                                                    >
-                                                        <svelte:component
-                                                            this={titleRow.icon}
-                                                        />
-                                                    </span>
-                                                {:else}
-                                                    <svelte:component
-                                                        this={titleRow.icon}
-                                                    />
-                                                {/if}
-                                                {#if titleRow.iconSecondary}
-                                                    <span
-                                                        class="control-icon-joiner"
-                                                    >
-                                                        {titleRow.iconSeparator ??
-                                                            "+"}
-                                                    </span>
-                                                    <svelte:component
-                                                        this={titleRow.iconSecondary}
-                                                    />
-                                                {/if}
-                                            </span>
-                                            {#if titleIndex === control.titleRows.length - 1}
-                                                <p class="control-inline">
-                                                    <span class="control-label"
-                                                        >{titleRow.label}</span
-                                                    >
-                                                    <span class="control-desc"
-                                                        >{control.description}</span
-                                                    >
-                                                </p>
-                                            {:else}
-                                                <span class="control-label"
-                                                    >{titleRow.label}</span
-                                                >
-                                            {/if}
-                                        </div>
-                                    {/each}
-                                </div>
-                            {:else}
-                                <span
-                                    class="control-icon"
-                                    class:control-icon-combo={!!control.iconSecondary}
-                                    aria-hidden="true"
+                            <span class="control-icon" aria-hidden="true">
+                                <CyclingIcon
+                                    icons={buildIconEntries(control)}
+                                />
+                            </span>
+                            <p class="control-inline">
+                                <span class="control-label"
+                                    >{control.label}</span
                                 >
-                                    {#if control.iconKeycap}
-                                        <span class="control-keycap">
-                                            <svelte:component
-                                                this={control.icon}
-                                            />
-                                        </span>
-                                    {:else}
-                                        <svelte:component
-                                            this={control.icon}
-                                        />
-                                    {/if}
-                                    {#if control.iconSecondary}
-                                        <span class="control-icon-joiner">
-                                            {control.iconSeparator ?? "+"}
-                                        </span>
-                                        <svelte:component
-                                            this={control.iconSecondary}
-                                        />
-                                    {/if}
-                                </span>
-                                <p class="control-inline">
-                                    <span class="control-label"
-                                        >{control.label}</span
-                                    >
-                                    <span class="control-desc"
-                                        >{control.description}</span
-                                    >
-                                </p>
-                            {/if}
+                                <span class="control-desc"
+                                    >{control.description}</span
+                                >
+                            </p>
                         </li>
                     {/each}
                 </ul>
@@ -732,26 +659,6 @@
         content: " — ";
     }
 
-    /* Alternative input rows (e.g. Middle Click / Shift+Click) */
-    .control-alt-group {
-        display: grid;
-        gap: var(--spacing-xs);
-        min-width: 0;
-    }
-
-    .control-alt-row {
-        display: flex;
-        align-items: start;
-        gap: var(--spacing-md);
-        min-width: 0;
-    }
-
-    .control-alt-row > .control-label {
-        font-size: var(--font);
-        color: var(--text);
-        overflow-wrap: break-word;
-    }
-
     /* Icon styles */
     .control-icon {
         width: 20px;
@@ -765,45 +672,6 @@
         width: 100%;
         height: 100%;
         display: block;
-    }
-
-    .control-icon-combo {
-        width: 20px;
-        height: auto;
-        min-height: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1px;
-    }
-
-    .control-icon-combo :global(svg) {
-        width: 20px;
-        height: 20px;
-    }
-
-    .control-keycap {
-        width: 20px;
-        height: 20px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1.5px solid var(--text-muted);
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    .control-keycap :global(svg) {
-        width: 12px;
-        height: 12px;
-    }
-
-    .control-icon-joiner {
-        font-size: 10px;
-        font-weight: 600;
-        line-height: 1;
-        color: var(--text-muted);
     }
 
     .control-icon-filled {
