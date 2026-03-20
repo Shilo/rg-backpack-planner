@@ -54,6 +54,20 @@ export function getDeviceInputLabels(device: PointerDevice, t: TranslateFn): Dev
     return labels;
 }
 
+// Keyboard labels only — pointer modifiers (Ctrl+Click) intentionally use
+// ctrlKey on all platforms, since browsers reserve Cmd+Click on Mac.
+const IS_MAC =
+    typeof navigator !== "undefined" &&
+    /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+
+const MAC_KEYBOARD_LABELS: Partial<Record<KeyboardActionType, string>> = {
+    undo: "⌘ + Z",
+    redo: "⌘ + Shift + Z",
+};
+
 export function getKeyboardActionLabel(action: KeyboardActionType, t: TranslateFn): string {
+    if (IS_MAC && MAC_KEYBOARD_LABELS[action]) {
+        return MAC_KEYBOARD_LABELS[action]!;
+    }
     return t(`input.keyboard.${action}`);
 }
