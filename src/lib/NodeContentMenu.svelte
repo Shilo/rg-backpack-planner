@@ -4,6 +4,7 @@
         CaretDownIcon,
         CaretDoubleDownIcon,
         CaretDoubleUpIcon,
+        CaretLineDownIcon,
         CaretLineUpIcon,
         CaretUpIcon,
         Warning,
@@ -11,8 +12,10 @@
     import ContextMenu from "./ContextMenu.svelte";
     import NodeContextButton from "./NodeContextButton.svelte";
     import ProgressBar from "./ProgressBar.svelte";
+    import Button from "./Button.svelte";
+    import { TechCrystalIcon } from "./customIcons";
     import { formatNumber } from "svelte-whisper";
-    import { tierSize, nextTierTargetLevel } from "./tierLeveling";
+    import { tierSize, nextTierTargetLevel, previousTierTargetLevel } from "./tierLeveling";
     import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
     import type {
         Node,
@@ -34,6 +37,7 @@
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
     export let onIncrementTier: ((index: NodeIndex) => void) | null = null;
+    export let onDecrementTier: ((index: NodeIndex) => void) | null = null;
     export let onReset: ((index: NodeIndex) => void) | null = null;
     export let onDecrement: ((index: NodeIndex) => void) | null = null;
     export let onDecrementBy10: ((index: NodeIndex) => void) | null = null;
@@ -63,6 +67,10 @@
     $: tierTargetLevel =
         maxLevel > 0
             ? nextTierTargetLevel(level, maxLevel as Node["maxLevel"])
+            : 0;
+    $: previousTierLevel =
+        maxLevel > 0
+            ? previousTierTargetLevel(level, maxLevel as Node["maxLevel"])
             : 0;
 
     $: actionCosts = (() => {
@@ -117,6 +125,15 @@
                       nodeLevelBehavior: behavior,
                   }).totalCost
                 : null,
+            decrementTier: canDown
+                ? computeTotalCost({
+                      nodes,
+                      levels,
+                      index: nodeIndex,
+                      targetLevel: previousTierLevel,
+                      nodeLevelBehavior: behavior,
+                  }).totalCost
+                : null,
             reset: canDown
                 ? computeTotalCost({
                       nodes,
@@ -130,6 +147,11 @@
     })();
 
     $: isSingleLevel = maxLevel <= 1;
+
+    $: decrementTierLabel =
+        level > 0 && previousTierLevel === 0
+            ? $t("nodeMenu.min")
+            : $t("nodeMenu.decrementTier");
 
     $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
@@ -296,22 +318,39 @@
                             onDecrementBy10(nodeIndex);
                     }}
                 />
+                <NodeContextButton
+                    icon={CaretLineDownIcon}
+                    label={decrementTierLabel}
+                    crystalValue={actionCosts?.decrementTier ?? null}
+                    negative
+                    disabled={nodeIndex === null || level <= 0}
+                    onClick={() => {
+                        if (nodeIndex !== null && onDecrementTier)
+                            onDecrementTier(nodeIndex);
+                    }}
+                />
             {/if}
-            <NodeContextButton
-                icon={ArrowCounterClockwiseIcon}
-                label={$t("nodeMenu.reset")}
-                crystalValue={actionCosts?.reset ?? null}
-                negative
-                disabled={nodeIndex === null || level <= 0}
-                toastMessage={nodeIndex !== null && onReset
-                    ? $t("nodeMenu.resetToast")
-                    : undefined}
-                toastNegative
-                onClick={() => {
-                    if (nodeIndex !== null && onReset) onReset(nodeIndex);
-                }}
-            />
         </div>
+        <Button
+            ghost
+            negative
+            icon={ArrowCounterClockwiseIcon}
+            disabled={nodeIndex === null || level <= 0}
+            toastMessage={nodeIndex !== null && onReset
+                ? $t("nodeMenu.resetToast")
+                : undefined}
+            on:click={() => {
+                if (nodeIndex !== null && onReset) onReset(nodeIndex);
+            }}
+            description={actionCosts?.reset != null
+                ? `+${formatNumber(Math.abs(actionCosts.reset))}`
+                : undefined}
+            descriptionIcon={actionCosts?.reset != null
+                ? TechCrystalIcon
+                : null}
+        >
+            {$t("nodeMenu.reset")}
+        </Button>
     </div>
 </ContextMenu>
 
