@@ -136,7 +136,7 @@ export function createOnboardingSteps({
     const hudCards = [
         {
             icon: isTouch ? HandTapIcon : MouseLeftClickIcon,
-            label: translate("onboarding.actionTechCrystal", { action: labels.primary }),
+            label: labels.primary,
             description: translate("onboarding.techCrystalBudget"),
         },
         {
@@ -167,7 +167,7 @@ export function createOnboardingSteps({
     const rootCards = [
         {
             icon: primaryInputIcon,
-            label: translate("onboarding.actionNode", { action: labels.primary }),
+            label: labels.primary,
             description: translate("onboarding.rootQuickSettings"),
         },
         {
