@@ -260,9 +260,10 @@
     }
 
     .button.button-flash:not(:disabled) {
-        filter: brightness(1.4);
-        transform: scale(0.85);
-        background: var(--bg-input);
+        transform: scale(1.08);
+        background: var(--bg-tinted);
+        border-color: var(--accent);
+        box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 40%, transparent);
     }
 
     .button-sm {
