@@ -102,7 +102,7 @@
 <div
     bind:this={el}
     class="level-splash"
-    style="left: {x + nudgeX}px; top: {y +
+    style="left: {x + nudgeX}px; top: {y -
         48 * badgeScale +
         nudgeY}px; --badge-scale: {badgeScale};"
     aria-live="polite"
@@ -135,7 +135,7 @@
 <style>
     .level-splash {
         position: absolute;
-        transform: translate(-50%, 0) scale(var(--badge-scale, 1));
+        transform: translate(-50%, -100%) scale(var(--badge-scale, 1));
         pointer-events: none;
         z-index: var(--z-index-tooltip);
     }
