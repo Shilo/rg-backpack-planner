@@ -653,7 +653,8 @@
             "screenshot": "F9",
             "budget": "B",
             "cyclePrimaryAction": "A",
-            "focusTrap": "Tab"
+            "focusTrap": "Tab",
+            "fullscreen": "F11"
         }
     },
     "systemInfo": {
