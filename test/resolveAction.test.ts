@@ -1,117 +1,129 @@
 import assert from "node:assert/strict";
-import { resolveModifier, resolveAction } from "../src/lib/input/resolveAction.ts";
+import { resolveModifiers, resolveAction } from "../src/lib/input/resolveAction.ts";
 import type { InputState } from "../src/lib/input/inputStore.ts";
 import { DEFAULT_MODIFIER_KEY_MAP } from "../src/lib/input/modifierKeyMap.ts";
 
-console.log("  resolveModifier");
+console.log("  resolveModifiers");
 
-// --- No keys held → "none" ---
+// --- No keys held → both false ---
 {
     const state: InputState = { shiftKey: false, ctrlKey: false };
-    assert.equal(resolveModifier(state, DEFAULT_MODIFIER_KEY_MAP), "none");
-    console.log("    ✓ no keys held returns 'none'");
+    assert.deepEqual(resolveModifiers(state, DEFAULT_MODIFIER_KEY_MAP), { reverse: false, alternate: false });
+    console.log("    ✓ no keys held returns { reverse: false, alternate: false }");
 }
 
-// --- Shift held → "macro" ---
+// --- Shift held → reverse only ---
 {
     const state: InputState = { shiftKey: true, ctrlKey: false };
-    assert.equal(resolveModifier(state, DEFAULT_MODIFIER_KEY_MAP), "macro");
-    console.log("    ✓ shift held returns 'macro'");
+    assert.deepEqual(resolveModifiers(state, DEFAULT_MODIFIER_KEY_MAP), { reverse: true, alternate: false });
+    console.log("    ✓ shift held returns { reverse: true, alternate: false }");
 }
 
-// --- Ctrl held → "micro" ---
+// --- Ctrl held → alternate only ---
 {
     const state: InputState = { shiftKey: false, ctrlKey: true };
-    assert.equal(resolveModifier(state, DEFAULT_MODIFIER_KEY_MAP), "micro");
-    console.log("    ✓ ctrl held returns 'micro'");
+    assert.deepEqual(resolveModifiers(state, DEFAULT_MODIFIER_KEY_MAP), { reverse: false, alternate: true });
+    console.log("    ✓ ctrl held returns { reverse: false, alternate: true }");
 }
 
-// --- Both held → "macro" wins ---
+// --- Both held → both true (independent, no priority) ---
 {
     const state: InputState = { shiftKey: true, ctrlKey: true };
-    assert.equal(resolveModifier(state, DEFAULT_MODIFIER_KEY_MAP), "macro");
-    console.log("    ✓ both held returns 'macro' (macro priority)");
+    assert.deepEqual(resolveModifiers(state, DEFAULT_MODIFIER_KEY_MAP), { reverse: true, alternate: true });
+    console.log("    ✓ both held returns { reverse: true, alternate: true }");
 }
 
-console.log("  ✓ resolveModifier\n");
+console.log("  ✓ resolveModifiers\n");
 
 console.log("  resolveAction");
 
-// --- Button 0, mouse, no modifier → primary ---
+const NONE = { reverse: false, alternate: false };
+const REV = { reverse: true, alternate: false };
+const ALT = { reverse: false, alternate: true };
+const BOTH = { reverse: true, alternate: true };
+
+// --- Button 0, mouse, no modifiers → primary ---
 {
-    const result = resolveAction(0, "none", "mouse");
-    assert.deepEqual(result, { type: "primary", modifier: "none", device: "mouse" });
+    const result = resolveAction(0, NONE, "mouse");
+    assert.deepEqual(result, { type: "primary", modifiers: NONE, device: "mouse" });
     console.log("    ✓ button 0, mouse, none → primary");
 }
 
-// --- Button 0, mouse, macro → primary with macro ---
+// --- Button 0, mouse, reverse → primary with reverse ---
 {
-    const result = resolveAction(0, "macro", "mouse");
-    assert.deepEqual(result, { type: "primary", modifier: "macro", device: "mouse" });
-    console.log("    ✓ button 0, mouse, macro → primary with macro");
+    const result = resolveAction(0, REV, "mouse");
+    assert.deepEqual(result, { type: "primary", modifiers: REV, device: "mouse" });
+    console.log("    ✓ button 0, mouse, reverse → primary with reverse");
 }
 
 // --- Button 1, mouse → auxiliary ---
 {
-    const result = resolveAction(1, "none", "mouse");
-    assert.deepEqual(result, { type: "auxiliary", modifier: "none", device: "mouse" });
+    const result = resolveAction(1, NONE, "mouse");
+    assert.deepEqual(result, { type: "auxiliary", modifiers: NONE, device: "mouse" });
     console.log("    ✓ button 1, mouse → auxiliary");
 }
 
-// --- Button 1, mouse, macro → auxiliary with macro ---
+// --- Button 1, mouse, alternate → auxiliary with alternate ---
 {
-    const result = resolveAction(1, "macro", "mouse");
-    assert.deepEqual(result, { type: "auxiliary", modifier: "macro", device: "mouse" });
-    console.log("    ✓ button 1, mouse, macro → auxiliary with macro");
+    const result = resolveAction(1, ALT, "mouse");
+    assert.deepEqual(result, { type: "auxiliary", modifiers: ALT, device: "mouse" });
+    console.log("    ✓ button 1, mouse, alternate → auxiliary with alternate");
 }
 
 // --- Button 2, mouse → secondary ---
 {
-    const result = resolveAction(2, "none", "mouse");
-    assert.deepEqual(result, { type: "secondary", modifier: "none", device: "mouse" });
+    const result = resolveAction(2, NONE, "mouse");
+    assert.deepEqual(result, { type: "secondary", modifiers: NONE, device: "mouse" });
     console.log("    ✓ button 2, mouse → secondary");
 }
 
-// --- Button 0, touch → primary, modifier forced to none ---
+// --- Button 0, touch → primary, modifiers forced to none ---
 {
-    const result = resolveAction(0, "macro", "touch");
-    assert.deepEqual(result, { type: "primary", modifier: "none", device: "touch" });
-    console.log("    ✓ button 0, touch → primary, modifier forced to none");
+    const result = resolveAction(0, REV, "touch");
+    assert.deepEqual(result, { type: "primary", modifiers: NONE, device: "touch" });
+    console.log("    ✓ button 0, touch → primary, modifiers forced to none");
 }
 
 // --- Button 1, touch → null (no auxiliary on touch) ---
 {
-    const result = resolveAction(1, "none", "touch");
+    const result = resolveAction(1, NONE, "touch");
     assert.equal(result, null);
     console.log("    ✓ button 1, touch → null");
 }
 
 // --- Button 2, touch → secondary ---
 {
-    const result = resolveAction(2, "none", "touch");
-    assert.deepEqual(result, { type: "secondary", modifier: "none", device: "touch" });
+    const result = resolveAction(2, NONE, "touch");
+    assert.deepEqual(result, { type: "secondary", modifiers: NONE, device: "touch" });
     console.log("    ✓ button 2, touch → secondary");
 }
 
 // --- Pen normalized to mouse ---
 {
-    const result = resolveAction(0, "macro", "pen");
-    assert.deepEqual(result, { type: "primary", modifier: "macro", device: "mouse" });
+    const result = resolveAction(0, ALT, "pen");
+    assert.deepEqual(result, { type: "primary", modifiers: ALT, device: "mouse" });
     console.log("    ✓ pen normalized to mouse");
 }
 
 // --- Unknown button → null ---
 {
-    const result = resolveAction(3, "none", "mouse");
+    const result = resolveAction(3, NONE, "mouse");
     assert.equal(result, null);
     console.log("    ✓ button 3 → null");
 }
 
-// --- Unknown pointerType treated as mouse ---
+// --- Empty pointerType treated as mouse ---
 {
-    const result = resolveAction(0, "none", "");
-    assert.deepEqual(result, { type: "primary", modifier: "none", device: "mouse" });
+    const result = resolveAction(0, NONE, "");
+    assert.deepEqual(result, { type: "primary", modifiers: NONE, device: "mouse" });
     console.log("    ✓ empty pointerType treated as mouse");
+}
+
+// --- Both modifiers, button 0 → primary with both ---
+{
+    const result = resolveAction(0, BOTH, "mouse");
+    assert.deepEqual(result, { type: "primary", modifiers: BOTH, device: "mouse" });
+    console.log("    ✓ both modifiers, button 0 → primary with both");
 }
 
 console.log("  ✓ resolveAction\n");
