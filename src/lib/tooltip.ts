@@ -278,8 +278,11 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
             const hadContent = hasContent();
             ({ sections, hoverOnly } = parseTooltipParam(nextValue));
             if (currentOwner === node) {
-                // Tooltip already showing — update text live
-                updateTooltipText(node, sections);
+                if (hasContent()) {
+                    updateTooltipText(node, sections);
+                } else {
+                    hideTooltip(node);
+                }
             } else if (!hadContent && hasContent() && isPointerOver && !hoverSuppressed && canHover()) {
                 // Content became available while pointer is over element — schedule tooltip
                 clearHoverTimer();

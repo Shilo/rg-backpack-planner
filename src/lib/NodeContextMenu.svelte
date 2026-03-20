@@ -30,7 +30,7 @@
     import type { Writable } from "svelte/store";
     import { computeTotalCost } from "./nodeActionPreview";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
-    import { getDeviceInputLabels } from "./input";
+    import { getDeviceInputLabels, getModifierLabel, getButtonLabel } from "./input";
     import { nodePrimaryAction } from "./nodePrimaryActionStore";
     import { NodePrimaryAction } from "./nodePrimaryActionStore";
 
@@ -187,6 +187,14 @@
 
     $: mouse = getDeviceInputLabels("mouse", $t);
 
+    // Ctrl + Shift + Left Click (conventional order: Ctrl before Shift)
+    $: reverseAlternatePrimary = (() => {
+        const sep = $t("input.modifierSeparator");
+        return getModifierLabel("alternate", $t) + sep
+            + getModifierLabel("reverse", $t) + sep
+            + getButtonLabel("primary", "mouse", $t);
+    })();
+
     $: incrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
         ? mouse.primary
         : mouse.alternatePrimary;
@@ -199,11 +207,21 @@
 
     $: decrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
         ? mouse.reversePrimary
+        : reverseAlternatePrimary;
+
+    $: incrementTenShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTen
+        ? mouse.primary
+        : undefined;
+
+    $: decrementTenShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTen
+        ? mouse.reversePrimary
         : undefined;
 
     $: decrementTierShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementTier
         ? mouse.reversePrimary
-        : undefined;
+        : $nodePrimaryAction === NodePrimaryAction.IncrementOne
+            ? reverseAlternatePrimary
+            : undefined;
 </script>
 
 <ContextMenu
@@ -305,6 +323,7 @@
                 <NodeContextButton
                     icon={CaretDoubleUpIcon}
                     label={$t("nodeMenu.incrementTen")}
+                    shortcut={incrementTenShortcut}
                     crystalValue={actionCosts?.increment10 ?? null}
                     positive
                     disabled={nodeIndex === null ||
@@ -348,6 +367,7 @@
                 <NodeContextButton
                     icon={CaretDoubleDownIcon}
                     label={$t("nodeMenu.decrementTen")}
+                    shortcut={decrementTenShortcut}
                     crystalValue={actionCosts?.decrement10 ?? null}
                     negative
                     disabled={nodeIndex === null || level <= 0}
