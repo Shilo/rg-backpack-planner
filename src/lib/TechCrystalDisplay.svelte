@@ -6,6 +6,7 @@
     import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
     import { t } from "svelte-whisper";
+    import { formatCompact } from "./mathUtil";
 
     export let activeTreeIndex = 0;
 
@@ -76,7 +77,7 @@
         {#if hasOwned}
             <span class="currency-separator"> / </span>
             <span class="currency-owned"
-                >{formatNumber($techCrystalsOwned)}</span
+                >{formatCompact($techCrystalsOwned)}</span
             >
         {/if}
         <TechCrystalIcon

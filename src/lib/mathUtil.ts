@@ -45,3 +45,19 @@ export function evaluateSimpleMath(expr: string): number | null {
 
     return Math.floor(result);
 }
+
+/**
+ * Formats a number with M/B suffixes for millions and billions.
+ * Numbers below 1 million are returned as-is with locale formatting.
+ */
+export function formatCompact(n: number): string {
+    const truncate = (v: number, digits: number) => {
+        const factor = 10 ** digits;
+        return Math.floor(v * factor) / factor;
+    };
+    const fmt = (v: number) =>
+        v.toLocaleString(undefined, { maximumFractionDigits: 3 });
+    if (n >= 1_000_000_000) return fmt(truncate(n / 1_000_000_000, 3)) + "B";
+    if (n >= 1_000_000) return fmt(truncate(n / 1_000_000, 3)) + "M";
+    return n.toLocaleString();
+}
