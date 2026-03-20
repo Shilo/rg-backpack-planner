@@ -1,6 +1,7 @@
 import type { LevelsByIndex, Node, NodeIndex } from "../types/tree";
 import { NodePrimaryAction } from "./nodePrimaryActionStore";
 import { NodeLevelBehavior } from "./nodeLevelBehaviorStore";
+import type { NodeOperation } from "./input/nodeActions";
 import type { LevelDelta } from "./tierLeveling";
 import {
     applyLevelChange,
@@ -104,4 +105,56 @@ export function getNodeActionPreview(params: {
     if (deltas.length === 0) return null;
 
     return { targetLevel, totalCost, isRefund };
+}
+
+export function getNodeActionPreviewFromOp(params: {
+    nodes: Node[];
+    levels: LevelsByIndex;
+    index: NodeIndex;
+    operation: NodeOperation;
+    nodeLevelBehavior: NodeLevelBehavior;
+    primaryAction: NodePrimaryAction;
+}): NodeActionPreview | null {
+    const { operation, primaryAction } = params;
+
+    if (operation.op === "contextMenu") return null;
+
+    let action: NodePrimaryAction;
+    let isRefund: boolean;
+
+    switch (operation.op) {
+        case "incrementByStore":
+            action = primaryAction;
+            isRefund = false;
+            break;
+        case "decrementByStore":
+            action = primaryAction;
+            isRefund = true;
+            break;
+        case "incrementTier":
+            action = NodePrimaryAction.IncrementTier;
+            isRefund = false;
+            break;
+        case "decrementTier":
+            action = NodePrimaryAction.IncrementTier;
+            isRefund = true;
+            break;
+        case "incrementOne":
+            action = NodePrimaryAction.IncrementOne;
+            isRefund = false;
+            break;
+        case "decrementOne":
+            action = NodePrimaryAction.IncrementOne;
+            isRefund = true;
+            break;
+    }
+
+    return getNodeActionPreview({
+        nodes: params.nodes,
+        levels: params.levels,
+        index: params.index,
+        action,
+        nodeLevelBehavior: params.nodeLevelBehavior,
+        isRefund,
+    });
 }

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { getNodeActionPreview, sumDeltaCosts, computeTotalCost } from "../src/lib/nodeActionPreview.ts";
+import { getNodeActionPreview, getNodeActionPreviewFromOp, sumDeltaCosts, computeTotalCost } from "../src/lib/nodeActionPreview.ts";
+import type { NodeOperation } from "../src/lib/input/nodeActions.ts";
 import { NodePrimaryAction } from "../src/lib/nodePrimaryActionStore.ts";
 import { NodeLevelBehavior } from "../src/lib/nodeLevelBehaviorStore.ts";
 import { getCostRange } from "../src/config/skillMetadata.ts";
@@ -375,6 +376,120 @@ console.log("  nodeActionPreview");
     assert.equal(result.totalCost, expected, "refund computeTotalCost should return unsigned cost");
     assert.ok(result.totalCost > 0, "refund cost should be positive (unsigned)");
     console.log("    ✓ computeTotalCost refund returns unsigned cost");
+}
+
+// --- getNodeActionPreviewFromOp: incrementByStore delegates to store action ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const op: NodeOperation = { op: "incrementByStore" };
+    const result = getNodeActionPreviewFromOp({
+        nodes,
+        levels,
+        index: 0,
+        operation: op,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+        primaryAction: NodePrimaryAction.IncrementTen,
+    });
+    assert.ok(result, "incrementByStore should return a preview");
+    assert.equal(result.targetLevel, 10, "should increment by 10 (store = IncrementTen)");
+    assert.equal(result.isRefund, false);
+    console.log("    ✓ getNodeActionPreviewFromOp: incrementByStore delegates to store");
+}
+
+// --- getNodeActionPreviewFromOp: decrementByStore ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    levels[0] = 25;
+    const op: NodeOperation = { op: "decrementByStore" };
+    const result = getNodeActionPreviewFromOp({
+        nodes,
+        levels,
+        index: 0,
+        operation: op,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+        primaryAction: NodePrimaryAction.IncrementTen,
+    });
+    assert.ok(result, "decrementByStore should return a preview");
+    assert.equal(result.targetLevel, 15, "should decrement by 10");
+    assert.equal(result.isRefund, true);
+    console.log("    ✓ getNodeActionPreviewFromOp: decrementByStore");
+}
+
+// --- getNodeActionPreviewFromOp: incrementTier ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const op: NodeOperation = { op: "incrementTier" };
+    const result = getNodeActionPreviewFromOp({
+        nodes,
+        levels,
+        index: 0,
+        operation: op,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+        primaryAction: NodePrimaryAction.IncrementOne,
+    });
+    assert.ok(result, "incrementTier should return a preview");
+    assert.equal(result.targetLevel, 20, "should target tier upper (20)");
+    assert.equal(result.isRefund, false);
+    console.log("    ✓ getNodeActionPreviewFromOp: incrementTier");
+}
+
+// --- getNodeActionPreviewFromOp: decrementOne ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    levels[0] = 5;
+    const op: NodeOperation = { op: "decrementOne" };
+    const result = getNodeActionPreviewFromOp({
+        nodes,
+        levels,
+        index: 0,
+        operation: op,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+        primaryAction: NodePrimaryAction.IncrementTen,
+    });
+    assert.ok(result, "decrementOne should return a preview");
+    assert.equal(result.targetLevel, 4);
+    assert.equal(result.isRefund, true);
+    console.log("    ✓ getNodeActionPreviewFromOp: decrementOne");
+}
+
+// --- getNodeActionPreviewFromOp: contextMenu → null ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const op: NodeOperation = { op: "contextMenu" };
+    const result = getNodeActionPreviewFromOp({
+        nodes,
+        levels,
+        index: 0,
+        operation: op,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+        primaryAction: NodePrimaryAction.IncrementOne,
+    });
+    assert.equal(result, null, "contextMenu should return null");
+    console.log("    ✓ getNodeActionPreviewFromOp: contextMenu → null");
+}
+
+// --- getNodeActionPreviewFromOp: incrementOne ---
+{
+    const { nodes } = createYellowBranchFixture();
+    const levels = createLevels(YELLOW_BRANCH_LENGTH);
+    const op: NodeOperation = { op: "incrementOne" };
+    const result = getNodeActionPreviewFromOp({
+        nodes,
+        levels,
+        index: 0,
+        operation: op,
+        nodeLevelBehavior: NodeLevelBehavior.Solo,
+        primaryAction: NodePrimaryAction.IncrementTier,
+    });
+    assert.ok(result, "incrementOne should return a preview");
+    assert.equal(result.targetLevel, 1);
+    assert.equal(result.isRefund, false);
+    console.log("    ✓ getNodeActionPreviewFromOp: incrementOne (ignores store)");
 }
 
 console.log("  ✓ nodeActionPreview\n");
