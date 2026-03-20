@@ -3,7 +3,8 @@
     import { createEventDispatcher } from "svelte";
     import { showToast } from "./toast";
     import { tooltip, type TooltipContent } from "./tooltip";
-    import { primary, secondary, buildShortcutTooltip } from "./input";
+    import { primary, secondary, buildShortcutTooltip, shortcutFlash } from "./input";
+    import type { KeyboardActionType } from "./input";
     import { CaretRightIcon, CaretDownIcon } from "phosphor-svelte";
 
     export let icon: Component | null = null;
@@ -36,6 +37,7 @@
     export let description: string | undefined = undefined;
     export let descriptionIcon: Component | null = null;
     export let shortcut: string | undefined = undefined;
+    export let flashOnAction: KeyboardActionType | undefined = undefined;
 
     let restClass: string | undefined;
     let buttonProps: Record<string, unknown> = {};
@@ -49,6 +51,7 @@
               ? { content: resolvedTooltip, hoverOnly: true }
               : resolvedTooltip;
 
+    $: isFlashing = !!flashOnAction && $shortcutFlash === flashOnAction;
     $: computedClass = [
         "button",
         small ? "button-sm" : "button-md",
@@ -57,6 +60,7 @@
         restClass,
         icon || arrow ? "with-icon" : "",
         arrow ? "with-arrow" : "",
+        isFlashing ? "button-flash" : "",
     ]
         .filter(Boolean)
         .join(" ");
@@ -250,6 +254,11 @@
     }
 
     .button:not(:disabled):active {
+        filter: var(--brightness-hover);
+        transform: scale(0.96);
+    }
+
+    .button.button-flash:not(:disabled) {
         filter: var(--brightness-hover);
         transform: scale(0.96);
     }
