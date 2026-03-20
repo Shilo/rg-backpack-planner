@@ -10,6 +10,7 @@
  * undo       — Ctrl+Z
  * redo       — Ctrl+Y / Ctrl+Shift+Z
  * screenshot — F9
+ * fullscreen          — F11 (toggle fullscreen via Fullscreen API)
  * budget              — B (open tech crystal budget modal)
  * focusTrap           — Tab only (modal focus trapping — distinct from cycle which also matches ←/→)
  * cyclePrimaryAction  — A (cycle node primary action: +1 / +10 / +Tier)
@@ -26,7 +27,8 @@ export type KeyboardActionType =
     | "screenshot"
     | "budget"
     | "focusTrap"
-    | "cyclePrimaryAction";
+    | "cyclePrimaryAction"
+    | "fullscreen";
 
 /** All KeyboardEvent.key values used in the app, in canonical form. */
 const Key = {
@@ -41,6 +43,7 @@ const Key = {
     Shift: "Shift",
     Control: "Control",
     F9: "F9",
+    F11: "F11",
     z: "z",
     y: "y",
     b: "b",
@@ -81,6 +84,7 @@ export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
     { action: "redo", key: Key.y, ctrl: true, alt: false },
     { action: "redo", key: Key.z, ctrl: true, shift: true, alt: false },
     { action: "screenshot", key: Key.F9 },
+    { action: "fullscreen", key: Key.F11 },
     { action: "budget", key: Key.b, ctrl: false },
     { action: "cyclePrimaryAction", key: Key.a, ctrl: false },
     { action: "focusTrap", key: Key.Tab },

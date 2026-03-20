@@ -46,6 +46,7 @@ function mockEvent(overrides: Partial<KeyboardEvent>): KeyboardEvent {
     assert.equal(resolveKeyboardAction(mockEvent({ key: " " })), "activate");
     assert.equal(resolveKeyboardAction(mockEvent({ key: "`" })), "console");
     assert.equal(resolveKeyboardAction(mockEvent({ key: "F9" })), "screenshot");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "F11" })), "fullscreen");
     console.log("    ✓ basic action bindings");
 }
 
@@ -191,6 +192,9 @@ console.log("  isKeyboardAction");
     assert.equal(isKeyboardAction(mockEvent({ key: "y" }), "redo"), false, "y without Ctrl is not redo");
     assert.equal(isKeyboardAction(mockEvent({ key: "F9" }), "screenshot"), true);
     assert.equal(isKeyboardAction(mockEvent({ key: "F1" }), "screenshot"), false);
+    assert.equal(isKeyboardAction(mockEvent({ key: "F11" }), "fullscreen"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "F1" }), "fullscreen"), false);
+    console.log("    ✓ isKeyboardAction covers fullscreen");
     console.log("    ✓ isKeyboardAction covers back, console, redo, screenshot");
 }
 
@@ -254,12 +258,13 @@ console.log("  keyForAction");
     assert.equal(keyForAction("undo"), "z");
     assert.equal(keyForAction("redo"), "y");
     assert.equal(keyForAction("screenshot"), "F9");
+    assert.equal(keyForAction("fullscreen"), "F11");
     assert.equal(keyForAction("budget"), "b");
     assert.equal(keyForAction("focusTrap"), "Tab");
     assert.equal(keyForAction("cyclePrimaryAction"), "a");
     // Every action in KEYBOARD_ACTION_BINDINGS should return a non-empty string
     const allActions: KeyboardActionType[] = [
-        "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget", "focusTrap", "cyclePrimaryAction",
+        "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget", "focusTrap", "cyclePrimaryAction", "fullscreen",
     ];
     for (const action of allActions) {
         assert.ok(keyForAction(action).length > 0, `keyForAction("${action}") should return a non-empty string`);
