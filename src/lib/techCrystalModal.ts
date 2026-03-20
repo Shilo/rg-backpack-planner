@@ -23,6 +23,7 @@ export function openTechCrystalsOwnedModal(
             : tr("techCrystals.ownedModalTitle"),
         titleIcon: TechCrystalIcon,
         titleIconWeight: "fill",
+        wide: true,
         input: {
             label: tr("techCrystals.ownedModalInput", {
                 subject: normalizedSubject,

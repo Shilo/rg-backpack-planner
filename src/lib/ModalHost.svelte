@@ -425,6 +425,7 @@
             class:modal-shell--input={renderedModal.type === "input"}
             class:modal-shell--textInput={renderedModal.type === "textInput"}
             class:modal-shell--resetTreeChoices={renderedModal.type === "resetTreeChoices"}
+            class:modal-shell--wide={renderedModal.wide}
             bind:this={sheetShellRef}
             role="dialog"
             tabindex="-1"
@@ -589,6 +590,11 @@
     .modal-shell--textInput {
         min-width: max(320px, min(92vw, 20rem));
         max-width: max(320px, min(20rem, 100%));
+    }
+
+    .modal-shell.modal-shell--wide {
+        min-width: min(92vw, 24rem);
+        max-width: min(92vw, 24rem);
     }
 
     .modal-shell--resetTreeChoices {

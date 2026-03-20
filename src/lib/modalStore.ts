@@ -66,6 +66,8 @@ export type ModalPayload = {
     inputFooterButton?: InputFooterButtonConfig;
     textInput?: TextInputConfig;
     resetTreeChoices?: ResetTreeChoicesConfig;
+    /** Use a wider shell for modals that need more horizontal space. */
+    wide?: boolean;
     onConfirm?: (value?: string | number) => void;
     onCancel?: () => void;
 };
