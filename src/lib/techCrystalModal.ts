@@ -27,6 +27,9 @@ export function openTechCrystalsOwnedModal(
             label: tr("techCrystals.ownedModalInput", {
                 subject: normalizedSubject,
             }),
+            labelDetail: formatNumber(currentOwned),
+            labelDetailIcon: TechCrystalIcon,
+            labelDetailIconWeight: "fill",
             value: currentOwned,
             min: 0,
             step: 1,

@@ -461,6 +461,9 @@
                     titleIconWeight={renderedModal.titleIconWeight}
                     message={renderedModal.message}
                     label={renderedModal.input?.label ?? $t("modal.valueLabel")}
+                    labelDetail={renderedModal.input?.labelDetail}
+                    labelDetailIcon={renderedModal.input?.labelDetailIcon}
+                    labelDetailIconWeight={renderedModal.input?.labelDetailIconWeight}
                     value={renderedModal.input?.value ?? 0}
                     min={renderedModal.input?.min ?? 0}
                     step={renderedModal.input?.step ?? 1}

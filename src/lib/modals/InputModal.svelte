@@ -9,14 +9,9 @@
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../hapticsStore";
     import type { IconWeight } from "phosphor-svelte";
-    import { t, formatNumber } from "svelte-whisper";
+    import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
     import { evaluateSimpleMath } from "../mathUtil";
-
-    /** Strip locale formatting (commas, spaces, etc.) keeping only digits and operators. */
-    function stripFormatting(text: string): string {
-        return text.replace(/[^\d+\-*]/g, "");
-    }
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -25,6 +20,9 @@
     export let titleIconWeight: IconWeight | undefined = undefined;
     export let message: string | undefined = undefined;
     export let label = "";
+    export let labelDetail: string | undefined = undefined;
+    export let labelDetailIcon: Component | null = null;
+    export let labelDetailIconWeight: IconWeight | undefined = undefined;
     export let value = 0;
     export let min = 0;
     export let step = 1;
@@ -46,19 +44,17 @@
     $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function parseValue() {
-        const cleaned = stripFormatting(valueText);
-        const result = evaluateSimpleMath(cleaned);
+        const result = evaluateSimpleMath(valueText);
         if (result !== null) return Math.max(min, result);
-        const parsed = Number.parseInt(cleaned, 10);
+        const parsed = Number.parseInt(valueText, 10);
         if (Number.isNaN(parsed)) return Math.max(min, 0);
         return Math.max(min, parsed);
     }
 
     $: currentValue = (() => {
-        const cleaned = stripFormatting(valueText);
-        const result = evaluateSimpleMath(cleaned);
+        const result = evaluateSimpleMath(valueText);
         if (result !== null) return Math.max(min, result);
-        const parsed = Number.parseInt(cleaned, 10);
+        const parsed = Number.parseInt(valueText, 10);
         if (Number.isNaN(parsed)) return Math.max(min, 0);
         return Math.max(min, parsed);
     })();
@@ -66,7 +62,7 @@
     $: isDecreaseDisabled = currentValue <= min;
 
     function clampValueText() {
-        valueText = formatNumber(parseValue());
+        valueText = `${parseValue()}`;
     }
 
     function stepValue(delta: number) {
@@ -89,7 +85,6 @@
     }
 
     function handleFocus() {
-        valueText = stripFormatting(valueText);
         setTimeout(() => scrollInputVisible(inputEl), 300);
     }
 
@@ -124,7 +119,23 @@
     {#if message}
         <p class="modal-message">{message}</p>
     {/if}
-    <label class="modal-label" for="modal-input">{resolvedLabel}</label>
+    <div class="modal-label-row">
+        <label class="modal-label" for="modal-input">{resolvedLabel}</label>
+        {#if labelDetail}
+            <span class="modal-label-detail">
+                {#if labelDetailIcon}
+                    <svelte:component
+                        this={labelDetailIcon}
+                        class="modal-label-detail-icon"
+                        aria-hidden={true}
+                        size={14}
+                        weight={labelDetailIconWeight}
+                    />
+                {/if}
+                {labelDetail}
+            </span>
+        {/if}
+    </div>
     <div class="modal-input-row">
         <button
             class="stepper stepper-icon reset-button"
@@ -250,10 +261,30 @@
         overflow-wrap: break-word;
     }
 
+    .modal-label-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--spacing-md);
+    }
+
     .modal-label {
         font-size: var(--font-base);
         color: var(--text-muted);
         letter-spacing: var(--tracking);
+    }
+
+    .modal-label-detail {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        white-space: nowrap;
+    }
+
+    :global(.modal-label-detail-icon) {
+        flex: 0 0 auto;
     }
 
     .modal-input-row {

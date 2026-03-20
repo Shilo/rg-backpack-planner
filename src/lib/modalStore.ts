@@ -12,6 +12,9 @@ export type ModalType =
 
 export type ModalInputConfig = {
     label: string;
+    labelDetail?: string;
+    labelDetailIcon?: Component;
+    labelDetailIconWeight?: IconWeight;
     value: number;
     min?: number;
     step?: number;
