@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy, tick } from "svelte";
     import { RootNodeIcon } from "./customIcons";
+    import { ArrowUpIcon, GraphIcon } from "phosphor-svelte";
     import {
         nodePrimaryAction,
         NodePrimaryAction,
@@ -189,7 +190,10 @@
         </div>
 
         <div class="qs-rows">
-            <span class="qs-label">{$t("settings.nodeLevelBehavior")}</span>
+            <span class="qs-label">
+                <GraphIcon size={14} weight="bold" />
+                {$t("settings.nodeLevelBehavior")}
+            </span>
             <div
                 class="qs-chips"
                 role="radiogroup"
@@ -211,7 +215,10 @@
                 {/each}
             </div>
 
-            <span class="qs-label">{clickActionLabel}</span>
+            <span class="qs-label">
+                <ArrowUpIcon size={14} weight="bold" />
+                {clickActionLabel}
+            </span>
             <div
                 class="qs-chips"
                 role="radiogroup"
@@ -309,6 +316,7 @@
         white-space: nowrap;
         display: flex;
         align-items: center;
+        gap: var(--spacing-sm);
         padding: var(--spacing-sm) var(--spacing-md);
         min-height: 44px;
         line-height: var(--leading);
