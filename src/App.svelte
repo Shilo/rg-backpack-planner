@@ -39,10 +39,7 @@
         isComposeScreenshotOpen,
         openComposeScreenshot,
     } from "./lib/ComposeScreenshot.svelte";
-    import {
-        resolveShareTokenFromUrl,
-        getBasePath,
-    } from "./lib/buildData/url";
+    import { resolveShareTokenFromUrl, getBasePath } from "./lib/buildData/url";
     import {
         decodeBuildData,
         encodeBuildData,
@@ -311,11 +308,7 @@
         if (typeof window !== "undefined") {
             const target = state.hash || "";
             if (window.location.hash !== target) {
-                window.history.replaceState(
-                    {},
-                    "",
-                    target || getBasePath(),
-                );
+                window.history.replaceState({}, "", target || getBasePath());
             }
         }
 
@@ -340,10 +333,10 @@
                     encodeBuildData({ trees: levels, owned }),
                 );
             };
-            unsubscribeTreeLevels =
-                treeLevels.subscribe(persistToActivePreset);
-            unsubscribeTechCrystals =
-                techCrystalsOwned.subscribe(persistToActivePreset);
+            unsubscribeTreeLevels = treeLevels.subscribe(persistToActivePreset);
+            unsubscribeTechCrystals = techCrystalsOwned.subscribe(
+                persistToActivePreset,
+            );
         }
     }
 
@@ -401,7 +394,10 @@
         let buildData: BuildData | null = resolvedShareToken?.buildData ?? null;
         let hasUrlBuild = resolvedShareToken !== null;
 
-        if (resolvedShareToken?.shouldNormalize && typeof window !== "undefined") {
+        if (
+            resolvedShareToken?.shouldNormalize &&
+            typeof window !== "undefined"
+        ) {
             const canonicalPath = `${getBasePath()}#${resolvedShareToken.canonicalToken}`;
             const currentPathAndHash =
                 window.location.pathname + window.location.hash;
@@ -547,9 +543,8 @@
         // Global hotkeys: F9 to open screenshot composer, Escape/Backspace for menu navigation
         let undoRedoApplyGen = 0;
         let lastUndoRedoTime = 0;
-        const UNDO_REDO_REPEAT_MS = 150;
+        const UNDO_REDO_REPEAT_MS = 250;
         const handleKeyDown = (e: KeyboardEvent) => {
-
             // Undo/Redo shortcuts
             if (
                 (e.ctrlKey || e.metaKey) &&
@@ -565,11 +560,16 @@
 
                 if (isUndo && get(canUndo)) {
                     e.preventDefault();
-                    if (e.repeat && Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS) return;
+                    if (
+                        e.repeat &&
+                        Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS
+                    )
+                        return;
                     lastUndoRedoTime = Date.now();
                     const result = undoHistory.undoDeferred();
                     if (result != null) {
-                        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+                        const switchedTab =
+                            result.activeTreeIndex !== activeTreeIndex;
                         activeTreeIndex = result.activeTreeIndex;
                         const gen = ++undoRedoApplyGen;
                         const TREE_FADE_MS = 150;
@@ -592,11 +592,16 @@
                 }
                 if (isRedo && get(canRedo)) {
                     e.preventDefault();
-                    if (e.repeat && Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS) return;
+                    if (
+                        e.repeat &&
+                        Date.now() - lastUndoRedoTime < UNDO_REDO_REPEAT_MS
+                    )
+                        return;
                     lastUndoRedoTime = Date.now();
                     const result = undoHistory.redoDeferred();
                     if (result != null) {
-                        const switchedTab = result.activeTreeIndex !== activeTreeIndex;
+                        const switchedTab =
+                            result.activeTreeIndex !== activeTreeIndex;
                         activeTreeIndex = result.activeTreeIndex;
                         const gen = ++undoRedoApplyGen;
                         const TREE_FADE_MS = 150;
@@ -745,16 +750,26 @@
             {/key}
             <AppTitleDisplay onClick={openControlsFromTitle} {isMenuOpen} />
         </div>
-        <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
+        <div
+            class="top-right-actions"
+            class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
+        >
             <TechCrystalDisplay {activeTreeIndex} />
         </div>
-        <div class="bot-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
+        <div
+            class="bot-right-actions"
+            class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
+        >
             <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
                 {activeTreeIndex}
                 forceShow={!$onboardingSeen && activeTreeOnboardingReady}
-                onUndo={(idx) => { activeTreeIndex = idx; }}
-                onRedo={(idx) => { activeTreeIndex = idx; }}
+                onUndo={(idx) => {
+                    activeTreeIndex = idx;
+                }}
+                onRedo={(idx) => {
+                    activeTreeIndex = idx;
+                }}
                 onResetBranch={(branch) => tabsRef?.resetActiveBranch?.(branch)}
                 onReset={() => tabsRef?.resetActiveTree?.()}
                 treeNodes={tabs[activeTreeIndex]?.nodes ?? []}
@@ -764,7 +779,9 @@
         </div>
     </div>
     <main class="app-main">
-        <h1 class="visually-hidden">{$t("app.titleFull", { appName, gameName })}</h1>
+        <h1 class="visually-hidden">
+            {$t("app.titleFull", { appName, gameName })}
+        </h1>
         <TreeTabs
             bind:this={tabsRef}
             bind:activeLabel={activeTreeName}
