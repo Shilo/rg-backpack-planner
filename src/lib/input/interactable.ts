@@ -56,6 +56,32 @@ export function secondary(
     let startX = 0;
     let startY = 0;
     let activePointerId: number | null = null;
+    let globalCleanup: ((event: PointerEvent) => void) | null = null;
+
+    function clearActive() {
+        clearLongPress(pressState);
+        activePointerId = null;
+        detachGlobalCleanup();
+    }
+
+    /** Attach window capture-phase listeners so cleanup runs even when
+     *  another element has pointer capture (e.g. Tree.svelte viewport). */
+    function attachGlobalCleanup(pointerId: number) {
+        detachGlobalCleanup();
+        globalCleanup = (event: PointerEvent) => {
+            if (event.pointerId !== pointerId) return;
+            clearActive();
+        };
+        window.addEventListener("pointerup", globalCleanup, true);
+        window.addEventListener("pointercancel", globalCleanup, true);
+    }
+
+    function detachGlobalCleanup() {
+        if (!globalCleanup) return;
+        window.removeEventListener("pointerup", globalCleanup, true);
+        window.removeEventListener("pointercancel", globalCleanup, true);
+        globalCleanup = null;
+    }
 
     function onContextMenu(event: Event) {
         event.preventDefault();
@@ -73,7 +99,9 @@ export function secondary(
         startX = event.clientX;
         startY = event.clientY;
 
+        attachGlobalCleanup(event.pointerId);
         startLongPress(pressState, () => {
+            detachGlobalCleanup();
             const device = event.pointerType === "touch" ? "touch" : "mouse";
             const modifier = device === "touch" ? "none" : resolveModifier(get(inputStore));
             const action = resolveAction(2, modifier, device);
@@ -87,37 +115,20 @@ export function secondary(
     function onPointerMove(event: PointerEvent) {
         if (event.pointerId !== activePointerId) return;
         if (isLongPressMovement(startX, startY, event.clientX, event.clientY)) {
-            clearLongPress(pressState);
-            activePointerId = null;
+            clearActive();
         }
-    }
-
-    function onPointerUp(event: PointerEvent) {
-        if (event.pointerId !== activePointerId) return;
-        clearLongPress(pressState);
-        activePointerId = null;
-    }
-
-    function onPointerCancel(event: PointerEvent) {
-        if (event.pointerId !== activePointerId) return;
-        clearLongPress(pressState);
-        activePointerId = null;
     }
 
     node.addEventListener("contextmenu", onContextMenu);
     node.addEventListener("pointerdown", onPointerDown);
     node.addEventListener("pointermove", onPointerMove);
-    node.addEventListener("pointerup", onPointerUp);
-    node.addEventListener("pointercancel", onPointerCancel);
 
     return {
         destroy() {
-            clearLongPress(pressState);
+            clearActive();
             node.removeEventListener("contextmenu", onContextMenu);
             node.removeEventListener("pointerdown", onPointerDown);
             node.removeEventListener("pointermove", onPointerMove);
-            node.removeEventListener("pointerup", onPointerUp);
-            node.removeEventListener("pointercancel", onPointerCancel);
         },
     };
 }
