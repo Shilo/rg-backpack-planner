@@ -48,7 +48,7 @@
     $: nodePrimaryActionName = $t(
         isTouchPrimaryPlatform
             ? "settings.nodePrimaryActionTouch"
-            : "settings.nodePrimaryActionLeftClick",
+            : "input.primary.mouse",
     );
     $: nodePrimaryActionLabel = $t("settings.nodePrimaryActionTitle", {
         primaryAction: nodePrimaryActionName,

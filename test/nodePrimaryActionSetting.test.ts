@@ -73,9 +73,9 @@ if (!/settings\.nodePrimaryActionTitle/.test(settingsPageSource)) {
     );
 }
 
-if (!/settings\.nodePrimaryActionLeftClick/.test(settingsPageSource)) {
+if (!/input\.primary\.mouse/.test(settingsPageSource)) {
     throw new Error(
-        "SideMenuSettingsPage should localize Left Click platform label.",
+        "SideMenuSettingsPage should use input.primary.mouse for Left Click platform label.",
     );
 }
 
@@ -127,9 +127,10 @@ for (const localePath of localePaths) {
             `${localePath}: settings.nodePrimaryActionTitle translation is required.`,
         );
     }
-    if (!/"nodePrimaryActionLeftClick"\s*:/.test(source)) {
+    const parsed = JSON.parse(source);
+    if (!parsed.input?.primary?.mouse) {
         throw new Error(
-            `${localePath}: settings.nodePrimaryActionLeftClick translation is required.`,
+            `${localePath}: input.primary.mouse translation is required.`,
         );
     }
     if (!/"nodePrimaryActionTouch"\s*:/.test(source)) {

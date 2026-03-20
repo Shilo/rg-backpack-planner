@@ -33,6 +33,7 @@
     import PinchIcon from "../icons/PinchIcon.svelte";
     import { t } from "svelte-whisper";
     import { showOnboarding } from "../onboarding/onboardingStore";
+    import { getDeviceInputLabels } from "../input";
 
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
@@ -82,26 +83,28 @@
     };
 
     let controls: ControlItem[] = [];
+    $: mouse = getDeviceInputLabels("mouse", $t);
+    $: touch = getDeviceInputLabels("touch", $t);
     $: controls = [
         {
             id: "pointer-node",
-            label: $t("controls.pointerNodeLabel"),
+            label: $t("controls.pointerNodeLabel", { action: mouse.primary }),
             description: $t("controls.pointerNodeDescription"),
             icon: MouseLeftClickIcon,
             device: "pointer",
         },
         {
             id: "pointer-node-decrement",
-            label: $t("controls.pointerNodeMiddleDecrementLabel"),
+            label: $t("controls.pointerNodeMiddleDecrementLabel", { action: mouse.auxiliary }),
             description: $t("controls.pointerNodeDecrementDescription"),
             icon: MouseMiddleClickIcon,
             titleRows: [
                 {
-                    label: $t("controls.pointerNodeMiddleDecrementLabel"),
+                    label: $t("controls.pointerNodeMiddleDecrementLabel", { action: mouse.auxiliary }),
                     icon: MouseMiddleClickIcon,
                 },
                 {
-                    label: $t("controls.pointerNodeDecrementLabel"),
+                    label: $t("controls.pointerNodeDecrementLabel", { action: mouse.macroPrimary }),
                     icon: ArrowFatUpIcon,
                     iconSecondary: MouseLeftClickIcon,
                     iconSeparator: "+",
@@ -112,7 +115,7 @@
         },
         {
             id: "pointer-node-increment-tier",
-            label: $t("controls.pointerNodeIncrementTierLabel"),
+            label: $t("controls.pointerNodeIncrementTierLabel", { action: mouse.macroPrimary }),
             description: $t("controls.pointerNodeIncrementTierDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseLeftClickIcon,
@@ -122,7 +125,7 @@
         },
         {
             id: "pointer-node-decrement-tier",
-            label: $t("controls.pointerNodeDecrementTierLabel"),
+            label: $t("controls.pointerNodeDecrementTierLabel", { action: mouse.macroAuxiliary }),
             description: $t("controls.pointerNodeDecrementTierDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseMiddleClickIcon,
@@ -132,7 +135,7 @@
         },
         {
             id: "pointer-node-increment-one",
-            label: $t("controls.pointerNodeIncrementOneLabel"),
+            label: $t("controls.pointerNodeIncrementOneLabel", { action: mouse.microPrimary }),
             description: $t("controls.pointerNodeIncrementOneDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseLeftClickIcon,
@@ -142,7 +145,7 @@
         },
         {
             id: "pointer-node-decrement-one",
-            label: $t("controls.pointerNodeDecrementOneLabel"),
+            label: $t("controls.pointerNodeDecrementOneLabel", { action: mouse.microAuxiliary }),
             description: $t("controls.pointerNodeDecrementOneDescription"),
             icon: ArrowFatUpIcon,
             iconSecondary: MouseMiddleClickIcon,
@@ -152,14 +155,14 @@
         },
         {
             id: "pointer-node-menu",
-            label: $t("controls.pointerNodeMenuLabel"),
+            label: $t("controls.pointerNodeMenuLabel", { action: mouse.secondary }),
             description: $t("controls.pointerNodeMenuDescription"),
             icon: MouseRightClickIcon,
             device: "pointer",
         },
         {
             id: "pointer-tree-menu",
-            label: $t("controls.pointerTreeMenuLabel"),
+            label: $t("controls.pointerTreeMenuLabel", { action: mouse.secondary }),
             description: $t("controls.pointerTreeMenuDescription"),
             icon: MouseRightClickIcon,
             device: "pointer",
@@ -187,21 +190,21 @@
         },
         {
             id: "touch-node",
-            label: $t("controls.touchNodeLabel"),
+            label: $t("controls.touchNodeLabel", { action: touch.primary }),
             description: $t("controls.touchNodeDescription"),
             icon: HandTapIcon,
             device: "touch",
         },
         {
             id: "touch-node-menu",
-            label: $t("controls.touchNodeMenuLabel"),
+            label: $t("controls.touchNodeMenuLabel", { action: touch.secondary }),
             description: $t("controls.touchNodeMenuDescription"),
             icon: LongPressIcon,
             device: "touch",
         },
         {
             id: "touch-tree-menu",
-            label: $t("controls.touchTreeMenuLabel"),
+            label: $t("controls.touchTreeMenuLabel", { action: touch.secondary }),
             description: $t("controls.touchTreeMenuDescription"),
             icon: LongPressIcon,
             device: "touch",

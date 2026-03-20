@@ -27,3 +27,28 @@ export function getInputLabel(
     const sep = t("input.modifierSeparator");
     return mod + sep + button;
 }
+
+export type DeviceInputLabels = {
+    primary: string;
+    secondary: string;
+    auxiliary?: string;
+    macroPrimary: string;
+    microPrimary: string;
+    macroAuxiliary?: string;
+    microAuxiliary?: string;
+};
+
+export function getDeviceInputLabels(device: PointerDevice, t: TranslateFn): DeviceInputLabels {
+    const labels: DeviceInputLabels = {
+        primary: getInputLabel("primary", "none", device, t),
+        secondary: getInputLabel("secondary", "none", device, t),
+        macroPrimary: getInputLabel("primary", "macro", device, t),
+        microPrimary: getInputLabel("primary", "micro", device, t),
+    };
+    if (device === "mouse") {
+        labels.auxiliary = getInputLabel("auxiliary", "none", device, t);
+        labels.macroAuxiliary = getInputLabel("auxiliary", "macro", device, t);
+        labels.microAuxiliary = getInputLabel("auxiliary", "micro", device, t);
+    }
+    return labels;
+}

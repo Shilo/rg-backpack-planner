@@ -5,4 +5,5 @@ export { resolveModifier, resolveAction } from "./resolveAction";
 export type { NodeOperation, NodeOperationCallbacks, TreeBackgroundOperation, TabOperation, RootOperation } from "./nodeActions";
 export { resolveNodeAction, applyNodeOperation } from "./nodeActions";
 export { primary, secondary, auxiliary } from "./interactable";
-export { getModifierLabel, getButtonLabel, getInputLabel } from "./inputLabels";
+export { getModifierLabel, getButtonLabel, getInputLabel, getDeviceInputLabels } from "./inputLabels";
+export type { DeviceInputLabels } from "./inputLabels";
