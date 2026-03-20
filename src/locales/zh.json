@@ -524,6 +524,8 @@
         "keyboardRedoDescription": "重做之前撤销的更改",
         "keyboardBudgetLabel": "科技水晶预算",
         "keyboardBudgetDescription": "打开科技水晶预算窗口",
+        "keyboardCyclePrimaryActionLabel": "切换节点操作",
+        "keyboardCyclePrimaryActionDescription": "在+1、+10和+阶增量模式之间切换",
         "hudTechCrystalsLabel": "科技水晶（货币）",
         "hudTechCrystalsDescription": "查看已消耗并设置拥有数量",
         "hudRootQuickSettingsLabel": "根节点（树中心）",
@@ -647,6 +649,7 @@
             "redo": "Ctrl + Y",
             "screenshot": "F9",
             "budget": "B",
+            "cyclePrimaryAction": "N",
             "focusTrap": "Tab"
         }
     },

@@ -524,6 +524,8 @@
         "keyboardRedoDescription": "Rétablir la modification précédemment annulée",
         "keyboardBudgetLabel": "Budget Cristaux Tech",
         "keyboardBudgetDescription": "Ouvrir la fenêtre de budget des Cristaux Tech",
+        "keyboardCyclePrimaryActionLabel": "Changer l'action du nœud",
+        "keyboardCyclePrimaryActionDescription": "Basculer entre les modes d'incrément +1, +10 et +Palier",
         "hudTechCrystalsLabel": "Cristaux Tech (monnaie)",
         "hudTechCrystalsDescription": "Voir les dépenses et définir la quantité possédée",
         "hudRootQuickSettingsLabel": "Nœud racine (centre de l'arbre)",
@@ -647,6 +649,7 @@
             "redo": "Ctrl + Y",
             "screenshot": "F9",
             "budget": "B",
+            "cyclePrimaryAction": "N",
             "focusTrap": "Tab"
         }
     },

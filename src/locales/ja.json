@@ -524,6 +524,8 @@
         "keyboardRedoDescription": "元に戻した変更をやり直す",
         "keyboardBudgetLabel": "テッククリスタル予算",
         "keyboardBudgetDescription": "テッククリスタル予算モーダルを開く",
+        "keyboardCyclePrimaryActionLabel": "ノードアクション切替",
+        "keyboardCyclePrimaryActionDescription": "+1、+10、+ティアの増分モードを切り替え",
         "hudTechCrystalsLabel": "テッククリスタル（通貨）",
         "hudTechCrystalsDescription": "消費済みを表示、所持数を設定",
         "hudRootQuickSettingsLabel": "ルートノード（ツリー中央）",
@@ -647,6 +649,7 @@
             "redo": "Ctrl + Y",
             "screenshot": "F9",
             "budget": "B",
+            "cyclePrimaryAction": "N",
             "focusTrap": "Tab"
         }
     },

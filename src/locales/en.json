@@ -524,6 +524,8 @@
         "keyboardRedoDescription": "Redo previously undone change",
         "keyboardBudgetLabel": "Tech Crystal Budget",
         "keyboardBudgetDescription": "Open Tech Crystal budget modal",
+        "keyboardCyclePrimaryActionLabel": "Cycle Node Action",
+        "keyboardCyclePrimaryActionDescription": "Switch between +1, +10, and +Tier increment modes",
         "hudTechCrystalsLabel": "Tech Crystal (Currency)",
         "hudTechCrystalsDescription": "View spent and set owned amount",
         "hudRootQuickSettingsLabel": "Root Node (Tree Center)",
@@ -647,6 +649,7 @@
             "redo": "Ctrl + Y",
             "screenshot": "F9",
             "budget": "B",
+            "cyclePrimaryAction": "N",
             "focusTrap": "Tab"
         }
     },
