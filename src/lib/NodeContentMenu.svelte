@@ -148,10 +148,7 @@
 
     $: isSingleLevel = maxLevel <= 1;
 
-    $: decrementTierLabel =
-        level > 0 && previousTierLevel === 0
-            ? $t("nodeMenu.min")
-            : $t("nodeMenu.decrementTier");
+    $: decrementTierIsReset = level > 0 && previousTierLevel === 0;
 
     $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
@@ -319,8 +316,10 @@
                     }}
                 />
                 <NodeContextButton
-                    icon={CaretLineDownIcon}
-                    label={decrementTierLabel}
+                    icon={decrementTierIsReset ? ArrowCounterClockwiseIcon : CaretLineDownIcon}
+                    label={decrementTierIsReset
+                        ? $t("nodeMenu.reset")
+                        : $t("nodeMenu.decrementTier")}
                     crystalValue={actionCosts?.decrementTier ?? null}
                     negative
                     disabled={nodeIndex === null || level <= 0}
@@ -331,26 +330,24 @@
                 />
             {/if}
         </div>
-        <Button
-            ghost
-            negative
-            icon={ArrowCounterClockwiseIcon}
-            disabled={nodeIndex === null || level <= 0}
-            toastMessage={nodeIndex !== null && onReset
-                ? $t("nodeMenu.resetToast")
-                : undefined}
-            on:click={() => {
-                if (nodeIndex !== null && onReset) onReset(nodeIndex);
-            }}
-            description={actionCosts?.reset != null
-                ? `+${formatNumber(Math.abs(actionCosts.reset))}`
-                : undefined}
-            descriptionIcon={actionCosts?.reset != null
-                ? TechCrystalIcon
-                : null}
-        >
-            {$t("nodeMenu.reset")}
-        </Button>
+        {#if isSingleLevel || !decrementTierIsReset}
+            <Button
+                ghost
+                negative
+                small
+                icon={ArrowCounterClockwiseIcon}
+                iconSize={16}
+                disabled={nodeIndex === null || level <= 0}
+                toastMessage={nodeIndex !== null && onReset
+                    ? $t("nodeMenu.resetToast")
+                    : undefined}
+                on:click={() => {
+                    if (nodeIndex !== null && onReset) onReset(nodeIndex);
+                }}
+            >
+                {$t("nodeMenu.reset")}
+            </Button>
+        {/if}
     </div>
 </ContextMenu>
 

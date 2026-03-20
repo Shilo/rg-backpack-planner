@@ -1,4 +1,5 @@
 import type { InputActionType, InputModifier, PointerDevice } from "./inputAction";
+import type { KeyboardActionType } from "./keyboardAction";
 
 type TranslateFn = (key: string) => string;
 
@@ -51,4 +52,8 @@ export function getDeviceInputLabels(device: PointerDevice, t: TranslateFn): Dev
         labels.microAuxiliary = getInputLabel("auxiliary", "micro", device, t);
     }
     return labels;
+}
+
+export function getKeyboardActionLabel(action: KeyboardActionType, t: TranslateFn): string {
+    return t(`input.keyboard.${action}`);
 }

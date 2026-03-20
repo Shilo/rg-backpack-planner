@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
-    import { LONG_PRESS_MS } from "./longPress";
+    import { LONG_PRESS_MS } from "./input/longPress";
     import { tooltip } from "./tooltip";
 
     export let label = "";

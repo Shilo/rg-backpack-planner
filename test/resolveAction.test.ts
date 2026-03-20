@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { resolveModifier, resolveAction } from "../src/lib/input/resolveAction.ts";
-import type { InputState } from "../src/lib/inputStore.ts";
+import type { InputState } from "../src/lib/input/inputStore.ts";
 import { DEFAULT_MODIFIER_KEY_MAP } from "../src/lib/input/modifierKeyMap.ts";
 
 console.log("  resolveModifier");

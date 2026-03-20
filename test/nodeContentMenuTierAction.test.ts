@@ -41,9 +41,9 @@ if (!/previousTierTargetLevel/.test(nodeMenuSource)) {
     );
 }
 
-if (!/nodeMenu\.min/.test(nodeMenuSource)) {
+if (!/decrementTierIsReset/.test(nodeMenuSource)) {
     throw new Error(
-        "NodeContentMenu should use nodeMenu.min label for -Tier at tier 1.",
+        "NodeContentMenu should use decrementTierIsReset to swap -Tier to Reset when at tier 1.",
     );
 }
 

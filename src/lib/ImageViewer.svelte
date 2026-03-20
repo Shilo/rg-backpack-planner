@@ -9,7 +9,7 @@
         clearLongPress,
         suppressNextPointerUp,
         type LongPressState,
-    } from "./longPress";
+    } from "./input/longPress";
 
     export let blob: Blob | null = null;
     export let onTap: ((x: number, y: number) => void) | null = null;

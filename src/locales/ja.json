@@ -228,7 +228,6 @@
         "incrementTen": "+10",
         "incrementTier": "+ティア",
         "decrementTier": "-ティア",
-        "min": "最小",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "リセット",
@@ -620,7 +619,16 @@
         "auxiliary": { "mouse": "中クリック" },
         "macro": "Shift",
         "micro": "Ctrl",
-        "modifierSeparator": " + "
+        "modifierSeparator": " + ",
+        "keyboard": {
+            "dismiss": "Escape",
+            "back": "Backspace",
+            "cycle": "Tab",
+            "confirm": "Enter",
+            "undo": "Ctrl + Z",
+            "redo": "Ctrl + Y",
+            "screenshot": "F9"
+        }
     },
     "systemInfo": {
         "sectionApp": "アプリ",

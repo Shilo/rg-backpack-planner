@@ -22,7 +22,7 @@
     import { getNodeActionPreviewFromOp } from "./nodeActionPreview";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import type { TooltipSection } from "./tooltip";
-    import { inputStore } from "./inputStore";
+    import { inputStore } from "./input/inputStore";
     import { resolveModifier, resolveAction, resolveNodeAction } from "./input";
 
     export let id: number;

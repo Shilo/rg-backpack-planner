@@ -77,7 +77,7 @@
     import { get } from "svelte/store";
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
-    import { useInputStore } from "./lib/inputStore";
+    import { useInputStore } from "./lib/input/inputStore";
     import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {

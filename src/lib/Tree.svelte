@@ -21,7 +21,7 @@
         startLongPress,
         suppressNextPointerUp,
         type LongPressState,
-    } from "./longPress";
+    } from "./input/longPress";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
@@ -71,7 +71,7 @@
         findPartialLineageLevels,
     } from "./budgetEnforcement";
     import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
-    import { inputStore } from "./inputStore";
+    import { inputStore } from "./input/inputStore";
     import { resolveModifier, resolveAction, resolveNodeAction, applyNodeOperation } from "./input";
     import type { NodeOperationCallbacks } from "./input";
 

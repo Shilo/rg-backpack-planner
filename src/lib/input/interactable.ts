@@ -1,6 +1,6 @@
 import type { ActionReturn } from "svelte/action";
 import type { InputAction } from "./inputAction";
-import { inputStore } from "../inputStore";
+import { inputStore } from "./inputStore";
 import { resolveModifier, resolveAction } from "./resolveAction";
 import { triggerHaptic } from "../hapticsStore";
 import {
@@ -9,7 +9,7 @@ import {
     suppressNextPointerUp,
     isLongPressMovement,
     type LongPressState,
-} from "../longPress";
+} from "./longPress";
 import { get } from "svelte/store";
 
 /**

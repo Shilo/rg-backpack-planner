@@ -228,7 +228,6 @@
         "incrementTen": "+10",
         "incrementTier": "+Palier",
         "decrementTier": "-Palier",
-        "min": "Min",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "Réinitialiser",
@@ -620,7 +619,16 @@
         "auxiliary": { "mouse": "Clic Molette" },
         "macro": "Maj",
         "micro": "Ctrl",
-        "modifierSeparator": " + "
+        "modifierSeparator": " + ",
+        "keyboard": {
+            "dismiss": "Échap",
+            "back": "Retour",
+            "cycle": "Tab",
+            "confirm": "Entrée",
+            "undo": "Ctrl + Z",
+            "redo": "Ctrl + Y",
+            "screenshot": "F9"
+        }
     },
     "systemInfo": {
         "sectionApp": "Application",

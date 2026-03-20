@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { LONG_PRESS_MOVE_THRESHOLD, LONG_PRESS_MS } from "./longPress";
+import { LONG_PRESS_MOVE_THRESHOLD, LONG_PRESS_MS } from "./input/longPress";
 
 export type TooltipSection =
     | { type: "text"; value: string }

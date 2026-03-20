@@ -1,5 +1,5 @@
 import type { InputAction, InputModifier, PointerDevice } from "./inputAction";
-import type { InputState } from "../inputStore";
+import type { InputState } from "./inputStore";
 import type { ModifierKeyMap } from "./modifierKeyMap";
 import { DEFAULT_MODIFIER_KEY_MAP } from "./modifierKeyMap";
 

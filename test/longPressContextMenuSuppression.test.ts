@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const sourcePath = resolve("src/lib/longPress.ts");
+const sourcePath = resolve("src/lib/input/longPress.ts");
 const source = readFileSync(sourcePath, "utf8");
 
 if (!/let suppressContextMenuUntil = 0;/.test(source)) {
