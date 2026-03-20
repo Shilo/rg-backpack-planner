@@ -72,7 +72,7 @@
     } from "./budgetEnforcement";
     import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
     import { inputStore } from "./input/inputStore";
-    import { resolveModifier, resolveAction, resolveNodeAction, applyNodeOperation } from "./input";
+    import { resolveModifiers, resolveAction, resolveNodeAction, applyNodeOperation } from "./input";
     import type { NodeOperationCallbacks } from "./input";
 
     export let nodes: NodeType[] = [];
@@ -724,10 +724,14 @@
             else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) levelDownBy10(index);
             else levelDownTier(index);
         },
-        incrementTier: (index) => levelUpTier(index),
-        decrementTier: (index) => levelDownTier(index),
-        incrementOne: (index) => levelUp(index),
-        decrementOne: (index) => levelDown(index),
+        incrementByAlternate: (index) => {
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelUpTier(index);
+            else levelUp(index);
+        },
+        decrementByAlternate: (index) => {
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelDownTier(index);
+            else levelDown(index);
+        },
         contextMenu: (index, pos) => {
             contextMenu = { index, x: pos.x, y: pos.y };
         },
@@ -1155,8 +1159,8 @@
                 event.type === "pointerup" &&
                 movedDistance <= LONG_PRESS_MOVE_THRESHOLD
             ) {
-                const modifier = resolveModifier($inputStore);
-                const action = resolveAction(event.button, modifier, event.pointerType);
+                const modifiers = resolveModifiers($inputStore);
+                const action = resolveAction(event.button, modifiers, event.pointerType);
                 if (action) {
                     const nodeOp = resolveNodeAction(action);
                     applyNodeOperation(nodeOp, middleClick.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
@@ -1195,8 +1199,8 @@
         ) {
             if (pointer.nodeIndex !== null) {
                 triggerHaptic();
-                const modifier = resolveModifier($inputStore);
-                const action = resolveAction(event.button, modifier, event.pointerType);
+                const modifiers = resolveModifiers($inputStore);
+                const action = resolveAction(event.button, modifiers, event.pointerType);
                 if (action) {
                     const nodeOp = resolveNodeAction(action);
                     applyNodeOperation(nodeOp, pointer.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
