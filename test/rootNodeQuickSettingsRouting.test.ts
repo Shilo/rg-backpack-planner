@@ -15,22 +15,12 @@ if (
 }
 
 if (
-    !/function startBackgroundPress\(event: PointerEvent\) \{[\s\S]*?isRootTarget\(event\.target\)[\s\S]*?\)\s*return;/m.test(
+    !/function handleBackgroundSecondary\(\) \{[\s\S]*?isRootTarget\(lastBackgroundPointerTarget\)[\s\S]*?\)\s*return;/m.test(
         treeTabsSource,
     )
 ) {
     throw new Error(
-        "TreeTabs background long-press should ignore the root so root interactions are handled by the dedicated root logic.",
-    );
-}
-
-if (
-    !/function openBackgroundMenu\(event: MouseEvent\) \{[\s\S]*?isRootTarget\(event\.target\)[\s\S]*?\)\s*return;/m.test(
-        treeTabsSource,
-    )
-) {
-    throw new Error(
-        "TreeTabs background context-menu handling should ignore the root so it never opens the old tree menu.",
+        "TreeTabs background secondary handler should ignore the root so root interactions are handled by the dedicated root logic.",
     );
 }
 

@@ -19,13 +19,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import {
-        clearLongPress,
-        isLongPressMovement,
-        startLongPress,
-        suppressNextPointerUp,
-        type LongPressState,
-    } from "./longPress";
+    import { secondary } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -42,7 +36,7 @@
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
     import { showToast } from "./toast";
-    import { hideTooltip, suppressTooltip } from "./tooltip";
+    import { hideTooltip } from "./tooltip";
     import { activeTabId, getActiveTabId } from "./activeTabStore";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
@@ -94,36 +88,13 @@
     let hasMounted = false;
     let lastActiveTabId = "";
     let isInitialRestore = true;
-    const tabPressState: LongPressState = { timer: null, fired: false };
-    let tabPressStart: { x: number; y: number } | null = null;
-    let tabPressPoint: { x: number; y: number } | null = null;
-    let tabPressPointerId: number | null = null;
-    let tabPressEl: HTMLElement | null = null;
-    const backgroundPressState: LongPressState = { timer: null, fired: false };
-    let backgroundPressStart: { x: number; y: number } | null = null;
-    let backgroundPressPoint: { x: number; y: number } | null = null;
-    let backgroundPressPointerId: number | null = null;
+    let lastBackgroundPointerPos = { x: 0, y: 0 };
+    let lastBackgroundPointerTarget: EventTarget | null = null;
     let lastViewState: TreeViewState | null = null;
     let globalLeveledLeafNodesOutsideActiveTreeCount = 0;
     const TAB_CYCLE_REPEAT_MS = 400;
     let lastTabCycleAt = 0;
     let previousOnboardingTreeId = "";
-
-    function getPointerEvent(event: Event) {
-        const detail = (event as CustomEvent<PointerEvent>).detail;
-        if (detail && typeof detail.clientX === "number") {
-            return detail;
-        }
-        return event as PointerEvent;
-    }
-
-    function getMouseEvent(event: Event) {
-        const detail = (event as CustomEvent<MouseEvent>).detail;
-        if (detail && typeof detail.clientX === "number") {
-            return detail;
-        }
-        return event as MouseEvent;
-    }
 
     function handleTabKeydown(event: KeyboardEvent) {
         const isTab = event.key === "Tab";
@@ -276,71 +247,6 @@
 
     $: treeContextMenuOpen.set(!!tabContextMenu);
 
-    function clearTabPress() {
-        clearLongPress(tabPressState);
-        tabPressStart = null;
-        tabPressPoint = null;
-        tabPressPointerId = null;
-        tabPressEl = null;
-    }
-
-    function isPrimaryPointer(event: PointerEvent) {
-        if (event.pointerType === "mouse") {
-            return event.button === 0;
-        }
-        return true;
-    }
-
-    function startTabPress(event: PointerEvent, tab: TabConfig, index: number) {
-        if (!isPrimaryPointer(event)) return;
-        tabPressStart = { x: event.clientX, y: event.clientY };
-        tabPressPoint = { x: event.clientX, y: event.clientY };
-        tabPressPointerId = event.pointerId;
-        tabPressEl =
-            event.currentTarget instanceof HTMLElement
-                ? event.currentTarget
-                : null;
-        startLongPress(tabPressState, () => {
-            if (!tabPressEl) return false;
-            suppressTooltip(tabPressPointerId);
-            hideTooltip();
-            if (tabPressPointerId !== null)
-                suppressNextPointerUp(tabPressPointerId);
-            const rect = tabPressEl.getBoundingClientRect();
-            tabContextMenu = {
-                id: tab.id,
-                label: tab.label,
-                x: rect.left + rect.width / 2,
-                y: rect.top - TREE_MENU_GAP,
-                index,
-                hideViewOptions: true,
-            };
-            return true;
-        });
-    }
-
-    function moveTabPress(event: PointerEvent) {
-        if (!tabPressStart) return;
-        tabPressPoint = { x: event.clientX, y: event.clientY };
-        if (
-            isLongPressMovement(
-                tabPressStart.x,
-                tabPressStart.y,
-                event.clientX,
-                event.clientY,
-            )
-        ) {
-            clearTabPress();
-        }
-    }
-
-    function clearBackgroundPress() {
-        clearLongPress(backgroundPressState);
-        backgroundPressStart = null;
-        backgroundPressPoint = null;
-        backgroundPressPointerId = null;
-    }
-
     function isContextMenuTarget(target: EventTarget | null) {
         return (
             target instanceof Element &&
@@ -372,89 +278,34 @@
         treeRef?.cancelGestures?.();
     }
 
-    function startBackgroundPress(event: PointerEvent) {
-        if (!isPrimaryPointer(event)) return;
+    function handleBackgroundSecondary() {
         if (
-            isContextMenuTarget(event.target) ||
-            isNodeTarget(event.target) ||
-            isRootTarget(event.target)
+            isContextMenuTarget(lastBackgroundPointerTarget) ||
+            isNodeTarget(lastBackgroundPointerTarget) ||
+            isRootTarget(lastBackgroundPointerTarget)
         )
             return;
         const activeTab = tabs[activeIndex];
         if (!activeTab) return;
-        backgroundPressStart = { x: event.clientX, y: event.clientY };
-        backgroundPressPoint = { x: event.clientX, y: event.clientY };
-        backgroundPressPointerId = event.pointerId;
-        startLongPress(backgroundPressState, () => {
-            const point = backgroundPressPoint ?? backgroundPressStart;
-            if (!point) return false;
-            suppressTooltip(backgroundPressPointerId);
-            hideTooltip();
-            if (backgroundPressPointerId !== null)
-                suppressNextPointerUp(backgroundPressPointerId);
-            tabContextMenu = {
-                id: activeTab.id,
-                label: activeTab.label,
-                x: point.x,
-                y: point.y - TREE_MENU_GAP,
-                index: activeIndex,
-                hideViewOptions: false,
-            };
-            treeRef?.cancelGestures?.();
-            return true;
-        });
-    }
-
-    function openBackgroundMenu(event: MouseEvent) {
-        if (
-            isContextMenuTarget(event.target) ||
-            isNodeTarget(event.target) ||
-            isRootTarget(event.target)
-        )
-            return;
-        const activeTab = tabs[activeIndex];
-        if (!activeTab) return;
-
-        event.preventDefault();
         hideTooltip();
         tabContextMenu = {
             id: activeTab.id,
             label: activeTab.label,
-            x: event.clientX,
-            y: event.clientY - TREE_MENU_GAP,
+            x: lastBackgroundPointerPos.x,
+            y: lastBackgroundPointerPos.y - TREE_MENU_GAP,
             index: activeIndex,
             hideViewOptions: false,
         };
         treeRef?.cancelGestures?.();
     }
 
-    function moveBackgroundPress(event: PointerEvent) {
-        if (!backgroundPressStart) return;
-        backgroundPressPoint = { x: event.clientX, y: event.clientY };
-        if (
-            isLongPressMovement(
-                backgroundPressStart.x,
-                backgroundPressStart.y,
-                event.clientX,
-                event.clientY,
-            )
-        ) {
-            clearBackgroundPress();
-        }
-    }
-
-    function openTabMenu(event: MouseEvent, tab: TabConfig, index: number) {
-        event.preventDefault();
+    function openTabMenu(_event: Event, tab: TabConfig, index: number) {
         hideTooltip();
-        const el =
-            event.currentTarget instanceof HTMLElement
-                ? event.currentTarget
-                : null;
+        const buttons = tabsRootEl?.querySelectorAll(".tab-btn");
+        const el = buttons?.[index] instanceof HTMLElement ? buttons[index] : null;
         const rect = el?.getBoundingClientRect();
-        const menuX = rect ? rect.left + rect.width / 2 : event.clientX;
-        const menuY = rect
-            ? rect.top - TREE_MENU_GAP
-            : event.clientY - TREE_MENU_GAP;
+        const menuX = rect ? rect.left + rect.width / 2 : 0;
+        const menuY = rect ? rect.top - TREE_MENU_GAP : 0;
         tabContextMenu = {
             id: tab.id,
             label: tab.label,
@@ -565,10 +416,6 @@
     }
 
     function onTabClick(index: number) {
-        if (tabPressState.fired) {
-            tabPressState.fired = false;
-            return;
-        }
         setActive(index);
     }
 
@@ -631,14 +478,7 @@
                         iconClass="tree-tab-icon"
                         on:click={() => onTabClick(index)}
                         on:contextmenu={(event: Event) =>
-                            openTabMenu(getMouseEvent(event), tab, index)}
-                        on:pointerdown={(event: Event) =>
-                            startTabPress(getPointerEvent(event), tab, index)}
-                        on:pointermove={(event: Event) =>
-                            moveTabPress(getPointerEvent(event))}
-                        on:pointerup={clearTabPress}
-                        on:pointercancel={clearTabPress}
-                        on:pointerleave={clearTabPress}
+                            openTabMenu(event, tab, index)}
                     >
                         <span class="tab-label">{tab.label}</span>
                         <span class="tree-tab-crystals">
@@ -663,12 +503,9 @@
     <div
         class="tabs-content"
         role="presentation"
-        on:contextmenu={openBackgroundMenu}
-        on:pointerdown={startBackgroundPress}
-        on:pointermove={moveBackgroundPress}
-        on:pointerup={clearBackgroundPress}
-        on:pointercancel={clearBackgroundPress}
-        on:pointerleave={clearBackgroundPress}
+        use:secondary={handleBackgroundSecondary}
+        on:pointerdown={(e) => { lastBackgroundPointerPos = { x: e.clientX, y: e.clientY }; lastBackgroundPointerTarget = e.target; }}
+        on:pointermove={(e) => { lastBackgroundPointerPos = { x: e.clientX, y: e.clientY }; }}
         use:bridgeAction
     >
         {#if tabs[activeIndex]}
