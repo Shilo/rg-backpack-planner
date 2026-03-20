@@ -739,7 +739,7 @@
         <div class="top-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
             <TechCrystalDisplay {activeTreeIndex} />
         </div>
-        <div class="bot-right-actions">
+        <div class="bot-right-actions" class:above-backdrop={$buildContextMenuOpenForOverlayRaise}>
             <UndoRedoToolbar
                 activeLevels={$treeLevels?.[activeTreeIndex] ?? null}
                 {activeTreeIndex}
@@ -837,7 +837,8 @@
         }
     }
 
-    .top-right-actions.above-backdrop {
+    .top-right-actions.above-backdrop,
+    .bot-right-actions.above-backdrop {
         z-index: var(--z-index-hud-above-context-backdrop);
     }
 
