@@ -23,7 +23,7 @@
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import type { TooltipSection } from "./tooltip";
     import { inputStore } from "./input/inputStore";
-    import { resolveModifier, resolveAction, resolveNodeAction } from "./input";
+    import { resolveModifiers, resolveAction, resolveNodeAction } from "./input";
 
     export let id: number;
     export let x: number = 0;
@@ -67,15 +67,15 @@
 
     let hovered = false;
 
-    $: modifier = resolveModifier($inputStore);
+    $: modifiers = resolveModifiers($inputStore);
 
     $: incrementOp = (() => {
-        const action = resolveAction(0, modifier, "mouse");
+        const action = resolveAction(0, modifiers, "mouse");
         return action ? resolveNodeAction(action) : null;
     })();
 
     $: decrementOp = (() => {
-        const action = resolveAction(1, modifier, "mouse");
+        const action = resolveAction(1, modifiers, "mouse");
         return action ? resolveNodeAction(action) : null;
     })();
 
