@@ -14,7 +14,7 @@ A new always-visible pill button in the bottom-left HUD that shows the current p
 
 - **Position**: Bottom-left, above tab bar — mirrors `bot-right-actions` on the opposite side.
 - **Container**: New `bot-left-actions` div inside `.hud-safe-area` in `App.svelte`.
-- **CSS**: `position: absolute; bottom: calc(var(--tab-height) + var(--bar-pad)); left: 0;` — same pattern as `bot-right-actions` but anchored left. Safe-area insets are inherited from the `.hud-safe-area` parent container.
+- **CSS**: `position: absolute; bottom: calc(var(--tab-height) + var(--bar-pad)); left: 0;` — same pattern as `bot-right-actions` but anchored left. Safe-area insets are handled by the `.hud-safe-area` parent container, which uses `inset: max(var(--bar-pad), var(--safe-*))` to position all children within the safe area.
 - **z-index**: `var(--z-index-hud)`, matching other HUD elements. Include `above-backdrop` class toggle for context menu overlay raise (same as `bot-right-actions`).
 
 ### Appearance
@@ -40,7 +40,7 @@ Implement **Style A (accent-tinted)** first. If it feels too prominent during re
 
 - **Click/tap**: Cycles `+1 → +10 → +Tier → +1` (wrap-around). Cycle logic: `(current + 1) % 3`.
 - **Haptic**: Triggers `triggerHaptic()` on cycle.
-- **Toast**: Shows toast on change using the existing `showSettingToast` pattern (setting label + value label).
+- **Toast**: Shows toast on change replicating the `showSettingToast` pattern from `RootNodeQuickSettings.svelte` — a one-liner calling `showToast(\`${settingLabel}: ${valueLabel}\`)`. This is a local pattern to replicate inline, not an importable function.
 - **Tooltip** (desktop): Shows current state label + keyboard shortcut via the existing Button tooltip/shortcut pattern.
 
 ### Accessibility
@@ -67,7 +67,7 @@ Implement **Style A (accent-tinted)** first. If it feels too prominent during re
 
 ### Handler
 
-Wired in `App.svelte` (or wherever global keyboard actions are resolved). On `cyclePrimaryAction`, executes the same cycle logic as the pill click. The pill component also shows the shortcut label in its tooltip via `getKeyboardActionLabel("cyclePrimaryAction", $t)`.
+Wired in `TreeTabs.svelte` alongside the existing `budget` shortcut handler — this is where single-key non-modifier shortcuts are handled, with the necessary guards (`isMenuOpen`, modal state, form field checks, onboarding overlay) already in scope. On `cyclePrimaryAction`, executes the same cycle logic as the pill click. The pill component also shows the shortcut label in its tooltip via `getKeyboardActionLabel("cyclePrimaryAction", $t)`.
 
 ## Toast Overlap Avoidance
 
@@ -81,13 +81,15 @@ Specifically: refactor the single-element overlap check into a loop over both se
 |------|--------|
 | `src/lib/PrimaryActionIndicator.svelte` | **New** — standalone pill component |
 | `src/lib/input/keyboardAction.ts` | Add `cyclePrimaryAction` to `KeyboardActionType`, add `Key.n`, add binding |
-| `src/App.svelte` | Add `bot-left-actions` container in `.hud-safe-area`, render `PrimaryActionIndicator`, wire keyboard handler for `cyclePrimaryAction` |
+| `src/App.svelte` | Add `bot-left-actions` container in `.hud-safe-area`, render `PrimaryActionIndicator` |
+| `src/lib/TreeTabs.svelte` | Wire keyboard handler for `cyclePrimaryAction` alongside existing `budget` handler |
 | `src/lib/Toasts.svelte` | Extend `checkOverlap()` to include `.bot-left-actions` |
 | `src/app.css` | Add `.bot-left-actions` positioning (mirrors `bot-right-actions`) |
+| `src/locales/*.json` | Add `input.keyboard.cyclePrimaryAction` key (e.g. `"N"`) to all 4 locale files — required by `getKeyboardActionLabel` |
+| `src/lib/sideMenuPages/SideMenuControlsPage.svelte` | Add `cyclePrimaryAction` to the keyboard shortcuts help display |
 
 ### Files NOT Changed
 
 - `nodePrimaryActionStore.ts` — already has everything needed.
 - `RootNodeQuickSettings.svelte` — untouched, keeps working independently.
 - `UndoRedoToolbar.svelte` — untouched.
-- `src/locales/*.json` — no new keys; reuses existing `settings.nodePrimaryActionTitle`, `nodeMenu.incrementOne`, `nodeMenu.incrementTen`, `nodeMenu.incrementTier`.
