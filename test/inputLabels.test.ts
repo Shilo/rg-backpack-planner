@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { getModifierLabel, getButtonLabel, getInputLabel } from "../src/lib/input/inputLabels.ts";
-import type { InputActionType, InputModifier, PointerDevice } from "../src/lib/input/inputAction.ts";
 
 // Mock translation function that returns the key as-is
 const t = (key: string) => key;
@@ -9,9 +8,8 @@ console.log("  inputLabels");
 
 // --- getModifierLabel ---
 {
-    assert.equal(getModifierLabel("none", t), "");
-    assert.equal(getModifierLabel("macro", t), "input.macro");
-    assert.equal(getModifierLabel("micro", t), "input.micro");
+    assert.equal(getModifierLabel("reverse", t), "input.reverse");
+    assert.equal(getModifierLabel("alternate", t), "input.alternate");
     console.log("    ✓ getModifierLabel returns correct keys");
 }
 
@@ -27,15 +25,15 @@ console.log("  inputLabels");
 
 // --- getInputLabel: no modifier ---
 {
-    const result = getInputLabel("primary", "none", "mouse", t);
+    const result = getInputLabel("primary", null, "mouse", t);
     assert.equal(result, "input.primary.mouse");
     console.log("    ✓ getInputLabel without modifier returns button label only");
 }
 
 // --- getInputLabel: with modifier ---
 {
-    const result = getInputLabel("primary", "macro", "mouse", t);
-    assert.equal(result, "input.macro" + "input.modifierSeparator" + "input.primary.mouse");
+    const result = getInputLabel("primary", "reverse", "mouse", t);
+    assert.equal(result, "input.reverse" + "input.modifierSeparator" + "input.primary.mouse");
     console.log("    ✓ getInputLabel with modifier returns 'modifier + separator + button'");
 }
 

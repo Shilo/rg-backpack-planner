@@ -1,12 +1,13 @@
-import type { InputActionType, InputModifier, PointerDevice } from "./inputAction";
+import type { InputActionType, PointerDevice } from "./inputAction";
 import type { KeyboardActionType } from "./keyboardAction";
 import type { TooltipContent } from "../tooltip";
 import { hasKeyboard } from "./inputStore";
 
 type TranslateFn = (key: string) => string;
 
-export function getModifierLabel(modifier: InputModifier, t: TranslateFn): string {
-    if (modifier === "none") return "";
+export type ModifierName = "reverse" | "alternate";
+
+export function getModifierLabel(modifier: ModifierName, t: TranslateFn): string {
     return t(`input.${modifier}`);
 }
 
@@ -20,12 +21,12 @@ export function getButtonLabel(
 
 export function getInputLabel(
     type: InputActionType,
-    modifier: InputModifier,
+    modifier: ModifierName | null,
     device: PointerDevice,
     t: TranslateFn,
 ): string {
     const button = getButtonLabel(type, device, t);
-    if (modifier === "none") return button;
+    if (!modifier) return button;
     const mod = getModifierLabel(modifier, t);
     const sep = t("input.modifierSeparator");
     return mod + sep + button;
@@ -35,23 +36,23 @@ export type DeviceInputLabels = {
     primary: string;
     secondary: string;
     auxiliary?: string;
-    macroPrimary: string;
-    microPrimary: string;
-    macroAuxiliary?: string;
-    microAuxiliary?: string;
+    reversePrimary: string;
+    alternatePrimary: string;
+    reverseAuxiliary?: string;
+    alternateAuxiliary?: string;
 };
 
 export function getDeviceInputLabels(device: PointerDevice, t: TranslateFn): DeviceInputLabels {
     const labels: DeviceInputLabels = {
-        primary: getInputLabel("primary", "none", device, t),
-        secondary: getInputLabel("secondary", "none", device, t),
-        macroPrimary: getInputLabel("primary", "macro", device, t),
-        microPrimary: getInputLabel("primary", "micro", device, t),
+        primary: getInputLabel("primary", null, device, t),
+        secondary: getInputLabel("secondary", null, device, t),
+        reversePrimary: getInputLabel("primary", "reverse", device, t),
+        alternatePrimary: getInputLabel("primary", "alternate", device, t),
     };
     if (device === "mouse") {
-        labels.auxiliary = getInputLabel("auxiliary", "none", device, t);
-        labels.macroAuxiliary = getInputLabel("auxiliary", "macro", device, t);
-        labels.microAuxiliary = getInputLabel("auxiliary", "micro", device, t);
+        labels.auxiliary = getInputLabel("auxiliary", null, device, t);
+        labels.reverseAuxiliary = getInputLabel("auxiliary", "reverse", device, t);
+        labels.alternateAuxiliary = getInputLabel("auxiliary", "alternate", device, t);
     }
     return labels;
 }
@@ -74,7 +75,7 @@ export function getKeyboardActionLabel(action: KeyboardActionType, t: TranslateF
     if (action === "cycle") {
         const sep = t("input.keyboardSeparator");
         const tab = t("input.keyboard.cycle");
-        const shiftTab = t("input.macro") + t("input.modifierSeparator") + tab;
+        const shiftTab = t("input.reverse") + t("input.modifierSeparator") + tab;
         return tab + sep + shiftTab + sep + t("input.keyboard.arrowLeft") + sep + t("input.keyboard.arrowRight");
     }
     return t(`input.keyboard.${action}`);
