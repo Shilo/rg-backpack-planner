@@ -75,6 +75,7 @@
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/input/inputStore";
+    import { resolveKeyboardAction, Key } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {
@@ -98,7 +99,7 @@
         closeMenu();
         if (typeof document !== "undefined") {
             document.dispatchEvent(
-                new KeyboardEvent("keydown", { key: "Escape" }),
+                new KeyboardEvent("keydown", { key: Key.Escape }),
             );
         }
     }
@@ -545,20 +546,16 @@
         let lastUndoRedoTime = 0;
         const UNDO_REDO_REPEAT_MS = 250;
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Undo/Redo shortcuts
+            const action = resolveKeyboardAction(e);
+            if (!action) return;
+
+            // Undo/Redo — special: allows e.repeat with throttling
             if (
-                (e.ctrlKey || e.metaKey) &&
-                !e.altKey &&
+                (action === "undo" || action === "redo") &&
                 !isFormField(document.activeElement) &&
                 !hasOnboardingOverlay()
             ) {
-                const isUndo = e.key === "z" && !e.shiftKey;
-                const isRedo =
-                    e.key === "y" ||
-                    (e.key === "z" && e.shiftKey) ||
-                    (e.key === "Z" && e.shiftKey);
-
-                if (isUndo && get(canUndo)) {
+                if (action === "undo" && get(canUndo)) {
                     e.preventDefault();
                     if (
                         e.repeat &&
@@ -590,7 +587,7 @@
                     }
                     return;
                 }
-                if (isRedo && get(canRedo)) {
+                if (action === "redo" && get(canRedo)) {
                     e.preventDefault();
                     if (
                         e.repeat &&
@@ -626,38 +623,37 @@
 
             if (e.repeat) return;
 
-            if (
-                e.key === "Escape" &&
-                !e.defaultPrevented &&
-                e.isTrusted &&
-                !$isComposeScreenshotOpen &&
-                !document.querySelector(".context-menu") &&
-                !document.querySelector(".qs-panel") &&
-                !hasOnboardingOverlay()
-            ) {
-                e.preventDefault();
-                if (isMenuOpen) {
+            switch (action) {
+                case "dismiss":
+                    if (e.defaultPrevented || !e.isTrusted) break;
+                    if (
+                        $isComposeScreenshotOpen ||
+                        document.querySelector(".context-menu") ||
+                        document.querySelector(".qs-panel") ||
+                        hasOnboardingOverlay()
+                    ) break;
+                    e.preventDefault();
+                    if (isMenuOpen) {
+                        if (!sideMenuRef?.tryGoBack?.()) {
+                            closeMenu();
+                        }
+                    } else {
+                        isMenuOpen = true;
+                    }
+                    break;
+                case "back":
+                    if (!isMenuOpen || e.defaultPrevented || !e.isTrusted) break;
+                    if (isFormField(document.activeElement) || hasOnboardingOverlay()) break;
+                    e.preventDefault();
                     if (!sideMenuRef?.tryGoBack?.()) {
                         closeMenu();
                     }
-                } else {
-                    isMenuOpen = true;
-                }
-            } else if (
-                e.key === "Backspace" &&
-                isMenuOpen &&
-                !e.defaultPrevented &&
-                e.isTrusted &&
-                !isFormField(document.activeElement) &&
-                !hasOnboardingOverlay()
-            ) {
-                e.preventDefault();
-                if (!sideMenuRef?.tryGoBack?.()) {
-                    closeMenu();
-                }
-            } else if (e.key === "F9" && !hasOnboardingOverlay()) {
-                e.preventDefault();
-                openComposeScreenshot();
+                    break;
+                case "screenshot":
+                    if (hasOnboardingOverlay()) break;
+                    e.preventDefault();
+                    openComposeScreenshot();
+                    break;
             }
         };
         window.addEventListener("keydown", handleKeyDown, true);

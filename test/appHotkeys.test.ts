@@ -28,9 +28,9 @@ if (appSource.includes("let composeScreenshotOpen = false;")) {
     );
 }
 
-if (!/else if \(e\.key === "F9".*?\)\s*\{\s*e\.preventDefault\(\);\s*openComposeScreenshot\(\);\s*\}/s.test(appSource)) {
+if (!/case "screenshot":\s*.*?e\.preventDefault\(\);\s*openComposeScreenshot\(\);/s.test(appSource)) {
     throw new Error(
-        "Expected F9 hotkey branch to call openComposeScreenshot()",
+        "Expected screenshot hotkey branch to call openComposeScreenshot()",
     );
 }
 
