@@ -19,7 +19,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary, getKeyboardActionLabel, getDeviceInputLabels } from "./input";
+    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, Key } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -98,73 +98,68 @@
     let lastTabCycleAt = 0;
     let previousOnboardingTreeId = "";
 
-    function handleTabKeydown(event: KeyboardEvent) {
-        const isTab = event.key === "Tab";
-        const isArrowLeft = event.key === "ArrowLeft";
-        const isArrowRight = event.key === "ArrowRight";
-        if (
-            !tabsRootEl ||
-            (!isTab && !isArrowLeft && !isArrowRight) ||
-            tabs.length <= 1
-        )
-            return;
-        if (isMenuOpen || $isComposeScreenshotOpen) return;
+    function handleGlobalKeydown(event: KeyboardEvent) {
+        const action = resolveKeyboardAction(event);
+        if (!action) return;
         if (hasOnboardingOverlay()) return;
-        if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
-            return;
 
-        if (event.repeat) {
-            const now = performance.now();
-            if (now - lastTabCycleAt < TAB_CYCLE_REPEAT_MS) {
+        switch (action) {
+            case "cycle": {
+                if (!tabsRootEl || tabs.length <= 1) return;
+                if (isMenuOpen || $isComposeScreenshotOpen) return;
+                if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl)) return;
+                if (event.repeat) {
+                    const now = performance.now();
+                    if (now - lastTabCycleAt < TAB_CYCLE_REPEAT_MS) {
+                        event.preventDefault();
+                        return;
+                    }
+                }
                 event.preventDefault();
-                return;
+                lastTabCycleAt = performance.now();
+                const delta = event.shiftKey && event.key === Key.Tab
+                    ? -1
+                    : event.key === Key.ArrowLeft ? -1 : 1;
+                const next = (activeIndex + delta + tabs.length) % tabs.length;
+                setActive(next);
+                break;
+            }
+            case "back": {
+                if (!tabsRootEl) return;
+                if (isMenuOpen) return;
+                if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl)) return;
+                const levels = $treeLevels[activeIndex] ?? [];
+                if (sumLevels(levels) === 0) return;
+                if (event.repeat) return;
+                event.preventDefault();
+                openResetChoicesForActiveTab();
+                break;
+            }
+            case "console": {
+                if (!tabsRootEl) return;
+                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if (isFormField(document.activeElement)) return;
+                if (event.repeat) return;
+                event.preventDefault();
+                if (quickSettings) {
+                    quickSettings = null;
+                    return;
+                }
+                const rootEl = tabsRootEl.querySelector('[data-node-id="root"]');
+                if (!rootEl) return;
+                const rect = rootEl.getBoundingClientRect();
+                openRootQuickSettings(rect.left + rect.width / 2, rect.top);
+                break;
+            }
+            case "budget": {
+                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if (isFormField(document.activeElement)) return;
+                if (event.repeat) return;
+                event.preventDefault();
+                openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeIndex);
+                break;
             }
         }
-        event.preventDefault();
-        lastTabCycleAt = performance.now();
-        const delta = isTab && event.shiftKey ? -1 : isArrowLeft ? -1 : 1;
-        const next = (activeIndex + delta + tabs.length) % tabs.length;
-        setActive(next);
-    }
-
-    function handleBackspaceKeydown(event: KeyboardEvent) {
-        if (event.key !== "Backspace" || !tabsRootEl) return;
-        if (isMenuOpen) return;
-        if (hasOnboardingOverlay()) return;
-        if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl))
-            return;
-        const levels = $treeLevels[activeIndex] ?? [];
-        if (sumLevels(levels) === 0) return;
-        if (event.repeat) return;
-        event.preventDefault();
-        openResetChoicesForActiveTab();
-    }
-
-    function handleConsoleKeydown(event: KeyboardEvent) {
-        if (event.key !== "`" || !tabsRootEl) return;
-        if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
-        if (hasOnboardingOverlay()) return;
-        if (isFormField(document.activeElement)) return;
-        if (event.repeat) return;
-        event.preventDefault();
-        if (quickSettings) {
-            quickSettings = null;
-            return;
-        }
-        const rootEl = tabsRootEl.querySelector('[data-node-id="root"]');
-        if (!rootEl) return;
-        const rect = rootEl.getBoundingClientRect();
-        openRootQuickSettings(rect.left + rect.width / 2, rect.top);
-    }
-
-    function handleBudgetKeydown(event: KeyboardEvent) {
-        if (event.key !== "b" && event.key !== "B") return;
-        if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
-        if (hasOnboardingOverlay()) return;
-        if (isFormField(document.activeElement)) return;
-        if (event.repeat) return;
-        event.preventDefault();
-        openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeIndex);
     }
 
     onMount(() => {
@@ -179,16 +174,10 @@
         }
         // Mark that initial restore is complete
         isInitialRestore = false;
-        window.addEventListener("keydown", handleTabKeydown, true);
-        window.addEventListener("keydown", handleBackspaceKeydown, true);
-        window.addEventListener("keydown", handleConsoleKeydown, true);
-        window.addEventListener("keydown", handleBudgetKeydown, true);
+        window.addEventListener("keydown", handleGlobalKeydown, true);
         if (!tabsBarEl) {
             return () => {
-                window.removeEventListener("keydown", handleTabKeydown, true);
-                window.removeEventListener("keydown", handleBackspaceKeydown, true);
-                window.removeEventListener("keydown", handleConsoleKeydown, true);
-                window.removeEventListener("keydown", handleBudgetKeydown, true);
+                window.removeEventListener("keydown", handleGlobalKeydown, true);
             };
         }
         const observer = new ResizeObserver(() => {
@@ -197,10 +186,7 @@
         observer.observe(tabsBarEl);
         bottomInset = tabsBarEl.offsetHeight;
         return () => {
-            window.removeEventListener("keydown", handleTabKeydown, true);
-            window.removeEventListener("keydown", handleBackspaceKeydown, true);
-            window.removeEventListener("keydown", handleConsoleKeydown, true);
-            window.removeEventListener("keydown", handleBudgetKeydown, true);
+            window.removeEventListener("keydown", handleGlobalKeydown, true);
             observer.disconnect();
         };
     });
