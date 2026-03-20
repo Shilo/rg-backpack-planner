@@ -4,6 +4,8 @@ import {
     ArrowArcRightIcon,
     ArrowCounterClockwiseIcon,
     ArrowFatLineUpIcon,
+    ArrowFatUpIcon,
+    ControlIcon,
     ArrowsOutCardinalIcon,
     ClockCounterClockwiseIcon,
     CoinsIcon,
@@ -117,6 +119,16 @@ export function createOnboardingSteps({
                 icon: MouseRightClickIcon,
                 label: translate("input.secondary.mouse"),
                 description: translate("onboarding.options"),
+            },
+            {
+                icon: ArrowFatUpIcon,
+                label: translate("onboarding.modifierTierLabel", { action: translate("input.macro") }),
+                description: translate("onboarding.modifierTier"),
+            },
+            {
+                icon: ControlIcon,
+                label: translate("onboarding.modifierOneLabel", { action: translate("input.micro") }),
+                description: translate("onboarding.modifierOne"),
             },
         ];
 
