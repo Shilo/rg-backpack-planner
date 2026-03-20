@@ -1629,6 +1629,7 @@
                 skillId={contextMenuNode?.skillId ?? null}
                 onClose={closeContextMenu}
                 onIncrementTier={levelUpTier}
+                onDecrementTier={levelDownTier}
                 onReset={resetNode}
                 onDecrement={levelDown}
                 onDecrementBy10={levelDownBy10}
