@@ -8,6 +8,7 @@
         TrashSimpleIcon,
         ArrowsOutCardinalIcon,
         BookOpenTextIcon,
+        CaretUpIcon,
         CornersOutIcon,
         EyeIcon,
         GithubLogoIcon,
@@ -93,6 +94,7 @@
     $: keyScreenshot = getKeyboardActionLabel("screenshot", $t);
     $: keyConsole = getKeyboardActionLabel("console", $t);
     $: keyBudget = getKeyboardActionLabel("budget", $t);
+    $: keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", $t);
     $: keyUndo = getKeyboardActionLabel("undo", $t);
     $: keyRedo = getKeyboardActionLabel("redo", $t);
     $: hudPrimaryAction =
@@ -502,6 +504,22 @@
                                 )}</span
                             >
                             <span class="control-shortcut">{keyBudget}</span>
+                        </p>
+                    </li>
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <CaretUpIcon />
+                        </span>
+                        <p class="control-inline">
+                            <span class="control-label"
+                                >{$t("controls.keyboardCyclePrimaryActionLabel")}</span
+                            >
+                            <span class="control-desc"
+                                >{$t(
+                                    "controls.keyboardCyclePrimaryActionDescription",
+                                )}</span
+                            >
+                            <span class="control-shortcut">{keyCyclePrimaryAction}</span>
                         </p>
                     </li>
                 </ul>
