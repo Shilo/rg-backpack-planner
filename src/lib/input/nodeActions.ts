@@ -4,10 +4,8 @@ import type { NodeIndex } from "../../types/tree";
 export type NodeOperation =
     | { op: "incrementByStore" }
     | { op: "decrementByStore" }
-    | { op: "incrementTier" }
-    | { op: "decrementTier" }
-    | { op: "incrementOne" }
-    | { op: "decrementOne" }
+    | { op: "incrementByAlternate" }
+    | { op: "decrementByAlternate" }
     | { op: "contextMenu" };
 
 export type TreeBackgroundOperation =
@@ -23,8 +21,8 @@ export type RootOperation =
 
 /**
  * Maps an InputAction to a concrete NodeOperation.
- * Direction is determined by button (primary=increment, auxiliary=decrement).
- * Modifiers override amount: macro=tier, micro=+1.
+ * Direction: isDecrement = auxiliary OR reverse (OR semantics, no cancel-out).
+ * Amount: alternate toggles between +1 and +Tier based on primary action store.
  * Secondary always maps to contextMenu.
  */
 export function resolveNodeAction(
@@ -34,16 +32,13 @@ export function resolveNodeAction(
         return { op: "contextMenu" };
     }
 
-    const isIncrement = action.type === "primary";
+    const isDecrement = action.type === "auxiliary" || action.modifiers.reverse;
+    const isAlternate = action.modifiers.alternate;
 
-    if (action.modifier === "macro") {
-        return { op: isIncrement ? "incrementTier" : "decrementTier" };
+    if (isAlternate) {
+        return { op: isDecrement ? "decrementByAlternate" : "incrementByAlternate" };
     }
-    if (action.modifier === "micro") {
-        return { op: isIncrement ? "incrementOne" : "decrementOne" };
-    }
-
-    return { op: isIncrement ? "incrementByStore" : "decrementByStore" };
+    return { op: isDecrement ? "decrementByStore" : "incrementByStore" };
 }
 
 /**
@@ -63,17 +58,11 @@ export function applyNodeOperation(
         case "decrementByStore":
             callbacks.decrementByStore(index);
             break;
-        case "incrementTier":
-            callbacks.incrementTier(index);
+        case "incrementByAlternate":
+            callbacks.incrementByAlternate(index);
             break;
-        case "decrementTier":
-            callbacks.decrementTier(index);
-            break;
-        case "incrementOne":
-            callbacks.incrementOne(index);
-            break;
-        case "decrementOne":
-            callbacks.decrementOne(index);
+        case "decrementByAlternate":
+            callbacks.decrementByAlternate(index);
             break;
         case "contextMenu":
             if (!pos) throw new Error("contextMenu requires pos");
@@ -85,9 +74,7 @@ export function applyNodeOperation(
 export type NodeOperationCallbacks = {
     incrementByStore: (index: NodeIndex) => void;
     decrementByStore: (index: NodeIndex) => void;
-    incrementTier: (index: NodeIndex) => void;
-    decrementTier: (index: NodeIndex) => void;
-    incrementOne: (index: NodeIndex) => void;
-    decrementOne: (index: NodeIndex) => void;
+    incrementByAlternate: (index: NodeIndex) => void;
+    decrementByAlternate: (index: NodeIndex) => void;
     contextMenu: (index: NodeIndex, pos: { x: number; y: number }) => void;
 };
