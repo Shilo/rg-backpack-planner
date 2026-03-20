@@ -4,13 +4,13 @@ Eliminates boilerplate `window.addEventListener("keydown")` / `removeEventListen
 
 ## Motivation
 
-7 components manually register global keydown listeners in `onMount` and manually clean them up in the returned destroy function. This is repetitive and error-prone — miss the cleanup and you leak listeners. A thin hook wrapping `onMount` removes the boilerplate while keeping each component's handler logic untouched.
+6 components manually register global keydown listeners in `onMount` and manually clean them up in the returned destroy function. This is repetitive and error-prone — miss the cleanup and you leak listeners. A thin hook wrapping `onMount` removes the boilerplate while keeping each component's handler logic untouched.
 
 Additionally, the listeners are inconsistent: most use `window` with capture phase, but ContextMenu uses `document` without capture. The migration standardizes all global keydown listeners to `window` with capture.
 
 ## Scope
 
-**In scope:** 7 `addEventListener("keydown")` calls inside `onMount` callbacks in `.svelte` files. Each is replaced by an `onKeyDown(handler)` call at component root level.
+**In scope:** 6 `addEventListener("keydown")` calls inside `onMount` callbacks in `.svelte` files. Each is replaced by an `onKeyDown(handler)` call at component root level.
 
 **Out of scope:**
 - `RootNodeQuickSettings.svelte` — uses a `$:` reactive block, not `onMount`
@@ -77,7 +77,7 @@ Add at component root level (before `onMount`):
 onKeyDown(handleKeyDown);
 ```
 
-The `handleKeyDown` function definition must move out of `onMount` to component root scope so it's accessible to `onKeyDown`. The `undoRedoApplyGen`, `lastUndoRedoTime`, and `UNDO_REDO_REPEAT_MS` variables it closes over also move to component root scope.
+The `handleKeyDown` function definition must move out of `onMount` to component root scope so it's accessible to `onKeyDown`. The `undoRedoApplyGen`, `lastUndoRedoTime`, and `UNDO_REDO_REPEAT_MS` variables it closes over also move to component root scope. This is safe because App.svelte is the root component and mounts exactly once.
 
 ### TreeTabs.svelte
 
@@ -131,7 +131,7 @@ Add at component root level:
 onKeyDown(handleKeydown);
 ```
 
-Switches from `document` to `window` — no behavior change for keydown events.
+Switches from `document` to `window` — keydown events bubble to both identically, and in capture phase `window` captures before `document`, so the handler fires slightly earlier but the effect is the same.
 
 ### ContextMenu.svelte
 
@@ -149,7 +149,7 @@ Add at component root level:
 onKeyDown(handleKeydown);
 ```
 
-Switches from `document` (bubble) to `window` (capture). This is a **bugfix** — Escape now intercepts before child elements, consistent with all other Escape handlers in the app.
+Switches from `document` (bubble) to `window` (capture). This is a **bugfix** — Escape now intercepts before child elements, consistent with all other Escape handlers in the app. App.svelte's Escape handler already guards against double-handling via `document.querySelector(".context-menu")`, so the interaction between App.svelte and ContextMenu capture handlers is safe. Event ordering between capture handlers on the same target follows registration (mount) order — App.svelte mounts first, ContextMenu mounts later as a child.
 
 ### OnboardingOverlay.svelte
 
@@ -173,14 +173,14 @@ onKeyDown(handleKeydown);
 
 | Component | Why |
 |---|---|
-| `RootNodeQuickSettings.svelte` | Uses `$:` reactive block — listener added/removed when `isOpen` changes, not on mount |
+| `RootNodeQuickSettings.svelte` | Uses `$:` reactive block — listener conditionally registered/unregistered when `isOpen` toggles, with `onDestroy` safety cleanup. Fundamentally different lifecycle (toggle-based, not mount-based). |
 | `inputStore.ts` | Svelte action lifecycle (`destroy()`), not component `onMount` |
 
 ## Behavior Changes
 
 | Before | After | Impact |
 |---|---|---|
-| ContextMenu: `document.addEventListener("keydown", handler)` (bubble) | `window.addEventListener("keydown", handler, true)` (capture) | **Bugfix** — Escape intercepts before child elements |
+| ContextMenu: `document.addEventListener("keydown", handler)` (bubble) | `window.addEventListener("keydown", handler, true)` (capture) | **Bugfix** — Escape intercepts before child elements. Safe because App.svelte already guards via `.context-menu` querySelector. |
 | FullscreenModal: `document` with capture | `window` with capture | No behavior change |
 
 ## Unchanged
