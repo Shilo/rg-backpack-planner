@@ -12,7 +12,7 @@
     import type { IconWeight } from "phosphor-svelte";
     import { t } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
-    import { Key } from "../input";
+    import { isKeyboardAction } from "../input";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -106,7 +106,7 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === Key.Enter) {
+        if (isKeyboardAction(event, "confirm")) {
             event.preventDefault();
             event.stopPropagation();
             void handleLoad();
