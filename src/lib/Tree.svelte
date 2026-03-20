@@ -802,8 +802,14 @@
     $: nodeContextMenuOpen.set(!!contextMenu);
 
     function cancelActiveGestures() {
+        // Collect IDs and clear maps BEFORE releasing captures.
+        // releasePointerCapture can synchronously fire lostpointercapture;
+        // clearing first ensures the handler finds nothing to double-process.
+        const capturedIds = [...pointers.keys(), ...middleClickCandidates.keys()];
+        pointers.clear();
+        middleClickCandidates.clear();
         if (viewportEl) {
-            for (const pointerId of pointers.keys()) {
+            for (const pointerId of capturedIds) {
                 try {
                     viewportEl.releasePointerCapture(pointerId);
                 } catch {
@@ -811,8 +817,6 @@
                 }
             }
         }
-        pointers.clear();
-        middleClickCandidates.clear();
         panStart = null;
         pinchStart = null;
         primaryPointerId = null;
@@ -1160,7 +1164,17 @@
             return;
         }
 
-        if (!isPrimaryPointer(event)) return;
+        // Always clean up tracked pointers for pointercancel/pointerleave
+        // (button = -1), not just primary button releases. Without this,
+        // a pointercancel during rapid clicking leaves the pointer in the
+        // map with panActive = true, causing an infinite drag.
+        if (!isPrimaryPointer(event) && !pointers.has(event.pointerId)) return;
+
+        // Delete from map BEFORE releasing capture. releasePointerCapture can
+        // synchronously fire lostpointercapture; deleting first prevents the
+        // handler from double-processing this pointer.
+        const pointer = pointers.get(event.pointerId);
+        pointers.delete(event.pointerId);
         if (viewportEl) {
             try {
                 viewportEl.releasePointerCapture(event.pointerId);
@@ -1168,8 +1182,6 @@
                 // Root presses intentionally skip pointer capture so native click/tap can open quick settings.
             }
         }
-        const pointer = pointers.get(event.pointerId);
-        pointers.delete(event.pointerId);
         clearLongPress(longPressState);
 
         if (
@@ -1210,6 +1222,26 @@
             };
             pinchStart = null;
         } else if (pointers.size === 0) {
+            panStart = null;
+            pinchStart = null;
+            primaryPointerId = null;
+            primaryStart = null;
+            panActive = false;
+            multiTouchGestureActive = false;
+            longPressState.fired = false;
+        }
+    }
+
+    /** Safety net: if the browser revokes pointer capture (e.g. during rapid
+     *  interactions, or if the element is removed), clean up orphaned pointers
+     *  that would otherwise leave panActive stuck on. */
+    function onLostPointerCapture(event: PointerEvent) {
+        const hadMiddle = middleClickCandidates.delete(event.pointerId);
+        const hadPointer = pointers.delete(event.pointerId);
+        if (!hadMiddle && !hadPointer) return;
+
+        clearLongPress(longPressState);
+        if (pointers.size === 0 && middleClickCandidates.size === 0) {
             panStart = null;
             pinchStart = null;
             primaryPointerId = null;
@@ -1573,6 +1605,7 @@
             on:pointerup={onPointerUp}
             on:pointercancel={onPointerUp}
             on:pointerleave={onPointerUp}
+            on:lostpointercapture={onLostPointerCapture}
             on:wheel|passive={onWheel}
         >
             <div
