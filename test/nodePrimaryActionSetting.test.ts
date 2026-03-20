@@ -102,9 +102,9 @@ if (!/function\s+levelDownTier\s*\(index:\s*NodeIndex\)/.test(treeSource)) {
     throw new Error("Tree should define levelDownTier helper.");
 }
 
-if (!/event\.pointerType === "mouse" && event\.shiftKey/.test(treeSource)) {
+if (!/resolveModifier/.test(treeSource)) {
     throw new Error(
-        "Tree should detect shift + left click for opposite node action.",
+        "Tree should use resolveModifier from the input resolver pipeline.",
     );
 }
 

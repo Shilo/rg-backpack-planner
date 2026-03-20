@@ -71,6 +71,9 @@
         findPartialLineageLevels,
     } from "./budgetEnforcement";
     import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
+    import { inputStore } from "./inputStore";
+    import { resolveModifier, resolveAction, resolveNodeAction, applyNodeOperation } from "./input";
+    import type { NodeOperationCallbacks } from "./input";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -710,29 +713,25 @@
         applyChange(index, nextLevel);
     }
 
-    function applyPrimaryNodeAction(index: NodeIndex) {
-        if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) {
-            levelUp(index);
-            return;
-        }
-        if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) {
-            levelUpBy10(index);
-            return;
-        }
-        levelUpTier(index);
-    }
-
-    function applyOppositeNodeAction(index: NodeIndex) {
-        if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) {
-            levelDown(index);
-            return;
-        }
-        if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) {
-            levelDownBy10(index);
-            return;
-        }
-        levelDownTier(index);
-    }
+    const nodeCallbacks: NodeOperationCallbacks = {
+        incrementByStore: (index) => {
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelUp(index);
+            else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) levelUpBy10(index);
+            else levelUpTier(index);
+        },
+        decrementByStore: (index) => {
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelDown(index);
+            else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) levelDownBy10(index);
+            else levelDownTier(index);
+        },
+        incrementTier: (index) => levelUpTier(index),
+        decrementTier: (index) => levelDownTier(index),
+        incrementOne: (index) => levelUp(index),
+        decrementOne: (index) => levelDown(index),
+        contextMenu: (index, pos) => {
+            contextMenu = { index, x: pos.x, y: pos.y };
+        },
+    };
 
     export function resetAllNodes() {
         const prevLevels = [...levels];
@@ -1033,8 +1032,7 @@
             if (
                 info &&
                 !info.isRoot &&
-                info.index !== null &&
-                !(event.pointerType === "mouse" && event.shiftKey)
+                info.index !== null
             ) {
                 startNodeLongPress(event.pointerId);
             } else if (info && info.isRoot) {
@@ -1150,7 +1148,12 @@
                 event.type === "pointerup" &&
                 movedDistance <= LONG_PRESS_MOVE_THRESHOLD
             ) {
-                applyOppositeNodeAction(middleClick.nodeIndex);
+                const modifier = resolveModifier($inputStore);
+                const action = resolveAction(event.button, modifier, event.pointerType);
+                if (action) {
+                    const nodeOp = resolveNodeAction(action, $nodePrimaryAction);
+                    applyNodeOperation(nodeOp, middleClick.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
+                }
             }
             return;
         }
@@ -1177,11 +1180,11 @@
         ) {
             if (pointer.nodeIndex !== null) {
                 triggerHaptic();
-                const shouldDecrement = false;
-                if (shouldDecrement) {
-                    applyOppositeNodeAction(pointer.nodeIndex);
-                } else {
-                    applyPrimaryNodeAction(pointer.nodeIndex);
+                const modifier = resolveModifier($inputStore);
+                const action = resolveAction(event.button, modifier, event.pointerType);
+                if (action) {
+                    const nodeOp = resolveNodeAction(action, $nodePrimaryAction);
+                    applyNodeOperation(nodeOp, pointer.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
                 }
             }
         }
