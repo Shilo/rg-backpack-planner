@@ -1,5 +1,4 @@
 import { writable } from "svelte/store";
-import { Key } from "./keyboardAction";
 
 export type InputState = {
     shiftKey: boolean;
@@ -52,12 +51,12 @@ export function useInputStore(_node: HTMLElement): void | { destroy(): void } {
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
-        if (e.key === Key.Shift) inputStore.update((s) => (s.shiftKey ? s : { ...s, shiftKey: true }));
-        if (e.key === Key.Control) inputStore.update((s) => (s.ctrlKey ? s : { ...s, ctrlKey: true }));
+        if (e.key === "Shift") inputStore.update((s) => (s.shiftKey ? s : { ...s, shiftKey: true }));
+        if (e.key === "Control") inputStore.update((s) => (s.ctrlKey ? s : { ...s, ctrlKey: true }));
     };
     const onKeyUp = (e: KeyboardEvent) => {
-        if (e.key === Key.Shift) inputStore.update((s) => (!s.shiftKey ? s : { ...s, shiftKey: false }));
-        if (e.key === Key.Control) inputStore.update((s) => (!s.ctrlKey ? s : { ...s, ctrlKey: false }));
+        if (e.key === "Shift") inputStore.update((s) => (!s.shiftKey ? s : { ...s, shiftKey: false }));
+        if (e.key === "Control") inputStore.update((s) => (!s.ctrlKey ? s : { ...s, ctrlKey: false }));
     };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);

@@ -25,7 +25,7 @@ export type KeyboardActionType =
     | "budget";
 
 /** All KeyboardEvent.key values used in the app, in canonical form. */
-export const Key = {
+const Key = {
     Escape: "Escape",
     Backspace: "Backspace",
     Tab: "Tab",

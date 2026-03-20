@@ -8,7 +8,7 @@ export { primary, secondary, auxiliary } from "./interactable";
 export { getModifierLabel, getButtonLabel, getInputLabel, getDeviceInputLabels, getKeyboardActionLabel, buildShortcutTooltip } from "./inputLabels";
 export type { DeviceInputLabels } from "./inputLabels";
 export type { KeyboardActionType, KeyBinding } from "./keyboardAction";
-export { Key, canonicalKey, KEYBOARD_ACTION_BINDINGS, resolveKeyboardAction, isKeyboardAction, getCycleDirection, keyForAction } from "./keyboardAction";
+export { canonicalKey, KEYBOARD_ACTION_BINDINGS, resolveKeyboardAction, isKeyboardAction, getCycleDirection, keyForAction } from "./keyboardAction";
 export { onKeyDown } from "./onKeyDown";
 export { inputStore, useInputStore, hasKeyboard } from "./inputStore";
 export type { InputState } from "./inputStore";

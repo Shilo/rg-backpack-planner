@@ -75,7 +75,7 @@
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/input/inputStore";
-    import { resolveKeyboardAction, Key, onKeyDown } from "./lib/input";
+    import { resolveKeyboardAction, keyForAction, onKeyDown } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {
@@ -99,7 +99,7 @@
         closeMenu();
         if (typeof document !== "undefined") {
             document.dispatchEvent(
-                new KeyboardEvent("keydown", { key: Key.Escape }),
+                new KeyboardEvent("keydown", { key: keyForAction("dismiss") }),
             );
         }
     }

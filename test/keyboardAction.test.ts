@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { Key, canonicalKey, resolveKeyboardAction, KEYBOARD_ACTION_BINDINGS, isKeyboardAction, getCycleDirection, keyForAction } from "../src/lib/input/keyboardAction.ts";
+import { canonicalKey, resolveKeyboardAction, KEYBOARD_ACTION_BINDINGS, isKeyboardAction, getCycleDirection, keyForAction } from "../src/lib/input/keyboardAction.ts";
 import type { KeyboardActionType } from "../src/lib/input/keyboardAction.ts";
 
 // --- canonicalKey ---
