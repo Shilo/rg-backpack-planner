@@ -3,7 +3,7 @@
     import type { TabBarItem } from "./TabBar.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { isKeyboardShortcutTarget } from "./domUtil";
-    import { Key, onKeyDown } from "./input";
+    import { isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
 
     export let isOpen = false;
     export let tabs: TabBarItem[];
@@ -25,26 +25,18 @@
 
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
-        const isTab = event.key === Key.Tab;
-        const isArrowLeft = event.key === Key.ArrowLeft;
-        const isArrowRight = event.key === Key.ArrowRight;
-        if (event.key === Key.Escape) {
+        if (isKeyboardAction(event, "dismiss")) {
             // Let context menus and fab menus handle Escape first
             if (document.querySelector(".context-menu") || document.querySelector(".fab-menu--open")) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             handleClose();
-        } else if ((isTab || isArrowLeft || isArrowRight) && tabs.length > 1 && modalEl) {
+        } else if (isKeyboardAction(event, "cycle") && tabs.length > 1 && modalEl) {
             if (!isKeyboardShortcutTarget(document.activeElement, modalEl)) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             const currentIndex = tabs.findIndex((t) => t.id === activeTab);
-            const delta =
-                isTab && event.shiftKey
-                    ? -1
-                    : isArrowLeft
-                      ? -1
-                      : 1;
+            const delta = getCycleDirection(event);
             const nextIndex =
                 (currentIndex + delta + tabs.length) %
                 tabs.length;

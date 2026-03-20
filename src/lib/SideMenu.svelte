@@ -20,7 +20,7 @@
     import { t } from "svelte-whisper";
     import { isFormField, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
-    import { Key, onKeyDown } from "./input";
+    import { isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
 
     let sideMenuTabs: TabBarItem[] = [];
     $: sideMenuTabs = [
@@ -114,12 +114,9 @@
     }
 
     function handleTabKeydown(event: KeyboardEvent) {
-        const isTab = event.key === Key.Tab;
-        const isArrowLeft = event.key === Key.ArrowLeft;
-        const isArrowRight = event.key === Key.ArrowRight;
         if (
             !isOpen ||
-            (!isTab && !isArrowLeft && !isArrowRight) ||
+            !isKeyboardAction(event, "cycle") ||
             sideMenuTabs.length <= 1
         )
             return;
@@ -129,14 +126,7 @@
         event.preventDefault();
         event.stopImmediatePropagation();
         const currentIndex = sideMenuTabs.findIndex((t) => t.id === activeTab);
-        const delta =
-            isTab
-                ? event.shiftKey
-                    ? -1
-                    : 1
-                : isArrowLeft
-                  ? -1
-                  : 1;
+        const delta = getCycleDirection(event);
         const nextIndex =
             (currentIndex + delta + sideMenuTabs.length) % sideMenuTabs.length;
         openTab(sideMenuTabs[nextIndex].id as SideMenuTab, true);

@@ -19,7 +19,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, Key, onKeyDown } from "./input";
+    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -117,9 +117,7 @@
                 }
                 event.preventDefault();
                 lastTabCycleAt = performance.now();
-                const delta = event.shiftKey && event.key === Key.Tab
-                    ? -1
-                    : event.key === Key.ArrowLeft ? -1 : 1;
+                const delta = getCycleDirection(event);
                 const next = (activeIndex + delta + tabs.length) % tabs.length;
                 setActive(next);
                 break;
