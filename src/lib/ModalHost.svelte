@@ -35,7 +35,7 @@
                     current?.type === "confirm"
                         ? "[data-modal-confirm]"
                         : current?.type === "resetTreeChoices"
-                          ? "[data-modal-choice]:not(:disabled)"
+                          ? "[data-modal-choice='tree']:not(:disabled)"
                           : null;
                 if (focusSelector) {
                     const btn = document.querySelector<HTMLButtonElement>(

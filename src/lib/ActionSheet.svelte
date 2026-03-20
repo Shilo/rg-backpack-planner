@@ -64,7 +64,7 @@
             <button
                 type="button"
                 class={`action-sheet__choice action-sheet__choice--${choice.tone}`}
-                data-modal-choice
+                data-modal-choice={choice.id}
                 disabled={choice.disabled}
                 on:click={() => handleChoice(choice)}
             >
