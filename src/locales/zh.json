@@ -641,6 +641,7 @@
             "arrowLeft": "←",
             "arrowRight": "→",
             "confirm": "Enter",
+            "activate": "Enter / Space",
             "console": "` (波浪号)",
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y",
