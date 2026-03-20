@@ -81,8 +81,20 @@
         );
     };
 
+    /** Minimal event-like object so consumers can call stopPropagation/preventDefault
+     *  and read currentTarget/target for menu anchoring without crashing. */
+    function syntheticEvent(): MouseEvent {
+        return {
+            stopPropagation() {},
+            stopImmediatePropagation() {},
+            preventDefault() {},
+            currentTarget: element,
+            target: element,
+        } as unknown as MouseEvent;
+    }
+
     const handlePrimary = () => {
-        dispatch("click", {} as MouseEvent);
+        dispatch("click", syntheticEvent());
         if (toastMessage) {
             showToast(toastMessage, {
                 tone: toastNegative ? "negative" : "positive",
@@ -92,7 +104,7 @@
     };
 
     const handleSecondary = () => {
-        dispatch("contextmenu", {} as MouseEvent);
+        dispatch("contextmenu", syntheticEvent());
     };
 
     const handlePointerDown = (event: PointerEvent) => {

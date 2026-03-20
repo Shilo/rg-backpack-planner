@@ -1029,6 +1029,8 @@
                 offsetX,
                 offsetY,
             };
+            // Long-press is intentionally armed for all pointer types (mouse + touch).
+            // Desktop users can hold-to-open as a convenience alongside right-click.
             if (
                 info &&
                 !info.isRoot &&

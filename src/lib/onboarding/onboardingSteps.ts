@@ -27,7 +27,7 @@ import {
 import { GuardianIcon, RootNodeIcon, TechCrystalIcon, VanguardIcon } from "../customIcons";
 import LongPressIcon from "../icons/LongPressIcon.svelte";
 import PinchIcon from "../icons/PinchIcon.svelte";
-import { getDeviceInputLabels, getInputLabel } from "../input";
+import { getDeviceInputLabels } from "../input";
 import type { Direction } from "./paneLayout";
 
 export type OnboardingStepId =
@@ -110,10 +110,7 @@ export function createOnboardingSteps({
             },
             {
                 icon: MouseMiddleClickIcon,
-                label: [
-                    translate("input.auxiliary.mouse"),
-                    getInputLabel("primary", "macro", "mouse", translate),
-                ],
+                label: translate("input.auxiliary.mouse"),
                 description: translate("onboarding.levelDown"),
             },
             {
