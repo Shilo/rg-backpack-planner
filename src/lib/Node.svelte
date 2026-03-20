@@ -11,7 +11,7 @@
     import NodeFlash from "./NodeFlash.svelte";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import { formatNumber } from "svelte-whisper";
-    import { nodePrimaryAction, shiftKeyHeld } from "./nodePrimaryActionStore";
+    import { nodePrimaryAction } from "./nodePrimaryActionStore";
     import { t } from "svelte-whisper";
     import { tooltip } from "./tooltip";
     import { CrownIcon } from "phosphor-svelte";
@@ -61,7 +61,7 @@
         skillId != null &&
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
-    $: isRefund = $shiftKeyHeld;
+    $: isRefund = false;
     $: actionPreview =
         skillId != null
             ? getNodeActionPreview({

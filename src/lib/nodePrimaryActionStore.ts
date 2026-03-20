@@ -1,7 +1,6 @@
 import { writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-export { shiftKeyHeld } from "./inputStore";
 
 export enum NodePrimaryAction {
     IncrementOne = 0,

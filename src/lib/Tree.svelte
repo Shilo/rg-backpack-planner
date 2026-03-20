@@ -1177,8 +1177,7 @@
         ) {
             if (pointer.nodeIndex !== null) {
                 triggerHaptic();
-                const shouldDecrement =
-                    event.pointerType === "mouse" && event.shiftKey;
+                const shouldDecrement = false;
                 if (shouldDecrement) {
                     applyOppositeNodeAction(pointer.nodeIndex);
                 } else {
