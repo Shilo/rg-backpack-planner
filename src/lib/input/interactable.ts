@@ -1,7 +1,7 @@
 import type { ActionReturn } from "svelte/action";
 import type { InputAction } from "./inputAction";
 import { inputStore } from "./inputStore";
-import { resolveModifier, resolveAction } from "./resolveAction";
+import { resolveModifiers, resolveAction } from "./resolveAction";
 import { triggerHaptic } from "../hapticsStore";
 import {
     startLongPress,
@@ -24,8 +24,8 @@ export function primary(
     function onClick(event: MouseEvent) {
         const pointerType = (event as PointerEvent).pointerType || "mouse";
         const state = get(inputStore);
-        const modifier = resolveModifier(state);
-        const action = resolveAction(event.button, modifier, pointerType);
+        const modifiers = resolveModifiers(state);
+        const action = resolveAction(event.button, modifiers, pointerType);
         if (!action || action.type !== "primary") return;
         triggerHaptic();
         handler(action);
@@ -86,8 +86,8 @@ export function secondary(
     function onContextMenu(event: Event) {
         event.preventDefault();
         const state = get(inputStore);
-        const modifier = resolveModifier(state);
-        const action = resolveAction(2, modifier, "mouse");
+        const modifiers = resolveModifiers(state);
+        const action = resolveAction(2, modifiers, "mouse");
         if (!action) return;
         handler(action);
     }
@@ -102,8 +102,8 @@ export function secondary(
         startLongPress(pressState, () => {
             detachGlobalCleanup();
             const device = event.pointerType === "touch" ? "touch" : "mouse";
-            const modifier = device === "touch" ? "none" : resolveModifier(get(inputStore));
-            const action = resolveAction(2, modifier, device);
+            const modifiers = device === "touch" ? { reverse: false, alternate: false } : resolveModifiers(get(inputStore));
+            const action = resolveAction(2, modifiers, device);
             if (!action) return false;
             if (handler(action) === false) return false;
             suppressNextPointerUp(event.pointerId);
@@ -148,8 +148,8 @@ export function auxiliary(
         lastFireTime = now;
 
         const state = get(inputStore);
-        const modifier = resolveModifier(state);
-        const action = resolveAction(1, modifier, "mouse");
+        const modifiers = resolveModifiers(state);
+        const action = resolveAction(1, modifiers, "mouse");
         if (!action) return;
         event.preventDefault();
         triggerHaptic();
