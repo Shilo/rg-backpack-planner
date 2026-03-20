@@ -98,6 +98,7 @@
     $: keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", $t);
     $: keyUndo = getKeyboardActionLabel("undo", $t);
     $: keyRedo = getKeyboardActionLabel("redo", $t);
+    $: keyFullscreen = getKeyboardActionLabel("fullscreen", $t);
     $: hudPrimaryAction =
         showMouse && showTouch
             ? `${mouse.primary} / ${touch.primary}`
@@ -658,6 +659,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudFullscreenDescription")}</span
                         >
+                        <span class="control-shortcut"><Kbd keys={keyFullscreen} /></span>
                     </p>
                 </li>
             </ul>
