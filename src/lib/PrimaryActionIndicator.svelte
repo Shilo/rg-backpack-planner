@@ -60,7 +60,7 @@
     $: ariaLabel = `${settingLabel}: ${label}`;
     $: tooltipContent = buildShortcutTooltip(ariaLabel, shortcutKey);
 
-    export function cycle() {
+    function cycle() {
         const next = ((currentAction + 1) % 3) as NodePrimaryAction;
         if (!isNodePrimaryAction(next)) return;
         nodePrimaryAction.set(next);
