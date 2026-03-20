@@ -31,20 +31,22 @@
         [NodePrimaryAction.IncrementTier]: CaretLineUpIcon,
     };
 
-    function labelKey(action: NodePrimaryAction): string {
-        switch (action) {
-            case NodePrimaryAction.IncrementOne:
-                return "nodeMenu.incrementOne";
-            case NodePrimaryAction.IncrementTen:
-                return "nodeMenu.incrementTen";
-            case NodePrimaryAction.IncrementTier:
-                return "nodeMenu.incrementTierShort";
-        }
-    }
+    const LABEL_KEYS: Record<NodePrimaryAction, string> = {
+        [NodePrimaryAction.IncrementOne]: "nodeMenu.incrementOne",
+        [NodePrimaryAction.IncrementTen]: "nodeMenu.incrementTen",
+        [NodePrimaryAction.IncrementTier]: "nodeMenu.incrementTierShort",
+    };
+
+    const FULL_LABEL_KEYS: Record<NodePrimaryAction, string> = {
+        [NodePrimaryAction.IncrementOne]: "nodeMenu.incrementOne",
+        [NodePrimaryAction.IncrementTen]: "nodeMenu.incrementTen",
+        [NodePrimaryAction.IncrementTier]: "nodeMenu.incrementTier",
+    };
 
     $: currentAction = $nodePrimaryAction;
     $: icon = ICONS[currentAction];
-    $: label = $t(labelKey(currentAction));
+    $: label = $t(LABEL_KEYS[currentAction]);
+    $: fullLabel = $t(FULL_LABEL_KEYS[currentAction]);
     $: shortcutKey = getKeyboardActionLabel("cyclePrimaryAction", $t);
 
     $: settingLabel = $t("settings.nodePrimaryActionTitle", {
@@ -56,7 +58,7 @@
         ),
     });
 
-    $: ariaLabel = `${settingLabel}: ${label}`;
+    $: ariaLabel = `${settingLabel}: ${fullLabel}`;
     $: tooltipContent = buildShortcutTooltip(ariaLabel, shortcutKey);
 
     function cycle() {
@@ -88,7 +90,7 @@
         align-items: center;
         gap: var(--spacing-sm);
         height: 38px;
-        min-width: 82px;
+        min-width: 68px;
         padding: 0 var(--spacing-md);
         border-radius: 999px;
         border: var(--border-width) solid var(--border);

@@ -18,6 +18,7 @@
     export let onChange: ((index: number) => void) | null = null;
     export let tooltipText: string | undefined = undefined;
     export let description: string | undefined = undefined;
+    export let shortcut: string | undefined = undefined;
 
     const normalizeLabel = (value: string, index: number) => {
         const trimmed = value.trim();
@@ -69,6 +70,9 @@
                     <span class="segmented-control__header-description">{description}</span>
                 {/if}
             </div>
+            {#if shortcut}
+                <span class="segmented-control__header-shortcut">{shortcut}</span>
+            {/if}
         </div>
     {/if}
 
@@ -288,5 +292,24 @@
         white-space: normal;
         overflow-wrap: anywhere;
         user-select: none;
+    }
+
+    .segmented-control__header-shortcut {
+        margin-left: auto;
+        flex: 0 0 auto;
+        font-size: var(--font-sm);
+        line-height: var(--leading-none);
+        color: var(--text-disabled);
+        background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+        border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+        border-radius: var(--radius-sm);
+        padding: 2px var(--spacing-sm);
+        user-select: none;
+    }
+
+    @media (hover: none) {
+        .segmented-control__header-shortcut {
+            display: none;
+        }
     }
 </style>

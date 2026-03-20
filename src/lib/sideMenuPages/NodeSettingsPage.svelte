@@ -26,6 +26,7 @@
     import { showSkillName } from "../showSkillNameStore";
     import { onMount } from "svelte";
     import { t } from "svelte-whisper";
+    import { getKeyboardActionLabel } from "../input";
 
     export let onBack: (() => void) | null = null;
 
@@ -65,6 +66,7 @@
         $t("settings.nodeLevelBehaviorSync"),
     ];
     $: nodeLevelBehaviorSelectedIndex = $nodeLevelBehavior;
+    $: keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", $t);
 
     function handleNodePrimaryActionChange(index: number) {
         if (!isNodePrimaryAction(index)) return;
@@ -87,6 +89,7 @@
             selectedIndex={nodePrimaryActionSelectedIndex}
             onChange={handleNodePrimaryActionChange}
             description={$t("settings.nodePrimaryActionDescription")}
+            shortcut={keyCyclePrimaryAction}
         />
         <SegmentedControl
             label={nodeLevelBehaviorLabel}

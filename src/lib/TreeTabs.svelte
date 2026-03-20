@@ -165,7 +165,7 @@
                 break;
             }
             case "cyclePrimaryAction": {
-                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if ($isComposeScreenshotOpen || $modalStore) return;
                 if (isFormField(document.activeElement)) return;
                 if (event.repeat) return;
                 event.preventDefault();
