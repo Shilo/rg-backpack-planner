@@ -148,7 +148,7 @@
 
     $: isSingleLevel = maxLevel <= 1;
 
-    $: decrementTierIsReset = level > 0 && previousTierLevel === 0;
+    $: decrementTierIsReset = previousTierLevel === 0;
 
     $: nodeIcon = skillId != null ? (SKILL_NODE_ICONS[skillId] ?? null) : null;
 
@@ -315,22 +315,22 @@
                             onDecrementBy10(nodeIndex);
                     }}
                 />
-                <NodeContextButton
-                    icon={decrementTierIsReset ? ArrowCounterClockwiseIcon : CaretLineDownIcon}
-                    label={decrementTierIsReset
-                        ? $t("nodeMenu.reset")
-                        : $t("nodeMenu.decrementTier")}
-                    crystalValue={actionCosts?.decrementTier ?? null}
-                    negative
-                    disabled={nodeIndex === null || level <= 0}
-                    onClick={() => {
-                        if (nodeIndex !== null && onDecrementTier)
-                            onDecrementTier(nodeIndex);
-                    }}
-                />
             {/if}
+            <NodeContextButton
+                icon={decrementTierIsReset ? ArrowCounterClockwiseIcon : CaretLineDownIcon}
+                label={decrementTierIsReset
+                    ? $t("nodeMenu.reset")
+                    : $t("nodeMenu.decrementTier")}
+                crystalValue={actionCosts?.decrementTier ?? null}
+                negative
+                disabled={nodeIndex === null || level <= 0}
+                onClick={() => {
+                    if (nodeIndex !== null && onDecrementTier)
+                        onDecrementTier(nodeIndex);
+                }}
+            />
         </div>
-        {#if isSingleLevel || !decrementTierIsReset}
+        <div class="reset-wrapper" class:reset-hidden={decrementTierIsReset}>
             <Button
                 ghost
                 negative
@@ -345,9 +345,9 @@
                     if (nodeIndex !== null && onReset) onReset(nodeIndex);
                 }}
             >
-                {$t("nodeMenu.reset")}
+                {$t("nodeMenu.reset")}{#if actionCosts?.reset != null}<span class="reset-crystal"><TechCrystalIcon weight="fill" size={12} aria-hidden={true} /> +{formatNumber(actionCosts.reset)}</span>{/if}
             </Button>
-        {/if}
+        </div>
     </div>
 </ContextMenu>
 
@@ -530,5 +530,27 @@
     .button-grid.stacked {
         grid-template-columns: 1fr;
         min-width: 15rem;
+    }
+
+    .reset-wrapper :global(.button) {
+        width: 100%;
+    }
+
+    .reset-wrapper.reset-hidden {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .reset-crystal {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        margin-left: var(--spacing-sm);
+        color: var(--success-text);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .reset-crystal :global(svg) {
+        color: var(--success-text);
     }
 </style>
