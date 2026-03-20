@@ -23,6 +23,7 @@
     export let negative = false;
     export let positive = false;
     export let accent = false;
+    export let ghost = false;
     export let disabled: boolean | undefined = undefined;
     export let tooltipText: TooltipContent | undefined = undefined;
     /** When true, tooltip only shows on hover (e.g. mouse); long-press on touch will not show it. */
@@ -50,6 +51,7 @@
         "button",
         small ? "button-sm" : "button-md",
         negative ? "button-negative" : positive ? "button-positive" : accent ? "button-accent" : "",
+        ghost ? "button-ghost" : "",
         restClass,
         icon || arrow ? "with-icon" : "",
         arrow ? "with-arrow" : "",
@@ -270,6 +272,23 @@
         border-color: var(--accent);
         background: var(--accent);
         color: var(--bg);
+    }
+
+    .button-ghost {
+        background: transparent;
+    }
+
+    @media (hover: hover) {
+        .button-negative.button-ghost:not(:disabled):hover {
+            filter: none;
+            background: var(--danger-bg);
+        }
+    }
+
+    .button-negative.button-ghost:not(:disabled):active {
+        filter: none;
+        background: var(--danger-bg);
+        transform: scale(0.96);
     }
 
     :global(.button-group) {
