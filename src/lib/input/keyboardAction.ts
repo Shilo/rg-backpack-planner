@@ -12,7 +12,7 @@
  * screenshot — F9
  * budget              — B (open tech crystal budget modal)
  * focusTrap           — Tab only (modal focus trapping — distinct from cycle which also matches ←/→)
- * cyclePrimaryAction  — N (cycle node primary action: +1 / +10 / +Tier)
+ * cyclePrimaryAction  — A (cycle node primary action: +1 / +10 / +Tier)
  */
 export type KeyboardActionType =
     | "dismiss"
@@ -44,7 +44,7 @@ const Key = {
     z: "z",
     y: "y",
     b: "b",
-    n: "n",
+    a: "a",
 } as const;
 
 /**
@@ -82,7 +82,7 @@ export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
     { action: "redo", key: Key.z, ctrl: true, shift: true, alt: false },
     { action: "screenshot", key: Key.F9 },
     { action: "budget", key: Key.b, ctrl: false },
-    { action: "cyclePrimaryAction", key: Key.n, ctrl: false },
+    { action: "cyclePrimaryAction", key: Key.a, ctrl: false },
     { action: "focusTrap", key: Key.Tab },
 ];
 

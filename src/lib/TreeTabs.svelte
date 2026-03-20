@@ -20,7 +20,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary, getKeyboardActionLabel, getInputLabel, getDeviceInputLabels, resolveKeyboardAction, isKeyboardAction, getCycleDirection, onKeyDown, triggerShortcutFlash } from "./input";
+    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, isKeyboardAction, getCycleDirection, onKeyDown, triggerShortcutFlash } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -175,16 +175,6 @@
                 nodePrimaryAction.set(next);
                 triggerHaptic();
                 triggerShortcutFlash("cyclePrimaryAction");
-                // Toast: duplicated from PrimaryActionIndicator.svelte (see DRY note above)
-                const actionLabel = next === NodePrimaryAction.IncrementOne
-                    ? $t("nodeMenu.incrementOne")
-                    : next === NodePrimaryAction.IncrementTen
-                      ? $t("nodeMenu.incrementTen")
-                      : $t("nodeMenu.incrementTier");
-                const primaryActionSettingLabel = $t("settings.nodePrimaryActionTitle", {
-                    primaryAction: getInputLabel("primary", "none", "mouse", $t),
-                });
-                showToast(`${primaryActionSettingLabel}: ${actionLabel}`);
                 break;
             }
         }

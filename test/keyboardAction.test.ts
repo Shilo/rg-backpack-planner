@@ -84,21 +84,21 @@ function mockEvent(overrides: Partial<KeyboardEvent>): KeyboardEvent {
     console.log("    ✓ b → budget, Ctrl+B → null");
 }
 
-// cyclePrimaryAction: n without Ctrl
+// cyclePrimaryAction: a without Ctrl
 {
-    assert.equal(resolveKeyboardAction(mockEvent({ key: "n" })), "cyclePrimaryAction");
-    assert.equal(resolveKeyboardAction(mockEvent({ key: "n", ctrlKey: true })), null, "Ctrl+N should not trigger cyclePrimaryAction");
-    console.log("    ✓ n → cyclePrimaryAction, Ctrl+N → null");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "a" })), "cyclePrimaryAction");
+    assert.equal(resolveKeyboardAction(mockEvent({ key: "a", ctrlKey: true })), null, "Ctrl+A should not trigger cyclePrimaryAction");
+    console.log("    ✓ a → cyclePrimaryAction, Ctrl+A → null");
 }
 
-// Caps Lock bugfix: N without Ctrl should be cyclePrimaryAction
+// Caps Lock bugfix: A without Ctrl should be cyclePrimaryAction
 {
     assert.equal(
-        resolveKeyboardAction(mockEvent({ key: "N" })),
+        resolveKeyboardAction(mockEvent({ key: "A" })),
         "cyclePrimaryAction",
-        "Caps Lock + N (event.key='N') should resolve to cyclePrimaryAction",
+        "Caps Lock + A (event.key='A') should resolve to cyclePrimaryAction",
     );
-    console.log("    ✓ Caps Lock + N → cyclePrimaryAction (bugfix)");
+    console.log("    ✓ Caps Lock + A → cyclePrimaryAction (bugfix)");
 }
 
 // Caps Lock bugfix: Z without shift should still be undo when Ctrl held
@@ -210,9 +210,9 @@ console.log("  isKeyboardAction");
 
 // cyclePrimaryAction blocked by Ctrl
 {
-    assert.equal(isKeyboardAction(mockEvent({ key: "n" }), "cyclePrimaryAction"), true);
-    assert.equal(isKeyboardAction(mockEvent({ key: "n", ctrlKey: true }), "cyclePrimaryAction"), false, "Ctrl+N is not cyclePrimaryAction");
-    assert.equal(isKeyboardAction(mockEvent({ key: "N" }), "cyclePrimaryAction"), true, "Caps Lock + N is cyclePrimaryAction");
+    assert.equal(isKeyboardAction(mockEvent({ key: "a" }), "cyclePrimaryAction"), true);
+    assert.equal(isKeyboardAction(mockEvent({ key: "a", ctrlKey: true }), "cyclePrimaryAction"), false, "Ctrl+A is not cyclePrimaryAction");
+    assert.equal(isKeyboardAction(mockEvent({ key: "A" }), "cyclePrimaryAction"), true, "Caps Lock + A is cyclePrimaryAction");
     console.log("    ✓ isKeyboardAction cyclePrimaryAction respects ctrl constraint");
 }
 
@@ -256,7 +256,7 @@ console.log("  keyForAction");
     assert.equal(keyForAction("screenshot"), "F9");
     assert.equal(keyForAction("budget"), "b");
     assert.equal(keyForAction("focusTrap"), "Tab");
-    assert.equal(keyForAction("cyclePrimaryAction"), "n");
+    assert.equal(keyForAction("cyclePrimaryAction"), "a");
     // Every action in KEYBOARD_ACTION_BINDINGS should return a non-empty string
     const allActions: KeyboardActionType[] = [
         "dismiss", "back", "cycle", "confirm", "activate", "console", "undo", "redo", "screenshot", "budget", "focusTrap", "cyclePrimaryAction",

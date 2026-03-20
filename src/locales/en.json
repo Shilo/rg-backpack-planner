@@ -227,6 +227,7 @@
         "incrementOne": "+1",
         "incrementTen": "+10",
         "incrementTier": "+Tier",
+        "incrementTierShort": "+T",
         "decrementTier": "-Tier",
         "decrementOne": "-1",
         "decrementTen": "-10",
@@ -649,7 +650,7 @@
             "redo": "Ctrl + Y",
             "screenshot": "F9",
             "budget": "B",
-            "cyclePrimaryAction": "N",
+            "cyclePrimaryAction": "A",
             "focusTrap": "Tab"
         }
     },

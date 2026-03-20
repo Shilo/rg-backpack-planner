@@ -11,7 +11,6 @@
         isNodePrimaryAction,
     } from "./nodePrimaryActionStore";
     import { triggerHaptic } from "./hapticsStore";
-    import { showToast } from "./toast";
     import { tooltip } from "./tooltip";
     import { t } from "svelte-whisper";
     import { getInputLabel, getKeyboardActionLabel, buildShortcutTooltip } from "./input";
@@ -39,7 +38,7 @@
             case NodePrimaryAction.IncrementTen:
                 return "nodeMenu.incrementTen";
             case NodePrimaryAction.IncrementTier:
-                return "nodeMenu.incrementTier";
+                return "nodeMenu.incrementTierShort";
         }
     }
 
@@ -65,8 +64,6 @@
         if (!isNodePrimaryAction(next)) return;
         nodePrimaryAction.set(next);
         triggerHaptic();
-        const nextLabel = $t(labelKey(next));
-        showToast(`${settingLabel}: ${nextLabel}`);
     }
 
     function handleClick() {
@@ -91,12 +88,12 @@
         align-items: center;
         gap: var(--spacing-sm);
         height: 38px;
+        min-width: 82px;
         padding: 0 var(--spacing-md);
         border-radius: 999px;
-        border: var(--border-width) solid
-            color-mix(in srgb, var(--accent) 28%, var(--border));
-        background: color-mix(in srgb, var(--accent) 12%, var(--bg-raised));
-        color: color-mix(in srgb, var(--accent) 60%, var(--text));
+        border: var(--border-width) solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
         font-family: inherit;
         font-size: var(--font-sm);
         font-weight: var(--weight-bold);
@@ -107,10 +104,8 @@
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
         transition:
-            background var(--ease),
-            border-color var(--ease),
-            color var(--ease),
-            scale var(--ease);
+            transform var(--ease),
+            filter var(--ease);
     }
 
     .primary-action-indicator:focus-visible {
@@ -119,12 +114,13 @@
     }
 
     .primary-action-indicator:active {
-        scale: 0.95;
+        filter: var(--brightness-hover);
+        transform: scale(0.96);
     }
 
     @media (hover: hover) {
         .primary-action-indicator:hover {
-            background: color-mix(in srgb, var(--accent) 20%, var(--bg-raised));
+            filter: var(--brightness-hover);
         }
     }
 

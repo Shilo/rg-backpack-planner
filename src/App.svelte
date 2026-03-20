@@ -764,10 +764,7 @@
         >
             <TechCrystalDisplay {activeTreeIndex} />
         </div>
-        <div
-            class="bot-left-actions"
-            class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
-        >
+        <div class="bot-left-actions">
             <PrimaryActionIndicator />
         </div>
         <div
@@ -878,8 +875,7 @@
     }
 
     .top-right-actions.above-backdrop,
-    .bot-right-actions.above-backdrop,
-    .bot-left-actions.above-backdrop {
+    .bot-right-actions.above-backdrop {
         z-index: var(--z-index-hud-above-context-backdrop);
     }
 
