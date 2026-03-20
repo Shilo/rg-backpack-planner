@@ -40,7 +40,7 @@
     title=""
     ariaLabel={title}
     {onClose}
-    ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar" : null}
+    ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar, .undo-redo-toolbar__group" : ".undo-redo-toolbar__group"}
     anchorAbove={true}
 >
     <div class="menu-content">

@@ -192,6 +192,7 @@
     {onClose}
     anchorAbove={true}
     stableTop
+    ignoreCloseTargetSelector=".undo-redo-toolbar__group"
 >
     <div class="menu-content">
         <div class="info-header">
