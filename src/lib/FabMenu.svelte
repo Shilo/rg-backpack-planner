@@ -14,6 +14,7 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
+    import { Key } from "./input";
 
     type FabMenuAction = {
         id: string;
@@ -48,7 +49,7 @@
     }
 
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === "Escape" && isOpen) {
+        if (event.key === Key.Escape && isOpen) {
             event.stopPropagation();
             close();
         }

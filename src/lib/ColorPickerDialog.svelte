@@ -12,6 +12,7 @@
     } from "./useBackdropTextEntryDismiss";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
+    import { Key } from "./input";
 
     export let isOpen = false;
     export let initialColor: ThemeColor = DEFAULT_THEME_COLOR;
@@ -237,7 +238,7 @@
     }
 
     function handleHexKeydown(event: KeyboardEvent) {
-        if (event.key === "Enter") {
+        if (event.key === Key.Enter) {
             event.preventDefault();
             event.stopPropagation();
             handleApply();
@@ -316,18 +317,18 @@
 
     function handleBackdropKeydown(event: KeyboardEvent) {
         if (event.target !== event.currentTarget) return;
-        if (event.key !== "Enter" && event.key !== " ") return;
+        if (event.key !== Key.Enter && event.key !== Key.Space) return;
         event.preventDefault();
         handleCancel();
     }
 
     function handleKeydown(event: KeyboardEvent) {
         if (!isOpen) return;
-        if (event.key === "Escape") {
+        if (event.key === Key.Escape) {
             event.preventDefault();
             event.stopImmediatePropagation();
             handleCancel();
-        } else if (event.key === "Enter") {
+        } else if (event.key === Key.Enter) {
             if (document.activeElement instanceof HTMLButtonElement) return;
             event.preventDefault();
             handleApply();

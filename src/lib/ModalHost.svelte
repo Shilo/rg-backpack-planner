@@ -15,6 +15,7 @@
         shouldIgnoreBackdropTapForKeyboardDismiss,
     } from "./useBackdropTextEntryDismiss";
     import { t } from "svelte-whisper";
+    import { Key } from "./input";
 
     let lastActiveElement: HTMLElement | null = null;
     let isMouseDownOnBackdrop = false;
@@ -120,7 +121,7 @@
 
     function handleBackdropKeydown(event: KeyboardEvent) {
         if (event.target !== event.currentTarget) return;
-        if (event.key !== "Enter" && event.key !== " ") return;
+        if (event.key !== Key.Enter && event.key !== Key.Space) return;
         event.preventDefault();
         handleCancel();
     }
@@ -145,7 +146,7 @@
     }
 
     function handleModalTabKeydown(event: KeyboardEvent) {
-        if (event.key !== "Tab" || !renderedModal) return;
+        if (event.key !== Key.Tab || !renderedModal) return;
         const backdrop = document.querySelector(".modal-backdrop");
         if (!backdrop || !backdrop.contains(document.activeElement)) return;
 
@@ -179,12 +180,12 @@
     function handleKeydown(event: KeyboardEvent) {
         if (!renderedModal) return;
 
-        if (event.key === "Tab") {
+        if (event.key === Key.Tab) {
             handleModalTabKeydown(event);
             return;
         }
 
-        if (event.key === "Escape") {
+        if (event.key === Key.Escape) {
             event.preventDefault();
             event.stopImmediatePropagation();
             if (!triggerModalAction("[data-modal-cancel]")) {
@@ -193,7 +194,7 @@
             return;
         }
 
-        if (event.key === "Enter") {
+        if (event.key === Key.Enter) {
             const active = document.activeElement;
             if (
                 renderedModal.type === "resetTreeChoices" &&

@@ -23,7 +23,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
-    import { getInputLabel } from "./input";
+    import { getInputLabel, Key } from "./input";
 
     export let x = 0;
     export let y = 0;
@@ -145,7 +145,7 @@
     $: if (isOpen) {
         escapeListenerCleanup?.();
         const handler = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
+            if (e.key === Key.Escape) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 onClose?.();
@@ -166,7 +166,7 @@
     });
 
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === "Escape") {
+        if (event.key === Key.Escape) {
             event.preventDefault();
             event.stopPropagation();
             onClose?.();
