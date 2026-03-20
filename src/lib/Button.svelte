@@ -124,7 +124,7 @@
     use:secondary={handleSecondary}
     on:pointerdown={handlePointerDown}
     on:pointermove={forward}
-    on:pointerup={forward}
+    on:pointerup={(e) => { forward(e); element?.blur(); }}
     on:pointercancel={forward}
     on:pointerleave={forward}
     {...buttonProps}

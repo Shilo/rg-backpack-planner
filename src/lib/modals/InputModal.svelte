@@ -9,9 +9,14 @@
     import Button from "../Button.svelte";
     import { triggerHaptic } from "../hapticsStore";
     import type { IconWeight } from "phosphor-svelte";
-    import { t } from "svelte-whisper";
+    import { t, formatNumber } from "svelte-whisper";
     import { scrollInputVisible } from "../viewportState";
     import { evaluateSimpleMath } from "../mathUtil";
+
+    /** Strip locale formatting (commas, spaces, etc.) keeping only digits and operators. */
+    function stripFormatting(text: string): string {
+        return text.replace(/[^\d+\-*]/g, "");
+    }
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -29,6 +34,7 @@
         label: string;
         value: number;
         icon: Component;
+        tooltip?: string;
     } | null = null;
     export let onConfirm: ((value: number) => void) | null = null;
     export let onCancel: (() => void) | null = null;
@@ -40,17 +46,19 @@
     $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function parseValue() {
-        const result = evaluateSimpleMath(valueText);
+        const cleaned = stripFormatting(valueText);
+        const result = evaluateSimpleMath(cleaned);
         if (result !== null) return Math.max(min, result);
-        const parsed = Number.parseInt(valueText, 10);
+        const parsed = Number.parseInt(cleaned, 10);
         if (Number.isNaN(parsed)) return Math.max(min, 0);
         return Math.max(min, parsed);
     }
 
     $: currentValue = (() => {
-        const result = evaluateSimpleMath(valueText);
+        const cleaned = stripFormatting(valueText);
+        const result = evaluateSimpleMath(cleaned);
         if (result !== null) return Math.max(min, result);
-        const parsed = Number.parseInt(valueText, 10);
+        const parsed = Number.parseInt(cleaned, 10);
         if (Number.isNaN(parsed)) return Math.max(min, 0);
         return Math.max(min, parsed);
     })();
@@ -58,7 +66,7 @@
     $: isDecreaseDisabled = currentValue <= min;
 
     function clampValueText() {
-        valueText = `${parseValue()}`;
+        valueText = formatNumber(parseValue());
     }
 
     function stepValue(delta: number) {
@@ -81,6 +89,7 @@
     }
 
     function handleFocus() {
+        valueText = stripFormatting(valueText);
         setTimeout(() => scrollInputVisible(inputEl), 300);
     }
 
@@ -175,6 +184,7 @@
                     icon={footerButton.icon}
                     iconSize={19}
                     iconWeight="fill"
+                    tooltipText={footerButton.tooltip}
                     on:click={() => {
                         triggerHaptic();
                         onConfirm?.(footerButton.value);

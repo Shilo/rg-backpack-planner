@@ -255,7 +255,8 @@
         "budgetReachedToast": "已达科技水晶预算上限",
         "budgetCappedToast": "已限制至等级{level}",
         "budgetLineageToast": "在预算内提升了血脉等级",
-        "ignoreBudgetAction": "忽略预算"
+        "ignoreBudgetAction": "忽略预算",
+        "setToSpentTooltip": "将预算设为已花费的 {amount}"
     },
     "buildPresets": {
         "changeTooltip": "更改构建预设",

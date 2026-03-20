@@ -255,7 +255,8 @@
         "budgetReachedToast": "Tech Crystal budget reached",
         "budgetCappedToast": "Capped to level {level}",
         "budgetLineageToast": "Leveled lineage within budget",
-        "ignoreBudgetAction": "Ignore budget"
+        "ignoreBudgetAction": "Ignore budget",
+        "setToSpentTooltip": "Set budget to {amount} spent"
     },
     "buildPresets": {
         "changeTooltip": "Change build preset",

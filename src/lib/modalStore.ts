@@ -28,6 +28,7 @@ export type InputFooterButtonConfig = {
     label: string;
     value: number;
     icon: Component;
+    tooltip?: string;
 };
 
 export type ResetTreeChoiceConfig = {

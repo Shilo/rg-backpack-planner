@@ -36,6 +36,9 @@ export function openTechCrystalsOwnedModal(
                 label: formatNumber(currentSpent),
                 value: currentSpent,
                 icon: TechCrystalIcon,
+                tooltip: tr("techCrystals.setToSpentTooltip", {
+                    amount: formatNumber(currentSpent),
+                }),
             },
         }),
         onConfirm: (value) => {
