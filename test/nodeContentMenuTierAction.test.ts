@@ -29,6 +29,30 @@ if (!/\{#if !isSingleLevel\}[\s\S]*nodeMenu\.incrementOne[\s\S]*nodeMenu\.increm
     );
 }
 
+if (!/onDecrementTier/.test(nodeMenuSource)) {
+    throw new Error(
+        "NodeContentMenu should have onDecrementTier callback prop.",
+    );
+}
+
+if (!/previousTierTargetLevel/.test(nodeMenuSource)) {
+    throw new Error(
+        "NodeContentMenu should use previousTierTargetLevel for -Tier cost.",
+    );
+}
+
+if (!/nodeMenu\.min/.test(nodeMenuSource)) {
+    throw new Error(
+        "NodeContentMenu should use nodeMenu.min label for -Tier at tier 1.",
+    );
+}
+
+if (!/button-ghost|ghost/.test(nodeMenuSource)) {
+    throw new Error(
+        "NodeContentMenu Reset button should use ghost Button variant.",
+    );
+}
+
 const treePath = resolve("src/lib/Tree.svelte");
 const treeSource = readFileSync(treePath, "utf8");
 const treeNormalized = treeSource.replace(/\s+/g, " ");
@@ -46,6 +70,12 @@ if (!/const nextLevel = nextTierTargetLevel\(level, node.maxLevel\);/.test(treeN
 if (!/onIncrementTier=\{levelUpTier\}/.test(treeNormalized)) {
     throw new Error(
         "Tree should pass levelUpTier to NodeContentMenu as onIncrementTier.",
+    );
+}
+
+if (!/onDecrementTier/.test(treeSource)) {
+    throw new Error(
+        "Tree should pass onDecrementTier to NodeContentMenu.",
     );
 }
 
@@ -67,4 +97,14 @@ const zhLocalePath = resolve("src/locales/zh.json");
 const zhLocaleSource = readFileSync(zhLocalePath, "utf8");
 if (!/"incrementTier"\s*:/.test(zhLocaleSource)) {
     throw new Error("Chinese locale should define nodeMenu.incrementTier.");
+}
+
+const localePaths = [enLocalePath, jaLocalePath, zhLocalePath];
+const localeSources = [enLocaleSource, jaLocaleSource, zhLocaleSource];
+for (let i = 0; i < localePaths.length; i++) {
+    if (!/"decrementTier"\s*:/.test(localeSources[i])) {
+        throw new Error(
+            `${localePaths[i]}: nodeMenu.decrementTier translation is required.`,
+        );
+    }
 }
