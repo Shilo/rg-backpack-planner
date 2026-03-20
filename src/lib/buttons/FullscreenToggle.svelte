@@ -11,6 +11,7 @@
     import { showToast } from "../toast";
     import ToggleSwitch from "../ToggleSwitch.svelte";
     import { t } from "svelte-whisper";
+    import { getKeyboardActionLabel } from "../input";
 
     export let iconButton = false;
 
@@ -69,6 +70,8 @@
         tooltipText={isFullscreen
             ? $t("fullscreen.exitTooltip")
             : $t("fullscreen.enterTooltip")}
+        shortcut={getKeyboardActionLabel("fullscreen", $t)}
+        flashOnAction="fullscreen"
         on:click={handleToggleFullscreen}
     />
 {:else}
