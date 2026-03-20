@@ -14,3 +14,4 @@ export { inputStore, useInputStore, hasKeyboard } from "./inputStore";
 export type { InputState } from "./inputStore";
 export { LONG_PRESS_MS, LONG_PRESS_MOVE_THRESHOLD, suppressNextPointerUp, startLongPress, clearLongPress, isLongPressMovement } from "./longPress";
 export type { LongPressState } from "./longPress";
+export { shortcutFlash, triggerShortcutFlash, FLASH_DURATION_MS } from "./shortcutFlashStore";
