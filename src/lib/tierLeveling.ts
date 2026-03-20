@@ -117,6 +117,41 @@ function collectDescendants(nodes: Node[], start: number): Set<number> {
     return descendants;
 }
 
+/** Like collectDescendants but only follows children whose parents are ALL
+ *  leveled (level > 0). Stops recursion at any node with an unleveled parent,
+ *  so Solo-leveled subtrees behind an unleveled intermediate are excluded. */
+function collectLevelLinkedDescendants(
+    nodes: Node[],
+    levels: LevelsByIndex,
+    start: number,
+): Set<number> {
+    const descendants = new Set<number>();
+    const children = buildChildrenList(nodes);
+    const stack = [...(children[start] ?? [])];
+
+    while (stack.length > 0) {
+        const current = stack.pop()!;
+        if (descendants.has(current)) continue;
+
+        const currentNode = nodes[current];
+        if (!currentNode) continue;
+
+        // Skip this descendant if any of its parents are unleveled.
+        const parents = parentIndices(currentNode);
+        if (parents.some((pi) => (levels[pi] ?? 0) <= 0)) continue;
+
+        descendants.add(current);
+
+        (children[current] ?? []).forEach((childIndex) => {
+            if (!descendants.has(childIndex)) {
+                stack.push(childIndex);
+            }
+        });
+    }
+
+    return descendants;
+}
+
 function cloneLevels(levels: LevelsByIndex, size: number): LevelsByIndex {
     const copy = new Array(Math.max(levels.length, size)).fill(0);
     for (let i = 0; i < levels.length; i += 1) {
@@ -253,7 +288,10 @@ export function applyLevelChange(params: {
     }
 
     const ancestors = collectAncestors(nodes, index);
-    const descendants = collectDescendants(nodes, index);
+    const isIncrement = clampedTarget > startingLevel;
+    const descendants = isIncrement
+        ? collectDescendants(nodes, index)
+        : collectLevelLinkedDescendants(nodes, current, index);
 
     const currentStableTier = currentStableTierForNode({
         nodes,
@@ -284,7 +322,6 @@ export function applyLevelChange(params: {
         );
     }
 
-    const isIncrement = clampedTarget > startingLevel;
     const propagationStableTier =
         !isIncrement && clampedTarget === 0
             ? Math.max(nextStableTier, 1)

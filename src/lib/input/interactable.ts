@@ -89,8 +89,7 @@ export function secondary(
         const modifier = resolveModifier(state);
         const action = resolveAction(2, modifier, "mouse");
         if (!action) return;
-        if (handler(action) === false) return;
-        triggerHaptic();
+        handler(action);
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -108,7 +107,6 @@ export function secondary(
             if (!action) return false;
             if (handler(action) === false) return false;
             suppressNextPointerUp(event.pointerId);
-            triggerHaptic();
         });
     }
 

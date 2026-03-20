@@ -205,12 +205,13 @@ function assertSameTierDecrementRebase(nodes: Node[]) {
         targetLevel: 20,
     });
 
-    assert.deepStrictEqual(result.levels, [40, 40, 0, 20, 0, 0, 0, 10, 0, 1]);
+    // Node 7 (parents [3,4]) is NOT level-linked because parent 4 is unleveled.
+    // Node 7 stays at 50; node 9 also stays (parent 8 unleveled).
+    assert.deepStrictEqual(result.levels, [40, 40, 0, 20, 0, 0, 0, 50, 0, 1]);
     assert.deepStrictEqual(result.deltas, [
         { index: 0, delta: -60 },
         { index: 1, delta: -60 },
         { index: 3, delta: -1 },
-        { index: 7, delta: -40 },
     ]);
 }
 

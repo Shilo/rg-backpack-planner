@@ -441,13 +441,42 @@ export const directionalScenarioCases: DirectionalScenarioCase[] = [
         ],
     },
     {
-        name: "Same-tier decrement rebases elevated reactive nodes downward",
+        name: "Same-tier decrement skips Solo-leveled merge node with unleveled co-parent",
         initialLevels: [100, 100, 0, 21, 0, 0, 0, 50, 0, 1],
         steps: [
             {
                 index: 3,
                 targetLevel: 20,
-                expectedLevels: [40, 40, 0, 20, 0, 0, 0, 10, 0, 1],
+                // Node 7 (parents [3,4]) stays at 50: parent 4 is unleveled so
+                // node 7 is not level-linked. Node 9 (parents [7,8]) also stays
+                // because parent 8 is unleveled.
+                expectedLevels: [40, 40, 0, 20, 0, 0, 0, 50, 0, 1],
+            },
+        ],
+    },
+    {
+        name: "Decrement skips Solo-leveled descendant behind unleveled intermediate",
+        // Node 1 leveled, node 3 at 0, node 7 Solo-leveled to 50.
+        // Decrement node 1: node 3 is at 0 so recursion stops; node 7 untouched.
+        initialLevels: [100, 21, 0, 0, 0, 0, 0, 50, 0, 0],
+        steps: [
+            {
+                index: 1,
+                targetLevel: 20,
+                expectedLevels: [40, 20, 0, 0, 0, 0, 0, 50, 0, 0],
+            },
+        ],
+    },
+    {
+        name: "Decrement propagates to merge node when ALL parents are leveled",
+        // Both parents of node 7 (3 and 4) are leveled, so node 7 IS level-linked.
+        initialLevels: [100, 100, 0, 21, 21, 0, 0, 50, 0, 0],
+        steps: [
+            {
+                index: 3,
+                targetLevel: 20,
+                // Node 7 parents [3,4] both leveled → node 7 is clamped.
+                expectedLevels: [40, 40, 0, 20, 21, 0, 0, 10, 0, 0],
             },
         ],
     },
