@@ -9,6 +9,7 @@ export { getModifierLabel, getButtonLabel, getInputLabel, getDeviceInputLabels, 
 export type { DeviceInputLabels } from "./inputLabels";
 export type { KeyboardActionType, KeyBinding } from "./keyboardAction";
 export { Key, canonicalKey, KEYBOARD_ACTION_BINDINGS, resolveKeyboardAction } from "./keyboardAction";
+export { onKeyDown } from "./onKeyDown";
 export { inputStore, useInputStore, hasKeyboard } from "./inputStore";
 export type { InputState } from "./inputStore";
 export { LONG_PRESS_MS, LONG_PRESS_MOVE_THRESHOLD, suppressNextPointerUp, startLongPress, clearLongPress, isLongPressMovement } from "./longPress";
