@@ -2,7 +2,7 @@
     import type { Component } from "svelte";
     import { onMount, onDestroy } from "svelte";
 
-    export let icons: { component: Component; keycap?: boolean }[] = [];
+    export let icons: { component: Component }[] = [];
 
     const CYCLE_MS = 2400;
 
@@ -28,25 +28,12 @@
 </script>
 
 {#if icons.length === 1}
-    {@const icon = icons[0]}
-    {#if icon.keycap}
-        <span class="keycap">
-            <svelte:component this={icon.component} />
-        </span>
-    {:else}
-        <svelte:component this={icon.component} />
-    {/if}
+    <svelte:component this={icons[0].component} />
 {:else if icons.length > 1}
     <span class="cycling">
         {#each icons as icon, i}
             <span class="frame" class:active={i === currentIndex}>
-                {#if icon.keycap}
-                    <span class="keycap">
-                        <svelte:component this={icon.component} />
-                    </span>
-                {:else}
-                    <svelte:component this={icon.component} />
-                {/if}
+                <svelte:component this={icon.component} />
             </span>
         {/each}
     </span>
@@ -79,22 +66,6 @@
         width: 100%;
         height: 100%;
         display: block;
-    }
-
-    .keycap {
-        width: 100%;
-        height: 100%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1.5px solid currentColor;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    .keycap :global(svg) {
-        width: 12px;
-        height: 12px;
     }
 
     @media (prefers-reduced-motion: reduce) {

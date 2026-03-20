@@ -4,8 +4,6 @@ import {
     ArrowArcRightIcon,
     ArrowCounterClockwiseIcon,
     ArrowFatLineUpIcon,
-    ArrowFatUpIcon,
-    ControlIcon,
     ArrowsOutCardinalIcon,
     ClockCounterClockwiseIcon,
     CoinsIcon,
@@ -26,7 +24,7 @@ import {
     MouseScrollIcon,
     WarningCircleIcon,
 } from "phosphor-svelte";
-import { GuardianIcon, RootNodeIcon, TechCrystalIcon, VanguardIcon } from "../customIcons";
+import { CtrlKeyIcon, GuardianIcon, RootNodeIcon, ShiftKeyIcon, TechCrystalIcon, VanguardIcon } from "../customIcons";
 import LongPressIcon from "../icons/LongPressIcon.svelte";
 import PinchIcon from "../icons/PinchIcon.svelte";
 import { getDeviceInputLabels } from "../input";
@@ -121,12 +119,12 @@ export function createOnboardingSteps({
                 description: translate("onboarding.options"),
             },
             {
-                icon: ArrowFatUpIcon,
+                icon: ShiftKeyIcon,
                 label: translate("onboarding.modifierTierLabel", { action: translate("input.macro") }),
                 description: translate("onboarding.modifierTier"),
             },
             {
-                icon: ControlIcon,
+                icon: CtrlKeyIcon,
                 label: translate("onboarding.modifierOneLabel", { action: translate("input.micro") }),
                 description: translate("onboarding.modifierOne"),
             },

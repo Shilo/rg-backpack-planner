@@ -10,8 +10,10 @@ import {
 } from "phosphor-svelte";
 import TechCrystalIcon from "./TechCrystalIcon.svelte";
 import RootNodeIcon from "./RootNodeIcon.svelte";
+import ShiftKeyIcon from "./icons/ShiftKeyIcon.svelte";
+import CtrlKeyIcon from "./icons/CtrlKeyIcon.svelte";
 
-export { TechCrystalIcon, RootNodeIcon };
+export { TechCrystalIcon, RootNodeIcon, ShiftKeyIcon, CtrlKeyIcon };
 export const GuardianIcon = GavelIcon;
 export const VanguardIcon = CrosshairIcon;
 export const CannonIcon = ShieldIcon;

@@ -4,9 +4,7 @@
     import {
         ArrowArcLeftIcon,
         ArrowArcRightIcon,
-        ArrowFatUpIcon,
         ArrowCounterClockwiseIcon,
-        ControlIcon,
         TrashSimpleIcon,
         ArrowsOutCardinalIcon,
         BookOpenTextIcon,
@@ -25,7 +23,7 @@
         MouseScrollIcon,
         SquaresFourIcon,
     } from "phosphor-svelte";
-    import { TechCrystalIcon, RootNodeIcon } from "../customIcons";
+    import { TechCrystalIcon, RootNodeIcon, ShiftKeyIcon, CtrlKeyIcon } from "../customIcons";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import CyclingIcon from "../CyclingIcon.svelte";
@@ -73,13 +71,12 @@
         description: string;
         icon: Component;
         iconSecondary?: Component;
-        iconKeycap?: boolean;
         device: ControlDevice;
     };
 
     function buildIconEntries(control: ControlItem) {
-        const entries: { component: Component; keycap?: boolean }[] = [
-            { component: control.icon, keycap: control.iconKeycap },
+        const entries: { component: Component }[] = [
+            { component: control.icon },
         ];
         if (control.iconSecondary) {
             entries.push({ component: control.iconSecondary });
@@ -121,36 +118,32 @@
             id: "pointer-node-increment-tier",
             label: $t("controls.pointerNodeIncrementTierLabel", { action: mouse.macroPrimary }),
             description: $t("controls.pointerNodeIncrementTierDescription"),
-            icon: ArrowFatUpIcon,
+            icon: ShiftKeyIcon,
             iconSecondary: MouseLeftClickIcon,
-            iconKeycap: true,
             device: "pointer",
         },
         {
             id: "pointer-node-decrement-tier",
             label: $t("controls.pointerNodeDecrementTierLabel", { action: mouse.macroAuxiliary }),
             description: $t("controls.pointerNodeDecrementTierDescription"),
-            icon: ArrowFatUpIcon,
+            icon: ShiftKeyIcon,
             iconSecondary: MouseMiddleClickIcon,
-            iconKeycap: true,
             device: "pointer",
         },
         {
             id: "pointer-node-increment-one",
             label: $t("controls.pointerNodeIncrementOneLabel", { action: mouse.microPrimary }),
             description: $t("controls.pointerNodeIncrementOneDescription"),
-            icon: ControlIcon,
+            icon: CtrlKeyIcon,
             iconSecondary: MouseLeftClickIcon,
-            iconKeycap: true,
             device: "pointer",
         },
         {
             id: "pointer-node-decrement-one",
             label: $t("controls.pointerNodeDecrementOneLabel", { action: mouse.microAuxiliary }),
             description: $t("controls.pointerNodeDecrementOneDescription"),
-            icon: ControlIcon,
+            icon: CtrlKeyIcon,
             iconSecondary: MouseMiddleClickIcon,
-            iconKeycap: true,
             device: "pointer",
         },
         {
