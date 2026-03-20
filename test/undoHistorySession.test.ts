@@ -4,6 +4,19 @@ import { treeLevels, resetAllTreeLevels } from "../src/lib/treeLevelsStore";
 import { techCrystalsOwned, setTechCrystalsOwned } from "../src/lib/techCrystalStore";
 import { undoHistory, canUndo, canRedo } from "../src/lib/undoHistoryStore";
 
+// Polyfill sessionStorage for Node.js
+if (typeof globalThis.sessionStorage === "undefined") {
+    const store = new Map<string, string>();
+    globalThis.sessionStorage = {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => { store.set(key, String(value)); },
+        removeItem: (key: string) => { store.delete(key); },
+        clear: () => { store.clear(); },
+        get length() { return store.size; },
+        key: (index: number) => [...store.keys()][index] ?? null,
+    } as Storage;
+}
+
 const mockTrees = [
     { nodes: Array(30).fill({} as any) },
     { nodes: Array(30).fill({} as any) },
