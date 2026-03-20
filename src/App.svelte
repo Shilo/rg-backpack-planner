@@ -76,7 +76,12 @@
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
     import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/input/inputStore";
-    import { resolveKeyboardAction, keyForAction, onKeyDown, triggerShortcutFlash } from "./lib/input";
+    import {
+        resolveKeyboardAction,
+        keyForAction,
+        onKeyDown,
+        triggerShortcutFlash,
+    } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
 
     let tabsRef: {
@@ -631,7 +636,8 @@
                     document.querySelector(".context-menu") ||
                     document.querySelector(".qs-panel") ||
                     hasOnboardingOverlay()
-                ) break;
+                )
+                    break;
                 e.preventDefault();
                 if (isMenuOpen) {
                     if (!sideMenuRef?.tryGoBack?.()) {
@@ -643,7 +649,11 @@
                 break;
             case "back":
                 if (!isMenuOpen || e.defaultPrevented || !e.isTrusted) break;
-                if (isFormField(document.activeElement) || hasOnboardingOverlay()) break;
+                if (
+                    isFormField(document.activeElement) ||
+                    hasOnboardingOverlay()
+                )
+                    break;
                 e.preventDefault();
                 if (!sideMenuRef?.tryGoBack?.()) {
                     closeMenu();
@@ -755,6 +765,12 @@
             <TechCrystalDisplay {activeTreeIndex} />
         </div>
         <div
+            class="bot-left-actions"
+            class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
+        >
+            <PrimaryActionIndicator />
+        </div>
+        <div
             class="bot-right-actions"
             class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
         >
@@ -774,12 +790,6 @@
                 treeLabel={activeTreeName}
                 treeId={tabs[activeTreeIndex]?.id ?? ""}
             />
-        </div>
-        <div
-            class="bot-left-actions"
-            class:above-backdrop={$buildContextMenuOpenForOverlayRaise}
-        >
-            <PrimaryActionIndicator />
         </div>
     </div>
     <main class="app-main">
