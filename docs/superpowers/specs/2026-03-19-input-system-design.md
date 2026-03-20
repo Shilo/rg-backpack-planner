@@ -403,7 +403,7 @@ User-facing changes from the current implementation:
 | Before | After | Impact |
 |---|---|---|
 | Shift + left click toggles refund (level down) | Shift + left click = increment tier (macro modifier) | **Breaking**: users accustomed to Shift for refund must use middle click or context menu instead |
-| Middle click has no action on nodes | Middle click = decrement (inverse of primary action) | New capability, no conflict |
+| Middle click = decrement (inverse of primary action) | Middle click = decrement (unchanged, routed through resolver) | No change — behavior preserved |
 | No Ctrl modifier support | Ctrl + left/middle click = +1 / -1 | New capability, no conflict |
 | Tooltip shows single action preview | Tooltip shows both increment and decrement rows | Visual change only |
 | Tooltip shows on all devices | Tooltip suppressed on touch devices | Touch users unaffected (no hover capability anyway) |
