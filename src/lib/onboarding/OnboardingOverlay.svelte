@@ -84,7 +84,7 @@
     $: primaryInputIcon = isTouch ? HandTapIcon : MouseLeftClickIcon;
     $: primaryInputLabel = getInputLabel(
         "primary",
-        "none",
+        null,
         isTouch ? "touch" : "mouse",
         $t,
     );

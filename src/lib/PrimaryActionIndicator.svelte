@@ -52,7 +52,7 @@
     $: settingLabel = $t("settings.nodePrimaryActionTitle", {
         primaryAction: getInputLabel(
             "primary",
-            "none",
+            null,
             isTouchPlatform ? "touch" : "mouse",
             $t,
         ),
@@ -85,14 +85,11 @@
 <style>
     :global(.primary-action-indicator) {
         border-radius: 999px !important;
-        height: 38px !important;
-        min-width: 68px !important;
+        min-width: 63px !important;
         padding: 0 var(--spacing-md) !important;
         gap: var(--spacing-sm) !important;
         font-size: var(--font-sm) !important;
         font-weight: var(--weight-bold) !important;
         letter-spacing: var(--tracking) !important;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
     }
 </style>

@@ -417,11 +417,11 @@ console.log("  nodeActionPreview");
     console.log("    ✓ getNodeActionPreviewFromOp: decrementByStore");
 }
 
-// --- getNodeActionPreviewFromOp: incrementTier ---
+// --- getNodeActionPreviewFromOp: incrementByAlternate (primary=+1 → alternate=+Tier) ---
 {
     const { nodes } = createYellowBranchFixture();
     const levels = createLevels(YELLOW_BRANCH_LENGTH);
-    const op: NodeOperation = { op: "incrementTier" };
+    const op: NodeOperation = { op: "incrementByAlternate" };
     const result = getNodeActionPreviewFromOp({
         nodes,
         levels,
@@ -430,18 +430,18 @@ console.log("  nodeActionPreview");
         nodeLevelBehavior: NodeLevelBehavior.Solo,
         primaryAction: NodePrimaryAction.IncrementOne,
     });
-    assert.ok(result, "incrementTier should return a preview");
+    assert.ok(result, "incrementByAlternate should return a preview");
     assert.equal(result.targetLevel, 20, "should target tier upper (20)");
     assert.equal(result.isRefund, false);
-    console.log("    ✓ getNodeActionPreviewFromOp: incrementTier");
+    console.log("    ✓ getNodeActionPreviewFromOp: incrementByAlternate (primary=+1 → +Tier)");
 }
 
-// --- getNodeActionPreviewFromOp: decrementOne ---
+// --- getNodeActionPreviewFromOp: decrementByAlternate (primary=+10 → alternate=+1) ---
 {
     const { nodes } = createYellowBranchFixture();
     const levels = createLevels(YELLOW_BRANCH_LENGTH);
     levels[0] = 5;
-    const op: NodeOperation = { op: "decrementOne" };
+    const op: NodeOperation = { op: "decrementByAlternate" };
     const result = getNodeActionPreviewFromOp({
         nodes,
         levels,
@@ -450,10 +450,10 @@ console.log("  nodeActionPreview");
         nodeLevelBehavior: NodeLevelBehavior.Solo,
         primaryAction: NodePrimaryAction.IncrementTen,
     });
-    assert.ok(result, "decrementOne should return a preview");
+    assert.ok(result, "decrementByAlternate should return a preview");
     assert.equal(result.targetLevel, 4);
     assert.equal(result.isRefund, true);
-    console.log("    ✓ getNodeActionPreviewFromOp: decrementOne");
+    console.log("    ✓ getNodeActionPreviewFromOp: decrementByAlternate (primary=+10 → -1)");
 }
 
 // --- getNodeActionPreviewFromOp: contextMenu → null ---
@@ -473,11 +473,11 @@ console.log("  nodeActionPreview");
     console.log("    ✓ getNodeActionPreviewFromOp: contextMenu → null");
 }
 
-// --- getNodeActionPreviewFromOp: incrementOne ---
+// --- getNodeActionPreviewFromOp: incrementByAlternate (primary=+Tier → alternate=+1) ---
 {
     const { nodes } = createYellowBranchFixture();
     const levels = createLevels(YELLOW_BRANCH_LENGTH);
-    const op: NodeOperation = { op: "incrementOne" };
+    const op: NodeOperation = { op: "incrementByAlternate" };
     const result = getNodeActionPreviewFromOp({
         nodes,
         levels,
@@ -486,10 +486,10 @@ console.log("  nodeActionPreview");
         nodeLevelBehavior: NodeLevelBehavior.Solo,
         primaryAction: NodePrimaryAction.IncrementTier,
     });
-    assert.ok(result, "incrementOne should return a preview");
+    assert.ok(result, "incrementByAlternate should return a preview");
     assert.equal(result.targetLevel, 1);
     assert.equal(result.isRefund, false);
-    console.log("    ✓ getNodeActionPreviewFromOp: incrementOne (ignores store)");
+    console.log("    ✓ getNodeActionPreviewFromOp: incrementByAlternate (primary=+Tier → +1)");
 }
 
 console.log("  ✓ nodeActionPreview\n");

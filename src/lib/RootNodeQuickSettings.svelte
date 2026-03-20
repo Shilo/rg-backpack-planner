@@ -55,7 +55,7 @@
     $: clickActionLabel = $t("settings.nodePrimaryActionTitle", {
         primaryAction: getInputLabel(
             "primary",
-            "none",
+            null,
             isTouchPlatform ? "touch" : "mouse",
             $t,
         ),
