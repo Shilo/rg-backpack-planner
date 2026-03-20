@@ -83,6 +83,7 @@
         triggerShortcutFlash,
     } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
+    import { toggleFullscreen } from "./lib/fullscreen";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -663,6 +664,11 @@
                 if (hasOnboardingOverlay()) break;
                 e.preventDefault();
                 openComposeScreenshot();
+                break;
+            case "fullscreen":
+                e.preventDefault();
+                triggerShortcutFlash("fullscreen");
+                toggleFullscreen();
                 break;
         }
     };
