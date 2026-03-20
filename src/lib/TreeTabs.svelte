@@ -8,6 +8,7 @@
     import { getTreeIcon, TechCrystalIcon } from "./customIcons";
     import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
+    import { get } from "svelte/store";
 
     import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
     import Button from "./Button.svelte";
@@ -19,7 +20,7 @@
     } from "./buildImageExport/treeBridge";
     import TreeContextMenu from "./TreeContextMenu.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
+    import { secondary, getKeyboardActionLabel, getInputLabel, getDeviceInputLabels, resolveKeyboardAction, isKeyboardAction, getCycleDirection, onKeyDown, triggerShortcutFlash } from "./input";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -45,6 +46,12 @@
     import { t } from "svelte-whisper";
     import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
     import { undoHistory } from "./undoHistoryStore";
+    import {
+        nodePrimaryAction,
+        NodePrimaryAction,
+        isNodePrimaryAction,
+    } from "./nodePrimaryActionStore";
+    import { triggerHaptic } from "./hapticsStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -155,6 +162,29 @@
                 if (event.repeat) return;
                 event.preventDefault();
                 openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeIndex);
+                break;
+            }
+            case "cyclePrimaryAction": {
+                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if (isFormField(document.activeElement)) return;
+                if (event.repeat) return;
+                event.preventDefault();
+                const current = get(nodePrimaryAction);
+                const next = ((current + 1) % 3) as NodePrimaryAction;
+                if (!isNodePrimaryAction(next)) return;
+                nodePrimaryAction.set(next);
+                triggerHaptic();
+                triggerShortcutFlash("cyclePrimaryAction");
+                // Toast: duplicated from PrimaryActionIndicator.svelte (see DRY note above)
+                const actionLabel = next === NodePrimaryAction.IncrementOne
+                    ? $t("nodeMenu.incrementOne")
+                    : next === NodePrimaryAction.IncrementTen
+                      ? $t("nodeMenu.incrementTen")
+                      : $t("nodeMenu.incrementTier");
+                const primaryActionSettingLabel = $t("settings.nodePrimaryActionTitle", {
+                    primaryAction: getInputLabel("primary", "none", "mouse", $t),
+                });
+                showToast(`${primaryActionSettingLabel}: ${actionLabel}`);
                 break;
             }
         }
