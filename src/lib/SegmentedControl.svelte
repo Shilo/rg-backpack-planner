@@ -3,6 +3,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
     import { isKeyboardAction } from "./input";
+    import Kbd from "./Kbd.svelte";
 
     type SegmentOption = {
         index: number;
@@ -71,7 +72,9 @@
                 {/if}
             </div>
             {#if shortcut}
-                <span class="segmented-control__header-shortcut">{shortcut}</span>
+                <span class="segmented-control__header-shortcut">
+                    <Kbd keys={shortcut} />
+                </span>
             {/if}
         </div>
     {/if}
@@ -298,18 +301,5 @@
         margin-left: auto;
         flex: 0 0 auto;
         font-size: var(--font-sm);
-        line-height: var(--leading-none);
-        color: var(--text-disabled);
-        background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
-        border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
-        border-radius: var(--radius-sm);
-        padding: 2px var(--spacing-sm);
-        user-select: none;
-    }
-
-    @media (hover: none) {
-        .segmented-control__header-shortcut {
-            display: none;
-        }
     }
 </style>

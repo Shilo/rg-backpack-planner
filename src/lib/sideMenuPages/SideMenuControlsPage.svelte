@@ -37,6 +37,7 @@
     import { t } from "svelte-whisper";
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { getDeviceInputLabels, getKeyboardActionLabel } from "../input";
+    import Kbd from "../Kbd.svelte";
 
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
@@ -413,7 +414,7 @@
                                     "controls.keyboardScreenshotDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut">{keyScreenshot}</span>
+                            <span class="control-shortcut"><Kbd keys={keyScreenshot} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -429,7 +430,7 @@
                                     "controls.keyboardCycleTabsDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut">{keyCycle}</span>
+                            <span class="control-shortcut"><Kbd keys={keyCycle} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -443,7 +444,7 @@
                             <span class="control-desc"
                                 >{$t("controls.keyboardEscDescription")}</span
                             >
-                            <span class="control-shortcut">{keyDismiss}</span>
+                            <span class="control-shortcut"><Kbd keys={keyDismiss} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -459,7 +460,7 @@
                                     "controls.keyboardBackspaceDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut">{keyBack}</span>
+                            <span class="control-shortcut"><Kbd keys={keyBack} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -473,7 +474,7 @@
                             <span class="control-desc"
                                 >{$t("controls.keyboardUndoDescription")}</span
                             >
-                            <span class="control-shortcut">{keyUndo}</span>
+                            <span class="control-shortcut"><Kbd keys={keyUndo} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -487,7 +488,7 @@
                             <span class="control-desc"
                                 >{$t("controls.keyboardRedoDescription")}</span
                             >
-                            <span class="control-shortcut">{keyRedo}</span>
+                            <span class="control-shortcut"><Kbd keys={keyRedo} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -503,7 +504,7 @@
                                     "controls.keyboardBudgetDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut">{keyBudget}</span>
+                            <span class="control-shortcut"><Kbd keys={keyBudget} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -519,7 +520,7 @@
                                     "controls.keyboardCyclePrimaryActionDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut">{keyCyclePrimaryAction}</span>
+                            <span class="control-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
                         </p>
                     </li>
                 </ul>
@@ -541,7 +542,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudTechCrystalsDescription")}</span
                         >
-                        <span class="control-shortcut">{keyBudget}</span>
+                        <span class="control-shortcut"><Kbd keys={keyBudget} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -555,7 +556,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudResetTreeDescription")}</span
                         >
-                        <span class="control-shortcut">{keyBack}</span>
+                        <span class="control-shortcut"><Kbd keys={keyBack} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -569,7 +570,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudSideMenuDescription")}</span
                         >
-                        <span class="control-shortcut">{keyDismiss}</span>
+                        <span class="control-shortcut"><Kbd keys={keyDismiss} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -611,7 +612,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudUndoDescription")}</span
                         >
-                        <span class="control-shortcut">{keyUndo}</span>
+                        <span class="control-shortcut"><Kbd keys={keyUndo} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -625,7 +626,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudRedoDescription")}</span
                         >
-                        <span class="control-shortcut">{keyRedo}</span>
+                        <span class="control-shortcut"><Kbd keys={keyRedo} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -642,7 +643,7 @@
                                 { action: hudPrimaryAction },
                             )}</span
                         >
-                        <span class="control-shortcut">{keyConsole}</span>
+                        <span class="control-shortcut"><Kbd keys={keyConsole} /></span>
                     </p>
                 </li>
             </ul>
@@ -703,16 +704,7 @@
     .control-shortcut {
         display: block;
         font-size: var(--font-sm);
-        color: var(--text-disabled);
-        line-height: var(--leading-none);
         margin-top: var(--spacing-xs);
-    }
-
-    /* Hide keyboard shortcuts on touch-only devices */
-    @media (hover: none) {
-        .control-shortcut {
-            display: none;
-        }
     }
 
     /* Icon styles */

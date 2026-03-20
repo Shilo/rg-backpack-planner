@@ -24,6 +24,7 @@
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
     import { getInputLabel, getKeyboardActionLabel, isKeyboardAction } from "./input";
+    import Kbd from "./Kbd.svelte";
 
     export let x = 0;
     export let y = 0;
@@ -286,7 +287,7 @@
             <span class="qs-label">
                 <ArrowUpIcon size={14} weight="bold" />
                 {clickActionLabel}
-                <span class="qs-shortcut">{keyCyclePrimaryAction}</span>
+                <span class="qs-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
             </span>
             <div
                 class="qs-chips"
@@ -395,18 +396,6 @@
         margin-left: auto;
         flex: 0 0 auto;
         font-size: var(--font-xs);
-        line-height: var(--leading-none);
-        color: var(--text-disabled);
-        background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
-        border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
-        border-radius: var(--radius-sm);
-        padding: 2px var(--spacing-sm);
-    }
-
-    @media (hover: none) {
-        .qs-shortcut {
-            display: none;
-        }
     }
 
     .qs-chips {

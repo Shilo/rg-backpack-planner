@@ -223,9 +223,50 @@ textarea,
 }
 
 .tooltip-shortcut {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
     font-size: var(--font-sm);
     color: var(--text-disabled);
+}
+
+/* ═══ Kbd (keyboard shortcut badge) ═══ */
+
+.kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: var(--leading-none);
+    color: var(--text-disabled);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: var(--radius-sm);
+    padding: 2px var(--spacing-sm);
+    white-space: nowrap;
+}
+
+.kbd-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.kbd-sep {
+    color: var(--text-disabled);
+    opacity: 0.5;
+    font-size: 0.85em;
+}
+
+@media (hover: none) {
+    .kbd-group {
+        display: none;
+    }
 }
 
 .tooltip-action-grid {
