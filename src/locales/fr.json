@@ -543,6 +543,8 @@
         "hudUndoDescription": "Annuler la dernière modification de nœud ou de budget",
         "hudRedoLabel": "Bouton Rétablir",
         "hudRedoDescription": "Rétablir la modification précédemment annulée",
+        "hudPrimaryActionLabel": "Indicateur d'action principale",
+        "hudPrimaryActionDescription": "Alterner entre les modes d'incrémentation +1, +10 et +Palier",
         "pointerNodeIncrementTierLabel": "{action} sur un Nœud",
         "pointerNodeIncrementTierDescription": "Monter d'un palier",
         "pointerNodeDecrementTierLabel": "{action} sur un Nœud",

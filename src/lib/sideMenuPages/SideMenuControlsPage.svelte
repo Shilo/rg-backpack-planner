@@ -403,34 +403,34 @@
                 <ul class="control-list">
                     <li class="control-row">
                         <span class="control-icon" aria-hidden="true">
-                            <ImageIcon />
+                            <CaretUpIcon />
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardScreenshotLabel")}</span
+                                >{$t("controls.keyboardCyclePrimaryActionLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
-                                    "controls.keyboardScreenshotDescription",
+                                    "controls.keyboardCyclePrimaryActionDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><Kbd keys={keyScreenshot} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
                         </p>
                     </li>
                     <li class="control-row">
                         <span class="control-icon" aria-hidden="true">
-                            <SquaresFourIcon />
+                            <TechCrystalIcon weight="fill" />
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardCycleTabsLabel")}</span
+                                >{$t("controls.keyboardBudgetLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
-                                    "controls.keyboardCycleTabsDescription",
+                                    "controls.keyboardBudgetDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><Kbd keys={keyCycle} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyBudget} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -493,34 +493,34 @@
                     </li>
                     <li class="control-row">
                         <span class="control-icon" aria-hidden="true">
-                            <TechCrystalIcon weight="fill" />
+                            <SquaresFourIcon />
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardBudgetLabel")}</span
+                                >{$t("controls.keyboardCycleTabsLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
-                                    "controls.keyboardBudgetDescription",
+                                    "controls.keyboardCycleTabsDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><Kbd keys={keyBudget} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyCycle} /></span>
                         </p>
                     </li>
                     <li class="control-row">
                         <span class="control-icon" aria-hidden="true">
-                            <CaretUpIcon />
+                            <ImageIcon />
                         </span>
                         <p class="control-inline">
                             <span class="control-label"
-                                >{$t("controls.keyboardCyclePrimaryActionLabel")}</span
+                                >{$t("controls.keyboardScreenshotLabel")}</span
                             >
                             <span class="control-desc"
                                 >{$t(
-                                    "controls.keyboardCyclePrimaryActionDescription",
+                                    "controls.keyboardScreenshotDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyScreenshot} /></span>
                         </p>
                     </li>
                 </ul>
@@ -528,6 +528,20 @@
         {/if}
         <Accordion title={$t("sideMenu.sections.hud")} bind:isOpen={hudOpen}>
             <ul class="control-list">
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true">
+                        <CaretUpIcon />
+                    </span>
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudPrimaryActionLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t("controls.hudPrimaryActionDescription")}</span
+                        >
+                        <span class="control-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
+                    </p>
+                </li>
                 <li class="control-row">
                     <span
                         class="control-icon control-icon-filled"
@@ -547,20 +561,6 @@
                 </li>
                 <li class="control-row">
                     <span class="control-icon" aria-hidden="true"
-                        ><TrashSimpleIcon /></span
-                    >
-                    <p class="control-inline">
-                        <span class="control-label"
-                            >{$t("controls.hudResetTreeLabel")}</span
-                        >
-                        <span class="control-desc"
-                            >{$t("controls.hudResetTreeDescription")}</span
-                        >
-                        <span class="control-shortcut"><Kbd keys={keyBack} /></span>
-                    </p>
-                </li>
-                <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
                         ><ListIcon /></span
                     >
                     <p class="control-inline">
@@ -575,30 +575,16 @@
                 </li>
                 <li class="control-row">
                     <span class="control-icon" aria-hidden="true"
-                        ><CornersOutIcon /></span
+                        ><TrashSimpleIcon /></span
                     >
                     <p class="control-inline">
                         <span class="control-label"
-                            >{$t("controls.hudFullscreenLabel")}</span
+                            >{$t("controls.hudResetTreeLabel")}</span
                         >
                         <span class="control-desc"
-                            >{$t("controls.hudFullscreenDescription")}</span
+                            >{$t("controls.hudResetTreeDescription")}</span
                         >
-                    </p>
-                </li>
-                <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><EyeIcon /></span
-                    >
-                    <p class="control-inline">
-                        <span class="control-label"
-                            >{$t("controls.hudPreviewIndicatorLabel")}</span
-                        >
-                        <span class="control-desc"
-                            >{$t(
-                                "controls.hudPreviewIndicatorDescription",
-                            )}</span
-                        >
+                        <span class="control-shortcut"><Kbd keys={keyBack} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -644,6 +630,34 @@
                             )}</span
                         >
                         <span class="control-shortcut"><Kbd keys={keyConsole} /></span>
+                    </p>
+                </li>
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true"
+                        ><EyeIcon /></span
+                    >
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudPreviewIndicatorLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t(
+                                "controls.hudPreviewIndicatorDescription",
+                            )}</span
+                        >
+                    </p>
+                </li>
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true"
+                        ><CornersOutIcon /></span
+                    >
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudFullscreenLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t("controls.hudFullscreenDescription")}</span
+                        >
                     </p>
                 </li>
             </ul>

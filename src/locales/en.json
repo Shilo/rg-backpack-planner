@@ -543,6 +543,8 @@
         "hudUndoDescription": "Undo last node or budget change",
         "hudRedoLabel": "Redo Button",
         "hudRedoDescription": "Redo previously undone change",
+        "hudPrimaryActionLabel": "Primary Action Indicator",
+        "hudPrimaryActionDescription": "Cycle between +1, +10, and +Tier increment modes",
         "pointerNodeIncrementTierLabel": "{action} a Node",
         "pointerNodeIncrementTierDescription": "Level up one tier",
         "pointerNodeDecrementTierLabel": "{action} a Node",

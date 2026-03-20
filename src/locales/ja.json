@@ -543,6 +543,8 @@
         "hudUndoDescription": "直前のノードまたは予算の変更を元に戻す",
         "hudRedoLabel": "やり直すボタン",
         "hudRedoDescription": "元に戻した変更をやり直す",
+        "hudPrimaryActionLabel": "プライマリアクション インジケーター",
+        "hudPrimaryActionDescription": "+1、+10、+ティアの増加モードを切り替える",
         "pointerNodeIncrementTierLabel": "ノードを{action}",
         "pointerNodeIncrementTierDescription": "1ティアレベルアップ",
         "pointerNodeDecrementTierLabel": "ノードを{action}",

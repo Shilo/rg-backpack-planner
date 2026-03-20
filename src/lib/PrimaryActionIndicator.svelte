@@ -14,6 +14,7 @@
     import { tooltip } from "./tooltip";
     import { t } from "svelte-whisper";
     import { getInputLabel, getKeyboardActionLabel, buildShortcutTooltip } from "./input";
+    import { shortcutFlashFor } from "./input/shortcutFlashStore";
 
     let isTouchPlatform = false;
 
@@ -42,6 +43,8 @@
         [NodePrimaryAction.IncrementTen]: "nodeMenu.incrementTen",
         [NodePrimaryAction.IncrementTier]: "nodeMenu.incrementTier",
     };
+
+    const flashStore = shortcutFlashFor("cyclePrimaryAction");
 
     $: currentAction = $nodePrimaryAction;
     $: icon = ICONS[currentAction];
@@ -75,6 +78,7 @@
 
 <button
     class="primary-action-indicator"
+    class:primary-action-indicator--flash={$flashStore}
     type="button"
     aria-label={ariaLabel}
     use:tooltip={tooltipContent}
@@ -124,6 +128,11 @@
         .primary-action-indicator:hover {
             filter: var(--brightness-hover);
         }
+    }
+
+    .primary-action-indicator--flash {
+        filter: brightness(1.4);
+        transform: scale(0.85);
     }
 
     .primary-action-indicator__label {

@@ -543,6 +543,8 @@
         "hudUndoDescription": "撤销上一次节点或预算更改",
         "hudRedoLabel": "重做按钮",
         "hudRedoDescription": "重做之前撤销的更改",
+        "hudPrimaryActionLabel": "主要操作指示器",
+        "hudPrimaryActionDescription": "在+1、+10和+阶增量模式之间切换",
         "pointerNodeIncrementTierLabel": "{action}节点",
         "pointerNodeIncrementTierDescription": "升一阶",
         "pointerNodeDecrementTierLabel": "{action}节点",
