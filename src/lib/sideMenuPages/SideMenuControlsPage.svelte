@@ -67,6 +67,7 @@
     $: versionLabel = version === "unknown" ? "" : version;
 
     type ControlDevice = "pointer" | "touch" | "both";
+    type ControlSection = "node" | "tree" | "view";
     type ControlItem = {
         id: string;
         label: string;
@@ -74,7 +75,10 @@
         icon: Component;
         iconSecondary?: Component;
         device: ControlDevice;
+        section: ControlSection;
     };
+
+    const SECTIONS: ControlSection[] = ["node", "tree", "view"];
 
     function buildIconEntries(control: ControlItem) {
         const entries: { component: Component }[] = [
@@ -112,6 +116,7 @@
             description: $t("controls.pointerNodeDescription"),
             icon: MouseLeftClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-node-decrement",
@@ -119,6 +124,7 @@
             description: $t("controls.pointerNodeDecrementDescription"),
             icon: MouseMiddleClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-node-reverse",
@@ -127,6 +133,7 @@
             icon: ShiftKeyIcon,
             iconSecondary: MouseLeftClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-node-reverse-auxiliary",
@@ -135,6 +142,7 @@
             icon: ShiftKeyIcon,
             iconSecondary: MouseMiddleClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-node-alternate",
@@ -143,6 +151,7 @@
             icon: CtrlKeyIcon,
             iconSecondary: MouseLeftClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-node-alternate-auxiliary",
@@ -151,6 +160,7 @@
             icon: CtrlKeyIcon,
             iconSecondary: MouseMiddleClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-node-menu",
@@ -158,6 +168,7 @@
             description: $t("controls.pointerNodeMenuDescription"),
             icon: MouseRightClickIcon,
             device: "pointer",
+            section: "node",
         },
         {
             id: "pointer-tree-menu",
@@ -165,6 +176,7 @@
             description: $t("controls.pointerTreeMenuDescription"),
             icon: MouseRightClickIcon,
             device: "pointer",
+            section: "tree",
         },
         {
             id: "pointer-pan",
@@ -172,6 +184,7 @@
             description: $t("controls.pointerPanDescription"),
             icon: ArrowsOutCardinalIcon,
             device: "pointer",
+            section: "view",
         },
         {
             id: "pointer-zoom",
@@ -179,6 +192,7 @@
             description: $t("controls.pointerZoomDescription"),
             icon: MouseScrollIcon,
             device: "pointer",
+            section: "view",
         },
         {
             id: "pointer-hover",
@@ -186,6 +200,7 @@
             description: $t("controls.pointerHoverDescription"),
             icon: InfoIcon,
             device: "pointer",
+            section: "view",
         },
         {
             id: "touch-node",
@@ -193,6 +208,7 @@
             description: $t("controls.touchNodeDescription"),
             icon: HandTapIcon,
             device: "touch",
+            section: "node",
         },
         {
             id: "touch-node-menu",
@@ -200,6 +216,7 @@
             description: $t("controls.touchNodeMenuDescription"),
             icon: LongPressIcon,
             device: "touch",
+            section: "node",
         },
         {
             id: "touch-tree-menu",
@@ -207,6 +224,7 @@
             description: $t("controls.touchTreeMenuDescription"),
             icon: LongPressIcon,
             device: "touch",
+            section: "tree",
         },
         {
             id: "touch-pan",
@@ -214,6 +232,7 @@
             description: $t("controls.touchPanDescription"),
             icon: HandGrabbingIcon,
             device: "touch",
+            section: "view",
         },
         {
             id: "touch-zoom",
@@ -221,6 +240,7 @@
             description: $t("controls.touchZoomDescription"),
             icon: PinchIcon,
             device: "touch",
+            section: "view",
         },
         {
             id: "touch-menu-swipe",
@@ -228,6 +248,7 @@
             description: $t("controls.touchMenuSwipeDescription"),
             icon: HandSwipeRightIcon,
             device: "touch",
+            section: "view",
         },
     ];
 
@@ -350,22 +371,30 @@
                 bind:isOpen={touchOpen}
             >
                 <ul class="control-list">
-                    {#each touchControls as control (control.id)}
-                        <li class="control-row">
-                            <span class="control-icon" aria-hidden="true">
-                                <CyclingIcon
-                                    icons={buildIconEntries(control)}
-                                />
-                            </span>
-                            <p class="control-inline">
-                                <span class="control-label"
-                                    >{control.label}</span
-                                >
-                                <span class="control-desc"
-                                    >{control.description}</span
-                                >
-                            </p>
-                        </li>
+                    {#each SECTIONS as sectionKey}
+                        {@const items = touchControls.filter(c => c.section === sectionKey)}
+                        {#if items.length > 0}
+                            <li class="control-section-header" role="presentation">
+                                {$t(`sideMenu.sections.${sectionKey}`)}
+                            </li>
+                            {#each items as control (control.id)}
+                                <li class="control-row">
+                                    <span class="control-icon" aria-hidden="true">
+                                        <CyclingIcon
+                                            icons={buildIconEntries(control)}
+                                        />
+                                    </span>
+                                    <p class="control-inline">
+                                        <span class="control-label"
+                                            >{control.label}</span
+                                        >
+                                        <span class="control-desc"
+                                            >{control.description}</span
+                                        >
+                                    </p>
+                                </li>
+                            {/each}
+                        {/if}
                     {/each}
                 </ul>
             </Accordion>
@@ -376,22 +405,30 @@
                 bind:isOpen={mouseOpen}
             >
                 <ul class="control-list">
-                    {#each pointerControls as control (control.id)}
-                        <li class="control-row">
-                            <span class="control-icon" aria-hidden="true">
-                                <CyclingIcon
-                                    icons={buildIconEntries(control)}
-                                />
-                            </span>
-                            <p class="control-inline">
-                                <span class="control-label"
-                                    >{control.label}</span
-                                >
-                                <span class="control-desc"
-                                    >{control.description}</span
-                                >
-                            </p>
-                        </li>
+                    {#each SECTIONS as sectionKey}
+                        {@const items = pointerControls.filter(c => c.section === sectionKey)}
+                        {#if items.length > 0}
+                            <li class="control-section-header" role="presentation">
+                                {$t(`sideMenu.sections.${sectionKey}`)}
+                            </li>
+                            {#each items as control (control.id)}
+                                <li class="control-row">
+                                    <span class="control-icon" aria-hidden="true">
+                                        <CyclingIcon
+                                            icons={buildIconEntries(control)}
+                                        />
+                                    </span>
+                                    <p class="control-inline">
+                                        <span class="control-label"
+                                            >{control.label}</span
+                                        >
+                                        <span class="control-desc"
+                                            >{control.description}</span
+                                        >
+                                    </p>
+                                </li>
+                            {/each}
+                        {/if}
                     {/each}
                 </ul>
             </Accordion>
@@ -687,6 +724,19 @@
         padding: 0;
         display: grid;
         gap: var(--spacing-md);
+    }
+
+    .control-section-header {
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        letter-spacing: var(--tracking-wide);
+        text-transform: uppercase;
+        color: var(--text-muted);
+        padding-top: var(--spacing-sm);
+    }
+
+    .control-section-header:first-child {
+        padding-top: 0;
     }
 
     /* Compact inline layout: icon + "label — description" */

@@ -229,6 +229,7 @@
         "incrementTier": "+Palier",
         "incrementTierShort": "+P",
         "decrementTier": "-Palier",
+        "decrementTierShort": "-P",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "Réinitialiser",

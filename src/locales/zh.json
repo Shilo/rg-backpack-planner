@@ -229,6 +229,7 @@
         "incrementTier": "+阶",
         "incrementTierShort": "+阶",
         "decrementTier": "-阶",
+        "decrementTierShort": "-阶",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "重置",

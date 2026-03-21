@@ -229,6 +229,7 @@
         "incrementTier": "+ティア",
         "incrementTierShort": "+T",
         "decrementTier": "-ティア",
+        "decrementTierShort": "-T",
         "decrementOne": "-1",
         "decrementTen": "-10",
         "reset": "リセット",
