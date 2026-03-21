@@ -99,6 +99,5 @@
 
     .kc-mod {
         opacity: 0.72;
-        font-size: 0.92em;
     }
 </style>
