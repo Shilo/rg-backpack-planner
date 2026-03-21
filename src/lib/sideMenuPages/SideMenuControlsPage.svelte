@@ -74,6 +74,7 @@
         description: string;
         icon: Component;
         iconSecondary?: Component;
+        iconTertiary?: Component;
         device: ControlDevice;
         section: ControlSection;
     };
@@ -92,6 +93,9 @@
         ];
         if (control.iconSecondary) {
             entries.push({ component: control.iconSecondary });
+        }
+        if (control.iconTertiary) {
+            entries.push({ component: control.iconTertiary });
         }
         return entries;
     }
@@ -125,6 +129,15 @@
             section: "node",
         },
         {
+            id: "pointer-node-alternate",
+            label: $t("controls.pointerNodeAlternateLabel", { action: mouse.alternatePrimary }),
+            description: $t("controls.pointerNodeAlternateDescription"),
+            icon: CtrlKeyIcon,
+            iconSecondary: MouseLeftClickIcon,
+            device: "pointer",
+            section: "node",
+        },
+        {
             id: "pointer-node-decrement",
             label: $t("controls.pointerNodeMiddleDecrementLabel", { action: mouse.auxiliary }),
             description: $t("controls.pointerNodeDecrementDescription"),
@@ -142,29 +155,21 @@
             section: "node",
         },
         {
-            id: "pointer-node-reverse-auxiliary",
-            label: $t("controls.pointerNodeReverseLabel", { action: mouse.reverseAuxiliary }),
-            description: $t("controls.pointerNodeReverseDescription"),
-            icon: ShiftKeyIcon,
-            iconSecondary: MouseMiddleClickIcon,
-            device: "pointer",
-            section: "node",
-        },
-        {
-            id: "pointer-node-alternate",
-            label: $t("controls.pointerNodeAlternateLabel", { action: mouse.alternatePrimary }),
-            description: $t("controls.pointerNodeAlternateDescription"),
-            icon: CtrlKeyIcon,
-            iconSecondary: MouseLeftClickIcon,
-            device: "pointer",
-            section: "node",
-        },
-        {
             id: "pointer-node-alternate-auxiliary",
             label: $t("controls.pointerNodeAlternateLabel", { action: mouse.alternateAuxiliary }),
             description: $t("controls.pointerNodeAlternateAuxiliaryDescription"),
             icon: CtrlKeyIcon,
             iconSecondary: MouseMiddleClickIcon,
+            device: "pointer",
+            section: "node",
+        },
+        {
+            id: "pointer-node-reverse-alternate",
+            label: $t("controls.pointerNodeAlternateLabel", { action: mouse.reverseAlternatePrimary }),
+            description: $t("controls.pointerNodeAlternateAuxiliaryDescription"),
+            icon: CtrlKeyIcon,
+            iconSecondary: ShiftKeyIcon,
+            iconTertiary: MouseLeftClickIcon,
             device: "pointer",
             section: "node",
         },

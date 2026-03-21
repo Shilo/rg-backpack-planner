@@ -38,8 +38,8 @@ export type DeviceInputLabels = {
     auxiliary?: string;
     reversePrimary: string;
     alternatePrimary: string;
-    reverseAuxiliary?: string;
     alternateAuxiliary?: string;
+    reverseAlternatePrimary?: string;
 };
 
 export function getDeviceInputLabels(device: PointerDevice, t: TranslateFn): DeviceInputLabels {
@@ -51,8 +51,9 @@ export function getDeviceInputLabels(device: PointerDevice, t: TranslateFn): Dev
     };
     if (device === "mouse") {
         labels.auxiliary = getInputLabel("auxiliary", null, device, t);
-        labels.reverseAuxiliary = getInputLabel("auxiliary", "reverse", device, t);
         labels.alternateAuxiliary = getInputLabel("auxiliary", "alternate", device, t);
+        const sep = t("input.modifierSeparator");
+        labels.reverseAlternatePrimary = getModifierLabel("alternate", t) + sep + getInputLabel("primary", "reverse", device, t);
     }
     return labels;
 }
