@@ -3,11 +3,13 @@ import { writable } from "svelte/store";
 export type InputState = {
     shiftKey: boolean;
     ctrlKey: boolean;
+    auxiliaryButton: boolean;
 };
 
 const initialState: InputState = {
     shiftKey: false,
     ctrlKey: false,
+    auxiliaryButton: false,
 };
 
 /** Global input state (modifier keys). Updated by useInputStore. */
@@ -18,11 +20,11 @@ export function hasKeyboard(): boolean {
     return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 
-function syncModifiers(shiftKey: boolean, ctrlKey: boolean) {
+function syncModifiers(shiftKey: boolean, ctrlKey: boolean, auxiliaryButton: boolean) {
     inputStore.update((s) =>
-        s.shiftKey === shiftKey && s.ctrlKey === ctrlKey
+        s.shiftKey === shiftKey && s.ctrlKey === ctrlKey && s.auxiliaryButton === auxiliaryButton
             ? s
-            : { ...s, shiftKey, ctrlKey },
+            : { ...s, shiftKey, ctrlKey, auxiliaryButton },
     );
 }
 
@@ -34,7 +36,7 @@ function syncModifiers(shiftKey: boolean, ctrlKey: boolean) {
  * Use on a root element (e.g. app shell) so the store is updated while mounted.
  */
 export function useInputStore(_node: HTMLElement): void | { destroy(): void } {
-    const onPointer = (e: PointerEvent) => syncModifiers(e.shiftKey, e.ctrlKey);
+    const onPointer = (e: PointerEvent) => syncModifiers(e.shiftKey, e.ctrlKey, (e.buttons & 4) !== 0);
     window.addEventListener("pointerdown", onPointer);
     window.addEventListener("pointerup", onPointer);
     window.addEventListener("pointermove", onPointer);

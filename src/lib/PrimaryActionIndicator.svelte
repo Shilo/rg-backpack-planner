@@ -78,7 +78,8 @@
 
     $: currentAction = $nodePrimaryAction;
     $: modifiers = resolveModifiers($inputStore);
-    $: isReverse = modifiers.reverse;
+    $: isAuxiliary = $inputStore.auxiliaryButton;
+    $: isReverse = modifiers.reverse || isAuxiliary;
     $: isAlternate = modifiers.alternate;
     $: hasModifier = isReverse || isAlternate;
 

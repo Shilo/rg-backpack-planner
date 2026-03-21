@@ -57,7 +57,8 @@
             "tree": "ツリー",
             "hud": "HUD（ヘッドアップディスプレイ）",
             "instructions": "使い方",
-            "accessibility": "アクセシビリティ"
+            "accessibility": "アクセシビリティ",
+            "other": "その他"
         }
     },
     "trees": {
@@ -512,6 +513,8 @@
         "touchMenuSwipeDescription": "戻る、またはサイドメニューを閉じる",
         "keyboardScreenshotLabel": "スクリーンショットを共有",
         "keyboardScreenshotDescription": "ツリー画像をプレビューして共有",
+        "keyboardFullscreenLabel": "フルスクリーン",
+        "keyboardFullscreenDescription": "フルスクリーンモードを切り替え",
         "keyboardCycleTabsLabel": "タブ切り替え",
         "keyboardCycleTabsDescription": "サイドメニューのタブを切り替え",
         "keyboardEscLabel": "メニュー / 戻る",

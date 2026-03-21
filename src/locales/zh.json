@@ -57,7 +57,8 @@
             "tree": "树",
             "hud": "HUD（平视显示）",
             "instructions": "使用说明",
-            "accessibility": "无障碍"
+            "accessibility": "无障碍",
+            "other": "其他"
         }
     },
     "trees": {
@@ -512,6 +513,8 @@
         "touchMenuSwipeDescription": "返回或关闭侧边菜单",
         "keyboardScreenshotLabel": "分享截图",
         "keyboardScreenshotDescription": "预览并分享技能树图片",
+        "keyboardFullscreenLabel": "全屏",
+        "keyboardFullscreenDescription": "切换全屏模式",
         "keyboardCycleTabsLabel": "切换标签页",
         "keyboardCycleTabsDescription": "在侧边栏标签页之间切换",
         "keyboardEscLabel": "菜单 / 返回",

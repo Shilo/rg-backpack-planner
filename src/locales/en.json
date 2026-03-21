@@ -57,7 +57,8 @@
             "tree": "Tree",
             "hud": "HUD (Heads-Up Display)",
             "instructions": "In-Game Instructions",
-            "accessibility": "Accessibility"
+            "accessibility": "Accessibility",
+            "other": "Other"
         }
     },
     "trees": {
@@ -512,6 +513,8 @@
         "touchMenuSwipeDescription": "Go back or close side menu",
         "keyboardScreenshotLabel": "Share Screenshot",
         "keyboardScreenshotDescription": "Preview and share tree image(s)",
+        "keyboardFullscreenLabel": "Fullscreen",
+        "keyboardFullscreenDescription": "Toggle fullscreen mode",
         "keyboardCycleTabsLabel": "Cycle Tabs",
         "keyboardCycleTabsDescription": "Switch between side menu tabs",
         "keyboardEscLabel": "Menu / Back",

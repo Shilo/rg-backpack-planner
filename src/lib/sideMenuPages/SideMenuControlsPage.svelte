@@ -67,7 +67,7 @@
     $: versionLabel = version === "unknown" ? "" : version;
 
     type ControlDevice = "pointer" | "touch" | "both";
-    type ControlSection = "node" | "tree" | "view";
+    type ControlSection = "node" | "tree" | "view" | "other";
     type ControlItem = {
         id: string;
         label: string;
@@ -78,7 +78,7 @@
         section: ControlSection;
     };
 
-    const SECTIONS: ControlSection[] = ["node", "tree", "view"];
+    const SECTIONS: ControlSection[] = ["node", "tree", "view", "other"];
 
     function buildIconEntries(control: ControlItem) {
         const entries: { component: Component }[] = [
@@ -184,7 +184,7 @@
             description: $t("controls.pointerPanDescription"),
             icon: ArrowsOutCardinalIcon,
             device: "pointer",
-            section: "view",
+            section: "tree",
         },
         {
             id: "pointer-zoom",
@@ -192,7 +192,7 @@
             description: $t("controls.pointerZoomDescription"),
             icon: MouseScrollIcon,
             device: "pointer",
-            section: "view",
+            section: "tree",
         },
         {
             id: "pointer-hover",
@@ -200,7 +200,7 @@
             description: $t("controls.pointerHoverDescription"),
             icon: InfoIcon,
             device: "pointer",
-            section: "view",
+            section: "other",
         },
         {
             id: "touch-node",
@@ -561,6 +561,22 @@
                             <span class="control-shortcut"><Kbd keys={keyScreenshot} /></span>
                         </p>
                     </li>
+                    <li class="control-row">
+                        <span class="control-icon" aria-hidden="true">
+                            <CornersOutIcon />
+                        </span>
+                        <p class="control-inline">
+                            <span class="control-label"
+                                >{$t("controls.keyboardFullscreenLabel")}</span
+                            >
+                            <span class="control-desc"
+                                >{$t(
+                                    "controls.keyboardFullscreenDescription",
+                                )}</span
+                            >
+                            <span class="control-shortcut"><Kbd keys={keyFullscreen} /></span>
+                        </p>
+                    </li>
                 </ul>
             </Accordion>
         {/if}
@@ -672,6 +688,20 @@
                 </li>
                 <li class="control-row">
                     <span class="control-icon" aria-hidden="true"
+                        ><CornersOutIcon /></span
+                    >
+                    <p class="control-inline">
+                        <span class="control-label"
+                            >{$t("controls.hudFullscreenLabel")}</span
+                        >
+                        <span class="control-desc"
+                            >{$t("controls.hudFullscreenDescription")}</span
+                        >
+                        <span class="control-shortcut"><Kbd keys={keyFullscreen} /></span>
+                    </p>
+                </li>
+                <li class="control-row">
+                    <span class="control-icon" aria-hidden="true"
                         ><EyeIcon /></span
                     >
                     <p class="control-inline">
@@ -683,20 +713,6 @@
                                 "controls.hudPreviewIndicatorDescription",
                             )}</span
                         >
-                    </p>
-                </li>
-                <li class="control-row">
-                    <span class="control-icon" aria-hidden="true"
-                        ><CornersOutIcon /></span
-                    >
-                    <p class="control-inline">
-                        <span class="control-label"
-                            >{$t("controls.hudFullscreenLabel")}</span
-                        >
-                        <span class="control-desc"
-                            >{$t("controls.hudFullscreenDescription")}</span
-                        >
-                        <span class="control-shortcut"><Kbd keys={keyFullscreen} /></span>
                     </p>
                 </li>
             </ul>

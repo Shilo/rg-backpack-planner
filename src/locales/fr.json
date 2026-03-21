@@ -57,7 +57,8 @@
             "tree": "Arbre",
             "hud": "HUD (Affichage tête haute)",
             "instructions": "Instructions en jeu",
-            "accessibility": "Accessibilité"
+            "accessibility": "Accessibilité",
+            "other": "Autre"
         }
     },
     "trees": {
@@ -512,6 +513,8 @@
         "touchMenuSwipeDescription": "Revenir en arrière ou fermer le menu latéral",
         "keyboardScreenshotLabel": "Partager une capture d'écran",
         "keyboardScreenshotDescription": "Prévisualiser et partager une image de l'arbre",
+        "keyboardFullscreenLabel": "Plein écran",
+        "keyboardFullscreenDescription": "Basculer en mode plein écran",
         "keyboardCycleTabsLabel": "Changer d'onglet",
         "keyboardCycleTabsDescription": "Changer d'onglet dans le menu latéral",
         "keyboardEscLabel": "Menu / Retour",
