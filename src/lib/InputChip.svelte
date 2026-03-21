@@ -83,7 +83,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 2px var(--spacing-sm);
+        padding: 3px var(--spacing-md);
         color: var(--text-disabled);
     }
 
