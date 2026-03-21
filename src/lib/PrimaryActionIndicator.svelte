@@ -37,24 +37,20 @@
     type EffectiveAction = {
         icon: Component;
         labelKey: string;
-        fullLabelKey: string;
     };
 
     const INCREMENT_ACTIONS: Record<NodePrimaryAction, EffectiveAction> = {
         [NodePrimaryAction.IncrementOne]: {
             icon: CaretUpIcon,
             labelKey: "nodeMenu.incrementOne",
-            fullLabelKey: "nodeMenu.incrementOne",
         },
         [NodePrimaryAction.IncrementTen]: {
             icon: CaretDoubleUpIcon,
             labelKey: "nodeMenu.incrementTen",
-            fullLabelKey: "nodeMenu.incrementTen",
         },
         [NodePrimaryAction.IncrementTier]: {
             icon: CaretLineUpIcon,
-            labelKey: "nodeMenu.incrementTierShort",
-            fullLabelKey: "nodeMenu.incrementTier",
+            labelKey: "nodeMenu.incrementTier",
         },
     };
 
@@ -62,17 +58,14 @@
         [NodePrimaryAction.IncrementOne]: {
             icon: CaretDownIcon,
             labelKey: "nodeMenu.decrementOne",
-            fullLabelKey: "nodeMenu.decrementOne",
         },
         [NodePrimaryAction.IncrementTen]: {
             icon: CaretDoubleDownIcon,
             labelKey: "nodeMenu.decrementTen",
-            fullLabelKey: "nodeMenu.decrementTen",
         },
         [NodePrimaryAction.IncrementTier]: {
             icon: CaretLineDownIcon,
-            labelKey: "nodeMenu.decrementTierShort",
-            fullLabelKey: "nodeMenu.decrementTier",
+            labelKey: "nodeMenu.decrementTier",
         },
     };
 
@@ -98,7 +91,6 @@
 
     $: icon = effective.icon;
     $: label = $t(effective.labelKey);
-    $: fullLabel = $t(effective.fullLabelKey);
     $: shortcutKey = getKeyboardActionLabel("cyclePrimaryAction", $t);
 
     $: settingLabel = $t("settings.nodePrimaryActionTitle", {
@@ -110,7 +102,7 @@
         ),
     });
 
-    $: ariaLabel = `${settingLabel}: ${fullLabel}`;
+    $: ariaLabel = `${settingLabel}: ${label}`;
 
     function cycle() {
         const next = ((currentAction + 1) % 3) as NodePrimaryAction;
@@ -126,7 +118,7 @@
     tooltipText={ariaLabel}
     shortcut={shortcutKey}
     {icon}
-    iconSize={16}
+    iconSize={26}
     iconWeight="bold"
     flashOnAction="cyclePrimaryAction"
     on:click={cycle}
@@ -137,12 +129,9 @@
 <style>
     :global(.primary-action-indicator) {
         border-radius: 999px !important;
-        min-width: 63px !important;
-        padding: 0 var(--spacing-md) !important;
         gap: var(--spacing-sm) !important;
         font-size: var(--font-lg) !important;
-        font-weight: var(--weight-bold) !important;
-        letter-spacing: var(--tracking) !important;
+        font-weight: var(--weight-semibold) !important;
     }
 
     :global(.primary-action-indicator.modifier-active) {
