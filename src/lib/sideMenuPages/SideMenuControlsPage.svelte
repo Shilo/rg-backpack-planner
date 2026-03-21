@@ -80,6 +80,12 @@
 
     const SECTIONS: ControlSection[] = ["node", "tree", "view", "other"];
 
+    function splitHint(text: string): { main: string; hint: string } {
+        const match = text.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+        if (match) return { main: match[1].trim(), hint: match[2].trim() };
+        return { main: text, hint: "" };
+    }
+
     function buildIconEntries(control: ControlItem) {
         const entries: { component: Component }[] = [
             { component: control.icon },
@@ -378,6 +384,7 @@
                                 {$t(`sideMenu.sections.${sectionKey}`)}
                             </li>
                             {#each items as control (control.id)}
+                                {@const desc = splitHint(control.description)}
                                 <li class="control-row">
                                     <span class="control-icon" aria-hidden="true">
                                         <CyclingIcon
@@ -389,8 +396,13 @@
                                             >{control.label}</span
                                         >
                                         <span class="control-desc"
-                                            >{control.description}</span
+                                            >{desc.main}</span
                                         >
+                                        {#if desc.hint}
+                                            <span class="control-hint"
+                                                >{desc.hint}</span
+                                            >
+                                        {/if}
                                     </p>
                                 </li>
                             {/each}
@@ -412,6 +424,7 @@
                                 {$t(`sideMenu.sections.${sectionKey}`)}
                             </li>
                             {#each items as control (control.id)}
+                                {@const desc = splitHint(control.description)}
                                 <li class="control-row">
                                     <span class="control-icon" aria-hidden="true">
                                         <CyclingIcon
@@ -423,8 +436,13 @@
                                             >{control.label}</span
                                         >
                                         <span class="control-desc"
-                                            >{control.description}</span
+                                            >{desc.main}</span
                                         >
+                                        {#if desc.hint}
+                                            <span class="control-hint"
+                                                >{desc.hint}</span
+                                            >
+                                        {/if}
                                     </p>
                                 </li>
                             {/each}
@@ -781,6 +799,13 @@
 
     .control-inline > .control-desc::before {
         content: " — ";
+    }
+
+    .control-hint {
+        display: block;
+        font-size: var(--font-sm);
+        color: var(--text-disabled);
+        margin-top: var(--spacing-xs);
     }
 
     .control-shortcut {
