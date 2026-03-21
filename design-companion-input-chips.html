@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Chip Design Exploration</title>
+<style>
+  /* ═══ Base Reset & Theme (mimics your OKLCH dark theme) ═══ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a22;
+    --bg-raised: #222230;
+    --surface: #2a2a38;
+    --bg-input: #1e1e2a;
+    --border: #3a3a4e;
+    --border-subtle: #2e2e40;
+    --text: #e8e8f0;
+    --text-muted: #9898b0;
+    --text-disabled: #6e6e88;
+    --accent: #7c8cf0;
+    --accent-dim: #5a68c0;
+
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 8px;
+    --spacing-lg: 12px;
+    --border-width: 1px;
+    --radius-sm: 6px;
+    --radius: 12px;
+    --radius-full: 999px;
+    --font-xxs: 0.625rem;
+    --font-xs: 0.6875rem;
+    --font-sm: 0.8125rem;
+    --font-base: 0.875rem;
+    --leading-none: 1;
+    --ease: 0.2s ease;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 32px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+    margin-bottom: 40px;
+    max-width: 700px;
+    line-height: 1.5;
+  }
+
+  /* ═══ Section Layout ═══ */
+  .approach {
+    margin-bottom: 48px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 28px;
+    background: var(--bg-raised);
+  }
+
+  .approach-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .approach h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .approach-tag {
+    font-size: var(--font-xs);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+  }
+
+  .approach-desc {
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+
+  .demo-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .demo-label {
+    font-size: var(--font-xs);
+    color: var(--text-disabled);
+    min-width: 90px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  .demo-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .pros-cons dt {
+    font-size: var(--font-xs);
+    color: var(--text-disabled);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .pros-cons dd {
+    font-size: var(--font-sm);
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     APPROACH A: Segmented Pill
+     The entire combo is one pill. Modifiers get a subtle
+     left partition via a faint vertical divider inside the pill.
+     ═══════════════════════════════════════════════════════════ */
+
+  .a-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .a-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .a-seg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 6px;
+    color: var(--text-disabled);
+  }
+
+  .a-mod {
+    opacity: 0.72;
+  }
+
+  .a-plus {
+    color: var(--text-disabled);
+    opacity: 0.28;
+    font-size: 0.65em;
+    padding: 0 1px;
+    flex-shrink: 0;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     APPROACH B: Inset Divider Pill
+     Like A, but with a thin inset border between segments to
+     make the "compartments" inside the pill more pronounced.
+     ═══════════════════════════════════════════════════════════ */
+
+  .b-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .b-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .b-seg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 7px;
+    color: var(--text-disabled);
+  }
+
+  .b-seg + .b-seg {
+    border-left: var(--border-width) solid color-mix(in srgb, var(--border) 35%, transparent);
+  }
+
+  .b-mod {
+    opacity: 0.72;
+    font-size: 0.92em;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     APPROACH C: Gradient Fade Modifier
+     Modifier segments have a subtly darker/tinted background
+     that fades into the action segment. The whole chip is one
+     continuous surface — no dividers.
+     ═══════════════════════════════════════════════════════════ */
+
+  .c-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .c-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .c-seg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 7px;
+    color: var(--text-disabled);
+  }
+
+  .c-mod {
+    background: color-mix(in srgb, var(--bg-input) 70%, transparent);
+    color: var(--text-disabled);
+    opacity: 0.8;
+    font-size: 0.92em;
+  }
+
+  .c-plus {
+    color: var(--text-disabled);
+    opacity: 0.22;
+    font-size: 0.55em;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     APPROACH D: Accent-Tinted Modifier
+     Modifier keys pick up a very subtle accent tint inside
+     the pill, creating a color "zone" for the modifier part.
+     Feels more designed — good for gaming context.
+     ═══════════════════════════════════════════════════════════ */
+
+  .d-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .d-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 55%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .d-seg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 7px;
+    color: var(--text-disabled);
+  }
+
+  .d-mod {
+    background: color-mix(in srgb, var(--accent) 10%, var(--bg-input) 60%);
+    color: color-mix(in srgb, var(--accent) 50%, var(--text-disabled));
+    font-size: 0.92em;
+  }
+
+  .d-divider {
+    width: var(--border-width);
+    align-self: stretch;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    flex-shrink: 0;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     APPROACH E: Compact Stacked Notation
+     For combos, the modifier is rendered as a smaller
+     superscript-like prefix inside the same pill. Very compact.
+     ═══════════════════════════════════════════════════════════ */
+
+  .e-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .e-chip {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 3px 7px;
+    color: var(--text-disabled);
+    gap: 3px;
+  }
+
+  .e-mod {
+    font-size: 0.75em;
+    opacity: 0.6;
+    font-weight: 500;
+  }
+
+  .e-action {
+    font-weight: 500;
+  }
+
+  .e-joiner {
+    font-size: 0.6em;
+    opacity: 0.3;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     APPROACH F: Input-Type Colored
+     Different input types (keyboard, mouse, touch) get
+     distinct subtle color tints, so you can instantly tell
+     them apart at a glance. Touch = warm, Mouse = neutral,
+     Keyboard = cool.
+     ═══════════════════════════════════════════════════════════ */
+
+  .f-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .f-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .f-seg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 7px;
+  }
+
+  .f-chip--keyboard {
+    --chip-tint: #7c8cf0;
+    background: color-mix(in srgb, #7c8cf0 6%, var(--surface) 60%);
+    border: var(--border-width) solid color-mix(in srgb, #7c8cf0 20%, var(--border) 40%);
+    color: color-mix(in srgb, #7c8cf0 40%, var(--text-disabled));
+  }
+
+  .f-chip--mouse {
+    --chip-tint: #90d090;
+    background: color-mix(in srgb, #90d090 6%, var(--surface) 60%);
+    border: var(--border-width) solid color-mix(in srgb, #90d090 20%, var(--border) 40%);
+    color: color-mix(in srgb, #90d090 40%, var(--text-disabled));
+  }
+
+  .f-chip--touch {
+    --chip-tint: #f0b060;
+    background: color-mix(in srgb, #f0b060 6%, var(--surface) 60%);
+    border: var(--border-width) solid color-mix(in srgb, #f0b060 20%, var(--border) 40%);
+    color: color-mix(in srgb, #f0b060 40%, var(--text-disabled));
+  }
+
+  .f-mod {
+    opacity: 0.72;
+    font-size: 0.92em;
+  }
+
+  .f-seg + .f-seg {
+    border-left: var(--border-width) solid color-mix(in srgb, var(--chip-tint, var(--border)) 15%, transparent);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     COMPARISON: Full "Cycle" row — the worst case
+     Shows all 4 alternatives for tab cycling
+     ═══════════════════════════════════════════════════════════ */
+
+  .comparison {
+    margin-top: 48px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 28px;
+    background: var(--bg-raised);
+  }
+
+  .comparison h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+
+  .comparison-desc {
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+    margin-bottom: 20px;
+  }
+
+  .compare-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent);
+  }
+
+  .compare-row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .compare-label {
+    font-size: var(--font-xs);
+    color: var(--text-disabled);
+    min-width: 85px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Original Kbd.svelte style for comparison */
+  .old-kbd-group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .old-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-sm);
+    line-height: var(--leading-none);
+    color: var(--text-disabled);
+    background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
+    border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+    border-radius: var(--radius-sm);
+    padding: 3px 6px;
+    white-space: nowrap;
+  }
+
+  .old-kbd-sep {
+    color: var(--text-disabled);
+    opacity: 0.5;
+    font-size: 0.85em;
+    padding: 0 1px;
+  }
+
+  /* ═══ Footer note ═══ */
+  .note {
+    margin-top: 40px;
+    padding: 16px 20px;
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--accent) 15%, var(--border-subtle));
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+    line-height: 1.6;
+  }
+
+  .note strong {
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<h1>InputChip Design Exploration</h1>
+<p class="subtitle">
+  Six approaches for unified combo chips that represent keyboard, mouse, and touch inputs
+  as single cohesive units — no <code>/</code> separators between alternatives.
+  Each approach trades off density, clarity, and visual hierarchy differently.
+</p>
+
+
+<!-- ═══ APPROACH A ═══ -->
+<div class="approach">
+  <div class="approach-header">
+    <h2>A. Segmented Pill (Current KbdChip)</h2>
+    <span class="approach-tag">Baseline</span>
+  </div>
+  <p class="approach-desc">
+    What you already have. The combo is one pill with a faint "+" glyph between segments.
+    Modifiers are slightly dimmed. Clean and functional.
+  </p>
+
+  <div class="demo-row">
+    <span class="demo-label">Single</span>
+    <div class="demo-chips">
+      <span class="a-group">
+        <span class="a-chip"><span class="a-seg">Tab</span></span>
+        <span class="a-chip"><span class="a-seg">Esc</span></span>
+        <span class="a-chip"><span class="a-seg">Tap</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Combos</span>
+    <div class="demo-chips">
+      <span class="a-group">
+        <span class="a-chip">
+          <span class="a-seg a-mod">Ctrl</span>
+          <span class="a-plus">+</span>
+          <span class="a-seg">Z</span>
+        </span>
+        <span class="a-chip">
+          <span class="a-seg a-mod">Shift</span>
+          <span class="a-plus">+</span>
+          <span class="a-seg">Tab</span>
+        </span>
+        <span class="a-chip">
+          <span class="a-seg a-mod">Ctrl</span>
+          <span class="a-plus">+</span>
+          <span class="a-seg">Click</span>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Full row</span>
+    <div class="demo-chips">
+      <span class="a-group">
+        <span class="a-chip"><span class="a-seg">Tab</span></span>
+        <span class="a-chip">
+          <span class="a-seg a-mod">Shift</span>
+          <span class="a-plus">+</span>
+          <span class="a-seg">Tab</span>
+        </span>
+        <span class="a-chip"><span class="a-seg">←</span></span>
+        <span class="a-chip"><span class="a-seg">→</span></span>
+      </span>
+    </div>
+  </div>
+
+  <dl class="pros-cons">
+    <div>
+      <dt>Strengths</dt>
+      <dd>Clean, minimal, already proven. Each chip reads as one unit. "+" glyph is familiar.</dd>
+    </div>
+    <div>
+      <dt>Weaknesses</dt>
+      <dd>The "+" glyph inside the pill can still read as two things. No visual hierarchy between modifier and action.</dd>
+    </div>
+  </dl>
+</div>
+
+
+<!-- ═══ APPROACH B ═══ -->
+<div class="approach">
+  <div class="approach-header">
+    <h2>B. Inset Divider</h2>
+    <span class="approach-tag">Recommended</span>
+  </div>
+  <p class="approach-desc">
+    Same pill, but a thin inset border replaces the "+" glyph. Segments become visual compartments.
+    Reads like a single component with labeled sections — like a segmented control.
+  </p>
+
+  <div class="demo-row">
+    <span class="demo-label">Single</span>
+    <div class="demo-chips">
+      <span class="b-group">
+        <span class="b-chip"><span class="b-seg">Tab</span></span>
+        <span class="b-chip"><span class="b-seg">Esc</span></span>
+        <span class="b-chip"><span class="b-seg">Tap</span></span>
+        <span class="b-chip"><span class="b-seg">Long Press</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Combos</span>
+    <div class="demo-chips">
+      <span class="b-group">
+        <span class="b-chip">
+          <span class="b-seg b-mod">Ctrl</span>
+          <span class="b-seg">Z</span>
+        </span>
+        <span class="b-chip">
+          <span class="b-seg b-mod">Shift</span>
+          <span class="b-seg">Tab</span>
+        </span>
+        <span class="b-chip">
+          <span class="b-seg b-mod">Ctrl</span>
+          <span class="b-seg">Click</span>
+        </span>
+        <span class="b-chip">
+          <span class="b-seg b-mod">⌘</span>
+          <span class="b-seg b-mod">Shift</span>
+          <span class="b-seg">Z</span>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Full row</span>
+    <div class="demo-chips">
+      <span class="b-group">
+        <span class="b-chip"><span class="b-seg">Tab</span></span>
+        <span class="b-chip">
+          <span class="b-seg b-mod">Shift</span>
+          <span class="b-seg">Tab</span>
+        </span>
+        <span class="b-chip"><span class="b-seg">←</span></span>
+        <span class="b-chip"><span class="b-seg">→</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Touch</span>
+    <div class="demo-chips">
+      <span class="b-group">
+        <span class="b-chip"><span class="b-seg">Tap</span></span>
+        <span class="b-chip"><span class="b-seg">Long Press</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Mouse</span>
+    <div class="demo-chips">
+      <span class="b-group">
+        <span class="b-chip"><span class="b-seg">Left Click</span></span>
+        <span class="b-chip">
+          <span class="b-seg b-mod">Ctrl</span>
+          <span class="b-seg">Left Click</span>
+        </span>
+        <span class="b-chip"><span class="b-seg">Right Click</span></span>
+      </span>
+    </div>
+  </div>
+
+  <dl class="pros-cons">
+    <div>
+      <dt>Strengths</dt>
+      <dd>The divider reads as "part of the same thing" (like Ctrl|Z) without needing a "+" symbol. Excellent scannability. Each pill is clearly one atomic unit. Scales to 3-part combos cleanly.</dd>
+    </div>
+    <div>
+      <dt>Weaknesses</dt>
+      <dd>Slightly heavier visual weight than A. The divider line adds a small amount of visual noise.</dd>
+    </div>
+  </dl>
+</div>
+
+
+<!-- ═══ APPROACH C ═══ -->
+<div class="approach">
+  <div class="approach-header">
+    <h2>C. Gradient Modifier Zone</h2>
+    <span class="approach-tag">Subtle</span>
+  </div>
+  <p class="approach-desc">
+    Modifier segments get a darker background that blends into the action segment.
+    No dividers, no "+". The background shift alone signals "modifier → action" flow.
+  </p>
+
+  <div class="demo-row">
+    <span class="demo-label">Single</span>
+    <div class="demo-chips">
+      <span class="c-group">
+        <span class="c-chip"><span class="c-seg">Tab</span></span>
+        <span class="c-chip"><span class="c-seg">Tap</span></span>
+        <span class="c-chip"><span class="c-seg">Long Press</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Combos</span>
+    <div class="demo-chips">
+      <span class="c-group">
+        <span class="c-chip">
+          <span class="c-seg c-mod">Ctrl</span>
+          <span class="c-plus">›</span>
+          <span class="c-seg">Z</span>
+        </span>
+        <span class="c-chip">
+          <span class="c-seg c-mod">Shift</span>
+          <span class="c-plus">›</span>
+          <span class="c-seg">Tab</span>
+        </span>
+        <span class="c-chip">
+          <span class="c-seg c-mod">Ctrl</span>
+          <span class="c-plus">›</span>
+          <span class="c-seg">Click</span>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Full row</span>
+    <div class="demo-chips">
+      <span class="c-group">
+        <span class="c-chip"><span class="c-seg">Tab</span></span>
+        <span class="c-chip">
+          <span class="c-seg c-mod">Shift</span>
+          <span class="c-plus">›</span>
+          <span class="c-seg">Tab</span>
+        </span>
+        <span class="c-chip"><span class="c-seg">←</span></span>
+        <span class="c-chip"><span class="c-seg">→</span></span>
+      </span>
+    </div>
+  </div>
+
+  <dl class="pros-cons">
+    <div>
+      <dt>Strengths</dt>
+      <dd>Very smooth, unified feel. The background shift provides subtle hierarchy without any separators. Lightest visual weight of all combo approaches.</dd>
+    </div>
+    <div>
+      <dt>Weaknesses</dt>
+      <dd>The background difference is subtle — may not be noticeable enough in all themes. The "›" chevron is unusual for shortcuts.</dd>
+    </div>
+  </dl>
+</div>
+
+
+<!-- ═══ APPROACH D ═══ -->
+<div class="approach">
+  <div class="approach-header">
+    <h2>D. Accent-Tinted Modifier</h2>
+    <span class="approach-tag">Expressive</span>
+  </div>
+  <p class="approach-desc">
+    Modifier segments pick up a hint of the theme's accent color, with an accent-tinted divider.
+    Creates a clear "modifier zone" vs "action zone" within the pill.
+  </p>
+
+  <div class="demo-row">
+    <span class="demo-label">Single</span>
+    <div class="demo-chips">
+      <span class="d-group">
+        <span class="d-chip"><span class="d-seg">Tab</span></span>
+        <span class="d-chip"><span class="d-seg">Esc</span></span>
+        <span class="d-chip"><span class="d-seg">Tap</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Combos</span>
+    <div class="demo-chips">
+      <span class="d-group">
+        <span class="d-chip">
+          <span class="d-seg d-mod">Ctrl</span>
+          <span class="d-divider"></span>
+          <span class="d-seg">Z</span>
+        </span>
+        <span class="d-chip">
+          <span class="d-seg d-mod">Shift</span>
+          <span class="d-divider"></span>
+          <span class="d-seg">Tab</span>
+        </span>
+        <span class="d-chip">
+          <span class="d-seg d-mod">Ctrl</span>
+          <span class="d-divider"></span>
+          <span class="d-seg">Click</span>
+        </span>
+        <span class="d-chip">
+          <span class="d-seg d-mod">⌘</span>
+          <span class="d-divider"></span>
+          <span class="d-seg d-mod">Shift</span>
+          <span class="d-divider"></span>
+          <span class="d-seg">Z</span>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Full row</span>
+    <div class="demo-chips">
+      <span class="d-group">
+        <span class="d-chip"><span class="d-seg">Tab</span></span>
+        <span class="d-chip">
+          <span class="d-seg d-mod">Shift</span>
+          <span class="d-divider"></span>
+          <span class="d-seg">Tab</span>
+        </span>
+        <span class="d-chip"><span class="d-seg">←</span></span>
+        <span class="d-chip"><span class="d-seg">→</span></span>
+      </span>
+    </div>
+  </div>
+
+  <dl class="pros-cons">
+    <div>
+      <dt>Strengths</dt>
+      <dd>Strong visual hierarchy — modifiers are immediately identifiable. Ties into the theme's accent, so it feels native. The accent divider is a nice micro-detail.</dd>
+    </div>
+    <div>
+      <dt>Weaknesses</dt>
+      <dd>Busiest option. May fight for attention with surrounding UI. The accent tint adds color complexity that could clash with dense shortcut lists.</dd>
+    </div>
+  </dl>
+</div>
+
+
+<!-- ═══ APPROACH E ═══ -->
+<div class="approach">
+  <div class="approach-header">
+    <h2>E. Compact Prefix Notation</h2>
+    <span class="approach-tag">Dense</span>
+  </div>
+  <p class="approach-desc">
+    Modifiers render as smaller, lighter prefix text within one pill.
+    No dividers or extra elements — just typography hierarchy. Most space-efficient.
+  </p>
+
+  <div class="demo-row">
+    <span class="demo-label">Single</span>
+    <div class="demo-chips">
+      <span class="e-group">
+        <span class="e-chip"><span class="e-action">Tab</span></span>
+        <span class="e-chip"><span class="e-action">Esc</span></span>
+        <span class="e-chip"><span class="e-action">Tap</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Combos</span>
+    <div class="demo-chips">
+      <span class="e-group">
+        <span class="e-chip">
+          <span class="e-mod">Ctrl</span>
+          <span class="e-joiner">+</span>
+          <span class="e-action">Z</span>
+        </span>
+        <span class="e-chip">
+          <span class="e-mod">Shift</span>
+          <span class="e-joiner">+</span>
+          <span class="e-action">Tab</span>
+        </span>
+        <span class="e-chip">
+          <span class="e-mod">Ctrl</span>
+          <span class="e-joiner">+</span>
+          <span class="e-action">Click</span>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Full row</span>
+    <div class="demo-chips">
+      <span class="e-group">
+        <span class="e-chip"><span class="e-action">Tab</span></span>
+        <span class="e-chip">
+          <span class="e-mod">Shift</span>
+          <span class="e-joiner">+</span>
+          <span class="e-action">Tab</span>
+        </span>
+        <span class="e-chip"><span class="e-action">←</span></span>
+        <span class="e-chip"><span class="e-action">→</span></span>
+      </span>
+    </div>
+  </div>
+
+  <dl class="pros-cons">
+    <div>
+      <dt>Strengths</dt>
+      <dd>Most compact. Great for dense UIs or tooltip contexts. Typography alone creates hierarchy.</dd>
+    </div>
+    <div>
+      <dt>Weaknesses</dt>
+      <dd>Less visually distinct combos — modifier and action can blur together. Harder to scan quickly in a long list.</dd>
+    </div>
+  </dl>
+</div>
+
+
+<!-- ═══ APPROACH F ═══ -->
+<div class="approach">
+  <div class="approach-header">
+    <h2>F. Input-Type Color Coding</h2>
+    <span class="approach-tag">Semantic</span>
+  </div>
+  <p class="approach-desc">
+    Each chip gets a subtle tint based on input type: blue for keyboard, green for mouse, amber for touch.
+    Combined with inset dividers. You instantly know which device a shortcut is for.
+  </p>
+
+  <div class="demo-row">
+    <span class="demo-label">Keyboard</span>
+    <div class="demo-chips">
+      <span class="f-group">
+        <span class="f-chip f-chip--keyboard"><span class="f-seg">Tab</span></span>
+        <span class="f-chip f-chip--keyboard">
+          <span class="f-seg f-mod">Ctrl</span>
+          <span class="f-seg">Z</span>
+        </span>
+        <span class="f-chip f-chip--keyboard">
+          <span class="f-seg f-mod">Shift</span>
+          <span class="f-seg">Tab</span>
+        </span>
+        <span class="f-chip f-chip--keyboard"><span class="f-seg">←</span></span>
+        <span class="f-chip f-chip--keyboard"><span class="f-seg">→</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Mouse</span>
+    <div class="demo-chips">
+      <span class="f-group">
+        <span class="f-chip f-chip--mouse"><span class="f-seg">Left Click</span></span>
+        <span class="f-chip f-chip--mouse">
+          <span class="f-seg f-mod">Ctrl</span>
+          <span class="f-seg">Left Click</span>
+        </span>
+        <span class="f-chip f-chip--mouse"><span class="f-seg">Right Click</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Touch</span>
+    <div class="demo-chips">
+      <span class="f-group">
+        <span class="f-chip f-chip--touch"><span class="f-seg">Tap</span></span>
+        <span class="f-chip f-chip--touch"><span class="f-seg">Long Press</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="demo-row">
+    <span class="demo-label">Mixed</span>
+    <div class="demo-chips">
+      <span class="f-group">
+        <span class="f-chip f-chip--touch"><span class="f-seg">Tap</span></span>
+        <span class="f-chip f-chip--mouse"><span class="f-seg">Left Click</span></span>
+        <span class="f-chip f-chip--keyboard"><span class="f-seg">Space</span></span>
+      </span>
+    </div>
+  </div>
+
+  <dl class="pros-cons">
+    <div>
+      <dt>Strengths</dt>
+      <dd>Maximum information density — input type is instantly readable. Works beautifully for a controls/settings page where all three input types appear together.</dd>
+    </div>
+    <div>
+      <dt>Weaknesses</dt>
+      <dd>Most complex to implement (requires knowing the input type). The color-coding system needs to be learned. May add too many colors to an already themed UI.</dd>
+    </div>
+  </dl>
+</div>
+
+
+<!-- ═══ COMPARISON: Worst Case ═══ -->
+<div class="comparison">
+  <h2>Side-by-Side: Hardest Case</h2>
+  <p class="comparison-desc">
+    "Tab / Shift + Tab / ← / →" — a 4-alternative shortcut for tab cycling.
+    This is the stress test. How does each approach hold up?
+  </p>
+
+  <div class="compare-row">
+    <span class="compare-label">Original</span>
+    <span class="old-kbd-group">
+      <kbd class="old-kbd">Tab</kbd>
+      <span class="old-kbd-sep">/</span>
+      <kbd class="old-kbd">Shift</kbd>
+      <span class="old-kbd-sep">+</span>
+      <kbd class="old-kbd">Tab</kbd>
+      <span class="old-kbd-sep">/</span>
+      <kbd class="old-kbd">←</kbd>
+      <span class="old-kbd-sep">/</span>
+      <kbd class="old-kbd">→</kbd>
+    </span>
+  </div>
+
+  <div class="compare-row">
+    <span class="compare-label">A. Segmented</span>
+    <span class="a-group">
+      <span class="a-chip"><span class="a-seg">Tab</span></span>
+      <span class="a-chip">
+        <span class="a-seg a-mod">Shift</span>
+        <span class="a-plus">+</span>
+        <span class="a-seg">Tab</span>
+      </span>
+      <span class="a-chip"><span class="a-seg">←</span></span>
+      <span class="a-chip"><span class="a-seg">→</span></span>
+    </span>
+  </div>
+
+  <div class="compare-row">
+    <span class="compare-label">B. Divider</span>
+    <span class="b-group">
+      <span class="b-chip"><span class="b-seg">Tab</span></span>
+      <span class="b-chip">
+        <span class="b-seg b-mod">Shift</span>
+        <span class="b-seg">Tab</span>
+      </span>
+      <span class="b-chip"><span class="b-seg">←</span></span>
+      <span class="b-chip"><span class="b-seg">→</span></span>
+    </span>
+  </div>
+
+  <div class="compare-row">
+    <span class="compare-label">C. Gradient</span>
+    <span class="c-group">
+      <span class="c-chip"><span class="c-seg">Tab</span></span>
+      <span class="c-chip">
+        <span class="c-seg c-mod">Shift</span>
+        <span class="c-plus">›</span>
+        <span class="c-seg">Tab</span>
+      </span>
+      <span class="c-chip"><span class="c-seg">←</span></span>
+      <span class="c-chip"><span class="c-seg">→</span></span>
+    </span>
+  </div>
+
+  <div class="compare-row">
+    <span class="compare-label">D. Accent</span>
+    <span class="d-group">
+      <span class="d-chip"><span class="d-seg">Tab</span></span>
+      <span class="d-chip">
+        <span class="d-seg d-mod">Shift</span>
+        <span class="d-divider"></span>
+        <span class="d-seg">Tab</span>
+      </span>
+      <span class="d-chip"><span class="d-seg">←</span></span>
+      <span class="d-chip"><span class="d-seg">→</span></span>
+    </span>
+  </div>
+
+  <div class="compare-row">
+    <span class="compare-label">E. Compact</span>
+    <span class="e-group">
+      <span class="e-chip"><span class="e-action">Tab</span></span>
+      <span class="e-chip">
+        <span class="e-mod">Shift</span>
+        <span class="e-joiner">+</span>
+        <span class="e-action">Tab</span>
+      </span>
+      <span class="e-chip"><span class="e-action">←</span></span>
+      <span class="e-chip"><span class="e-action">→</span></span>
+    </span>
+  </div>
+
+  <div class="compare-row">
+    <span class="compare-label">F. Colored</span>
+    <span class="f-group">
+      <span class="f-chip f-chip--keyboard"><span class="f-seg">Tab</span></span>
+      <span class="f-chip f-chip--keyboard">
+        <span class="f-seg f-mod">Shift</span>
+        <span class="f-seg">Tab</span>
+      </span>
+      <span class="f-chip f-chip--keyboard"><span class="f-seg">←</span></span>
+      <span class="f-chip f-chip--keyboard"><span class="f-seg">→</span></span>
+    </span>
+  </div>
+</div>
+
+
+<div class="note">
+  <strong>Design recommendation:</strong> Approach <strong>B (Inset Divider)</strong> is the strongest default — it's the clearest
+  visual signal that segments belong to one combo, without adding color complexity or unusual symbols.
+  It pairs well with approach <strong>F</strong>'s color coding as an optional enhancement if you want to differentiate
+  input types on the controls page. Approaches can also be mixed: B's divider structure with D's accent tint
+  for the modifier zone, for example.
+</div>
+
+</body>
+</html>
