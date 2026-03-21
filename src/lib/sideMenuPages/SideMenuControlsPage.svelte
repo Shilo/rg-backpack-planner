@@ -37,7 +37,7 @@
     import { t } from "svelte-whisper";
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { getDeviceInputLabels, getKeyboardActionLabel } from "../input";
-    import InputChips from "../InputChips.svelte";
+    import Kbd from "../Kbd.svelte";
 
     import { getCurrentVersion } from "../latestUsedVersionStore";
 
@@ -77,7 +77,6 @@
         iconTertiary?: Component;
         device: ControlDevice;
         section: ControlSection;
-        shortcut?: string;
     };
 
     const SECTIONS: ControlSection[] = ["node", "tree", "view", "other"];
@@ -128,7 +127,6 @@
             icon: MouseLeftClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.primary,
         },
         {
             id: "pointer-node-alternate",
@@ -138,7 +136,6 @@
             iconSecondary: MouseLeftClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.alternatePrimary,
         },
         {
             id: "pointer-node-decrement",
@@ -147,7 +144,6 @@
             icon: MouseMiddleClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.auxiliary,
         },
         {
             id: "pointer-node-reverse",
@@ -157,7 +153,6 @@
             iconSecondary: MouseLeftClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.reversePrimary,
         },
         {
             id: "pointer-node-alternate-auxiliary",
@@ -167,7 +162,6 @@
             iconSecondary: MouseMiddleClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.alternateAuxiliary,
         },
         {
             id: "pointer-node-reverse-alternate",
@@ -178,7 +172,6 @@
             iconTertiary: MouseLeftClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.reverseAlternatePrimary,
         },
         {
             id: "pointer-node-menu",
@@ -187,7 +180,6 @@
             icon: MouseRightClickIcon,
             device: "pointer",
             section: "node",
-            shortcut: mouse.secondary,
         },
         {
             id: "pointer-tree-menu",
@@ -196,7 +188,6 @@
             icon: MouseRightClickIcon,
             device: "pointer",
             section: "tree",
-            shortcut: mouse.secondary,
         },
         {
             id: "pointer-pan",
@@ -205,7 +196,6 @@
             icon: ArrowsOutCardinalIcon,
             device: "pointer",
             section: "tree",
-            shortcut: mouse.primary,
         },
         {
             id: "pointer-zoom",
@@ -230,7 +220,6 @@
             icon: HandTapIcon,
             device: "touch",
             section: "node",
-            shortcut: touch.primary,
         },
         {
             id: "touch-node-menu",
@@ -239,7 +228,6 @@
             icon: LongPressIcon,
             device: "touch",
             section: "node",
-            shortcut: touch.secondary,
         },
         {
             id: "touch-tree-menu",
@@ -248,7 +236,6 @@
             icon: LongPressIcon,
             device: "touch",
             section: "tree",
-            shortcut: touch.secondary,
         },
         {
             id: "touch-pan",
@@ -421,9 +408,6 @@
                                                 >{desc.hint}</span
                                             >
                                         {/if}
-                                        {#if control.shortcut}
-                                            <span class="control-shortcut"><InputChips tint="touch" keys={control.shortcut} /></span>
-                                        {/if}
                                     </p>
                                 </li>
                             {/each}
@@ -464,9 +448,6 @@
                                                 >{desc.hint}</span
                                             >
                                         {/if}
-                                        {#if control.shortcut}
-                                            <span class="control-shortcut"><InputChips tint="mouse" keys={control.shortcut} /></span>
-                                        {/if}
                                     </p>
                                 </li>
                             {/each}
@@ -494,7 +475,7 @@
                                     "controls.keyboardCyclePrimaryActionDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyCyclePrimaryAction} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -510,7 +491,7 @@
                                     "controls.keyboardBudgetDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyBudget} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyBudget} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -524,7 +505,7 @@
                             <span class="control-desc"
                                 >{$t("controls.keyboardEscDescription")}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyDismiss} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyDismiss} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -540,7 +521,7 @@
                                     "controls.keyboardBackspaceDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyBack} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyBack} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -554,7 +535,7 @@
                             <span class="control-desc"
                                 >{$t("controls.keyboardUndoDescription")}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyUndo} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyUndo} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -568,7 +549,7 @@
                             <span class="control-desc"
                                 >{$t("controls.keyboardRedoDescription")}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyRedo} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyRedo} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -584,7 +565,7 @@
                                     "controls.keyboardCycleTabsDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyCycle} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyCycle} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -600,7 +581,7 @@
                                     "controls.keyboardScreenshotDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyScreenshot} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyScreenshot} /></span>
                         </p>
                     </li>
                     <li class="control-row">
@@ -616,7 +597,7 @@
                                     "controls.keyboardFullscreenDescription",
                                 )}</span
                             >
-                            <span class="control-shortcut"><InputChips tint="keyboard" keys={keyFullscreen} /></span>
+                            <span class="control-shortcut"><Kbd keys={keyFullscreen} /></span>
                         </p>
                     </li>
                 </ul>
@@ -635,7 +616,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudPrimaryActionDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyCyclePrimaryAction} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyCyclePrimaryAction} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -652,7 +633,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudTechCrystalsDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyBudget} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyBudget} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -666,7 +647,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudSideMenuDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyDismiss} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyDismiss} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -680,7 +661,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudResetTreeDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyBack} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyBack} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -694,7 +675,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudUndoDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyUndo} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyUndo} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -708,7 +689,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudRedoDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyRedo} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyRedo} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -725,7 +706,7 @@
                                 { action: hudPrimaryAction },
                             )}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyConsole} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyConsole} /></span>
                     </p>
                 </li>
                 <li class="control-row">
@@ -739,7 +720,7 @@
                         <span class="control-desc"
                             >{$t("controls.hudFullscreenDescription")}</span
                         >
-                        <span class="control-shortcut"><InputChips tint="keyboard" keys={keyFullscreen} /></span>
+                        <span class="control-shortcut"><Kbd keys={keyFullscreen} /></span>
                     </p>
                 </li>
                 <li class="control-row">
