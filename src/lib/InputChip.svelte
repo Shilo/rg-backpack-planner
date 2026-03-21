@@ -37,7 +37,8 @@
         <span
             class="kc-seg"
             class:kc-mod={segments.length > 1 && i < segments.length - 1}
-        >{key}</span>
+            >{key}</span
+        >
     {/each}
 </span>
 
@@ -46,15 +47,16 @@
         --kc-tint: transparent;
         display: inline-flex;
         align-items: center;
-        font-family: inherit;
-        font-size: inherit;
+        font-size: var(--font-base);
+        font-weight: var(--weight-semibold);
         line-height: var(--leading-none);
-        border: var(--border-width) solid color-mix(in srgb, var(--border) 60%, transparent);
+        border: var(--border-width) solid
+            color-mix(in srgb, var(--border) 60%, transparent);
         border-radius: var(--radius-sm);
         background: color-mix(in srgb, var(--surface) 60%, var(--bg-input));
         overflow: hidden;
         white-space: nowrap;
-        vertical-align: baseline;
+        vertical-align: middle;
     }
 
     /* ── Input-type color coding ── */
@@ -94,7 +96,8 @@
     }
 
     .kc-seg + .kc-seg {
-        border-left: var(--border-width) solid color-mix(in srgb, var(--kc-tint, var(--border)) 35%, transparent);
+        border-left: var(--border-width) solid
+            color-mix(in srgb, var(--kc-tint, var(--border)) 35%, transparent);
     }
 
     .kc-mod {
