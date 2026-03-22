@@ -48,7 +48,7 @@ https://rgbp.app
 - Added Ctrl+Z and Ctrl+Y keyboard shortcuts for undo and redo.
 - Added Tech Crystal budget enforcement that caps node upgrades when they would exceed your set budget, with a toast action to override.
 - Added "Ignore Tech Crystal Budget" toggle in Node settings to disable budget enforcement.
-- Added a redesigned Tech Crystals button with clearer budget indication.
+- Added a redesigned Tech Crystal button with clearer budget indication.
 - Added a debug information panel in the About settings page for troubleshooting device and app state.
 
 ## Improved

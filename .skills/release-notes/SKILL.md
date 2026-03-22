@@ -83,6 +83,8 @@ Omit any category (New, Improved, Fixed) that has no entries. Always include the
 - One sentence per bullet, plain language, no jargon.
 - Describe the benefit to the player, not the implementation detail.
 - No ticket IDs, file paths, component names, or internal codenames.
+- Use proper game terms. "Tech Crystal" should never be shortened to "Crystal".
+
 
 #### Section format
 
