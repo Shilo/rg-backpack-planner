@@ -218,6 +218,13 @@ textarea,
     animation: tooltip-in 0.12s ease both;
 }
 
+.tooltip.tooltip-shortcut-only {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
 .tooltip-line {
     display: block;
 }

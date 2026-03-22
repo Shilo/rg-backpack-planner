@@ -129,7 +129,7 @@
         }
     }
 
-    async function navigateTo(page: SettingsPageId) {
+    export async function navigateTo(page: SettingsPageId) {
         if (isTransitioning || page === currentPage) return;
         lastNavigatedPage = page;
         await transition(page, "forward");

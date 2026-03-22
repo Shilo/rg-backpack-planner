@@ -595,7 +595,8 @@
             "treeOptionsDesc": "Show tree context menu",
             "tooltip": "Tooltip",
             "tooltipDesc": "Show tooltip on nodes or buttons"
-        }
+        },
+        "tutorial": "Tutorial"
     },
     "onboarding": {
         "nodesSection": "Nodes",

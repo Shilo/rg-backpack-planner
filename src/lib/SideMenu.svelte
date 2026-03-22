@@ -11,6 +11,7 @@
     import type { Node } from "../types/tree";
     import type { TreeBranchKey } from "./treeLevelsStore";
     import { get } from "svelte/store";
+    import { tick } from "svelte";
     import {
         setActiveTab,
         setActiveTabWithoutPersist,
@@ -59,11 +60,19 @@
     let SideMenuSettingsPage: any = null;
     let SideMenuStatisticsPage: any = null;
     let SideMenuControlsPage: any = null;
-    let settingsPageRef: { tryGoBack?: () => boolean } | null = null;
+    let settingsPageRef: { tryGoBack?: () => boolean; navigateTo?: (page: string) => Promise<void> } | null = null;
 
     export function tryGoBack(): boolean {
         if (activeTab !== "settings") return false;
         return settingsPageRef?.tryGoBack?.() ?? false;
+    }
+
+    async function handleOpenAbout() {
+        await loadTabPage("settings");
+        activeTab = "settings";
+        setActiveTab(activeTab);
+        await tick();
+        settingsPageRef?.navigateTo?.("about");
     }
 
     async function loadTabPage(tab: SideMenuTab): Promise<void> {
@@ -176,6 +185,7 @@
                         this={SideMenuControlsPage}
                         {onClose}
                         {activeTreeIndex}
+                        onOpenAbout={handleOpenAbout}
                     />
                 {/if}
             </div>

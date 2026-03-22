@@ -143,6 +143,9 @@
     }
 
     $: tooltipMaxViewport = TOOLTIP_MAX_VIEWPORT_PERCENT;
+    $: shortcutOnly =
+        $tooltipStore.sections.length > 0 &&
+        $tooltipStore.sections.every((s) => s.type === "shortcut");
 </script>
 
 {#if $tooltipStore.isOpen}
@@ -151,6 +154,7 @@
         <div use:portal>
             <div
                 class="tooltip"
+                class:tooltip-shortcut-only={shortcutOnly}
                 bind:this={tooltipEl}
                 style="--tooltip-max-vw: {tooltipMaxViewport}; --tooltip-max-vh: {tooltipMaxViewport}; left: {boundedX}px; top: {boundedY}px;"
                 aria-hidden="true"

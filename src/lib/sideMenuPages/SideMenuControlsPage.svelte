@@ -1,6 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { t } from "svelte-whisper";
+    import { InfoIcon, BookOpenTextIcon } from "phosphor-svelte";
+    import Button from "../Button.svelte";
     import CollapsibleSection from "../CollapsibleSection.svelte";
     import TableRow from "../TableRow.svelte";
     import InputChips from "../InputChips.svelte";
@@ -13,9 +15,16 @@
     import { getActionTrigger } from "./controlsTriggers";
     import { treeLevels, sumLevels } from "../treeLevelsStore";
     import { isPreviewMode } from "../previewModeStore";
+    import { showOnboarding } from "../onboarding/onboardingStore";
 
     export let onClose: (() => void) | null = null;
+    export let onOpenAbout: (() => void) | null = null;
     export let activeTreeIndex = 0;
+
+    function handleTutorial() {
+        showOnboarding();
+        onClose?.();
+    }
 
     let showMouse = true;
     let showTouch = true;
@@ -86,6 +95,14 @@
     }));
 </script>
 
+<div class="controls-header">
+    <Button small icon={InfoIcon} on:click={() => onOpenAbout?.()}>
+        {$t("sideMenu.sections.instructions")}
+    </Button>
+    <Button small icon={BookOpenTextIcon} on:click={handleTutorial}>
+        {$t("controls.tutorial")}
+    </Button>
+</div>
 <div class="controls-page">
     {#each grouped as section}
         <CollapsibleSection
@@ -118,6 +135,16 @@
 </div>
 
 <style>
+    .controls-header {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+
+    .controls-header :global(.button) {
+        flex: 1;
+        min-width: 0;
+    }
+
     .controls-page {
         display: flex;
         flex-direction: column;

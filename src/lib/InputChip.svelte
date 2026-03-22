@@ -45,6 +45,7 @@
 <style>
     .kc {
         --kc-tint: transparent;
+        --kc-divider: color-mix(in srgb, var(--border) 50%, transparent);
         display: inline-flex;
         align-items: center;
         font-size: var(--font-base);
@@ -63,18 +64,21 @@
 
     .kc--keyboard {
         --kc-tint: oklch(0.72 0.14 260);
+        --kc-divider: color-mix(in srgb, var(--kc-tint) 35%, transparent);
         background: color-mix(in srgb, var(--kc-tint) 6%, var(--surface) 60%);
         border-color: color-mix(in srgb, var(--kc-tint) 20%, var(--border) 40%);
     }
 
     .kc--mouse {
         --kc-tint: oklch(0.75 0.12 145);
+        --kc-divider: color-mix(in srgb, var(--kc-tint) 35%, transparent);
         background: color-mix(in srgb, var(--kc-tint) 6%, var(--surface) 60%);
         border-color: color-mix(in srgb, var(--kc-tint) 20%, var(--border) 40%);
     }
 
     .kc--touch {
         --kc-tint: oklch(0.75 0.12 75);
+        --kc-divider: color-mix(in srgb, var(--kc-tint) 35%, transparent);
         background: color-mix(in srgb, var(--kc-tint) 6%, var(--surface) 60%);
         border-color: color-mix(in srgb, var(--kc-tint) 20%, var(--border) 40%);
     }
@@ -96,8 +100,7 @@
     }
 
     .kc-seg + .kc-seg {
-        border-left: var(--border-width) solid
-            color-mix(in srgb, var(--kc-tint, var(--border)) 35%, transparent);
+        border-left: var(--border-width) solid var(--kc-divider);
     }
 
     .kc-mod {
