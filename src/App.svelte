@@ -635,6 +635,7 @@
                 if (
                     $isComposeScreenshotOpen ||
                     document.querySelector(".context-menu") ||
+                    document.querySelector(".color-picker-backdrop") ||
                     document.querySelector(".qs-panel") ||
                     hasOnboardingOverlay()
                 )
