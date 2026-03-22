@@ -33,14 +33,22 @@
     .button-group > :global(:not(:first-child)) {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
-        border-left: none;
+        border-left: var(--border-width) solid transparent;
+    }
+
+    .button-group:has(:global(:active)) > :global(:not(:first-child)) {
+        border-left-color: var(--border);
     }
 
     .button-group-border-right > :global(:not(:last-child)) {
-        border-right: none;
+        border-right: var(--border-width) solid transparent;
     }
 
     .button-group-border-right > :global(:not(:first-child)) {
         border-left: var(--border-width) solid var(--border);
+    }
+
+    .button-group-border-right:has(:global(:active)) > :global(:not(:last-child)) {
+        border-right-color: var(--border);
     }
 </style>
