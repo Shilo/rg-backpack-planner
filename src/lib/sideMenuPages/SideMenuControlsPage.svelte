@@ -3,6 +3,7 @@
     import { t } from "svelte-whisper";
     import { InfoIcon, BookOpenTextIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import ButtonGroup from "../ButtonGroup.svelte";
     import CollapsibleSection from "../CollapsibleSection.svelte";
     import TableRow from "../TableRow.svelte";
     import InputChips from "../InputChips.svelte";
@@ -95,14 +96,14 @@
     }));
 </script>
 
-<div class="controls-header">
+<ButtonGroup class="controls-header">
     <Button small icon={InfoIcon} on:click={() => onOpenAbout?.()}>
         {$t("sideMenu.sections.instructions")}
     </Button>
     <Button small icon={BookOpenTextIcon} on:click={handleTutorial}>
         {$t("controls.tutorial")}
     </Button>
-</div>
+</ButtonGroup>
 <div class="controls-page">
     {#each grouped as section}
         <CollapsibleSection
@@ -135,12 +136,7 @@
 </div>
 
 <style>
-    .controls-header {
-        display: flex;
-        gap: var(--spacing-sm);
-    }
-
-    .controls-header :global(.button) {
+    :global(.controls-header .button) {
         flex: 1;
         min-width: 0;
     }

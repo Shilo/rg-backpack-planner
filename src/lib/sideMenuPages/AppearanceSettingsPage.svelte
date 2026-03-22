@@ -10,6 +10,7 @@
     import type { Component } from "svelte";
     import { tooltip } from "../tooltip";
     import { triggerHaptic } from "../hapticsStore";
+    import ButtonGroup from "../ButtonGroup.svelte";
     import SettingsPage from "./SettingsPage.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
     import SegmentedControl from "../SegmentedControl.svelte";
@@ -72,7 +73,7 @@
 
 <SettingsPage title={$t("settings.pages.appearance")} {onBack}>
     <SideMenuSection title={$t("sideMenu.sections.lookAndFeel")}>
-        <div class="button-group theme-row">
+        <ButtonGroup class="theme-row">
             <ThemeColorSelector description={$t("settings.themeDescription")} />
             <button
                 class="icon-button"
@@ -93,7 +94,7 @@
                     >
                 {/if}
             </button>
-        </div>
+        </ButtonGroup>
         <ToggleSwitch
             checked={$uppercaseText}
             label={$t("settings.uppercaseText")}
@@ -127,7 +128,7 @@
 </SettingsPage>
 
 <style>
-    .theme-row > :global(:first-child) {
+    :global(.theme-row > :first-child) {
         flex: 1;
         min-width: 0;
     }
@@ -172,9 +173,4 @@
         outline-offset: 2px;
     }
 
-    .theme-row .icon-button {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-left: none;
-    }
 </style>

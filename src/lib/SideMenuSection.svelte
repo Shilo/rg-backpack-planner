@@ -50,4 +50,9 @@
         display: grid;
         gap: var(--spacing-md);
     }
+
+    .side-menu-section__content > :global(.button:has(.button-text:not(:empty))),
+    .side-menu-section__content > :global(.button-group) {
+        min-width: 0;
+    }
 </style>

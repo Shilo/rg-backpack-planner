@@ -318,28 +318,6 @@
         transform: scale(0.96);
     }
 
-    :global(.button-group) {
-        display: flex;
-        align-items: stretch;
-        gap: 0;
-    }
-
-    /* Let all group members stretch to match the tallest (e.g. when text wraps) */
-    :global(.button-group > *) {
-        align-self: stretch;
-    }
-
-    :global(.button-group > :first-child) {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    :global(.button-group .dropdown-button) {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-left: none;
-    }
-
     .button-text-group {
         display: flex;
         flex-direction: column;

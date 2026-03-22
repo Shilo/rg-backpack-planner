@@ -12,6 +12,7 @@
         TrashSimpleIcon,
     } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import ButtonGroup from "../ButtonGroup.svelte";
     import CloneBuildButton from "./CloneBuildButton.svelte";
     import ShareBuildButton from "./ShareBuildButton.svelte";
     import ContextMenu from "../ContextMenu.svelte";
@@ -346,7 +347,7 @@
             {#each $buildPresetsStore.presets as preset (preset.id)}
                 {@const isActive = preset.id === $buildPresetsStore.active}
                 {@const presetDisplayName = getDisplayPresetName(preset.name)}
-                <div class="preset-row button-group" data-preset-id={preset.id}>
+                <ButtonGroup class="preset-row" data-preset-id={preset.id}>
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}
                         tooltipText={isActive
@@ -365,7 +366,7 @@
                         {truncateText(presetDisplayName)}
                     </Button>
                     <Button
-                        class="preset-edit-btn dropdown-button"
+                        class="preset-edit-btn"
                         tooltipText={$t("buildPresets.editPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
@@ -375,10 +376,10 @@
                         icon={DotsThreeVerticalIcon}
                         on:click={(e) => openEditMenu(e, preset.id)}
                     />
-                </div>
+                </ButtonGroup>
             {/each}
         </div>
-        <div class="button-group">
+        <ButtonGroup>
             <Button
                 class="add-new-build-btn"
                 on:click={() => handleAddBuild()}
@@ -389,13 +390,12 @@
                 {$t("buildPresets.addNew")}
             </Button>
             <Button
-                class="dropdown-button"
                 on:click={handleDeleteAllAndAddNew}
                 tooltipText={$t("buildPresets.deleteAllAndCreateTooltip")}
                 icon={TrashSimpleIcon}
                 negative
             />
-        </div>
+        </ButtonGroup>
     </ContextMenu>
 </div>
 
@@ -413,24 +413,22 @@
             onClose={closeEditMenu}
             anchorBelow
         >
-            <div
-                class="button-group move-buttons-row"
-                class:hidden={$buildPresetsStore.presets.length < 2}
-            >
-                <Button
-                    on:click={handleMoveUp}
-                    tooltipText={$t("buildPresets.movePresetUpTooltip")}
-                    icon={CaretUpIcon}
-                    disabled={!canMoveUp}
-                />
-                <Button
-                    on:click={handleMoveDown}
-                    class="dropdown-button"
-                    tooltipText={$t("buildPresets.movePresetDownTooltip")}
-                    icon={CaretDownIcon}
-                    disabled={!canMoveDown}
-                />
-            </div>
+            {#if $buildPresetsStore.presets.length >= 2}
+                <ButtonGroup class="move-buttons-row">
+                    <Button
+                        on:click={handleMoveUp}
+                        tooltipText={$t("buildPresets.movePresetUpTooltip")}
+                        icon={CaretUpIcon}
+                        disabled={!canMoveUp}
+                    />
+                    <Button
+                        on:click={handleMoveDown}
+                        tooltipText={$t("buildPresets.movePresetDownTooltip")}
+                        icon={CaretDownIcon}
+                        disabled={!canMoveDown}
+                    />
+                </ButtonGroup>
+            {/if}
             <Button
                 on:click={() => handleRename(editMenuPresetId!)}
                 tooltipText={$t("buildPresets.editPresetNameTooltip")}
@@ -495,10 +493,7 @@
         pointer-events: auto;
     }
 
-    .preset-row {
-        display: flex;
-        align-items: center;
-        gap: 0;
+    :global(.preset-row) {
         min-width: 0;
     }
 
@@ -548,15 +543,7 @@
         gap: var(--spacing-md);
     }
 
-    :global(.move-buttons-row) {
-        display: flex;
-
-        :global(button) {
-            flex: 1;
-        }
-    }
-
-    :global(.move-buttons-row.hidden) {
-        display: none;
+    :global(.move-buttons-row button) {
+        flex: 1;
     }
 </style>

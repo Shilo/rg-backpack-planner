@@ -7,6 +7,7 @@
         PaletteIcon,
     } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import ButtonGroup from "../ButtonGroup.svelte";
     import BuildPresetsButton from "../buttons/BuildPresetsButton.svelte";
     import FocusInViewButton from "../buttons/FocusInViewButton.svelte";
     import ResetAllTreesButton from "../buttons/ResetAllTreesButton.svelte";
@@ -63,7 +64,7 @@
     <SideMenuSection title={$t("sideMenu.sections.build")}>
         <TechCrystalsButton disabled={$isPreviewMode} {activeTreeIndex} />
         <BuildPresetsButton disabled={$isPreviewMode} />
-        <div class="button-group build-share-row">
+        <ButtonGroup class="build-share-row" separatorSide="right">
             <ShareBuildButton
                 title={$t("settings.shareButton")}
                 description={$t("settings.shareDescription")}
@@ -71,7 +72,6 @@
                 onComposeScreenshot={() => onClose?.()}
             />
             <Button
-                class="dropdown-button"
                 bind:element={previewButtonElement}
                 on:click={handlePreviewDropdownClick}
                 description={$t("settings.previewDescription")}
@@ -80,7 +80,7 @@
             >
                 {$t("settings.previewButton")}
             </Button>
-        </div>
+        </ButtonGroup>
     </SideMenuSection>
 
     <SideMenuSection
@@ -155,22 +155,7 @@
 />
 
 <style>
-    :global(
-            .side-menu-section .button:has(.button-text:not(:empty)),
-            .side-menu-section .button-group
-        ) {
-        min-width: 0;
-    }
-
-    .build-share-row :global(.button) {
+    :global(.build-share-row .button) {
         flex: 1 1 auto;
-    }
-
-    .build-share-row > :global(:first-child) {
-        border-right: none;
-    }
-
-    .build-share-row > :global(.dropdown-button) {
-        border-left: var(--border-width) solid var(--border);
     }
 </style>
