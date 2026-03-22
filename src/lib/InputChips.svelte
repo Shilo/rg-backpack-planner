@@ -33,9 +33,9 @@
 
 <style>
     .ks {
-        display: inline-flex;
-        align-items: center;
-        flex-wrap: wrap;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
         gap: var(--spacing-sm);
     }
 </style>

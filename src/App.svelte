@@ -871,7 +871,8 @@
 
     @media (min-width: 768px) {
         .top-left-actions,
-        .top-right-actions {
+        .top-right-actions,
+        .bot-left-actions {
             z-index: var(--z-index-hud-over-side-menu-backdrop);
         }
 

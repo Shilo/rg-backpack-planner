@@ -67,7 +67,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.budget"),
             description: t("controls.actions.budgetDesc"),
             icon: TechCrystalIcon,
-            inputs: [{ keys: kbd("budget"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("budget"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -75,7 +79,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.sideMenu"),
             description: t("controls.actions.sideMenuDesc"),
             icon: ListIcon,
-            inputs: [{ keys: kbd("dismiss"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("dismiss"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -83,7 +91,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.resetTree"),
             description: t("controls.actions.resetTreeDesc"),
             icon: TrashSimpleIcon,
-            inputs: [{ keys: kbd("back"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("back"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -91,7 +103,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.undo"),
             description: t("controls.actions.undoDesc"),
             icon: ArrowArcLeftIcon,
-            inputs: [{ keys: kbd("undo"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("undo"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -99,7 +115,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.redo"),
             description: t("controls.actions.redoDesc"),
             icon: ArrowArcRightIcon,
-            inputs: [{ keys: kbd("redo"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("redo"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -107,7 +127,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.rootQuickSettings"),
             description: t("controls.actions.rootQuickSettingsDesc"),
             icon: RootNodeIcon,
-            inputs: [{ keys: kbd("console"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("console"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -115,7 +139,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.screenshot"),
             description: t("controls.actions.screenshotDesc"),
             icon: ImageIcon,
-            inputs: [{ keys: kbd("screenshot"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("screenshot"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -123,7 +151,11 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.fullscreen"),
             description: t("controls.actions.fullscreenDesc"),
             icon: CornersOutIcon,
-            inputs: [{ keys: kbd("fullscreen"), device: "keyboard" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("fullscreen"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -139,15 +171,21 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.previewIndicator"),
             description: t("controls.actions.previewIndicatorDesc"),
             icon: EyeIcon,
-            inputs: [], // display-only, no input
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: touch.primary, device: "touch" },
+            ],
             section: "hud",
         },
         {
-            id: "hud-swipe-back",
-            title: t("controls.actions.swipeBack"),
-            description: t("controls.actions.swipeBackDesc"),
+            id: "hud-close-menu",
+            title: t("controls.actions.closeMenu"),
+            description: t("controls.actions.closeMenuDesc"),
             icon: ArrowLineLeftIcon,
-            inputs: [{ keys: gesture("swipeRight"), device: "touch" }],
+            inputs: [
+                { keys: mouse.primary, device: "mouse" },
+                { keys: gesture("swipeRight"), device: "touch" },
+            ],
             section: "hud",
         },
         {
@@ -155,7 +193,10 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.tooltip"),
             description: t("controls.actions.tooltipDesc"),
             icon: EyeIcon,
-            inputs: [{ keys: gesture("hover"), device: "mouse" }],
+            inputs: [
+                { keys: gesture("hover"), device: "mouse" },
+                { keys: touch.secondary, device: "touch" },
+            ],
             section: "hud",
         },
         // ── Node ──
@@ -240,8 +281,8 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             description: t("controls.actions.treeOptionsDesc"),
             icon: DotsThreeOutlineIcon,
             inputs: [
-                { keys: gesture("rightClickEmpty"), device: "mouse" },
-                { keys: gesture("longPressEmpty"), device: "touch" },
+                { keys: mouse.secondary, device: "mouse" },
+                { keys: touch.secondary, device: "touch" },
             ],
             section: "tree",
         },
