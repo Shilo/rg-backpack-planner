@@ -1,8 +1,39 @@
+# What's New in v1.1.8
+-# Changes since v1.1.6
+https://rgbp.app
+
+Japanese localization now matches Run! Goddess in-game terminology much more closely across the app, especially for Backpack Tech, Tech Crystals, class names, and skill names. Short Japanese skill labels were also tightened for compact UI spaces so they stay easier to scan without losing context.
+
+## Improved
+- Improved Japanese class and system terminology so key game terms now match the official in-game wording more closely, including Backpack Tech, Tech Crystals, Guardian, Vanguard, and Cannon.
+- Improved Japanese skill names and descriptions to use the proper in-game terms for stats and effects such as Attack Boost, Global Attack, Global Defense, Global HP, Final Damage, Critical Hit, Counterattack Resistance, and Damage Reflection.
+- Improved Japanese wording across menus, onboarding, tooltips, reset prompts, share text, and Tech Crystal UI so the same terms stay consistent throughout the app instead of changing from screen to screen.
+- Improved compact Japanese short skill labels so they fit better in tight UI spaces while still clearly meaning the same stat as the full label.
+
+## Fixed
+- Fixed Japanese translations that previously sounded like direct machine translations instead of the game's official wording.
+- Fixed several short Japanese skill labels that were longer than necessary or less clear at a glance in compact layouts.
+
+## 日本語
+日本語ローカライズを全体的に見直し、バッグ研究、研究クリスタル、転職名、スキル名などの表記を『走れ！女神』のゲーム内用語により近づけました。あわせて、日本語の短縮スキル名も見直し、意味を保ったまま狭いUIでも読み取りやすい表記に調整しました。
+
+### 改善
+- バッグ研究、研究クリスタル、近衛兵、先駆者、火砲などの重要な用語を、ゲーム内の正式な日本語表記により近い形へ統一しました。
+- 攻撃力強化、グローバル攻撃力、グローバル防御力、グローバルHP、最終ダメージ、通常攻撃クリティカル、反撃耐性、ダメージ反射率など、主要なスキル名と説明文をゲーム内用語に合わせて改善しました。
+- メニュー、オンボーディング、ツールチップ、リセット確認、共有文言、研究クリスタル関連UIなどでも表記をそろえ、画面ごとに用語がぶれないよう改善しました。
+- 日本語の短縮スキル名を、フル表記と同じ意味を保ちながら、狭いUIでも読みやすいコンパクトな表記に改善しました。
+
+### 修正
+- これまで直訳寄りになっていた日本語表記を、ゲーム内の正式な言い回しに沿った表現へ修正しました。
+- 一部の日本語短縮スキル名について、長すぎたり瞬時に判別しづらかった表記を、より短く分かりやすい形へ修正しました。
+
+---
+
 # What's New in v1.1.6
 -# Changes since v1.1.0
 https://rgbp.app
 
-**Summary**: Faster and more precise tech tree planning with a toggleable Primary Action Indicator, advanced keyboard shortcuts, and branch-specific resets.
+Faster and more precise tech tree planning with a toggleable Primary Action Indicator, advanced keyboard shortcuts, and branch-specific resets.
 
 ## New
 - Added a **Primary Action Indicator** HUD button that displays the active node operation (+1, +10, +Tier); tap it to toggle the state or use the **[A]** hotkey to cycle modes.

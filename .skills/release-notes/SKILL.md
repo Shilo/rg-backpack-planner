@@ -72,14 +72,15 @@ Group changes into three categories and write short, benefit-focused bullets:
 - **New** — Features or capabilities that **did not exist in any previous release.** Cross-check each candidate against the previous notes and the file status. A feature is only "New" if (a) it wasn't mentioned in any prior release notes, AND (b) its primary files were added (A), not just modified (M). If either condition fails, it belongs in Improved.
 - **Improved** — Enhancements, iterations, or refinements to features that already exist. This includes adding new functionality to an existing feature (e.g., adding keyboard navigation to an existing tab system), and any work on features already mentioned in previous notes.
 - **Fixed** — Bug fixes users would have encountered.
-- **Summary** — A 1-2 sentence overview of the release's main impact. Focus on the value provided and avoid filler phrases like "This update introduces..." or "New in this version...". (e.g., "Simplified tree planning with advanced keyboard controls and a redesigned node menu for faster, more precise interactions.").
+- **Overview paragraph** — A 1-2 sentence overview of the release's main impact. Focus on the value provided and avoid filler phrases like "This update introduces..." or "New in this version...". Do not prefix it with labels like `Summary`, `Overview`, a bolded summary label, or any translated equivalent; write it as a plain paragraph directly below the production URL. (e.g., "Simplified tree planning with advanced keyboard controls and a redesigned node menu for faster, more precise interactions.").
 
-Omit any category (New, Improved, Fixed) that has no entries. Always include the Summary.
+Omit any category (New, Improved, Fixed) that has no entries. Always include the overview paragraph.
 
 #### Writing style
 
 - Start each bullet with a past-tense verb: "Added", "Improved", "Fixed", "Upgraded", "Refined".
 - Avoid starting summaries with filler phrases like "This update introduces", "This version adds", or "We've added". Jump straight to the benefit or the core feature.
+- Do not label the overview paragraph with `Summary`, `Overview`, bold text, or a heading; it should be plain paragraph text.
 - One sentence per bullet, plain language, no jargon.
 - Describe the benefit to the player, not the implementation detail.
 - No ticket IDs, file paths, component names, or internal codenames.
@@ -89,6 +90,8 @@ Omit any category (New, Improved, Fixed) that has no entries. Always include the
 #### Section format
 
 Use this exact structure. The production URL comes from the collection script's Meta output. The "from" version is the version at the anchor commit; the "to" version is the current version from `package.json`.
+
+If you include a translated version of the notes, keep its overview paragraph unlabeled too.
 
 ```
 # What's New in <to-version>
@@ -115,6 +118,7 @@ Before writing the file, verify:
 - No duplicate bullets describing the same change.
 - No internal jargon or file paths leaked into the text.
 - Categories with no entries are omitted.
+- The overview paragraph is plain unlabeled text, including any translated version.
 
 ### 6) Prepend to RELEASE_NOTES.md
 
@@ -125,7 +129,7 @@ Read the current `RELEASE_NOTES.md`. Insert the new section at the very top, fol
 -# Changes since v0.5.12
 https://rgbp.app
 
-**Summary**: <1-2 sentence overview.>
+<1-2 sentence overview.>
 
 ## New
 - ...

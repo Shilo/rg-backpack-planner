@@ -44,6 +44,7 @@ const TEST_FILES = [
     "jaGameTerminology.test.ts",
     "jaShortSkillLabels.test.ts",
     "localeTermMappingsWorkflow.test.ts",
+    "releaseNotesSkillFormat.test.ts",
     "encoder.test.ts",
 
     // 4. Features (Presets & Sharing)
