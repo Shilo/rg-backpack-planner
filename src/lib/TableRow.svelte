@@ -1,22 +1,68 @@
 <script lang="ts">
     export let title: string;
     export let description: string | undefined = undefined;
+    export let onclick: (() => void) | undefined = undefined;
+
+    $: interactive = !!onclick;
+
+    let startY = 0;
+    let scrolled = false;
+    const SCROLL_THRESHOLD = 10;
+
+    function handlePointerDown(e: PointerEvent) {
+        startY = e.clientY;
+        scrolled = false;
+    }
+
+    function handlePointerMove(e: PointerEvent) {
+        if (Math.abs(e.clientY - startY) > SCROLL_THRESHOLD) {
+            scrolled = true;
+        }
+    }
+
+    function handleClick() {
+        if (scrolled || !onclick) return;
+        onclick();
+    }
 </script>
 
-<li class="table-row">
-    <span class="table-row-icon">
-        <slot name="icon" />
-    </span>
-    <div class="table-row-text">
-        <span class="table-row-title">{title}</span>
-        {#if description}
-            <span class="table-row-desc">{description}</span>
-        {/if}
-    </div>
-    <div class="table-row-trailing">
-        <slot />
-    </div>
-</li>
+{#if interactive}
+    <button
+        class="table-row interactive"
+        type="button"
+        on:pointerdown={handlePointerDown}
+        on:pointermove={handlePointerMove}
+        on:click={handleClick}
+    >
+        <span class="table-row-icon">
+            <slot name="icon" />
+        </span>
+        <div class="table-row-text">
+            <span class="table-row-title">{title}</span>
+            {#if description}
+                <span class="table-row-desc">{description}</span>
+            {/if}
+        </div>
+        <div class="table-row-trailing">
+            <slot />
+        </div>
+    </button>
+{:else}
+    <li class="table-row">
+        <span class="table-row-icon">
+            <slot name="icon" />
+        </span>
+        <div class="table-row-text">
+            <span class="table-row-title">{title}</span>
+            {#if description}
+                <span class="table-row-desc">{description}</span>
+            {/if}
+        </div>
+        <div class="table-row-trailing">
+            <slot />
+        </div>
+    </li>
+{/if}
 
 <style>
     .table-row {
@@ -75,5 +121,41 @@
         align-items: flex-end;
         gap: 3px;
         flex-shrink: 0;
+    }
+
+    /* Interactive button variant — active only when onclick is provided */
+    .interactive {
+        border: none;
+        border-bottom: var(--border-width) solid var(--border-subtle);
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        width: 100%;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+            transform var(--ease),
+            filter var(--ease);
+    }
+
+    .interactive:last-child {
+        border-bottom: none;
+    }
+
+    @media (hover: hover) {
+        .interactive:hover {
+            filter: var(--brightness-hover);
+        }
+    }
+
+    .interactive:active {
+        filter: var(--brightness-hover);
+        transform: scale(0.98);
+    }
+
+    .interactive:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: -2px;
     }
 </style>
