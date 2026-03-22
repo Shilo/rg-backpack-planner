@@ -45,6 +45,7 @@ const TEST_FILES = [
     "jaShortSkillLabels.test.ts",
     "localeTermMappingsWorkflow.test.ts",
     "releaseNotesSkillFormat.test.ts",
+    "ciWorkflowDocsSkip.test.ts",
     "encoder.test.ts",
 
     // 4. Features (Presets & Sharing)
