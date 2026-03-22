@@ -93,7 +93,7 @@ Use this exact structure. The production URL comes from the collection script's 
 -# Changes since <from-version>
 <production-url>
 
-**Summary**: <1-2 sentence overview.>
+<1-2 sentence overview.>
 
 ## New
 - Added ...
