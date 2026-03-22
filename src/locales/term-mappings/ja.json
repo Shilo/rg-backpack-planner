@@ -93,7 +93,7 @@
         },
         "skills.short.attack_boost": {
             "source": "Atk Boost",
-            "target": "攻撃力強化"
+            "target": "攻撃強化"
         },
         "skills.short.hp_boost": {
             "source": "HP Boost",
@@ -101,27 +101,27 @@
         },
         "skills.short.defense_boost": {
             "source": "Def Boost",
-            "target": "防御力強化"
+            "target": "防御強化"
         },
         "skills.short.global_def": {
             "source": "Global Def",
-            "target": "グローバル防御力"
+            "target": "グロ防御"
         },
         "skills.short.global_hp": {
             "source": "Global HP",
-            "target": "グローバルHP"
+            "target": "グロHP"
         },
         "skills.short.final_damage_boost": {
             "source": "Final Dmg",
-            "target": "最終ダメージ"
+            "target": "最終ダメ"
         },
         "skills.short.global_atk": {
             "source": "Global Atk",
-            "target": "グローバル攻撃力"
+            "target": "グロ攻撃"
         },
         "skills.short.skill_crit": {
             "source": "Skill Crit",
-            "target": "スキルクリティカル"
+            "target": "スキクリ"
         },
         "skills.short.counterattack_resistance": {
             "source": "Counter Resist",
@@ -129,15 +129,15 @@
         },
         "skills.short.critical_hit": {
             "source": "Critical Hit",
-            "target": "通常攻撃クリティカル"
+            "target": "通常クリ"
         },
         "skills.short.skill_crit_resistance": {
             "source": "Skill Crit Resist",
-            "target": "スキルクリティカル耐性"
+            "target": "スキクリ耐性"
         },
         "skills.short.damage_reflection_chance": {
             "source": "Dmg Reflection",
-            "target": "ダメージ反射率"
+            "target": "ダメ反射"
         },
         "skillsDesc.global_def": {
             "source": "**Overall Defense** is increased by a multiplicative modifier.",

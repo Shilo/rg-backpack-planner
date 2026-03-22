@@ -42,6 +42,7 @@ const TEST_FILES = [
     "runMigrations.test.ts",
     "localePersistenceBugFix.test.ts",
     "jaGameTerminology.test.ts",
+    "jaShortSkillLabels.test.ts",
     "localeTermMappingsWorkflow.test.ts",
     "encoder.test.ts",
 

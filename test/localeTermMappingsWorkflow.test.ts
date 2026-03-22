@@ -99,3 +99,23 @@ assert.match(
     /apply.*after translation/i,
     "regenerate-locales skill should require reapplying mapped terms after translation",
 );
+assert.match(
+    skillSource,
+    /skills\.short/i,
+    "regenerate-locales skill should document rules for skills.short labels",
+);
+assert.match(
+    skillSource,
+    /shorter character length|shorter length|compact/i,
+    "regenerate-locales skill should say skills.short labels optimize for shorter character length",
+);
+assert.match(
+    skillSource,
+    /preserve context/i,
+    "regenerate-locales skill should require preserving context for skills.short labels",
+);
+assert.match(
+    skillSource,
+    /in-game terminology|authoritative.*terminology/i,
+    "regenerate-locales skill should keep skills.short labels anchored to in-game terminology",
+);

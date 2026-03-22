@@ -62,6 +62,7 @@ Translate all non-English locale files in `src/locales/` based on the English so
 - Translate naturally and idiomatically for the target language. Avoid overly literal translations.
 - For gaming terminology (skills, stats, UI terms), use the conventions common in that language's gaming community.
 - For any path present in `src/locales/term-mappings/<locale>.json`, do **not** translate the value freely. Use the mapped `target` exactly.
+- For `skills.short`, optimize for shorter character length than the full `skills` label whenever possible, but only if the shortened label still preserves context and stays anchored to the authoritative in-game terminology for that locale.
 - **CRITICAL RULE FOR `languageNames`**: Do NOT copy `en.json`'s language names (e.g. "English", "Japanese (日本語)"). You MUST use the exact translated names specified in the "Language-specific notes" section below (e.g. "英語 (English)" for ja.json). This is a frequent error, so double-check your `languageNames` output.
 
 ### What NOT to translate
@@ -71,12 +72,22 @@ Translate all non-English locale files in `src/locales/` based on the English so
 - **Numeric/symbol-only values**: `"+1"`, `"+10"`, `"−1"`, `"−10"`, `"+100"`, `"https://.../#1;2;3"` -- keep as-is.
 - **Format-only template strings** where the value is purely placeholders: e.g., `"{appName} {version}"`, `"{appName} - {gameName}"`, `"{appName} - {gameName} {version}"` -- keep identical to English.
 
+### `skills.short` rules
+- Treat `skills.short` as compact UI labels, not full translations.
+- The primary goal is shorter character length for faster reading in tight UI spaces.
+- Never shorten a label if the result changes the stat meaning or makes the label ambiguous in context.
+- Always preserve context so the shortened label still reads as the same gameplay stat in the UI.
+- Keep the same gameplay meaning as the full `skills.<id>` label.
+- If a locale term-mapping file defines a `skills.short.*` path, that mapped target is authoritative.
+- Shortened labels should still use the locale's proper in-game terminology roots rather than inventing unrelated shorthand.
+
 ### Language-specific notes
 
 **Japanese (ja.json)**:
 - `languageNames` values should show the language name in Japanese, with the native script in parentheses where appropriate (e.g., `"英語 (English)"`, `"日本語"`, `"中国語 (中文)"`).
 - Use katakana for loanwords that are commonly written in katakana in gaming contexts.
 - Use appropriate particles and natural sentence structure.
+- For `skills.short`, prefer established compact forms that reduce character count while preserving meaning, such as dropping `力` when still clear (`攻撃強化`, `防御強化`) or using well-understood abbreviations like `グロ`, `ダメ`, `スキクリ`, and `通常クリ`.
 
 **Chinese Simplified (zh.json)**:
 - `languageNames` values should show the language name in Chinese, with the native script in parentheses where appropriate (e.g., `"英语 (English)"`, `"日语 (日本語)"`, `"中文"`).
