@@ -210,8 +210,9 @@
 
     .button-text {
         line-height: var(--leading);
-        white-space: normal;
-        overflow-wrap: anywhere;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .button.with-arrow .button-text,
