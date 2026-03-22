@@ -21,11 +21,13 @@
      */
     export let keys: string;
     export let tint: "keyboard" | "mouse" | "touch" | undefined = undefined;
+    /** Render chips in a row instead of stacked. */
+    export let inline: boolean = false;
 
     $: combos = keys.split(" / ");
 </script>
 
-<span class="ks" role="group" aria-label={keys}>
+<span class="ks" class:ks--inline={inline} role="group" aria-label={keys}>
     {#each combos as combo}
         <InputChip keys={combo} {tint} />
     {/each}
@@ -37,5 +39,9 @@
         flex-direction: column;
         align-items: flex-end;
         gap: var(--spacing-sm);
+    }
+
+    .ks--inline {
+        flex-direction: row;
     }
 </style>

@@ -560,7 +560,7 @@
             "sideMenu": "Side Menu",
             "sideMenuDesc": "Open or close the panel",
             "resetTree": "Reset Active Tree",
-            "resetTreeDesc": "Refund Tech Crystals for tree",
+            "resetTreeDesc": "Open modal to refund branch or tree",
             "undo": "Undo",
             "undoDesc": "Undo last node or budget change",
             "redo": "Redo",

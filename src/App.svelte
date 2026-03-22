@@ -871,8 +871,7 @@
 
     @media (min-width: 768px) {
         .top-left-actions,
-        .top-right-actions,
-        .bot-left-actions {
+        .top-right-actions {
             z-index: var(--z-index-hud-over-side-menu-backdrop);
         }
 
@@ -905,7 +904,7 @@
         flex-direction: column;
         align-items: flex-start;
         pointer-events: none;
-        z-index: var(--z-index-hud);
+        z-index: var(--z-index-hud-over-side-menu-backdrop);
     }
 
     .top-left-actions > :global(*),

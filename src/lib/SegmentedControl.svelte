@@ -3,7 +3,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
     import { isKeyboardAction } from "./input";
-    import Kbd from "./Kbd.svelte";
+    import InputChip from "./InputChip.svelte";
 
     type SegmentOption = {
         index: number;
@@ -73,7 +73,7 @@
             </div>
             {#if shortcut}
                 <span class="segmented-control__header-shortcut">
-                    <Kbd keys={shortcut} />
+                    <InputChip keys={shortcut} />
                 </span>
             {/if}
         </div>

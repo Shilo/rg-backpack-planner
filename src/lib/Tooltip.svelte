@@ -3,7 +3,7 @@
     import { TechCrystalIcon } from "./customIcons";
     import { tooltipStore } from "./tooltip";
     import { formatNumber } from "svelte-whisper";
-    import Kbd from "./Kbd.svelte";
+    import InputChip from "./InputChip.svelte";
     import { portal } from "./portal";
     import { textSize } from "./textSizeStore";
 
@@ -160,7 +160,7 @@
                         <div class="tooltip-line">{section.value}</div>
                     {:else if section.type === "shortcut"}
                         <div class="tooltip-shortcut">
-                            <Kbd keys={section.value} />
+                            <InputChip keys={section.value} />
                         </div>
                     {/if}
                 {/each}

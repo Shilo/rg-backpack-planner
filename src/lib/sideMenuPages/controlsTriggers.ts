@@ -24,6 +24,16 @@ const DOM_TRIGGERS: Record<string, () => void> = {
         );
         if (!node) return;
         const rect = node.getBoundingClientRect();
+        // Stop propagation past tree viewport so TreeTabs' secondary
+        // handler doesn't also open the tree context menu.
+        const viewport = node.closest(".tree-viewport");
+        if (viewport) {
+            viewport.addEventListener(
+                "contextmenu",
+                (e) => e.stopPropagation(),
+                { once: true },
+            );
+        }
         node.dispatchEvent(
             new MouseEvent("contextmenu", {
                 bubbles: true,

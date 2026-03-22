@@ -81,7 +81,8 @@
                     showKeyboard,
                 ),
                 trigger: getTrigger(a.id),
-            })),
+            }))
+            .filter((a) => a.filteredInputs.length > 0),
     }));
 </script>
 
@@ -106,6 +107,7 @@
                             <InputChips
                                 keys={input.keys}
                                 tint={input.device}
+                                inline={input.inline ?? false}
                             />
                         {/each}
                     </TableRow>
@@ -120,6 +122,7 @@
         display: flex;
         flex-direction: column;
         min-width: 0;
+        margin-inline: calc(-1 * var(--spacing-md));
     }
 
     .control-list {

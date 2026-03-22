@@ -24,6 +24,8 @@ export type InputDevice = "mouse" | "touch" | "keyboard";
 export type InputBinding = {
     keys: string;
     device: InputDevice;
+    /** When true, combo chips render inline (row) instead of stacked (column). */
+    inline?: boolean;
 };
 
 export type ControlAction = {
@@ -35,7 +37,7 @@ export type ControlAction = {
     section: "hud" | "node" | "tree";
 };
 
-export const SECTIONS = ["hud", "node", "tree"] as const;
+export const SECTIONS = ["node", "tree", "hud"] as const;
 export type ControlSection = (typeof SECTIONS)[number];
 
 type TranslateFn = (key: string) => string;
@@ -163,7 +165,10 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             title: t("controls.actions.cycleTabs"),
             description: t("controls.actions.cycleTabsDesc"),
             icon: SquaresFourIcon,
-            inputs: [{ keys: kbd("cycle"), device: "keyboard" }],
+            inputs: [
+                { keys: t("input.keyboard.cycle") + t("input.keyboardSeparator") + t("input.reverse") + t("input.modifierSeparator") + t("input.keyboard.cycle"), device: "keyboard" },
+                { keys: t("input.keyboard.arrowLeft") + t("input.keyboardSeparator") + t("input.keyboard.arrowRight"), device: "keyboard", inline: true },
+            ],
             section: "hud",
         },
         {
