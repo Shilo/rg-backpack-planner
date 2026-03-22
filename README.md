@@ -7,6 +7,8 @@
 [**Open the app →**](https://rgbp.app)
 Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
+[**Release Notes**](RELEASE_NOTES.md)
+
 ---
 
 [![Backpack Planner Preview](showcase-video/out/en/backpack_planner_snapshot.png)](https://rgbp.app)

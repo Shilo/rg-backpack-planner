@@ -1,3 +1,44 @@
+# What's New in v1.1.6
+-# Changes since v1.1.0
+https://rgbp.app
+
+**Summary**: Faster and more precise tech tree planning with a toggleable Primary Action Indicator, advanced keyboard shortcuts, and branch-specific resets.
+
+## New
+- Added a **Primary Action Indicator** HUD button that displays the active node operation (+1, +10, +Tier); tap it to toggle the state or use the **[A]** hotkey to cycle modes.
+- Added **Unified Fullscreen** mode **[F11]** that provides a consistent immersive experience across all desktop browsers.
+- Added the **Tech Crystal Budget Hotkey** **[B]** to instantly open the budget input modal from anywhere.
+- Added **Cycle Action Hotkey** **[A]** to quickly rotate between +1, +10, and +Tier increment modes without opening menus.
+- Added **[`] (Backtick)** keyboard shortcut to instantly open the Root Node Quick Settings panel.
+- Added **Branch Reset Setting** to the Quick Settings menu for instantly clearing specific tree branches (Orange, Blue, Yellow).
+- Added **Advanced Node Modifiers** for precise tree planning:
+    - **[Left Click]**: Primary Action (+1, +10, or +Tier).
+    - **[Shift + Left Click]** or **[Middle Click]**: Reverse Primary (-1, -10, or -Tier).
+    - **[Ctrl + Left Click]**: Alternate Action (Toggles between +1 and +Tier level ups).
+    - **[Ctrl + Shift + Left Click]** or **[Ctrl + Middle Click]**: Reverse Alternate (Subtract by the alternate amount).
+
+## Improved
+- Updated the **Controls & Shortcuts** page with more shortcuts and detailed node interaction descriptions.
+- Redesigned the **Node Context Menu** with a dedicated "-Tier" button and a more compact, thumb-friendly layout for one-handed use.
+- Improved **Undo & Redo** with repeat support; holding **[Ctrl + Z]** or **[Ctrl + Y]** now steps through multiple changes automatically.
+- Enhanced **Root Node Quick Settings** with new icons and dedicated buttons for quick branch and tree resets.
+- Refined **Tech Crystal Input** with a high-precision wide modal and a real-time budget display directly on the input label.
+- Enhanced **Dynamic Tooltips** that now include real-time keyboard shortcut hints and modifier-aware previews.
+- Expanded **Localization** with full support for the new input and control systems across English, French, Japanese, and Simplified Chinese.
+- Expanded **Haptic Feedback** to all interactive surfaces, including the theme picker, onboarding flow, and menu backdrops.
+
+## Fixed
+- Fixed layout issues where toast notifications would occasionally overlap the HUD action indicators.
+- Fixed node menu positioning to ensure stable alignment and prevent layout shifting during rapid interaction.
+- Fixed missing haptic feedback in various menu backdrops and theme selection.
+- Fixed a race condition that could cause the level-up splash to overlap and block interaction with node context menus.
+
+## Upcoming
+- **Controls Redesign**: Overhaul of the Controls & Shortcuts page will improve readability and simplicity with a more polished visual design.
+- **Onboarding Updates**: Interactive tutorial will include explicit guidance for the latest keyboard hotkeys and advanced node modifiers.
+
+---
+
 # What's New in v1.1.0
 -# Changes since v1.0.0
 https://rgbp.app

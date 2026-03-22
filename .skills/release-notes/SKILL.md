@@ -72,12 +72,14 @@ Group changes into three categories and write short, benefit-focused bullets:
 - **New** — Features or capabilities that **did not exist in any previous release.** Cross-check each candidate against the previous notes and the file status. A feature is only "New" if (a) it wasn't mentioned in any prior release notes, AND (b) its primary files were added (A), not just modified (M). If either condition fails, it belongs in Improved.
 - **Improved** — Enhancements, iterations, or refinements to features that already exist. This includes adding new functionality to an existing feature (e.g., adding keyboard navigation to an existing tab system), and any work on features already mentioned in previous notes.
 - **Fixed** — Bug fixes users would have encountered.
+- **Summary** — A 1-2 sentence overview of the release's main impact. Focus on the value provided and avoid filler phrases like "This update introduces..." or "New in this version...". (e.g., "Simplified tree planning with advanced keyboard controls and a redesigned node menu for faster, more precise interactions.").
 
-Omit any category that has no entries. Prefer 5-10 bullets total unless the release warrants more.
+Omit any category (New, Improved, Fixed) that has no entries. Always include the Summary.
 
 #### Writing style
 
 - Start each bullet with a past-tense verb: "Added", "Improved", "Fixed", "Upgraded", "Refined".
+- Avoid starting summaries with filler phrases like "This update introduces", "This version adds", or "We've added". Jump straight to the benefit or the core feature.
 - One sentence per bullet, plain language, no jargon.
 - Describe the benefit to the player, not the implementation detail.
 - No ticket IDs, file paths, component names, or internal codenames.
@@ -90,6 +92,8 @@ Use this exact structure. The production URL comes from the collection script's 
 # What's New in <to-version>
 -# Changes since <from-version>
 <production-url>
+
+**Summary**: <1-2 sentence overview.>
 
 ## New
 - Added ...
@@ -118,6 +122,8 @@ Read the current `RELEASE_NOTES.md`. Insert the new section at the very top, fol
 # What's New in v0.5.18
 -# Changes since v0.5.12
 https://rgbp.app
+
+**Summary**: <1-2 sentence overview.>
 
 ## New
 - ...
