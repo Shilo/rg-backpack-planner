@@ -5,13 +5,51 @@ description: Regenerate all non-English locale JSON files by translating from sr
 
 # Regenerate Locale Files
 
-Translate all non-English locale files in `src/locales/` based on the English source file `src/locales/en.json`. The English file is the single source of truth for all translations.
+Translate all non-English locale files in `src/locales/` based on the English source file `src/locales/en.json`.
+
+`src/locales/en.json` is the source of truth for locale structure, keys, placeholders, and default English copy.
+
+`src/locales/term-mappings/<locale>.json` is the authoritative source of truth for any locale-specific in-game terminology that must not be replaced by direct translation.
 
 ## Process
 
 1. Read `src/locales/en.json` to get the current English strings.
 2. List all other `.json` files in `src/locales/` (e.g., `ja.json`, `zh.json`).
-3. For each non-English locale file, generate a complete translation by writing every value translated into the target language.
+3. For each non-English locale file, read `src/locales/term-mappings/<locale>.json` if it exists.
+4. Translate the locale normally for all unmapped paths.
+5. Apply the mapped target values after translation to the exact locale paths listed in the term-mapping file.
+6. Write the final locale file.
+
+## Locale Term Mappings
+
+### Directory format
+
+- Store locale-specific term maps in `src/locales/term-mappings/`.
+- Use one file per locale: `ja.json`, `zh.json`, `fr.json`, etc.
+- Each file is keyed by locale path, so identical English terms can be mapped differently in different contexts if needed later.
+
+### File shape
+
+```json
+{
+    "locale": "ja",
+    "sourceLocale": "en",
+    "mappings": {
+        "skills.attack_boost": {
+            "source": "Attack Boost",
+            "target": "攻撃力強化"
+        }
+    }
+}
+```
+
+### Hard rules
+
+- Treat every mapped `target` as authoritative in-game terminology.
+- Never overwrite or override a mapped target with AI translation, direct translation, English proper-noun preservation, style normalization, or "better wording".
+- If a mapped path conflicts with the previous locale file, the term-mapping file wins.
+- Reapply mapped targets after translation as the final locale-value override step.
+- If a locale does not have a file in `src/locales/term-mappings/<locale>.json`, proceed without term overrides for that locale.
 
 ## Translation Rules
 
@@ -23,12 +61,13 @@ Translate all non-English locale files in `src/locales/` based on the English so
 - Translate the **values** (the English text), not the keys.
 - Translate naturally and idiomatically for the target language. Avoid overly literal translations.
 - For gaming terminology (skills, stats, UI terms), use the conventions common in that language's gaming community.
+- For any path present in `src/locales/term-mappings/<locale>.json`, do **not** translate the value freely. Use the mapped `target` exactly.
 - **CRITICAL RULE FOR `languageNames`**: Do NOT copy `en.json`'s language names (e.g. "English", "Japanese (日本語)"). You MUST use the exact translated names specified in the "Language-specific notes" section below (e.g. "英語 (English)" for ja.json). This is a frequent error, so double-check your `languageNames` output.
 
 ### What NOT to translate
 - **Interpolation placeholders** like `{name}`, `{version}`, `{treeLabel}`, `{subject}`, `{ownerLink}`, `{gameLink}`, etc. -- keep these exactly as-is within the translated text.
 - **HTML tags** like `<br>` -- preserve them in place.
-- **Proper nouns / brand names**: `"Backpack Planner"`, `"Run! Goddess"`, `"GitHub"`, `"HEX"`, `"PvE"`, `"PvP"`, `"PWA"` -- keep in English.
+- **Proper nouns / brand names**: `"Backpack Planner"`, `"GitHub"`, `"HEX"`, `"PvE"`, `"PvP"`, `"PWA"` -- keep in English unless `src/locales/term-mappings/<locale>.json` provides a canonical localized value for that exact path.
 - **Numeric/symbol-only values**: `"+1"`, `"+10"`, `"−1"`, `"−10"`, `"+100"`, `"https://.../#1;2;3"` -- keep as-is.
 - **Format-only template strings** where the value is purely placeholders: e.g., `"{appName} {version}"`, `"{appName} - {gameName}"`, `"{appName} - {gameName} {version}"` -- keep identical to English.
 
@@ -51,4 +90,4 @@ Translate all non-English locale files in `src/locales/` based on the English so
 
 Write each translated locale file using the Write tool. Output valid, pretty-printed JSON with 4-space indentation matching the style of `en.json`.
 
-After writing all files, briefly summarize what changed (new keys added, removed keys, number of strings translated).
+After writing all files, briefly summarize what changed (new keys added, removed keys, number of strings translated, and which locale term-mapping files were applied).

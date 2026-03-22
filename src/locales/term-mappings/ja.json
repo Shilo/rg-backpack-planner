@@ -1,0 +1,271 @@
+{
+    "locale": "ja",
+    "sourceLocale": "en",
+    "description": "Authoritative Japanese in-game terminology that must override direct translation during locale regeneration.",
+    "verifiedFrom": [
+        "Backdecorate_skill_name_*",
+        "backdecorat_ui_16-18",
+        "career_ui_26-28",
+        "item_name_key1004022",
+        "rule_content_28",
+        "fx_app_name"
+    ],
+    "mappings": {
+        "app.gameName": {
+            "source": "Run! Goddess",
+            "target": "走れ！女神"
+        },
+        "app.description": {
+            "source": "Plan and share Backpack Tech builds.",
+            "target": "バッグ研究のビルドを計画・共有しましょう。"
+        },
+        "sideMenu.tabs.statistics.tooltip": {
+            "source": "View skills, levels, and Tech Crystal data",
+            "target": "スキル、レベル、研究クリスタルデータを表示"
+        },
+        "trees.guardian": {
+            "source": "Guardian",
+            "target": "近衛兵"
+        },
+        "trees.vanguard": {
+            "source": "Vanguard",
+            "target": "先駆者"
+        },
+        "trees.cannon": {
+            "source": "Cannon",
+            "target": "火砲"
+        },
+        "trees.rules.0": {
+            "source": "Activate or upgrade Backpack Tech by spending Tech Crystals.",
+            "target": "研究クリスタルを消費してバッグ研究を有効化またはアップグレードします。"
+        },
+        "trees.rules.2": {
+            "source": "After choosing a branch, you must unlock its ultimate skill before selecting another branch on the same page.",
+            "target": "ブランチを選択した後、同じページの別のブランチを選択する前に、そのブランチの最終スキルを解放する必要があります。"
+        },
+        "trees.rules.3": {
+            "source": "Each class has 3 branches, totaling 9 ultimate skills, and players may choose only 3 to learn.",
+            "target": "各転職には3つのブランチがあり、合計9つの最終スキルがあります。プレイヤーが習得できるのは3つまでです。"
+        },
+        "trees.rules.4": {
+            "source": "Resets refund all Tech Crystals spent on the current page and are unlimited.",
+            "target": "リセットすると現在のページで消費された研究クリスタルが全額返還されます。リセット回数は無制限です。"
+        },
+        "skills.attack_boost": {
+            "source": "Attack Boost",
+            "target": "攻撃力強化"
+        },
+        "skills.hp_boost": {
+            "source": "Health Boost",
+            "target": "HP強化"
+        },
+        "skills.defense_boost": {
+            "source": "Defense Boost",
+            "target": "防御力強化"
+        },
+        "skills.global_def": {
+            "source": "Global Defense",
+            "target": "グローバル防御力"
+        },
+        "skills.global_hp": {
+            "source": "Global Health",
+            "target": "グローバルHP"
+        },
+        "skills.final_damage_boost": {
+            "source": "Final Damage Boost",
+            "target": "最終ダメージ"
+        },
+        "skills.global_atk": {
+            "source": "Global Attack",
+            "target": "グローバル攻撃力"
+        },
+        "skills.counterattack_resistance": {
+            "source": "Counterattack Resistance",
+            "target": "反撃耐性"
+        },
+        "skills.critical_hit": {
+            "source": "Critical Hit",
+            "target": "通常攻撃クリティカル"
+        },
+        "skills.damage_reflection_chance": {
+            "source": "Damage Reflection Chance",
+            "target": "ダメージ反射率"
+        },
+        "skills.short.attack_boost": {
+            "source": "Atk Boost",
+            "target": "攻撃力強化"
+        },
+        "skills.short.hp_boost": {
+            "source": "HP Boost",
+            "target": "HP強化"
+        },
+        "skills.short.defense_boost": {
+            "source": "Def Boost",
+            "target": "防御力強化"
+        },
+        "skills.short.global_def": {
+            "source": "Global Def",
+            "target": "グローバル防御力"
+        },
+        "skills.short.global_hp": {
+            "source": "Global HP",
+            "target": "グローバルHP"
+        },
+        "skills.short.final_damage_boost": {
+            "source": "Final Dmg",
+            "target": "最終ダメージ"
+        },
+        "skills.short.global_atk": {
+            "source": "Global Atk",
+            "target": "グローバル攻撃力"
+        },
+        "skills.short.skill_crit": {
+            "source": "Skill Crit",
+            "target": "スキルクリティカル"
+        },
+        "skills.short.counterattack_resistance": {
+            "source": "Counter Resist",
+            "target": "反撃耐性"
+        },
+        "skills.short.critical_hit": {
+            "source": "Critical Hit",
+            "target": "通常攻撃クリティカル"
+        },
+        "skills.short.skill_crit_resistance": {
+            "source": "Skill Crit Resist",
+            "target": "スキルクリティカル耐性"
+        },
+        "skills.short.damage_reflection_chance": {
+            "source": "Dmg Reflection",
+            "target": "ダメージ反射率"
+        },
+        "skillsDesc.global_def": {
+            "source": "**Overall Defense** is increased by a multiplicative modifier.",
+            "target": "**グローバル防御力**が乗算修正値によって増加します。"
+        },
+        "skillsDesc.global_hp": {
+            "source": "**Overall Health** is increased by a multiplicative modifier.",
+            "target": "**グローバルHP**が乗算修正値によって増加します。"
+        },
+        "skillsDesc.final_damage_boost": {
+            "source": "**Overall damage** is increased by the absolute final multiplicative modifier.",
+            "target": "**最終ダメージ**が最終乗算修正値によって増加します。"
+        },
+        "skillsDesc.global_atk": {
+            "source": "**Overall Attack** is increased by a multiplicative modifier.",
+            "target": "**グローバル攻撃力**が乗算修正値によって増加します。"
+        },
+        "skillsDesc.skill_crit": {
+            "source": "Skills have a chance to deal a **critical hit**, dealing damage higher than usual.",
+            "target": "スキルが**スキルクリティカル**を発生させ、通常より高いダメージを与える確率があります。"
+        },
+        "skillsDesc.critical_hit": {
+            "source": "Basic attacks have a chance to deal a **critical hit**, dealing damage higher than usual.",
+            "target": "通常攻撃が**通常攻撃クリティカル**を発生させ、通常より高いダメージを与える確率があります。"
+        },
+        "skillsDesc.skill_crit_resistance": {
+            "source": "Reduces the chance of receiving a **skill critical hit**.",
+            "target": "**スキルクリティカル**を受ける確率を減少させます。"
+        },
+        "skillsDesc.damage_reflection_chance": {
+            "source": "When attacked, deals extra damage to the attacker based on the **damage reflection** ratio and Attack.",
+            "target": "攻撃を受けた際、**ダメージ反射率**と攻撃力に基づいて攻撃者に追加ダメージを与えます。"
+        },
+        "settings.ignoreTechCrystalBudget": {
+            "source": "Ignore Tech Crystal Budget",
+            "target": "研究クリスタル予算を無視"
+        },
+        "settings.resetTreeDescription": {
+            "source": "Refund Tech Crystals and revert to level 0",
+            "target": "研究クリスタルを返還しレベル0に戻す"
+        },
+        "settings.resetAllTreesDescription": {
+            "source": "Refund all Tech Crystals across every tree",
+            "target": "全ツリーの研究クリスタルをすべて返還"
+        },
+        "techCrystals.displayTooltipSpentOnly": {
+            "source": "Tech Crystals\nspent",
+            "target": "研究クリスタル\n消費済み"
+        },
+        "techCrystals.displayTooltipSpentOwned": {
+            "source": "Tech Crystals\nspent / owned",
+            "target": "研究クリスタル\n消費 / 所持"
+        },
+        "techCrystals.spentLabel": {
+            "source": "Tech Crystals Spent and Owned",
+            "target": "研究クリスタル消費 / 所持"
+        },
+        "techCrystals.changeOwnedTooltip": {
+            "source": "Change {subject} Tech Crystal owned (budget)",
+            "target": "{subject}研究クリスタルの所持数（予算）を変更"
+        },
+        "techCrystals.ownedModalTitle": {
+            "source": "Tech Crystals Owned",
+            "target": "研究クリスタル所持数"
+        },
+        "techCrystals.ownedModalTitleWithSubject": {
+            "source": "Tech Crystals Owned ({subject})",
+            "target": "研究クリスタル所持数（{subject}）"
+        },
+        "techCrystals.budgetReachedToast": {
+            "source": "Tech Crystal budget reached",
+            "target": "研究クリスタル予算に到達"
+        },
+        "share.defaultShareTitle": {
+            "source": "Backpack tech tree build",
+            "target": "バッグ研究ツリービルド"
+        },
+        "preview.techCrystalsDescription": {
+            "source": "{count} Tech Crystals",
+            "target": "{count} 研究クリスタル"
+        },
+        "modal.resetTree.messageAll": {
+            "source": "Revert all nodes to level 0 and refund all Tech Crystals.",
+            "target": "全ノードをレベル0に戻し、全研究クリスタルを返還します。"
+        },
+        "statistics.techCrystalsSpent": {
+            "source": "Tech Crystals Spent",
+            "target": "研究クリスタル消費"
+        },
+        "controls.pointerNodeDescription": {
+            "source": "Add levels by node action setting (+1, +10, +Tier)",
+            "target": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）"
+        },
+        "controls.pointerNodeDecrementDescription": {
+            "source": "Remove levels by node action setting (-1, -10, -Tier)",
+            "target": "ノードレベルを削除し研究クリスタルを返還（アクション設定に基づく）"
+        },
+        "controls.touchNodeDescription": {
+            "source": "Add levels by node action setting (+1, +10, +Tier)",
+            "target": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）"
+        },
+        "controls.keyboardBudgetLabel": {
+            "source": "Tech Crystal Budget",
+            "target": "研究クリスタル予算"
+        },
+        "controls.keyboardBudgetDescription": {
+            "source": "Open Tech Crystal budget modal",
+            "target": "研究クリスタル予算モーダルを開く"
+        },
+        "controls.hudTechCrystalsLabel": {
+            "source": "Tech Crystal (Currency)",
+            "target": "研究クリスタル（通貨）"
+        },
+        "controls.hudResetTreeDescription": {
+            "source": "Refund Tech Crystals for tree",
+            "target": "ツリーの研究クリスタルを返還"
+        },
+        "onboarding.hudSection": {
+            "source": "Tech Crystal Spent / Budget",
+            "target": "研究クリスタル消費 / 予算"
+        },
+        "onboarding.techCrystalBudget": {
+            "source": "Change Tech Crystal budget",
+            "target": "研究クリスタル予算を設定"
+        },
+        "onboarding.budgetIgnoreDesc": {
+            "source": "Ignore budget via Settings > Node > Ignore Tech Crystal Budget",
+            "target": "設定 > ノード > 研究クリスタル予算を無視で予算を無効化"
+        }
+    }
+}

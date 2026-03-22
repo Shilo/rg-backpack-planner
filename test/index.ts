@@ -41,6 +41,8 @@ const TEST_FILES = [
     "latestUsedVersionStore.test.ts",
     "runMigrations.test.ts",
     "localePersistenceBugFix.test.ts",
+    "jaGameTerminology.test.ts",
+    "localeTermMappingsWorkflow.test.ts",
     "encoder.test.ts",
 
     // 4. Features (Presets & Sharing)
