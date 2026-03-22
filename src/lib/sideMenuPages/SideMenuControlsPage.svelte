@@ -10,6 +10,12 @@
         getControlActions,
         filterByDevice,
     } from "./controlsData";
+    import { getActionTrigger } from "./controlsTriggers";
+    import { treeLevels, sumLevels } from "../treeLevelsStore";
+    import { isPreviewMode } from "../previewModeStore";
+
+    export let onClose: (() => void) | null = null;
+    export let activeTreeIndex = 0;
 
     let showMouse = true;
     let showTouch = true;
@@ -18,7 +24,7 @@
     let sectionOpen: Record<ControlSection, boolean> = {
         hud: true,
         node: true,
-        tree: false,
+        tree: true,
     };
 
     function detectInputSupport() {
@@ -46,13 +52,20 @@
         showMouse = supportsMouse;
         showTouch = supportsTouch;
         showKeyboard = supportsMouse;
-
-        sectionOpen.node = supportsMouse;
     }
 
     onMount(detectInputSupport);
 
     $: actions = getControlActions($t);
+    $: hasLevels = sumLevels($treeLevels?.[activeTreeIndex]) > 0;
+
+    function getTrigger(actionId: string): (() => void) | undefined {
+        if (!onClose) return undefined;
+        if (actionId === "hud-reset-tree" && !hasLevels) return undefined;
+        if (actionId === "hud-preview-indicator" && !$isPreviewMode)
+            return undefined;
+        return getActionTrigger(actionId, onClose);
+    }
 
     $: grouped = SECTIONS.map((key) => ({
         key,
@@ -67,6 +80,7 @@
                     showTouch,
                     showKeyboard,
                 ),
+                trigger: getTrigger(a.id),
             })),
     }));
 </script>
@@ -82,6 +96,7 @@
                     <TableRow
                         title={action.title}
                         description={action.description}
+                        onclick={action.trigger}
                     >
                         <svelte:component
                             this={action.icon}

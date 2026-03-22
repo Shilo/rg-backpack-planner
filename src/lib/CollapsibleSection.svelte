@@ -49,10 +49,24 @@
         position: sticky;
         top: 0;
         z-index: 1;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform var(--ease), background var(--ease);
     }
 
-    .section-header:hover {
-        filter: var(--brightness-hover);
+    @media (hover: hover) {
+        .section-header:hover {
+            background: color-mix(in srgb, var(--surface) 72%, var(--text));
+        }
+    }
+
+    .section-header:active {
+        background: color-mix(in srgb, var(--surface) 68%, var(--text));
+        transform: scale(0.96);
+    }
+
+    .section-header:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
     }
 
     .section-title {

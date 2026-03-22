@@ -172,7 +172,11 @@
                 {:else if activeTab === "statistics" && SideMenuStatisticsPage}
                     <svelte:component this={SideMenuStatisticsPage} />
                 {:else if activeTab === "controls" && SideMenuControlsPage}
-                    <svelte:component this={SideMenuControlsPage} />
+                    <svelte:component
+                        this={SideMenuControlsPage}
+                        {onClose}
+                        {activeTreeIndex}
+                    />
                 {/if}
             </div>
         </nav>

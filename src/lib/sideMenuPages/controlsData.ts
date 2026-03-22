@@ -150,6 +150,14 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             inputs: [{ keys: gesture("swipeRight"), device: "touch" }],
             section: "hud",
         },
+        {
+            id: "tree-tooltip",
+            title: t("controls.actions.tooltip"),
+            description: t("controls.actions.tooltipDesc"),
+            icon: EyeIcon,
+            inputs: [{ keys: gesture("hover"), device: "mouse" }],
+            section: "hud",
+        },
         // ── Node ──
         {
             id: "node-level-up",
@@ -235,14 +243,6 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
                 { keys: gesture("rightClickEmpty"), device: "mouse" },
                 { keys: gesture("longPressEmpty"), device: "touch" },
             ],
-            section: "tree",
-        },
-        {
-            id: "tree-tooltip",
-            title: t("controls.actions.tooltip"),
-            description: t("controls.actions.tooltipDesc"),
-            icon: EyeIcon,
-            inputs: [{ keys: gesture("hover"), device: "mouse" }],
             section: "tree",
         },
     ];

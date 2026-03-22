@@ -123,11 +123,13 @@
         flex-shrink: 0;
     }
 
-    /* Interactive button variant — active only when onclick is provided */
+    /* Interactive button variant — active only when onclick is provided.
+       Uses M3-style state layers (on-surface at 8%/12%) since brightness
+       filter has no visible effect on a transparent background. */
     .interactive {
         border: none;
         border-bottom: var(--border-width) solid var(--border-subtle);
-        background: none;
+        background: transparent;
         font: inherit;
         color: inherit;
         text-align: left;
@@ -136,7 +138,7 @@
         -webkit-tap-highlight-color: transparent;
         transition:
             transform var(--ease),
-            filter var(--ease);
+            background var(--ease);
     }
 
     .interactive:last-child {
@@ -145,17 +147,17 @@
 
     @media (hover: hover) {
         .interactive:hover {
-            filter: var(--brightness-hover);
+            background: color-mix(in srgb, var(--text) 8%, transparent);
         }
     }
 
     .interactive:active {
-        filter: var(--brightness-hover);
-        transform: scale(0.98);
+        background: color-mix(in srgb, var(--text) 12%, transparent);
+        transform: scale(0.96);
     }
 
     .interactive:focus-visible {
         outline: 2px solid var(--border-focus);
-        outline-offset: -2px;
+        outline-offset: 2px;
     }
 </style>
