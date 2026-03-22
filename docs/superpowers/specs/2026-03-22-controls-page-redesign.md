@@ -141,7 +141,7 @@ Remaining chips stack vertically in priority order (primary device first).
 
 ### Section Headers (Style B)
 - Full-width darker band, edge-to-edge within the side menu content area
-- Background: surface mix at ~10% white
+- Background: `color-mix(in srgb, var(--surface) 80%, var(--text))`
 - Top and bottom borders at ~6% white
 - Title: 13px, semibold, 60% white
 - Chevron: 12px, 40% opacity, rotates -90deg when collapsed
