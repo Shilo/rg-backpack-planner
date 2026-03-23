@@ -141,3 +141,15 @@ html.snapdom-capture .node-wrapper.available .node-badge-slot-name .node-badge {
 html.snapdom-capture .node-flash {
     display: none !important;
 }
+
+/* Force solid lines during capture. The energy flow effect uses
+   stroke-dasharray + animation for a pulsing overlay; animation: none above
+   freezes the dashes but doesn't remove them. Hide the base overlay line and
+   reset dashes so captured links are clean solid strokes. */
+html.snapdom-capture .tree-link-base {
+    display: none !important;
+}
+
+html.snapdom-capture .tree-link {
+    stroke-dasharray: none !important;
+}

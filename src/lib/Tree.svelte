@@ -403,6 +403,8 @@
         state: NodeState;
         region: NodeRegion;
         strokeStyle: string;
+        /** Solid base line style for active/maxed (energy flow overlay). */
+        baseStrokeStyle: string | null;
     };
 
     // SVG <line> elements need stroke/filter as inline styles because snapdom
@@ -428,6 +430,11 @@
             return `stroke: ${color}; filter: ${filter};`;
         }
         return `stroke: ${REGION_STROKE_COLOR[region]}; filter: drop-shadow(0 0 3px ${REGION_STROKE_COLOR[region]});`;
+    }
+
+    /** Solid base line style for active/maxed — matches "available" brightness. */
+    function getLinkBaseStrokeStyle(region: NodeRegion): string {
+        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: var(--node-brightness-available);`;
     }
 
     let renderNodes: RenderNode[] = [];
@@ -478,6 +485,7 @@
                     link.from === undefined || parentLevel > 0
                         ? to.state
                         : "locked";
+                const isEnergized = state === "active" || state === "maxed";
                 return {
                     fromNode:
                         link.from === undefined
@@ -487,6 +495,9 @@
                     state,
                     region: to.region,
                     strokeStyle: getLinkStrokeStyle(state, to.region),
+                    baseStrokeStyle: isEnergized
+                        ? getLinkBaseStrokeStyle(to.region)
+                        : null,
                 };
             })
             .filter((link): link is RenderLink => link !== null);
@@ -1748,6 +1759,17 @@
             >
                 <svg class="tree-links" overflow="visible">
                     {#each renderLinks as link}
+                        {#if link.baseStrokeStyle}
+                            <line
+                                class={`tree-link-base region-${link.region}`}
+                                x1={link.fromNode ? link.fromNode.x : rootX}
+                                y1={link.fromNode ? link.fromNode.y : rootY}
+                                x2={link.toNode.x}
+                                y2={link.toNode.y}
+                                stroke-width="4"
+                                style={link.baseStrokeStyle}
+                            />
+                        {/if}
                         <line
                             class={`tree-link ${link.state} region-${link.region}`}
                             x1={link.fromNode ? link.fromNode.x : rootX}
@@ -1956,22 +1978,43 @@
         filter: var(--node-brightness-available);
     }
 
+    /* Solid base line under the energy flow overlay */
+    .tree-link-base {
+        stroke-width: 4;
+        stroke: var(--link-color);
+        filter: var(--node-brightness-available);
+    }
+
+    .tree-link-base.region-top-left {
+        --link-color: var(--region-orange-accent);
+    }
+
+    .tree-link-base.region-bottom-left {
+        --link-color: var(--region-yellow-accent);
+    }
+
+    .tree-link-base.region-right {
+        --link-color: var(--region-blue-accent);
+    }
+
     .tree-links .tree-link.active {
         stroke: var(--link-color);
-        /* Energy flow: subtle dashes flowing parent→child */
-        stroke-dasharray: 12 5;
-        animation: link-energy-flow 2.5s linear infinite;
+        /* Energy flow: bright pulses flowing over the solid base */
+        stroke-dasharray: 24 8;
+        stroke-linecap: round;
+        animation: link-energy-flow 5s linear infinite;
     }
 
     .tree-links .tree-link.maxed {
         stroke: var(--link-color);
-        stroke-dasharray: 12 5;
-        animation: link-energy-flow 2.5s linear infinite;
+        stroke-dasharray: 24 8;
+        stroke-linecap: round;
+        animation: link-energy-flow 5s linear infinite;
     }
 
     @keyframes link-energy-flow {
         to {
-            stroke-dashoffset: -17;
+            stroke-dashoffset: -32;
         }
     }
 
