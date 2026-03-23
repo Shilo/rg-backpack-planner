@@ -41,6 +41,12 @@ if (!/aboutScrollTarget=/.test(settingsPageSource)) {
     );
 }
 
+if (!/aboutScrollTarget=\{currentPage === "about"[\s\S]*?!isTransitioning[\s\S]*?pendingAboutScrollTarget[\s\S]*?: null\}/.test(settingsPageSource)) {
+    throw new Error(
+        "SideMenuSettingsPage should wait until the page transition is finished before passing the About scroll target to AboutSettingsPage.",
+    );
+}
+
 if (!/onAboutScrollHandled=/.test(settingsPageSource)) {
     throw new Error(
         "SideMenuSettingsPage should clear the pending About scroll target after AboutSettingsPage handles it.",

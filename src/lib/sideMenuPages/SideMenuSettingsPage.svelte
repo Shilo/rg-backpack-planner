@@ -214,7 +214,8 @@
                 {onFocusInView}
                 onNavigate={navigateTo}
                 onBack={navigateBack}
-                aboutScrollTarget={currentPage === "about"
+                aboutScrollTarget={currentPage === "about" &&
+                    !isTransitioning
                     ? pendingAboutScrollTarget
                     : null}
                 onAboutScrollHandled={() => {
