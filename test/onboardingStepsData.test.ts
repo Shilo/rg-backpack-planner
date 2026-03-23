@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const stepsPath = resolve("src/lib/onboarding/onboardingSteps.ts");
-const source = readFileSync(stepsPath, "utf8");
+const source = readFileSync(stepsPath, "utf8").replace(/\r\n/g, "\n");
 
 if (!/getControlActions/.test(source)) {
     throw new Error(
