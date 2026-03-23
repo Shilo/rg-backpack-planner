@@ -94,13 +94,11 @@ const EXPECTED_TERMS: Record<string, string> = {
     "modal.resetTree.messageAll": "全ノードをレベル0に戻し、全研究クリスタルを返還します。",
     "statistics.techCrystalsSpent": "研究クリスタル消費",
 
-    "controls.pointerNodeDescription": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）",
-    "controls.pointerNodeDecrementDescription": "ノードレベルを削除し研究クリスタルを返還（アクション設定に基づく）",
-    "controls.touchNodeDescription": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）",
-    "controls.keyboardBudgetLabel": "研究クリスタル予算",
-    "controls.keyboardBudgetDescription": "研究クリスタル予算モーダルを開く",
-    "controls.hudTechCrystalsLabel": "研究クリスタル（通貨）",
-    "controls.hudResetTreeDescription": "ツリーの研究クリスタルを返還",
+    "controls.actions.levelUpDesc": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）",
+    "controls.actions.levelDownDesc": "ノードレベルを削除し研究クリスタルを返還（アクション設定に基づく）",
+    "controls.actions.budget": "研究クリスタル予算",
+    "controls.actions.budgetDesc": "研究クリスタル予算モーダルを開く",
+    "controls.actions.resetTreeDesc": "ツリーの研究クリスタルを返還",
 
     "onboarding.hudSection": "研究クリスタル消費 / 予算",
     "onboarding.techCrystalBudget": "研究クリスタル予算を設定",

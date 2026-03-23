@@ -227,32 +227,24 @@
             "source": "Tech Crystals Spent",
             "target": "研究クリスタル消費"
         },
-        "controls.pointerNodeDescription": {
-            "source": "Add levels by node action setting (+1, +10, +Tier)",
+        "controls.actions.levelUpDesc": {
+            "source": "Add levels using the active increment (+1, +10, or +Tier)",
             "target": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）"
         },
-        "controls.pointerNodeDecrementDescription": {
-            "source": "Remove levels by node action setting (-1, -10, -Tier)",
+        "controls.actions.levelDownDesc": {
+            "source": "Remove levels using the active increment (-1, -10, or -Tier)",
             "target": "ノードレベルを削除し研究クリスタルを返還（アクション設定に基づく）"
         },
-        "controls.touchNodeDescription": {
-            "source": "Add levels by node action setting (+1, +10, +Tier)",
-            "target": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）"
-        },
-        "controls.keyboardBudgetLabel": {
+        "controls.actions.budget": {
             "source": "Tech Crystal Budget",
             "target": "研究クリスタル予算"
         },
-        "controls.keyboardBudgetDescription": {
-            "source": "Open Tech Crystal budget modal",
+        "controls.actions.budgetDesc": {
+            "source": "Open budget modal",
             "target": "研究クリスタル予算モーダルを開く"
         },
-        "controls.hudTechCrystalsLabel": {
-            "source": "Tech Crystal (Currency)",
-            "target": "研究クリスタル（通貨）"
-        },
-        "controls.hudResetTreeDescription": {
-            "source": "Refund Tech Crystals for tree",
+        "controls.actions.resetTreeDesc": {
+            "source": "Open modal to refund branch or tree",
             "target": "ツリーの研究クリスタルを返還"
         },
         "onboarding.hudSection": {
