@@ -677,7 +677,7 @@
         "reducedMotion": "Mouvement réduit",
         "localStorage": "Stockage local",
         "touchSupport": "Tactile",
-        "userAgent": "User Agent",
+        "userAgent": "Agent utilisateur",
         "copyAll": "Copier les infos système",
         "copied": "Infos système copiées",
         "copyFailed": "Impossible de copier"

@@ -109,7 +109,7 @@
         {$t("controls.tutorial")}
     </Button>
 
-    <Accordion title={$t("sideMenu.sections.instructions")} icon={InfoIcon}>
+    <Accordion title={$t("sideMenu.sections.instructions")} icon={InfoIcon} isOpen>
         {#each [0, 1, 2, 3, 4] as i}
             <div class="rule-row">
                 <span class="rule-number">{i + 1}</span>

@@ -677,7 +677,7 @@
         "reducedMotion": "减少动态效果",
         "localStorage": "本地存储",
         "touchSupport": "触控",
-        "userAgent": "User Agent",
+        "userAgent": "用户代理",
         "copyAll": "复制系统信息",
         "copied": "已复制系统信息",
         "copyFailed": "无法复制"

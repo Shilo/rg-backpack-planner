@@ -280,6 +280,7 @@
         color: var(--text-muted);
     }
 
+
     .ua-value {
         font-size: var(--font-sm);
         color: var(--text-disabled);

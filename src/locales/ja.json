@@ -677,7 +677,7 @@
         "reducedMotion": "視差効果を減らす",
         "localStorage": "ローカルストレージ",
         "touchSupport": "タッチ",
-        "userAgent": "User Agent",
+        "userAgent": "ユーザーエージェント",
         "copyAll": "システム情報をコピー",
         "copied": "システム情報をコピーしました",
         "copyFailed": "コピーできませんでした"
