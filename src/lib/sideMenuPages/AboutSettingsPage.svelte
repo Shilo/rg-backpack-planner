@@ -227,9 +227,9 @@
         justify-content: center;
         font-size: 11px;
         font-weight: var(--weight-bold);
-        color: var(--text-muted);
-        background: var(--bg-raised);
-        border: 1.5px solid var(--border);
+        color: var(--accent-light);
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised));
+        border: 1.5px solid color-mix(in srgb, var(--accent) 20%, var(--border));
         border-radius: var(--radius-sm);
         margin-top: 1px;
         box-sizing: border-box;

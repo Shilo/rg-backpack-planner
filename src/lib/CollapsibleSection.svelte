@@ -38,7 +38,7 @@
         gap: var(--spacing-md);
         width: 100%;
         padding: var(--spacing-sm) var(--spacing-lg);
-        background: color-mix(in srgb, var(--surface) 80%, var(--text));
+        background: var(--bg-raised);
         border-top: var(--border-width) solid var(--border-subtle);
         border-bottom: var(--border-width) solid var(--border-subtle);
         border-left: none;
@@ -53,14 +53,18 @@
         transition: transform var(--ease), background var(--ease);
     }
 
+    .is-open .section-header {
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg-raised));
+    }
+
     @media (hover: hover) {
         .section-header:hover {
-            background: color-mix(in srgb, var(--surface) 72%, var(--text));
+            background: color-mix(in srgb, var(--text) 8%, var(--bg-raised));
         }
     }
 
     .section-header:active {
-        background: color-mix(in srgb, var(--surface) 68%, var(--text));
+        background: color-mix(in srgb, var(--text) 12%, var(--bg-raised));
         transform: scale(0.96);
     }
 
@@ -76,6 +80,11 @@
         letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
         color: var(--text-muted);
+        transition: color var(--ease);
+    }
+
+    .is-open .section-title {
+        color: var(--text);
     }
 
     .section-arrow {
@@ -90,6 +99,8 @@
 
     .is-open .section-arrow {
         transform: rotate(0deg);
+        color: var(--accent-light);
+        opacity: 0.7;
     }
 
     .section-body {

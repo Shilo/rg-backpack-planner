@@ -179,7 +179,7 @@
     }
 
     .codeblock-table__section {
-        background: var(--bg-input);
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg-input));
         color: var(--text-muted);
         font-weight: var(--weight-bold);
         letter-spacing: var(--tracking);
@@ -189,5 +189,14 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
+    }
+
+    .codeblock-table__section-inner :global(svg) {
+        color: var(--accent-light);
+    }
+
+    .codeblock-table__table td + td {
+        text-align: right;
+        color: var(--text);
     }
 </style>
