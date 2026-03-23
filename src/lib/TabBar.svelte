@@ -116,7 +116,11 @@
     }
 
     .tab-bar__tab-label {
-        font-size: clamp(calc(9px / var(--text-scale, 1)), 13.25cqw, var(--tab-bar-font-size));
+        font-size: clamp(
+            calc(9px / var(--text-scale, 1)),
+            13.25cqw,
+            var(--tab-bar-font-size)
+        );
         line-height: 1.1;
         letter-spacing: 0.05em;
         white-space: normal;
@@ -139,7 +143,7 @@
 
     .tab-bar__tab-button.active {
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
-        color: var(--text-muted);
+        color: var(--text);
         border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
         z-index: 2;
     }
