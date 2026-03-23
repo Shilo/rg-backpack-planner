@@ -47,7 +47,9 @@ function isTitleCase(str: string): boolean {
     return true;
 }
 
-/** First real word capitalized; all subsequent real words lowercase. */
+/** First real word capitalized; all subsequent real words lowercase (except proper nouns). */
+const PROPER_NOUNS = new Set(["Tech", "Crystals", "Crystal"]);
+
 function isSentenceCase(str: string): boolean {
     const tokens = str.split(" ");
     let seenFirst = false;
@@ -57,6 +59,7 @@ function isSentenceCase(str: string): boolean {
             seenFirst = true;
             if (!tok[0] || tok[0] !== tok[0].toUpperCase()) return false;
         } else {
+            if (PROPER_NOUNS.has(tok)) continue;
             if (tok[0] !== tok[0].toLowerCase()) return false;
         }
     }

@@ -249,7 +249,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
         {
             id: "node-options",
             title: t("controls.actions.nodeOptions"),
-            description: t("controls.actions.nodeOptionsDesc"),
+            description: t("controls.actions.nodeTreeOptionsDesc"),
             icon: DotsThreeOutlineIcon,
             inputs: [
                 { keys: mouse.secondary, device: "mouse" },
@@ -283,7 +283,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
         {
             id: "tree-options",
             title: t("controls.actions.treeOptions"),
-            description: t("controls.actions.treeOptionsDesc"),
+            description: t("controls.actions.nodeTreeOptionsDesc"),
             icon: DotsThreeOutlineIcon,
             inputs: [
                 { keys: mouse.secondary, device: "mouse" },

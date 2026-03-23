@@ -244,7 +244,7 @@
             "target": "研究クリスタル予算モーダルを開く"
         },
         "controls.actions.resetTreeDesc": {
-            "source": "Refund spent crystals for a branch or all nodes",
+            "source": "Refund Tech Crystals for a branch or tree",
             "target": "ツリーの研究クリスタルを返還"
         },
         "onboarding.hudSection": {
