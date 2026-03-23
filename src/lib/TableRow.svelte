@@ -123,6 +123,10 @@
         flex-shrink: 0;
     }
 
+    :global(.table-row-trailing:has(> :only-child)) {
+        align-self: center;
+    }
+
     /* Interactive button variant — active only when onclick is provided.
        Uses M3-style state layers (on-surface at 8%/12%) since brightness
        filter has no visible effect on a transparent background. */

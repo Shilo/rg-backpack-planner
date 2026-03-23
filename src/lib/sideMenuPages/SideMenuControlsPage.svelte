@@ -146,7 +146,10 @@
         flex-direction: column;
         min-width: 0;
         margin-top: calc(var(--spacing-md) - var(--spacing-lg));
-        margin-inline: calc(-1 * var(--spacing-md));
+        margin-left: calc(-1 * var(--spacing-md));
+        margin-right: calc(
+            -1 * max(0px, var(--spacing-md) - var(--scrollbar-visual-width, 0px))
+        );
     }
 
     .control-list {

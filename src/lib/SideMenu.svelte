@@ -159,7 +159,7 @@
     inert={!isOpen}
 >
     <div class="side-menu__scroll-area">
-        <nav class="side-menu__content" bind:this={scrollContentElement}>
+        <nav class="side-menu__content {activeTab}-active" bind:this={scrollContentElement}>
             <div class="side-menu__content-inner">
                 {#if activeTab === "settings" && SideMenuSettingsPage}
                     <svelte:component
@@ -266,9 +266,9 @@
             --scrollbar-visual-width: 6px;
             scrollbar-gutter: stable both-edges;
 
-            /* 
+            /*
                On desktop with classic scrollbars, the visual gap is:
-               Base Padding + Scrollbar Gutter. 
+               Base Padding + Scrollbar Gutter.
                We subtract the scrollbar width from the padding to keep the total gap exactly --spacing-md.
             */
             padding: 0
@@ -277,6 +277,12 @@
                         var(--safe-right, 0px)
                 )
                 0 max(0px, var(--spacing-md) - var(--scrollbar-visual-width));
+        }
+
+        /* Controls tab: remove left gutter so edge-to-edge table reaches the border */
+        .side-menu__content.controls-active {
+            scrollbar-gutter: stable;
+            padding-left: var(--spacing-md);
         }
 
         .side-menu__content::-webkit-scrollbar {
