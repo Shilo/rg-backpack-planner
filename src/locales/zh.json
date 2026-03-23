@@ -565,7 +565,7 @@
         "lockedQuickLevelDesc": "升级任意节点将自动升级其前置所有节点",
         "actionOption": "{action} 选项",
         "budgetIgnoreLabel": "可选预算",
-        "budgetIgnoreDesc": "通过设置 > 节点 > 忽略科技水晶预算来禁用预算",
+        "budgetIgnoreDesc": "在侧边菜单中忽略预算 [[设置 > 节点 > 忽略科技水晶预算]]",
         "toolbarSection": "撤销 / 重做 / 重置",
         "actionUndoButton": "{action} 撤销按钮",
         "undoDesc": "撤销上一次节点或预算更改",

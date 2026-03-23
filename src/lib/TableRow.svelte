@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { parseTextHints } from "./textHints";
+
     export let title: string;
     export let description: string | undefined = undefined;
     export let onclick: (() => void) | undefined = undefined;
@@ -6,26 +8,7 @@
 
     $: interactive = !!onclick;
 
-    function parseDescription(desc: string | undefined) {
-        if (!desc) return [];
-        const parts: { text: string; isHint: boolean }[] = [];
-        const regex = /(\([^)]+\))/g;
-        let lastIndex = 0;
-        let match;
-        while ((match = regex.exec(desc)) !== null) {
-            if (match.index > lastIndex) {
-                parts.push({ text: desc.slice(lastIndex, match.index), isHint: false });
-            }
-            parts.push({ text: match[0], isHint: true });
-            lastIndex = regex.lastIndex;
-        }
-        if (lastIndex < desc.length) {
-            parts.push({ text: desc.slice(lastIndex), isHint: false });
-        }
-        return parts;
-    }
-
-    $: descParts = parseDescription(description);
+    $: descParts = parseTextHints(description);
 
     let startY = 0;
     let scrolled = false;
@@ -65,7 +48,7 @@
                 <span class="table-row-desc">
                     {#each descParts as part}
                         {#if part.isHint}
-                            <span class="table-row-hint">{part.text}</span>
+                            <span class={part.className}>{part.text}</span>
                         {:else}
                             {part.text}
                         {/if}
@@ -88,7 +71,7 @@
                 <span class="table-row-desc">
                     {#each descParts as part}
                         {#if part.isHint}
-                            <span class="table-row-hint">{part.text}</span>
+                            <span class={part.className}>{part.text}</span>
                         {:else}
                             {part.text}
                         {/if}
@@ -151,12 +134,6 @@
         color: var(--text-disabled);
         margin-top: 1px;
         line-height: var(--leading);
-    }
-
-    .table-row-hint {
-        display: block;
-        color: var(--text-on-tinted);
-        margin-top: 2px;
     }
 
     .table-row-trailing {

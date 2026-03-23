@@ -114,6 +114,7 @@
 </script>
 
 <Button
+    data-onboarding-target="primary-action"
     class="primary-action-indicator {hasModifier ? 'modifier-active' : ''}"
     aria-label={ariaLabel}
     tooltipText={ariaLabel}

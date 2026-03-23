@@ -227,13 +227,13 @@
             "source": "Tech Crystals Spent",
             "target": "研究クリスタル消費"
         },
-        "controls.actions.levelUpDesc": {
-            "source": "Add levels using node action setting (+1, +10, +Tier)",
-            "target": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）"
+        "controls.actions.primaryAction": {
+            "source": "Primary Action Indicator",
+            "target": "プライマリアクション表示"
         },
-        "controls.actions.levelDownDesc": {
-            "source": "Remove levels using node action setting (-1, -10, -Tier)",
-            "target": "ノードレベルを削除し研究クリスタルを返還（アクション設定に基づく）"
+        "controls.actions.primaryActionDesc": {
+            "source": "Cycle through node action modes [[+1, +10, +Tier]]",
+            "target": "ノードアクションモードを切り替える[[+1、+10、+ティア]]"
         },
         "controls.actions.budget": {
             "source": "Tech Crystal Budget",
@@ -241,11 +241,159 @@
         },
         "controls.actions.budgetDesc": {
             "source": "Change spending limit",
-            "target": "研究クリスタル予算モーダルを開く"
+            "target": "消費予算を変更"
+        },
+        "controls.actions.sideMenu": {
+            "source": "Side Menu",
+            "target": "サイドメニュー"
+        },
+        "controls.actions.sideMenuDesc": {
+            "source": "Expand or hide the panel",
+            "target": "パネルを開閉する"
+        },
+        "controls.actions.resetTree": {
+            "source": "Reset Active Tree",
+            "target": "アクティブツリーをリセット"
         },
         "controls.actions.resetTreeDesc": {
             "source": "Refund Tech Crystals in a branch or tree",
-            "target": "ツリーの研究クリスタルを返還"
+            "target": "ブランチまたはツリーの研究クリスタルを返還"
+        },
+        "controls.actions.undo": {
+            "source": "Undo Action",
+            "target": "元に戻す"
+        },
+        "controls.actions.undoDesc": {
+            "source": "Revert the most recent change",
+            "target": "直前の変更を元に戻す"
+        },
+        "controls.actions.redo": {
+            "source": "Redo Action",
+            "target": "やり直す"
+        },
+        "controls.actions.redoDesc": {
+            "source": "Reapply the last reverted change",
+            "target": "最後に元に戻した変更をやり直す"
+        },
+        "controls.actions.rootQuickSettings": {
+            "source": "Root Node Quick Settings",
+            "target": "ルートノードクイック設定"
+        },
+        "controls.actions.rootQuickSettingsDesc": {
+            "source": "Show helpful and common options",
+            "target": "便利でよく使う設定を表示"
+        },
+        "controls.actions.screenshot": {
+            "source": "Share Screenshot",
+            "target": "スクリーンショットを共有"
+        },
+        "controls.actions.screenshotDesc": {
+            "source": "Generate an image to export",
+            "target": "書き出し用の画像を生成"
+        },
+        "controls.actions.fullscreen": {
+            "source": "Fullscreen",
+            "target": "フルスクリーン"
+        },
+        "controls.actions.fullscreenDesc": {
+            "source": "Expand application to fill the screen",
+            "target": "アプリを画面いっぱいに表示"
+        },
+        "controls.actions.cycleTabs": {
+            "source": "Cycle Tabs",
+            "target": "タブ切り替え"
+        },
+        "controls.actions.cycleTabsDesc": {
+            "source": "Navigate through trees or pages",
+            "target": "ツリーやページを切り替える"
+        },
+        "controls.actions.previewIndicator": {
+            "source": "Preview Build Indicator",
+            "target": "プレビュービルド表示"
+        },
+        "controls.actions.previewIndicatorDesc": {
+            "source": "Inspect and modify a shared setup",
+            "target": "共有ビルドを確認・変更"
+        },
+        "controls.actions.closeMenu": {
+            "source": "Close Side Menu or Page",
+            "target": "サイドメニューまたはページを閉じる"
+        },
+        "controls.actions.closeMenuDesc": {
+            "source": "Go back to previous page or hide panel",
+            "target": "前のページに戻るか、パネルを閉じる"
+        },
+        "controls.actions.levelUp": {
+            "source": "Level Up",
+            "target": "レベルアップ"
+        },
+        "controls.actions.levelUpDesc": {
+            "source": "Add levels using node action setting [[+1, +10, +Tier]]",
+            "target": "ノードアクション設定でレベルを追加[[+1、+10、+ティア]]"
+        },
+        "controls.actions.levelUpAlt": {
+            "source": "Quick Level Up",
+            "target": "クイックレベルアップ"
+        },
+        "controls.actions.levelUpAltDesc": {
+            "source": "Add levels using alternative increment [[+Tier, +1]]",
+            "target": "代替の増分でレベルを追加[[+ティア、+1]]"
+        },
+        "controls.actions.levelDown": {
+            "source": "Level Down",
+            "target": "レベルダウン"
+        },
+        "controls.actions.levelDownDesc": {
+            "source": "Remove levels using node action setting [[-1, -10, -Tier]]",
+            "target": "ノードアクション設定でレベルを減らす[[-1、-10、-ティア]]"
+        },
+        "controls.actions.levelDownAlt": {
+            "source": "Quick Level Down",
+            "target": "クイックレベルダウン"
+        },
+        "controls.actions.levelDownAltDesc": {
+            "source": "Remove levels using alternative increment [[-Tier, -1]]",
+            "target": "代替の増分でレベルを減らす[[-ティア、-1]]"
+        },
+        "controls.actions.nodeOptions": {
+            "source": "Node Options",
+            "target": "ノードオプション"
+        },
+        "controls.actions.nodeTreeOptionsDesc": {
+            "source": "Show statistics and choices",
+            "target": "統計と選択肢を表示"
+        },
+        "controls.actions.pan": {
+            "source": "Pan",
+            "target": "移動"
+        },
+        "controls.actions.panDesc": {
+            "source": "Move viewing area",
+            "target": "表示領域を移動"
+        },
+        "controls.actions.zoom": {
+            "source": "Zoom",
+            "target": "ズーム"
+        },
+        "controls.actions.zoomDesc": {
+            "source": "Adjust view scale",
+            "target": "表示倍率を調整"
+        },
+        "controls.actions.treeOptions": {
+            "source": "Tree Options",
+            "target": "ツリーオプション"
+        },
+        "controls.actions.tooltip": {
+            "source": "Tooltip",
+            "target": "ツールチップ"
+        },
+        "controls.actions.tooltipDesc": {
+            "source": "Show contextual details",
+            "target": "状況に応じた詳細を表示"
+        },
+        "controls.tutorial": {
+            "source": "Tutorial",
+            "target": "チュートリアル"
         },
         "onboarding.hudSection": {
             "source": "Tech Crystal Spent / Budget",
@@ -256,8 +404,8 @@
             "target": "研究クリスタル予算を設定"
         },
         "onboarding.budgetIgnoreDesc": {
-            "source": "Ignore budget via Settings > Node > Ignore Tech Crystal Budget",
-            "target": "設定 > ノード > 研究クリスタル予算を無視で予算を無効化"
+            "source": "Ignore budget in side menu [[Settings > Node > Ignore Tech Crystal Budget]]",
+            "target": "サイドメニューで予算を無効化 [[設定 > ノード > 研究クリスタル予算を無視]]"
         }
     }
 }

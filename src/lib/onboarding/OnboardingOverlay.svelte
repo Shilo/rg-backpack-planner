@@ -2,11 +2,15 @@
     import { onMount, tick } from "svelte";
     import { fly } from "svelte/transition";
     import type { Node as NodeType, NodeIndex } from "../../types/tree";
-    import { HandTapIcon, MouseLeftClickIcon } from "phosphor-svelte";
     import { NODE_RADIUS_PX } from "../Node.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
-    import { getInputLabel, isKeyboardAction, onKeyDown } from "../input";
+    import {
+        getCycleDirection,
+        getInputLabel,
+        isKeyboardAction,
+        onKeyDown,
+    } from "../input";
     import { triggerHaptic } from "../hapticsStore";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
     import OnboardingPane from "./OnboardingPane.svelte";
@@ -54,6 +58,7 @@
     let rootSpotlightRect: Rect = { ...EMPTY_RECT };
     let treeSpotlightRect: Rect = { ...EMPTY_RECT };
     let hudSpotlightRect: Rect = { ...EMPTY_RECT };
+    let primaryActionSpotlightRect: Rect = { ...EMPTY_RECT };
     let previewSpotlightRect: Rect = { ...EMPTY_RECT };
     let toolbarSpotlightRect: Rect = { ...EMPTY_RECT };
     let bottombarSpotlightRect: Rect = { ...EMPTY_RECT };
@@ -82,7 +87,6 @@
         ? Math.max(8, panePadding - 2)
         : panePadding;
 
-    $: primaryInputIcon = isTouch ? HandTapIcon : MouseLeftClickIcon;
     $: primaryInputLabel = getInputLabel(
         "primary",
         null,
@@ -93,8 +97,6 @@
     $: steps = createOnboardingSteps({
         translate: (key, params) => $t(key, params),
         isTouch,
-        primaryInputIcon,
-        primaryInputLabel,
         compactLayout,
         targetRegion,
         lockedNodeRegion,
@@ -191,6 +193,22 @@
         };
     }
 
+    function fallbackPrimaryActionRect(): Rect {
+        const width = compactLayout ? 136 : 172;
+        const height = compactLayout ? 42 : 50;
+        const left = effectivePanePadding;
+        const bottom = Math.max(
+            height + effectivePanePadding,
+            viewportHeight - bottomPadding,
+        );
+        return {
+            top: bottom - height,
+            bottom,
+            left,
+            right: left + width,
+        };
+    }
+
     function scheduleLayoutRefresh() {
         if (typeof window === "undefined") return;
         if (layoutRefreshFrame !== null) {
@@ -260,6 +278,10 @@
         hudSpotlightRect =
             resolveElementRect(".top-right-actions", 8, 8) ?? fallbackHudRect();
 
+        primaryActionSpotlightRect =
+            resolveElementRect('[data-onboarding-target="primary-action"]', 8, 8) ??
+            fallbackPrimaryActionRect();
+
         previewSpotlightRect =
             resolveElementRect(".preview-indicator-button", 8) ?? { ...EMPTY_RECT };
 
@@ -275,6 +297,7 @@
         if (activeStep.target === "node") return nodeSpotlightRect;
         if (activeStep.target === "locked-node") return lockedNodeSpotlightRect;
         if (activeStep.target === "hud") return hudSpotlightRect;
+        if (activeStep.target === "primary-action") return primaryActionSpotlightRect;
         if (activeStep.target === "root") return rootSpotlightRect;
         if (activeStep.target === "toolbar") return toolbarSpotlightRect;
         if (activeStep.target === "preview") return previewSpotlightRect;
@@ -304,6 +327,7 @@
     }
     $: activeSpotlightIsRect =
         activeStep?.target === "hud" ||
+        activeStep?.target === "primary-action" ||
         activeStep?.target === "toolbar" ||
         activeStep?.target === "preview" ||
         activeStep?.target === "bottombar";
@@ -408,8 +432,19 @@
     function handleKeydown(event: KeyboardEvent) {
         blockEvent(event);
         if (dismissing) return;
+        if (isKeyboardAction(event, "dismiss")) {
+            dismissOnboarding();
+            return;
+        }
         if (isKeyboardAction(event, "activate")) {
             handleAdvance();
+            return;
+        }
+        if (
+            isKeyboardAction(event, "cycle") &&
+            (event.key === "ArrowLeft" || event.key === "ArrowRight")
+        ) {
+            getCycleDirection(event) < 0 ? handleBack() : handleAdvance();
         }
     }
 
@@ -531,6 +566,7 @@
                     titleIcon={activeStep.titleIcon}
                     variant={activeStep.variant}
                     cards={activeStep.cards}
+                    splitIndex={activeStep.splitIndex ?? null}
                     stepNumber={currentStepIndex + 1}
                     stepCount={steps.length}
                     {viewportWidth}

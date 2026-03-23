@@ -1,11 +1,13 @@
 <script lang="ts">
     import type { Component } from "svelte";
+    import type { InputBinding } from "../sideMenuPages/controlsData";
     import OnboardingCard from "./OnboardingCard.svelte";
     import { computePaneRect, type Direction, type Rect } from "./paneLayout";
 
     type CardData = {
         icon: Component;
-        label: string | string[];
+        title?: string;
+        inputs?: InputBinding[];
         description: string;
     };
 
@@ -18,6 +20,7 @@
     export let titleIcon: Component | null = null;
     export let variant: "accent" | "muted" = "accent";
     export let cards: CardData[] = [];
+    export let splitIndex: number | null = null;
     export let viewportWidth: number = 0;
     export let viewportHeight: number = 0;
     /** Rects to avoid, checked in order. First is highest priority after screen bounds. */
@@ -65,6 +68,17 @@
 
     $: computedTop = bestRect.top;
     $: computedLeft = bestRect.left;
+    $: useCardColumns = splitIndex !== null;
+    $: effectiveSplitIndex =
+        splitIndex === null
+            ? cards.length
+            : Math.max(0, Math.min(splitIndex, cards.length));
+    $: leftColumnCards = useCardColumns
+        ? cards.slice(0, effectiveSplitIndex)
+        : cards;
+    $: rightColumnCards = useCardColumns
+        ? cards.slice(effectiveSplitIndex)
+        : [];
 
     $: bounds = {
         top: computedTop,
@@ -99,18 +113,50 @@
             <span class="pane-step-count">{stepNumber} / {stepCount}</span>
         </div>
     </div>
-    <div class="cards-stack">
-        {#each cards as card, i}
-            <OnboardingCard
-                icon={card.icon}
-                label={card.label}
-                description={card.description}
-                {variant}
-                index={i}
-                {compact}
-            />
-        {/each}
-    </div>
+    {#if useCardColumns}
+        <div class="cards-columns">
+            <div class="card-column">
+                {#each leftColumnCards as card, i}
+                    <OnboardingCard
+                        icon={card.icon}
+                        title={card.title ?? ""}
+                        inputs={card.inputs ?? []}
+                        description={card.description}
+                        {variant}
+                        index={i}
+                        {compact}
+                    />
+                {/each}
+            </div>
+            <div class="card-column">
+                {#each rightColumnCards as card, i}
+                    <OnboardingCard
+                        icon={card.icon}
+                        title={card.title ?? ""}
+                        inputs={card.inputs ?? []}
+                        description={card.description}
+                        {variant}
+                        index={effectiveSplitIndex + i}
+                        {compact}
+                    />
+                {/each}
+            </div>
+        </div>
+    {:else}
+        <div class="cards-stack">
+            {#each leftColumnCards as card, i}
+                <OnboardingCard
+                    icon={card.icon}
+                    title={card.title ?? ""}
+                    inputs={card.inputs ?? []}
+                    description={card.description}
+                    {variant}
+                    index={i}
+                    {compact}
+                />
+            {/each}
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -120,14 +166,12 @@
         flex-direction: column;
         gap: var(--spacing-md);
         pointer-events: none;
-        width: max-content;
-        max-width: min(340px, 85vw);
+        max-width: calc(100dvw - var(--spacing-lg) * 2);
         z-index: 3;
     }
 
     .onboarding-pane.compact {
         gap: var(--spacing-sm);
-        max-width: min(260px, calc(100vw - 24px));
     }
 
     .pane-header {
@@ -236,10 +280,32 @@
     .cards-stack {
         display: flex;
         flex-direction: column;
+        align-items: stretch;
         gap: var(--spacing-sm);
     }
 
+    .cards-columns {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .card-column {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+        width: max-content;
+        max-width: 100%;
+        flex: 0 1 auto;
+    }
+
     .onboarding-pane.compact .cards-stack {
+        gap: var(--spacing-xs);
+    }
+
+    .onboarding-pane.compact .cards-columns {
         gap: var(--spacing-xs);
     }
 </style>

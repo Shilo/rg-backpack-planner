@@ -1,14 +1,18 @@
 <script lang="ts">
     import type { Component } from "svelte";
+    import InputChips from "../InputChips.svelte";
+    import { parseTextHints } from "../textHints";
+    import type { InputBinding } from "../sideMenuPages/controlsData";
 
     export let icon: Component;
-    export let label: string | string[];
+    export let title: string = "";
+    export let inputs: InputBinding[] = [];
     export let description: string;
     export let variant: "accent" | "muted" = "accent";
     export let index: number = 0;
     export let compact = false;
 
-    $: labels = Array.isArray(label) ? label : [label];
+    $: descParts = parseTextHints(description);
 </script>
 
 <div
@@ -19,12 +23,29 @@
     <span class="card-icon" aria-hidden="true">
         <svelte:component this={icon} size={compact ? 24 : 32} />
     </span>
-    <span class="card-labels">
-        {#each labels as l}
-            <span class="card-label">{l}</span>
-        {/each}
+    <span class="card-copy">
+        <span class="card-title">{title}</span>
+        <span class="card-desc">
+            {#each descParts as part}
+                {#if part.isHint}
+                    <span class={part.className}>{part.text}</span>
+                {:else}
+                    {part.text}
+                {/if}
+            {/each}
+        </span>
+        {#if inputs.length > 0}
+            <span class="card-inputs">
+                {#each inputs as input}
+                    <InputChips
+                        keys={input.keys}
+                        tint={input.device}
+                        inline={input.inline ?? false}
+                    />
+                {/each}
+            </span>
+        {/if}
     </span>
-    <span class="card-desc">{description}</span>
 </div>
 
 <style>
@@ -40,6 +61,7 @@
         border-radius: var(--radius);
         backdrop-filter: blur(var(--blur-md));
         -webkit-backdrop-filter: blur(var(--blur-md));
+        max-width: 100%;
         opacity: 0;
         animation: card-enter 280ms var(--ease-decel) both;
         animation-delay: calc(150ms + var(--card-index) * 70ms);
@@ -83,28 +105,38 @@
         color: var(--text-muted);
     }
 
-    .card-labels {
+    .card-copy {
         display: flex;
         flex-direction: column;
+        gap: 2px;
     }
 
-    .card-label {
+    .card-title {
         font-size: var(--font-base);
         font-weight: var(--weight-semibold);
         color: var(--text);
         line-height: var(--leading);
+        text-wrap: balance;
     }
 
-    .onboarding-card.compact .card-label {
+    .onboarding-card.compact .card-title {
         font-size: var(--font-sm);
     }
 
-    .onboarding-card.accent .card-label {
+    .onboarding-card.accent .card-title {
         color: var(--text);
     }
 
-    .onboarding-card.muted .card-label {
+    .onboarding-card.muted .card-title {
         color: var(--text);
+    }
+
+    .card-inputs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: var(--spacing-xs);
+        align-items: flex-start;
     }
 
     .card-desc {
@@ -113,10 +145,19 @@
         line-height: var(--leading);
         white-space: pre-line;
         padding-right: var(--spacing-xs);
+        margin-top: 1px;
     }
 
     .onboarding-card.compact .card-desc {
         font-size: var(--font-xs);
+    }
+
+    .onboarding-card.compact .card-inputs {
+        gap: 4px;
+    }
+
+    .card-inputs :global(.ks) {
+        align-items: flex-start;
     }
 
     @keyframes card-enter {

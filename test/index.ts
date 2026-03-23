@@ -136,6 +136,8 @@ const TEST_FILES = [
     "systemInfoPerformance.test.ts",
     "toastSpinnerApi.test.ts",
     "toastActionRedesign.test.ts",
+    "textHintsShared.test.ts",
+    "onboardingStepsData.test.ts",
     "onboardingPaneLayout.test.ts",
     "onboardingStore.test.ts",
 ];

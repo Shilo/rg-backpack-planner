@@ -38,6 +38,34 @@ function get(locale: LocaleTree, path: string): string {
     return value;
 }
 
+function getBranch(locale: LocaleTree, path: string): unknown {
+    return path.split(".").reduce<unknown>((current, key) => {
+        if (Array.isArray(current)) {
+            return current[Number(key)];
+        }
+        if (current && typeof current === "object") {
+            return (current as Record<string, unknown>)[key];
+        }
+        return undefined;
+    }, locale);
+}
+
+function collectStringPaths(value: unknown, prefix = ""): string[] {
+    if (typeof value === "string") {
+        return prefix ? [prefix] : [];
+    }
+    if (Array.isArray(value)) {
+        return value.flatMap((entry, index) => collectStringPaths(entry, `${prefix}.${index}`));
+    }
+    if (value && typeof value === "object") {
+        return Object.entries(value).flatMap(([key, entry]) => {
+            const path = prefix ? `${prefix}.${key}` : key;
+            return collectStringPaths(entry, path);
+        });
+    }
+    return [];
+}
+
 const mappingPath = "src/locales/term-mappings/ja.json";
 assert.ok(
     existsSync(mappingPath),
@@ -61,6 +89,10 @@ const requiredPaths = [
 
 for (const path of requiredPaths) {
     assert.ok(mapping.mappings[path], `expected required mapping for ${path}`);
+}
+
+for (const path of collectStringPaths(getBranch(en, "controls"), "controls")) {
+    assert.ok(mapping.mappings[path], `expected authoritative controls mapping for ${path}`);
 }
 
 for (const [path, entry] of Object.entries(mapping.mappings)) {

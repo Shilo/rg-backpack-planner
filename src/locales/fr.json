@@ -565,7 +565,7 @@
         "lockedQuickLevelDesc": "Monter un nœud monte instantanément tous les nœuds qui le précèdent",
         "actionOption": "{action} Options",
         "budgetIgnoreLabel": "Budget optionnel",
-        "budgetIgnoreDesc": "Ignorer le budget via Paramètres > Nœud > Ignorer le budget Cristaux Tech",
+        "budgetIgnoreDesc": "Ignorer le budget dans le menu latéral [[Paramètres > Nœud > Ignorer le budget Cristaux Tech]]",
         "toolbarSection": "Annuler / Rétablir / Réinitialiser",
         "actionUndoButton": "{action} Bouton Annuler",
         "undoDesc": "Annuler le dernier changement de nœud ou de budget",

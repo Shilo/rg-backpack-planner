@@ -171,6 +171,12 @@ textarea,
     border: 0;
 }
 
+.text-hint {
+    display: block;
+    color: var(--text-on-tinted);
+    margin-top: 2px;
+}
+
 * {
     scrollbar-color: var(--border-subtle) transparent;
     scrollbar-width: thin;

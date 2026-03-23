@@ -1,33 +1,26 @@
 import type { Component } from "svelte";
 import {
-    ArrowArcLeftIcon,
-    ArrowArcRightIcon,
     ArrowCounterClockwiseIcon,
-    ArrowFatLineUpIcon,
     ArrowsOutCardinalIcon,
     ClockCounterClockwiseIcon,
     CoinsIcon,
     CopySimpleIcon,
-    CornersOutIcon,
     DotsThreeOutlineIcon,
     EyeIcon,
-    GearSixIcon,
     GraphIcon,
-    HandGrabbingIcon,
-    HandTapIcon,
-    ListIcon,
     LockSimpleIcon,
     LockSimpleOpenIcon,
-    MouseLeftClickIcon,
-    MouseMiddleClickIcon,
-    MouseRightClickIcon,
-    MouseScrollIcon,
+    SquaresFourIcon,
     WarningCircleIcon,
 } from "phosphor-svelte";
-import { CtrlKeyIcon, GuardianIcon, RootNodeIcon, ShiftKeyIcon, TechCrystalIcon, VanguardIcon } from "../customIcons";
-import LongPressIcon from "../icons/LongPressIcon.svelte";
-import PinchIcon from "../icons/PinchIcon.svelte";
+import { GuardianIcon } from "../customIcons";
 import { getDeviceInputLabels } from "../input";
+import {
+    filterByDevice,
+    getControlActions,
+    type ControlAction,
+    type InputBinding,
+} from "../sideMenuPages/controlsData";
 import type { Direction } from "./paneLayout";
 
 export type OnboardingStepId =
@@ -36,6 +29,7 @@ export type OnboardingStepId =
     | "root"
     | "tree"
     | "hud"
+    | "primary-action"
     | "toolbar"
     | "preview"
     | "bottombar";
@@ -43,6 +37,7 @@ export type OnboardingTarget =
     | "node"
     | "locked-node"
     | "hud"
+    | "primary-action"
     | "root"
     | "tree"
     | "toolbar"
@@ -55,6 +50,9 @@ export type OnboardingCardData = {
     icon: Component;
     label: string | string[];
     description: string;
+    title?: string;
+    inputs?: InputBinding[];
+    controlActionId?: string;
 };
 
 export type OnboardingStepDefinition = {
@@ -65,13 +63,12 @@ export type OnboardingStepDefinition = {
     titleIcon: Component;
     variant: "accent" | "muted";
     cards: OnboardingCardData[];
+    splitIndex?: number;
 };
 
 type CreateOnboardingStepsOptions = {
     translate: Translate;
     isTouch: boolean;
-    primaryInputIcon: Component;
-    primaryInputLabel: string;
     compactLayout: boolean;
     targetRegion: TargetRegion;
     lockedNodeRegion: TargetRegion;
@@ -80,211 +77,356 @@ type CreateOnboardingStepsOptions = {
 export function createOnboardingSteps({
     translate,
     isTouch,
-    primaryInputIcon,
-    primaryInputLabel,
     compactLayout,
     targetRegion,
     lockedNodeRegion,
 }: CreateOnboardingStepsOptions): OnboardingStepDefinition[] {
     const device = isTouch ? "touch" : "mouse";
     const labels = getDeviceInputLabels(device, translate);
+    const controls = getControlActions(translate);
+    const controlsById = new Map(controls.map((action) => [action.id, action]));
+    const showMouse = !isTouch;
+    const showTouch = isTouch;
+    const showKeyboard = !isTouch;
+
+    function getAction(actionId: string): ControlAction | undefined {
+        return controlsById.get(actionId);
+    }
+
+    function getActionInputs(actionId: string): string[] {
+        const action = getAction(actionId);
+        if (!action) return [];
+        return filterByDevice(
+            action.inputs,
+            showMouse,
+            showTouch,
+            showKeyboard,
+        ).map((input) => input.keys);
+    }
+
+    function getActionTitle(
+        actionId: string,
+        fallbackKey: string,
+        params?: Record<string, unknown>,
+    ): string {
+        return getAction(actionId)?.title ?? translate(fallbackKey, params);
+    }
+
+    function getActionDescription(
+        actionId: string,
+        fallbackKey: string,
+        params?: Record<string, unknown>,
+    ): string {
+        return (
+            getAction(actionId)?.description ??
+            translate(fallbackKey, params)
+        );
+    }
+
+    function controlCard(
+        controlActionId: string,
+        fallbackTitleKey: string,
+        fallbackDescriptionKey: string,
+        fallbackInputKey?: string,
+        fallbackInputDevice: "mouse" | "touch" | "keyboard" = device,
+        params?: Record<string, unknown>,
+    ): OnboardingCardData {
+        const action = getAction(controlActionId);
+        const title = getActionTitle(controlActionId, fallbackTitleKey, params);
+        const inputKeys = getActionInputs(controlActionId);
+        const inputs =
+            action != null
+                ? filterByDevice(
+                    action.inputs,
+                    showMouse,
+                    showTouch,
+                    showKeyboard,
+                )
+                : fallbackInputKey
+                    ? [
+                        {
+                            keys: translate(fallbackInputKey, params),
+                            device: fallbackInputDevice,
+                        },
+                    ]
+                    : [];
+
+        return {
+            icon: action?.icon ?? GraphIcon,
+            label:
+                inputs.length > 0
+                    ? [title, ...inputKeys]
+                    : title,
+            description: getActionDescription(
+                controlActionId,
+                fallbackDescriptionKey,
+                params,
+            ),
+            title,
+            inputs,
+            controlActionId,
+        };
+    }
+
+    function customCard(
+        icon: Component,
+        title: string,
+        description: string,
+        inputs: InputBinding[] = [],
+    ): OnboardingCardData {
+        return {
+            icon,
+            label: inputs.length > 0 ? [title, ...inputs.map((input) => input.keys)] : title,
+            description,
+            title,
+            inputs,
+        };
+    }
 
     const nodeCards = isTouch
         ? [
-            {
-                icon: HandTapIcon,
-                label: translate("input.primary.touch"),
-                description: translate("onboarding.levelUp"),
-            },
-            {
-                icon: LongPressIcon,
-                label: translate("input.secondary.touch"),
-                description: translate("onboarding.options"),
-            },
+            controlCard(
+                "node-level-up",
+                "controls.actions.levelUp",
+                "controls.actions.levelUpDesc",
+                "input.primary.touch",
+                "touch",
+            ),
+            controlCard(
+                "node-options",
+                "controls.actions.nodeOptions",
+                "controls.actions.nodeTreeOptionsDesc",
+                "input.secondary.touch",
+                "touch",
+            ),
         ]
         : [
-            {
-                icon: MouseLeftClickIcon,
-                label: translate("input.primary.mouse"),
-                description: translate("onboarding.levelUp"),
-            },
-            {
-                icon: MouseMiddleClickIcon,
-                label: translate("input.auxiliary.mouse"),
-                description: translate("onboarding.levelDown"),
-            },
-            {
-                icon: MouseRightClickIcon,
-                label: translate("input.secondary.mouse"),
-                description: translate("onboarding.options"),
-            },
-            {
-                icon: ShiftKeyIcon,
-                label: translate("onboarding.modifierReverseLabel", { action: translate("input.reverse") }),
-                description: translate("onboarding.modifierReverse"),
-            },
-            {
-                icon: CtrlKeyIcon,
-                label: translate("onboarding.modifierAlternateLabel", { action: translate("input.alternate") }),
-                description: translate("onboarding.modifierAlternate"),
-            },
+            controlCard(
+                "node-level-up",
+                "controls.actions.levelUp",
+                "controls.actions.levelUpDesc",
+                "input.primary.mouse",
+                "mouse",
+            ),
+            controlCard(
+                "node-level-down",
+                "controls.actions.levelDown",
+                "controls.actions.levelDownDesc",
+                "input.auxiliary.mouse",
+                "mouse",
+            ),
+            controlCard(
+                "node-level-up-alt",
+                "controls.actions.levelUpAlt",
+                "controls.actions.levelUpAltDesc",
+                "input.alternate",
+                "mouse",
+            ),
+            controlCard(
+                "node-level-down-alt",
+                "controls.actions.levelDownAlt",
+                "controls.actions.levelDownAltDesc",
+                "input.alternate",
+                "mouse",
+            ),
+            controlCard(
+                "node-options",
+                "controls.actions.nodeOptions",
+                "controls.actions.nodeTreeOptionsDesc",
+                "input.secondary.mouse",
+                "mouse",
+            ),
         ];
 
     const lockedCards = [
-        {
-            icon: LockSimpleOpenIcon,
-            label: translate("onboarding.lockedAccessible"),
-            description: translate("onboarding.lockedAccessibleDesc"),
-        },
-        {
-            icon: ArrowFatLineUpIcon,
-            label: translate("onboarding.lockedQuickLevel"),
-            description: translate("onboarding.lockedQuickLevelDesc"),
-        },
+        customCard(
+            LockSimpleOpenIcon,
+            translate("onboarding.lockedAccessible"),
+            translate("onboarding.lockedAccessibleDesc"),
+            [{ keys: labels.primary, device }],
+        ),
+        customCard(
+            getAction("node-level-up-alt")?.icon ?? GraphIcon,
+            translate("onboarding.lockedQuickLevel"),
+            translate("onboarding.lockedQuickLevelDesc"),
+        ),
     ];
 
     const hudCards = [
-        {
-            icon: isTouch ? HandTapIcon : MouseLeftClickIcon,
-            label: labels.primary,
-            description: translate("onboarding.techCrystalBudget"),
-        },
-        {
-            icon: CoinsIcon,
-            label: translate("onboarding.budgetIgnoreLabel"),
-            description: translate("onboarding.budgetIgnoreDesc"),
-        },
+        controlCard(
+            "hud-budget",
+            "controls.actions.budget",
+            "controls.actions.budgetDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
+        customCard(
+            CoinsIcon,
+            translate("onboarding.budgetIgnoreLabel"),
+            translate("onboarding.budgetIgnoreDesc"),
+        ),
+    ];
+
+    const primaryActionCards = [
+        controlCard(
+            "hud-primary-action",
+            "controls.actions.primaryAction",
+            "controls.actions.primaryActionDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
     ];
 
     const toolbarCards = [
-        {
-            icon: ArrowArcLeftIcon,
-            label: translate("onboarding.actionUndoButton", { action: labels.primary }),
-            description: translate("onboarding.undoDesc"),
-        },
-        {
-            icon: ArrowArcRightIcon,
-            label: translate("onboarding.actionRedoButton", { action: labels.primary }),
-            description: translate("onboarding.redoDesc"),
-        },
-        {
-            icon: ArrowCounterClockwiseIcon,
-            label: translate("onboarding.actionResetButton", { action: labels.primary }),
-            description: translate("onboarding.resetActiveTreeOptions"),
-        },
+        controlCard(
+            "hud-undo",
+            "controls.actions.undo",
+            "controls.actions.undoDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
+        controlCard(
+            "hud-redo",
+            "controls.actions.redo",
+            "controls.actions.redoDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
+        controlCard(
+            "hud-reset-tree",
+            "controls.actions.resetTree",
+            "controls.actions.resetTreeDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
     ];
 
     const rootCards = [
-        {
-            icon: primaryInputIcon,
-            label: labels.primary,
-            description: translate("onboarding.rootQuickSettings"),
-        },
-        {
-            icon: GearSixIcon,
-            label: translate("onboarding.actionOption", { action: labels.primary }),
-            description: translate("onboarding.rootPrimaryAction"),
-        },
+        controlCard(
+            "hud-root-quick-settings",
+            "controls.actions.rootQuickSettings",
+            "controls.actions.rootQuickSettingsDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
     ];
 
-    const treeCards = isTouch
-        ? [
-            {
-                icon: LongPressIcon,
-                label: translate("input.secondary.touch"),
-                description: translate("onboarding.treeOptions"),
-            },
-            {
-                icon: HandGrabbingIcon,
-                label: translate("onboarding.swipe"),
-                description: translate("onboarding.pan"),
-            },
-            {
-                icon: PinchIcon,
-                label: translate("onboarding.pinch"),
-                description: translate("onboarding.zoom"),
-            },
-        ]
-        : [
-            {
-                icon: MouseRightClickIcon,
-                label: translate("input.secondary.mouse"),
-                description: translate("onboarding.treeOptions"),
-            },
-            {
-                icon: ArrowsOutCardinalIcon,
-                label: translate("onboarding.clickDrag", { action: translate("input.primary.mouse") }),
-                description: translate("onboarding.pan"),
-            },
-            {
-                icon: MouseScrollIcon,
-                label: translate("onboarding.scroll"),
-                description: translate("onboarding.zoom"),
-            },
-        ];
+    const treeCards = [
+        controlCard(
+            "tree-pan",
+            "controls.actions.pan",
+            "controls.actions.panDesc",
+            isTouch ? "input.gestures.oneFingerDrag" : "input.gestures.drag",
+            device,
+        ),
+        controlCard(
+            "tree-zoom",
+            "controls.actions.zoom",
+            "controls.actions.zoomDesc",
+            isTouch ? "input.gestures.pinch" : "input.gestures.scroll",
+            device,
+        ),
+        controlCard(
+            "tree-options",
+            "controls.actions.treeOptions",
+            "controls.actions.nodeTreeOptionsDesc",
+            `input.secondary.${device}` as const,
+            device,
+        ),
+    ];
 
     const previewCards = [
-        {
-            icon: isTouch ? HandTapIcon : MouseLeftClickIcon,
-            label: primaryInputLabel,
-            description: translate("onboarding.previewViewOptionsDesc"),
-        },
-        {
-            icon: WarningCircleIcon,
-            label: translate("onboarding.previewTemporary"),
-            description: translate("onboarding.previewTemporaryDesc"),
-        },
-        {
-            icon: CopySimpleIcon,
-            label: translate("onboarding.previewClone"),
-            description: translate("onboarding.previewCloneDesc"),
-        },
+        controlCard(
+            "hud-preview-indicator",
+            "controls.actions.previewIndicator",
+            "controls.actions.previewIndicatorDesc",
+            `input.primary.${device}` as const,
+            device,
+        ),
+        customCard(
+            WarningCircleIcon,
+            translate("onboarding.previewTemporary"),
+            translate("onboarding.previewTemporaryDesc"),
+        ),
+        customCard(
+            CopySimpleIcon,
+            translate("onboarding.previewClone"),
+            translate("onboarding.previewCloneDesc"),
+        ),
     ];
 
     const bottombarCards = isTouch
         ? [
-            {
-                icon: GuardianIcon as unknown as Component,
-                label: translate("onboarding.bottombarActionTab", { action: labels.primary }),
-                description: translate("onboarding.bottombarSwitchTree"),
-            },
-            {
-                icon: VanguardIcon as unknown as Component,
-                label: translate("onboarding.bottombarSecondaryActionTab", { action: labels.secondary }),
-                description: translate("onboarding.bottombarTreeOptions"),
-            },
-            {
-                icon: ListIcon,
-                label: translate("onboarding.bottombarActionDrawerButton", { action: labels.primary }),
-                description: translate("onboarding.bottombarToggleMenu"),
-            },
-            {
-                icon: CornersOutIcon,
-                label: translate("onboarding.bottombarActionFullscreen", { action: labels.primary }),
-                description: translate("onboarding.bottombarToggleFullscreen"),
-            },
+            customCard(
+                GuardianIcon as unknown as Component,
+                translate("onboarding.bottombarActionTab", {
+                    action: labels.primary,
+                }),
+                translate("onboarding.bottombarSwitchTree"),
+                [{ keys: labels.primary, device }],
+            ),
+            controlCard(
+                "tree-options",
+                "controls.actions.treeOptions",
+                "controls.actions.nodeTreeOptionsDesc",
+                "input.secondary.touch",
+                "touch",
+            ),
+            controlCard(
+                "hud-side-menu",
+                "controls.actions.sideMenu",
+                "controls.actions.sideMenuDesc",
+                "input.primary.touch",
+                "touch",
+            ),
+            controlCard(
+                "hud-fullscreen",
+                "controls.actions.fullscreen",
+                "controls.actions.fullscreenDesc",
+                "input.primary.touch",
+                "touch",
+            ),
         ]
         : [
+            customCard(
+                GuardianIcon as unknown as Component,
+                translate("onboarding.bottombarActionTab", {
+                    action: labels.primary,
+                }),
+                translate("onboarding.bottombarSwitchTree"),
+                [{ keys: labels.primary, device }],
+            ),
             {
-                icon: ListIcon,
-                label: translate("onboarding.bottombarActionDrawerButton", { action: labels.primary }),
-                description: translate("onboarding.bottombarToggleMenu"),
+                ...controlCard(
+                    "hud-cycle-tabs",
+                    "controls.actions.cycleTabs",
+                    "controls.actions.cycleTabsDesc",
+                    "input.keyboard.cycle",
+                    "keyboard",
+                ),
+                icon: SquaresFourIcon,
             },
-            {
-                icon: GuardianIcon as unknown as Component,
-                label: translate("onboarding.bottombarActionTab", { action: labels.primary }),
-                description: translate("onboarding.bottombarSwitchTree"),
-            },
-            {
-                icon: VanguardIcon as unknown as Component,
-                label: translate("onboarding.bottombarSecondaryActionTab", { action: labels.secondary }),
-                description: translate("onboarding.bottombarTreeOptions"),
-            },
-            {
-                icon: CornersOutIcon,
-                label: translate("onboarding.bottombarActionFullscreen", { action: labels.primary }),
-                description: translate("onboarding.bottombarToggleFullscreen"),
-            },
+            controlCard(
+                "tree-options",
+                "controls.actions.treeOptions",
+                "controls.actions.nodeTreeOptionsDesc",
+                "input.secondary.mouse",
+                "mouse",
+            ),
+            controlCard(
+                "hud-side-menu",
+                "controls.actions.sideMenu",
+                "controls.actions.sideMenuDesc",
+                "input.primary.mouse",
+                "mouse",
+            ),
+            controlCard(
+                "hud-fullscreen",
+                "controls.actions.fullscreen",
+                "controls.actions.fullscreenDesc",
+                "input.primary.mouse",
+                "mouse",
+            ),
         ];
 
     return [
@@ -296,6 +438,7 @@ export function createOnboardingSteps({
             titleIcon: GraphIcon,
             variant: "accent",
             cards: nodeCards,
+            splitIndex: 2,
         },
         {
             id: "locked",
@@ -310,8 +453,12 @@ export function createOnboardingSteps({
             id: "root",
             target: "root",
             direction: compactLayout ? "down" : "right",
-            title: translate("onboarding.rootSection"),
-            titleIcon: RootNodeIcon,
+            title: getActionTitle(
+                "hud-root-quick-settings",
+                "onboarding.rootSection",
+            ),
+            titleIcon:
+                getAction("hud-root-quick-settings")?.icon ?? GraphIcon,
             variant: "accent",
             cards: rootCards,
         },
@@ -323,13 +470,14 @@ export function createOnboardingSteps({
             titleIcon: ArrowsOutCardinalIcon,
             variant: "accent",
             cards: treeCards,
+            splitIndex: 2,
         },
         {
             id: "hud",
             target: "hud",
             direction: "left",
-            title: translate("onboarding.hudSection"),
-            titleIcon: TechCrystalIcon as unknown as Component,
+            title: getActionTitle("hud-budget", "onboarding.hudSection"),
+            titleIcon: getAction("hud-budget")?.icon ?? CoinsIcon,
             variant: "muted",
             cards: hudCards,
         },
@@ -337,10 +485,27 @@ export function createOnboardingSteps({
             id: "preview",
             target: "preview",
             direction: "down",
-            title: translate("onboarding.previewSection"),
-            titleIcon: EyeIcon,
+            title: getActionTitle(
+                "hud-preview-indicator",
+                "onboarding.previewSection",
+            ),
+            titleIcon: getAction("hud-preview-indicator")?.icon ?? EyeIcon,
             variant: "muted",
             cards: previewCards,
+        },
+        {
+            id: "primary-action",
+            target: "primary-action",
+            direction: "up",
+            title: getActionTitle(
+                "hud-primary-action",
+                "controls.actions.primaryAction",
+            ),
+            titleIcon:
+                getAction("hud-primary-action")?.icon ??
+                ArrowCounterClockwiseIcon,
+            variant: "muted",
+            cards: primaryActionCards,
         },
         {
             id: "toolbar",
@@ -359,6 +524,7 @@ export function createOnboardingSteps({
             titleIcon: DotsThreeOutlineIcon,
             variant: "muted",
             cards: bottombarCards,
+            splitIndex: 3,
         },
     ];
 }
