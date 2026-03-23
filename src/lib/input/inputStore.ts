@@ -60,8 +60,12 @@ export function useInputStore(_node: HTMLElement): void | { destroy(): void } {
         if (e.key === "Shift") inputStore.update((s) => (!s.shiftKey ? s : { ...s, shiftKey: false }));
         if (e.key === "Control") inputStore.update((s) => (!s.ctrlKey ? s : { ...s, ctrlKey: false }));
     };
+    const resetModifiers = () => inputStore.set({ ...initialState });
+    const onVisibilityChange = () => { if (document.hidden) resetModifiers(); };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", resetModifiers);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return {
         destroy() {
@@ -70,6 +74,8 @@ export function useInputStore(_node: HTMLElement): void | { destroy(): void } {
             window.removeEventListener("pointermove", onPointer);
             window.removeEventListener("keydown", onKeyDown);
             window.removeEventListener("keyup", onKeyUp);
+            window.removeEventListener("blur", resetModifiers);
+            document.removeEventListener("visibilitychange", onVisibilityChange);
             inputStore.set({ ...initialState });
         },
     };

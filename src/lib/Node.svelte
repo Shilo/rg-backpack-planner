@@ -143,6 +143,23 @@
     /** Show not-allowed cursor when user cannot level (maxed or leaf locked by global cap). */
     $: cursorNotAllowed = isMaxed || (isLeaf && isGlobalIncrementLocked);
 
+    // State cascade: track transitions for scale bounce animation
+    const STATE_RANK: Record<NodeState, number> = {
+        locked: 0,
+        available: 1,
+        active: 2,
+        maxed: 3,
+    };
+    let prevState: NodeState = state;
+    let stateTransitionKey = 0;
+    $: if (state !== prevState) {
+        const wasPromote = STATE_RANK[state] > STATE_RANK[prevState];
+        prevState = state;
+        if (wasPromote) {
+            stateTransitionKey++;
+        }
+    }
+
     let tierRingKey = 0;
     let prevLevelForTier = level;
     $: if (level !== prevLevelForTier) {
@@ -186,6 +203,11 @@
     >
         <NodeFlash {level} {isLeaf} />
     </Button>
+    {#key stateTransitionKey}
+        {#if stateTransitionKey > 0}
+            <span class="state-cascade-bounce"></span>
+        {/if}
+    {/key}
     {#key tierRingKey}
         {#if tierRingKey > 0}
             <span class="tier-ring"></span>
@@ -689,6 +711,52 @@
         --node-icon-color: var(--border-color-active);
     }
 
+    /* State cascade: scale bounce on promotion (locked→available→active→maxed) */
+    .state-cascade-bounce {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: 2;
+        animation: state-bounce 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .node-wrapper-hex .state-cascade-bounce {
+        border-radius: 0;
+        clip-path: var(--hex-clip);
+    }
+
+    @keyframes state-bounce {
+        0% {
+            transform: scale(0.88);
+            opacity: 1;
+        }
+        60% {
+            transform: scale(1.06);
+            opacity: 0.6;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0;
+        }
+    }
+
+    /* Smooth color transitions between node states */
+    .node-wrapper :global(.button.node) {
+        transition:
+            background 0.4s ease,
+            border-color 0.4s ease,
+            filter 0.4s ease;
+    }
+
+    .node-wrapper :global(.button.node.node-hexagon::before) {
+        transition: background 0.4s ease;
+    }
+
+    .node-wrapper :global(.button.node.node-hexagon::after) {
+        transition: background 0.4s ease;
+    }
+
     .tier-ring {
         position: absolute;
         inset: -2px;
@@ -712,6 +780,21 @@
         100% {
             opacity: 0;
             inset: -18px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .state-cascade-bounce {
+            animation: none;
+        }
+
+        .node-wrapper :global(.button.node) {
+            transition: none;
+        }
+
+        .node-wrapper :global(.button.node.node-hexagon::before),
+        .node-wrapper :global(.button.node.node-hexagon::after) {
+            transition: none;
         }
     }
 </style>

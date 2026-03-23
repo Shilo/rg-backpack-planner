@@ -22,6 +22,13 @@
         suppressNextPointerUp,
         type LongPressState,
     } from "./input/longPress";
+    import {
+        createMomentumTracker,
+        createZoomChaser,
+        animateView,
+        prefersReducedMotion,
+        type ViewState,
+    } from "./treePhysics";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
@@ -188,6 +195,9 @@
     } | null = null;
 
     const longPressState: LongPressState = { timer: null, fired: false };
+    const momentum = createMomentumTracker();
+    const zoomChaser = createZoomChaser();
+    let cancelViewAnimation: (() => void) | null = null;
     let fadeKey = 0;
 
     type SplashData = {
@@ -806,6 +816,12 @@
     $: nodeContextMenuOpen.set(!!contextMenu);
 
     function cancelActiveGestures() {
+        momentum.cancel();
+        zoomChaser.cancel();
+        if (cancelViewAnimation) {
+            cancelViewAnimation();
+            cancelViewAnimation = null;
+        }
         // Collect IDs and clear maps BEFORE releasing captures.
         // releasePointerCapture can synchronously fire lostpointercapture;
         // clearing first ensures the handler finds nothing to double-process.
@@ -979,6 +995,12 @@
     function onPointerDown(event: PointerEvent) {
         if (!viewportEl) return;
         if (gesturesDisabled) return;
+        momentum.cancel();
+        zoomChaser.cancel();
+        if (cancelViewAnimation) {
+            cancelViewAnimation();
+            cancelViewAnimation = null;
+        }
         const info = getNodeInfoFromTarget(event.target);
 
         if (event.pointerType === "mouse" && event.button === 1) {
@@ -1107,6 +1129,7 @@
 
             if (panActive) {
                 allowReactiveFocus = false;
+                momentum.track(event.clientX, event.clientY);
                 const dx = event.clientX - panStart.x;
                 const dy = event.clientY - panStart.y;
                 const nextOffsetX = panStart.offsetX + dx;
@@ -1225,8 +1248,25 @@
                 offsetX,
                 offsetY,
             };
+            // Clear stale pan samples so post-pinch finger doesn't
+            // carry old velocity into momentum release.
+            momentum.reset();
+
             pinchStart = null;
         } else if (pointers.size === 0) {
+            // Release pan momentum only for single-touch panning
+            // (never after multi-touch gestures like pinch)
+            if (panActive && !multiTouchGestureActive && !prefersReducedMotion()) {
+                momentum.release(
+                    (dx, dy) => {
+                        const clamped = clampOffsets(offsetX + dx, offsetY + dy, scale);
+                        offsetX = clamped.x;
+                        offsetY = clamped.y;
+                    },
+                );
+            } else {
+                momentum.reset();
+            }
             panStart = null;
             pinchStart = null;
             primaryPointerId = null;
@@ -1265,9 +1305,13 @@
                 offsetX,
                 offsetY,
             };
+            momentum.reset();
+
             pinchStart = null;
             multiTouchGestureActive = false;
         } else if (pointers.size === 0 && middleClickCandidates.size === 0) {
+            momentum.reset();
+
             panStart = null;
             pinchStart = null;
             primaryPointerId = null;
@@ -1419,27 +1463,88 @@
         if (gesturesDisabled) return;
         if (!viewportEl) return;
         if (pointers.size > 0) return;
+        momentum.cancel();
+        if (cancelViewAnimation) {
+            cancelViewAnimation();
+            cancelViewAnimation = null;
+        }
         allowReactiveFocus = false;
+
         const rect = viewportEl.getBoundingClientRect();
         const localX = event.clientX - rect.left;
         const localY = event.clientY - rect.top;
-        const world = screenToWorld(localX, localY);
+
+        // Compute next target from the chaser's target if active,
+        // so rapid wheel ticks accumulate correctly.
+        const base = zoomChaser.isActive()
+            ? zoomChaser.getTarget()
+            : { offsetX, offsetY, scale };
+        const worldX = (localX - base.offsetX) / base.scale;
+        const worldY = (localY - base.offsetY) / base.scale;
+
         const zoomFactor = Math.exp(-event.deltaY * 0.002);
-        const nextScale = clamp(scale * zoomFactor, minScale, maxScale);
-        scale = nextScale;
-        const nextOffsetX = localX - world.x * scale;
-        const nextOffsetY = localY - world.y * scale;
+        const nextScale = clamp(base.scale * zoomFactor, minScale, maxScale);
+        const nextOffsetX = localX - worldX * nextScale;
+        const nextOffsetY = localY - worldY * nextScale;
         const clamped = clampOffsets(nextOffsetX, nextOffsetY, nextScale);
-        offsetX = clamped.x;
-        offsetY = clamped.y;
+
+        if (prefersReducedMotion()) {
+            zoomChaser.cancel();
+            scale = nextScale;
+            offsetX = clamped.x;
+            offsetY = clamped.y;
+        } else {
+            zoomChaser.chase(
+                { offsetX: clamped.x, offsetY: clamped.y, scale: nextScale },
+                () => ({ offsetX, offsetY, scale }),
+                (state) => {
+                    offsetX = state.offsetX;
+                    offsetY = state.offsetY;
+                    scale = state.scale;
+                },
+            );
+        }
     }
 
-    export function focusTreeInView(announce = false) {
+    export function focusTreeInView(announce = false, animate = true) {
         const next = computeFocusViewState();
         if (!next) return false;
-        offsetX = next.offsetX;
-        offsetY = next.offsetY;
-        scale = next.scale;
+        momentum.cancel();
+        if (cancelViewAnimation) {
+            cancelViewAnimation();
+            cancelViewAnimation = null;
+        }
+
+        const from: ViewState = { offsetX, offsetY, scale };
+        const dist = Math.hypot(
+            next.offsetX - from.offsetX,
+            next.offsetY - from.offsetY,
+        );
+        const scaleDiff = Math.abs(next.scale - from.scale);
+
+        // Animate if caller allows it, there's meaningful distance, and motion is OK
+        if (animate && !prefersReducedMotion() && (dist > 2 || scaleDiff > 0.01)) {
+            // Duration scales with distance: 250–500ms
+            const duration = Math.min(250 + dist * 0.3, 500);
+            cancelViewAnimation = animateView(
+                from,
+                next,
+                duration,
+                (state) => {
+                    offsetX = state.offsetX;
+                    offsetY = state.offsetY;
+                    scale = state.scale;
+                },
+                () => {
+                    cancelViewAnimation = null;
+                },
+            );
+        } else {
+            offsetX = next.offsetX;
+            offsetY = next.offsetY;
+            scale = next.scale;
+        }
+
         allowReactiveFocus = true;
         if (announce) {
             showToast($t("tree.focusedInViewToast"));
@@ -1482,7 +1587,7 @@
     $: if (hasMounted && bottomInset !== lastAppliedBottomInset) {
         lastAppliedBottomInset = bottomInset;
         if (allowReactiveFocus) {
-            focusTreeInView(false);
+            focusTreeInView(false, false);
         }
     }
 
@@ -1559,13 +1664,13 @@
                 onOnboardingReadyChange?.(true);
                 return;
             }
-            if (focusTreeInView()) {
+            if (focusTreeInView(false, false)) {
                 await tick();
                 onOnboardingReadyChange?.(true);
                 return;
             }
             requestAnimationFrame(async () => {
-                if (!focusTreeInView()) return;
+                if (!focusTreeInView(false, false)) return;
                 await tick();
                 onOnboardingReadyChange?.(true);
             });
@@ -1577,7 +1682,7 @@
                 const rect = viewportEl.getBoundingClientRect();
                 viewportSize = { width: rect.width, height: rect.height };
             }
-            focusTreeInView(false);
+            focusTreeInView(false, false);
         };
         window.addEventListener("resize", handleResize, { passive: true });
 
@@ -1822,6 +1927,11 @@
         stroke-width: 4;
         stroke: var(--link-color);
         filter: none;
+        /* Smooth state transitions for color/brightness changes */
+        transition:
+            stroke 0.4s ease,
+            filter 0.4s ease,
+            stroke-opacity 0.4s ease;
     }
 
     .tree-links .tree-link.region-top-left {
@@ -1848,5 +1958,31 @@
 
     .tree-links .tree-link.active {
         stroke: var(--link-color);
+        /* Energy flow: subtle dashes flowing parent→child */
+        stroke-dasharray: 12 5;
+        animation: link-energy-flow 2.5s linear infinite;
+    }
+
+    .tree-links .tree-link.maxed {
+        stroke: var(--link-color);
+        stroke-dasharray: 12 5;
+        animation: link-energy-flow 2.5s linear infinite;
+    }
+
+    @keyframes link-energy-flow {
+        to {
+            stroke-dashoffset: -17;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tree-links .tree-link {
+            transition: none;
+        }
+        .tree-links .tree-link.active,
+        .tree-links .tree-link.maxed {
+            stroke-dasharray: none;
+            animation: none;
+        }
     }
 </style>
