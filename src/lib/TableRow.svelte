@@ -154,8 +154,7 @@
 
     .table-row-hint {
         display: block;
-        font-style: italic;
-        opacity: 0.85;
+        color: var(--accent);
         margin-top: 2px;
     }
 
