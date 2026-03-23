@@ -6,6 +6,7 @@
     import { onboardingSeen } from "./onboarding/onboardingStore";
     import { activePresetName } from "./buildPresetsStore";
     import { isPreviewMode } from "./previewModeStore";
+    import { appTitleVisible } from "./appTitleVisibleStore";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
@@ -14,6 +15,8 @@
     $: if (isMenuOpen) hideForever = true;
     $: waitingForOnboarding = !$onboardingSeen;
     const version = getCurrentVersion();
+    $: $appTitleVisible = !hideForever && !waitingForOnboarding;
+
     $: appName = $t("app.name");
     $: versionLabel = version === "unknown" ? "" : `v${version}`;
     $: appDisplayName =
@@ -55,7 +58,10 @@
             on:click={() => onClick?.()}
             arrow="right"
         >
-            {appDisplayName}
+            {appName}
+            {#if versionLabel}
+                <span class="app-title-version">{versionLabel}</span>
+            {/if}
             {#if presetSubtitle}
                 <span class="app-title-preset">{presetSubtitle}</span>
             {/if}
@@ -79,6 +85,14 @@
         --app-title-display-fade: 200ms;
         animation: app-title-fade var(--app-title-display-fade) ease-in forwards;
         animation-delay: var(--app-title-display-duration);
+    }
+
+    .app-title-version {
+        display: block;
+        font-size: var(--font-xs);
+        font-weight: var(--weight-normal);
+        opacity: 0.5;
+        letter-spacing: 0.04em;
     }
 
     .app-title-preset {

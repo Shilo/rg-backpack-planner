@@ -8,6 +8,7 @@
     import { t } from "svelte-whisper";
     import { formatCompact } from "./mathUtil";
     import { getKeyboardActionLabel } from "./input";
+    import { appTitleVisible } from "./appTitleVisibleStore";
 
     export let activeTreeIndex = 0;
 
@@ -58,6 +59,7 @@
     class="currency-anim-wrapper"
     class:anim-pulse={animState === "pulse"}
     class:anim-shake={animState === "overspend"}
+    class:title-visible={$appTitleVisible}
     on:animationend|self={onAnimEnd}
 >
     <Button
@@ -94,6 +96,15 @@
 <style>
     .currency-anim-wrapper {
         display: inline-flex;
+        transition: opacity 350ms ease;
+    }
+
+    /* Hide while app title is visible to prevent overlap on narrow phones */
+    @media (max-width: 414px) {
+        .currency-anim-wrapper.title-visible {
+            opacity: 0;
+            pointer-events: none;
+        }
     }
 
     :global(.currency-display) {
@@ -186,6 +197,10 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+        .currency-anim-wrapper {
+            transition: none;
+        }
+
         .currency-anim-wrapper.anim-pulse,
         .currency-anim-wrapper.anim-shake {
             animation: none;
