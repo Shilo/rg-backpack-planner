@@ -1,22 +1,25 @@
 import type { Component } from "svelte";
 import {
     CaretUpIcon,
+    CaretDownIcon,
+    CaretLineUpIcon,
+    CaretLineDownIcon,
     ListIcon,
-    TrashSimpleIcon,
     ArrowArcLeftIcon,
     ArrowArcRightIcon,
     ImageIcon,
     CornersOutIcon,
     SquaresFourIcon,
+    InfoIcon,
     EyeIcon,
     ArrowsOutCardinalIcon,
     MagnifyingGlassPlusIcon,
     ArrowLineLeftIcon,
-    PlusCircleIcon,
-    MinusCircleIcon,
     DotsThreeOutlineIcon,
+    GraphIcon,
+    ArrowCounterClockwiseIcon,
 } from "phosphor-svelte";
-import { TechCrystalIcon, RootNodeIcon } from "../customIcons";
+import { TechCrystalIcon, RootNodeIcon, GuardianIcon } from "../customIcons";
 import { getDeviceInputLabels, getKeyboardActionLabel } from "../input";
 
 export type InputDevice = "mouse" | "touch" | "keyboard";
@@ -56,7 +59,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "tree-tooltip",
             title: t("controls.actions.tooltip"),
             description: t("controls.actions.tooltipDesc"),
-            icon: EyeIcon,
+            icon: InfoIcon,
             inputs: [
                 { keys: gesture("hover"), device: "mouse" },
                 { keys: touch.secondary, device: "touch" },
@@ -103,7 +106,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "hud-reset-tree",
             title: t("controls.actions.resetTree"),
             description: t("controls.actions.resetTreeDesc"),
-            icon: TrashSimpleIcon,
+            icon: ArrowCounterClockwiseIcon,
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
                 { keys: kbd("back"), device: "keyboard" },
@@ -209,7 +212,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "node-level-up",
             title: t("controls.actions.levelUp"),
             description: t("controls.actions.levelUpDesc"),
-            icon: PlusCircleIcon,
+            icon: CaretUpIcon,
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
                 { keys: touch.primary, device: "touch" },
@@ -220,7 +223,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "node-level-down",
             title: t("controls.actions.levelDown"),
             description: t("controls.actions.levelDownDesc"),
-            icon: MinusCircleIcon,
+            icon: CaretDownIcon,
             inputs: [
                 { keys: mouse.auxiliary!, device: "mouse" },
                 { keys: mouse.reversePrimary, device: "mouse" },
@@ -231,7 +234,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "node-level-up-alt",
             title: t("controls.actions.levelUpAlt"),
             description: t("controls.actions.levelUpAltDesc"),
-            icon: PlusCircleIcon,
+            icon: CaretLineUpIcon,
             inputs: [{ keys: mouse.alternatePrimary, device: "mouse" }],
             section: "node",
         },
@@ -239,7 +242,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "node-level-down-alt",
             title: t("controls.actions.levelDownAlt"),
             description: t("controls.actions.levelDownAltDesc"),
-            icon: MinusCircleIcon,
+            icon: CaretLineDownIcon,
             inputs: [
                 { keys: mouse.alternateAuxiliary!, device: "mouse" },
                 { keys: mouse.reverseAlternatePrimary!, device: "mouse" },
@@ -250,7 +253,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "node-options",
             title: t("controls.actions.nodeOptions"),
             description: t("controls.actions.nodeTreeOptionsDesc"),
-            icon: DotsThreeOutlineIcon,
+            icon: GraphIcon,
             inputs: [
                 { keys: mouse.secondary, device: "mouse" },
                 { keys: touch.secondary, device: "touch" },
@@ -284,7 +287,7 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             id: "tree-options",
             title: t("controls.actions.treeOptions"),
             description: t("controls.actions.nodeTreeOptionsDesc"),
-            icon: DotsThreeOutlineIcon,
+            icon: GuardianIcon as unknown as Component,
             inputs: [
                 { keys: mouse.secondary, device: "mouse" },
                 { keys: touch.secondary, device: "touch" },

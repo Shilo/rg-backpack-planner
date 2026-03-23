@@ -128,7 +128,7 @@
                     <TableRow
                         title={action.title}
                         description={action.description}
-                        onclick={action.trigger}
+                        onclick={action.trigger} iconSize={22}
                     >
                         <svelte:component this={action.icon} slot="icon" />
                         {#each action.filteredInputs as input}

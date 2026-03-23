@@ -2,6 +2,7 @@
     export let title: string;
     export let description: string | undefined = undefined;
     export let onclick: (() => void) | undefined = undefined;
+    export let iconSize = 18;
 
     $: interactive = !!onclick;
 
@@ -55,7 +56,7 @@
         on:pointermove={handlePointerMove}
         on:click={handleClick}
     >
-        <span class="table-row-icon">
+        <span class="table-row-icon" style="--icon-size: {iconSize}px;">
             <slot name="icon" />
         </span>
         <div class="table-row-text">
@@ -78,7 +79,7 @@
     </button>
 {:else}
     <li class="table-row">
-        <span class="table-row-icon">
+        <span class="table-row-icon" style="--icon-size: {iconSize}px;">
             <slot name="icon" />
         </span>
         <div class="table-row-text">
@@ -115,7 +116,7 @@
     }
 
     .table-row-icon {
-        width: 18px;
+        width: var(--icon-size);
         height: 33px;
         display: flex;
         align-items: center;
@@ -126,8 +127,8 @@
     }
 
     .table-row-icon :global(svg) {
-        width: 18px;
-        height: 18px;
+        width: var(--icon-size);
+        height: var(--icon-size);
         display: block;
     }
 
