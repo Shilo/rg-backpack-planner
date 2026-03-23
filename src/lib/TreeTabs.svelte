@@ -616,20 +616,74 @@
         width: 100%;
         overflow: hidden;
         background: radial-gradient(
-                circle,
-                color-mix(in srgb, var(--border-subtle) 30%, transparent) 2px,
-                transparent 2px
-            ),
-            radial-gradient(
                 circle at 50%
                     calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
                 var(--surface),
                 var(--bg) 100%
             );
-        background-size:
-            32px 32px,
-            100% 100%;
         position: relative;
+    }
+
+    .tabs-root::before,
+    .tabs-root::after {
+        content: '';
+        position: absolute;
+        inset: -16px;
+        pointer-events: none;
+    }
+
+    .tabs-root::before {
+        background: radial-gradient(
+            circle,
+            color-mix(in srgb, var(--border-subtle) 35%, transparent) 2px,
+            transparent 2px
+        );
+        background-size: 32px 32px;
+        animation:
+            starfield-pulse-a 5s ease-in-out infinite,
+            starfield-drift-a 35s ease-in-out infinite;
+    }
+
+    .tabs-root::after {
+        background: radial-gradient(
+            circle,
+            color-mix(in srgb, var(--border-subtle) 25%, transparent) 1.2px,
+            transparent 1.2px
+        );
+        background-size: 48px 48px;
+        background-position: 14px 18px;
+        animation:
+            starfield-pulse-b 7s ease-in-out infinite -3s,
+            starfield-drift-b 45s ease-in-out infinite;
+    }
+
+    @keyframes starfield-pulse-a {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.03); }
+    }
+
+    @keyframes starfield-pulse-b {
+        0%, 100% { opacity: 0.85; transform: scale(1.02); }
+        50% { opacity: 0.5; transform: scale(1); }
+    }
+
+    @keyframes starfield-drift-a {
+        0%, 100% { translate: 0 0; }
+        17% { translate: 10px -14px; }
+        33% { translate: -4px -10px; }
+        50% { translate: -14px 2px; }
+        67% { translate: -6px 12px; }
+        83% { translate: 8px 6px; }
+    }
+
+    @keyframes starfield-drift-b {
+        0%, 100% { translate: 0 0; }
+        14% { translate: -8px -10px; }
+        29% { translate: -12px 4px; }
+        43% { translate: 2px 14px; }
+        57% { translate: 12px 6px; }
+        71% { translate: 10px -8px; }
+        86% { translate: -2px -12px; }
     }
 
     .tabs-bar-spacer {
@@ -812,5 +866,14 @@
     .tabs-content {
         flex: 1;
         min-height: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tabs-root::before,
+        .tabs-root::after {
+            animation: none;
+        }
     }
 </style>
