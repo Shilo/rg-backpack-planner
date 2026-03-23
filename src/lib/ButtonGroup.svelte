@@ -3,11 +3,13 @@
      *  "left" (default): the left button keeps its right border.
      *  "right": the right button keeps its left border instead. */
     export let separatorSide: "left" | "right" = "left";
+    /** When true, children fill available space equally with text wrapping and icon collapse at small sizes. */
+    export let fill = false;
 
     let restClass: string | undefined = undefined;
     let groupProps: Record<string, unknown> = {};
     $: ({ class: restClass, ...groupProps } = $$restProps);
-    $: classes = ["button-group", separatorSide === "right" ? "button-group-border-right" : "", restClass].filter(Boolean).join(" ");
+    $: classes = ["button-group", separatorSide === "right" ? "button-group-border-right" : "", fill ? "button-group-fill" : "", restClass].filter(Boolean).join(" ");
 </script>
 
 <div class={classes} {...groupProps}>
@@ -23,6 +25,22 @@
 
     .button-group > :global(*) {
         align-self: stretch;
+    }
+
+    .button-group-fill > :global(*) {
+        flex: 1 1 auto;
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 32px;
+    }
+
+    .button-group-fill :global(.button-text) {
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+
+    .button-group-fill :global(.button-icon) {
+        flex: 0 0 auto !important;
     }
 
     .button-group > :global(:not(:last-child)) {

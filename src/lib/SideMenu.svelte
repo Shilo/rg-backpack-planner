@@ -303,6 +303,11 @@
         margin-bottom: var(--spacing-lg);
     }
 
+    /* Controls tab renders edge-to-edge rows — no bottom margin needed */
+    .controls-active .side-menu__content-inner > :global(:last-child) {
+        margin-bottom: 0;
+    }
+
     /* When the last child is hidden (e.g. a portal wrapper), apply the bottom
        margin to the preceding visible sibling instead. */
     .side-menu__content-inner > :global(:has(+ [hidden]:last-child)) {

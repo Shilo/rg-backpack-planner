@@ -96,11 +96,11 @@
     }));
 </script>
 
-<ButtonGroup class="controls-header">
-    <Button small icon={InfoIcon} on:click={() => onOpenAbout?.()}>
+<ButtonGroup class="controls-header" fill>
+    <Button small icon={InfoIcon} iconSize={22} on:click={() => onOpenAbout?.()}>
         {$t("sideMenu.sections.instructions")}
     </Button>
-    <Button small icon={BookOpenTextIcon} on:click={handleTutorial}>
+    <Button small icon={BookOpenTextIcon} iconSize={22} on:click={handleTutorial}>
         {$t("controls.tutorial")}
     </Button>
 </ButtonGroup>
@@ -137,8 +137,7 @@
 
 <style>
     :global(.controls-header .button) {
-        flex: 1;
-        min-width: 0;
+        padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs) var(--radius);
     }
 
     .controls-page {
