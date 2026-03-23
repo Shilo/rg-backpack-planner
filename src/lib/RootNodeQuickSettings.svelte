@@ -41,18 +41,35 @@
     let isTouchPlatform = false;
     let wasOpen = false;
     let backdropHadPointerDown = false;
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+    let dragStart: {
+        x: number;
+        y: number;
+        panelX: number;
+        panelY: number;
+    } | null = null;
+    let pointerId: number | null = null;
 
-    const MARGIN = 8;
+    const DRAG_THRESHOLD = 5;
 
-    function getHudInsets(): { top: number; right: number; bottom: number; left: number } {
-        const hud = document.querySelector(".hud-safe-area");
-        const hudRect = hud?.getBoundingClientRect();
-        if (!hudRect) return { top: 0, right: 0, bottom: 0, left: 0 };
+    function getHudMargins(): { top: number; right: number; bottom: number; left: number } {
+        const s = getComputedStyle(document.documentElement);
+        const px = (key: string) => parseFloat(s.getPropertyValue(key)) || 0;
+        const barPad = px("--spacing-lg") || 12;
         return {
-            top: hudRect.top,
-            right: window.innerWidth - hudRect.right,
-            bottom: window.innerHeight - hudRect.bottom,
-            left: hudRect.left,
+            top: Math.max(barPad, px("--safe-top")),
+            right: Math.max(barPad, px("--safe-right")),
+            bottom: Math.max(barPad, px("--safe-bottom")),
+            left: Math.max(barPad, px("--safe-left")),
+        };
+    }
+
+    function getBasePosition() {
+        if (!panelEl) return { x: 0, y: 0 };
+        return {
+            x: x - panelEl.offsetWidth / 2,
+            y: y - panelEl.offsetHeight,
         };
     }
 
@@ -77,18 +94,18 @@
     /** (x, y) from parent: x = center of root, y = desired bottom edge of panel (e.g. rootTop - padding). */
     function updatePosition() {
         if (!panelEl) return;
-        const rect = panelEl.getBoundingClientRect();
-        const hud = getHudInsets();
-        let px = x - rect.width / 2;
-        let py = y - rect.height;
-        px = Math.max(
-            hud.left + MARGIN,
-            Math.min(px, window.innerWidth - hud.right - rect.width - MARGIN),
-        );
-        py = Math.max(
-            hud.top + MARGIN,
-            Math.min(py, window.innerHeight - hud.bottom - rect.height - MARGIN),
-        );
+        // Use offsetWidth/Height instead of getBoundingClientRect — the entry
+        // animation scales the panel to 0.96 and getBoundingClientRect reports
+        // the rendered (scaled) size, causing position clamping to undercount.
+        const w = panelEl.offsetWidth;
+        const h = panelEl.offsetHeight;
+        const m = getHudMargins();
+        const vw = document.documentElement.clientWidth;
+        const vh = document.documentElement.clientHeight;
+        let px = x - w / 2 + dragOffset.x;
+        let py = y - h + dragOffset.y;
+        px = Math.max(m.left, Math.min(px, vw - m.right - w));
+        py = Math.max(m.top, Math.min(py, vh - m.bottom - h));
         displayX = px;
         displayY = py;
     }
@@ -99,12 +116,20 @@
 
     $: if (isOpen && !wasOpen) {
         wasOpen = true;
+        dragOffset = { x: 0, y: 0 };
+        isDragging = false;
+        dragStart = null;
+        pointerId = null;
         tick().then(updatePosition);
     }
 
     $: if (!isOpen && wasOpen) {
         wasOpen = false;
         backdropHadPointerDown = false;
+        dragOffset = { x: 0, y: 0 };
+        isDragging = false;
+        dragStart = null;
+        pointerId = null;
     }
 
     function selectPrimaryAction(action: NodePrimaryAction) {
@@ -188,6 +213,71 @@
         }
     }
 
+    function isInteractiveElement(target: EventTarget | null): boolean {
+        if (!(target instanceof Element)) return false;
+        const tagName = target.tagName.toLowerCase();
+        if (tagName === "button" || tagName === "a" || tagName === "input") {
+            return true;
+        }
+        return target.closest('button, a, input, [role="button"], [role="radio"]') !== null;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+        if (!panelEl) return;
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+
+        if (isInteractiveElement(event.target)) {
+            event.stopPropagation();
+            return;
+        }
+
+        event.stopPropagation();
+        panelEl.setPointerCapture(event.pointerId);
+        pointerId = event.pointerId;
+
+        const rect = panelEl.getBoundingClientRect();
+        dragStart = {
+            x: event.clientX,
+            y: event.clientY,
+            panelX: rect.left,
+            panelY: rect.top,
+        };
+        isDragging = false;
+    }
+
+    function handlePointerMove(event: PointerEvent) {
+        if (!panelEl || !dragStart || pointerId !== event.pointerId) return;
+
+        const dx = event.clientX - dragStart.x;
+        const dy = event.clientY - dragStart.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (!isDragging && distance > DRAG_THRESHOLD) {
+            isDragging = true;
+            event.preventDefault();
+        }
+
+        if (!isDragging) return;
+
+        event.preventDefault();
+
+        const basePosition = getBasePosition();
+        dragOffset.x = dragStart.panelX + dx - basePosition.x;
+        dragOffset.y = dragStart.panelY + dy - basePosition.y;
+        updatePosition();
+        dragOffset.x = displayX - basePosition.x;
+        dragOffset.y = displayY - basePosition.y;
+    }
+
+    function handlePointerUp(event: PointerEvent) {
+        if (!panelEl || pointerId !== event.pointerId) return;
+
+        panelEl.releasePointerCapture(event.pointerId);
+        isDragging = false;
+        dragStart = null;
+        pointerId = null;
+    }
+
     function handleBackdropPointerDown(event: PointerEvent) {
         if (event.target !== event.currentTarget) return;
         event.stopPropagation();
@@ -230,12 +320,17 @@
     ></button>
     <div
         class="qs-panel"
+        class:dragging={isDragging}
         bind:this={panelEl}
         role="dialog"
         tabindex="-1"
         aria-label={$t("quickSettings.ariaLabel")}
         style="transform: translate({displayX}px, {displayY}px);"
         on:keydown={handleKeydown}
+        on:pointerdown={handlePointerDown}
+        on:pointermove={handlePointerMove}
+        on:pointerup={handlePointerUp}
+        on:pointercancel={handlePointerUp}
     >
         <div class="qs-header">
             <RootNodeIcon class="qs-header-icon" aria-hidden="true" />
@@ -352,11 +447,17 @@
         display: flex;
         flex-direction: column;
         width: max-content;
-        max-width: calc(100vw - 16px);
+        max-width: calc(100vw - max(var(--spacing-lg), var(--safe-left)) - max(var(--spacing-lg), var(--safe-right)));
         overflow: hidden;
         animation: qs-enter 0.22s cubic-bezier(0.05, 0.7, 0.1, 1) both;
         user-select: none;
+        cursor: move;
+        touch-action: none;
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .qs-panel.dragging {
+        cursor: grabbing;
     }
 
     .qs-header {
