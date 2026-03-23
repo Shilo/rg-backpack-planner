@@ -712,9 +712,13 @@
         }
     },
     "systemInfo": {
+        "sectionPerformance": "Performance",
         "sectionApp": "App",
         "sectionDevice": "Device",
         "sectionEnvironment": "Environment",
+        "currentFps": "Current FPS",
+        "averageFps": "Average FPS",
+        "lowestFps": "Lowest FPS",
         "version": "Version",
         "storedVersion": "Stored Version",
         "device": "Model",

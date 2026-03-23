@@ -656,9 +656,13 @@
         }
     },
     "systemInfo": {
+        "sectionPerformance": "Performances",
         "sectionApp": "Application",
         "sectionDevice": "Appareil",
         "sectionEnvironment": "Environnement",
+        "currentFps": "FPS actuel",
+        "averageFps": "FPS moyen",
+        "lowestFps": "FPS le plus bas",
         "version": "Version",
         "storedVersion": "Version enregistrée",
         "device": "Modèle",

@@ -656,9 +656,13 @@
         }
     },
     "systemInfo": {
+        "sectionPerformance": "パフォーマンス",
         "sectionApp": "アプリ",
         "sectionDevice": "デバイス",
         "sectionEnvironment": "環境",
+        "currentFps": "現在のFPS",
+        "averageFps": "平均FPS",
+        "lowestFps": "最低FPS",
         "version": "バージョン",
         "storedVersion": "保存済みバージョン",
         "device": "モデル",

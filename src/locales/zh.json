@@ -656,9 +656,13 @@
         }
     },
     "systemInfo": {
+        "sectionPerformance": "性能",
         "sectionApp": "应用",
         "sectionDevice": "设备",
         "sectionEnvironment": "环境",
+        "currentFps": "当前 FPS",
+        "averageFps": "平均 FPS",
+        "lowestFps": "最低 FPS",
         "version": "版本",
         "storedVersion": "已存储版本",
         "device": "型号",

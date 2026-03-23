@@ -133,6 +133,7 @@ const TEST_FILES = [
     "imageDetailsPopover.test.ts",
     "serviceWorkerAutoUpdateModule.test.ts",
     "serviceWorkerUpdateToast.test.ts",
+    "systemInfoPerformance.test.ts",
     "toastSpinnerApi.test.ts",
     "toastActionRedesign.test.ts",
     "onboardingPaneLayout.test.ts",

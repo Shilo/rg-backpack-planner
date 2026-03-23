@@ -6,6 +6,8 @@
     import { triggerHaptic } from "../hapticsStore";
     import { onMount } from "svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
+    import SystemInfoPerformanceSection from "./SystemInfoPerformanceSection.svelte";
+    import { formatFps, startFpsMonitor } from "./systemInfoPerformance";
 
     type NavigatorUAData = {
         mobile?: boolean;
@@ -20,6 +22,8 @@
             fullVersionList?: { brand: string; version: string }[];
         }>;
     };
+
+    type InfoEntry = { label: string; value: string };
 
     const version = getCurrentVersion();
     const storedVersion = getStoredVersion();
@@ -63,8 +67,11 @@
     let deviceModel = "";
     let browserVersion = "";
     let platformInfo = "";
+    let currentFps: number | null = null;
+    let averageFps: number | null = null;
+    let lowestFps: number | null = null;
 
-    onMount(async () => {
+    async function loadSystemDetails() {
         if ("serviceWorker" in navigator) {
             try {
                 const reg = await navigator.serviceWorker.getRegistration();
@@ -111,10 +118,25 @@
         if (!platformInfo && uaData?.platform) {
             platformInfo = uaData.platform;
         }
+    }
 
+    onMount(() => {
+        void loadSystemDetails();
+        const stopFpsMonitor = startFpsMonitor((snapshot) => {
+            currentFps = snapshot.currentFps;
+            averageFps = snapshot.averageFps;
+            lowestFps = snapshot.lowestFps;
+        });
+        return () => {
+            stopFpsMonitor();
+        };
     });
 
-    type InfoEntry = { label: string; value: string };
+    $: performanceEntries = [
+        { label: $t("systemInfo.currentFps"), value: formatFps(currentFps) },
+        { label: $t("systemInfo.averageFps"), value: formatFps(averageFps) },
+        { label: $t("systemInfo.lowestFps"), value: formatFps(lowestFps) },
+    ] satisfies InfoEntry[];
 
     $: appEntries = [
         { label: $t("systemInfo.version"), value: version },
@@ -149,6 +171,7 @@
 
     function formatForClipboard(): string {
         const sections = [
+            { title: $t("systemInfo.sectionPerformance"), items: performanceEntries },
             { title: $t("systemInfo.sectionApp"), items: appEntries },
             { title: $t("systemInfo.sectionDevice"), items: deviceEntries },
             { title: $t("systemInfo.sectionEnvironment"), items: envEntries },
@@ -183,6 +206,8 @@
 </script>
 
 <div class="system-info">
+    <SystemInfoPerformanceSection entries={performanceEntries} />
+
     <SideMenuSection title={$t("systemInfo.sectionApp")}>
         <div class="info-card">
             {#each appEntries as entry}
