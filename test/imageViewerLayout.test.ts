@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import {
+    clampImageViewerOffsets,
     computeImageViewerFitTransform,
     syncImageViewerFit,
     type ImageViewerFitState,
@@ -135,4 +136,67 @@ assert.notStrictEqual(
     resizedAfterUserAdjust.fitScale,
     userAdjusted.fitScale,
     "Expected fitScale bounds to refresh after viewport resize",
+);
+
+const clampedOversizedHigh = clampImageViewerOffsets({
+    viewportWidth: 1000,
+    viewportHeight: 700,
+    naturalWidth: 1200,
+    naturalHeight: 900,
+    offsetX: 1400,
+    offsetY: 900,
+    scale: 1.1,
+});
+assert.deepStrictEqual(
+    clampedOversizedHigh,
+    { x: 1000 - 48, y: 700 - 48 },
+    "Expected oversized images to clamp to the maximum tree-style visible margin",
+);
+
+const clampedOversizedLow = clampImageViewerOffsets({
+    viewportWidth: 1000,
+    viewportHeight: 700,
+    naturalWidth: 1200,
+    naturalHeight: 900,
+    offsetX: -1400,
+    offsetY: -1100,
+    scale: 1.1,
+});
+assert.deepStrictEqual(
+    clampedOversizedLow,
+    {
+        x: 48 - 1200 * 1.1,
+        y: 48 - 900 * 1.1,
+    },
+    "Expected oversized images to clamp to the minimum tree-style visible margin",
+);
+
+const preservedMixedAxisClamp = clampImageViewerOffsets({
+    viewportWidth: 1000,
+    viewportHeight: 700,
+    naturalWidth: 900,
+    naturalHeight: 1000,
+    offsetX: 120,
+    offsetY: -80,
+    scale: 0.8,
+});
+assert.deepStrictEqual(
+    preservedMixedAxisClamp,
+    { x: 120, y: -80 },
+    "Expected clampImageViewerOffsets to preserve valid offsets even when only one axis fits the viewport",
+);
+
+const passthroughInvalidClamp = clampImageViewerOffsets({
+    viewportWidth: 0,
+    viewportHeight: 700,
+    naturalWidth: 1200,
+    naturalHeight: 900,
+    offsetX: 77,
+    offsetY: -33,
+    scale: 1.1,
+});
+assert.deepStrictEqual(
+    passthroughInvalidClamp,
+    { x: 77, y: -33 },
+    "Expected invalid viewport dimensions to leave offsets unchanged",
 );

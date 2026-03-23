@@ -1,42 +1,59 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import assert from "node:assert";
+import { clampImageViewerOffsets } from "../src/lib/imageViewerLayout.ts";
 
-const imageViewerPath = resolve("src/lib/ImageViewer.svelte");
-const source = readFileSync(imageViewerPath, "utf8");
-const normalized = source.replace(/\s+/g, " ");
+const viewportWidth = 1000;
+const viewportHeight = 700;
+const naturalWidth = 1000;
+const naturalHeight = 700;
 
-if (!/function clampOffsets\(/.test(source)) {
-    throw new Error("ImageViewer should define clampOffsets().");
-}
+// Regression: crossing the "image now fits the viewport" threshold should not
+// force the image to snap back to a centered offset. Tree view keeps the clamp
+// continuous here, and ImageViewer should match that behavior.
+const clampedJustAboveFit = clampImageViewerOffsets({
+    viewportWidth,
+    viewportHeight,
+    naturalWidth,
+    naturalHeight,
+    offsetX: 32,
+    offsetY: -24,
+    scale: 1.01,
+});
+assert.strictEqual(clampedJustAboveFit.x, 32);
+assert.strictEqual(clampedJustAboveFit.y, -24);
 
-if (
-    !/contentW <= viewportWidth && contentH <= viewportHeight/.test(normalized)
-) {
-    throw new Error(
-        "ImageViewer should lock pan at fit scale when both axes fit in the viewport.",
-    );
-}
+const clampedJustBelowFit = clampImageViewerOffsets({
+    viewportWidth,
+    viewportHeight,
+    naturalWidth,
+    naturalHeight,
+    offsetX: 32,
+    offsetY: -24,
+    scale: 0.99,
+});
+assert.strictEqual(
+    clampedJustBelowFit.x,
+    32,
+    "Expected ImageViewer to preserve a valid horizontal offset instead of snapping to center when width shrinks back under the viewport",
+);
+assert.strictEqual(
+    clampedJustBelowFit.y,
+    -24,
+    "Expected ImageViewer to preserve a valid vertical offset instead of snapping to center when height shrinks back under the viewport",
+);
 
-if (!/x: \(viewportWidth - contentW\) \/ 2/.test(normalized)) {
-    throw new Error(
-        "ImageViewer should center-fit horizontal offset using (viewportWidth - contentW) / 2.",
-    );
-}
-
-if (!/y: \(viewportHeight - contentH\) \/ 2/.test(normalized)) {
-    throw new Error(
-        "ImageViewer should center-fit vertical offset using (viewportHeight - contentH) / 2.",
-    );
-}
-
-if (!/contentW <= viewportWidth \? \(viewportWidth - contentW\) \/ 2/.test(normalized)) {
-    throw new Error(
-        "ImageViewer should lock horizontal pan to centered position when image width fits viewport.",
-    );
-}
-
-if (!/contentH <= viewportHeight \? \(viewportHeight - contentH\) \/ 2/.test(normalized)) {
-    throw new Error(
-        "ImageViewer should lock vertical pan to centered position when image height fits viewport.",
-    );
-}
+// Even when the scaled image is smaller than the viewport, clamp against the
+// same margin-based bounds as Tree instead of replacing the user's position
+// with a hard centered transform.
+const clampedPastEdge = clampImageViewerOffsets({
+    viewportWidth,
+    viewportHeight,
+    naturalWidth,
+    naturalHeight,
+    offsetX: 980,
+    offsetY: 710,
+    scale: 0.8,
+});
+assert.deepStrictEqual(clampedPastEdge, {
+    x: viewportWidth - 48,
+    y: viewportHeight - 48,
+});

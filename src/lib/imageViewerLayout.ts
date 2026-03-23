@@ -19,6 +19,21 @@ export type ImageViewerFitTransform = {
     offsetY: number;
 };
 
+type ImageViewerClampParams = {
+    viewportWidth: number;
+    viewportHeight: number;
+    naturalWidth: number;
+    naturalHeight: number;
+    offsetX: number;
+    offsetY: number;
+    scale: number;
+    margin?: number;
+};
+
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
+
 function getImageViewerFitViewport(params: {
     viewportWidth: number;
     viewportHeight: number;
@@ -92,5 +107,37 @@ export function syncImageViewerFit(
         ...state,
         fitScale: nextFitScale,
         minScale: nextMinScale,
+    };
+}
+
+export function clampImageViewerOffsets(params: ImageViewerClampParams): {
+    x: number;
+    y: number;
+} {
+    const {
+        viewportWidth,
+        viewportHeight,
+        naturalWidth,
+        naturalHeight,
+        offsetX,
+        offsetY,
+        scale,
+        margin = 48,
+    } = params;
+
+    if (viewportWidth <= 0 || viewportHeight <= 0) {
+        return { x: offsetX, y: offsetY };
+    }
+
+    if (naturalWidth <= 0 || naturalHeight <= 0 || scale <= 0) {
+        return { x: offsetX, y: offsetY };
+    }
+
+    const contentW = naturalWidth * scale;
+    const contentH = naturalHeight * scale;
+
+    return {
+        x: clamp(offsetX, margin - contentW, viewportWidth - margin),
+        y: clamp(offsetY, margin - contentH, viewportHeight - margin),
     };
 }

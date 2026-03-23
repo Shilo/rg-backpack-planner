@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import {
+        clampImageViewerOffsets,
         computeImageViewerFitTransform,
         syncImageViewerFit,
     } from "./imageViewerLayout";
@@ -13,9 +14,8 @@
 
     export let blob: Blob | null = null;
     export let onTap: ((x: number, y: number) => void) | null = null;
-    export let onImageLoad:
-        | ((width: number, height: number) => void)
-        | null = null;
+    export let onImageLoad: ((width: number, height: number) => void) | null =
+        null;
 
     let viewportEl: HTMLDivElement | null = null;
     let imgEl: HTMLImageElement | null = null;
@@ -39,9 +39,16 @@
     let viewportWidth = 0;
     let viewportHeight = 0;
 
+    type PointerState = {
+        x: number;
+        y: number;
+        startX: number;
+        startY: number;
+    };
+
     // Pointer tracking
     let lastPointerType: string | null = null;
-    const pointers = new Map<number, { x: number; y: number }>();
+    const pointers = new Map<number, PointerState>();
     let panStart: {
         x: number;
         y: number;
@@ -49,7 +56,9 @@
         offsetY: number;
     } | null = null;
     let panActive = false;
+    let multiTouchGestureActive = false;
     let primaryPointerId: number | null = null;
+    let primaryStart: { x: number; y: number } | null = null;
     let pinchStart: {
         distance: number;
         worldX: number;
@@ -60,7 +69,7 @@
     const PAN_THRESHOLD = 8;
     const DOUBLE_TAP_MAX_DELAY_MS = 300;
     const DOUBLE_TAP_MAX_DISTANCE_PX = 24;
-    let touchGestureActive = false;
+    const GESTURE_IGNORE_SELECTOR = "[data-image-viewer-gesture-ignore]";
     let lastTouchTap: { time: number; x: number; y: number } | null = null;
     const longPressState: LongPressState = { timer: null, fired: false };
 
@@ -92,6 +101,13 @@
 
     function screenToWorld(x: number, y: number) {
         return { x: (x - offsetX) / scale, y: (y - offsetY) / scale };
+    }
+
+    function isGestureIgnoredTarget(target: EventTarget | null) {
+        return (
+            target instanceof Element &&
+            !!target.closest(GESTURE_IGNORE_SELECTOR)
+        );
     }
 
     function syncFitState() {
@@ -147,36 +163,15 @@
     }
 
     function clampOffsets(nextX: number, nextY: number, s: number) {
-        if (!viewportWidth || !viewportHeight) return { x: nextX, y: nextY };
-        const margin = 48;
-        const contentW = naturalWidth * s;
-        const contentH = naturalHeight * s;
-
-        // When the fitted image is fully visible on an axis, keep it centered and
-        // block panning on that axis. This prevents accidental "broken-looking"
-        // offsets while browsing captures at fit scale.
-        // Verified by test/imageViewerClampAtFit.test.ts.
-        // Known limitation (unfixed): centering is based on full image dimensions,
-        // not non-transparent content bounds. If the exported PNG itself contains
-        // asymmetric transparent padding, the visible tree can still look off-center
-        // even though the bitmap is mathematically centered in the viewer.
-        if (contentW <= viewportWidth && contentH <= viewportHeight) {
-            return {
-                x: (viewportWidth - contentW) / 2,
-                y: (viewportHeight - contentH) / 2,
-            };
-        }
-
-        return {
-            x:
-                contentW <= viewportWidth
-                    ? (viewportWidth - contentW) / 2
-                    : clamp(nextX, viewportWidth - margin - contentW, margin),
-            y:
-                contentH <= viewportHeight
-                    ? (viewportHeight - contentH) / 2
-                    : clamp(nextY, viewportHeight - margin - contentH, margin),
-        };
+        return clampImageViewerOffsets({
+            viewportWidth,
+            viewportHeight,
+            naturalWidth,
+            naturalHeight,
+            offsetX: nextX,
+            offsetY: nextY,
+            scale: s,
+        });
     }
 
     // ResizeObserver
@@ -219,17 +214,30 @@
             return;
         }
 
+        if (pointers.size === 0 && isGestureIgnoredTarget(event.target)) {
+            return;
+        }
+
+        if (isGestureIgnoredTarget(event.target)) {
+            event.preventDefault();
+        }
+
         viewportEl?.setPointerCapture(event.pointerId);
         pointers.set(event.pointerId, {
             x: event.clientX,
             y: event.clientY,
+            startX: event.clientX,
+            startY: event.clientY,
         });
-        if (event.pointerType === "touch" && pointers.size > 1) {
-            touchGestureActive = true;
-        }
+        longPressState.fired = false;
 
         if (pointers.size === 1) {
+            multiTouchGestureActive = false;
             primaryPointerId = event.pointerId;
+            primaryStart = {
+                x: event.clientX,
+                y: event.clientY,
+            };
             panStart = {
                 x: event.clientX,
                 y: event.clientY,
@@ -248,7 +256,9 @@
                 return true;
             });
         } else if (pointers.size === 2) {
+            multiTouchGestureActive = true;
             clearLongPress(longPressState);
+            longPressState.fired = false;
             const [p1, p2] = Array.from(pointers.values());
             const centerX = (p1.x + p2.x) / 2;
             const centerY = (p1.y + p2.y) / 2;
@@ -271,7 +281,9 @@
 
     function onPointerMove(event: PointerEvent) {
         if (!pointers.has(event.pointerId)) return;
+        const pointer = pointers.get(event.pointerId)!;
         pointers.set(event.pointerId, {
+            ...pointer,
             x: event.clientX,
             y: event.clientY,
         });
@@ -281,17 +293,16 @@
             panStart &&
             primaryPointerId === event.pointerId
         ) {
-            const dx = event.clientX - panStart.x;
-            const dy = event.clientY - panStart.y;
-            const distance = Math.hypot(dx, dy);
+            const dxTotal = event.clientX - (primaryStart?.x ?? event.clientX);
+            const dyTotal = event.clientY - (primaryStart?.y ?? event.clientY);
+            const distance = Math.hypot(dxTotal, dyTotal);
             if (!panActive && distance > PAN_THRESHOLD) {
                 panActive = true;
                 clearLongPress(longPressState);
-                if (event.pointerType === "touch") {
-                    touchGestureActive = true;
-                }
             }
             if (panActive) {
+                const dx = event.clientX - panStart.x;
+                const dy = event.clientY - panStart.y;
                 const nextX = panStart.offsetX + dx;
                 const nextY = panStart.offsetY + dy;
                 const clamped = clampOffsets(nextX, nextY, scale);
@@ -299,7 +310,8 @@
                 offsetY = clamped.y;
             }
         } else if (pointers.size === 2 && pinchStart) {
-            touchGestureActive = true;
+            clearLongPress(longPressState);
+            panActive = false;
             const [p1, p2] = Array.from(pointers.values());
             const centerX = (p1.x + p2.x) / 2;
             const centerY = (p1.y + p2.y) / 2;
@@ -320,26 +332,40 @@
     }
 
     function onPointerUp(event: PointerEvent) {
+        if (!pointers.has(event.pointerId)) return;
         pointers.delete(event.pointerId);
-        viewportEl?.releasePointerCapture(event.pointerId);
+        if (viewportEl) {
+            try {
+                viewportEl.releasePointerCapture(event.pointerId);
+            } catch {
+                // Pointer capture may already be released.
+            }
+        }
         clearLongPress(longPressState);
 
         const shouldHandleTouchTap =
             event.pointerType === "touch" &&
             pointers.size === 0 &&
             !panActive &&
-            !touchGestureActive;
+            !multiTouchGestureActive &&
+            !longPressState.fired;
 
         if (pointers.size === 0) {
             panStart = null;
             panActive = false;
             pinchStart = null;
             primaryPointerId = null;
-            touchGestureActive = false;
+            primaryStart = null;
+            multiTouchGestureActive = false;
+            longPressState.fired = false;
         } else if (pointers.size === 1) {
             pinchStart = null;
             const [id, pos] = Array.from(pointers.entries())[0];
             primaryPointerId = id;
+            primaryStart = {
+                x: pos.x,
+                y: pos.y,
+            };
             panStart = { x: pos.x, y: pos.y, offsetX, offsetY };
             panActive = false;
         }
@@ -372,6 +398,37 @@
         }
     }
 
+    function onLostPointerCapture(event: PointerEvent) {
+        const hadPointer = pointers.delete(event.pointerId);
+        if (!hadPointer) return;
+
+        clearLongPress(longPressState);
+
+        if (pointers.size === 1) {
+            pinchStart = null;
+            const [id, pos] = Array.from(pointers.entries())[0];
+            primaryPointerId = id;
+            primaryStart = {
+                x: pos.x,
+                y: pos.y,
+            };
+            panStart = { x: pos.x, y: pos.y, offsetX, offsetY };
+            panActive = false;
+            return;
+        }
+
+        if (pointers.size === 0) {
+            panStart = null;
+            panActive = false;
+            pinchStart = null;
+            primaryPointerId = null;
+            primaryStart = null;
+            multiTouchGestureActive = false;
+            longPressState.fired = false;
+            lastTouchTap = null;
+        }
+    }
+
     function onWheel(event: WheelEvent) {
         if (!viewportEl || pointers.size > 0) return;
         event.preventDefault();
@@ -391,6 +448,7 @@
 
     function onDoubleClick(event: MouseEvent) {
         if (event.button !== 0) return;
+        if (isGestureIgnoredTarget(event.target)) return;
         event.preventDefault();
         resetToFit();
     }
@@ -400,6 +458,7 @@
         // Touch devices fire contextmenu on long-press and after gestures;
         // only handle mouse right-click here — touch taps go through pointer events.
         if (lastPointerType === "touch") return;
+        if (isGestureIgnoredTarget(event.target)) return;
         onTap?.(event.clientX, event.clientY);
     }
 </script>
@@ -413,7 +472,7 @@
     on:pointermove={onPointerMove}
     on:pointerup={onPointerUp}
     on:pointercancel={onPointerUp}
-    on:pointerleave={onPointerUp}
+    on:lostpointercapture={onLostPointerCapture}
     on:wheel|preventDefault={onWheel}
     on:dblclick={onDoubleClick}
     on:contextmenu={onContextMenu}
@@ -429,10 +488,12 @@
             draggable="false"
         />
     {/if}
+    <slot />
 </div>
 
 <style>
     .image-viewer {
+        position: relative;
         width: 100%;
         height: 100%;
         overflow: hidden;

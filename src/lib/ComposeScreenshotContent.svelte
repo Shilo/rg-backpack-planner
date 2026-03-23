@@ -342,41 +342,47 @@ export let onClose: (() => void) | null = null;
             blob={currentBlob}
             onTap={handleImageTap}
             onImageLoad={handleImageLoad}
-        />
-    {/if}
-
-    {#if activeTab !== "stats" && (currentBlob || isLoading)}
-        <div class="compose-tools">
-            <Button
-                class="compose-tool-btn"
-                type="button"
-                aria-label={$t("compose.refreshTooltip")}
-                tooltipText={$t("compose.refreshTooltip")}
-                icon={ArrowClockwiseIcon}
-                iconSize={24}
-                disabled={isLoading}
-                on:click={() => captureAll()}
-            />
-            <Button
-                class="compose-tool-btn {showLabels ? 'active' : ''}"
-                type="button"
-                aria-label="Toggle labels"
-                tooltipText="Toggle labels"
-                icon={showLabels ? TextTIcon : TextTSlashIcon}
-                iconSize={24}
-                disabled={isLoading}
-                on:click={toggleLabels}
-            />
-        </div>
-    {/if}
-    {#if currentBlob || isCurrentTabLoading}
-        <div class="compose-fabs">
-            <FabMenu
-                actions={composeFabActions}
-                ariaLabel={$t("compose.shareTooltip")}
-                fabIcon={ShareIcon}
-            />
-        </div>
+        >
+            {#if activeTab !== "stats" && (currentBlob || isLoading)}
+                <div
+                    class="compose-tools"
+                    data-image-viewer-gesture-ignore
+                >
+                    <Button
+                        class="compose-tool-btn"
+                        type="button"
+                        aria-label={$t("compose.refreshTooltip")}
+                        tooltipText={$t("compose.refreshTooltip")}
+                        icon={ArrowClockwiseIcon}
+                        iconSize={24}
+                        disabled={isLoading}
+                        on:click={() => captureAll()}
+                    />
+                    <Button
+                        class="compose-tool-btn {showLabels ? 'active' : ''}"
+                        type="button"
+                        aria-label="Toggle labels"
+                        tooltipText="Toggle labels"
+                        icon={showLabels ? TextTIcon : TextTSlashIcon}
+                        iconSize={24}
+                        disabled={isLoading}
+                        on:click={toggleLabels}
+                    />
+                </div>
+            {/if}
+            {#if currentBlob || isCurrentTabLoading}
+                <div
+                    class="compose-fabs"
+                    data-image-viewer-gesture-ignore
+                >
+                    <FabMenu
+                        actions={composeFabActions}
+                        ariaLabel={$t("compose.shareTooltip")}
+                        fabIcon={ShareIcon}
+                    />
+                </div>
+            {/if}
+        </ImageViewer>
     {/if}
 </FullscreenModal>
 
