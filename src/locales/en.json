@@ -190,6 +190,8 @@
         "focusTreeInViewDescription": "Reset zoom and pan to fit",
         "languageDescription": "Application display language",
         "hapticsDescription": "Vibration on supported devices",
+        "reduceMotion": "Reduce Motion",
+        "reduceMotionDescription": "Disable app animations",
         "reloadWindowDescription": "Refresh and load latest version",
         "resetSettingsDescription": "Restore defaults without affecting progress",
         "clearAllDataDescription": "Erase everything and reload",

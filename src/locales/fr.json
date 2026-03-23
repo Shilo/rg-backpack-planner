@@ -190,6 +190,8 @@
         "focusTreeInViewDescription": "Réinitialiser le zoom et le déplacement pour ajuster",
         "languageDescription": "Langue d'affichage de l'application",
         "hapticsDescription": "Vibration sur les appareils compatibles",
+        "reduceMotion": "Mouvement réduit",
+        "reduceMotionDescription": "Désactiver les animations",
         "reloadWindowDescription": "Rafraîchir et charger la dernière version",
         "resetSettingsDescription": "Restaurer les paramètres par défaut sans affecter la progression",
         "clearAllDataDescription": "Tout effacer et recharger",

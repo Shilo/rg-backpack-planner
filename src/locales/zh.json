@@ -190,6 +190,8 @@
         "focusTreeInViewDescription": "重置缩放和平移以适应视图",
         "languageDescription": "应用程序显示语言",
         "hapticsDescription": "支持设备上的振动",
+        "reduceMotion": "减少动态效果",
+        "reduceMotionDescription": "禁用动画效果",
         "reloadWindowDescription": "刷新并加载最新版本",
         "resetSettingsDescription": "恢复默认设置，不影响进度",
         "clearAllDataDescription": "清除所有数据并重新加载",

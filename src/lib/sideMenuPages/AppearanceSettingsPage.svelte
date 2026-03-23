@@ -23,6 +23,7 @@
         isTreeZoomLevel,
         getTreeZoomScaleValue,
     } from "../treeZoomStore";
+    import { animationsDisabled } from "../reduceMotionStore";
     import { darkMode } from "../darkModeStore";
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
@@ -85,11 +86,11 @@
                 }}
             >
                 {#if $darkMode}
-                    <span transition:fade={{ duration: 150 }}
+                    <span transition:fade={{ duration: $animationsDisabled ? 0 : 150 }}
                         ><MoonIcon size={26} /></span
                     >
                 {:else}
-                    <span transition:fade={{ duration: 150 }}
+                    <span transition:fade={{ duration: $animationsDisabled ? 0 : 150 }}
                         ><SunIcon size={26} /></span
                     >
                 {/if}

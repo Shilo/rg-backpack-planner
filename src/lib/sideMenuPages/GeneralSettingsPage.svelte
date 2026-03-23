@@ -28,6 +28,7 @@
     import { uppercaseText } from "../uppercaseTextStore";
     import { showLevelSplash } from "../showLevelSplashStore";
     import { ignoreTechCrystalBudget } from "../ignoreTechCrystalBudgetStore";
+    import { reduceMotion } from "../reduceMotionStore";
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
@@ -59,6 +60,7 @@
                 uppercaseText.resetToDefault();
                 showLevelSplash.resetToDefault();
                 ignoreTechCrystalBudget.resetToDefault();
+                reduceMotion.resetToDefault();
                 void resetLocale();
 
                 showToast($t("modal.resetSettings.toast"));
@@ -117,6 +119,13 @@
             description={$t("settings.hapticsDescription")}
             icon={VibrateIcon as unknown as Component}
             onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
+        />
+        <ToggleSwitch
+            checked={$reduceMotion}
+            label={$t("settings.reduceMotion")}
+            ariaLabel={$t("settings.reduceMotion")}
+            description={$t("settings.reduceMotionDescription")}
+            onToggle={() => reduceMotion.set(!$reduceMotion)}
         />
     </SideMenuSection>
 

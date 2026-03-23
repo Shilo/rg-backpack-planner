@@ -3,6 +3,7 @@
  * - Momentum pan (flick-to-scroll with deceleration)
  * - Smooth animated view transitions (focus, zoom)
  */
+import { prefersNoAnimations } from "./reduceMotionStore";
 
 // ── Momentum Pan ─────────────────────────────────────────────────────
 
@@ -45,6 +46,11 @@ export function createMomentumTracker() {
         let { vx, vy } = computeVelocity();
         samples = [];
 
+        if (prefersReducedMotion()) {
+            onDone?.();
+            return;
+        }
+
         if (Math.hypot(vx, vy) < MIN_VELOCITY) {
             onDone?.();
             return;
@@ -56,6 +62,12 @@ export function createMomentumTracker() {
             const now = performance.now();
             const dt = now - lastTime;
             lastTime = now;
+
+            if (prefersReducedMotion()) {
+                animationId = null;
+                onDone?.();
+                return;
+            }
 
             // Apply friction per-frame, scaled to dt
             const friction = Math.pow(FRICTION, dt / 16);
@@ -121,10 +133,23 @@ export function animateView(
     onUpdate: (state: ViewState) => void,
     onDone?: () => void,
 ): () => void {
+    if (durationMs <= 0 || prefersReducedMotion()) {
+        onUpdate({ ...to });
+        onDone?.();
+        return () => {};
+    }
+
     let animationId: number | null = null;
     const start = performance.now();
 
     function step(now: number) {
+        if (prefersReducedMotion()) {
+            onUpdate({ ...to });
+            animationId = null;
+            onDone?.();
+            return;
+        }
+
         const elapsed = now - start;
         const t = Math.min(elapsed / durationMs, 1);
         const ease = easeOutQuart(t);
@@ -181,6 +206,12 @@ export function createZoomChaser() {
                 return;
             }
 
+            if (prefersReducedMotion()) {
+                onUpdateFn({ ...target });
+                animationId = null;
+                return;
+            }
+
             const current = getCurrentFn();
             const factor = 1 - Math.pow(1 - ZOOM_LERP_SPEED, dt / 16);
 
@@ -223,6 +254,13 @@ export function createZoomChaser() {
         target = { ...newTarget };
         getCurrentFn = getCurrent;
         onUpdateFn = onUpdate;
+
+        if (prefersReducedMotion()) {
+            cancel();
+            onUpdate({ ...newTarget });
+            return;
+        }
+
         startLoop();
     }
 
@@ -248,8 +286,5 @@ export function createZoomChaser() {
 // ── Reduced Motion ───────────────────────────────────────────────────
 
 export function prefersReducedMotion(): boolean {
-    return (
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    );
+    return prefersNoAnimations();
 }

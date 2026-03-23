@@ -373,6 +373,35 @@ textarea,
     to { opacity: 1; transform: translateX(0); }
 }
 
+html.no-animations,
+html.no-animations *,
+html.no-animations *::before,
+html.no-animations *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+html.no-animations .node-flash,
+html.no-animations .node-ring,
+html.no-animations .level-splash {
+    display: none !important;
+}
+
+html.no-animations .tree-link-base {
+    display: none !important;
+}
+
+html.no-animations .tree-links .tree-link.active,
+html.no-animations .tree-links .tree-link.maxed {
+    stroke-dasharray: none !important;
+    stroke-linecap: butt !important;
+}
+
+html.no-animations .toast::after {
+    animation: toast-progress var(--toast-duration, 3s) linear forwards !important;
+}
+
 /* ═══ Reduced Motion ═══ */
 
 @media (prefers-reduced-motion: reduce) {

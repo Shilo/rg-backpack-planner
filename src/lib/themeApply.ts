@@ -4,6 +4,7 @@ import { darkMode } from "./darkModeStore";
 import { colorblindTreeColors } from "./colorblindTreeColorsStore";
 import { applyTheme, oklchToHex, BG_L, SURFACE_L } from "./themeEngine";
 import { uppercaseText } from "./uppercaseTextStore";
+import { animationsDisabled } from "./reduceMotionStore";
 
 /**
  * Update the browser theme-color meta tag.
@@ -113,6 +114,23 @@ export function initUppercaseTextReactivity(): () => void {
     apply();
 
     const unsubscribe = uppercaseText.subscribe(apply);
+
+    return unsubscribe;
+}
+
+/** Subscribe to the effective motion policy and toggle the .no-animations class on <html>. */
+export function initReduceMotionReactivity(): () => void {
+    function apply() {
+        if (get(animationsDisabled)) {
+            document.documentElement.classList.add("no-animations");
+        } else {
+            document.documentElement.classList.remove("no-animations");
+        }
+    }
+
+    apply();
+
+    const unsubscribe = animationsDisabled.subscribe(apply);
 
     return unsubscribe;
 }

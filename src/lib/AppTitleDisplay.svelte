@@ -7,12 +7,14 @@
     import { activePresetName } from "./buildPresetsStore";
     import { isPreviewMode } from "./previewModeStore";
     import { appTitleVisible } from "./appTitleVisibleStore";
+    import { prefersNoAnimations } from "./reduceMotionStore";
 
     export let onClick: (() => void) | undefined = undefined;
     export let isMenuOpen = false;
 
     let hideForever = false;
     $: if (isMenuOpen) hideForever = true;
+    $: if (prefersNoAnimations()) hideForever = true;
     $: waitingForOnboarding = !$onboardingSeen;
     const version = getCurrentVersion();
     $: $appTitleVisible = !hideForever && !waitingForOnboarding;
@@ -34,6 +36,11 @@
     let wrapperElement: HTMLDivElement;
 
     onMount(() => {
+        if (prefersNoAnimations()) {
+            hideForever = true;
+            return;
+        }
+
         const button = wrapperElement?.querySelector(
             ".app-title-display",
         ) as HTMLElement;

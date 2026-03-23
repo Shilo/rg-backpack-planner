@@ -16,6 +16,7 @@
         type OnboardingTarget,
     } from "./onboardingSteps";
     import { toastsPaused } from "../toast";
+    import { animationsDisabled } from "../reduceMotionStore";
 
     export let onDismiss: () => void;
     export let nodes: NodeType[] = [];
@@ -107,11 +108,8 @@
     $: actionHint = $t("onboarding.continueAction", {
         action: primaryInputLabel,
     });
-    const prefersReducedMotion =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const stepTransitionDuration = prefersReducedMotion ? 0 : 220;
-    const stepTransitionY = prefersReducedMotion ? 0 : 16;
+    $: stepTransitionDuration = $animationsDisabled ? 0 : 220;
+    $: stepTransitionY = $animationsDisabled ? 0 : 16;
 
     $: nodeRadius = (targetNode?.radius ?? 1) * NODE_RADIUS_PX;
     $: nodeScreenX = (targetNode?.x ?? 0) * scale + offsetX;
@@ -388,10 +386,7 @@
     function dismissOnboarding() {
         if (dismissing) return;
         dismissing = true;
-        const prefersReducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        ).matches;
-        if (prefersReducedMotion) {
+        if ($animationsDisabled) {
             onDismiss();
         } else {
             dismissTimer = setTimeout(onDismiss, 250);

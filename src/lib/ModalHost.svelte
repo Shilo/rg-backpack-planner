@@ -9,6 +9,7 @@
     import ResetTreeChoicesModal from "./modals/ResetTreeChoicesModal.svelte";
     import { get } from "svelte/store";
     import { closeModal, modalStore, type ModalPayload } from "./modalStore";
+    import { animationsDisabled } from "./reduceMotionStore";
     import { triggerHaptic } from "./hapticsStore";
     import {
         dismissFocusedTextEntryWithin,
@@ -227,6 +228,10 @@
         _node: Element,
         params: { sheet?: boolean } = {},
     ): TransitionConfig {
+        if ($animationsDisabled) {
+            return { duration: 0 };
+        }
+
         const isSheet = params.sheet ?? false;
 
         // Swipe-dismiss already animated the sheet off-screen; skip the Svelte outro.
@@ -339,12 +344,8 @@
             sheetDragSuppressClick = false;
         }, 300);
 
-        const reducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        ).matches;
-
         if (shouldDismiss) {
-            if (reducedMotion) {
+            if ($animationsDisabled) {
                 resetSheetDragStyles();
                 sheetSwipeDismissing = true;
                 triggerHaptic();
@@ -413,7 +414,7 @@
         role="button"
         tabindex="0"
         aria-label={$t("common.close")}
-        transition:fade={{ duration: sheetSwipeDismissing ? 0 : 140 }}
+        transition:fade={{ duration: sheetSwipeDismissing || $animationsDisabled ? 0 : 140 }}
         on:outroend={handleBackdropOutroEnd}
         on:pointerdown={handleBackdropPointerDown}
         on:click={handleBackdropClick}

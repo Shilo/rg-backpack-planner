@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onDestroy, tick } from "svelte";
     import { fade } from "svelte/transition";
     import {
         ChartBarIcon,
@@ -16,7 +17,6 @@
     import type { Node } from "../types/tree";
     import type { TreeBranchKey } from "./treeLevelsStore";
     import { get } from "svelte/store";
-    import { tick } from "svelte";
     import {
         setActiveTab,
         setActiveTabWithoutPersist,
@@ -27,6 +27,7 @@
     import { isFormField, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
+    import { animationsDisabled } from "./reduceMotionStore";
 
     let sideMenuTabs: TabBarItem[] = [];
     $: sideMenuTabs = [
@@ -109,6 +110,37 @@
     let activeTab: SideMenuTab = get(sideMenuActiveTab);
     $: void loadTabPage(activeTab);
     let scrollContentElement: HTMLElement | null = null;
+    let animateContentIn = false;
+    let contentEnterFrame: number | null = null;
+    let contentEnterTimer: ReturnType<typeof setTimeout> | null = null;
+    let prevIsOpen = isOpen;
+    let prevAnimatedTab: SideMenuTab = activeTab;
+
+    function clearContentEnterAnimation() {
+        if (contentEnterFrame !== null) {
+            cancelAnimationFrame(contentEnterFrame);
+            contentEnterFrame = null;
+        }
+        if (contentEnterTimer !== null) {
+            clearTimeout(contentEnterTimer);
+            contentEnterTimer = null;
+        }
+    }
+
+    function startContentEnterAnimation() {
+        clearContentEnterAnimation();
+        animateContentIn = false;
+        if (!isOpen || $animationsDisabled) return;
+
+        contentEnterFrame = requestAnimationFrame(() => {
+            contentEnterFrame = null;
+            animateContentIn = true;
+            contentEnterTimer = window.setTimeout(() => {
+                animateContentIn = false;
+                contentEnterTimer = null;
+            }, 180);
+        });
+    }
 
     export function openTab(tab: SideMenuTab, persist: boolean = true) {
         activeTab = tab;
@@ -135,6 +167,26 @@
         scrollContentElement.scrollTop = 0;
     }
 
+    $: if (!isOpen || $animationsDisabled) {
+        clearContentEnterAnimation();
+        animateContentIn = false;
+    }
+
+    $: if (isOpen !== prevIsOpen) {
+        prevIsOpen = isOpen;
+        if (isOpen) {
+            startContentEnterAnimation();
+        }
+    }
+
+    $: if (activeTab !== prevAnimatedTab) {
+        const shouldAnimate = isOpen && prevAnimatedTab !== activeTab;
+        prevAnimatedTab = activeTab;
+        if (shouldAnimate) {
+            startContentEnterAnimation();
+        }
+    }
+
     function handleTabKeydown(event: KeyboardEvent) {
         if (
             !isOpen ||
@@ -156,6 +208,10 @@
     }
 
     onKeyDown(handleTabKeydown);
+
+    onDestroy(() => {
+        clearContentEnterAnimation();
+    });
 </script>
 
 {#if isOpen}
@@ -164,7 +220,7 @@
         aria-label={$t("common.close")}
         on:click={handleBackdropClick}
         type="button"
-        transition:fade={{ duration: 200 }}
+        transition:fade={{ duration: $animationsDisabled ? 0 : 200 }}
     ></button>
 {/if}
 <aside
@@ -174,7 +230,10 @@
 >
     <div class="side-menu__scroll-area">
         <nav class="side-menu__content {activeTab}-active" bind:this={scrollContentElement}>
-            <div class="side-menu__content-inner">
+            <div
+                class="side-menu__content-inner"
+                class:animate-content-in={animateContentIn}
+            >
                 {#if activeTab === "settings" && SideMenuSettingsPage}
                     <svelte:component
                         this={SideMenuSettingsPage}
@@ -327,25 +386,25 @@
         overflow: hidden;
     }
 
-    .side-menu.open .side-menu__content-inner > :global(*) {
+    .side-menu__content-inner.animate-content-in > :global(*) {
         animation: side-menu-item-in var(--ease-decel) both;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(1)) {
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(1)) {
         animation-delay: 15ms;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(2)) {
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(2)) {
         animation-delay: 35ms;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(3)) {
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(3)) {
         animation-delay: 55ms;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(4)) {
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(4)) {
         animation-delay: 75ms;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(5)) {
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(5)) {
         animation-delay: 95ms;
     }
-    .side-menu.open .side-menu__content-inner > :global(:nth-child(6)) {
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(6)) {
         animation-delay: 115ms;
     }
 </style>

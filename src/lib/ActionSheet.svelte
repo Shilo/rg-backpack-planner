@@ -475,6 +475,14 @@
         }
     }
 
+    :global(html.no-animations) .action-sheet__header,
+    :global(html.no-animations) .action-sheet__choice,
+    :global(html.no-animations) :global(.action-sheet__cancel) {
+        opacity: 1;
+        animation: none;
+        transform: none;
+    }
+
     @media (min-width: 48rem) {
         .action-sheet {
             min-width: 24rem;

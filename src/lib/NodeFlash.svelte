@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { animationsDisabled } from "./reduceMotionStore";
+
     export let level: number;
     export let isLeaf: boolean = false;
 
@@ -7,12 +9,14 @@
 
     $: if (level !== prevLevel) {
         prevLevel = level;
-        flashKey++;
+        if (!$animationsDisabled) {
+            flashKey++;
+        }
     }
 </script>
 
 {#key flashKey}
-    {#if flashKey > 0}
+    {#if flashKey > 0 && !$animationsDisabled}
         <span class="node-flash" class:node-flash-hex={isLeaf}></span>
         <span class="node-ring" class:node-ring-hex={isLeaf}></span>
     {/if}

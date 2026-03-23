@@ -136,4 +136,10 @@
             opacity: 1;
         }
     }
+
+    :global(html.no-animations) .onboarding-card {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
 </style>

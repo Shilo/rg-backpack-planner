@@ -29,6 +29,7 @@
         prefersReducedMotion,
         type ViewState,
     } from "./treePhysics";
+    import { animationsDisabled } from "./reduceMotionStore";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { hideTooltip, suppressTooltip } from "./tooltip";
@@ -215,6 +216,10 @@
         skipEntry: boolean;
     };
     let activeSplashes: SplashData[] = [];
+
+    $: if ($animationsDisabled && activeSplashes.length > 0) {
+        activeSplashes = [];
+    }
 
     function updateLevels(nextLevels: LevelsByIndex) {
         levels = nextLevels;
@@ -491,6 +496,7 @@
                         ? to.state
                         : "locked";
                 const isEnergized = state === "active" || state === "maxed";
+                const showPulseOverlay = isEnergized && !$animationsDisabled;
                 return {
                     fromNode:
                         link.from === undefined
@@ -500,7 +506,7 @@
                     state,
                     region: to.region,
                     strokeStyle: getLinkStrokeStyle(state, to.region),
-                    baseStrokeStyle: isEnergized
+                    baseStrokeStyle: showPulseOverlay
                         ? getLinkBaseStrokeStyle(to.region)
                         : null,
                 };
@@ -657,7 +663,7 @@
         }
         const prevLevels = levels;
         updateLevels(nextLevels);
-        if ($showLevelSplash) {
+        if ($showLevelSplash && !prefersReducedMotion()) {
             const targetNode = getNodeAt(index);
             const newLevel = getLevelFrom(nextLevels, index);
             if (targetNode && newLevel !== currentLevel) {
@@ -769,7 +775,7 @@
     export function resetAllNodes() {
         const prevLevels = [...levels];
         updateLevels(nodes.map(() => 0));
-        if ($showLevelSplash) {
+        if ($showLevelSplash && !prefersReducedMotion()) {
             const resetDeltas = [];
             for (let i = 0; i < nodes.length; i++) {
                 const prev = prevLevels[i] ?? 0;
@@ -1772,7 +1778,7 @@
 </script>
 
 {#key fadeKey}
-    <div class="tree-root" in:fade={{ duration: 300 }}>
+    <div class="tree-root" in:fade={{ duration: $animationsDisabled ? 0 : 300 }}>
         <div
             class="tree-viewport"
             class:pan-enabled={!gesturesDisabled}

@@ -13,6 +13,7 @@
     import type { TreeViewState } from "../Tree.svelte";
     import { tick } from "svelte";
     import { t } from "svelte-whisper";
+    import { animationsDisabled } from "../reduceMotionStore";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -122,13 +123,17 @@
         const incomingEl = containerElement?.querySelector(
             ".incoming:not(.active)",
         );
-        if (incomingEl) {
-            incomingEl.addEventListener("animationend", onEnd, {
-                once: true,
-            });
-            fallbackTimeout = setTimeout(onEnd, 200);
-        } else {
+        if ($animationsDisabled) {
             onEnd();
+        } else {
+            if (incomingEl) {
+                incomingEl.addEventListener("animationend", onEnd, {
+                    once: true,
+                });
+                fallbackTimeout = setTimeout(onEnd, 200);
+            } else {
+                onEnd();
+            }
         }
     }
 

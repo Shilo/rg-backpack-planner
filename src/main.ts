@@ -3,7 +3,11 @@ import "./theme.css";
 import "./app.css";
 import App from "./App.svelte";
 import { shouldPreventGlobalContextMenu } from "./lib/globalContextMenu";
-import { initThemeReactivity, initUppercaseTextReactivity } from "./lib/themeApply";
+import {
+    initThemeReactivity,
+    initUppercaseTextReactivity,
+    initReduceMotionReactivity,
+} from "./lib/themeApply";
 import { initializeI18n } from "./lib/i18n";
 import { initViewportTracking } from "./lib/viewportState";
 import { showToast } from "./lib/toast";
@@ -18,6 +22,7 @@ runMigrations();
 
 const cleanupThemeReactivity = initThemeReactivity();
 const cleanupUppercaseText = initUppercaseTextReactivity();
+const cleanupReduceMotion = initReduceMotionReactivity();
 initViewportTracking();
 try {
     await initializeI18n();
@@ -69,6 +74,7 @@ if (import.meta.hot) {
         unsubLocale();
         cleanupThemeReactivity();
         cleanupUppercaseText();
+        cleanupReduceMotion();
         removeGlobalContextMenuListener();
         cleanupServiceWorkerAutoUpdate();
     });

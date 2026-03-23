@@ -8,12 +8,13 @@
         toastsPaused,
         type Toast,
     } from "./toast";
+    import { prefersNoAnimations } from "./reduceMotionStore";
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon, XIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
 
     function toastExit(node: Element, { id }: { id: string }) {
-        if (suppressedExitIds.has(id)) {
+        if (suppressedExitIds.has(id) || prefersNoAnimations()) {
             suppressedExitIds.delete(id);
             return { duration: 0 };
         }

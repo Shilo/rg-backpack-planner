@@ -190,6 +190,8 @@
         "focusTreeInViewDescription": "ズームとパンをリセットして収める",
         "languageDescription": "アプリケーションの表示言語",
         "hapticsDescription": "対応デバイスでの振動",
+        "reduceMotion": "モーションを減らす",
+        "reduceMotionDescription": "アニメーションを無効化",
         "reloadWindowDescription": "最新バージョンを更新して読み込む",
         "resetSettingsDescription": "進行状況を保持してデフォルトに戻す",
         "clearAllDataDescription": "すべて消去して再読み込み",
