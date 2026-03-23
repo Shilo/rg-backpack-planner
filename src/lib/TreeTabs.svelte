@@ -66,6 +66,7 @@
     export let activeViewState: TreeViewState | null = null;
     export let activeFocusViewState: TreeViewState | null = null;
     export let activeOnboardingReady: boolean = false;
+    export let onboardingActive = false;
     let bottomInset = 0;
     let tabsBarEl: HTMLDivElement | null = null;
     let tabsRootEl: HTMLDivElement | null = null;
@@ -104,6 +105,7 @@
     const TAB_CYCLE_REPEAT_MS = 400;
     let lastTabCycleAt = 0;
     let previousOnboardingTreeId = "";
+    let onboardingRestoreIndex: number | null = null;
 
     function handleGlobalKeydown(event: KeyboardEvent) {
         const action = resolveKeyboardAction(event);
@@ -263,6 +265,16 @@
         if (currentTreeId !== previousOnboardingTreeId) {
             previousOnboardingTreeId = currentTreeId;
             activeOnboardingReady = false;
+        }
+    }
+
+    $: if (tabs.length > 0) {
+        if (onboardingActive && onboardingRestoreIndex === null) {
+            onboardingRestoreIndex = activeIndex;
+            setActive(0);
+        } else if (!onboardingActive && onboardingRestoreIndex !== null) {
+            setActive(onboardingRestoreIndex);
+            onboardingRestoreIndex = null;
         }
     }
 

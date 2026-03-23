@@ -118,6 +118,16 @@ if (!/activeTreeOnboardingReady/.test(appSource)) {
 }
 
 if (
+    !/<TreeTabs[\s\S]*onboardingActive=\{!\$onboardingSeen && activeTreeOnboardingReady\}/.test(
+        appSource,
+    )
+) {
+    throw new Error(
+        "App.svelte should pass onboardingActive to TreeTabs so onboarding can temporarily force the first tree tab.",
+    );
+}
+
+if (
     !/\{#if !\$onboardingSeen && activeTreeOnboardingReady\}[\s\S]*<OnboardingOverlay\b/.test(
         appSource,
     )
@@ -141,6 +151,38 @@ const treeTabsSource = readFileSync(treeTabsPath, "utf8");
 if (!/export let activeOnboardingReady: boolean = false;/.test(treeTabsSource)) {
     throw new Error(
         "TreeTabs.svelte should expose activeOnboardingReady so App.svelte can delay onboarding until tree layout is ready.",
+    );
+}
+
+if (!/export let onboardingActive = false;/.test(treeTabsSource)) {
+    throw new Error(
+        "TreeTabs.svelte should expose onboardingActive so App.svelte can temporarily override the active tree tab during onboarding.",
+    );
+}
+
+if (!/let onboardingRestoreIndex: number \| null = null;/.test(treeTabsSource)) {
+    throw new Error(
+        "TreeTabs.svelte should track the previous active tab index while onboarding temporarily forces the first tab.",
+    );
+}
+
+if (
+    !/if \(onboardingActive && onboardingRestoreIndex === null\) \{[\s\S]*onboardingRestoreIndex = activeIndex;[\s\S]*setActive\(0\);[\s\S]*\}/.test(
+        treeTabsSource,
+    )
+) {
+    throw new Error(
+        "TreeTabs.svelte should capture the current tab and switch to the first tab when onboarding starts.",
+    );
+}
+
+if (
+    !/else if \(!onboardingActive && onboardingRestoreIndex !== null\) \{[\s\S]*setActive\(onboardingRestoreIndex\);[\s\S]*onboardingRestoreIndex = null;[\s\S]*\}/.test(
+        treeTabsSource,
+    )
+) {
+    throw new Error(
+        "TreeTabs.svelte should restore the previous tab after onboarding finishes or is canceled.",
     );
 }
 

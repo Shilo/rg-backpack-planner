@@ -807,6 +807,7 @@
             bind:activeViewState={activeTreeViewState}
             bind:activeFocusViewState={activeTreeFocusViewState}
             bind:activeOnboardingReady={activeTreeOnboardingReady}
+            onboardingActive={!$onboardingSeen && activeTreeOnboardingReady}
             {tabs}
             {isMenuOpen}
             onMenuClick={toggleMenu}
