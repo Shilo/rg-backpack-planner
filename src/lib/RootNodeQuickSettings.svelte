@@ -341,7 +341,7 @@
         width: max-content;
         max-width: calc(100vw - 16px);
         overflow: hidden;
-        animation: qs-enter 0.15s cubic-bezier(0.05, 0.7, 0.1, 1) both;
+        animation: qs-enter 0.22s cubic-bezier(0.05, 0.7, 0.1, 1) both;
         user-select: none;
         -webkit-tap-highlight-color: transparent;
     }
@@ -352,8 +352,9 @@
         gap: var(--spacing-sm);
         padding: var(--spacing-md) var(--spacing-md);
         border-bottom: var(--border-width) solid var(--border);
-        background: var(--bg-input);
-        color: var(--text-disabled);
+        background: color-mix(in srgb, var(--bg-input) 90%, var(--accent) 10%);
+        color: color-mix(in srgb, var(--text-disabled) 70%, var(--accent) 30%);
+        animation: qs-section-in 0.2s cubic-bezier(0.05, 0.7, 0.1, 1) 0.03s both;
     }
 
     .qs-header :global(.qs-header-icon) {
@@ -377,6 +378,8 @@
     .qs-rows {
         display: grid;
         grid-template-columns: max-content 1fr;
+        padding: var(--spacing-xs) 0 var(--spacing-sm) 0;
+        animation: qs-section-in 0.2s cubic-bezier(0.05, 0.7, 0.1, 1) 0.08s both;
     }
 
     .qs-label {
@@ -400,13 +403,13 @@
 
     .qs-chips {
         display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 0;
+        align-items: stretch;
+        gap: 0;
+        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-sm);
         min-height: 44px;
     }
 
-    /* Divider between rows */
+    /* Divider between setting rows */
     .qs-label:nth-child(n + 3),
     .qs-chips:nth-child(n + 4) {
         border-top: var(--border-width) solid
@@ -422,6 +425,7 @@
         background: var(--danger-bg);
         border-bottom: var(--border-width) solid
             color-mix(in srgb, var(--danger-border) 50%, var(--border));
+        animation: qs-section-in 0.2s cubic-bezier(0.05, 0.7, 0.1, 1) 0.05s both;
     }
 
     .qs-reset-label {
@@ -451,7 +455,7 @@
         flex: 1;
         min-height: 32px;
         padding: var(--spacing-xs) var(--spacing-sm);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-full);
         font-size: var(--font-sm);
         font-family: inherit;
         cursor: pointer;
@@ -496,7 +500,7 @@
 
     .qs-reset-chip:disabled {
         --chip-accent: var(--text-disabled);
-        opacity: 0.4;
+        opacity: var(--opacity-disabled);
         cursor: default;
         pointer-events: none;
         color: var(--text-disabled);
@@ -523,12 +527,14 @@
         }
     }
 
+    /* ── Segmented buttons ── */
     .qs-chip {
         flex: 1;
         min-height: 32px;
         padding: var(--spacing-xs) var(--spacing-sm);
         border: var(--border-width) solid var(--border);
-        border-radius: var(--radius-sm);
+        border-right-width: 0;
+        border-radius: 0;
         background: transparent;
         color: var(--text-muted);
         font-size: var(--font-sm);
@@ -547,9 +553,24 @@
         justify-content: center;
     }
 
+    .qs-chip:first-child {
+        border-radius: var(--radius-full) 0 0 var(--radius-full);
+    }
+
+    .qs-chip:last-child {
+        border-right-width: var(--border-width);
+        border-radius: 0 var(--radius-full) var(--radius-full) 0;
+    }
+
+    .qs-chip:only-child {
+        border-right-width: var(--border-width);
+        border-radius: var(--radius-full);
+    }
+
     .qs-chip:focus-visible {
         outline: 2px solid var(--border-focus);
         outline-offset: 2px;
+        z-index: 1;
     }
 
     @media (hover: hover) {
@@ -564,23 +585,52 @@
     }
 
     .qs-chip:active {
-        scale: 0.95;
+        scale: 0.97;
     }
 
     .qs-chip--active {
         background: color-mix(in srgb, var(--surface) 78%, var(--accent));
         color: var(--text);
-        border-color: color-mix(in srgb, var(--border) 60%, var(--accent));
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
     }
 
+    .qs-chip--active + .qs-chip {
+        border-left-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    }
+
+    /* ── Animations ── */
     @keyframes qs-enter {
         from {
             opacity: 0;
-            scale: 0.92;
+            scale: 0.96;
         }
         to {
             opacity: 1;
             scale: 1;
+        }
+    }
+
+    @keyframes qs-section-in {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .qs-panel,
+        .qs-header,
+        .qs-reset-row,
+        .qs-rows {
+            animation: none;
+        }
+        .qs-chip,
+        .qs-reset-chip {
+            transition-duration: 0.01ms;
         }
     }
 </style>
