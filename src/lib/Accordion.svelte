@@ -90,13 +90,16 @@
         justify-content: center;
         width: 26px;
         flex-shrink: 0;
-        color: var(--accent-light);
+        color: var(--text-muted);
         opacity: 0.85;
-        transition: opacity var(--ease);
+        transition:
+            opacity var(--ease),
+            color var(--ease);
     }
 
     .is-open .accordion-icon {
         opacity: 1;
+        color: var(--accent-light);
     }
 
     .accordion-title {
