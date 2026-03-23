@@ -240,11 +240,11 @@
             "target": "研究クリスタル予算"
         },
         "controls.actions.budgetDesc": {
-            "source": "Configure spending limits",
+            "source": "Change spending limit",
             "target": "研究クリスタル予算モーダルを開く"
         },
         "controls.actions.resetTreeDesc": {
-            "source": "Refund Tech Crystals for a branch or tree",
+            "source": "Refund Tech Crystals in a branch or tree",
             "target": "ツリーの研究クリスタルを返還"
         },
         "onboarding.hudSection": {
