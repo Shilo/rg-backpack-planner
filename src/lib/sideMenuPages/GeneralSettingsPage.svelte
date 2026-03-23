@@ -131,7 +131,7 @@
             description={$t("onboarding.showTutorialDescription")}
             icon={BookOpenTextIcon}
         >
-            {$t("onboarding.showTutorial")}
+            {$t("controls.tutorial")}
         </Button>
         <Button
             on:click={handleReloadWindow}

@@ -3,17 +3,26 @@
         UserIcon,
         GithubLogoIcon,
         GameControllerIcon,
+        BookOpenTextIcon,
     } from "phosphor-svelte";
     import packageInfo from "../../../package.json";
+    import Button from "../Button.svelte";
     import SettingsPage from "./SettingsPage.svelte";
     import SettingsLinkItem from "./SettingsLinkItem.svelte";
     import SideMenuSection from "../SideMenuSection.svelte";
     import NumberedList from "../NumberedList.svelte";
     import AppIcon from "../icons/AppIcon.svelte";
     import { getCurrentVersion } from "../latestUsedVersionStore";
+    import { showOnboarding } from "../onboarding/onboardingStore";
     import { t } from "svelte-whisper";
 
     export let onBack: (() => void) | null = null;
+    export let onClose: (() => void) | null = null;
+
+    function handleTutorial() {
+        showOnboarding();
+        onClose?.();
+    }
 
     let advancedOpened = false;
 
@@ -90,6 +99,14 @@
             />
         {/if}
     </div>
+
+    <Button
+        on:click={handleTutorial}
+        description={$t("onboarding.showTutorialDescription")}
+        icon={BookOpenTextIcon}
+    >
+        {$t("controls.tutorial")}
+    </Button>
 
     <SideMenuSection title={$t("sideMenu.sections.instructions")}>
         <NumberedList
