@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { t } from "svelte-whisper";
     import { InfoIcon, BookOpenTextIcon } from "phosphor-svelte";
+    import type { AboutScrollTarget } from "./SideMenuSettingsPage.svelte";
     import Button from "../Button.svelte";
     import ButtonGroup from "../ButtonGroup.svelte";
     import CollapsibleSection from "../CollapsibleSection.svelte";
@@ -19,7 +20,9 @@
     import { showOnboarding } from "../onboarding/onboardingStore";
 
     export let onClose: (() => void) | null = null;
-    export let onOpenAbout: (() => void) | null = null;
+    export let onOpenAbout:
+        | ((aboutScrollTarget?: AboutScrollTarget | null) => void)
+        | null = null;
     export let activeTreeIndex = 0;
 
     function handleTutorial() {
@@ -101,7 +104,7 @@
         small
         icon={InfoIcon}
         iconSize={22}
-        on:click={() => onOpenAbout?.()}
+        on:click={() => onOpenAbout?.("game-rules")}
     >
         {$t("sideMenu.sections.instructions")}
     </Button>

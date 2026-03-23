@@ -1,4 +1,6 @@
 <script context="module" lang="ts">
+    export type AboutScrollTarget = "game-rules";
+
     export type SettingsPageId =
         | "root"
         | "node"
@@ -51,6 +53,7 @@
     // --- Navigation state ---
     let currentPage: SettingsPageId = "root";
     let lastNavigatedPage: SettingsPageId = "root";
+    let pendingAboutScrollTarget: AboutScrollTarget | null = null;
     let transitionDirection: "forward" | "back" = "forward";
     let isTransitioning = false;
     let outgoingComponent: any = null;
@@ -129,9 +132,14 @@
         }
     }
 
-    export async function navigateTo(page: SettingsPageId) {
+    export async function navigateTo(
+        page: SettingsPageId,
+        aboutScrollTarget: AboutScrollTarget | null = null,
+    ) {
         if (isTransitioning || page === currentPage) return;
         lastNavigatedPage = page;
+        pendingAboutScrollTarget =
+            page === "about" ? aboutScrollTarget : null;
         await transition(page, "forward");
     }
 
@@ -206,6 +214,12 @@
                 {onFocusInView}
                 onNavigate={navigateTo}
                 onBack={navigateBack}
+                aboutScrollTarget={currentPage === "about"
+                    ? pendingAboutScrollTarget
+                    : null}
+                onAboutScrollHandled={() => {
+                    pendingAboutScrollTarget = null;
+                }}
             />
         </div>
     {/if}

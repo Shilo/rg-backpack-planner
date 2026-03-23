@@ -117,6 +117,7 @@ const TEST_FILES = [
     "showTierSetting.test.ts",
     "uppercaseTextSetting.test.ts",
     "settingsPaging.test.ts",
+    "sideMenuAboutGameRulesScroll.test.ts",
     "localeCasingStyleGuide.test.ts",
     "treeLinkParentLevelColor.test.ts",
     "treeTopLeftOrigin.test.ts",

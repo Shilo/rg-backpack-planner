@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { tick } from "svelte";
     import {
         UserIcon,
         GithubLogoIcon,
@@ -7,6 +8,7 @@
         InfoIcon,
         WrenchIcon,
     } from "phosphor-svelte";
+    import type { AboutScrollTarget } from "./SideMenuSettingsPage.svelte";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import SettingsPage from "./SettingsPage.svelte";
@@ -19,6 +21,8 @@
 
     export let onBack: (() => void) | null = null;
     export let onClose: (() => void) | null = null;
+    export let aboutScrollTarget: AboutScrollTarget | null = null;
+    export let onAboutScrollHandled: (() => void) | null = null;
 
     function handleTutorial() {
         showOnboarding();
@@ -26,6 +30,8 @@
     }
 
     let advancedOpened = false;
+    let gameRulesSectionElement: HTMLDivElement | null = null;
+    let handledAboutScrollTarget: AboutScrollTarget | null = null;
 
     const version = getCurrentVersion();
 
@@ -43,9 +49,28 @@
         }
     }
 
+    async function scrollGameRulesIntoView() {
+        await tick();
+        gameRulesSectionElement?.scrollIntoView({
+            block: "start",
+            behavior: "smooth"
+        });
+        onAboutScrollHandled?.();
+    }
+
     $: appName = $t("app.name");
     $: appDescription = $t("app.description");
     $: versionLabel = version === "unknown" ? "" : version;
+    $: if (aboutScrollTarget === null) {
+        handledAboutScrollTarget = null;
+    }
+    $: if (
+        aboutScrollTarget === "game-rules" &&
+        handledAboutScrollTarget !== aboutScrollTarget
+    ) {
+        handledAboutScrollTarget = aboutScrollTarget;
+        void scrollGameRulesIntoView();
+    }
 </script>
 
 <SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")} advancedIcon={WrenchIcon} onAdvancedOpen={() => { advancedOpened = true; }}>
@@ -109,14 +134,16 @@
         {$t("controls.tutorial")}
     </Button>
 
-    <Accordion title={$t("sideMenu.sections.instructions")} icon={InfoIcon} isOpen>
-        {#each [0, 1, 2, 3, 4] as i}
-            <div class="rule-row">
-                <span class="rule-number">{i + 1}</span>
-                <span class="rule-text">{$t(`trees.rules.${i}`)}</span>
-            </div>
-        {/each}
-    </Accordion>
+    <div bind:this={gameRulesSectionElement}>
+        <Accordion title={$t("sideMenu.sections.instructions")} icon={InfoIcon} isOpen>
+            {#each [0, 1, 2, 3, 4] as i}
+                <div class="rule-row">
+                    <span class="rule-number">{i + 1}</span>
+                    <span class="rule-text">{$t(`trees.rules.${i}`)}</span>
+                </div>
+            {/each}
+        </Accordion>
+    </div>
 
     <svelte:fragment slot="advancedSettings">
         {#if advancedOpened}

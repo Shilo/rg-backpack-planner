@@ -6,6 +6,10 @@
     } from "phosphor-svelte";
     import BottomNavBar from "./BottomNavBar.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
+    import type {
+        AboutScrollTarget,
+        SettingsPageId,
+    } from "./sideMenuPages/SideMenuSettingsPage.svelte";
     import { triggerHaptic } from "./hapticsStore";
     import type { TreeViewState } from "./Tree.svelte";
     import type { Node } from "../types/tree";
@@ -60,19 +64,27 @@
     let SideMenuSettingsPage: any = null;
     let SideMenuStatisticsPage: any = null;
     let SideMenuControlsPage: any = null;
-    let settingsPageRef: { tryGoBack?: () => boolean; navigateTo?: (page: string) => Promise<void> } | null = null;
+    let settingsPageRef: {
+        tryGoBack?: () => boolean;
+        navigateTo?: (
+            page: SettingsPageId,
+            aboutScrollTarget?: AboutScrollTarget | null,
+        ) => Promise<void>;
+    } | null = null;
 
     export function tryGoBack(): boolean {
         if (activeTab !== "settings") return false;
         return settingsPageRef?.tryGoBack?.() ?? false;
     }
 
-    async function handleOpenAbout() {
+    async function handleOpenAbout(
+        aboutScrollTarget: AboutScrollTarget | null = null,
+    ) {
         await loadTabPage("settings");
         activeTab = "settings";
         setActiveTab(activeTab);
         await tick();
-        settingsPageRef?.navigateTo?.("about");
+        settingsPageRef?.navigateTo?.("about", aboutScrollTarget);
     }
 
     async function loadTabPage(tab: SideMenuTab): Promise<void> {
