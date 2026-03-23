@@ -96,11 +96,21 @@
     }));
 </script>
 
-<ButtonGroup class="controls-header" fill>
-    <Button small icon={InfoIcon} iconSize={22} on:click={() => onOpenAbout?.()}>
+<ButtonGroup class="controls-header">
+    <Button
+        small
+        icon={InfoIcon}
+        iconSize={22}
+        on:click={() => onOpenAbout?.()}
+    >
         {$t("sideMenu.sections.instructions")}
     </Button>
-    <Button small icon={BookOpenTextIcon} iconSize={22} on:click={handleTutorial}>
+    <Button
+        small
+        icon={BookOpenTextIcon}
+        iconSize={22}
+        on:click={handleTutorial}
+    >
         {$t("controls.tutorial")}
     </Button>
 </ButtonGroup>
@@ -117,10 +127,7 @@
                         description={action.description}
                         onclick={action.trigger}
                     >
-                        <svelte:component
-                            this={action.icon}
-                            slot="icon"
-                        />
+                        <svelte:component this={action.icon} slot="icon" />
                         {#each action.filteredInputs as input}
                             <InputChips
                                 keys={input.keys}
@@ -136,8 +143,17 @@
 </div>
 
 <style>
+    :global(.controls-header) {
+        width: 100%;
+    }
+
+    :global(.controls-header > *) {
+        flex: 1;
+    }
+
     :global(.controls-header .button) {
-        padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs) var(--radius);
+        padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs)
+            var(--radius);
     }
 
     .controls-page {

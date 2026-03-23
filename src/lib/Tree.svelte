@@ -429,12 +429,12 @@
             const filter = `var(--capture-link-filter, var(--node-brightness-available))`;
             return `stroke: ${color}; filter: ${filter};`;
         }
-        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: drop-shadow(0 0 3px ${REGION_STROKE_COLOR[region]});`;
+        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: none;`;
     }
 
-    /** Solid base line style for active/maxed — matches "available" brightness. */
+    /** Solid base line style for active/maxed — glow lives here (static, no animation). */
     function getLinkBaseStrokeStyle(region: NodeRegion): string {
-        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: var(--node-brightness-available);`;
+        return `stroke: ${REGION_STROKE_COLOR[region]}; filter: drop-shadow(0 0 3px ${REGION_STROKE_COLOR[region]});`;
     }
 
     let renderNodes: RenderNode[] = [];

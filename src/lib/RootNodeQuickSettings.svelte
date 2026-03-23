@@ -44,6 +44,18 @@
 
     const MARGIN = 8;
 
+    function getHudInsets(): { top: number; right: number; bottom: number; left: number } {
+        const hud = document.querySelector(".hud-safe-area");
+        const hudRect = hud?.getBoundingClientRect();
+        if (!hudRect) return { top: 0, right: 0, bottom: 0, left: 0 };
+        return {
+            top: hudRect.top,
+            right: window.innerWidth - hudRect.right,
+            bottom: window.innerHeight - hudRect.bottom,
+            left: hudRect.left,
+        };
+    }
+
     onMount(() => {
         const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
         const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
@@ -66,15 +78,16 @@
     function updatePosition() {
         if (!panelEl) return;
         const rect = panelEl.getBoundingClientRect();
+        const hud = getHudInsets();
         let px = x - rect.width / 2;
         let py = y - rect.height;
         px = Math.max(
-            MARGIN,
-            Math.min(px, window.innerWidth - rect.width - MARGIN),
+            hud.left + MARGIN,
+            Math.min(px, window.innerWidth - hud.right - rect.width - MARGIN),
         );
         py = Math.max(
-            MARGIN,
-            Math.min(py, window.innerHeight - rect.height - MARGIN),
+            hud.top + MARGIN,
+            Math.min(py, window.innerHeight - hud.bottom - rect.height - MARGIN),
         );
         displayX = px;
         displayY = py;
