@@ -636,7 +636,7 @@
             "activate": "Entrée / Espace",
             "console": "` (Tilde)",
             "undo": "Ctrl + Z",
-            "redo": "Ctrl + Y",
+            "redo": "Ctrl + Y / Ctrl + Shift + Z",
             "screenshot": "F9",
             "budget": "B",
             "cyclePrimaryAction": "A",

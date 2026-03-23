@@ -53,13 +53,24 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
     return [
         // ── HUD ──
         {
-            id: "hud-primary-action",
-            title: t("controls.actions.primaryAction"),
-            description: t("controls.actions.primaryActionDesc"),
-            icon: CaretUpIcon,
+            id: "tree-tooltip",
+            title: t("controls.actions.tooltip"),
+            description: t("controls.actions.tooltipDesc"),
+            icon: EyeIcon,
+            inputs: [
+                { keys: gesture("hover"), device: "mouse" },
+                { keys: touch.secondary, device: "touch" },
+            ],
+            section: "hud",
+        },
+        {
+            id: "hud-root-quick-settings",
+            title: t("controls.actions.rootQuickSettings"),
+            description: t("controls.actions.rootQuickSettingsDesc"),
+            icon: RootNodeIcon,
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
-                { keys: kbd("cyclePrimaryAction"), device: "keyboard" },
+                { keys: kbd("console"), device: "keyboard" },
                 { keys: touch.primary, device: "touch" },
             ],
             section: "hud",
@@ -77,13 +88,13 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             section: "hud",
         },
         {
-            id: "hud-side-menu",
-            title: t("controls.actions.sideMenu"),
-            description: t("controls.actions.sideMenuDesc"),
-            icon: ListIcon,
+            id: "hud-primary-action",
+            title: t("controls.actions.primaryAction"),
+            description: t("controls.actions.primaryActionDesc"),
+            icon: CaretUpIcon,
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
-                { keys: kbd("dismiss"), device: "keyboard" },
+                { keys: kbd("cyclePrimaryAction"), device: "keyboard" },
                 { keys: touch.primary, device: "touch" },
             ],
             section: "hud",
@@ -125,13 +136,12 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             section: "hud",
         },
         {
-            id: "hud-root-quick-settings",
-            title: t("controls.actions.rootQuickSettings"),
-            description: t("controls.actions.rootQuickSettingsDesc"),
-            icon: RootNodeIcon,
+            id: "hud-preview-indicator",
+            title: t("controls.actions.previewIndicator"),
+            description: t("controls.actions.previewIndicatorDesc"),
+            icon: EyeIcon,
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
-                { keys: kbd("console"), device: "keyboard" },
                 { keys: touch.primary, device: "touch" },
             ],
             section: "hud",
@@ -172,12 +182,13 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             section: "hud",
         },
         {
-            id: "hud-preview-indicator",
-            title: t("controls.actions.previewIndicator"),
-            description: t("controls.actions.previewIndicatorDesc"),
-            icon: EyeIcon,
+            id: "hud-side-menu",
+            title: t("controls.actions.sideMenu"),
+            description: t("controls.actions.sideMenuDesc"),
+            icon: ListIcon,
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
+                { keys: kbd("dismiss"), device: "keyboard" },
                 { keys: touch.primary, device: "touch" },
             ],
             section: "hud",
@@ -190,17 +201,6 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             inputs: [
                 { keys: mouse.primary, device: "mouse" },
                 { keys: gesture("swipeRight"), device: "touch" },
-            ],
-            section: "hud",
-        },
-        {
-            id: "tree-tooltip",
-            title: t("controls.actions.tooltip"),
-            description: t("controls.actions.tooltipDesc"),
-            icon: EyeIcon,
-            inputs: [
-                { keys: gesture("hover"), device: "mouse" },
-                { keys: touch.secondary, device: "touch" },
             ],
             section: "hud",
         },
@@ -217,14 +217,6 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             section: "node",
         },
         {
-            id: "node-level-up-alt",
-            title: t("controls.actions.levelUpAlt"),
-            description: t("controls.actions.levelUpAltDesc"),
-            icon: PlusCircleIcon,
-            inputs: [{ keys: mouse.alternatePrimary, device: "mouse" }],
-            section: "node",
-        },
-        {
             id: "node-level-down",
             title: t("controls.actions.levelDown"),
             description: t("controls.actions.levelDownDesc"),
@@ -233,6 +225,14 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
                 { keys: mouse.auxiliary!, device: "mouse" },
                 { keys: mouse.reversePrimary, device: "mouse" },
             ],
+            section: "node",
+        },
+        {
+            id: "node-level-up-alt",
+            title: t("controls.actions.levelUpAlt"),
+            description: t("controls.actions.levelUpAltDesc"),
+            icon: PlusCircleIcon,
+            inputs: [{ keys: mouse.alternatePrimary, device: "mouse" }],
             section: "node",
         },
         {
