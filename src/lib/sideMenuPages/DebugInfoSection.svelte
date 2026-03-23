@@ -231,6 +231,7 @@
     .system-info {
         display: grid;
         gap: var(--spacing-lg);
+        padding: var(--spacing-lg);
     }
 
     .info-card {

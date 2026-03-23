@@ -4,13 +4,14 @@
         GithubLogoIcon,
         GameControllerIcon,
         BookOpenTextIcon,
+        InfoIcon,
+        WrenchIcon,
     } from "phosphor-svelte";
     import packageInfo from "../../../package.json";
     import Button from "../Button.svelte";
     import SettingsPage from "./SettingsPage.svelte";
     import SettingsLinkItem from "./SettingsLinkItem.svelte";
-    import SideMenuSection from "../SideMenuSection.svelte";
-    import NumberedList from "../NumberedList.svelte";
+    import Accordion from "../Accordion.svelte";
     import AppIcon from "../icons/AppIcon.svelte";
     import { getCurrentVersion } from "../latestUsedVersionStore";
     import { showOnboarding } from "../onboarding/onboardingStore";
@@ -47,7 +48,7 @@
     $: versionLabel = version === "unknown" ? "" : version;
 </script>
 
-<SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")} onAdvancedOpen={() => { advancedOpened = true; }}>
+<SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")} advancedIcon={WrenchIcon} onAdvancedOpen={() => { advancedOpened = true; }}>
     <div class="about-card">
         <div class="about-app-row">
             <span class="about-app-icon" aria-hidden="true">
@@ -108,11 +109,14 @@
         {$t("controls.tutorial")}
     </Button>
 
-    <SideMenuSection title={$t("sideMenu.sections.instructions")}>
-        <NumberedList
-            items={[0, 1, 2, 3, 4].map((i) => $t(`trees.rules.${i}`))}
-        />
-    </SideMenuSection>
+    <Accordion title={$t("sideMenu.sections.instructions")} icon={InfoIcon}>
+        {#each [0, 1, 2, 3, 4] as i}
+            <div class="rule-row">
+                <span class="rule-number">{i + 1}</span>
+                <span class="rule-text">{$t(`trees.rules.${i}`)}</span>
+            </div>
+        {/each}
+    </Accordion>
 
     <svelte:fragment slot="advancedSettings">
         {#if advancedOpened}
@@ -200,5 +204,41 @@
 
     .about-links-card :global(.settings-link-item:last-child) {
         border-bottom: none;
+    }
+
+    .rule-row {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-bottom: var(--border-width) solid var(--border-subtle);
+    }
+
+    .rule-row:last-child {
+        border-bottom: none;
+    }
+
+    .rule-number {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: var(--weight-bold);
+        color: var(--text-muted);
+        background: var(--bg-raised);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        margin-top: 1px;
+        box-sizing: border-box;
+    }
+
+    .rule-text {
+        font-size: var(--font-base);
+        line-height: 1.5;
+        color: var(--text-muted);
+        flex: 1;
     }
 </style>

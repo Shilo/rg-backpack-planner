@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { Component } from "svelte";
     import { CaretLeftIcon } from "phosphor-svelte";
     import { triggerHaptic } from "../hapticsStore";
     import Accordion from "../Accordion.svelte";
@@ -7,6 +8,7 @@
     export let title: string | undefined = undefined;
     export let onBack: (() => void) | null = null;
     export let advancedTitle: string | undefined = undefined;
+    export let advancedIcon: Component | null = null;
     export let onAdvancedOpen: (() => void) | null = null;
 
     let backButtonElement: HTMLButtonElement | null = null;
@@ -41,7 +43,7 @@
 </div>
 
 {#if $$slots.advancedSettings}
-    <Accordion title={advancedTitle ?? $t("settings.advanced")} on:toggle={(e) => { if (e.detail.isOpen) onAdvancedOpen?.(); }}>
+    <Accordion title={advancedTitle ?? $t("settings.advanced")} icon={advancedIcon} on:toggle={(e) => { if (e.detail.isOpen) onAdvancedOpen?.(); }}>
         <slot name="advancedSettings" />
     </Accordion>
 {/if}
