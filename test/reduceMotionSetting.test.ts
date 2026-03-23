@@ -71,6 +71,14 @@ if (!/checked=\{\$reduceMotion\}/.test(generalSource)) {
     throw new Error("GeneralSettingsPage should bind the toggle to $reduceMotion.");
 }
 
+if (!/WaveformSlashIcon/.test(generalSource)) {
+    throw new Error("GeneralSettingsPage should use a Phosphor icon for Reduce Motion.");
+}
+
+if (!/icon=\{WaveformSlashIcon as unknown as Component\}/.test(generalSource)) {
+    throw new Error("GeneralSettingsPage should pass the Reduce Motion icon to ToggleSwitch.");
+}
+
 if (!/reduceMotion\.set\(!\$reduceMotion\)/.test(generalSource)) {
     throw new Error("GeneralSettingsPage toggle should invert the reduceMotion store.");
 }

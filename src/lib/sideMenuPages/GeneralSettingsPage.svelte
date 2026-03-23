@@ -5,6 +5,7 @@
         ClockCounterClockwiseIcon,
         TrashSimpleIcon,
         VibrateIcon,
+        WaveformSlashIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
     import { hapticsEnabled } from "../hapticsStore";
@@ -125,6 +126,7 @@
             label={$t("settings.reduceMotion")}
             ariaLabel={$t("settings.reduceMotion")}
             description={$t("settings.reduceMotionDescription")}
+            icon={WaveformSlashIcon as unknown as Component}
             onToggle={() => reduceMotion.set(!$reduceMotion)}
         />
     </SideMenuSection>
