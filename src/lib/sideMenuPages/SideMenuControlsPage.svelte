@@ -72,10 +72,10 @@
     $: actions = getControlActions($t);
     $: hasLevels = sumLevels($treeLevels?.[activeTreeIndex]) > 0;
 
-    function getTrigger(actionId: string): (() => void) | undefined {
+    function getTrigger(actionId: string, levels: boolean, isPreview: boolean): (() => void) | undefined {
         if (!onClose) return undefined;
-        if (actionId === "hud-reset-tree" && !hasLevels) return undefined;
-        if (actionId === "hud-preview-indicator" && !$isPreviewMode)
+        if (actionId === "hud-reset-tree" && !levels) return undefined;
+        if (actionId === "hud-preview-indicator" && !isPreview)
             return undefined;
         return getActionTrigger(actionId, onClose);
     }
@@ -93,7 +93,7 @@
                     showTouch,
                     showKeyboard,
                 ),
-                trigger: getTrigger(a.id),
+                trigger: getTrigger(a.id, hasLevels, $isPreviewMode),
             }))
             .filter((a) => a.filteredInputs.length > 0),
     }));
