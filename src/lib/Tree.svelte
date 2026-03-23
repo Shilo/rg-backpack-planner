@@ -79,7 +79,12 @@
     } from "./budgetEnforcement";
     import { nodeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
     import { inputStore } from "./input/inputStore";
-    import { resolveModifiers, resolveAction, resolveNodeAction, applyNodeOperation } from "./input";
+    import {
+        resolveModifiers,
+        resolveAction,
+        resolveNodeAction,
+        applyNodeOperation,
+    } from "./input";
     import type { NodeOperationCallbacks } from "./input";
 
     export let nodes: NodeType[] = [];
@@ -571,10 +576,7 @@
             }
 
             // Budget enforcement: cap level to what's affordable
-            if (
-                !$ignoreTechCrystalBudget &&
-                $techCrystalsOwned > 0
-            ) {
+            if (!$ignoreTechCrystalBudget && $techCrystalsOwned > 0) {
                 const actionCost = sumDeltaCosts(nodes, levels, deltas);
                 const available = $techCrystalsAvailable;
                 if (actionCost > available) {
@@ -736,21 +738,27 @@
 
     const nodeCallbacks: NodeOperationCallbacks = {
         incrementByStore: (index) => {
-            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelUp(index);
-            else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) levelUpBy10(index);
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne)
+                levelUp(index);
+            else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen)
+                levelUpBy10(index);
             else levelUpTier(index);
         },
         decrementByStore: (index) => {
-            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelDown(index);
-            else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen) levelDownBy10(index);
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne)
+                levelDown(index);
+            else if ($nodePrimaryAction === NodePrimaryAction.IncrementTen)
+                levelDownBy10(index);
             else levelDownTier(index);
         },
         incrementByAlternate: (index) => {
-            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelUpTier(index);
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne)
+                levelUpTier(index);
             else levelUp(index);
         },
         decrementByAlternate: (index) => {
-            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne) levelDownTier(index);
+            if ($nodePrimaryAction === NodePrimaryAction.IncrementOne)
+                levelDownTier(index);
             else levelDown(index);
         },
         contextMenu: (index, pos) => {
@@ -836,7 +844,10 @@
         // Collect IDs and clear maps BEFORE releasing captures.
         // releasePointerCapture can synchronously fire lostpointercapture;
         // clearing first ensures the handler finds nothing to double-process.
-        const capturedIds = [...pointers.keys(), ...middleClickCandidates.keys()];
+        const capturedIds = [
+            ...pointers.keys(),
+            ...middleClickCandidates.keys(),
+        ];
         pointers.clear();
         middleClickCandidates.clear();
         clearLongPress(longPressState);
@@ -1073,11 +1084,7 @@
             };
             // Long-press is intentionally armed for all pointer types (mouse + touch).
             // Desktop users can hold-to-open as a convenience alongside right-click.
-            if (
-                info &&
-                !info.isRoot &&
-                info.index !== null
-            ) {
+            if (info && !info.isRoot && info.index !== null) {
                 startNodeLongPress(event.pointerId);
             } else if (info && info.isRoot) {
                 startRootLongPress(event.pointerId);
@@ -1194,10 +1201,19 @@
                 movedDistance <= LONG_PRESS_MOVE_THRESHOLD
             ) {
                 const modifiers = resolveModifiers($inputStore);
-                const action = resolveAction(event.button, modifiers, event.pointerType);
+                const action = resolveAction(
+                    event.button,
+                    modifiers,
+                    event.pointerType,
+                );
                 if (action) {
                     const nodeOp = resolveNodeAction(action);
-                    applyNodeOperation(nodeOp, middleClick.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
+                    applyNodeOperation(
+                        nodeOp,
+                        middleClick.nodeIndex,
+                        nodeCallbacks,
+                        { x: event.clientX, y: event.clientY },
+                    );
                 }
             }
             return;
@@ -1234,10 +1250,19 @@
             if (pointer.nodeIndex !== null) {
                 triggerHaptic();
                 const modifiers = resolveModifiers($inputStore);
-                const action = resolveAction(event.button, modifiers, event.pointerType);
+                const action = resolveAction(
+                    event.button,
+                    modifiers,
+                    event.pointerType,
+                );
                 if (action) {
                     const nodeOp = resolveNodeAction(action);
-                    applyNodeOperation(nodeOp, pointer.nodeIndex, nodeCallbacks, { x: event.clientX, y: event.clientY });
+                    applyNodeOperation(
+                        nodeOp,
+                        pointer.nodeIndex,
+                        nodeCallbacks,
+                        { x: event.clientX, y: event.clientY },
+                    );
                 }
             }
         }
@@ -1267,14 +1292,20 @@
         } else if (pointers.size === 0) {
             // Release pan momentum only for single-touch panning
             // (never after multi-touch gestures like pinch)
-            if (panActive && !multiTouchGestureActive && !prefersReducedMotion()) {
-                momentum.release(
-                    (dx, dy) => {
-                        const clamped = clampOffsets(offsetX + dx, offsetY + dy, scale);
-                        offsetX = clamped.x;
-                        offsetY = clamped.y;
-                    },
-                );
+            if (
+                panActive &&
+                !multiTouchGestureActive &&
+                !prefersReducedMotion()
+            ) {
+                momentum.release((dx, dy) => {
+                    const clamped = clampOffsets(
+                        offsetX + dx,
+                        offsetY + dy,
+                        scale,
+                    );
+                    offsetX = clamped.x;
+                    offsetY = clamped.y;
+                });
             } else {
                 momentum.reset();
             }
@@ -1534,7 +1565,11 @@
         const scaleDiff = Math.abs(next.scale - from.scale);
 
         // Animate if caller allows it, there's meaningful distance, and motion is OK
-        if (animate && !prefersReducedMotion() && (dist > 2 || scaleDiff > 0.01)) {
+        if (
+            animate &&
+            !prefersReducedMotion() &&
+            (dist > 2 || scaleDiff > 0.01)
+        ) {
             // Duration scales with distance: 250–500ms
             const duration = Math.min(250 + dist * 0.3, 500);
             cancelViewAnimation = animateView(

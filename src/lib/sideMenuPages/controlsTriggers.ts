@@ -19,9 +19,11 @@ const DOM_TRIGGERS: Record<string, () => void> = {
             ?.click();
     },
     "node-options": () => {
-        const node = document.querySelector<HTMLElement>(
-            '[data-node-id]:not([data-node-id="root"])',
-        );
+        const node =
+            document.querySelector<HTMLElement>('[data-node-id="0"]') ??
+            document.querySelector<HTMLElement>(
+                '[data-node-id]:not([data-node-id="root"])',
+            );
         if (!node) return;
         const rect = node.getBoundingClientRect();
         // Stop propagation past tree viewport so TreeTabs' secondary
