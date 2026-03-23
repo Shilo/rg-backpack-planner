@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { fade } from "svelte/transition";
     import {
         ChartBarIcon,
         GameControllerIcon,
@@ -157,14 +158,15 @@
     onKeyDown(handleTabKeydown);
 </script>
 
-<button
-    class={`menu-backdrop${isOpen ? " visible" : ""}`}
-    aria-label={$t("common.close")}
-    tabindex={isOpen ? 0 : -1}
-    inert={!isOpen}
-    on:click={handleBackdropClick}
-    type="button"
-></button>
+{#if isOpen}
+    <button
+        class="menu-backdrop backdrop"
+        aria-label={$t("common.close")}
+        on:click={handleBackdropClick}
+        type="button"
+        transition:fade={{ duration: 200 }}
+    ></button>
+{/if}
 <aside
     class="side-menu"
     class:open={isOpen}
@@ -221,17 +223,9 @@
         background: var(--backdrop-overlay);
         backdrop-filter: blur(var(--blur-sm));
         -webkit-backdrop-filter: blur(var(--blur-sm));
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s ease;
         border: none;
         padding: 0;
         z-index: calc(var(--z-index-side-menu) - 2);
-    }
-
-    :global(.menu-backdrop.visible) {
-        opacity: 1;
-        pointer-events: auto;
     }
 
     .side-menu {

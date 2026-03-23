@@ -408,7 +408,7 @@
 
 {#if $modalStore && renderedModal}
     <div
-        class="modal-backdrop"
+        class="modal-backdrop backdrop"
         class:modal-backdrop--sheet={renderedModal.type === "resetTreeChoices"}
         role="button"
         tabindex="0"

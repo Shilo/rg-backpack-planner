@@ -478,7 +478,7 @@
     on:contextmenu={blockEvent}
     on:wheel={blockEvent}
 >
-    <svg class="onboarding-backdrop" aria-hidden="true">
+    <svg class="onboarding-backdrop backdrop" aria-hidden="true">
         <defs>
             <radialGradient id="onboarding-spotlight-fade">
                 <stop offset="74%" stop-color="black" />

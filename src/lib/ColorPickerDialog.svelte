@@ -341,7 +341,7 @@
 {#if isOpen}
     <div use:portal class="color-picker-portal">
         <div
-            class="color-picker-backdrop"
+            class="color-picker-backdrop backdrop"
             role="dialog"
             tabindex="-1"
             aria-label="Custom color picker"

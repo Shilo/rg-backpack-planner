@@ -309,7 +309,7 @@
 
 {#if isOpen}
     <button
-        class="qs-backdrop"
+        class="qs-backdrop backdrop"
         type="button"
         tabindex="0"
         aria-label={$t("common.close")}

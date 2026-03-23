@@ -2018,6 +2018,14 @@
         }
     }
 
+    /* Pause energy flow when any overlay UI is open to avoid compositing
+       overhead (the continuous animation keeps the SVG layer dirty,
+       forcing re-composite on every pointer-move frame). */
+    :global(body:has(.backdrop)) .tree-links .tree-link.active,
+    :global(body:has(.backdrop)) .tree-links .tree-link.maxed {
+        animation-play-state: paused;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .tree-links .tree-link {
             transition: none;

@@ -415,7 +415,7 @@
 
 {#if isOpen}
     <button
-            class="context-menu-backdrop"
+            class="context-menu-backdrop backdrop"
             class:nested={isNested}
             type="button"
             tabindex="0"
