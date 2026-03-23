@@ -5,6 +5,27 @@
 
     $: interactive = !!onclick;
 
+    function parseDescription(desc: string | undefined) {
+        if (!desc) return [];
+        const parts: { text: string; isHint: boolean }[] = [];
+        const regex = /(\([^)]+\))/g;
+        let lastIndex = 0;
+        let match;
+        while ((match = regex.exec(desc)) !== null) {
+            if (match.index > lastIndex) {
+                parts.push({ text: desc.slice(lastIndex, match.index), isHint: false });
+            }
+            parts.push({ text: match[0], isHint: true });
+            lastIndex = regex.lastIndex;
+        }
+        if (lastIndex < desc.length) {
+            parts.push({ text: desc.slice(lastIndex), isHint: false });
+        }
+        return parts;
+    }
+
+    $: descParts = parseDescription(description);
+
     let startY = 0;
     let scrolled = false;
     const SCROLL_THRESHOLD = 10;
@@ -40,7 +61,15 @@
         <div class="table-row-text">
             <span class="table-row-title">{title}</span>
             {#if description}
-                <span class="table-row-desc">{description}</span>
+                <span class="table-row-desc">
+                    {#each descParts as part}
+                        {#if part.isHint}
+                            <span class="table-row-hint">{part.text}</span>
+                        {:else}
+                            {part.text}
+                        {/if}
+                    {/each}
+                </span>
             {/if}
         </div>
         <div class="table-row-trailing">
@@ -55,7 +84,15 @@
         <div class="table-row-text">
             <span class="table-row-title">{title}</span>
             {#if description}
-                <span class="table-row-desc">{description}</span>
+                <span class="table-row-desc">
+                    {#each descParts as part}
+                        {#if part.isHint}
+                            <span class="table-row-hint">{part.text}</span>
+                        {:else}
+                            {part.text}
+                        {/if}
+                    {/each}
+                </span>
             {/if}
         </div>
         <div class="table-row-trailing">
@@ -113,6 +150,13 @@
         color: var(--text-disabled);
         margin-top: 1px;
         line-height: var(--leading);
+    }
+
+    .table-row-hint {
+        display: block;
+        font-style: italic;
+        opacity: 0.85;
+        margin-top: 2px;
     }
 
     .table-row-trailing {
