@@ -228,11 +228,11 @@
             "target": "研究クリスタル消費"
         },
         "controls.actions.levelUpDesc": {
-            "source": "Add levels using the active increment (+1, +10, or +Tier)",
+            "source": "Add levels using node action setting (+1, +10, +Tier)",
             "target": "ノードレベルを追加し研究クリスタルを消費（アクション設定に基づく）"
         },
         "controls.actions.levelDownDesc": {
-            "source": "Remove levels using the active increment (-1, -10, or -Tier)",
+            "source": "Remove levels using node action setting (-1, -10, -Tier)",
             "target": "ノードレベルを削除し研究クリスタルを返還（アクション設定に基づく）"
         },
         "controls.actions.budget": {
@@ -240,11 +240,11 @@
             "target": "研究クリスタル予算"
         },
         "controls.actions.budgetDesc": {
-            "source": "Open budget modal",
+            "source": "Configure spending limits",
             "target": "研究クリスタル予算モーダルを開く"
         },
         "controls.actions.resetTreeDesc": {
-            "source": "Open modal to refund branch or tree",
+            "source": "Refund spent crystals for a branch or all nodes",
             "target": "ツリーの研究クリスタルを返還"
         },
         "onboarding.hudSection": {
