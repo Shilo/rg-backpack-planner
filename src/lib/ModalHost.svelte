@@ -529,6 +529,7 @@
 
 <style>
     .modal-backdrop {
+        contain: layout style;
         position: fixed;
         left: 0;
         top: var(--vv-offset-top, 0px);

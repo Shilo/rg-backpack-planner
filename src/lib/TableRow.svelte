@@ -154,7 +154,7 @@
 
     .table-row-hint {
         display: block;
-        color: var(--accent);
+        color: var(--text-on-tinted);
         margin-top: 2px;
     }
 

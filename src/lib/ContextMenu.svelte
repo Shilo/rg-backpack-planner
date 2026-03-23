@@ -449,6 +449,7 @@
 
 <style>
     .context-menu {
+        contain: layout style;
         position: fixed;
         left: 0;
         top: 0;

@@ -102,9 +102,21 @@
         extraBottom = 0;
     }
 
+    let resizeRaf: number | null = null;
+    function onResize() {
+        if (resizeRaf !== null) return;
+        resizeRaf = requestAnimationFrame(() => {
+            resizeRaf = null;
+            checkOverlap();
+        });
+    }
+
     onMount(() => {
-        window.addEventListener("resize", checkOverlap);
-        return () => window.removeEventListener("resize", checkOverlap);
+        window.addEventListener("resize", onResize);
+        return () => {
+            window.removeEventListener("resize", onResize);
+            if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
+        };
     });
 
     onDestroy(clearAllTimeouts);
@@ -190,6 +202,7 @@
 
 <style>
     .toast-region {
+        contain: layout style;
         position: fixed;
         left: 0;
         right: 0;

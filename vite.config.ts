@@ -6,6 +6,20 @@ import { THEME_BG } from "./scripts/theme-defaults.ts";
 // https://vite.dev/config/
 export default defineConfig({
     base: "/",
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes("node_modules/svelte/")) {
+                        return "svelte";
+                    }
+                    if (id.includes("node_modules/phosphor-svelte/")) {
+                        return "icons";
+                    }
+                },
+            },
+        },
+    },
     plugins: [
         svelte(),
         VitePWA({

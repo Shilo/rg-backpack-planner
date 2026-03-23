@@ -288,6 +288,7 @@
     }
 
     .side-menu {
+        contain: layout style;
         position: fixed;
         top: 0;
         right: 0;
