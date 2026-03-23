@@ -11,7 +11,6 @@ function parseOnboardingSeen(storedValue: string | null): boolean | null {
 }
 
 function getOnboardingSeen(): boolean {
-    return false; //todo
     const stored = parseOnboardingSeen(getItem("onboarding-seen"));
     return stored ?? DEFAULT_ONBOARDING_SEEN;
 }
