@@ -27,7 +27,18 @@
         const id = requestAnimationFrame(() => {
             ready = true;
         });
-        return () => cancelAnimationFrame(id);
+        const onResize = () => {
+            if ($appTitleVisible) {
+                cancelAnimationFrame(overlapRafId);
+                overlapRafId = requestAnimationFrame(checkOverlap);
+            }
+        };
+        window.addEventListener("resize", onResize);
+        return () => {
+            cancelAnimationFrame(id);
+            cancelAnimationFrame(overlapRafId);
+            window.removeEventListener("resize", onResize);
+        };
     });
 
     $: if (ready && ($techCrystalsSpent !== prevSpent || $techCrystalsOwned !== prevOwned)) {
@@ -52,6 +63,29 @@
     function onAnimEnd() {
         animState = "";
     }
+
+    // Dynamic overlap detection with AppTitleDisplay
+    let overlapping = false;
+    let overlapRafId = 0;
+
+    function checkOverlap() {
+        const titleEl = document.querySelector(".app-title-display");
+        if (!titleEl || !wrapperEl) {
+            overlapping = false;
+            return;
+        }
+        const titleRect = titleEl.getBoundingClientRect();
+        const crystalRect = wrapperEl.getBoundingClientRect();
+        overlapping = titleRect.right + 8 > crystalRect.left;
+    }
+
+    $: if ($appTitleVisible) {
+        cancelAnimationFrame(overlapRafId);
+        overlapRafId = requestAnimationFrame(checkOverlap);
+    } else {
+        cancelAnimationFrame(overlapRafId);
+        overlapping = false;
+    }
 </script>
 
 <div
@@ -59,7 +93,7 @@
     class="currency-anim-wrapper"
     class:anim-pulse={animState === "pulse"}
     class:anim-shake={animState === "overspend"}
-    class:title-visible={$appTitleVisible}
+    class:title-visible={overlapping}
     on:animationend|self={onAnimEnd}
 >
     <Button
@@ -99,12 +133,9 @@
         transition: opacity 350ms ease;
     }
 
-    /* Hide while app title is visible to prevent overlap on narrow phones */
-    @media (max-width: 414px) {
-        .currency-anim-wrapper.title-visible {
-            opacity: 0;
-            pointer-events: none;
-        }
+    .currency-anim-wrapper.title-visible {
+        opacity: 0;
+        pointer-events: none;
     }
 
     :global(.currency-display) {
