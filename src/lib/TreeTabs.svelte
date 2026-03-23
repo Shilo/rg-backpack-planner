@@ -628,8 +628,9 @@
     .tabs-root::after {
         content: '';
         position: absolute;
-        inset: -16px;
+        inset: -14px;
         pointer-events: none;
+        will-change: transform, opacity;
     }
 
     .tabs-root::before {
@@ -639,9 +640,7 @@
             transparent 2px
         );
         background-size: 32px 32px;
-        animation:
-            starfield-pulse-a 5s ease-in-out infinite,
-            starfield-drift-a 35s ease-in-out infinite;
+        animation: starfield-a 35s ease-in-out infinite;
     }
 
     .tabs-root::after {
@@ -652,38 +651,41 @@
         );
         background-size: 48px 48px;
         background-position: 14px 18px;
-        animation:
-            starfield-pulse-b 7s ease-in-out infinite -3s,
-            starfield-drift-b 45s ease-in-out infinite;
+        animation: starfield-b 45s ease-in-out infinite;
     }
 
-    @keyframes starfield-pulse-a {
-        0%, 100% { opacity: 0.6; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.03); }
+    @keyframes starfield-a {
+        0%        { opacity: 0.6;  transform: translate(0, 0)          scale(1); }
+        8%        { opacity: 0.85; transform: translate(5px, -7px)     scale(1.015); }
+        17%       { opacity: 1;    transform: translate(10px, -14px)   scale(1.03); }
+        25%       { opacity: 0.8;  transform: translate(3px, -12px)    scale(1.02); }
+        33%       { opacity: 0.6;  transform: translate(-4px, -10px)   scale(1); }
+        42%       { opacity: 0.85; transform: translate(-9px, -4px)    scale(1.02); }
+        50%       { opacity: 1;    transform: translate(-14px, 2px)    scale(1.03); }
+        58%       { opacity: 0.75; transform: translate(-10px, 7px)    scale(1.015); }
+        67%       { opacity: 0.6;  transform: translate(-6px, 12px)    scale(1); }
+        75%       { opacity: 0.85; transform: translate(1px, 9px)      scale(1.02); }
+        83%       { opacity: 1;    transform: translate(8px, 6px)      scale(1.03); }
+        92%       { opacity: 0.75; transform: translate(4px, 3px)      scale(1.015); }
+        100%      { opacity: 0.6;  transform: translate(0, 0)          scale(1); }
     }
 
-    @keyframes starfield-pulse-b {
-        0%, 100% { opacity: 0.85; transform: scale(1.02); }
-        50% { opacity: 0.5; transform: scale(1); }
-    }
-
-    @keyframes starfield-drift-a {
-        0%, 100% { translate: 0 0; }
-        17% { translate: 10px -14px; }
-        33% { translate: -4px -10px; }
-        50% { translate: -14px 2px; }
-        67% { translate: -6px 12px; }
-        83% { translate: 8px 6px; }
-    }
-
-    @keyframes starfield-drift-b {
-        0%, 100% { translate: 0 0; }
-        14% { translate: -8px -10px; }
-        29% { translate: -12px 4px; }
-        43% { translate: 2px 14px; }
-        57% { translate: 12px 6px; }
-        71% { translate: 10px -8px; }
-        86% { translate: -2px -12px; }
+    @keyframes starfield-b {
+        0%        { opacity: 0.85; transform: translate(0, 0)          scale(1.02); }
+        7%        { opacity: 0.65; transform: translate(-4px, -5px)    scale(1.01); }
+        14%       { opacity: 0.5;  transform: translate(-8px, -10px)   scale(1); }
+        21%       { opacity: 0.7;  transform: translate(-10px, -3px)   scale(1.01); }
+        29%       { opacity: 0.85; transform: translate(-12px, 4px)    scale(1.02); }
+        36%       { opacity: 0.65; transform: translate(-5px, 9px)     scale(1.01); }
+        43%       { opacity: 0.5;  transform: translate(2px, 14px)     scale(1); }
+        50%       { opacity: 0.7;  transform: translate(7px, 10px)     scale(1.01); }
+        57%       { opacity: 0.85; transform: translate(12px, 6px)     scale(1.02); }
+        64%       { opacity: 0.65; transform: translate(11px, -1px)    scale(1.01); }
+        71%       { opacity: 0.5;  transform: translate(10px, -8px)    scale(1); }
+        79%       { opacity: 0.7;  transform: translate(4px, -10px)    scale(1.01); }
+        86%       { opacity: 0.85; transform: translate(-2px, -12px)   scale(1.02); }
+        93%       { opacity: 0.65; transform: translate(-1px, -6px)    scale(1.01); }
+        100%      { opacity: 0.85; transform: translate(0, 0)          scale(1.02); }
     }
 
     .tabs-bar-spacer {
