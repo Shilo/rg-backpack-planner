@@ -34,11 +34,21 @@
     aria-label={keys}
 >
     {#each segments as key, i}
-        <span
-            class="kc-seg"
-            class:kc-mod={segments.length > 1 && i < segments.length - 1}
-            >{key}</span
-        >
+        {#if key === "`"}
+            <span
+                class="kc-seg kc-tilde"
+                class:kc-mod={segments.length > 1 && i < segments.length - 1}
+            >
+                <span class="kc-tilde-top">~</span>
+                <span class="kc-tilde-bot">`</span>
+            </span>
+        {:else}
+            <span
+                class="kc-seg"
+                class:kc-mod={segments.length > 1 && i < segments.length - 1}
+                >{key}</span
+            >
+        {/if}
     {/each}
 </span>
 
@@ -105,5 +115,20 @@
 
     .kc-mod {
         opacity: 0.72;
+    }
+
+    /* ── Tilde/backtick keycap ── */
+
+    .kc-tilde {
+        flex-direction: column;
+        font-size: 0.7em;
+        padding: 0 var(--spacing-md);
+    }
+
+    .kc-tilde-top,
+    .kc-tilde-bot {
+        display: block;
+        text-align: center;
+        line-height: 1;
     }
 </style>

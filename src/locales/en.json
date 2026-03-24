@@ -637,7 +637,7 @@
             "arrowRight": "→",
             "confirm": "Enter",
             "activate": "Enter / Space",
-            "console": "` (Tilde)",
+            "console": "`",
             "undo": "Ctrl + Z",
             "redo": "Ctrl + Y / Ctrl + Shift + Z",
             "screenshot": "F9",
