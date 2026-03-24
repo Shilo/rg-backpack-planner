@@ -20,6 +20,7 @@ import {
     WarningCircleIcon,
 } from "phosphor-svelte";
 import { GuardianIcon, VanguardIcon } from "../customIcons";
+import { toTitleCase } from "../stringUtil";
 import { getDeviceInputLabels } from "../input";
 import {
     filterByDevice,
@@ -268,13 +269,14 @@ export function createOnboardingSteps({
                 device,
             ),
             icon: CoinIcon,
-            title: translate("onboarding.setBudget"),
-            label: [translate("onboarding.setBudget"), ...getActionInputs("hud-budget")],
+            title: toTitleCase(translate("onboarding.setBudget")),
+            label: [toTitleCase(translate("onboarding.setBudget")), ...getActionInputs("hud-budget")],
         },
         customCard(
             CoinsIcon,
             translate("onboarding.budgetIgnoreLabel"),
             translate("onboarding.budgetIgnoreDesc"),
+            isTouch ? [] : [{ keys: "Escape", device: "keyboard" }],
         ),
     ];
 
@@ -549,7 +551,7 @@ export function createOnboardingSteps({
             titleIcon: TabsIcon,
             variant: "muted",
             cards: bottombarCards,
-            splitIndex: 3,
+            splitIndex: isTouch ? 2 : 3,
         },
     ];
 }
