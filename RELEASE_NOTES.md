@@ -1,3 +1,37 @@
+# What's New in v1.2.3
+-# Changes since v1.2.0
+https://rgbp.app
+
+Completely overhauled the controls reference with an action-first layout, added a reduce motion accessibility setting, and brought major visual and physics polish to the skill tree with energy flow animations, a starfield background, and canvas physics — all backed by targeted performance optimizations for mobile and desktop.
+
+## New
+- Added a **Reduce Motion** setting that disables all animations and transitions across the app for accessibility or preference.
+
+## Improved
+- Redesigned the **Controls** page with an action-first layout, collapsible sections, and device-adaptive input chips that respond to your current input method.
+- Redesigned the **About** page with a cleaner accordion layout, improved accessibility, and full localization support.
+- Overhauled the **Quick Settings** panel with a refreshed visual design and bounded positioning within the HUD.
+- Added **energy flow** visualization to skill tree links with glowing animated pulses over solid base lines.
+- Added an **animated starfield** dot grid background behind the tree tab area.
+- Added **canvas physics** to the skill tree for smoother, more responsive node interactions.
+- Applied **MD3 accent tints** to side menu page headers and statistics sections for better visual hierarchy.
+- Refined the **onboarding tutorial** with action-first instructions, keyboard and mouse hotkey guidance, reduced icon and title redundancy, polished budget card, and better controls alignment.
+- Improved **image viewer** pinch gestures with more stable multi-touch handling and offset clamping.
+- Improved **app title and Tech Crystal display** to coordinate visibility dynamically instead of using a static breakpoint.
+- Added **system info performance diagnostics** to the About page for easier troubleshooting of device capabilities.
+- Improved **performance** by pausing energy flow animations when overlay UI is open and optimizing tree rendering.
+- Expanded **localization** for controls, about page, and onboarding across all supported languages.
+
+## Fixed
+- Fixed the **Escape** key incorrectly closing the side menu while the color picker was open.
+- Fixed the **quick settings panel** sometimes extending beyond the HUD boundary.
+- Fixed the **active tree tab** not restoring correctly after completing onboarding.
+- Fixed the **node options** control setting not applying properly.
+- Fixed the **primary action indicator** not toggling correctly in preview mode.
+- Fixed **energy flow** base lines causing performance drops on mobile devices due to drop-shadow effects.
+
+---
+
 # What's New in v1.2.0
 -# Changes since v1.1.6
 https://rgbp.app
