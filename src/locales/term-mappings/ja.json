@@ -399,10 +399,6 @@
             "source": "Tech Crystal Spent / Budget",
             "target": "研究クリスタル消費 / 予算"
         },
-        "onboarding.techCrystalBudget": {
-            "source": "Change Tech Crystal budget",
-            "target": "研究クリスタル予算を設定"
-        },
         "onboarding.budgetIgnoreDesc": {
             "source": "Ignore budget in side menu [[Settings > Node > Ignore Tech Crystal Budget]]",
             "target": "サイドメニューで予算を無効化 [[設定 > ノード > 研究クリスタル予算を無視]]"
