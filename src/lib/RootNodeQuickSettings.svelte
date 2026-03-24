@@ -23,7 +23,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
-    import { getInputLabel, getKeyboardActionLabel, isKeyboardAction } from "./input";
+    import { getInputLabel, getKeyboardActionLabel, isKeyboardAction, touchPrimary } from "./input";
     import InputChip from "./InputChip.svelte";
 
     export let x = 0;
@@ -38,7 +38,6 @@
     let panelEl: HTMLDivElement | null = null;
     let displayX = 0;
     let displayY = 0;
-    let isTouchPlatform = false;
     let wasOpen = false;
     let backdropHadPointerDown = false;
     let isDragging = false;
@@ -73,19 +72,11 @@
         };
     }
 
-    onMount(() => {
-        const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
-        const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-        isTouchPlatform =
-            !hasFinePointer &&
-            (hasCoarsePointer || navigator.maxTouchPoints > 0);
-    });
-
     $: clickActionLabel = $t("settings.nodePrimaryActionTitle", {
         primaryAction: getInputLabel(
             "primary",
             null,
-            isTouchPlatform ? "touch" : "mouse",
+            $touchPrimary ? "touch" : "mouse",
             $t,
         ),
     });

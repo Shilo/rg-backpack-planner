@@ -10,7 +10,7 @@ export type { DeviceInputLabels } from "./inputLabels";
 export type { KeyboardActionType, KeyBinding } from "./keyboardAction";
 export { canonicalKey, KEYBOARD_ACTION_BINDINGS, resolveKeyboardAction, isKeyboardAction, getCycleDirection, keyForAction } from "./keyboardAction";
 export { onKeyDown } from "./onKeyDown";
-export { inputStore, useInputStore, hasKeyboard } from "./inputStore";
+export { inputStore, useInputStore, hasKeyboard, touchPrimary } from "./inputStore";
 export type { InputState } from "./inputStore";
 export { LONG_PRESS_MS, LONG_PRESS_MOVE_THRESHOLD, suppressNextPointerUp, startLongPress, clearLongPress, isLongPressMovement } from "./longPress";
 export type { LongPressState } from "./longPress";

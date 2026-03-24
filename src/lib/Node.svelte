@@ -22,7 +22,7 @@
     import { getNodeActionPreviewFromOp } from "./nodeActionPreview";
     import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
     import type { TooltipSection } from "./tooltip";
-    import { inputStore } from "./input/inputStore";
+    import { inputStore, touchPrimary } from "./input/inputStore";
     import { resolveModifiers } from "./input";
 
     export let id: number;
@@ -63,8 +63,6 @@
         skillId != null &&
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
-    $: isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(pointer: fine)").matches;
-
     let hovered = false;
 
     $: isAlternate = resolveModifiers($inputStore).alternate;
@@ -103,7 +101,7 @@
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
     $: tooltipSections = (() => {
-        if (isTouch) return [];
+        if ($touchPrimary) return [];
         const sections: TooltipSection[] = [];
         if (tooltipLine1) {
             sections.push({ type: "text", value: tooltipLine1 });

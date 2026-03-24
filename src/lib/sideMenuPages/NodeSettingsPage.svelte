@@ -24,30 +24,13 @@
     import { showLevelSplash } from "../showLevelSplashStore";
     import { ignoreTechCrystalBudget } from "../ignoreTechCrystalBudgetStore";
     import { showSkillName } from "../showSkillNameStore";
-    import { onMount } from "svelte";
     import { t } from "svelte-whisper";
-    import { getKeyboardActionLabel } from "../input";
+    import { getKeyboardActionLabel, touchPrimary } from "../input";
 
     export let onBack: (() => void) | null = null;
 
-    let isTouchPrimaryPlatform = false;
-
-    const detectTouchPrimaryPlatform = () => {
-        if (typeof window === "undefined") return false;
-        const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
-        const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-        const hasTouchPoints =
-            typeof navigator !== "undefined" &&
-            (navigator.maxTouchPoints ?? 0) > 0;
-        return !hasFinePointer && (hasCoarsePointer || hasTouchPoints);
-    };
-
-    onMount(() => {
-        isTouchPrimaryPlatform = detectTouchPrimaryPlatform();
-    });
-
     $: nodePrimaryActionName = $t(
-        isTouchPrimaryPlatform ? "input.primary.touch" : "input.primary.mouse",
+        $touchPrimary ? "input.primary.touch" : "input.primary.mouse",
     );
     $: nodePrimaryActionLabel = $t("settings.nodePrimaryActionTitle", {
         primaryAction: nodePrimaryActionName,

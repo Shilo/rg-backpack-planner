@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import type { Component } from "svelte";
     import {
         CaretUpIcon,
@@ -21,18 +20,9 @@
         getKeyboardActionLabel,
         inputStore,
         resolveModifiers,
+        touchPrimary,
     } from "./input";
     import Button from "./Button.svelte";
-
-    let isTouchPlatform = false;
-
-    onMount(() => {
-        const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
-        const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-        isTouchPlatform =
-            !hasFinePointer &&
-            (hasCoarsePointer || navigator.maxTouchPoints > 0);
-    });
 
     type EffectiveAction = {
         icon: Component;
@@ -98,7 +88,7 @@
         primaryAction: getInputLabel(
             "primary",
             null,
-            isTouchPlatform ? "touch" : "mouse",
+            $touchPrimary ? "touch" : "mouse",
             $t,
         ),
     });

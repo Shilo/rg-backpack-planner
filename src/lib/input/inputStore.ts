@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { readable, writable } from "svelte/store";
 
 export type InputState = {
     shiftKey: boolean;
@@ -19,6 +19,20 @@ export const inputStore = writable<InputState>({ ...initialState });
 export function hasKeyboard(): boolean {
     return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
+
+/** True when the primary input is touch (no fine pointer, has coarse pointer or touch points). */
+export function isTouchPrimary(): boolean {
+    if (typeof window === "undefined") return false;
+    const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const hasTouchPoints = (navigator.maxTouchPoints ?? 0) > 0;
+    return !hasFinePointer && (hasCoarsePointer || hasTouchPoints);
+}
+
+/** Reactive store: true when primary input is touch. Subscribe with $touchPrimary in components. */
+export const touchPrimary = readable(false, (set) => {
+    set(isTouchPrimary());
+});
 
 function syncModifiers(shiftKey: boolean, ctrlKey: boolean, auxiliaryButton: boolean) {
     inputStore.update((s) =>
