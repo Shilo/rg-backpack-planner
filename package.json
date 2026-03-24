@@ -52,6 +52,7 @@
         "test:ui": "npm run test:ui:tier && npm run test:ui:capture",
         "test:ui:tier": "tsx test/tierLeveling.ui.test.ts",
         "test:ui:capture": "tsx test/captureScreenshot.ui.test.ts",
+        "test:ui:locale": "tsx test/missingLocaleKeys.ui.test.ts",
         "test": "npm run check && tsx test/index.ts",
         "pwa:assets": "node scripts/generate-pwa-icons.mjs",
         "update": "npx npm-check-updates -u --peer && npm install svelte-whisper@github:Shilo/svelte-whisper && npm install"
