@@ -10,6 +10,7 @@
         getInputLabel,
         isKeyboardAction,
         onKeyDown,
+        touchPrimary,
     } from "../input";
     import { triggerHaptic } from "../hapticsStore";
     import OnboardingFooterNote from "./OnboardingFooterNote.svelte";
@@ -45,7 +46,7 @@
     let footerBottomOffset = 0;
     let footerHeight = 0;
     let footerBounds: Rect = { ...EMPTY_RECT };
-    let isTouch = false;
+    $: isTouch = $touchPrimary;
     let dismissTimer: ReturnType<typeof setTimeout> | null = null;
     let currentStepIndex = 0;
     let dismissing = false;
@@ -452,7 +453,6 @@
 
     onMount(() => {
         toastsPaused.set(true);
-        isTouch = window.matchMedia("(pointer: coarse)").matches;
         currentStepIndex = 0;
         const styles = getComputedStyle(document.documentElement);
         const cssFloat = (name: string, fallback: number) =>

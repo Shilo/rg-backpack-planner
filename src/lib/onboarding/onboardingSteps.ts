@@ -384,7 +384,7 @@ export function createOnboardingSteps({
     const bottombarCards = isTouch
         ? [
             customCard(
-                GuardianIcon as unknown as Component,
+                VanguardIcon as unknown as Component,
                 translate("onboarding.selectTab"),
                 translate("onboarding.bottombarSwitchTree"),
                 [{ keys: labels.primary, device }],
@@ -397,7 +397,7 @@ export function createOnboardingSteps({
                     "input.secondary.touch",
                     "touch",
                 ),
-                icon: VanguardIcon as unknown as Component,
+                icon: GuardianIcon as unknown as Component,
             },
             controlCard(
                 "hud-side-menu",

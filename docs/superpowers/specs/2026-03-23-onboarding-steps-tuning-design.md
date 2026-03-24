@@ -5,7 +5,7 @@ Reduce icon/title redundancy between step headers and their first card across st
 ## Changes
 
 ### Step 3 — Root (`id: "root"`)
-- **Title**: Keep `translate("onboarding.rootSection")` (already "Root Node")
+- **Title**: Use `translate("onboarding.rootSection")` directly (already "Root Node"), replacing `getActionTitle()` lookup
 - **Card 1**: Override title → `translate("onboarding.quickSettings")`, icon → `GearSixIcon`
 
 ### Step 4 — Tree (`id: "tree"`)
@@ -26,6 +26,8 @@ Reduce icon/title redundancy between step headers and their first card across st
 ### Step 9 — Bottombar (`id: "bottombar"`)
 - **Title**: `translate("onboarding.navigationBar")` (was bottombar section)
 - **Title icon**: `TabsIcon` (was `DotsThreeOutlineIcon`)
+- **Card 1**: Override title → `translate("onboarding.selectTab")` ("Select Tab", replacing dynamic "{action} Tab")
+- **Tree Options card**: Override icon → `VanguardIcon` (from customIcons)
 
 ## New Translation Keys (en.json)
 
@@ -35,20 +37,27 @@ Reduce icon/title redundancy between step headers and their first card across st
 "previewOptions": "Preview Options",
 "changePrimaryAction": "Change node {input} action",
 "historyToolbar": "History Toolbar",
-"navigationBar": "Navigation Bar"
+"navigationBar": "Navigation Bar",
+"selectTab": "Select Tab"
 ```
 
 ## New Phosphor Imports
 
-`GearSixIcon`, `DotsNineIcon`, `CoinIcon`, `RepeatIcon`, `TabsIcon`
+`GearSixIcon`, `DotsNineIcon`, `CoinIcon`, `ListIcon`, `RepeatIcon`, `TabsIcon`
+
+## New Custom Icon Imports
+
+`VanguardIcon` (from `customIcons.ts`, alias for `CrosshairIcon`)
 
 ## Implementation Approach
 
 - Override card properties by spreading `controlCard()` result and replacing `icon`, `title`, and `label` fields
+- When overriding `title`, always reconstruct `label` as `[newTitle, ...getActionInputs(actionId)]` to include input bindings
 - This preserves input bindings from the control action data
 - All new text uses translation keys, no hardcoded strings
+- Remove dead translation keys (`toolbarSection`, `bottombarSection`) replaced by new keys
 
 ## Files Modified
 
 - `src/lib/onboarding/onboardingSteps.ts` — icon imports, card overrides, title changes
-- `src/locales/en.json` — new onboarding translation keys
+- `src/locales/en.json` — new onboarding translation keys, remove dead keys
