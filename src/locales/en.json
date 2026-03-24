@@ -585,7 +585,6 @@
         "previewCloneDesc": "Copy as a new build and keep changes",
         "bottombarToggleMenu": "Toggle side menu",
         "bottombarActionDrawerButton": "{action} Drawer Button",
-        "bottombarActionTab": "{action} Tab",
         "bottombarSecondaryActionTab": "{action} Tab",
         "bottombarSwitchTree": "Switch active tree",
         "bottombarTreeOptions": "View tree options",

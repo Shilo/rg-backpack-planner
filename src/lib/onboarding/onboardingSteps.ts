@@ -3,17 +3,23 @@ import {
     ArrowCounterClockwiseIcon,
     ArrowsOutCardinalIcon,
     ClockCounterClockwiseIcon,
+    CoinIcon,
     CoinsIcon,
     CopySimpleIcon,
+    DotsNineIcon,
     DotsThreeOutlineIcon,
     EyeIcon,
+    GearSixIcon,
     GraphIcon,
+    ListIcon,
     LockSimpleIcon,
     LockSimpleOpenIcon,
+    RepeatIcon,
     SquaresFourIcon,
+    TabsIcon,
     WarningCircleIcon,
 } from "phosphor-svelte";
-import { GuardianIcon } from "../customIcons";
+import { GuardianIcon, VanguardIcon } from "../customIcons";
 import { getDeviceInputLabels } from "../input";
 import {
     filterByDevice,
@@ -253,13 +259,18 @@ export function createOnboardingSteps({
     ];
 
     const hudCards = [
-        controlCard(
-            "hud-budget",
-            "controls.actions.budget",
-            "controls.actions.budgetDesc",
-            `input.primary.${device}` as const,
-            device,
-        ),
+        {
+            ...controlCard(
+                "hud-budget",
+                "controls.actions.budget",
+                "controls.actions.budgetDesc",
+                `input.primary.${device}` as const,
+                device,
+            ),
+            icon: CoinIcon,
+            title: translate("onboarding.setBudget"),
+            label: [translate("onboarding.setBudget"), ...getActionInputs("hud-budget")],
+        },
         customCard(
             CoinsIcon,
             translate("onboarding.budgetIgnoreLabel"),
@@ -268,13 +279,18 @@ export function createOnboardingSteps({
     ];
 
     const primaryActionCards = [
-        controlCard(
-            "hud-primary-action",
-            "controls.actions.primaryAction",
-            "controls.actions.primaryActionDesc",
-            `input.primary.${device}` as const,
-            device,
-        ),
+        {
+            ...controlCard(
+                "hud-primary-action",
+                "controls.actions.primaryAction",
+                "controls.actions.primaryActionDesc",
+                `input.primary.${device}` as const,
+                device,
+            ),
+            icon: RepeatIcon,
+            title: translate("onboarding.changePrimaryAction", { input: labels.primary.toLowerCase() }),
+            label: [translate("onboarding.changePrimaryAction", { input: labels.primary.toLowerCase() }), ...getActionInputs("hud-primary-action")],
+        },
     ];
 
     const toolbarCards = [
@@ -302,13 +318,18 @@ export function createOnboardingSteps({
     ];
 
     const rootCards = [
-        controlCard(
-            "hud-root-quick-settings",
-            "controls.actions.rootQuickSettings",
-            "controls.actions.rootQuickSettingsDesc",
-            `input.primary.${device}` as const,
-            device,
-        ),
+        {
+            ...controlCard(
+                "hud-root-quick-settings",
+                "controls.actions.rootQuickSettings",
+                "controls.actions.rootQuickSettingsDesc",
+                `input.primary.${device}` as const,
+                device,
+            ),
+            icon: GearSixIcon,
+            title: translate("onboarding.quickSettings"),
+            label: [translate("onboarding.quickSettings"), ...getActionInputs("hud-root-quick-settings")],
+        },
     ];
 
     const treeCards = [
@@ -336,13 +357,18 @@ export function createOnboardingSteps({
     ];
 
     const previewCards = [
-        controlCard(
-            "hud-preview-indicator",
-            "controls.actions.previewIndicator",
-            "controls.actions.previewIndicatorDesc",
-            `input.primary.${device}` as const,
-            device,
-        ),
+        {
+            ...controlCard(
+                "hud-preview-indicator",
+                "controls.actions.previewIndicator",
+                "controls.actions.previewIndicatorDesc",
+                `input.primary.${device}` as const,
+                device,
+            ),
+            icon: ListIcon,
+            title: translate("onboarding.previewOptions"),
+            label: [translate("onboarding.previewOptions"), ...getActionInputs("hud-preview-indicator")],
+        },
         customCard(
             WarningCircleIcon,
             translate("onboarding.previewTemporary"),
@@ -359,19 +385,20 @@ export function createOnboardingSteps({
         ? [
             customCard(
                 GuardianIcon as unknown as Component,
-                translate("onboarding.bottombarActionTab", {
-                    action: labels.primary,
-                }),
+                translate("onboarding.selectTab"),
                 translate("onboarding.bottombarSwitchTree"),
                 [{ keys: labels.primary, device }],
             ),
-            controlCard(
-                "tree-options",
-                "controls.actions.treeOptions",
-                "controls.actions.nodeTreeOptionsDesc",
-                "input.secondary.touch",
-                "touch",
-            ),
+            {
+                ...controlCard(
+                    "tree-options",
+                    "controls.actions.treeOptions",
+                    "controls.actions.nodeTreeOptionsDesc",
+                    "input.secondary.touch",
+                    "touch",
+                ),
+                icon: VanguardIcon as unknown as Component,
+            },
             controlCard(
                 "hud-side-menu",
                 "controls.actions.sideMenu",
@@ -390,9 +417,7 @@ export function createOnboardingSteps({
         : [
             customCard(
                 GuardianIcon as unknown as Component,
-                translate("onboarding.bottombarActionTab", {
-                    action: labels.primary,
-                }),
+                translate("onboarding.selectTab"),
                 translate("onboarding.bottombarSwitchTree"),
                 [{ keys: labels.primary, device }],
             ),
@@ -406,13 +431,16 @@ export function createOnboardingSteps({
                 ),
                 icon: SquaresFourIcon,
             },
-            controlCard(
-                "tree-options",
-                "controls.actions.treeOptions",
-                "controls.actions.nodeTreeOptionsDesc",
-                "input.secondary.mouse",
-                "mouse",
-            ),
+            {
+                ...controlCard(
+                    "tree-options",
+                    "controls.actions.treeOptions",
+                    "controls.actions.nodeTreeOptionsDesc",
+                    "input.secondary.mouse",
+                    "mouse",
+                ),
+                icon: VanguardIcon as unknown as Component,
+            },
             controlCard(
                 "hud-side-menu",
                 "controls.actions.sideMenu",
@@ -453,10 +481,7 @@ export function createOnboardingSteps({
             id: "root",
             target: "root",
             direction: compactLayout ? "down" : "right",
-            title: getActionTitle(
-                "hud-root-quick-settings",
-                "onboarding.rootSection",
-            ),
+            title: translate("onboarding.rootSection"),
             titleIcon:
                 getAction("hud-root-quick-settings")?.icon ?? GraphIcon,
             variant: "accent",
@@ -467,7 +492,7 @@ export function createOnboardingSteps({
             target: "tree",
             direction: compactLayout ? "up" : "left",
             title: translate("onboarding.treeSection"),
-            titleIcon: ArrowsOutCardinalIcon,
+            titleIcon: DotsNineIcon,
             variant: "accent",
             cards: treeCards,
             splitIndex: 2,
@@ -511,7 +536,7 @@ export function createOnboardingSteps({
             id: "toolbar",
             target: "toolbar",
             direction: "up",
-            title: translate("onboarding.toolbarSection"),
+            title: translate("onboarding.historyToolbar"),
             titleIcon: ClockCounterClockwiseIcon,
             variant: "muted",
             cards: toolbarCards,
@@ -520,8 +545,8 @@ export function createOnboardingSteps({
             id: "bottombar",
             target: "bottombar",
             direction: "up",
-            title: translate("onboarding.bottombarSection"),
-            titleIcon: DotsThreeOutlineIcon,
+            title: translate("onboarding.navigationBar"),
+            titleIcon: TabsIcon,
             variant: "muted",
             cards: bottombarCards,
             splitIndex: 3,
