@@ -3,7 +3,7 @@
     import { RootNodeIcon } from "./customIcons";
     import {
         ArrowCounterClockwiseIcon,
-        ArrowUpIcon,
+        CaretUpIcon,
         GraphIcon,
     } from "phosphor-svelte";
     import {
@@ -23,7 +23,12 @@
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
-    import { getInputLabel, getKeyboardActionLabel, isKeyboardAction, touchPrimary } from "./input";
+    import {
+        getInputLabel,
+        getKeyboardActionLabel,
+        isKeyboardAction,
+        touchPrimary,
+    } from "./input";
     import InputChip from "./InputChip.svelte";
 
     export let x = 0;
@@ -52,7 +57,12 @@
 
     const DRAG_THRESHOLD = 5;
 
-    function getHudMargins(): { top: number; right: number; bottom: number; left: number } {
+    function getHudMargins(): {
+        top: number;
+        right: number;
+        bottom: number;
+        left: number;
+    } {
         const s = getComputedStyle(document.documentElement);
         const px = (key: string) => parseFloat(s.getPropertyValue(key)) || 0;
         const barPad = px("--spacing-lg") || 12;
@@ -210,7 +220,11 @@
         if (tagName === "button" || tagName === "a" || tagName === "input") {
             return true;
         }
-        return target.closest('button, a, input, [role="button"], [role="radio"]') !== null;
+        return (
+            target.closest(
+                'button, a, input, [role="button"], [role="radio"]',
+            ) !== null
+        );
     }
 
     function handlePointerDown(event: PointerEvent) {
@@ -384,9 +398,11 @@
             </div>
 
             <span class="qs-label">
-                <ArrowUpIcon size={14} weight="bold" />
+                <CaretUpIcon size={14} weight="bold" />
                 {clickActionLabel}
-                <span class="qs-shortcut"><InputChip keys={keyCyclePrimaryAction} /></span>
+                <span class="qs-shortcut"
+                    ><InputChip keys={keyCyclePrimaryAction} /></span
+                >
             </span>
             <div
                 class="qs-chips"
@@ -438,7 +454,10 @@
         display: flex;
         flex-direction: column;
         width: max-content;
-        max-width: calc(100vw - max(var(--spacing-lg), var(--safe-left)) - max(var(--spacing-lg), var(--safe-right)));
+        max-width: calc(
+            100vw - max(var(--spacing-lg), var(--safe-left)) -
+                max(var(--spacing-lg), var(--safe-right))
+        );
         overflow: hidden;
         animation: qs-enter 0.22s cubic-bezier(0.05, 0.7, 0.1, 1) both;
         user-select: none;
@@ -510,7 +529,8 @@
         display: flex;
         align-items: stretch;
         gap: 0;
-        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm)
+            var(--spacing-sm);
         min-height: 44px;
     }
 
