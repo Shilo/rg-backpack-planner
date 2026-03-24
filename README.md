@@ -51,6 +51,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 - **Node display** — Show or hide tier badges, skill names, and level-up splash animations.
 - **Node primary action** — Configure tap/click to add 1, 10, or a full tier of levels.
 - **Level sync** — Choose whether leveling a node syncs connected nodes or changes only the one you tapped.
+- **Reduce motion** — Disable all animations and transitions for accessibility or preference.
 - **Haptic feedback** — Vibration on interactions (supported devices).
 - **Fullscreen** — Expand the app to fill your screen.
 - **Languages** — English, Japanese, Chinese, and French with auto-detection.
@@ -60,6 +61,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 - **Auto-updates** — Always on the latest version. Updates apply in the background.
 - **Responsive** — Optimized for phones, tablets, and desktops.
 - **Onboarding tutorial** — Interactive walkthrough highlights key controls on first launch. Replay anytime from settings.
+- **Controls reference** — Browse all game controls in the side menu, organized by action and adapted to your input device.
 
 ### Controls
 

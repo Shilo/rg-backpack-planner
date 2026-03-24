@@ -62,5 +62,8 @@ Update tests when changing:
 - Tree branch reset or partial reset behavior
 - Onboarding step definitions or pane layout logic
 - Data migration logic in `src/lib/migrations/`
+- Reduce motion setting or animation guard behavior
+- Controls page data, input labels, or action resolution logic
+- Locale/i18n keys, term mappings, or casing conventions
 
 When behavior changes intentionally, update `docs/behavior-contracts.md` and keep expectations explicit in `test/tierLeveling.shared.ts`.
