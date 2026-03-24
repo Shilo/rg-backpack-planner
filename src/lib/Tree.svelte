@@ -1609,6 +1609,12 @@
     export function focusTreeInViewForCapture() {
         const next = computeFocusViewState(TreeZoomLevel.Fit);
         if (!next) return;
+        momentum.cancel();
+        zoomChaser.cancel();
+        if (cancelViewAnimation) {
+            cancelViewAnimation();
+            cancelViewAnimation = null;
+        }
         offsetX = next.offsetX;
         offsetY = next.offsetY;
         scale = next.scale;

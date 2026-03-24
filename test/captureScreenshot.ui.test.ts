@@ -180,6 +180,29 @@ async function closeComposeScreenshot(page: Page): Promise<void> {
     await page.waitForSelector(".fullscreen-modal", { state: "detached" });
 }
 
+async function waitForTreeTransformStable(
+    page: Page,
+    maxMs = 2000,
+    settleFrames = 3,
+): Promise<string> {
+    const start = Date.now();
+    let last = "";
+    let stableCount = 0;
+
+    while (Date.now() - start < maxMs) {
+        const current = await getTreeTransform(page);
+        if (current && current === last) {
+            stableCount += 1;
+            if (stableCount >= settleFrames) return current;
+        } else {
+            last = current;
+            stableCount = current ? 1 : 0;
+        }
+        await delay(50);
+    }
+    return last;
+}
+
 async function zoomTree(page: Page, deltaY: number): Promise<void> {
     const viewport = page.locator(".tree-viewport");
     const box = await viewport.boundingBox();
@@ -190,8 +213,8 @@ async function zoomTree(page: Page, deltaY: number): Promise<void> {
 
     await page.mouse.move(cx, cy);
     await page.mouse.wheel(0, deltaY);
-    // Allow tree to settle after zoom
-    await delay(200);
+    // Wait for zoom chaser animation to fully settle
+    await waitForTreeTransformStable(page);
 }
 
 async function panTree(page: Page, dx: number, dy: number): Promise<void> {
@@ -206,7 +229,8 @@ async function panTree(page: Page, dx: number, dy: number): Promise<void> {
     await page.mouse.down();
     await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
     await page.mouse.up();
-    await delay(150);
+    // Wait for momentum deceleration to settle
+    await waitForTreeTransformStable(page);
 }
 
 function resetLogFile() {
@@ -247,7 +271,7 @@ const scenarios: Scenario[] = [
             await waitForComposeImageLoaded(page);
             await closeComposeScreenshot(page);
 
-            const transformAfter = await getTreeTransform(page);
+            const transformAfter = await waitForTreeTransformStable(page);
             assert.strictEqual(
                 transformAfter,
                 transformBefore,
@@ -267,7 +291,7 @@ const scenarios: Scenario[] = [
             await waitForComposeImageLoaded(page);
             await closeComposeScreenshot(page);
 
-            const transformAfter = await getTreeTransform(page);
+            const transformAfter = await waitForTreeTransformStable(page);
             assert.strictEqual(
                 transformAfter,
                 transformBefore,
@@ -288,7 +312,7 @@ const scenarios: Scenario[] = [
             await waitForComposeImageLoaded(page);
             await closeComposeScreenshot(page);
 
-            const transformAfter = await getTreeTransform(page);
+            const transformAfter = await waitForTreeTransformStable(page);
             assert.strictEqual(
                 transformAfter,
                 transformBefore,
@@ -394,7 +418,7 @@ const scenarios: Scenario[] = [
             await waitForComposeImageLoaded(page);
             await closeComposeScreenshot(page);
 
-            const transformAfter = await getTreeTransform(page);
+            const transformAfter = await waitForTreeTransformStable(page);
             assert.strictEqual(
                 transformAfter,
                 transformBefore,
