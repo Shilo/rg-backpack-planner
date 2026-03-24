@@ -131,7 +131,7 @@ for (const localePath of localePaths) {
     if (!/"uppercaseText"\s*:/.test(source)) {
         throw new Error(`${localePath}: settings.uppercaseText translation is required.`);
     }
-    if (!/"uppercaseTextTooltip"\s*:/.test(source)) {
-        throw new Error(`${localePath}: settings.uppercaseTextTooltip translation is required.`);
+    if (!/"uppercaseTextDescription"\s*:/.test(source)) {
+        throw new Error(`${localePath}: settings.uppercaseTextDescription translation is required.`);
     }
 }
