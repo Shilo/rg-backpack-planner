@@ -1,5 +1,7 @@
 import { getStoredVersion, getCurrentVersion } from "../latestUsedVersionStore";
 import { removeItem, setItem } from "../storage";
+import { showOnboarding } from "../onboarding/onboardingStore";
+
 
 export type Migration = {
     toVersion: string;
@@ -8,12 +10,11 @@ export type Migration = {
 
 const MIGRATIONS: Migration[] = [
     {
-        toVersion: "1.1",
+        toVersion: "1.2.3",
         run: () => {
-            // Onboarding was improved with more steps.
-            // Users may not know how all controls work
-            // so we show it again.
+            // Force show onboarding for this version
             setItem("onboarding-seen", "false");
+            showOnboarding();
         },
     },
     {

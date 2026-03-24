@@ -1,6 +1,6 @@
 <script lang="ts">
     import {
-        ArrowUpIcon,
+        CaretUpIcon,
         CoinsIcon,
         GraphIcon,
         TagIcon,
@@ -47,9 +47,7 @@
     });
 
     $: nodePrimaryActionName = $t(
-        isTouchPrimaryPlatform
-            ? "settings.nodePrimaryActionTouch"
-            : "input.primary.mouse",
+        isTouchPrimaryPlatform ? "input.primary.touch" : "input.primary.mouse",
     );
     $: nodePrimaryActionLabel = $t("settings.nodePrimaryActionTitle", {
         primaryAction: nodePrimaryActionName,
@@ -84,11 +82,13 @@
         <SegmentedControl
             label={nodePrimaryActionLabel}
             ariaLabel={nodePrimaryActionLabel}
-            icon={ArrowUpIcon as unknown as Component}
+            icon={CaretUpIcon as unknown as Component}
             options={nodePrimaryActionOptions}
             selectedIndex={nodePrimaryActionSelectedIndex}
             onChange={handleNodePrimaryActionChange}
-            description={$t("settings.nodePrimaryActionDescription")}
+            description={$t("settings.nodePrimaryActionDescription", {
+                action: nodePrimaryActionName.toLowerCase(),
+            })}
             shortcut={keyCyclePrimaryAction}
         />
         <SegmentedControl
