@@ -79,7 +79,7 @@ if (!/input\.primary\.mouse/.test(settingsPageSource)) {
     );
 }
 
-if (!/settings\.nodePrimaryActionTouch/.test(settingsPageSource)) {
+if (!/input\.primary\.touch/.test(settingsPageSource)) {
     throw new Error(
         "SideMenuSettingsPage should localize Touch platform label.",
     );
@@ -133,9 +133,9 @@ for (const localePath of localePaths) {
             `${localePath}: input.primary.mouse translation is required.`,
         );
     }
-    if (!/"nodePrimaryActionTouch"\s*:/.test(source)) {
+    if (!parsed.input?.primary?.touch) {
         throw new Error(
-            `${localePath}: settings.nodePrimaryActionTouch translation is required.`,
+            `${localePath}: input.primary.touch translation is required.`,
         );
     }
 
