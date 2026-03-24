@@ -35,9 +35,9 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 
 ## Design
 
-Clean, focused companion tool for gamers — not a flashy portal. OKLCH theming is first-class.
+Clean, focused companion tool for gamers — not a flashy portal. OKLCH theming is first-class. Minimal foundation with playful energy and juice. See [`.impeccable.md`](.impeccable.md) for full design context (users, personality, aesthetic direction, emotional goals).
 
-**Principles**: Content over chrome. Quiet confidence (spacing/alignment > effects). Respect the player (assume expertise). Accessible by default (colorblind, reduced motion, keyboard, screen readers).
+**Principles**: Content over chrome. Juice without jank. Respect the player (assume expertise). Accessible by default (colorblind, reduced motion, keyboard, screen readers). Earned playfulness (polish > decoration).
 
 **Anti-patterns**: Generic dashboards, cluttered gaming sites, template aesthetics.
 
