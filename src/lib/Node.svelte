@@ -5,25 +5,27 @@
 </script>
 
 <script lang="ts">
-    import type { Component } from "svelte";
-    import type { SkillId } from "../types/tree";
-    import Button from "./Button.svelte";
-    import NodeFlash from "./NodeFlash.svelte";
-    import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
-    import { formatNumber } from "svelte-whisper";
-    import { nodePrimaryAction } from "./nodePrimaryActionStore";
-    import { t } from "svelte-whisper";
-    import { tooltip } from "./tooltip";
     import { CrownIcon } from "phosphor-svelte";
-    import { tierIndex, tierUpper } from "./tierLeveling";
+    import type { Component } from "svelte";
     import { getContext } from "svelte";
+    import { formatNumber, t } from "svelte-whisper";
     import type { Writable } from "svelte/store";
-    import type { Node as NodeType, LevelsByIndex } from "../types/tree";
-    import { getNodeActionPreviewFromOp } from "./nodeActionPreview";
-    import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
-    import type { TooltipSection } from "./tooltip";
-    import { inputStore, touchPrimary } from "./input/inputStore";
+    import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
+    import type {
+        LevelsByIndex,
+        Node as NodeType,
+        SkillId,
+    } from "../types/tree";
+    import Button from "./Button.svelte";
     import { resolveModifiers } from "./input";
+    import { inputStore, touchPrimary } from "./input/inputStore";
+    import { getNodeActionPreviewFromOp } from "./nodeActionPreview";
+    import NodeFlash from "./NodeFlash.svelte";
+    import { nodeLevelBehavior } from "./nodeLevelBehaviorStore";
+    import { nodePrimaryAction } from "./nodePrimaryActionStore";
+    import { tierIndex, tierUpper } from "./tierLeveling";
+    import type { TooltipSection } from "./tooltip";
+    import { tooltip } from "./tooltip";
 
     export let id: number;
     export let x: number = 0;
@@ -78,27 +80,29 @@
         : { op: "decrementByStore" as const };
 
     // Only compute expensive previews for the hovered node (not all mounted nodes).
-    $: incrementPreview = hovered && skillId != null && incrementOp
-        ? getNodeActionPreviewFromOp({
-            nodes: $treeData.nodes,
-            levels: $treeData.levels,
-            index: id,
-            operation: incrementOp,
-            nodeLevelBehavior: $nodeLevelBehavior,
-            primaryAction: $nodePrimaryAction,
-        })
-        : null;
+    $: incrementPreview =
+        hovered && skillId != null && incrementOp
+            ? getNodeActionPreviewFromOp({
+                  nodes: $treeData.nodes,
+                  levels: $treeData.levels,
+                  index: id,
+                  operation: incrementOp,
+                  nodeLevelBehavior: $nodeLevelBehavior,
+                  primaryAction: $nodePrimaryAction,
+              })
+            : null;
 
-    $: decrementPreview = hovered && skillId != null && decrementOp
-        ? getNodeActionPreviewFromOp({
-            nodes: $treeData.nodes,
-            levels: $treeData.levels,
-            index: id,
-            operation: decrementOp,
-            nodeLevelBehavior: $nodeLevelBehavior,
-            primaryAction: $nodePrimaryAction,
-        })
-        : null;
+    $: decrementPreview =
+        hovered && skillId != null && decrementOp
+            ? getNodeActionPreviewFromOp({
+                  nodes: $treeData.nodes,
+                  levels: $treeData.levels,
+                  index: id,
+                  operation: decrementOp,
+                  nodeLevelBehavior: $nodeLevelBehavior,
+                  primaryAction: $nodePrimaryAction,
+              })
+            : null;
 
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
@@ -179,9 +183,7 @@
 <div
     class="node-wrapper badge-{region} {state} region-{region} {isLeaf
         ? 'node-wrapper-hex'
-        : ''} {isImportantNode
-        ? 'node-wrapper-important'
-        : ''} {isUnique
+        : ''} {isImportantNode ? 'node-wrapper-important' : ''} {isUnique
         ? 'node-wrapper-unique'
         : ''} {cursorNotAllowed ? 'cursor-not-allowed' : ''}"
     role="group"
@@ -192,8 +194,12 @@
         radius}px; --node-radius: {radius}; --icon-scale: {radius}; --node-diameter-px: {NODE_DIAMETER_PX *
         radius}px;"
     use:tooltip={tooltipParam}
-    on:pointerenter={() => { hovered = true; }}
-    on:pointerleave={() => { hovered = false; }}
+    on:pointerenter={() => {
+        hovered = true;
+    }}
+    on:pointerleave={() => {
+        hovered = false;
+    }}
 >
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
@@ -716,6 +722,7 @@
     /* Unique (class-specific) nodes: dashed border to distinguish from common skills */
     .node-wrapper-unique :global(.button.node) {
         border-style: dashed;
+        border-width: calc(var(--border-width) * 1.5);
     }
 
     /* State cascade: scale bounce on promotion (locked→available→active→maxed) */
