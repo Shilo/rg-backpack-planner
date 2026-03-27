@@ -60,11 +60,6 @@
         "cannon": "Cannon",
         "named": "{label} Tree",
         "generic": "Tree",
-        "branches": {
-            "yellow": "Yellow",
-            "orange": "Orange",
-            "blue": "Blue"
-        },
         "rules": [
             "Activate or upgrade Backpack Tech by spending Tech Crystals.",
             "Leveling prerequisite nodes to certain thresholds unlocks the next tier.",
@@ -223,8 +218,6 @@
         "resetBranchToast": "Reset {branchName} branch",
         "resetTreeToast": "Reset {treeLabel} tree",
         "resetAllTreesToast": "Reset all trees",
-        "emptyStateHint": "Tap a node to start your build",
-        "resetEmptyHint": "Tree reset — tap a node to rebuild",
         "menuButtonTooltip": "Open menu"
     },
     "techCrystals": {
@@ -628,13 +621,5 @@
         "copyAll": "Copy System Information",
         "copied": "Copied system information",
         "copyFailed": "Unable to copy"
-    },
-    "milestones": {
-        "treeComplete": "{tree} tree fully maxed!",
-        "branchComplete": "{tree} {branch} branch complete!",
-        "treeProgress": "{tree} tree {pct}% invested"
-    },
-    "about": {
-        "easterEggToast": "You found a secret! Nice."
     }
 }

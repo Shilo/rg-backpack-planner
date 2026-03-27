@@ -60,11 +60,6 @@
         "cannon": "Canon",
         "named": "Arbre {label}",
         "generic": "Arbre",
-        "branches": {
-            "yellow": "Jaune",
-            "orange": "Orange",
-            "blue": "Bleu"
-        },
         "rules": [
             "Activez ou améliorez la Tech du Sac à dos en dépensant des Cristaux Tech.",
             "Atteindre un certain niveau dans les nœuds prérequis débloque le palier suivant.",
@@ -223,8 +218,6 @@
         "resetBranchToast": "Branche {branchName} réinitialisée",
         "resetTreeToast": "Arbre {treeLabel} réinitialisé",
         "resetAllTreesToast": "Tous les arbres réinitialisés",
-        "emptyStateHint": "Touchez un noeud pour commencer",
-        "resetEmptyHint": "Arbre réinitialisé — touchez un noeud pour reconstruire",
         "menuButtonTooltip": "Ouvrir le menu"
     },
     "techCrystals": {
@@ -628,13 +621,5 @@
         "copyAll": "Copier les infos système",
         "copied": "Infos système copiées",
         "copyFailed": "Impossible de copier"
-    },
-    "milestones": {
-        "treeComplete": "Arbre {tree} entièrement au max !",
-        "branchComplete": "Branche {branch} de {tree} terminée !",
-        "treeProgress": "Arbre {tree} à {pct}% investi"
-    },
-    "about": {
-        "easterEggToast": "Vous avez trouvé un secret ! Bien joué."
     }
 }

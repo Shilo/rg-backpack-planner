@@ -9,8 +9,6 @@
     --spacing-sm: 4px;
     --spacing-md: 8px;
     --spacing-lg: 12px;
-    --spacing-xl: 20px;
-    --spacing-2xl: 32px;
 
     /* ═══ Typography & Effects ═══ */
 
@@ -21,8 +19,6 @@
     --font-base: 0.875rem; /* 14px */
     --font-lg: 1.125rem; /* 18px */
     --font-xl: 1.375rem; /* 22px */
-    --font-2xl: 1.625rem; /* 26px — settings page titles, display headings */
-
     /* Font weight */
     --weight-medium: 500;
     --weight-semibold: 600;
@@ -49,13 +45,11 @@
     --ease-standard: 0.2s cubic-bezier(0.2, 0, 0, 1);
 
     /* Letter spacing */
-    --tracking-tight: -0.01em;
     --tracking: 0.02em;
     --tracking-wide: 0.06em;
 
     /* Line height */
     --leading-none: 1;
-    --leading-tight: 1.15;
     --leading: 1.3;
 
     /* Opacity */

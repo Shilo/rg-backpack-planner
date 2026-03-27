@@ -60,11 +60,6 @@
         "cannon": "火砲",
         "named": "{label}ツリー",
         "generic": "ツリー",
-        "branches": {
-            "yellow": "黄",
-            "orange": "橙",
-            "blue": "青"
-        },
         "rules": [
             "研究クリスタルを消費してバッグ研究を有効化またはアップグレードします。",
             "前提ノードが一定レベルに達すると次のティアが解放されます。",
@@ -223,8 +218,6 @@
         "resetBranchToast": "{branchName}ブランチをリセット",
         "resetTreeToast": "{treeLabel}ツリーをリセット",
         "resetAllTreesToast": "全ツリーをリセット",
-        "emptyStateHint": "ノードをタップしてビルドを開始",
-        "resetEmptyHint": "ツリーをリセット — ノードをタップして再構築",
         "menuButtonTooltip": "メニューを開く"
     },
     "techCrystals": {
@@ -628,13 +621,5 @@
         "copyAll": "システム情報をコピー",
         "copied": "システム情報をコピーしました",
         "copyFailed": "コピーできませんでした"
-    },
-    "milestones": {
-        "treeComplete": "{tree}ツリー完全制覇！",
-        "branchComplete": "{tree} {branch}ブランチ完了！",
-        "treeProgress": "{tree}ツリー {pct}%投資済み"
-    },
-    "about": {
-        "easterEggToast": "秘密を見つけた！すごい。"
     }
 }
