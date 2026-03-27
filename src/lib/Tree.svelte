@@ -1917,6 +1917,7 @@
                         {scale}
                         region={contextMenuRenderNode.region}
                         isLeaf={contextMenuRenderNode.isLeaf}
+                        isUnique={contextMenuRenderNode.isUnique}
                         isGlobalIncrementLocked={contextMenuRenderNode.isGlobalIncrementLocked}
                         skillId={contextMenuRenderNode.node.skillId}
                         maxLevel={contextMenuRenderNode.node.maxLevel}
