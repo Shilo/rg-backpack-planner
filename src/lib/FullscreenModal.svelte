@@ -10,6 +10,9 @@
     export let activeTab: string;
     export let onTabChange: (tabId: string) => void;
     export let onClose: (() => void) | null = null;
+    export let ariaLabel: string | undefined = undefined;
+
+    $: resolvedAriaLabel = ariaLabel ?? tabs.find((t) => t.id === activeTab)?.label;
 
     let modalEl: HTMLDivElement | null = null;
 
@@ -49,7 +52,7 @@
 </script>
 
 {#if isOpen}
-    <div class="fullscreen-modal" role="dialog" aria-modal="true" bind:this={modalEl}>
+    <div class="fullscreen-modal" role="dialog" aria-modal="true" aria-label={resolvedAriaLabel} bind:this={modalEl}>
         <div class="fullscreen-modal__content">
             <slot />
         </div>

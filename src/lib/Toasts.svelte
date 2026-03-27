@@ -12,6 +12,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon, XIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
+    import { t } from "svelte-whisper";
 
     function toastExit(node: Element, { id }: { id: string }) {
         if (suppressedExitIds.has(id) || prefersNoAnimations()) {
@@ -162,7 +163,7 @@
                     <div class="toast__action-row">
                         <button
                             class="toast__dismiss"
-                            aria-label="Dismiss"
+                            aria-label={$t("common.dismiss")}
                             on:click|stopPropagation={() => {
                                 triggerHaptic();
                                 dismissToast(toast.id);
