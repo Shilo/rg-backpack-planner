@@ -198,5 +198,7 @@
     .codeblock-table__table td + td {
         text-align: right;
         color: var(--text);
+        font-weight: var(--weight-bold);
+        font-variant-numeric: tabular-nums;
     }
 </style>
