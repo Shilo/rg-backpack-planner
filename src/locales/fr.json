@@ -545,6 +545,7 @@
         "updatedVersionToast": "Mis à jour en v{version}"
     },
     "quickSettings": {
+        "ariaLabel": "Paramètres rapides",
         "title": "Paramètres rapides du nœud"
     },
     "input": {
