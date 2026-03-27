@@ -316,6 +316,8 @@
         display: block;
         height: 100%;
         overflow-y: auto;
+        /* Child enter animations slide slightly on X; keep that from surfacing a horizontal bar. */
+        overflow-x: hidden;
         padding: 0 calc(var(--spacing-md) + var(--safe-right, 0px)) 0
             var(--spacing-md);
         scrollbar-gutter: stable;
