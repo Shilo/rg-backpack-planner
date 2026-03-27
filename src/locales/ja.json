@@ -552,7 +552,6 @@
         "updatedVersionToast": "v{version}に更新しました"
     },
     "quickSettings": {
-        "ariaLabel": "クイック設定",
         "title": "ノード クイック設定"
     },
     "input": {

@@ -552,7 +552,6 @@
         "updatedVersionToast": "已更新到 v{version}"
     },
     "quickSettings": {
-        "ariaLabel": "快速设置",
         "title": "节点快速设置"
     },
     "input": {

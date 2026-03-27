@@ -552,7 +552,6 @@
         "updatedVersionToast": "Updated to v{version}"
     },
     "quickSettings": {
-        "ariaLabel": "Quick settings",
         "title": "Node Quick Settings"
     },
     "input": {

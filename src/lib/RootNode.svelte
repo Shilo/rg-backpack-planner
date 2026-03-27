@@ -46,7 +46,7 @@
         class="root-node-gear"
         data-node-id="root"
         tabindex="0"
-        aria-label={$t("quickSettings.ariaLabel")}
+        aria-label="Quick settings"
         on:click|stopPropagation={handleClick}
         on:contextmenu|preventDefault|stopPropagation={handleContextMenu}
     >
@@ -74,6 +74,11 @@
         outline: none;
         cursor: pointer;
         filter: drop-shadow(var(--shadow-node-hex));
+    }
+
+    .root-node-gear:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
     }
 
     .root-node-gear :global(.root-node-gear-icon) {
