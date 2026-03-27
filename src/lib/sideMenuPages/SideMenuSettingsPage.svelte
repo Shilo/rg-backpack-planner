@@ -10,10 +10,12 @@
 </script>
 
 <script lang="ts">
+    import { NetworkXIcon } from "phosphor-svelte";
     import type { TreeViewState } from "../Tree.svelte";
     import { tick } from "svelte";
     import { t } from "svelte-whisper";
     import { animationsDisabled } from "../reduceMotionStore";
+    import SettingsPage from "./SettingsPage.svelte";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -34,20 +36,124 @@
     let AppearancePage: any = null;
     let GeneralPage: any = null;
     let AboutPage: any = null;
+    type LazyPageState = "idle" | "loading" | "loaded" | "error";
+    let rootPageLoadPromise: Promise<void> | null = null;
+    let nodePageLoadPromise: Promise<void> | null = null;
+    let appearancePageLoadPromise: Promise<void> | null = null;
+    let generalPageLoadPromise: Promise<void> | null = null;
+    let aboutPageLoadPromise: Promise<void> | null = null;
+    let rootPageLoadState: LazyPageState = "idle";
+    let nodePageLoadState: LazyPageState = "idle";
+    let appearancePageLoadState: LazyPageState = "idle";
+    let generalPageLoadState: LazyPageState = "idle";
+    let aboutPageLoadState: LazyPageState = "idle";
 
     async function loadPage(page: SettingsPageId): Promise<void> {
-        if (page === "root" && !RootPage) {
-            RootPage = (await import("./RootSettingsPage.svelte")).default;
-        } else if (page === "node" && !NodePage) {
-            NodePage = (await import("./NodeSettingsPage.svelte")).default;
-        } else if (page === "appearance" && !AppearancePage) {
-            AppearancePage = (await import("./AppearanceSettingsPage.svelte"))
-                .default;
-        } else if (page === "general" && !GeneralPage) {
-            GeneralPage = (await import("./GeneralSettingsPage.svelte"))
-                .default;
-        } else if (page === "about" && !AboutPage) {
-            AboutPage = (await import("./AboutSettingsPage.svelte")).default;
+        if (page === "root") {
+            if (RootPage) return;
+            if (!rootPageLoadPromise) {
+                rootPageLoadState = "loading";
+                rootPageLoadPromise = import("./RootSettingsPage.svelte")
+                    .then((module) => {
+                        RootPage = module.default;
+                        rootPageLoadState = "loaded";
+                    })
+                    .catch((error) => {
+                        rootPageLoadState = "error";
+                        console.error(
+                            'Failed to load settings page "root".',
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        rootPageLoadPromise = null;
+                    });
+            }
+            await rootPageLoadPromise;
+        } else if (page === "node") {
+            if (NodePage) return;
+            if (!nodePageLoadPromise) {
+                nodePageLoadState = "loading";
+                nodePageLoadPromise = import("./NodeSettingsPage.svelte")
+                    .then((module) => {
+                        NodePage = module.default;
+                        nodePageLoadState = "loaded";
+                    })
+                    .catch((error) => {
+                        nodePageLoadState = "error";
+                        console.error(
+                            'Failed to load settings page "node".',
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        nodePageLoadPromise = null;
+                    });
+            }
+            await nodePageLoadPromise;
+        } else if (page === "appearance") {
+            if (AppearancePage) return;
+            if (!appearancePageLoadPromise) {
+                appearancePageLoadState = "loading";
+                appearancePageLoadPromise = import("./AppearanceSettingsPage.svelte")
+                    .then((module) => {
+                        AppearancePage = module.default;
+                        appearancePageLoadState = "loaded";
+                    })
+                    .catch((error) => {
+                        appearancePageLoadState = "error";
+                        console.error(
+                            'Failed to load settings page "appearance".',
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        appearancePageLoadPromise = null;
+                    });
+            }
+            await appearancePageLoadPromise;
+        } else if (page === "general") {
+            if (GeneralPage) return;
+            if (!generalPageLoadPromise) {
+                generalPageLoadState = "loading";
+                generalPageLoadPromise = import("./GeneralSettingsPage.svelte")
+                    .then((module) => {
+                        GeneralPage = module.default;
+                        generalPageLoadState = "loaded";
+                    })
+                    .catch((error) => {
+                        generalPageLoadState = "error";
+                        console.error(
+                            'Failed to load settings page "general".',
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        generalPageLoadPromise = null;
+                    });
+            }
+            await generalPageLoadPromise;
+        } else if (page === "about") {
+            if (AboutPage) return;
+            if (!aboutPageLoadPromise) {
+                aboutPageLoadState = "loading";
+                aboutPageLoadPromise = import("./AboutSettingsPage.svelte")
+                    .then((module) => {
+                        AboutPage = module.default;
+                        aboutPageLoadState = "loaded";
+                    })
+                    .catch((error) => {
+                        aboutPageLoadState = "error";
+                        console.error(
+                            'Failed to load settings page "about".',
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        aboutPageLoadPromise = null;
+                    });
+            }
+            await aboutPageLoadPromise;
         }
     }
 
@@ -61,6 +167,21 @@
     let outgoingPage: SettingsPageId = "root";
 
     $: void loadPage(currentPage);
+    $: currentPageLoadState =
+        currentPage === "root"
+            ? rootPageLoadState
+            : currentPage === "node"
+              ? nodePageLoadState
+              : currentPage === "appearance"
+                ? appearancePageLoadState
+                : currentPage === "general"
+                  ? generalPageLoadState
+                  : aboutPageLoadState;
+
+    $: currentPageTitle =
+        currentPage === "root"
+            ? undefined
+            : $t(`settings.pages.${currentPage}`);
 
     $: currentComponent =
         currentPage === "root"
@@ -97,7 +218,7 @@
 
         isTransitioning = true;
         currentPage = targetPage;
-        await loadPage(targetPage);
+        void loadPage(targetPage);
         scrollToTop();
         await tick();
 
@@ -105,7 +226,7 @@
         const incomingPanel = containerElement?.querySelector(
             ".settings-page-panel.incoming:not(.active)",
         );
-        if (containerElement && incomingPanel) {
+        if (containerElement && incomingPanel && incomingPanel.scrollHeight > 0) {
             containerElement.style.height = `${incomingPanel.scrollHeight}px`;
         }
 
@@ -195,15 +316,14 @@
         </div>
     {/if}
 
-    {#if currentComponent}
-        <div
-            class="settings-page-panel incoming"
-            class:active={!isTransitioning}
-            role="region"
-            aria-label={currentPage === "root"
-                ? undefined
-                : $t(`settings.pages.${currentPage}`)}
-        >
+    <div
+        class="settings-page-panel incoming"
+        class:active={!isTransitioning}
+        role="region"
+        aria-busy={currentPageLoadState === "loading"}
+        aria-label={currentPageTitle}
+    >
+        {#if currentComponent}
             <svelte:component
                 this={currentComponent}
                 {activeTreeName}
@@ -227,8 +347,16 @@
                     pendingAboutScrollTarget = null;
                 }}
             />
-        </div>
-    {/if}
+        {:else if currentPage !== "root"}
+            <SettingsPage title={currentPageTitle} onBack={navigateBack}>
+                {#if currentPageLoadState === "error"}
+                    <div class="settings-page-fallback-icon" aria-hidden="true">
+                        <NetworkXIcon size={36} weight="duotone" />
+                    </div>
+                {/if}
+            </SettingsPage>
+        {/if}
+    </div>
 </div>
 
 <style>
@@ -248,6 +376,14 @@
 
     .settings-page-panel.active {
         position: relative;
+    }
+
+    .settings-page-fallback-icon {
+        display: grid;
+        place-items: center;
+        min-height: 96px;
+        color: var(--text-muted);
+        opacity: 0.72;
     }
 
     /* --- Transition states --- */

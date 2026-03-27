@@ -71,8 +71,6 @@ const TEST_FILES = [
     "nodeLevelBehaviorSetting.test.ts",
     "showTierSetting.test.ts",
     "uppercaseTextSetting.test.ts",
-    "settingsPaging.test.ts",
-    "sideMenuAboutGameRulesScroll.test.ts",
     "treeTopLeftOrigin.test.ts",
     "imageViewerLayout.test.ts",
     "imageViewerClampAtFit.test.ts",

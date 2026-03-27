@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy, tick } from "svelte";
+    import { onDestroy } from "svelte";
     import { fade } from "svelte/transition";
     import {
         ChartBarIcon,
@@ -66,6 +66,9 @@
     let SideMenuSettingsPage: any = null;
     let SideMenuStatisticsPage: any = null;
     let SideMenuControlsPage: any = null;
+    let settingsPageLoadPromise: Promise<void> | null = null;
+    let statisticsPageLoadPromise: Promise<void> | null = null;
+    let controlsPageLoadPromise: Promise<void> | null = null;
     let settingsPageRef: {
         tryGoBack?: () => boolean;
         navigateTo?: (
@@ -73,35 +76,89 @@
             aboutScrollTarget?: AboutScrollTarget | null,
         ) => Promise<void>;
     } | null = null;
+    let pendingSettingsNavigation: {
+        page: SettingsPageId;
+        aboutScrollTarget: AboutScrollTarget | null;
+    } | null = null;
 
     export function tryGoBack(): boolean {
         if (activeTab !== "settings") return false;
         return settingsPageRef?.tryGoBack?.() ?? false;
     }
 
-    async function handleOpenAbout(
+    function handleOpenAbout(
         aboutScrollTarget: AboutScrollTarget | null = null,
     ) {
-        await loadTabPage("settings");
+        pendingSettingsNavigation = {
+            page: "about",
+            aboutScrollTarget,
+        };
         activeTab = "settings";
         setActiveTab(activeTab);
-        await tick();
-        settingsPageRef?.navigateTo?.("about", aboutScrollTarget);
+        void loadTabPage("settings");
     }
 
     async function loadTabPage(tab: SideMenuTab): Promise<void> {
-        if (tab === "settings" && !SideMenuSettingsPage) {
-            SideMenuSettingsPage = (
-                await import("./sideMenuPages/SideMenuSettingsPage.svelte")
-            ).default;
-        } else if (tab === "statistics" && !SideMenuStatisticsPage) {
-            SideMenuStatisticsPage = (
-                await import("./sideMenuPages/SideMenuStatisticsPage.svelte")
-            ).default;
-        } else if (tab === "controls" && !SideMenuControlsPage) {
-            SideMenuControlsPage = (
-                await import("./sideMenuPages/SideMenuControlsPage.svelte")
-            ).default;
+        if (tab === "settings") {
+            if (SideMenuSettingsPage) return;
+            if (!settingsPageLoadPromise) {
+                settingsPageLoadPromise = import(
+                    "./sideMenuPages/SideMenuSettingsPage.svelte"
+                )
+                    .then((module) => {
+                        SideMenuSettingsPage = module.default;
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Failed to load side menu settings tab.",
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        settingsPageLoadPromise = null;
+                    });
+            }
+            await settingsPageLoadPromise;
+        } else if (tab === "statistics") {
+            if (SideMenuStatisticsPage) return;
+            if (!statisticsPageLoadPromise) {
+                statisticsPageLoadPromise = import(
+                    "./sideMenuPages/SideMenuStatisticsPage.svelte"
+                )
+                    .then((module) => {
+                        SideMenuStatisticsPage = module.default;
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Failed to load side menu statistics tab.",
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        statisticsPageLoadPromise = null;
+                    });
+            }
+            await statisticsPageLoadPromise;
+        } else if (tab === "controls") {
+            if (SideMenuControlsPage) return;
+            if (!controlsPageLoadPromise) {
+                controlsPageLoadPromise = import(
+                    "./sideMenuPages/SideMenuControlsPage.svelte"
+                )
+                    .then((module) => {
+                        SideMenuControlsPage = module.default;
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Failed to load side menu controls tab.",
+                            error,
+                        );
+                    })
+                    .finally(() => {
+                        controlsPageLoadPromise = null;
+                    });
+            }
+            await controlsPageLoadPromise;
         }
     }
 
@@ -143,6 +200,9 @@
     }
 
     export function openTab(tab: SideMenuTab, persist: boolean = true) {
+        if (tab !== "settings") {
+            pendingSettingsNavigation = null;
+        }
         activeTab = tab;
         if (persist) {
             setActiveTab(tab);
@@ -153,6 +213,9 @@
 
     function handleSideMenuTabChange(tabId: string) {
         activeTab = tabId as SideMenuTab;
+        if (activeTab !== "settings") {
+            pendingSettingsNavigation = null;
+        }
         setActiveTab(activeTab);
         triggerHaptic();
     }
@@ -172,6 +235,10 @@
         animateContentIn = false;
     }
 
+    $: if (!isOpen) {
+        pendingSettingsNavigation = null;
+    }
+
     $: if (isOpen !== prevIsOpen) {
         prevIsOpen = isOpen;
         if (isOpen) {
@@ -185,6 +252,16 @@
         if (shouldAnimate) {
             startContentEnterAnimation();
         }
+    }
+
+    $: if (
+        activeTab === "settings" &&
+        settingsPageRef &&
+        pendingSettingsNavigation
+    ) {
+        const { page, aboutScrollTarget } = pendingSettingsNavigation;
+        pendingSettingsNavigation = null;
+        void settingsPageRef.navigateTo?.(page, aboutScrollTarget);
     }
 
     function handleTabKeydown(event: KeyboardEvent) {
