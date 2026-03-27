@@ -278,7 +278,7 @@
         /* Contrast text: soft black/white so badge text is readable and not blinding */
         --badge-text-on-light: #1c1c1c;
         --badge-text-on-dark: #f2f2f2;
-        --hex-border-width: 3px;
+        --hex-border-width: 5px;
         /* Hexagon from FinalDamageBoost.svelte path (viewBox 365×316, flat top/bottom) */
         --hex-clip: polygon(
             12.4932% 71.6438%,
