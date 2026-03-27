@@ -510,6 +510,7 @@
 </script>
 
 <div class="tabs-root" bind:this={tabsRootEl}>
+    <div class="starfield" aria-hidden="true"></div>
     <div class="tabs-bar-spacer" bind:this={tabsBarEl} aria-hidden="true"></div>
 
     <div class="hud-safe-area">
@@ -637,15 +638,22 @@
         position: relative;
     }
 
-    .tabs-root::before,
-    .tabs-root::after {
+    .starfield {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        isolation: isolate;
+    }
+
+    .starfield::before,
+    .starfield::after {
         content: '';
         position: absolute;
         inset: -14px;
-        pointer-events: none;
     }
 
-    .tabs-root::before {
+    .starfield::before {
         background: radial-gradient(
             circle,
             color-mix(in srgb, var(--border-subtle) 35%, transparent) 2px,
@@ -655,7 +663,7 @@
         animation: starfield-a 35s ease-in-out infinite;
     }
 
-    .tabs-root::after {
+    .starfield::after {
         background: radial-gradient(
             circle,
             color-mix(in srgb, var(--border-subtle) 25%, transparent) 1.2px,
@@ -880,13 +888,11 @@
     .tabs-content {
         flex: 1;
         min-height: 0;
-        position: relative;
-        z-index: 1;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .tabs-root::before,
-        .tabs-root::after {
+        .starfield::before,
+        .starfield::after {
             animation: none;
         }
     }
