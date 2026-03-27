@@ -56,6 +56,8 @@
     .kc {
         --kc-tint: transparent;
         --kc-divider: color-mix(in srgb, var(--border) 50%, transparent);
+        --kc-seg-pad-block: 3px;
+        --kc-seg-pad-inline: var(--spacing-md);
         display: inline-flex;
         align-items: center;
         font-size: var(--font-base);
@@ -99,7 +101,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 3px var(--spacing-md);
+        padding: var(--kc-seg-pad-block) var(--kc-seg-pad-inline);
         color: var(--text-disabled);
     }
 
@@ -120,15 +122,36 @@
     /* ── Tilde/backtick keycap ── */
 
     .kc-tilde {
-        flex-direction: column;
-        font-size: 0.7em;
-        padding: 0 var(--spacing-md);
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        inline-size: calc(1em + 2 * var(--kc-seg-pad-block));
+        block-size: calc(1em + 2 * var(--kc-seg-pad-block));
+        box-sizing: border-box;
+        padding: 0;
     }
 
     .kc-tilde-top,
     .kc-tilde-bot {
-        display: block;
+        position: absolute;
+        inset-inline: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         line-height: 1;
+    }
+
+    .kc-tilde-top {
+        inset-block-end: 50%;
+        font-size: 1.12em;
+        transform: translateY(0.12em);
+    }
+
+    .kc-tilde-bot {
+        inset-block-start: 50%;
+        font-size: 1.5em;
+        transform: translateY(-0.08em);
     }
 </style>
