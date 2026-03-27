@@ -1,8 +1,6 @@
-# Impeccable Polish Pass — Change Walkthrough
+# Impeccable Polish Pass — Remaining Changes
 
-All 18 impeccable skills were run across the codebase. **53 files changed, +1263 / -339 lines.** 65/65 tests pass, 0 type errors.
-
-Each change is tagged:
+Changes tagged:
 - **User-facing** — Visible to users (visual, behavioral, or copy changes)
 - **Cleanup** — Internal only (token substitutions, dead code removal, documentation)
 
@@ -27,33 +25,18 @@ Each change is tagged:
 
 ---
 
-## `/optimize` — Performance
+## `/normalize` — Design Token Alignment (remaining)
 
-**Files:** App.svelte, TreeTabs.svelte
-
-| Change | Type | Details |
-|--------|------|---------|
-| Remove `transition: left` on `.top-left-actions` | Cleanup | Was dead code — `left: 0` never changes. |
-| Replace `transition: right` with `transform: translateX` | Cleanup | `.top-right-actions` now slides via GPU-composited transform instead of layout-triggering `right` property. |
-| Remove `will-change: transform, opacity` from starfield | Cleanup | Starfield pseudo-elements no longer permanently consume GPU compositor layers. 35s/45s animations don't need `will-change`. |
-
-**To revert:** All safe to revert. Purely internal performance improvements with no visual change.
-
----
-
-## `/normalize` — Design Token Alignment
-
-**Files:** ToggleSwitch, ColorPickerDialog, themeEngine.ts, NodeContextMenu, PrimaryActionIndicator, ProgressBar, Spinner, Toasts, UndoRedoToolbar, TreeContextMenuList, OnboardingCard, OnboardingFooterNote
+**Files:** ToggleSwitch, ColorPickerDialog, themeEngine.ts, ProgressBar, OnboardingCard, OnboardingFooterNote
 
 | Change | Type | Details |
 |--------|------|---------|
 | ToggleSwitch thumb → `var(--toggle-thumb)` | **User-facing** | Thumb was hard-coded `oklch(0.97 0 0)`. Now theme-aware via new `--toggle-thumb` token (dark: 0.97, light: 0.99). Slightly brighter in light mode for better contrast. |
 | ColorPicker preview border → `var(--border-subtle)` | Cleanup | Hard-coded `rgba(128,128,128,0.3)` replaced with theme token. |
-| `border-radius: 999px` → `var(--radius-full)` (7 places) | Cleanup | UndoRedoToolbar, Toasts, Spinner, PrimaryActionIndicator, OnboardingFooterNote. |
-| `border-radius: 6px` → `var(--radius-sm)` (3 places) | Cleanup | NodeContextMenu, TreeContextMenuList. |
-| Raw `px` spacing → tokens (10 places) | Cleanup | `gap: 2px` → `var(--spacing-xs)`, `4px` → `var(--spacing-sm)`, etc. in NodeContextMenu, OnboardingCard, OnboardingFooterNote. |
+| `border-radius: 999px` → `var(--radius-full)` (OnboardingFooterNote) | Cleanup | 1 remaining place. |
+| Raw `px` spacing → tokens | Cleanup | Remaining spacing substitutions in OnboardingCard, OnboardingFooterNote. Some change values (e.g. `gap: 6px` → `var(--spacing-md)` = 8px). |
 
-**To revert:** The ToggleSwitch thumb token change is the only one that could be visually noticeable (slightly brighter in light mode). All others are invisible token substitutions.
+**To revert:** The ToggleSwitch thumb token change is the only one that could be visually noticeable (slightly brighter in light mode).
 
 ---
 
@@ -203,22 +186,20 @@ Each change is tagged:
 
 ---
 
-## `/distill` — Strip Unnecessary Complexity
+## `/distill` — Strip Unnecessary Complexity (remaining)
 
-**Files:** app.css, Accordion, ActionSheet, CollapsibleSection, SegmentedControl, SideMenu, SliderSetting, TabBar, Toasts, UndoRedoToolbar, SideMenuStatisticsPage
+**Files:** app.css, Accordion, ActionSheet, CollapsibleSection, SideMenu, Toasts, UndoRedoToolbar
 
 | Change | Type | Details |
 |--------|------|---------|
-| Remove dead `.kbd` CSS (app.css) | Cleanup | Legacy styles superseded by InputChip. No references existed. |
-| Remove orphaned keyframes (app.css) | Cleanup | `@keyframes modal-shell-in`, `fab-action-in`, `toast-enter-negative` — no references. |
 | Merge `toast-enter-negative` into `toast-enter` | Cleanup | Nearly identical animation merged. Negative toast now just overrides duration. |
 | Simplify accordion arrow opacity | **User-facing** (subtle) | Removed imperceptible 0.85→1 icon opacity change, kept color change. Arrow opacity simplified to steady 0.5. |
 | Simplify CollapsibleSection arrow | **User-facing** (subtle) | Same arrow simplification. |
 | Remove ActionSheet inset highlights | **User-facing** (subtle) | Removed subtle top-edge inset highlight from choice cards and icon wraps. |
-| Consolidate UndoRedoToolbar hover rules | Cleanup | Three identical rules grouped into one selector. |
-| Remove `gap: 0` / `padding: 0` defaults | Cleanup | Removed no-op CSS defaults from SideMenu, TabBar, SegmentedControl, SliderSetting, SideMenuStatisticsPage. |
+| Remove UndoRedoToolbar reset icon opacity | **User-facing** (subtle) | Removed 0.85/0.5 opacity on reset icon. |
+| Remove SideMenu `gap: 0px` | Cleanup | No-op CSS default. |
 
-**To revert:** Almost all cleanup. The subtle visual changes (arrow opacity, ActionSheet highlights) are barely perceptible.
+**To revert:** The subtle visual changes (arrow opacity, ActionSheet highlights) are barely perceptible.
 
 ---
 
@@ -255,24 +236,9 @@ Each change is tagged:
 
 | Change | Type | Details |
 |--------|------|---------|
-| Transition tokenization | Cleanup | Raw `0.15s ease` / `250ms ease` / `350ms ease` replaced with `var(--ease-accel)` / `var(--ease-emphasis)` across 10 files. No visual change — same values. |
-| Remove unitless `0px` | Cleanup | `min-height: 0px` → `0`, `border-radius: 0px` → `0` in SideMenuStatisticsPage. |
+| Transition tokenization | Cleanup | Raw `0.15s ease` / `250ms ease` / `350ms ease` replaced with `var(--ease-accel)` / `var(--ease-emphasis)` across 10 files. **Note:** easing curves differ from originals (`ease` → custom cubic-bezier), so these are subtle behavioral changes despite being labeled cleanup. |
 
-**To revert:** All cleanup. No visual changes.
-
----
-
-## `/extract` — Design System Documentation
-
-**Files:** .impeccable.md only
-
-| Change | Type | Details |
-|--------|------|---------|
-| Design Tokens section (174 lines) | Documentation | Complete token reference: spacing, typography, colors, shadows, z-index. |
-| Design Patterns section (67 lines) | Documentation | 7 recurring conventions documented. |
-| Component Catalog section (143 lines) | Documentation | 13 components with variants and specs. |
-
-**To revert:** Documentation only. No runtime impact.
+**To revert:** Revert individual transition property changes per file.
 
 ---
 
@@ -281,16 +247,3 @@ Each change is tagged:
 | File | Type | Details |
 |------|------|---------|
 | `src/lib/treeMilestoneStore.ts` | **User-facing** | New store tracking tree completion milestones. Shows toasts at branch 100%, tree 50%/75%/100%. |
-| `.impeccable.md` | Documentation | Design context + token reference + component catalog (422 lines). |
-
----
-
-## Regression Audit Summary
-
-- **Tests:** 65/65 passing
-- **Type check:** 0 errors, 0 warnings
-- **Bugs found:** None
-- **Locale coverage:** All new keys present in en/ja/fr/zh
-- **Accessibility:** Net positive (focus rings restored, ARIA labels localized)
-- **Performance:** Net positive (layout animations removed, will-change removed)
-- **Reduced motion:** All new animations respect `prefers-reduced-motion` and `.no-animations`
