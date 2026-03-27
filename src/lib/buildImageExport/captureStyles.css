@@ -72,7 +72,7 @@ html.snapdom-capture {
    the node's 2px. Explicitly set them here so borders render at correct weight. */
 html.snapdom-capture .node-wrapper {
     --border-width: 2px !important;
-    --hex-border-width: 3px !important;
+    --hex-border-width: 5px !important;
 }
 
 /* Belt-and-suspenders: set border properties directly on non-hex node buttons
@@ -80,6 +80,12 @@ html.snapdom-capture .node-wrapper {
 html.snapdom-capture .button.node:not(.node-hexagon) {
     border-width: 2px !important;
     border-style: solid !important;
+}
+
+/* Unique nodes: dashed border at 1.5× width */
+html.snapdom-capture .node-wrapper-unique .button.node:not(.node-hexagon) {
+    border-width: 3px !important;
+    border-style: dashed !important;
 }
 
 /* Ensure hex node border mechanism survives capture. The ::before fills the
