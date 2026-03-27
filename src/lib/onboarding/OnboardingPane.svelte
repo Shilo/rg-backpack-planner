@@ -186,7 +186,7 @@
         min-width: 0;
         padding: var(--spacing-sm) var(--spacing-md);
         border-radius: calc(var(--radius) + 2px);
-        border: var(--border-width) solid var(--border-subtle);
+        border: 1px solid var(--border-subtle);
         box-shadow: var(--shadow);
         backdrop-filter: blur(var(--blur-sm));
         -webkit-backdrop-filter: blur(var(--blur-sm));
@@ -200,15 +200,14 @@
     .pane-header-card.accent {
         background: linear-gradient(
             135deg,
-            color-mix(in srgb, var(--accent) 18%, var(--bg-raised)),
-            color-mix(in srgb, var(--bg-raised) 85%, var(--surface))
+            color-mix(in srgb, var(--accent) 13%, var(--bg-raised)),
+            color-mix(in srgb, var(--bg-raised) 92%, var(--surface))
         );
         border-color: color-mix(
             in srgb,
-            var(--accent) 35%,
+            var(--accent) 22%,
             var(--border-subtle)
         );
-        box-shadow: var(--shadow), 0 0 12px color-mix(in srgb, var(--accent) 12%, transparent);
     }
 
     .pane-header-card.muted {
@@ -244,7 +243,7 @@
     }
 
     .title-icon.accent {
-        color: var(--accent-light);
+        color: var(--text-muted);
     }
 
     .title-icon.muted {
@@ -268,18 +267,14 @@
         flex-shrink: 0;
         text-align: right;
         font-size: var(--font-sm);
-        font-weight: var(--weight-bold);
+        font-weight: var(--weight-semibold);
         letter-spacing: var(--tracking);
-        color: var(--accent-light);
-        padding: 2px var(--spacing-sm);
-        background: color-mix(in srgb, var(--accent) 10%, transparent);
-        border-radius: var(--radius-sm);
-        font-variant-numeric: tabular-nums;
+        color: var(--text-muted);
+        padding-right: var(--spacing-xs);
     }
 
     .onboarding-pane.compact .pane-step-count {
         font-size: var(--font-xs);
-        padding: 1px var(--spacing-xs);
     }
 
     .cards-stack {

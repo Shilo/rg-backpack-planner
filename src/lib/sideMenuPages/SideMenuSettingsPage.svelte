@@ -14,10 +14,6 @@
     import { tick } from "svelte";
     import { t } from "svelte-whisper";
     import { animationsDisabled } from "../reduceMotionStore";
-    import {
-        createLazyModuleLoader,
-        type LazyModuleState,
-    } from "../lazyModuleLoader";
 
     export let activeTreeName = "";
     export let activeTreeIndex = 0;
@@ -38,24 +34,21 @@
     let AppearancePage: any = null;
     let GeneralPage: any = null;
     let AboutPage: any = null;
-    let lazyPageLoaderVersion = 0;
-    let currentPageLoadState: LazyModuleState = "idle";
-    const lazyPageLoader = createLazyModuleLoader<SettingsPageId, any>(
-        {
-            root: () => import("./RootSettingsPage.svelte"),
-            node: () => import("./NodeSettingsPage.svelte"),
-            appearance: () => import("./AppearanceSettingsPage.svelte"),
-            general: () => import("./GeneralSettingsPage.svelte"),
-            about: () => import("./AboutSettingsPage.svelte"),
-        },
-        () => {
-            lazyPageLoaderVersion += 1;
-        },
-        "settings page",
-    );
 
     async function loadPage(page: SettingsPageId): Promise<void> {
-        await lazyPageLoader.ensure(page);
+        if (page === "root" && !RootPage) {
+            RootPage = (await import("./RootSettingsPage.svelte")).default;
+        } else if (page === "node" && !NodePage) {
+            NodePage = (await import("./NodeSettingsPage.svelte")).default;
+        } else if (page === "appearance" && !AppearancePage) {
+            AppearancePage = (await import("./AppearanceSettingsPage.svelte"))
+                .default;
+        } else if (page === "general" && !GeneralPage) {
+            GeneralPage = (await import("./GeneralSettingsPage.svelte"))
+                .default;
+        } else if (page === "about" && !AboutPage) {
+            AboutPage = (await import("./AboutSettingsPage.svelte")).default;
+        }
     }
 
     // --- Navigation state ---
@@ -68,15 +61,6 @@
     let outgoingPage: SettingsPageId = "root";
 
     $: void loadPage(currentPage);
-    $: {
-        lazyPageLoaderVersion;
-        RootPage = lazyPageLoader.getComponent("root");
-        NodePage = lazyPageLoader.getComponent("node");
-        AppearancePage = lazyPageLoader.getComponent("appearance");
-        GeneralPage = lazyPageLoader.getComponent("general");
-        AboutPage = lazyPageLoader.getComponent("about");
-        currentPageLoadState = lazyPageLoader.getState(currentPage);
-    }
 
     $: currentComponent =
         currentPage === "root"
@@ -113,7 +97,7 @@
 
         isTransitioning = true;
         currentPage = targetPage;
-        void loadPage(targetPage);
+        await loadPage(targetPage);
         scrollToTop();
         await tick();
 
@@ -211,16 +195,15 @@
         </div>
     {/if}
 
-    <div
-        class="settings-page-panel incoming"
-        class:active={!isTransitioning}
-        role="region"
-        aria-busy={currentPageLoadState === "loading"}
-        aria-label={currentPage === "root"
-            ? undefined
-            : $t(`settings.pages.${currentPage}`)}
-    >
-        {#if currentComponent}
+    {#if currentComponent}
+        <div
+            class="settings-page-panel incoming"
+            class:active={!isTransitioning}
+            role="region"
+            aria-label={currentPage === "root"
+                ? undefined
+                : $t(`settings.pages.${currentPage}`)}
+        >
             <svelte:component
                 this={currentComponent}
                 {activeTreeName}
@@ -244,8 +227,8 @@
                     pendingAboutScrollTarget = null;
                 }}
             />
-        {/if}
-    </div>
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -259,7 +242,7 @@
 
     .settings-page-panel {
         display: grid;
-        gap: var(--spacing-xl);
+        gap: var(--spacing-lg);
         background: var(--bg-panel);
     }
 

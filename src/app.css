@@ -119,9 +119,12 @@ button {
     -webkit-user-select: none;
 }
 
-/* Visual policy: suppress focus ring for mouse/touch; keyboard :focus-visible still shows. */
-:focus:not(:focus-visible) {
-    outline: none;
+/* Visual policy: only text-entry fields keep a visible focus ring. */
+:focus,
+:focus-visible,
+:focus-within {
+    outline: none !important;
+    outline-offset: 0 !important;
 }
 
 input:not([type]):focus,
@@ -246,7 +249,6 @@ textarea,
     color: var(--text-disabled);
 }
 
-
 .tooltip-action-grid {
     display: grid;
     grid-template-columns: auto auto auto auto;
@@ -322,8 +324,8 @@ textarea,
 }
 
 @keyframes side-menu-item-in {
-    from { opacity: 0; transform: translateX(10px) scale(0.98); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
+    from { opacity: 0; transform: translateX(5px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 html.no-animations,
@@ -337,8 +339,7 @@ html.no-animations *::after {
 
 html.no-animations .node-flash,
 html.no-animations .node-ring,
-html.no-animations .level-splash,
-html.no-animations .progress-full-flash {
+html.no-animations .level-splash {
     display: none !important;
 }
 

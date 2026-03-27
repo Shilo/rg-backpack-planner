@@ -117,26 +117,26 @@
     }
 
     .footer-note.compact {
-        gap: var(--spacing-sm);
-        padding: 6px var(--spacing-md);
+        gap: 4px;
+        padding: 6px 8px;
     }
 
     .footer-main {
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: var(--spacing-md);
+        gap: 8px;
     }
 
     .footer-note.compact .footer-main {
-        gap: var(--spacing-md);
+        gap: 6px;
     }
 
     .footer-content {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: var(--spacing-sm);
+        gap: 4px;
         flex: 1;
         min-width: 0;
     }
@@ -247,14 +247,14 @@
     .progress-track {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
+        gap: 4px;
         width: 100%;
     }
 
     .progress-tick {
         flex: 1;
         height: 4px;
-        border-radius: var(--radius-full);
+        border-radius: 999px;
         background: color-mix(in srgb, var(--text) 10%, transparent);
         transition:
             transform 180ms ease,

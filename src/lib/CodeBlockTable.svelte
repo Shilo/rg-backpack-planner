@@ -179,11 +179,10 @@
     }
 
     .codeblock-table__section {
-        background: color-mix(in srgb, var(--accent) 12%, var(--bg-input));
-        color: var(--text-on-tinted);
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg-input));
+        color: var(--text-muted);
         font-weight: var(--weight-bold);
         letter-spacing: var(--tracking);
-        border-left: 2px solid color-mix(in srgb, var(--accent) 60%, transparent) !important;
     }
 
     .codeblock-table__section-inner {
@@ -198,8 +197,6 @@
 
     .codeblock-table__table td + td {
         text-align: right;
-        color: var(--accent-light);
-        font-weight: var(--weight-semibold);
-        font-variant-numeric: tabular-nums;
+        color: var(--text);
     }
 </style>

@@ -203,7 +203,9 @@
         gap: 0.65rem;
         padding: 0.72rem 0.8rem;
         text-align: left;
-        box-shadow: 0 10px 24px color-mix(in srgb, var(--bg) 14%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent),
+            0 10px 24px color-mix(in srgb, var(--bg) 14%, transparent);
         transition:
             transform var(--ease),
             filter var(--ease),
@@ -256,6 +258,7 @@
         );
         border: var(--border-width) solid
             color-mix(in srgb, var(--choice-accent) 40%, transparent);
+        box-shadow: inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
     }
 
     .action-sheet__choice-copy {
@@ -294,6 +297,7 @@
     .action-sheet__choice:disabled .action-sheet__choice-icon-wrap {
         background: color-mix(in srgb, var(--bg-input) 88%, transparent);
         border-color: color-mix(in srgb, var(--text-disabled) 28%, transparent);
+        box-shadow: none;
     }
 
     .action-sheet__choice:disabled :global(.action-sheet__choice-icon) {

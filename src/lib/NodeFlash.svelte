@@ -64,16 +64,16 @@
 
     @keyframes node-ring-expand {
         0% {
-            opacity: 0.85;
+            opacity: 0.7;
             inset: 0;
         }
-        50% {
-            opacity: 0.35;
-            inset: -16px;
+        60% {
+            opacity: 0.3;
+            inset: -12px;
         }
         100% {
             opacity: 0;
-            inset: -14px;
+            inset: -10px;
         }
     }
 </style>

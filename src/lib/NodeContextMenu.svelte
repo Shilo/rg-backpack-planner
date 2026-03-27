@@ -418,7 +418,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
-        min-width: min(310px, calc(100vw - 32px));
+        min-width: 310px;
         width: min-content;
         align-items: stretch;
     }

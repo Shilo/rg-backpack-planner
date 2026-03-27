@@ -155,24 +155,12 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: var(--toggle-thumb);
-        transition:
-            transform var(--ease-emphasis),
-            width 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-            border-radius 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        background: oklch(0.97 0 0);
+        transition: transform var(--ease-emphasis);
         box-shadow: var(--shadow);
-    }
-
-    .toggle-row:active .toggle-switch__thumb {
-        width: 28px;
-        border-radius: 12px;
     }
 
     .toggle-switch.active .toggle-switch__thumb {
         transform: translateX(20px);
-    }
-
-    .toggle-row:active .toggle-switch.active .toggle-switch__thumb {
-        transform: translateX(16px);
     }
 </style>

@@ -10,7 +10,6 @@ const TEST_FILES = [
     "systemUtil.test.ts",
     "appInfo.test.ts",
     "themeEngine.test.ts",
-    "lazyModuleLoader.test.ts",
     "skillValueFns.test.ts",
 
     // 2. Core State & Logic

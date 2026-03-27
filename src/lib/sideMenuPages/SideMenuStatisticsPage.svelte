@@ -299,7 +299,7 @@
 <style>
     .side-menu__stats-card {
         display: grid;
-        border: var(--border-width) solid color-mix(in srgb, var(--accent) 25%, var(--border));
+        border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
         overflow: hidden;
     }

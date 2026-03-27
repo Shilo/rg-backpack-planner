@@ -118,21 +118,19 @@
                 >{formatCompact($techCrystalsOwned)}</span
             >
         {/if}
-        <span class="crystal-icon-wrapper" class:crystal-shimmer={animState === "pulse"}>
-            <TechCrystalIcon
-                size={26}
-                weight="fill"
-                aria-hidden="true"
-                style="color: var(--accent); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 35%, transparent));"
-            />
-        </span>
+        <TechCrystalIcon
+            size={26}
+            weight="fill"
+            aria-hidden="true"
+            style="color: var(--text-muted);"
+        />
     </Button>
 </div>
 
 <style>
     .currency-anim-wrapper {
         display: inline-flex;
-        transition: opacity var(--ease-emphasis);
+        transition: opacity 350ms ease;
     }
 
     .currency-anim-wrapper.title-visible {
@@ -150,8 +148,6 @@
         font-weight: var(--weight-bold);
         font-size: var(--font-lg) !important;
         letter-spacing: var(--tracking);
-        border-color: color-mix(in srgb, var(--accent) 25%, var(--border)) !important;
-        background: color-mix(in srgb, var(--accent) 6%, var(--bg-raised)) !important;
     }
 
     :global(.currency-display .button-text) {
@@ -182,31 +178,6 @@
         color: var(--text-disabled);
     }
 
-    .crystal-icon-wrapper {
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .crystal-icon-wrapper :global(svg) {
-        display: block;
-    }
-
-    .crystal-shimmer :global(svg) {
-        animation: crystal-glint 350ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes crystal-glint {
-        0% {
-            filter: brightness(1);
-        }
-        35% {
-            filter: brightness(1.4);
-        }
-        100% {
-            filter: brightness(1);
-        }
-    }
-
     /* ═══ Value-change animations ═══ */
 
     .currency-anim-wrapper.anim-pulse {
@@ -220,15 +191,12 @@
     @keyframes currency-pulse {
         0% {
             transform: scale(1);
-            filter: brightness(1);
         }
-        30% {
-            transform: scale(1.1);
-            filter: brightness(1.15);
+        35% {
+            transform: scale(1.08);
         }
         100% {
             transform: scale(1);
-            filter: brightness(1);
         }
     }
 
@@ -266,10 +234,6 @@
 
         .currency-anim-wrapper.anim-pulse,
         .currency-anim-wrapper.anim-shake {
-            animation: none;
-        }
-
-        .crystal-shimmer :global(svg) {
             animation: none;
         }
     }

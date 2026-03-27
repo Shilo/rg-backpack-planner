@@ -155,9 +155,6 @@ export function applyTheme(
         vars["--text-disabled"] = oklchToHex(0.55, textChroma, source.h);
     }
     vars["--node-badge-text"] = isDark ? "#1f2937" : "#f8fafc";
-    vars["--toggle-thumb"] = isDark
-        ? oklchToHex(0.97, 0, 0)
-        : oklchToHex(0.99, 0, 0);
 
     // ── Primary accent ──
     if (isDark) {

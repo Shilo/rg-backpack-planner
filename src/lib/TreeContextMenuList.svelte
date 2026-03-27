@@ -163,7 +163,7 @@
                     <span class="meta-label"
                         >{$t(`skills.short.${skill.id}`)}</span
                     >
-                    <span class="meta-value" class:meta-value--active={skill.currentValue > 0}>
+                    <span class="meta-value">
                         {formatBonusValue(skill.currentValue * 100)}%
                     </span>
                 </div>
@@ -333,7 +333,7 @@
     .bonus-icon {
         display: flex;
         align-items: center;
-        color: var(--accent);
+        color: var(--text-muted);
     }
 
     .bonus-current {
@@ -343,18 +343,11 @@
         font-variant-numeric: tabular-nums;
     }
 
-    .special-skill-item :global(.meta-value--active) {
-        color: var(--accent-light);
-    }
-
     .tree-stats {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-sm);
         margin-bottom: var(--spacing-md);
-        background: color-mix(in srgb, var(--accent) 5%, transparent);
-        border-radius: var(--radius-sm);
-        padding: var(--spacing-sm);
     }
 
     .meta-row {

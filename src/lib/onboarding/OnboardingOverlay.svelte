@@ -623,24 +623,9 @@
 
     .spotlight-ring {
         position: absolute;
-        border: 2px dashed color-mix(in srgb, var(--accent) 70%, var(--text));
+        border: 2px dashed color-mix(in srgb, var(--text) 60%, transparent);
         pointer-events: none;
         z-index: 1;
-        box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent),
-                    inset 0 0 16px color-mix(in srgb, var(--accent) 10%, transparent);
-        animation: spotlight-breathe 2s ease-in-out infinite;
-        transition: left 300ms ease, top 300ms ease, width 300ms ease, height 300ms ease, border-radius 300ms ease;
-    }
-
-    @keyframes spotlight-breathe {
-        0%, 100% {
-            box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 20%, transparent),
-                        inset 0 0 16px color-mix(in srgb, var(--accent) 10%, transparent);
-        }
-        50% {
-            box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 35%, transparent),
-                        inset 0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
-        }
     }
 
     .onboarding-pane-wrap {
@@ -685,11 +670,6 @@
         .onboarding-overlay,
         .onboarding-overlay.dismissing {
             animation: none;
-        }
-
-        .spotlight-ring {
-            animation: none;
-            transition: none;
         }
     }
 </style>

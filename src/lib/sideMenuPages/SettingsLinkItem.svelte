@@ -41,7 +41,7 @@
         gap: var(--spacing-md);
         width: 100%;
         min-height: 38px;
-        padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+        padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-lg);
         background: var(--bg-raised);
         border: none;
         border-bottom: var(--border-width) solid var(--border);

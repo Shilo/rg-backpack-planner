@@ -395,32 +395,23 @@
         resetTreeBranchLevels(index, branch);
         undoHistory.pushSnapshot(index);
         treeRef?.triggerFade?.();
-        const activeTreeNowEmpty = sumLevels($treeLevels[index]) === 0;
-        if (activeTreeNowEmpty && index === activeIndex) {
-            showToast($t("tree.resetEmptyHint"), { showIcon: false });
-        } else {
-            showToast(
-                $t("tree.resetBranchToast", {
-                    branchName: getBranchName(branch),
-                }),
-                { tone: "negative" },
-            );
-        }
+        showToast(
+            $t("tree.resetBranchToast", {
+                branchName: getBranchName(branch),
+            }),
+            { tone: "negative" },
+        );
     }
 
     function resetTreeByIndex(index: number) {
         resetLevelsForTab(index);
-        if (index === activeIndex) {
-            showToast($t("tree.resetEmptyHint"), { showIcon: false });
-        } else {
-            const tabLabel = tabs[index].label;
-            showToast(
-                $t("tree.resetTreeToast", {
-                    treeLabel: tabLabel,
-                }),
-                { tone: "negative" },
-            );
-        }
+        const tabLabel = tabs[index].label;
+        showToast(
+            $t("tree.resetTreeToast", {
+                treeLabel: tabLabel,
+            }),
+            { tone: "negative" },
+        );
     }
 
     function resetTabTree(tabId: string) {
@@ -465,7 +456,7 @@
         if (tabs.length === 0) return;
         resetAllTreeLevels(tabs);
         undoHistory.pushSnapshot(activeIndex);
-        showToast($t("tree.resetEmptyHint"), { showIcon: false });
+        showToast($t("tree.resetAllTreesToast"), { tone: "negative" });
         treeRef?.triggerFade?.();
         closeTabMenu();
     }
@@ -742,7 +733,7 @@
         min-width: 0;
         position: relative;
         z-index: var(--z-index-hud);
-        transition: opacity var(--ease-emphasis);
+        transition: opacity 250ms ease;
     }
 
 
@@ -763,7 +754,6 @@
         overflow: hidden;
         container-type: inline-size;
         container-name: tab;
-        transition: background 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
     }
 
     :global(.tab-buttons .tab-btn .button-text) {
@@ -832,22 +822,14 @@
         background: color-mix(in srgb, var(--bg) 60%, transparent);
     }
 
-    :global(.tab-buttons .tab-btn.active .tree-tab-icon) {
-        color: var(--accent-light);
-    }
-
     :global(.tree-tab-crystals svg) {
         color: var(--accent);
     }
 
     :global(.tab-buttons .tab-btn.active) {
-        background: color-mix(in srgb, var(--surface) 65%, var(--accent));
-        color: var(--text);
-        border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
-        box-shadow:
-            inset 0 -2px 0 var(--accent),
-            0 0 12px color-mix(in srgb, var(--accent) 25%, transparent),
-            inset 0 1px 0 color-mix(in srgb, var(--accent) 15%, transparent);
+        background: color-mix(in srgb, var(--surface) 78%, var(--accent));
+        color: var(--text-muted);
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
     }
 
     :global(.fullscreen-button) {
@@ -887,14 +869,6 @@
         right: 0;
         bottom: 0;
         z-index: var(--z-index-hud);
-        transition: border-color 200ms ease, box-shadow 200ms ease;
-    }
-
-    @media (hover: hover) {
-        :global(.menu-button:hover) {
-            border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-            box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 15%, transparent);
-        }
     }
 
     :global(.menu-button-icon) {
@@ -913,14 +887,6 @@
         .tabs-root::before,
         .tabs-root::after {
             animation: none;
-        }
-
-        :global(.tab-buttons .tab-btn) {
-            transition: none;
-        }
-
-        :global(.menu-button) {
-            transition: none;
         }
     }
 </style>

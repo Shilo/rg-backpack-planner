@@ -9,16 +9,13 @@
     export let crystalDelta: number;
     export let scale: number = 1;
     export let skipEntry: boolean = false;
-    export let isMaxed: boolean = false;
     export let onDone: (() => void) | null = null;
 
     const DURATION_MS = 1200;
-    const MAXED_DURATION_MS = 1800;
     const OVERLAP_SPACING = 12;
     const ARROW_UP = "\u25B2";
     const ARROW_DOWN = "\u25BC";
     const HEXAGON = "\u2B22";
-    const CROWN = "\u2655";
 
     let el: HTMLDivElement;
     let nudgeX = 0;
@@ -44,8 +41,7 @@
 
     function restartTimer() {
         if (timer) clearTimeout(timer);
-        const duration = isMaxed ? MAXED_DURATION_MS : DURATION_MS;
-        timer = setTimeout(() => onDone?.(), duration);
+        timer = setTimeout(() => onDone?.(), DURATION_MS);
     }
 
     onMount(() => {
@@ -115,22 +111,14 @@
         <div
             class="level-splash__anim"
             class:level-splash__anim--update={animKey > 0 || skipEntry}
-            class:level-splash__anim--maxed={isMaxed}
         >
-            <div class="level-splash__pill" class:level-splash__pill--maxed={isMaxed}>
-                {#if isMaxed}
-                    <span class="level-splash__segment level-splash__max-segment">
-                        <span class="level-splash__crown">{CROWN}</span>
-                        <span>MAX</span>
-                    </span>
-                {:else}
-                    <span class="level-splash__segment" style="color: {levelColor}">
-                        <span class="level-splash__icon"
-                            >{isUp ? ARROW_UP : ARROW_DOWN}</span
-                        >
-                        <span>{lvlText}</span>
-                    </span>
-                {/if}
+            <div class="level-splash__pill">
+                <span class="level-splash__segment" style="color: {levelColor}">
+                    <span class="level-splash__icon"
+                        >{isUp ? ARROW_UP : ARROW_DOWN}</span
+                    >
+                    <span>{lvlText}</span>
+                </span>
                 <span class="level-splash__divider"></span>
                 <span
                     class="level-splash__segment"
@@ -163,7 +151,7 @@
     .level-splash__pill {
         display: inline-flex;
         align-items: center;
-        gap: var(--spacing-lg);
+        gap: 10px;
         padding: 6px 16px;
         border-radius: var(--radius-full);
         background: var(--bg-raised);
@@ -191,56 +179,6 @@
         height: 14px;
         background: var(--border-subtle);
         flex-shrink: 0;
-    }
-
-    /* ═══ Maxed state ═══ */
-
-    .level-splash__pill--maxed {
-        border-color: var(--accent);
-        box-shadow: var(--shadow), 0 0 12px color-mix(in srgb, var(--accent) 30%, transparent);
-    }
-
-    .level-splash__max-segment {
-        color: var(--accent-light);
-        letter-spacing: 0.05em;
-    }
-
-    .level-splash__crown {
-        font-size: 0.85em;
-        display: inline-block;
-    }
-
-    .level-splash__anim--maxed {
-        animation-name: splash-maxed !important;
-        animation-duration: 1.8s !important;
-    }
-
-    @keyframes splash-maxed {
-        0% {
-            opacity: 0;
-            transform: scale(0.7) translateY(4px);
-        }
-        10% {
-            opacity: 1;
-            transform: scale(1.12) translateY(0);
-        }
-        18% {
-            transform: scale(0.97) translateY(0);
-        }
-        25% {
-            transform: scale(1.04) translateY(0);
-        }
-        32% {
-            transform: scale(1) translateY(0);
-        }
-        65% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-        100% {
-            opacity: 0;
-            transform: scale(0.97) translateY(-14px);
-        }
     }
 
     @keyframes splash-float {
@@ -284,11 +222,6 @@
 
         .level-splash__anim--update {
             animation-name: splash-fade-update;
-        }
-
-        .level-splash__anim--maxed {
-            animation-name: splash-fade !important;
-            animation-duration: 1.2s !important;
         }
 
         @keyframes splash-fade {

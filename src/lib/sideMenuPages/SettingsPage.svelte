@@ -92,16 +92,14 @@
 
     .settings-page-title {
         margin: 0;
-        font-size: var(--font-2xl);
-        font-weight: var(--weight-bold);
-        letter-spacing: var(--tracking-tight);
+        font-size: var(--font-xl);
         color: var(--text);
-        line-height: var(--leading-tight);
+        line-height: var(--leading-none);
     }
 
     .settings-page-content {
         display: grid;
-        gap: var(--spacing-xl);
+        gap: var(--spacing-lg);
     }
 
     .settings-page-content :global(.button-arrow) {

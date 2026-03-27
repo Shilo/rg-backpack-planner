@@ -547,7 +547,7 @@
         width: 28px;
         height: 28px;
         border-radius: var(--radius-full);
-        border: 2px solid var(--border-subtle);
+        border: 2px solid rgba(128, 128, 128, 0.3);
         flex-shrink: 0;
         transition: background 0.1s ease;
     }
@@ -593,11 +593,6 @@
 
     .hex-input:focus {
         border-color: var(--border-focus);
-    }
-
-    .hex-input:focus-visible {
-        outline: 2px solid var(--border-focus);
-        outline-offset: 2px;
     }
 
     /* Actions row */

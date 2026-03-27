@@ -184,27 +184,22 @@
 <style>
     .danger-zone {
         display: grid;
-        gap: var(--spacing-lg);
-        background: color-mix(in srgb, var(--danger-bg) 40%, transparent);
-        border: 1px solid color-mix(in srgb, var(--danger-border) 35%, transparent);
-        border-radius: var(--radius);
-        padding: var(--spacing-md);
-        margin-top: var(--spacing-sm);
+        gap: var(--spacing-md);
     }
 
     .danger-zone-separator {
-        display: none;
+        height: 1px;
+        background: var(--danger-border);
+        opacity: 0.5;
     }
 
     .danger-zone-label {
         margin: 0;
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
         font-weight: var(--weight-semibold);
-        letter-spacing: var(--tracking-wide);
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--danger-text);
-        padding-left: var(--spacing-sm);
-        border-left: 2px solid var(--accent-danger);
     }
 
     .danger-zone-content {

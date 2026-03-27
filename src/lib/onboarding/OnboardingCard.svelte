@@ -54,7 +54,7 @@
         grid-template-columns: auto 1fr;
         grid-template-rows: auto auto;
         column-gap: var(--spacing-md);
-        row-gap: var(--spacing-xs);
+        row-gap: 2px;
         padding: var(--spacing-sm) var(--spacing-md);
         background: var(--bg-panel);
         border: 1px solid var(--border-subtle);
@@ -63,7 +63,7 @@
         -webkit-backdrop-filter: blur(var(--blur-md));
         max-width: 100%;
         opacity: 0;
-        animation: card-enter 350ms var(--ease-decel) both;
+        animation: card-enter 280ms var(--ease-decel) both;
         animation-delay: calc(150ms + var(--card-index) * 70ms);
         white-space: normal;
         overflow-wrap: anywhere;
@@ -72,11 +72,10 @@
     .onboarding-card.accent {
         border-color: color-mix(
             in srgb,
-            var(--accent) 40%,
+            var(--accent) 35%,
             var(--border-subtle)
         );
-        background: color-mix(in srgb, var(--accent) 10%, var(--bg-panel));
-        box-shadow: 0 1px 4px color-mix(in srgb, var(--accent) 8%, transparent);
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg-panel));
     }
 
     .onboarding-card.muted {
@@ -103,13 +102,13 @@
     }
 
     .onboarding-card.accent .card-icon {
-        color: var(--accent-light);
+        color: var(--text-muted);
     }
 
     .card-copy {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xs);
+        gap: 2px;
     }
 
     .card-title {
@@ -154,7 +153,7 @@
     }
 
     .onboarding-card.compact .card-inputs {
-        gap: var(--spacing-sm);
+        gap: 4px;
     }
 
     .card-inputs :global(.ks) {
@@ -163,15 +162,11 @@
 
     @keyframes card-enter {
         from {
-            transform: translateY(12px) scale(0.96);
+            transform: translateY(8px);
             opacity: 0;
         }
-        60% {
-            transform: translateY(-1px) scale(1.005);
-            opacity: 1;
-        }
         to {
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
             opacity: 1;
         }
     }

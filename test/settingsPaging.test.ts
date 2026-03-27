@@ -51,38 +51,6 @@ if (!/await import\("\.\/AboutSettingsPage\.svelte"\)/.test(shellSource)) {
     throw new Error("Shell should lazy-import AboutSettingsPage.svelte.");
 }
 
-if (/await loadPage\(targetPage\);/.test(shellSource)) {
-    throw new Error(
-        "SideMenuSettingsPage transitions should not wait for lazy page imports before finishing the animation.",
-    );
-}
-
-if (
-    !/currentPage = targetPage;[\s\S]*?void [A-Za-z0-9_.]+\(\s*targetPage\s*\);/.test(
-        shellSource,
-    )
-) {
-    throw new Error(
-        "SideMenuSettingsPage should start loading the target page in the background after switching pages.",
-    );
-}
-
-if (/\{#if currentComponent\}\s*<div\s+class="settings-page-panel incoming"/.test(shellSource)) {
-    throw new Error(
-        "SideMenuSettingsPage should keep the incoming panel rendered even when the lazy page component is still missing.",
-    );
-}
-
-if (
-    !/<div\s+class="settings-page-panel incoming"[\s\S]*?\{#if currentComponent\}/.test(
-        shellSource,
-    )
-) {
-    throw new Error(
-        "SideMenuSettingsPage should render the lazy page component inside an always-present incoming panel shell.",
-    );
-}
-
 // --- RootSettingsPage has navigation buttons ---
 
 const rootSource = readFileSync(
