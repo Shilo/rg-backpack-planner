@@ -1,10 +1,10 @@
 <script lang="ts">
-    import ContextMenu from "./ContextMenu.svelte";
-    import TreeContextMenuList from "./TreeContextMenuList.svelte";
-    import type { TreeViewState } from "./Tree.svelte";
-    import type { Node, LevelsByIndex } from "../types/tree";
-    import type { TreeBranchKey } from "./treeLevelsStore";
     import { t } from "svelte-whisper";
+    import type { LevelsByIndex, Node } from "../types/tree";
+    import ContextMenu from "./ContextMenu.svelte";
+    import type { TreeViewState } from "./Tree.svelte";
+    import TreeContextMenuList from "./TreeContextMenuList.svelte";
+    import type { TreeBranchKey } from "./treeLevelsStore";
 
     export let tabId = "";
     export let tabLabel = "";
@@ -40,14 +40,16 @@
     title=""
     ariaLabel={title}
     {onClose}
-    ignoreCloseTargetSelector={hideViewOptions ? ".tabs-bar, .undo-redo-toolbar__group" : ".undo-redo-toolbar__group"}
+    ignoreCloseTargetSelector={hideViewOptions
+        ? ".tabs-bar, .undo-redo-toolbar__group"
+        : ".undo-redo-toolbar__group"}
     anchorAbove={true}
 >
     <div class="menu-content">
         <TreeContextMenuList
             onFocusInView={() => onFocusInView?.(menuTabId)}
             onReset={() => onReset?.(menuTabId)}
-            onResetBranch={onResetBranch}
+            {onResetBranch}
             onButtonPress={onClose}
             {tabId}
             {tabLabel}
@@ -67,6 +69,17 @@
         flex-direction: column;
         gap: var(--spacing-md);
         width: min-content;
+        min-width: min(
+            13rem,
+            max(
+                0px,
+                calc(
+                    100vw -
+                        max(var(--bar-pad), var(--safe-left)) -
+                        max(var(--bar-pad), var(--safe-right))
+                )
+            )
+        );
         align-items: stretch;
     }
 </style>

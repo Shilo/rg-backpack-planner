@@ -224,7 +224,8 @@
 
     .special-skills-list {
         display: grid;
-        grid-template-columns: max-content max-content max-content;
+        width: 100%;
+        grid-template-columns: max-content minmax(max-content, 1fr) max-content;
         justify-content: start;
         gap: var(--spacing-md);
         margin-bottom: var(--spacing-md);
@@ -256,7 +257,9 @@
         font-size: inherit;
         color: inherit;
         letter-spacing: 0.05em;
-        justify-self: start;
+        width: 100%;
+        justify-self: stretch;
+        text-align: left;
         white-space: nowrap;
     }
 
