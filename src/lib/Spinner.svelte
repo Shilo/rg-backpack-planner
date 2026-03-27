@@ -21,7 +21,7 @@
         flex-shrink: 0;
         vertical-align: middle;
         box-sizing: border-box;
-        border-radius: 999px;
+        border-radius: var(--radius-full);
         border: var(--spinner-thickness) solid
             color-mix(in srgb, var(--text-muted) 22%, transparent);
         border-top-color: var(--accent);

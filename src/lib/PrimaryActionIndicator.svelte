@@ -120,7 +120,7 @@
 
 <style>
     :global(.primary-action-indicator) {
-        border-radius: 999px !important;
+        border-radius: var(--radius-full) !important;
         gap: var(--spacing-sm) !important;
         font-size: var(--font-lg) !important;
         font-weight: var(--weight-semibold) !important;

@@ -360,7 +360,7 @@
         align-items: center;
         justify-content: center;
         padding: var(--spacing-md) var(--spacing-lg);
-        border-radius: 999px;
+        border-radius: var(--radius-full);
         font-size: var(--font-xs);
         font-weight: var(--weight-bold);
         text-transform: uppercase;

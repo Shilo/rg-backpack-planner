@@ -146,7 +146,7 @@
         gap: var(--spacing-sm);
         background: var(--bg-raised);
         border: var(--border-width) solid var(--border);
-        border-radius: 999px;
+        border-radius: var(--radius-full);
         padding: 0;
         height: 38px;
     }
@@ -165,7 +165,7 @@
     }
 
     :global(.undo-redo-toolbar__btn) {
-        border-radius: 999px !important;
+        border-radius: var(--radius-full) !important;
         border: none !important;
         background: transparent !important;
         padding: var(--spacing-md) !important;

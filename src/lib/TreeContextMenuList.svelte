@@ -291,7 +291,7 @@
         justify-content: center;
         background: var(--bg-raised);
         border: 1px solid var(--border-subtle);
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         padding: var(--spacing-xs);
         box-shadow: var(--shadow-inset);
     }

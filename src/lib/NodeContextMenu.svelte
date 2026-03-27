@@ -439,7 +439,7 @@
         justify-content: center;
         background: var(--bg-raised);
         border: 1px solid var(--border-subtle);
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         padding: var(--spacing-xs);
         box-shadow: var(--shadow-inset);
     }
@@ -519,7 +519,7 @@
         padding: var(--spacing-sm) var(--spacing-md);
         background: var(--danger-bg);
         border: 1px solid var(--danger-border);
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         width: 100%;
         box-sizing: border-box;
     }
@@ -598,7 +598,7 @@
     .reset-crystal {
         display: inline-flex;
         align-items: center;
-        gap: 2px;
+        gap: var(--spacing-xs);
         margin-left: var(--spacing-sm);
         color: var(--success-text);
         font-variant-numeric: tabular-nums;
