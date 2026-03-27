@@ -49,7 +49,7 @@
         "build": "vite build && node scripts/copy-404.cjs",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-        "test:ui": "tsx test/*.ui.test.ts",
+        "test:ui": "npm run test:ui:tier && npm run test:ui:capture && npm run test:ui:undo && npm run test:ui:locale",
         "test:ui:tier": "tsx test/tierLeveling.ui.test.ts",
         "test:ui:capture": "tsx test/captureScreenshot.ui.test.ts",
         "test:ui:undo": "tsx test/undoRedo.ui.test.ts",
