@@ -15,8 +15,6 @@
     import type { Component } from "svelte";
     import { triggerHaptic } from "./hapticsStore";
     import { isKeyboardAction } from "./input";
-    import { t } from "svelte-whisper";
-
     type FabMenuAction = {
         id: string;
         icon: Component;
@@ -27,11 +25,9 @@
     };
 
     export let actions: FabMenuAction[] = [];
-    export let ariaLabel: string | undefined = undefined;
+    export let ariaLabel = "Floating action menu";
     export let iconSize = 24;
     export let fabIcon: Component | null = null;
-
-    $: resolvedAriaLabel = ariaLabel ?? $t("common.actionMenu");
 
     let isOpen = false;
 
@@ -73,7 +69,7 @@
     <div
         class="fab-menu__items"
         role="toolbar"
-        aria-label={resolvedAriaLabel}
+        aria-label={ariaLabel}
         aria-hidden={!isOpen}
     >
         {#each actions as action, i (action.id)}
@@ -97,7 +93,7 @@
     <button
         type="button"
         class="fab-menu__trigger"
-        aria-label={isOpen ? $t("common.closeMenu") : resolvedAriaLabel}
+        aria-label={isOpen ? "Close menu" : ariaLabel}
         aria-expanded={isOpen}
         aria-haspopup="true"
         on:click={toggle}
@@ -308,7 +304,7 @@
         align-items: center;
         justify-content: center;
         transition:
-            opacity 0.15s ease,
+            opacity var(--ease-accel),
             transform var(--ease-emphasis);
     }
 
@@ -320,7 +316,7 @@
     /* When custom icon is present, hide cross bars when closed */
     .fab-menu__trigger-icon--custom + .fab-menu__trigger-icon--cross {
         opacity: 0;
-        transition: opacity 0.15s ease;
+        transition: opacity var(--ease-accel);
     }
 
     .fab-menu--open .fab-menu__trigger-icon--custom + .fab-menu__trigger-icon--cross {

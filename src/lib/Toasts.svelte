@@ -12,8 +12,6 @@
     import { triggerHaptic } from "./hapticsStore";
     import { CheckCircleIcon, WarningCircleIcon, XIcon } from "phosphor-svelte";
     import Spinner from "./Spinner.svelte";
-    import { t } from "svelte-whisper";
-
     function toastExit(node: Element, { id }: { id: string }) {
         if (suppressedExitIds.has(id) || prefersNoAnimations()) {
             suppressedExitIds.delete(id);
@@ -163,7 +161,7 @@
                     <div class="toast__action-row">
                         <button
                             class="toast__dismiss"
-                            aria-label={$t("common.dismiss")}
+                            aria-label="Dismiss"
                             on:click|stopPropagation={() => {
                                 triggerHaptic();
                                 dismissToast(toast.id);
@@ -342,6 +340,11 @@
             background 0.15s;
     }
 
+    .toast__dismiss:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
     @media (hover: hover) {
         .toast__dismiss:hover {
             opacity: 1;
@@ -379,6 +382,11 @@
         color: var(--text);
         border-color: color-mix(in srgb, var(--text) 30%, transparent);
         background: color-mix(in srgb, var(--text) 8%, transparent);
+    }
+
+    .toast__action:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
     }
 
     @media (hover: hover) {
