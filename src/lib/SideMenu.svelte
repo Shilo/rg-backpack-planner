@@ -28,6 +28,7 @@
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
     import { animationsDisabled } from "./reduceMotionStore";
+    import { createLazyModuleLoader } from "./lazyModuleLoader";
 
     let sideMenuTabs: TabBarItem[] = [];
     $: sideMenuTabs = [
@@ -66,6 +67,19 @@
     let SideMenuSettingsPage: any = null;
     let SideMenuStatisticsPage: any = null;
     let SideMenuControlsPage: any = null;
+    let lazyTabLoaderVersion = 0;
+    const lazyTabLoader = createLazyModuleLoader<SideMenuTab, any>(
+        {
+            settings: () => import("./sideMenuPages/SideMenuSettingsPage.svelte"),
+            statistics: () =>
+                import("./sideMenuPages/SideMenuStatisticsPage.svelte"),
+            controls: () => import("./sideMenuPages/SideMenuControlsPage.svelte"),
+        },
+        () => {
+            lazyTabLoaderVersion += 1;
+        },
+        "side menu tab",
+    );
     let settingsPageRef: {
         tryGoBack?: () => boolean;
         navigateTo?: (
@@ -73,42 +87,42 @@
             aboutScrollTarget?: AboutScrollTarget | null,
         ) => Promise<void>;
     } | null = null;
+    let pendingSettingsNavigation: {
+        page: SettingsPageId;
+        aboutScrollTarget: AboutScrollTarget | null;
+    } | null = null;
 
     export function tryGoBack(): boolean {
         if (activeTab !== "settings") return false;
         return settingsPageRef?.tryGoBack?.() ?? false;
     }
 
-    async function handleOpenAbout(
+    function handleOpenAbout(
         aboutScrollTarget: AboutScrollTarget | null = null,
     ) {
-        await loadTabPage("settings");
+        pendingSettingsNavigation = {
+            page: "about",
+            aboutScrollTarget,
+        };
         activeTab = "settings";
         setActiveTab(activeTab);
-        await tick();
-        settingsPageRef?.navigateTo?.("about", aboutScrollTarget);
+        void loadTabPage("settings");
     }
 
     async function loadTabPage(tab: SideMenuTab): Promise<void> {
-        if (tab === "settings" && !SideMenuSettingsPage) {
-            SideMenuSettingsPage = (
-                await import("./sideMenuPages/SideMenuSettingsPage.svelte")
-            ).default;
-        } else if (tab === "statistics" && !SideMenuStatisticsPage) {
-            SideMenuStatisticsPage = (
-                await import("./sideMenuPages/SideMenuStatisticsPage.svelte")
-            ).default;
-        } else if (tab === "controls" && !SideMenuControlsPage) {
-            SideMenuControlsPage = (
-                await import("./sideMenuPages/SideMenuControlsPage.svelte")
-            ).default;
-        }
+        await lazyTabLoader.ensure(tab);
     }
 
     // Use get() for one-time init instead of $sideMenuActiveTab auto-subscription.
     // Tab changes are driven by direct assignment in handleSideMenuTabChange/openTab.
     let activeTab: SideMenuTab = get(sideMenuActiveTab);
     $: void loadTabPage(activeTab);
+    $: {
+        lazyTabLoaderVersion;
+        SideMenuSettingsPage = lazyTabLoader.getComponent("settings");
+        SideMenuStatisticsPage = lazyTabLoader.getComponent("statistics");
+        SideMenuControlsPage = lazyTabLoader.getComponent("controls");
+    }
     let scrollContentElement: HTMLElement | null = null;
     let animateContentIn = false;
     let contentEnterFrame: number | null = null;
@@ -138,11 +152,14 @@
             contentEnterTimer = window.setTimeout(() => {
                 animateContentIn = false;
                 contentEnterTimer = null;
-            }, 180);
+            }, 420);
         });
     }
 
     export function openTab(tab: SideMenuTab, persist: boolean = true) {
+        if (tab !== "settings") {
+            pendingSettingsNavigation = null;
+        }
         activeTab = tab;
         if (persist) {
             setActiveTab(tab);
@@ -153,6 +170,9 @@
 
     function handleSideMenuTabChange(tabId: string) {
         activeTab = tabId as SideMenuTab;
+        if (activeTab !== "settings") {
+            pendingSettingsNavigation = null;
+        }
         setActiveTab(activeTab);
         triggerHaptic();
     }
@@ -172,11 +192,25 @@
         animateContentIn = false;
     }
 
+    $: if (!isOpen) {
+        pendingSettingsNavigation = null;
+    }
+
     $: if (isOpen !== prevIsOpen) {
         prevIsOpen = isOpen;
         if (isOpen) {
             startContentEnterAnimation();
         }
+    }
+
+    $: if (
+        activeTab === "settings" &&
+        settingsPageRef &&
+        pendingSettingsNavigation
+    ) {
+        const { page, aboutScrollTarget } = pendingSettingsNavigation;
+        pendingSettingsNavigation = null;
+        void settingsPageRef.navigateTo?.(page, aboutScrollTarget);
     }
 
     $: if (activeTab !== prevAnimatedTab) {
@@ -298,7 +332,9 @@
         background: var(--bg-panel);
         border-left: var(--border-width) solid var(--border-subtle);
         transform: translateX(100%);
-        transition: transform 0.25s cubic-bezier(0.05, 0.7, 0.1, 1);
+        transition:
+            transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         padding: 0;
         display: flex;
         flex-direction: column;
@@ -308,7 +344,17 @@
 
     .side-menu.open {
         transform: translateX(0);
-        box-shadow: var(--shadow-lateral);
+        box-shadow:
+            var(--shadow-lateral),
+            -1px 0 20px color-mix(in srgb, var(--accent) 12%, transparent);
+        border-left-color: color-mix(in srgb, var(--accent) 30%, var(--border-subtle));
+    }
+
+    /* Faster exit than entrance */
+    .side-menu:not(.open) {
+        transition:
+            transform 0.2s cubic-bezier(0.3, 0, 0.8, 0.15),
+            box-shadow 0.2s cubic-bezier(0.3, 0, 0.8, 0.15);
     }
 
     .side-menu__content {
@@ -359,7 +405,7 @@
 
     .side-menu__content-inner {
         display: grid;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-xl);
     }
 
     .side-menu__content-inner > :global(:first-child) {
@@ -367,7 +413,7 @@
     }
 
     .side-menu__content-inner > :global(:last-child) {
-        margin-bottom: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
     }
 
     /* Controls tab renders edge-to-edge rows — no bottom margin needed */
@@ -378,7 +424,7 @@
     /* When the last child is hidden (e.g. a portal wrapper), apply the bottom
        margin to the preceding visible sibling instead. */
     .side-menu__content-inner > :global(:has(+ [hidden]:last-child)) {
-        margin-bottom: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
     }
 
     .side-menu__scroll-area {
@@ -389,24 +435,14 @@
     }
 
     .side-menu__content-inner.animate-content-in > :global(*) {
-        animation: side-menu-item-in var(--ease-decel) both;
+        animation: side-menu-item-in 200ms var(--ease-decel) both;
     }
-    .side-menu__content-inner.animate-content-in > :global(:nth-child(1)) {
-        animation-delay: 15ms;
-    }
-    .side-menu__content-inner.animate-content-in > :global(:nth-child(2)) {
-        animation-delay: 35ms;
-    }
-    .side-menu__content-inner.animate-content-in > :global(:nth-child(3)) {
-        animation-delay: 55ms;
-    }
-    .side-menu__content-inner.animate-content-in > :global(:nth-child(4)) {
-        animation-delay: 75ms;
-    }
-    .side-menu__content-inner.animate-content-in > :global(:nth-child(5)) {
-        animation-delay: 95ms;
-    }
-    .side-menu__content-inner.animate-content-in > :global(:nth-child(6)) {
-        animation-delay: 115ms;
-    }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(1)) { animation-delay: 30ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(2)) { animation-delay: 65ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(3)) { animation-delay: 100ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(4)) { animation-delay: 130ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(5)) { animation-delay: 155ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(6)) { animation-delay: 175ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(7)) { animation-delay: 195ms; }
+    .side-menu__content-inner.animate-content-in > :global(:nth-child(8)) { animation-delay: 210ms; }
 </style>

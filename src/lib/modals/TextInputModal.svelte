@@ -156,7 +156,7 @@
         font-size: var(--font-base);
         font-family: inherit;
         outline: none;
-        transition: border-color 0.15s ease;
+        transition: border-color var(--ease-accel);
     }
 
     .modal-input:focus {

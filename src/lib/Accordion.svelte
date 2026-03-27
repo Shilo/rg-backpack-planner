@@ -56,7 +56,7 @@
         gap: var(--spacing-md);
         width: 100%;
         min-height: 38px;
-        padding: var(--spacing-sm) var(--spacing-lg);
+        padding: var(--spacing-md) var(--spacing-lg);
         background: transparent;
         border: none;
         color: var(--text-muted);
@@ -77,6 +77,7 @@
 
     .accordion-header:active {
         background: color-mix(in srgb, var(--text) 12%, transparent);
+        transform: scale(0.985);
     }
 
     .accordion-header:focus-visible {
@@ -91,22 +92,18 @@
         width: 26px;
         flex-shrink: 0;
         color: var(--text-muted);
-        opacity: 0.85;
-        transition:
-            opacity var(--ease),
-            color var(--ease);
+        transition: color var(--ease);
     }
 
     .is-open .accordion-icon {
-        opacity: 1;
         color: var(--accent-light);
     }
 
     .accordion-title {
         flex: 1;
-        font-size: var(--font-sm);
-        font-weight: var(--weight-semibold);
-        letter-spacing: var(--tracking-wide);
+        font-size: var(--font-base);
+        font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking);
         text-transform: uppercase;
         color: var(--text-muted);
     }
@@ -118,13 +115,14 @@
         opacity: 0.5;
         color: var(--text-muted);
         transform: rotate(-90deg);
-        transition: transform var(--ease-standard);
+        transition:
+            transform var(--ease-standard),
+            color var(--ease);
     }
 
     .is-open .accordion-arrow {
         transform: rotate(0deg);
         color: var(--accent-light);
-        opacity: 0.8;
     }
 
     .is-open .accordion-header {
@@ -147,12 +145,12 @@
     .accordion-content {
         min-height: 0;
         opacity: 0;
-        transition: opacity 0.15s ease;
+        transition: opacity var(--ease-accel);
     }
 
     .is-open .accordion-content {
         opacity: 1;
-        transition: opacity 0.2s 0.05s ease;
+        transition: opacity var(--ease);
     }
 
     @media (prefers-reduced-motion: reduce) {

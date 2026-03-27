@@ -84,6 +84,7 @@
     } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
     import { toggleFullscreen } from "./lib/fullscreen";
+    import { initMilestoneTracking, resetMilestones } from "./lib/treeMilestoneStore";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -345,6 +346,10 @@
             unsubscribeTechCrystals = techCrystalsOwned.subscribe(
                 persistToActivePreset,
             );
+
+            // Re-init milestone tracking for personal mode
+            unsubscribeMilestones?.();
+            unsubscribeMilestones = initMilestoneTracking();
         }
     }
 
@@ -352,6 +357,12 @@
         completeOnboarding();
         teardownOnboardingPreview();
         onboardingPreviewSetupDone = false;
+        const allEmpty = get(treeLevels).every(
+            (levels) => sumLevels(levels) === 0,
+        );
+        if (allEmpty) {
+            showToastDelayed($t("tree.emptyStateHint"), { showIcon: false });
+        }
     }
 
     $: if (
@@ -366,6 +377,7 @@
     // Subscriptions for preview mode and persistence, reused across URL re-initializations
     let unsubscribeTreeLevels: (() => void) | null = null;
     let unsubscribeTechCrystals: (() => void) | null = null;
+    let unsubscribeMilestones: (() => void) | null = null;
 
     /**
      * Initialize app state based on the current URL.
@@ -392,6 +404,8 @@
         unsubscribeTreeLevels = null;
         unsubscribeTechCrystals?.();
         unsubscribeTechCrystals = null;
+        unsubscribeMilestones?.();
+        unsubscribeMilestones = null;
 
         // Check if there's a build in the URL (hash-based: /{base}#{recommended} or /{base}#/{custom})
         // Only enter preview mode if we can actually resolve valid build data.
@@ -508,7 +522,7 @@
             );
 
             // Check if we just stopped preview mode or cloned build
-            tryShowStoppedPreviewToast(activePreset?.name);
+            const didStopPreview = tryShowStoppedPreviewToast(activePreset?.name);
             tryShowClonedBuildToast();
 
             const fallbackBuildData: BuildData = {
@@ -526,6 +540,18 @@
                 applyBuildData(tabs, fallbackBuildData);
             }
 
+            // After returning from preview to an empty personal build, show a gentle hint
+            if (didStopPreview) {
+                const allEmpty = get(treeLevels).every(
+                    (levels) => sumLevels(levels) === 0,
+                );
+                if (allEmpty) {
+                    showToastDelayed($t("tree.emptyStateHint"), {
+                        showIcon: false,
+                    });
+                }
+            }
+
             // Persist personal mode changes to active preset (subscribe to treeLevels and techCrystalsOwned)
             const persistToActivePreset = () => {
                 if (get(isPreviewMode)) return;
@@ -539,6 +565,9 @@
             unsubscribeTechCrystals = techCrystalsOwned.subscribe(
                 persistToActivePreset,
             );
+
+            // Start milestone tracking for personal mode
+            unsubscribeMilestones = initMilestoneTracking();
         }
         if (!undoHistory.restoreFromSession(activeTreeIndex)) {
             undoHistory.clearHistory(activeTreeIndex);
@@ -719,6 +748,7 @@
         return () => {
             unsubscribeTreeLevels?.();
             unsubscribeTechCrystals?.();
+            unsubscribeMilestones?.();
 
             if (typeof document !== "undefined") {
                 document.removeEventListener(

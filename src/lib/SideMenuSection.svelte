@@ -29,11 +29,13 @@
 
     .side-menu-section__title {
         margin: 0;
-        font-size: var(--font-sm);
+        font-size: var(--font-xs);
         font-weight: var(--weight-semibold);
-        letter-spacing: 0.06em;
+        letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: var(--text-disabled);
+        padding-left: var(--spacing-sm);
+        border-left: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
     }
 
     .side-menu-section__action {
@@ -48,7 +50,7 @@
 
     .side-menu-section__content {
         display: grid;
-        gap: var(--spacing-md);
+        gap: var(--spacing-lg);
     }
 
     .side-menu-section__content > :global(.button:has(.button-text:not(:empty))),

@@ -64,6 +64,24 @@
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
 
     let hovered = false;
+    /** True while a touch pointer is down on this node (survives capture-induced pointerleave). */
+    let pressed = false;
+    let pressedPointerId: number | null = null;
+
+    function handleNodePointerDown(event: PointerEvent) {
+        if (event.pointerType !== "touch") return;
+        pressed = true;
+        pressedPointerId = event.pointerId;
+        const onEnd = (e: PointerEvent) => {
+            if (e.pointerId !== pressedPointerId) return;
+            pressed = false;
+            pressedPointerId = null;
+            window.removeEventListener("pointerup", onEnd, true);
+            window.removeEventListener("pointercancel", onEnd, true);
+        };
+        window.addEventListener("pointerup", onEnd, true);
+        window.addEventListener("pointercancel", onEnd, true);
+    }
 
     $: isAlternate = resolveModifiers($inputStore).alternate;
 
@@ -75,8 +93,10 @@
         ? { op: "decrementByAlternate" as const }
         : { op: "decrementByStore" as const };
 
-    // Only compute expensive previews for the hovered node (not all mounted nodes).
-    $: incrementPreview = hovered && skillId != null && incrementOp
+    // Compute previews when hovered (desktop) or pressed (touch).
+    $: previewActive = (hovered || pressed) && skillId != null;
+
+    $: incrementPreview = previewActive && incrementOp
         ? getNodeActionPreviewFromOp({
             nodes: $treeData.nodes,
             levels: $treeData.levels,
@@ -87,7 +107,7 @@
         })
         : null;
 
-    $: decrementPreview = hovered && skillId != null && decrementOp
+    $: decrementPreview = previewActive && decrementOp
         ? getNodeActionPreviewFromOp({
             nodes: $treeData.nodes,
             levels: $treeData.levels,
@@ -100,10 +120,10 @@
 
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
+    /** On touch, only show action-preview sections (skip text-only name tooltip). */
     $: tooltipSections = (() => {
-        if ($touchPrimary) return [];
         const sections: TooltipSection[] = [];
-        if (tooltipLine1) {
+        if (!$touchPrimary && tooltipLine1) {
             sections.push({ type: "text", value: tooltipLine1 });
         }
         if (state === "locked" && isGlobalIncrementLocked) return sections;
@@ -127,10 +147,14 @@
         return sections;
     })();
 
+    /** Touch preview delay (ms): shows action-preview tooltip on touch-down.
+     *  Short enough to appear during the touch, before the context menu long-press fires. */
+    const TOUCH_PREVIEW_MS = 80;
+
     $: tooltipParam =
         tooltipSections.length === 0
             ? undefined
-            : { content: tooltipSections, hoverOnly: true };
+            : { content: tooltipSections, hoverOnly: true, touchPreviewMs: TOUCH_PREVIEW_MS };
 
     /** Name badge text: short skill name when skillId is set, else label (tooltip/aria use full label). */
     $: badgeLabel =
@@ -150,11 +174,16 @@
     };
     let prevState: NodeState = state;
     let stateTransitionKey = 0;
+    let crownGlowKey = 0;
     $: if (state !== prevState) {
         const wasPromote = STATE_RANK[state] > STATE_RANK[prevState];
+        const justMaxed = state === "maxed" && prevState !== "maxed";
         prevState = state;
         if (wasPromote) {
             stateTransitionKey++;
+        }
+        if (justMaxed) {
+            crownGlowKey++;
         }
     }
 
@@ -190,6 +219,7 @@
     use:tooltip={tooltipParam}
     on:pointerenter={() => { hovered = true; }}
     on:pointerleave={() => { hovered = false; }}
+    on:pointerdown={handleNodePointerDown}
 >
     <Button
         class={`node ${state} region-${region} ${isLeaf ? "node-hexagon" : ""}`}
@@ -240,11 +270,15 @@
                     data-node-id={String(id)}
                 >
                     {#if isMaxed}
-                        <CrownIcon
-                            class="node-level-badge-max"
-                            weight="fill"
-                            aria-label="max"
-                        />
+                        {#key crownGlowKey}
+                            <span class="crown-glow-wrap" class:crown-glow-anim={crownGlowKey > 0}>
+                                <CrownIcon
+                                    class="node-level-badge-max"
+                                    weight="fill"
+                                    aria-label="max"
+                                />
+                            </span>
+                        {/key}
                     {:else}
                         {#if showTier}
                             <span>{"★".repeat(tier)}</span>
@@ -642,12 +676,12 @@
 
     .node-wrapper:active .node-badge {
         filter: var(--brightness-hover);
-        transform: scale(calc(var(--node-badge-scale, 1) * 0.9));
+        transform: scale(calc(var(--node-badge-scale, 1) * 0.88));
     }
 
     .node-wrapper:active :global(.button.node:not(:disabled)) {
         filter: var(--brightness-hover);
-        transform: scale(0.96);
+        transform: scale(0.92);
     }
 
     .node-level-badge {
@@ -667,6 +701,34 @@
     .node-level-badge-max-container {
         border-radius: 50%;
         aspect-ratio: 1;
+    }
+
+    .crown-glow-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .crown-glow-anim {
+        animation: crown-glow 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes crown-glow {
+        0% {
+            filter: brightness(1) drop-shadow(0 0 0 transparent);
+            transform: scale(0.6);
+        }
+        30% {
+            filter: brightness(1.6) drop-shadow(0 0 4px var(--accent-light));
+            transform: scale(1.15);
+        }
+        60% {
+            transform: scale(0.95);
+        }
+        100% {
+            filter: brightness(1) drop-shadow(0 0 0 transparent);
+            transform: scale(1);
+        }
     }
 
     /* Node state styles */
@@ -694,6 +756,7 @@
         background: var(--bg-active);
         border-color: var(--border-color-active);
         color: var(--text-color-active);
+        box-shadow: var(--shadow-node), 0 0 8px color-mix(in srgb, var(--border-color-active) 30%, transparent);
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
@@ -704,6 +767,7 @@
         background: var(--bg-active);
         border-color: var(--border-color-active);
         color: var(--text-color-active);
+        box-shadow: var(--shadow-node), 0 0 10px color-mix(in srgb, var(--border-color-active) 35%, transparent);
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
@@ -716,7 +780,7 @@
         border-radius: inherit;
         pointer-events: none;
         z-index: 2;
-        animation: state-bounce 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation: state-bounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     .node-wrapper-hex .state-cascade-bounce {
@@ -726,16 +790,19 @@
 
     @keyframes state-bounce {
         0% {
-            transform: scale(0.88);
+            transform: scale(0.82);
             opacity: 1;
+            box-shadow: 0 0 0 0 var(--node-flash-color);
         }
-        60% {
-            transform: scale(1.06);
-            opacity: 0.6;
+        50% {
+            transform: scale(1.1);
+            opacity: 0.7;
+            box-shadow: 0 0 16px 4px color-mix(in srgb, var(--node-flash-color, var(--accent)) 40%, transparent);
         }
         100% {
             transform: scale(1);
             opacity: 0;
+            box-shadow: 0 0 0 0 transparent;
         }
     }
 
@@ -783,6 +850,10 @@
 
     @media (prefers-reduced-motion: reduce) {
         .state-cascade-bounce {
+            animation: none;
+        }
+
+        .crown-glow-anim {
             animation: none;
         }
 

@@ -76,7 +76,7 @@
     .section-title {
         flex: 1;
         font-size: var(--font-sm);
-        font-weight: var(--weight-semibold);
+        font-weight: var(--weight-bold);
         letter-spacing: var(--tracking-wide);
         text-transform: uppercase;
         color: var(--text-muted);
@@ -91,16 +91,17 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0.4;
+        opacity: 0.5;
         color: var(--text-muted);
         transform: rotate(-90deg);
-        transition: transform var(--ease-standard);
+        transition:
+            transform var(--ease-standard),
+            color var(--ease);
     }
 
     .is-open .section-arrow {
         transform: rotate(0deg);
         color: var(--accent-light);
-        opacity: 0.7;
     }
 
     .section-body {
@@ -117,12 +118,12 @@
     .section-content {
         min-height: 0;
         opacity: 0;
-        transition: opacity 0.15s ease;
+        transition: opacity var(--ease-accel);
     }
 
     .is-open .section-content {
         opacity: 1;
-        transition: opacity 0.2s 0.05s ease;
+        transition: opacity var(--ease);
     }
 
     @media (prefers-reduced-motion: reduce) {

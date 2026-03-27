@@ -179,11 +179,9 @@
 
     :global(.undo-redo-toolbar__icon-reset) {
         color: var(--accent-danger);
-        opacity: 0.85;
     }
 
     :global(.undo-redo-toolbar__btn:disabled .undo-redo-toolbar__icon-reset) {
         color: var(--text-disabled);
-        opacity: 0.5;
     }
 </style>

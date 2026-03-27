@@ -214,6 +214,7 @@
         isUp: boolean;
         crystalDelta: number;
         skipEntry: boolean;
+        isMaxed: boolean;
     };
     let activeSplashes: SplashData[] = [];
 
@@ -671,14 +672,16 @@
                     targetLevel > currentLevel
                         ? sumDeltaCosts(nodes, prevLevels, deltas)
                         : -sumDeltaCosts(nodes, prevLevels, deltas);
+                const nodeIsMaxed = targetLevel > currentLevel && newLevel >= targetNode.maxLevel;
                 const newSplash: SplashData = {
                     nodeIndex: index,
                     x: targetNode.x,
                     y: targetNode.y,
-                    level: getLevelFrom(nextLevels, index),
+                    level: newLevel,
                     isUp: targetLevel > currentLevel,
                     crystalDelta: totalCrystalDelta,
                     skipEntry: false,
+                    isMaxed: nodeIsMaxed,
                 };
                 activeSplashes = [
                     ...activeSplashes.filter((s) => s.nodeIndex !== index),
@@ -797,6 +800,7 @@
                             isUp: false,
                             crystalDelta: totalCrystalDelta,
                             skipEntry: true,
+                            isMaxed: false,
                         },
                     ];
                 }
@@ -1149,6 +1153,7 @@
                 panActive = true;
                 clearLongPress(longPressState);
                 suppressTooltip(primaryPointerId);
+                hideTooltip();
             }
 
             if (panActive) {
@@ -1919,6 +1924,7 @@
                         y={splash.y}
                         level={splash.level}
                         isUp={splash.isUp}
+                        isMaxed={splash.isMaxed}
                         crystalDelta={splash.crystalDelta}
                         skipEntry={splash.skipEntry}
                         {scale}

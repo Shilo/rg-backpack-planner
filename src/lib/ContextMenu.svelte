@@ -511,6 +511,39 @@
         animation: none;
     }
 
+    @media (hover: hover) {
+        .context-menu :global(.button:not(:disabled):hover),
+        .context-menu :global(.node-ctx-btn:not(:disabled):hover) {
+            background: var(--bg-tinted);
+            border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+        }
+
+        .context-menu :global(.button.button-negative:not(:disabled):hover) {
+            background: var(--danger-bg);
+            border-color: var(--danger-border);
+        }
+
+        .context-menu :global(.button.button-positive:not(:disabled):hover) {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+        }
+
+        .context-menu :global(.node-ctx-btn.positive:not(:disabled):hover) {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+        }
+
+        .context-menu :global(.node-ctx-btn.negative:not(:disabled):hover) {
+            background: var(--danger-bg);
+            border-color: var(--danger-border);
+        }
+    }
+
+    .context-menu :global(.button:not(:disabled):focus-visible),
+    .context-menu :global(.node-ctx-btn:not(:disabled):focus-visible) {
+        outline-color: var(--accent);
+    }
+
     @keyframes ctx-menu-enter {
         from { opacity: 0; }
         to { opacity: 1; }

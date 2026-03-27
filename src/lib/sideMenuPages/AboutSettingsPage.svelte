@@ -18,6 +18,7 @@
     import { getCurrentVersion } from "../latestUsedVersionStore";
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { t } from "svelte-whisper";
+    import { showToast } from "../toast";
 
     export let onBack: (() => void) | null = null;
     export let onClose: (() => void) | null = null;
@@ -32,6 +33,23 @@
     let advancedOpened = false;
     let gameRulesSectionElement: HTMLDivElement | null = null;
     let handledAboutScrollTarget: AboutScrollTarget | null = null;
+
+    // Easter egg: tap version number 7 times
+    let versionTaps = 0;
+    let versionTapTimer: ReturnType<typeof setTimeout> | null = null;
+    let easterEggFound = false;
+
+    function handleVersionTap() {
+        if (easterEggFound) return;
+        versionTaps++;
+        if (versionTapTimer) clearTimeout(versionTapTimer);
+        versionTapTimer = setTimeout(() => { versionTaps = 0; }, 2000);
+        if (versionTaps >= 7) {
+            easterEggFound = true;
+            versionTaps = 0;
+            showToast($t("about.easterEggToast"), { durationMs: 3500 });
+        }
+    }
 
     const version = getCurrentVersion();
 
@@ -87,12 +105,12 @@
             </div>
         </div>
         {#if versionLabel}
-            <div class="about-info-row">
+            <button class="about-info-row about-info-row--tappable" on:click={handleVersionTap}>
                 <span class="about-info-label"
                     >{$t("settings.aboutVersion")}</span
                 >
                 <span class="about-info-value">{versionLabel}</span>
-            </div>
+            </button>
         {/if}
     </div>
 
@@ -165,8 +183,8 @@
     .about-app-row {
         display: flex;
         align-items: center;
-        gap: var(--spacing-md);
-        padding: var(--spacing-lg);
+        gap: var(--spacing-lg);
+        padding: var(--spacing-xl);
     }
 
     .about-app-icon {
@@ -191,10 +209,11 @@
     }
 
     .about-app-name {
-        font-size: var(--font-base);
+        font-size: var(--font-lg);
         font-weight: var(--weight-bold);
+        letter-spacing: var(--tracking-tight);
         color: var(--text);
-        line-height: var(--leading);
+        line-height: var(--leading-tight);
     }
 
     .about-app-description {
@@ -208,8 +227,22 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: var(--spacing-md) var(--spacing-xl);
+        border-top: var(--border-width) solid var(--border);
+    }
+
+    button.about-info-row--tappable {
+        all: unset;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         padding: var(--spacing-sm) var(--spacing-lg);
         border-top: var(--border-width) solid var(--border);
+        width: 100%;
+        box-sizing: border-box;
+        cursor: default;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
     }
 
     .about-info-label {
@@ -236,8 +269,8 @@
     .rule-row {
         display: flex;
         align-items: flex-start;
-        gap: var(--spacing-md);
-        padding: var(--spacing-md) var(--spacing-lg);
+        gap: var(--spacing-lg);
+        padding: var(--spacing-lg) var(--spacing-xl);
         border-bottom: var(--border-width) solid var(--border-subtle);
     }
 

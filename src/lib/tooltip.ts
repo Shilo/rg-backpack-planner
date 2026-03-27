@@ -15,7 +15,7 @@ export type TooltipContent = string | TooltipSection[];
 
 export type TooltipParam =
     | TooltipContent
-    | { content: TooltipContent; hoverOnly?: boolean };
+    | { content: TooltipContent; hoverOnly?: boolean; touchPreviewMs?: number };
 
 type TooltipState = {
     isOpen: boolean;
@@ -99,17 +99,18 @@ function normalizeContent(value?: TooltipContent): TooltipSection[] {
 function parseTooltipParam(value?: TooltipParam): {
     sections: TooltipSection[];
     hoverOnly: boolean;
+    touchPreviewMs: number | null;
 } {
-    if (value == null) return { sections: [], hoverOnly: false };
+    if (value == null) return { sections: [], hoverOnly: false, touchPreviewMs: null };
     if (typeof value === "object" && "content" in value) {
-        const { content, hoverOnly = false } = value;
-        return { sections: normalizeContent(content), hoverOnly };
+        const { content, hoverOnly = false, touchPreviewMs } = value;
+        return { sections: normalizeContent(content), hoverOnly, touchPreviewMs: touchPreviewMs ?? null };
     }
-    return { sections: normalizeContent(value as TooltipContent), hoverOnly: false };
+    return { sections: normalizeContent(value as TooltipContent), hoverOnly: false, touchPreviewMs: null };
 }
 
 export function tooltip(node: HTMLElement, value?: TooltipParam) {
-    let { sections, hoverOnly } = parseTooltipParam(value);
+    let { sections, hoverOnly, touchPreviewMs } = parseTooltipParam(value);
     let hoverTimer: number | null = null;
     let pressTimer: number | null = null;
     let activePointerId: number | null = null;
@@ -156,15 +157,19 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
 
     const schedulePress = (event: PointerEvent) => {
         if (event.pointerType !== "touch") return;
-        if (!hasContent()) return;
+        // For touch previews, skip the early content check — sections may arrive
+        // via a reactive update after pointerdown but before the timer fires.
+        if (touchPreviewMs === null && !hasContent()) return;
         activePointerId = event.pointerId;
         pressStart = { x: event.clientX, y: event.clientY };
         lastPoint = { x: event.clientX, y: event.clientY };
         clearPressTimer();
+        const delayMs = touchPreviewMs ?? PRESS_DELAY_MS;
         pressTimer = window.setTimeout(() => {
             if (isSuppressed(activePointerId)) return;
+            if (!hasContent()) return;
             showTooltip(node, sections, lastPoint);
-        }, PRESS_DELAY_MS);
+        }, delayMs);
     };
 
     const handlePointerEnter = (event: PointerEvent) => {
@@ -197,6 +202,9 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
             hoverSuppressed = false;
         }
         clearHoverTimer();
+        // During a touch press (e.g. pointer capture by the viewport),
+        // keep the tooltip alive so touch previews survive capture-induced leave.
+        if (pressActive && pressTimer !== null) return;
         hideTooltip(node);
     };
 
@@ -223,7 +231,8 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
         window.addEventListener("pointerup", onEnd, true);
         window.addEventListener("pointercancel", onEnd, true);
 
-        if (!hoverOnly) schedulePress(event);
+        const shouldSchedulePress = !hoverOnly || (touchPreviewMs !== null && event.pointerType === "touch");
+        if (shouldSchedulePress) schedulePress(event);
         if (event.pointerType === "touch") {
             attachGlobalPointerEnd(event.pointerId);
         }
@@ -276,7 +285,7 @@ export function tooltip(node: HTMLElement, value?: TooltipParam) {
     return {
         update(nextValue?: TooltipParam) {
             const hadContent = hasContent();
-            ({ sections, hoverOnly } = parseTooltipParam(nextValue));
+            ({ sections, hoverOnly, touchPreviewMs } = parseTooltipParam(nextValue));
             if (currentOwner === node) {
                 if (hasContent()) {
                     updateTooltipText(node, sections);

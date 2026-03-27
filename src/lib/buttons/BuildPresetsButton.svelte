@@ -40,6 +40,7 @@
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
+    import { resetMilestones } from "../treeMilestoneStore";
 
     export let disabled: boolean | undefined = false;
 
@@ -148,6 +149,7 @@
         setActivePresetId(presetId);
         applyBuildData(tabs, buildData);
         undoHistory.clearHistory(0);
+        resetMilestones();
         showToast(
             $t("buildPresets.viewingPresetToast", {
                 name: truncateText(getDisplayPresetName(preset.name)),
@@ -510,14 +512,18 @@
     :global(.preset-name-btn.active) {
         background: color-mix(
             in srgb,
-            var(--surface) 78%,
+            var(--surface) 65%,
             var(--accent)
         ) !important;
         border-color: color-mix(
             in srgb,
-            var(--accent) 55%,
+            var(--accent) 65%,
             var(--border)
         ) !important;
+        box-shadow:
+            inset 3px 0 0 var(--accent),
+            0 0 10px color-mix(in srgb, var(--accent) 15%, transparent) !important;
+        color: var(--text) !important;
     }
 
     :global(.preset-name-btn .button-text) {
@@ -541,9 +547,20 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
+        padding: var(--spacing-xs) 0;
+    }
+
+    :global(.preset-name-btn) {
+        transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease !important;
     }
 
     :global(.move-buttons-row button) {
         flex: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        :global(.preset-name-btn) {
+            transition: none !important;
+        }
     }
 </style>

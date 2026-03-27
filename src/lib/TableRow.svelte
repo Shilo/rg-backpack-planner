@@ -140,7 +140,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 3px;
+        gap: var(--spacing-xs);
         flex-shrink: 0;
     }
 

@@ -24,6 +24,18 @@ if (
     );
 }
 
+if (/await loadTabPage\("settings"\);/.test(sideMenuSource)) {
+    throw new Error(
+        "SideMenu should not wait for the settings shell to lazy-load before switching to it for About navigation.",
+    );
+}
+
+if (!/pendingSettingsNavigation/.test(sideMenuSource)) {
+    throw new Error(
+        "SideMenu should track a pending settings navigation while the settings shell is still lazy-loading.",
+    );
+}
+
 const settingsPageSource = readFileSync(
     resolve("src/lib/sideMenuPages/SideMenuSettingsPage.svelte"),
     "utf8",
