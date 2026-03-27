@@ -713,9 +713,31 @@
         --node-icon-color: var(--border-color-active);
     }
 
-    /* Unique (class-specific) nodes: dashed border to distinguish from common skills */
-    .node-wrapper-unique :global(.button.node) {
-        border-style: dashed;
+    /* Unique (class-specific) nodes: dashed border with fewer, wider-spaced dashes.
+       State rules (e.g. .button.node.active) have higher specificity — override all. */
+    .node-wrapper-unique :global(.button.node.locked),
+    .node-wrapper-unique :global(.button.node.available),
+    .node-wrapper-unique :global(.button.node.active),
+    .node-wrapper-unique :global(.button.node.maxed) {
+        border-color: transparent;
+    }
+
+    .node-wrapper-unique::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: var(--border-width) solid var(--node-icon-color);
+        -webkit-mask-image: repeating-conic-gradient(
+            black 0deg 24deg,
+            transparent 24deg 36deg
+        );
+        mask-image: repeating-conic-gradient(
+            black 0deg 24deg,
+            transparent 24deg 36deg
+        );
+        pointer-events: none;
+        z-index: 1;
     }
 
     /* State cascade: scale bounce on promotion (locked→available→active→maxed) */
