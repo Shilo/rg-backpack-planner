@@ -299,7 +299,6 @@
 <style>
     .side-menu__stats-card {
         display: grid;
-        gap: 0;
         border: var(--border-width) solid var(--border);
         border-radius: var(--radius);
         overflow: hidden;
@@ -307,9 +306,9 @@
 
     :global(.side-menu__stats-share) {
         justify-self: end;
-        padding: 0px !important;
-        min-height: 0px !important;
-        border-radius: 0px !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+        border-radius: 0 !important;
         background: transparent !important;
         border: none !important;
         color: var(--text-muted) !important;

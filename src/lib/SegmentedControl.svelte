@@ -114,10 +114,8 @@
 <style>
     .segmented-control {
         display: grid;
-        gap: 0;
         width: 100%;
         min-width: 0;
-        padding: 0;
         border: var(--border-width) solid var(--border);
         background: var(--bg-raised);
         border-radius: var(--radius);

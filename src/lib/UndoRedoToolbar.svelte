@@ -171,20 +171,10 @@
         padding: var(--spacing-md) !important;
     }
 
-    :global(.undo-redo-toolbar__btn:not(:disabled):hover) {
-        background: var(--bg-input) !important;
-    }
-
-    :global(.undo-redo-toolbar__btn:not(:disabled):active) {
-        background: var(--bg-input) !important;
-    }
-
+    :global(.undo-redo-toolbar__btn:not(:disabled):hover),
+    :global(.undo-redo-toolbar__btn:not(:disabled):active),
     :global(.undo-redo-toolbar__btn.button-flash:not(:disabled)) {
         background: var(--bg-input) !important;
-    }
-
-    :global(.undo-redo-toolbar__btn:disabled) {
-        background: transparent !important;
     }
 
     :global(.undo-redo-toolbar__icon-reset) {

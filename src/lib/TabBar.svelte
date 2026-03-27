@@ -60,8 +60,6 @@
     .tab-bar__tabs {
         display: flex;
         align-items: stretch;
-        gap: 0;
-        padding: 0;
         flex: 1;
         width: 100%;
         min-width: 0;

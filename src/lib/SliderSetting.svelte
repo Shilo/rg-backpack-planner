@@ -175,7 +175,6 @@
 <style>
     .slider-setting {
         display: grid;
-        gap: 0;
         width: 100%;
         min-width: 0;
         border: var(--border-width) solid var(--border);
