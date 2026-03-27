@@ -89,11 +89,21 @@
         setTimeout(() => scrollInputVisible(inputEl), 300);
     }
 
+    const ALLOWED_INPUT_KEYS = /^[\d+\-*\s]$/;
+
     function handleKeydown(event: KeyboardEvent) {
         if (isKeyboardAction(event, "confirm")) {
             event.preventDefault();
             event.stopPropagation();
             handleConfirm();
+            return;
+        }
+        // Allow control/navigation keys and modifier combos (Ctrl+A/C/V/X/Z)
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key.length > 1) return;
+        // Block non-numeric/math characters from being typed
+        if (!ALLOWED_INPUT_KEYS.test(event.key)) {
+            event.preventDefault();
         }
     }
 
