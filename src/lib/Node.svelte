@@ -713,9 +713,9 @@
         --node-icon-color: var(--border-color-active);
     }
 
-    /* Unique (class-specific) nodes: dashed border to distinguish from common skills */
+    /* Unique (class-specific) nodes: squircle shape to distinguish from common skills */
     .node-wrapper-unique :global(.button.node) {
-        border-style: dashed;
+        border-radius: 30%;
     }
 
     /* State cascade: scale bounce on promotion (locked→available→active→maxed) */
