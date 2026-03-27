@@ -224,7 +224,8 @@
 
     .special-skills-list {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: max-content max-content max-content;
+        justify-content: start;
         gap: var(--spacing-md);
         margin-bottom: var(--spacing-md);
         padding: 0;
@@ -255,6 +256,8 @@
         font-size: inherit;
         color: inherit;
         letter-spacing: 0.05em;
+        justify-self: start;
+        white-space: nowrap;
     }
 
     .special-skill-item :global(.meta-value) {

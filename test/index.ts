@@ -70,6 +70,8 @@ const TEST_FILES = [
     "nodePrimaryActionSetting.test.ts",
     "nodeLevelBehaviorSetting.test.ts",
     "showTierSetting.test.ts",
+    "treeContextMenuSkillLabelWidth.test.ts",
+    "treeContextMenuWidth.test.ts",
     "uppercaseTextSetting.test.ts",
     "treeTopLeftOrigin.test.ts",
     "imageViewerLayout.test.ts",

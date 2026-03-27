@@ -67,7 +67,6 @@
         flex-direction: column;
         gap: var(--spacing-md);
         width: min-content;
-        min-width: 15rem;
         align-items: stretch;
     }
 </style>
