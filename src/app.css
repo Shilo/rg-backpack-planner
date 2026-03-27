@@ -318,11 +318,6 @@ textarea,
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes toast-enter-negative {
-    0% { opacity: 0; transform: translateY(4px) scale(0.97); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
 @keyframes toast-progress {
     from { transform: scaleX(1); }
     to { transform: scaleX(0); }

@@ -272,7 +272,6 @@
         background: var(--danger-bg);
         border-color: var(--danger-border);
         color: var(--danger-text);
-        animation-name: toast-enter-negative;
         animation-duration: 0.2s;
     }
 

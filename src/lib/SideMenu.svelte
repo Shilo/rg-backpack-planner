@@ -302,7 +302,6 @@
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 0px;
         overflow: hidden;
         z-index: var(--z-index-side-menu);
     }
