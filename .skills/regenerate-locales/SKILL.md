@@ -56,6 +56,7 @@ Translate all non-English locale files in `src/locales/` based on the English so
 ### Structure
 - The output JSON must have the **exact same key structure** as `en.json` -- same nesting, same keys, same order.
 - If `en.json` has added new keys since the last generation, add them. If keys were removed, remove them. The structure must be a 1:1 mirror.
+- **Exception: ARIA-only locale keys must not exist.** Do not add or preserve dedicated accessibility-only paths such as `ariaLabel`, `aria-label`, or similar keys in locale files. If they appear in `en.json` or another locale, remove them from every locale instead of translating them.
 
 ### What to translate
 - Translate the **values** (the English text), not the keys.
@@ -71,6 +72,7 @@ Translate all non-English locale files in `src/locales/` based on the English so
 - **Proper nouns / brand names**: `"Backpack Planner"`, `"GitHub"`, `"HEX"`, `"PvE"`, `"PvP"`, `"PWA"` -- keep in English unless `src/locales/term-mappings/<locale>.json` provides a canonical localized value for that exact path.
 - **Numeric/symbol-only values**: `"+1"`, `"+10"`, `"−1"`, `"−10"`, `"+100"`, `"https://.../#1;2;3"` -- keep as-is.
 - **Format-only template strings** where the value is purely placeholders: e.g., `"{appName} {version}"`, `"{appName} - {gameName}"`, `"{appName} - {gameName} {version}"` -- keep identical to English.
+- **ARIA / accessibility-only copy**: Do not create translated locale entries specifically for ARIA labels. ARIA should stay hardcoded in code, or code may reuse an existing non-ARIA UI string only when it already matches the element without introducing a dedicated aria-only locale key.
 
 ### `skills.short` rules
 - Treat `skills.short` as compact UI labels, not full translations.

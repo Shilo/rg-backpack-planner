@@ -545,7 +545,6 @@
         "updatedVersionToast": "Updated to v{version}"
     },
     "quickSettings": {
-        "ariaLabel": "Quick settings",
         "title": "Node Quick Settings"
     },
     "input": {
@@ -587,9 +586,7 @@
             "scroll": "Scroll",
             "pinch": "Pinch",
             "hover": "Hover",
-            "swipeRight": "Swipe Right",
-            "rightClickEmpty": "Right Click Empty Space",
-            "longPressEmpty": "Long Press Empty Space"
+            "swipeRight": "Swipe Right"
         }
     },
     "systemInfo": {

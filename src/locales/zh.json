@@ -545,7 +545,6 @@
         "updatedVersionToast": "已更新到 v{version}"
     },
     "quickSettings": {
-        "ariaLabel": "快速设置",
         "title": "节点快速设置"
     },
     "input": {
@@ -587,9 +586,7 @@
             "scroll": "滚动",
             "pinch": "捏合",
             "hover": "悬停",
-            "swipeRight": "右滑",
-            "rightClickEmpty": "右键点击空白区域",
-            "longPressEmpty": "长按空白区域"
+            "swipeRight": "右滑"
         }
     },
     "systemInfo": {

@@ -545,7 +545,6 @@
         "updatedVersionToast": "v{version}に更新しました"
     },
     "quickSettings": {
-        "ariaLabel": "クイック設定",
         "title": "ノード クイック設定"
     },
     "input": {
@@ -587,9 +586,7 @@
             "scroll": "スクロール",
             "pinch": "ピンチ",
             "hover": "ホバー",
-            "swipeRight": "右スワイプ",
-            "rightClickEmpty": "空白エリアを右クリック",
-            "longPressEmpty": "空白エリアを長押し"
+            "swipeRight": "右スワイプ"
         }
     },
     "systemInfo": {

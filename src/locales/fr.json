@@ -545,7 +545,6 @@
         "updatedVersionToast": "Mis à jour en v{version}"
     },
     "quickSettings": {
-        "ariaLabel": "Paramètres rapides",
         "title": "Paramètres rapides du nœud"
     },
     "input": {
@@ -587,9 +586,7 @@
             "scroll": "Défilement",
             "pinch": "Pincer",
             "hover": "Survol",
-            "swipeRight": "Balayer à droite",
-            "rightClickEmpty": "Clic droit sur espace vide",
-            "longPressEmpty": "Appui long sur espace vide"
+            "swipeRight": "Balayer à droite"
         }
     },
     "systemInfo": {
