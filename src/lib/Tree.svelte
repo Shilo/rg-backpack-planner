@@ -64,7 +64,10 @@
     } from "./globalLeafCap";
     import { getTreeViewportPadding, getTreeWorldBounds } from "./treeLayout";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../config/baseTree";
-    import type { LevelsByIndex, Link, NodeIndex } from "../types/tree";
+    import type { LevelsByIndex, Link, NodeIndex, SkillId } from "../types/tree";
+    import { guardianSkillIds } from "../config/guardianTree";
+    import { vanguardSkillIds } from "../config/vanguardTree";
+    import { cannonSkillIds } from "../config/cannonTree";
     import { locale, t } from "svelte-whisper";
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
@@ -104,6 +107,13 @@
     export let onRootNodeClick: ((x: number, y: number) => void) | null = null;
     export let rootX = TREE_ROOT_X;
     export let rootY = TREE_ROOT_Y;
+    export let tabId: string = "";
+
+    const UNIQUE_SKILLS_BY_TAB: Record<string, SkillId[]> = {
+        guardian: guardianSkillIds,
+        vanguard: vanguardSkillIds,
+        cannon: cannonSkillIds,
+    };
 
     let levels: LevelsByIndex = [];
     const treeData = writable({ nodes, levels });
@@ -405,6 +415,7 @@
         region: NodeRegion;
         isLeaf: boolean;
         isGlobalIncrementLocked: boolean;
+        isUnique: boolean;
     };
 
     type RenderLink = {
@@ -454,6 +465,8 @@
     let contextMenuMaxLevel = 0;
     let contextMenuIsGlobalIncrementLocked = false;
 
+    $: uniqueSkills = UNIQUE_SKILLS_BY_TAB[tabId] ?? [];
+
     $: {
         renderNodes = nodes.map((node, index) => {
             const level = getLevelFrom(levels, index);
@@ -470,6 +483,7 @@
                     index,
                     levels,
                 ),
+                isUnique: uniqueSkills.includes(node.skillId),
             };
         });
     }
@@ -1851,6 +1865,7 @@
                         {scale}
                         region={nodeView.region}
                         isLeaf={nodeView.isLeaf}
+                        isUnique={nodeView.isUnique}
                         isGlobalIncrementLocked={nodeView.isGlobalIncrementLocked}
                         skillId={nodeView.node.skillId}
                         maxLevel={nodeView.node.maxLevel}

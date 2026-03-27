@@ -38,6 +38,8 @@
     export let scale: number = 1;
     export let region: "top-left" | "bottom-left" | "right" = "right";
     export let isLeaf: boolean = false;
+    /** When true, node is a class-specific skill (not shared across all trees). */
+    export let isUnique: boolean = false;
     /** When true, node is locked due to GLOBAL_LEVELED_LEAF_NODE_CAP; tooltip should not show cost. */
     export let isGlobalIncrementLocked: boolean = false;
     export let skillId: SkillId | null = null;
@@ -179,6 +181,8 @@
         ? 'node-wrapper-hex'
         : ''} {isImportantNode
         ? 'node-wrapper-important'
+        : ''} {isUnique
+        ? 'node-wrapper-unique'
         : ''} {cursorNotAllowed ? 'cursor-not-allowed' : ''}"
     role="group"
     data-node-id={String(id)}
@@ -707,6 +711,11 @@
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
+    }
+
+    /* Unique (class-specific) nodes: dashed border to distinguish from common skills */
+    .node-wrapper-unique :global(.button.node) {
+        border-style: dashed;
     }
 
     /* State cascade: scale bounce on promotion (locked→available→active→maxed) */

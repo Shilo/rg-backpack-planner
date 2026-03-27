@@ -562,6 +562,7 @@
                 <Tree
                     bind:this={treeRef}
                     nodes={tabs[activeIndex].nodes}
+                    tabId={tabs[activeIndex].id}
                     levelsById={$treeLevels[activeIndex] ?? null}
                     globalLeveledLeafNodesOutsideTreeCount={globalLeveledLeafNodesOutsideActiveTreeCount}
                     onLevelsChange={handleLevelsChange}
