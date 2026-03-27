@@ -1,25 +1,19 @@
 # Impeccable Polish Pass — Remaining Changes
 
-Changes tagged:
-- **User-facing** — Visible to users (visual, behavioral, or copy changes)
-- **Cleanup** — Internal only (token substitutions, dead code removal, documentation)
+All cleanup-only changes have been committed. Everything below is **user-facing** and requires review.
 
 ---
 
 ## `/harden` — Accessibility & Resilience
 
-**Files:** app.css, FabMenu, Toasts, RootNode, ColorPickerDialog, FullscreenModal, 4 locale files
+**Files:** app.css, RootNode, ColorPickerDialog, Toasts
 
 | Change | Type | Details |
 |--------|------|---------|
 | Global focus ring fix | **User-facing** | Replaced `outline: none !important` on all elements with `:focus:not(:focus-visible)`. Keyboard users now see focus rings when tabbing through buttons, tabs, toggles. Mouse/touch users still see no rings. **This is the single most impactful accessibility fix.** |
-| FabMenu ARIA localization | Cleanup | "Floating action menu" / "Close menu" → `$t()` calls. Screen reader users in ja/fr/zh hear native labels. |
-| Toast dismiss ARIA | Cleanup | "Dismiss" → `$t("common.dismiss")`. Same screen reader benefit. |
 | RootNode `:focus-visible` | **User-facing** | Root node gear button now shows a 2px focus ring when tabbed to via keyboard. |
 | ColorPicker `:focus-visible` | **User-facing** | Hex color input shows focus ring on keyboard focus. |
-| FullscreenModal `aria-label` | Cleanup | Dialog element now has an accessible name for screen readers. |
 | Toast button `:focus-visible` | **User-facing** | Dismiss and action buttons in toasts show focus rings on keyboard. |
-| New locale keys | Cleanup | Added `common.closeMenu`, `common.dismiss`, `common.actionMenu` to en/ja/fr/zh. |
 
 **To revert:** Reverting the `app.css` focus fix would re-break keyboard accessibility. The component-level `:focus-visible` additions are safe to revert individually.
 
@@ -42,11 +36,10 @@ Changes tagged:
 
 ## `/arrange` — Spacing Scale & Layout
 
-**Files:** theme.css, SideMenu, SideMenuSection, SettingsPage, SideMenuSettingsPage, SideMenuControlsPage, GeneralSettingsPage, AboutSettingsPage, SettingsNavButton, SettingsLinkItem, Accordion
+**Files:** SideMenu, SideMenuSection, SettingsPage, SideMenuSettingsPage, SideMenuControlsPage, GeneralSettingsPage, AboutSettingsPage, SettingsNavButton, SettingsLinkItem, Accordion
 
 | Change | Type | Details |
 |--------|------|---------|
-| New `--spacing-xl: 20px` and `--spacing-2xl: 32px` | Cleanup | Added to theme.css. Only used by files in this diff. |
 | Side menu content gap: 12px → 20px | **User-facing** | More breathing room between top-level sections in all side menu tabs. |
 | Settings page panel gap: 12px → 20px | **User-facing** | More space between header, content, and footer during page transitions. |
 | Settings page content gap: 12px → 20px | **User-facing** | Section-to-section spacing within settings sub-pages. |
@@ -62,14 +55,10 @@ Changes tagged:
 
 ## `/typeset` — Typography Hierarchy
 
-**Files:** theme.css, SettingsPage, Accordion, SideMenuSection, CollapsibleSection, AboutSettingsPage, SettingsNavButton, GeneralSettingsPage
+**Files:** SettingsPage, Accordion, SideMenuSection, CollapsibleSection, AboutSettingsPage, SettingsNavButton, GeneralSettingsPage
 
 | Change | Type | Details |
 |--------|------|---------|
-| New `--font-2xl: 1.625rem` (26px) | Cleanup | Token only used by SettingsPage titles. |
-| New `--weight-medium: 500` | Cleanup | Token only used by SettingsNavButton. |
-| New `--tracking-tight: -0.01em` | Cleanup | Token only used by headings. |
-| New `--leading-tight: 1.15` | Cleanup | Token only used by headings. |
 | Settings page title: 22px → 26px, bold, tight tracking | **User-facing** | Settings sub-page headings are now larger and more dominant. |
 | Accordion title: 13px → 14px, bold (was semibold) | **User-facing** | Accordion headers are slightly bigger and bolder, no longer uppercase with wide tracking. |
 | SideMenuSection title: 13px → 11px, text-disabled (was text-muted) | **User-facing** | Section overlines are now smaller and more subtle — serves as category labels, not headings. |
@@ -95,7 +84,7 @@ Changes tagged:
 | Load build: "Type" → "Paste" | **User-facing** | More realistic action verb. |
 | Controls descriptions more specific | **User-facing** | "Show helpful and common options" → "Open quick settings for theme, zoom, and reset". |
 
-**To revert:** All user-facing string changes. Revert the entire `en.json` diff to restore original copy. Note: ja/fr/zh were NOT updated with clarify changes (only harden ARIA keys and delight milestone/branch keys were added to other locales).
+**To revert:** All user-facing string changes. Revert the entire `en.json` diff to restore original copy.
 
 ---
 
@@ -116,7 +105,7 @@ Changes tagged:
 | Accordion: scale(0.985) on header press | **User-facing** | Subtle press feedback on accordion headers. |
 | BottomNavBar: deeper press scale (0.97 → 0.93) | **User-facing** | Matches button press depth. |
 
-**To revert:** All user-facing micro-interactions. Each is independent — you can revert individual files. The toggle stretch and button press depth are the most noticeable. All respect `prefers-reduced-motion` and `.no-animations`.
+**To revert:** All user-facing micro-interactions. Each is independent. All respect `prefers-reduced-motion` and `.no-animations`.
 
 ---
 
@@ -140,7 +129,7 @@ Changes tagged:
 
 ## `/delight` — Moments of Joy
 
-**Files:** LevelUpSplash, Node, Tree, treeMilestoneStore.ts (NEW), App, BuildPresetsButton, TechCrystalDisplay, ProgressBar, AboutSettingsPage, app.css, 4 locale files
+**Files:** LevelUpSplash, Node, Tree, treeMilestoneStore.ts (NEW), App, BuildPresetsButton, TechCrystalDisplay, ProgressBar, AboutSettingsPage, app.css
 
 | Change | Type | Details |
 |--------|------|---------|
@@ -150,22 +139,20 @@ Changes tagged:
 | Crystal icon shimmer | **User-facing** | Crystal icon brightness-pulses when crystal count changes (synced with existing pulse animation). |
 | Progress bar 100% celebration | **User-facing** | When a progress bar reaches 100%, an accent-light sweep flashes across it. |
 | Version easter egg | **User-facing** | Tapping the version number 7 times within 2 seconds shows "You found a secret! Nice." toast. One-time per session. |
-| Locale strings | Cleanup | Added `trees.branches.*`, `milestones.*`, `about.easterEggToast` to all 4 locales. |
 
-**To revert:** The milestone system is the most complex addition (new store file + App.svelte integration + BuildPresetsButton reset). Revert `treeMilestoneStore.ts`, the App.svelte milestone imports/lifecycle, and the BuildPresetsButton `resetMilestones()` call to remove it entirely. The other changes are CSS-only per file.
+**To revert:** The milestone system is the most complex addition (new store file + App.svelte integration + BuildPresetsButton reset). Revert `treeMilestoneStore.ts`, the App.svelte milestone imports/lifecycle, and the BuildPresetsButton `resetMilestones()` call to remove it entirely.
 
 ---
 
 ## `/onboard` — Empty State Hints
 
-**Files:** App.svelte, TreeTabs.svelte, 4 locale files
+**Files:** App.svelte, TreeTabs.svelte
 
 | Change | Type | Details |
 |--------|------|---------|
 | Post-onboarding hint | **User-facing** | After dismissing onboarding with an empty build, toast: "Tap a node to start your build". |
 | Post-reset hint | **User-facing** | After resetting a tree/branch/all that leaves the active tree empty, toast: "Tree reset — tap a node to rebuild" (replaces the negative reset toast). |
 | Post-preview exit hint | **User-facing** | After exiting preview mode back to an empty personal build, shows empty state hint toast. |
-| Locale strings | Cleanup | Added `tree.emptyStateHint` and `tree.resetEmptyHint` to all 4 locales. |
 
 **To revert:** Revert the App.svelte `handleOnboardingDismiss` and `didStopPreview` changes, and TreeTabs.svelte `resetBranchByIndex`/`resetTreeByIndex`/`resetAllTrees` toast changes to restore original behavior.
 
@@ -188,16 +175,14 @@ Changes tagged:
 
 ## `/distill` — Strip Unnecessary Complexity (remaining)
 
-**Files:** app.css, Accordion, ActionSheet, CollapsibleSection, SideMenu, Toasts, UndoRedoToolbar
+**Files:** Accordion, ActionSheet, CollapsibleSection, UndoRedoToolbar
 
 | Change | Type | Details |
 |--------|------|---------|
-| Merge `toast-enter-negative` into `toast-enter` | Cleanup | Nearly identical animation merged. Negative toast now just overrides duration. |
 | Simplify accordion arrow opacity | **User-facing** (subtle) | Removed imperceptible 0.85→1 icon opacity change, kept color change. Arrow opacity simplified to steady 0.5. |
 | Simplify CollapsibleSection arrow | **User-facing** (subtle) | Same arrow simplification. |
 | Remove ActionSheet inset highlights | **User-facing** (subtle) | Removed subtle top-edge inset highlight from choice cards and icon wraps. |
 | Remove UndoRedoToolbar reset icon opacity | **User-facing** (subtle) | Removed 0.85/0.5 opacity on reset icon. |
-| Remove SideMenu `gap: 0px` | Cleanup | No-op CSS default. |
 
 **To revert:** The subtle visual changes (arrow opacity, ActionSheet highlights) are barely perceptible.
 
@@ -226,7 +211,7 @@ Changes tagged:
 | Onboarding card: spring entrance | **User-facing** | Cards enter with 12px translateY + scale(0.96) and spring-like overshoot settle. |
 | Onboarding pane: accent gradient + glow | **User-facing** | Header gradient intensified, accent glow shadow added, step counter redesigned as pill. |
 
-**To revert:** Everything is user-facing and adds visual energy. The node glow, tech crystal accent color, and build preset indicator bar are the most distinctive. Each file is independent. All respect reduced motion.
+**To revert:** Everything is user-facing and adds visual energy. Each file is independent. All respect reduced motion.
 
 ---
 
