@@ -642,7 +642,6 @@
         position: absolute;
         inset: -14px;
         pointer-events: none;
-        will-change: transform, opacity;
     }
 
     .tabs-root::before {

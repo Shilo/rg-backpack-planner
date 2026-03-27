@@ -862,13 +862,12 @@
     .top-left-actions {
         left: 0;
         align-items: flex-start;
-        transition: left 0.15s ease;
     }
 
     .top-right-actions {
         right: 0;
         align-items: flex-end;
-        transition: right 0.15s ease;
+        transition: transform 0.15s ease;
     }
 
     @media (min-width: 768px) {
@@ -878,7 +877,7 @@
         }
 
         .app-shell.menu-open .top-right-actions {
-            right: calc(var(--side-menu-width) + 10px);
+            transform: translateX(calc(-1 * (var(--side-menu-width) + 10px)));
         }
     }
 
