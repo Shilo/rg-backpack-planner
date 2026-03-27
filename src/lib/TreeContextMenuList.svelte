@@ -161,7 +161,7 @@
                         <svelte:component this={skill.icon} />
                     </span>
                     <span class="meta-label"
-                        >{$t(`skills.short.${skill.id}`)}</span
+                        >{$t(`skills.${skill.id}`)}</span
                     >
                     <span class="meta-value">
                         {formatBonusValue(skill.currentValue * 100)}%
