@@ -9,7 +9,7 @@
     let props: SVGAttributes<SVGSVGElement> = $props();
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="28 38 200 180" preserveAspectRatio="xMidYMid meet" {...props}>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="31 42 192 166" preserveAspectRatio="xMidYMid meet" {...props}>
     <defs>
         <mask
             id={swirlCutMaskId}
