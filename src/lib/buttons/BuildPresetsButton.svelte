@@ -20,7 +20,6 @@
     import { portal } from "../portal";
     import { buildPresetsStore, activeBuildName } from "../buildPresetsStore";
     import {
-        setActivePresetId,
         updatePreset,
         deletePreset,
         addPreset,
@@ -31,7 +30,7 @@
     } from "../buildPresetsStore";
     import { decodeBuildData } from "../buildData/encoder";
     import { encodeBuildData } from "../buildData/encoder";
-    import { applyBuildData } from "../buildData/applier";
+    import { switchActivePreset } from "../buildData/applier";
     import { showToast } from "../toast";
     import { openModal } from "../modalStore";
     import { truncateText, toTitleCase } from "../stringUtil";
@@ -148,17 +147,14 @@
 
     function switchToPreset(presetId: string) {
         stopCompare();
-        const data = get(buildPresetsStore);
-        const preset = data.presets.find((p) => p.id === presetId);
-        if (!preset) return;
-        const buildData = decodeBuildData(preset.buildCode);
-        if (!buildData) return;
-        setActivePresetId(presetId);
-        applyBuildData(tabs, buildData);
+        const preset = get(buildPresetsStore).presets.find(
+            (p) => p.id === presetId,
+        );
+        if (!switchActivePreset(presetId, tabs)) return;
         undoHistory.clearHistory(0);
         showToast(
             $t("buildPresets.viewingPresetToast", {
-                name: truncateText(getDisplayPresetName(preset.name)),
+                name: truncateText(getDisplayPresetName(preset?.name ?? presetId)),
             }),
         );
         closePresetsMenu();
@@ -239,9 +235,7 @@
                 } else if (wasActive) {
                     stopCompare();
                     const first = remaining[0];
-                    setActivePresetId(first.id);
-                    const buildData = decodeBuildData(first.buildCode);
-                    if (buildData) applyBuildData(tabs, buildData);
+                    switchActivePreset(first.id, tabs);
                     undoHistory.clearHistory(0);
                     closeEditMenu();
                 }
@@ -260,8 +254,7 @@
 
         if (skipPrompt) {
             const preset = addPreset("Default", buildCode);
-            setActivePresetId(preset.id);
-            applyBuildData(tabs, { trees: emptyTrees, owned: emptyOwned });
+            switchActivePreset(preset.id, tabs);
             closePresetsMenu();
         } else {
             const defaultName = getUniquePresetName("New", "New");
@@ -283,11 +276,7 @@
                         const name =
                             value === displayName ? defaultName : value;
                         const preset = addPreset(name, buildCode);
-                        setActivePresetId(preset.id);
-                        applyBuildData(tabs, {
-                            trees: emptyTrees,
-                            owned: emptyOwned,
-                        });
+                        switchActivePreset(preset.id, tabs);
                         closePresetsMenu();
                     }
                 },
@@ -350,6 +339,7 @@
         decodeAndStartCompare(
             preset.buildCode,
             getDisplayPresetName(preset.name),
+            { type: "preset", id: presetId },
         );
         closeEditMenu();
         closePresetsMenu();
