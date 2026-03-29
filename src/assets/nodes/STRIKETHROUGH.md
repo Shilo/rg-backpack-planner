@@ -44,6 +44,12 @@ Each component needs a unique mask ID to avoid conflicts when multiple instances
 
 ### Structure
 
+There are two cases depending on whether the base icon uses a `<g>` wrapper with a `transform`.
+
+#### Case A: Base icon is a `<path>` (no `<g>` transform)
+
+Apply the mask directly to the `<path>`:
+
 ```svelte
 <svg viewBox="..." preserveAspectRatio="xMidYMid meet" {...props}>
     <defs>
@@ -67,16 +73,59 @@ Each component needs a unique mask ID to avoid conflicts when multiple instances
 </svg>
 ```
 
+#### Case B: Base icon uses `<g transform="...">` wrapper
+
+**CRITICAL:** Never put the mask on the `<g>` that has the `transform`. The mask coordinates are in viewBox space, but the transform creates a different coordinate space — the mask region becomes a tiny sliver and hides the entire icon.
+
+Instead, wrap the transformed `<g>` in an **outer `<g>`** that carries the mask:
+
+```svelte
+<svg viewBox="..." preserveAspectRatio="xMidYMid meet" {...props}>
+    <defs>
+        <mask id={maskId} maskUnits="userSpaceOnUse"
+              x="VB_X" y="VB_Y" width="VB_W" height="VB_H">
+            <rect x="VB_X" y="VB_Y" width="VB_W" height="VB_H" fill="white" />
+            <line x1="X1" y1="Y1" x2="X2" y2="Y2"
+                  stroke="black" stroke-width="60" stroke-linecap="round" />
+        </mask>
+    </defs>
+
+    <!-- Outer g = mask in viewBox space, inner g = transform -->
+    <g mask={`url(#${maskId})`}>
+        <g transform="..." fill="currentColor" stroke="none">
+            <path d="..." />
+        </g>
+    </g>
+
+    <!-- Visible strikethrough line on top -->
+    <line x1="X1" y1="Y1" x2="X2" y2="Y2"
+          fill="none" stroke="currentColor" stroke-width="20"
+          stroke-linecap="round" />
+</svg>
+```
+
+### How to tell which case
+
+Look at the base icon's SVG content:
+- If the `<path>` elements sit directly inside `<svg>` with no wrapping `<g transform>` → **Case A**
+- If the paths are inside `<g transform="translate(...) scale(...)">` → **Case B**
+
+Most icons exported from design tools use Case B with a `scale(0.1, -0.1)` transform.
+
+### General rules
+
 The mask `x/y/width/height` should match the SVG's `viewBox` values.
 
 Both `<line>` elements (mask and visible) use the **same endpoints** — only `stroke-width` differs.
 
 ## Checklist for New Ignore/Resistance Icons
 
-1. Copy the base icon's SVG content (path data, viewBox)
+1. Copy the base icon's SVG content (path data, viewBox, transform) exactly
 2. Add the `<script module>` and `<script>` blocks for unique mask IDs
-3. Wrap the base icon's path with `mask={...}`
-4. Add the mask `<defs>` block with the black line at `stroke-width="60"`
-5. Add the visible line at `stroke-width="20"`
-6. Position endpoints (`x1,y1,x2,y2`) so tips just extend past the icon boundary
-7. Verify both ends of the `\` extend equally past the icon
+3. Check if the base icon uses `<g transform="...">` (Case A vs Case B)
+4. Apply the mask — on the `<path>` for Case A, on an **outer** `<g>` wrapper for Case B
+5. **Never** put `mask={...}` on the same `<g>` that has `transform`
+6. Add the mask `<defs>` block with the black line at `stroke-width="60"`
+7. Add the visible line at `stroke-width="20"`
+8. Position endpoints (`x1,y1,x2,y2`) so tips just extend past the icon boundary
+9. Verify both ends of the `\` extend equally past the icon
