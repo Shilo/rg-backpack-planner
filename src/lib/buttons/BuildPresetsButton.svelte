@@ -65,9 +65,6 @@
     let compareMenuOpen = false;
     let compareMenuX = 0;
     let compareMenuY = 0;
-    // Set on pointerdown of the Compare button so the presets menu onClose guard
-    // fires BEFORE handleDocumentPointerUp (which runs during pointerup, before click).
-    let compareMenuPending = false;
 
     $: editPreset = editMenuPresetId
         ? ($buildPresetsStore.presets.find(
@@ -144,7 +141,6 @@
     }
 
     function closePresetsMenu() {
-        console.log("[DEBUG] closePresetsMenu called", new Error().stack);
         presetsMenuOpen = false;
         editMenuPresetId = null;
     }
@@ -322,16 +318,7 @@
         if (editMenuPresetId) movePresetDown(editMenuPresetId);
     }
 
-    function handleComparePointerDown() {
-        console.log("[DEBUG] BuildPresetsButton: handleComparePointerDown");
-        compareMenuPending = true;
-        // Always clear after current event cycle in case click doesn't fire
-        requestAnimationFrame(() => { compareMenuPending = false; });
-    }
-
     function handleCompareClick(event: CustomEvent<MouseEvent> | MouseEvent) {
-        console.log("[DEBUG] BuildPresetsButton: handleCompareClick");
-        compareMenuPending = false;
         const mouseEvent = event instanceof CustomEvent ? event.detail : event;
         const target = mouseEvent.currentTarget as HTMLElement | null;
         if (!target) return;
@@ -339,7 +326,6 @@
         compareMenuX = rect.left + rect.width / 2;
         compareMenuY = rect.bottom + 8;
         compareMenuOpen = true;
-        tick().then(() => closeEditMenu());
     }
 
     function closeCompareMenu() {
@@ -381,7 +367,7 @@
         y={presetsMenuY}
         isOpen={presetsMenuOpen}
         title={$t("buildPresets.menuTitle")}
-        onClose={() => { console.log(`[DEBUG] BuildPresetsButton: presets onClose called — compareMenuOpen=${compareMenuOpen}, compareMenuPending=${compareMenuPending}`); if (!compareMenuOpen && !compareMenuPending) closePresetsMenu(); }}
+        onClose={() => { if (!compareMenuOpen) closePresetsMenu(); }}
         anchorBelow
     >
         <div class="premade-builds-list">
@@ -503,7 +489,6 @@
             />
             {#if editMenuPresetId === $buildPresetsStore.active}
                 <Button
-                    on:pointerdown={handleComparePointerDown}
                     on:click={handleCompareClick}
                     icon={ScalesIcon}
                     arrow="right"
