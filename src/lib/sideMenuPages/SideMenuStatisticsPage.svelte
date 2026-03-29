@@ -499,7 +499,7 @@
             </div>
         {:else}
             <div class="side-menu__stats-card">
-                <CodeBlockTable bind:this={statsTable} rows={statsRows} />
+                <CodeBlockTable bind:this={statsTable} rows={statsRows} label={$activeBuildName} />
             </div>
         {/if}
     </div>

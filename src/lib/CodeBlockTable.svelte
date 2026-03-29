@@ -8,6 +8,7 @@
         [string | { text: string; icon?: any; iconWeight?: string }, string]
     > = [];
     export let emptyMessage = "";
+    export let label = "";
 
     const appProductionUrl = (appPackage?.app?.productionUrl ?? undefined) as
         | string
@@ -33,6 +34,9 @@
 
     $: resolvedEmptyMessage = emptyMessage || $t("statistics.noData");
     $: displayRows = rows.length > 0 ? rows : [[resolvedEmptyMessage, ""]];
+    $: firstSectionIndex = label
+        ? displayRows.findIndex(([, second]) => second === "")
+        : -1;
     $: normalizedRows = displayRows.map(([first, second]) => [
         normalizeCell(typeof first === "string" ? first : first.text),
         normalizeCell(second),
@@ -113,11 +117,27 @@
 <div class="codeblock-table">
     <table class="codeblock-table__table">
         <tbody>
-            {#each displayRows as row}
+            {#each displayRows as row, i}
                 <tr>
                     {#if row[1] === ""}
                         <td class="codeblock-table__section" colspan="2">
-                            {#if typeof row[0] === "object" && row[0].icon}
+                            {#if i === firstSectionIndex}
+                                <div class="codeblock-table__section-header">
+                                    {#if typeof row[0] === "object" && row[0].icon}
+                                        <div class="codeblock-table__section-inner">
+                                            <svelte:component
+                                                this={row[0].icon}
+                                                weight={row[0].iconWeight || "regular"}
+                                                size="1.2em"
+                                            />
+                                            <span>{row[0].text}</span>
+                                        </div>
+                                    {:else}
+                                        <span>{typeof row[0] === "string" ? row[0] : row[0].text}</span>
+                                    {/if}
+                                    <span class="codeblock-table__build-label">{label}</span>
+                                </div>
+                            {:else if typeof row[0] === "object" && row[0].icon}
                                 <div class="codeblock-table__section-inner">
                                     <svelte:component
                                         this={row[0].icon}
@@ -163,6 +183,13 @@
         border-top: var(--border-width) solid var(--border-subtle);
         padding: var(--spacing-sm) var(--spacing-md);
         text-align: left;
+        width: 1px;
+        white-space: nowrap;
+    }
+
+    .codeblock-table__table td:first-child {
+        width: 100%;
+        white-space: normal;
     }
 
     .codeblock-table__table tbody tr:first-child td {
@@ -188,6 +215,29 @@
 
     .codeblock-table__section-inner :global(svg) {
         color: var(--accent-light);
+    }
+
+    .codeblock-table__section-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .codeblock-table__section-header > :first-child {
+        flex: 0 0 auto;
+    }
+
+    .codeblock-table__build-label {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: right;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        color: var(--text-disabled);
+        letter-spacing: initial;
     }
 
     .codeblock-table__table td + td {

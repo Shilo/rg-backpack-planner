@@ -37,20 +37,20 @@
         {#each sections as section, i}
             <tr class="compare-table__header">
                 {#if i === 0}
-                    <td colspan="2">
-                        <span class="compare-table__header-content">
-                            {#if section.header.icon}
-                                <svelte:component
-                                    this={section.header.icon}
-                                    weight={section.header.iconWeight ?? "regular"}
-                                    size="1.2em"
-                                />
-                            {/if}
-                            {section.header.text}
-                        </span>
-                    </td>
-                    <td class="compare-table__header-label compare-table__header-label--left">
-                        <span class="compare-table__header-label-text">{labelA}</span>
+                    <td colspan="3">
+                        <div class="compare-table__first-header-inner">
+                            <span class="compare-table__header-content">
+                                {#if section.header.icon}
+                                    <svelte:component
+                                        this={section.header.icon}
+                                        weight={section.header.iconWeight ?? "regular"}
+                                        size="1.2em"
+                                    />
+                                {/if}
+                                {section.header.text}
+                            </span>
+                            <span class="compare-table__header-label-text">{labelA}</span>
+                        </div>
                     </td>
                     <td class="compare-table__header-label compare-table__header-label--right">
                         <span class="compare-table__header-label-text">{labelB}</span>
@@ -131,6 +131,29 @@
         color: var(--accent-light);
     }
 
+    .compare-table__first-header-inner {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .compare-table__first-header-inner .compare-table__header-content {
+        flex: 0 0 auto;
+    }
+
+    .compare-table__first-header-inner .compare-table__header-label-text {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: right;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        color: var(--text-disabled);
+        letter-spacing: initial;
+    }
+
     .compare-table__header-label {
         text-align: right;
         font-size: var(--font-sm);
@@ -139,28 +162,26 @@
         vertical-align: middle;
     }
 
-    /* Left label: overflow to the left into the section title space */
-    .compare-table__header-label--left {
-        position: relative;
-        overflow: visible;
+    /* Active label: accent color + bold */
+    .active-a .compare-table__first-header-inner .compare-table__header-label-text {
+        color: var(--accent);
     }
 
-    .compare-table__header-label--left .compare-table__header-label-text {
-        position: absolute;
-        right: var(--spacing-md);
-        top: 50%;
-        transform: translateY(-50%);
-        white-space: nowrap;
+    .active-b .compare-table__header-label--right .compare-table__header-label-text {
+        color: var(--accent);
     }
 
     /* Right label: truncate with ellipsis */
     .compare-table__header-label--right .compare-table__header-label-text {
         display: block;
+        width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        max-width: 70px;
-        margin-left: auto;
+        font-size: var(--font-sm);
+        font-weight: var(--weight-semibold);
+        color: var(--text-disabled);
+        letter-spacing: initial;
     }
 
     .compare-table__row td {
@@ -169,11 +190,13 @@
     }
 
     .compare-table__label {
+        width: 100%;
         color: var(--text-muted);
     }
 
     .compare-table__indicator {
-        width: 16px;
+        width: 1px;
+        white-space: nowrap;
         text-align: center;
         font-size: var(--font-xs);
     }
@@ -192,6 +215,8 @@
 
     .compare-table__value-a,
     .compare-table__value-b {
+        width: 1px;
+        white-space: nowrap;
         text-align: right;
         font-weight: var(--weight-bold);
         font-variant-numeric: tabular-nums;
