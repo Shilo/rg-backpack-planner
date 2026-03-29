@@ -476,7 +476,8 @@
         "personalPresets": "你的构建",
         "fromCode": "从链接/代码",
         "swapTooltip": "切换到此构建",
-        "editing": "编辑中"
+        "editing": "编辑中",
+        "shareComparison": "分享比较"
     },
     "controls": {
         "actions": {

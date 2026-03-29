@@ -476,7 +476,8 @@
         "personalPresets": "Your Builds",
         "fromCode": "From Link/Code",
         "swapTooltip": "Switch to this build",
-        "editing": "Editing"
+        "editing": "Editing",
+        "shareComparison": "Share Comparison"
     },
     "controls": {
         "actions": {

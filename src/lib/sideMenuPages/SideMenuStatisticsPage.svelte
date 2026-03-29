@@ -347,8 +347,8 @@
             class="side-menu__stats-share"
             small
             icon={ShareIcon}
-            tooltipText={$t("common.share")}
-            aria-label={$t("common.share")}
+            tooltipText={$compareState.isComparing ? $t("compare.shareComparison") : $t("common.share")}
+            aria-label={$compareState.isComparing ? $t("compare.shareComparison") : $t("common.share")}
             on:click={handleShareClick}
         />
     </div>

@@ -476,7 +476,8 @@
         "personalPresets": "あなたのビルド",
         "fromCode": "リンク/コードから",
         "swapTooltip": "このビルドに切り替え",
-        "editing": "編集中"
+        "editing": "編集中",
+        "shareComparison": "比較を共有"
     },
     "controls": {
         "actions": {
