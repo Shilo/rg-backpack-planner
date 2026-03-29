@@ -459,6 +459,17 @@
         "shareText": "Share Text",
         "generatingImage": "Generating..."
     },
+    "compare": {
+        "compareBuilds": "Compare Builds",
+        "compareTooltip": "Compare with another build",
+        "stopCompareTooltip": "Stop comparing",
+        "compareWithActive": "Compare with active",
+        "compareWith": "Compare with...",
+        "personalPresets": "Your Builds",
+        "fromCode": "From Link/Code",
+        "swapTooltip": "Switch to this build",
+        "editing": "Editing"
+    },
     "controls": {
         "actions": {
             "primaryAction": "Primary Action Indicator",
