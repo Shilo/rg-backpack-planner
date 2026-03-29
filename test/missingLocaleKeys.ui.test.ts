@@ -11,6 +11,7 @@
 //
 // Missing keys are captured via page.on('console') matching svelte-whisper's
 // console.warn format: `svelte-whisper: Missing "key" for locale "locale"`
+import assert from "node:assert/strict";
 import { appendFileSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
@@ -30,6 +31,9 @@ const APP_URL = `${DEV_SERVER_URL}/rg-backpack-planner/`;
 const DEV_SERVER_START_TIMEOUT_MS = 20_000;
 const DEV_SERVER_POLL_DELAY_MS = 250;
 const CURRENT_VERSION = packageInfo.version ?? "0.1.0";
+const DEVTOOLS_HIDE_STYLE_ID = "rgbp-hide-svelte-whisper-devtools";
+const DEVTOOLS_HIDE_STYLE_TEXT =
+    "#svelte-whisper-devtools { display: none !important; }";
 const LOCALES = ["en", "ja", "zh", "fr"];
 const LOG_FILE_LABEL = "test/missingLocaleKeys.ui.output.log";
 const LOG_FILE_URL = new URL(
@@ -137,11 +141,6 @@ async function bootSession(): Promise<UiSession> {
             );
             localStorage.setItem("rg-backpack-planner-node-touch-action", "0");
             localStorage.setItem("rg-backpack-planner-onboarding-seen", "true");
-
-            // Hide the svelte-whisper devtools overlay so it doesn't intercept clicks
-            const style = document.createElement("style");
-            style.textContent = "#svelte-whisper-devtools { display: none !important; }";
-            document.head.appendChild(style);
         }, CURRENT_VERSION);
 
         const page = await context.newPage();
@@ -178,6 +177,63 @@ async function waitForAppReady(page: Page): Promise<void> {
     await page.waitForSelector('[data-node-id="0"]', { state: "visible" });
 }
 
+async function installOverlayHideStyle(page: Page): Promise<void> {
+    await page.evaluate(
+        ({
+            hideStyleId,
+            hideStyleText,
+        }: {
+            hideStyleId: string;
+            hideStyleText: string;
+        }) => {
+            let style = document.getElementById(hideStyleId) as
+                | HTMLStyleElement
+                | null;
+            if (!style) {
+                style = document.createElement("style");
+                style.id = hideStyleId;
+                document.head.appendChild(style);
+            }
+
+            style.textContent = hideStyleText;
+        },
+        {
+            hideStyleId: DEVTOOLS_HIDE_STYLE_ID,
+            hideStyleText: DEVTOOLS_HIDE_STYLE_TEXT,
+        },
+    );
+}
+
+async function assertOverlayHideStyleInstalled(page: Page): Promise<void> {
+    const overlayInfo = await page.evaluate((hideStyleId: string) => {
+        const existingHost = document.getElementById("svelte-whisper-devtools");
+        const host = existingHost ?? document.createElement("div");
+
+        host.id = "svelte-whisper-devtools";
+        if (!existingHost) {
+            document.body.appendChild(host);
+        }
+
+        const display = getComputedStyle(host).display;
+        if (!existingHost) {
+            host.remove();
+        }
+
+        return {
+            display,
+            existingHost: !!existingHost,
+            styleExists: !!document.getElementById(hideStyleId),
+            headHasStyle: !!document.head?.querySelector(`#${hideStyleId}`),
+        };
+    }, DEVTOOLS_HIDE_STYLE_ID);
+
+    assert.strictEqual(
+        overlayInfo.display,
+        "none",
+        `Expected init script to hide the svelte-whisper overlay on app navigations (${JSON.stringify(overlayInfo)})`,
+    );
+}
+
 async function switchLocale(page: Page, locale: string): Promise<void> {
     // Set locale in localStorage and reload so svelte-whisper picks it up
     // on init. Reload also resets the internal missingKeys Set, ensuring
@@ -187,8 +243,10 @@ async function switchLocale(page: Page, locale: string): Promise<void> {
             localStorage.setItem("rg-backpack-planner-locale", loc),
         locale,
     );
-    await page.reload({ waitUntil: "networkidle" });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await installOverlayHideStyle(page);
     await waitForAppReady(page);
+    await assertOverlayHideStyleInstalled(page);
     await delay(300);
 }
 
@@ -359,8 +417,10 @@ try {
     });
 
     // Navigate to the app
-    await page.goto(APP_URL);
+    await page.goto(APP_URL, { waitUntil: "domcontentloaded" });
+    await installOverlayHideStyle(page);
     await waitForAppReady(page);
+    await assertOverlayHideStyleInstalled(page);
     log("App loaded.\n");
 
     for (const locale of LOCALES) {
