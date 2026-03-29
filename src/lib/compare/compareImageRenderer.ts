@@ -113,7 +113,7 @@ export async function renderCompareImage(
     const textColor = resolveThemeColor("--text", "#e8e8ec");
     const mutedColor = resolveThemeColor("--text-muted", "#8a8a94");
     const accentColor = resolveThemeColor("--accent", "#5b9bd5");
-    const higherColor = "#4caf50";
+    const higherColor = resolveThemeColor("--accent-success", "#4caf50");
     const lowerColor = resolveThemeColor("--accent-danger", "#e57373");
     const dimColor = resolveThemeColor("--text-disabled", "#555560");
     const pillBg = "rgba(255,255,255,0.08)";
@@ -216,7 +216,7 @@ export async function renderCompareImage(
     const headerMidY = ACCENT_BAR_H + HEADER_H / 2;
     const vsText = "vs";
     const vsW = measureWidth(ctx, vsText, headerVsFont);
-    const halfNameW = cardWidth / 2 - GAP - vsW / 2 - GAP;
+    const halfNameW = cardWidth / 2 - vsW / 2 - GAP;
 
     ctx.font = headerVsFont;
     ctx.fillStyle = dimColor;
