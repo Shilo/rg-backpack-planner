@@ -7,18 +7,15 @@
     import { buildPresetsStore } from "../buildPresetsStore";
     import { decodeBuildData } from "../buildData/encoder";
     import { parseEncodedFromUserInput } from "../buildData/url";
-    import { recommendedBuilds } from "../buildData/recommended";
-    import {
-        calculateTechCrystalsSpent,
-        activeTabs,
-    } from "../techCrystalStore";
+    import { activeTabs } from "../techCrystalStore";
     import { showToast } from "../toast";
     import { openModal } from "../modalStore";
     import { t, tr } from "svelte-whisper";
-    import { TechCrystalIcon, getRecommendedBuildIcon } from "../customIcons";
+    import { TechCrystalIcon } from "../customIcons";
     import { getDisplayPresetName } from "../i18n";
     import { truncateText } from "../stringUtil";
-    import { startCompare } from "./compareStore";
+    import { startCompare, decodeAndStartCompare } from "./compareStore";
+    import { mapRecommendedBuilds } from "./compareStats";
 
     export let x = 0;
     export let y = 0;
@@ -33,42 +30,25 @@
             buildCode: p.buildCode,
         }));
 
-    $: premadeBuilds = recommendedBuilds.map((build) => {
-        const localizedName = $t(build.i18nKey) || build.displayName;
-        const buildData = decodeBuildData(build.encoded);
-        const tcSpent = buildData
-            ? calculateTechCrystalsSpent(buildData.trees, $activeTabs)
-            : 0;
-        return {
-            name: localizedName,
-            icon: getRecommendedBuildIcon(build.iconName),
-            code: build.encoded,
-            index: build.index,
-            tcSpent,
-        };
-    });
+    $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
 
     function handlePresetClick(buildCode: string, name: string) {
-        const buildData = decodeBuildData(buildCode);
-        if (!buildData) {
+        if (!decodeAndStartCompare(buildCode, name, "preset")) {
             showToast($t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
             return;
         }
-        startCompare(buildData, name, "preset");
         onClose?.();
     }
 
     function handleRecommendedClick(buildCode: string, name: string) {
-        const buildData = decodeBuildData(buildCode);
-        if (!buildData) {
+        if (!decodeAndStartCompare(buildCode, name, "recommended")) {
             showToast($t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
             return;
         }
-        startCompare(buildData, name, "recommended");
         onClose?.();
     }
 
@@ -97,18 +77,11 @@
                     });
                     return;
                 }
-                const buildData = decodeBuildData(encoded);
-                if (!buildData) {
+                if (!decodeAndStartCompare(encoded, "Build", "preview")) {
                     showToast(tr("preview.invalidBuildDataToast"), {
                         tone: "negative",
                     });
-                    return;
                 }
-                startCompare(
-                    buildData,
-                    buildData.name ?? "Build",
-                    "preview",
-                );
             },
         });
     }

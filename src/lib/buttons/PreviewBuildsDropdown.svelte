@@ -8,14 +8,13 @@
         parseEncodedFromUserInput,
         navigateToEncodedBuild,
     } from "../buildData/url";
-    import { recommendedBuilds } from "../buildData/recommended";
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
     import { t } from "svelte-whisper";
-    import { TechCrystalIcon, getRecommendedBuildIcon } from "../customIcons";
-    import { calculateTechCrystalsSpent, activeTabs } from "../techCrystalStore";
-    import { decodeBuildData } from "../buildData/encoder";
-    import { startCompare } from "../compare/compareStore";
+    import { TechCrystalIcon } from "../customIcons";
+    import { activeTabs } from "../techCrystalStore";
+    import { decodeAndStartCompare } from "../compare/compareStore";
+    import { mapRecommendedBuilds } from "../compare/compareStats";
 
     export let x = 0;
     export let y = 0;
@@ -24,20 +23,7 @@
     export let onPreview: (() => void) | null = null;
 
     // Read recommended builds from the shared registry so loading and sharing stay in sync.
-    $: premadeBuilds = recommendedBuilds.map((build) => {
-        const localizedName = $t(build.i18nKey) || build.displayName;
-        const buildData = decodeBuildData(build.encoded);
-        const tcSpent = buildData
-            ? calculateTechCrystalsSpent(buildData.trees, $activeTabs)
-            : 0;
-        return {
-            name: localizedName,
-            icon: getRecommendedBuildIcon(build.iconName),
-            code: build.encoded,
-            index: build.index,
-            tcSpent,
-        };
-    });
+    $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
 
     function handlePremadeClick(buildCode: string) {
         onClose?.();
@@ -53,12 +39,10 @@
     }
 
     function handleCompareRecommended(buildCode: string, name: string) {
-        const buildData = decodeBuildData(buildCode);
-        if (!buildData) {
+        if (!decodeAndStartCompare(buildCode, name, "recommended")) {
             showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
             return;
         }
-        startCompare(buildData, name, "recommended");
         onClose?.();
     }
 

@@ -48,9 +48,6 @@
     import type { CompareSection } from "../compare/CompareTable.svelte";
     import CompareTable from "../compare/CompareTable.svelte";
     import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
-    import { guardianTree } from "../../config/guardianTree";
-    import { vanguardTree } from "../../config/vanguardTree";
-    import { cannonTree } from "../../config/cannonTree";
 
     let statsTable: CodeBlockTable | null = null;
     let statsRows: Array<
@@ -65,12 +62,6 @@
     let childMenuType: "image" | "text" | null = null;
     let childMenuX = 0;
     let childMenuY = 0;
-
-    const compareTabs = [
-        { nodes: guardianTree },
-        { nodes: vanguardTree },
-        { nodes: cannonTree },
-    ];
 
     let compareMenuOpen = false;
     let compareMenuX = 0;
@@ -259,7 +250,7 @@
     }
 
     function handleSwapBuilds() {
-        swapBuilds(compareTabs);
+        swapBuilds($activeTabs);
     }
 
     $: compareSections = (() => {

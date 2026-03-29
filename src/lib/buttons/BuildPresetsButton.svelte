@@ -41,7 +41,7 @@
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
-    import { startCompare, stopCompare } from "../compare/compareStore";
+    import { decodeAndStartCompare, stopCompare } from "../compare/compareStore";
 
     export let disabled: boolean | undefined = false;
 
@@ -327,9 +327,11 @@
         const data = get(buildPresetsStore);
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
-        const buildData = decodeBuildData(preset.buildCode);
-        if (!buildData) return;
-        startCompare(buildData, getDisplayPresetName(preset.name), "preset");
+        decodeAndStartCompare(
+            preset.buildCode,
+            getDisplayPresetName(preset.name),
+            "preset",
+        );
         closeEditMenu();
         closePresetsMenu();
     }

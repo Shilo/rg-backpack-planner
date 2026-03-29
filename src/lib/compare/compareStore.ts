@@ -1,5 +1,6 @@
 import { writable, get } from "svelte/store";
 import type { BuildData } from "../buildData/encoder";
+import { decodeBuildData } from "../buildData/encoder";
 import type { Node } from "../../types/tree";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
@@ -60,11 +61,28 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
     // Apply reference build as the new active build
     applyBuildData(trees, state.referenceBuild);
 
-    // Store previous active as the new reference
+    // Store previous active as the new reference.
+    // Clear referenceSource since the reference is now a snapshot of the
+    // former active build, not from any external source.
     compareState.set({
         isComparing: true,
         referenceBuild: snapshot,
         referenceLabel: currentLabel,
-        referenceSource: state.referenceSource,
+        referenceSource: null,
     });
+}
+
+/**
+ * Decodes a build code and starts comparison. Returns true on success.
+ * Shows an error toast if the build code is invalid.
+ */
+export function decodeAndStartCompare(
+    buildCode: string,
+    name: string,
+    source: CompareSource,
+): boolean {
+    const buildData = decodeBuildData(buildCode);
+    if (!buildData) return false;
+    startCompare(buildData, name, source);
+    return true;
 }
