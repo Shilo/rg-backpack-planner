@@ -3,12 +3,16 @@
         ArrowClockwiseIcon,
         BookOpenTextIcon,
         ClockCounterClockwiseIcon,
+        SpeakerHighIcon,
+        SpeakerSlashIcon,
         TrashSimpleIcon,
         VibrateIcon,
         WaveformSlashIcon,
     } from "phosphor-svelte";
     import type { Component } from "svelte";
     import { hapticsEnabled } from "../hapticsStore";
+    import { soundVolume, soundMuted } from "../soundStore";
+    import SliderSetting from "../SliderSetting.svelte";
     import Button from "../Button.svelte";
     import FullscreenToggle from "../buttons/FullscreenToggle.svelte";
     import InstallPwaButton from "../buttons/InstallPwaButton.svelte";
@@ -53,6 +57,8 @@
                 showTier.resetToDefault();
                 showSkillName.resetToDefault();
                 hapticsEnabled.resetToDefault();
+                soundVolume.resetToDefault();
+                soundMuted.resetToDefault();
                 treeZoomScale.resetToDefault();
                 textSize.resetToDefault();
                 themeColor.resetToDefault();
@@ -113,6 +119,26 @@
 <SettingsPage title={$t("settings.pages.general")} {onBack}>
     <SideMenuSection title={$t("sideMenu.sections.accessibility")}>
         <LanguageDropdown />
+        <SliderSetting
+            label={$t("settings.sound")}
+            ariaLabel={$t("settings.sound")}
+            description={$t("settings.soundDescription")}
+            icon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
+            value={$soundMuted ? 0 : $soundVolume}
+            min={0}
+            max={100}
+            step={10}
+            defaultNotchIndex={3}
+            formatValue={(v) => $soundMuted ? "Muted" : `${v}%`}
+            resetIcon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
+            resetAriaLabel={$soundMuted ? "Unmute" : "Mute"}
+            onReset={() => soundMuted.set(!$soundMuted)}
+            onChange={(v) => {
+                soundVolume.set(v);
+                if (v > 0 && $soundMuted) soundMuted.set(false);
+                if (v === 0) soundMuted.set(true);
+            }}
+        />
         <ToggleSwitch
             checked={$hapticsEnabled}
             label={$t("settings.haptics")}
