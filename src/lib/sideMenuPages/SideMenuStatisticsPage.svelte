@@ -486,7 +486,7 @@
                     on:click={() => stopCompare()}
                     title={$t("compare.stopCompareTooltip")}
                 >
-                    <XIcon size={14} />
+                    <XIcon size={18} />
                 </button>
             </div>
             <div class="side-menu__stats-card">
