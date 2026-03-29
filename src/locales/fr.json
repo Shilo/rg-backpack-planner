@@ -463,6 +463,21 @@
         "shareText": "Partager le texte",
         "generatingImage": "Génération..."
     },
+    "compare": {
+        "compareBuilds": "Comparer les builds",
+        "compareBuildWith": "Comparer \"{name}\" avec...",
+        "compareStatistics": "Comparer les statistiques",
+        "compareTooltip": "Comparer avec un autre build",
+        "stopCompareTooltip": "Arrêter la comparaison",
+        "compareWithActive": "Comparer avec \"{name}\"",
+        "compareWithActiveTooltip": "Comparer avec \"{name}\"",
+        "compareWith": "Comparer...",
+        "compareWithDescription": "Différence de stats",
+        "personalPresets": "Vos builds",
+        "fromCode": "Depuis un lien/code",
+        "swapTooltip": "Passer à ce build",
+        "editing": "Édition"
+    },
     "controls": {
         "actions": {
             "primaryAction": "Indicateur d'action principale",

@@ -463,6 +463,21 @@
         "shareText": "テキストを共有",
         "generatingImage": "生成中..."
     },
+    "compare": {
+        "compareBuilds": "ビルドを比較",
+        "compareBuildWith": "\"{name}\"と比較...",
+        "compareStatistics": "統計を比較",
+        "compareTooltip": "別のビルドと比較",
+        "stopCompareTooltip": "比較を終了",
+        "compareWithActive": "\"{name}\"と比較",
+        "compareWithActiveTooltip": "\"{name}\"と比較",
+        "compareWith": "比較...",
+        "compareWithDescription": "統計差分",
+        "personalPresets": "あなたのビルド",
+        "fromCode": "リンク/コードから",
+        "swapTooltip": "このビルドに切り替え",
+        "editing": "編集中"
+    },
     "controls": {
         "actions": {
             "primaryAction": "プライマリアクション表示",

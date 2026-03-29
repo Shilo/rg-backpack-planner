@@ -463,6 +463,21 @@
         "shareText": "分享文本",
         "generatingImage": "生成中..."
     },
+    "compare": {
+        "compareBuilds": "比较构建",
+        "compareBuildWith": "与“{name}”比较...",
+        "compareStatistics": "比较统计",
+        "compareTooltip": "与另一个构建比较",
+        "stopCompareTooltip": "停止比较",
+        "compareWithActive": "与“{name}”比较",
+        "compareWithActiveTooltip": "与“{name}”比较",
+        "compareWith": "比较...",
+        "compareWithDescription": "统计差异",
+        "personalPresets": "你的构建",
+        "fromCode": "从链接/代码",
+        "swapTooltip": "切换到此构建",
+        "editing": "编辑中"
+    },
     "controls": {
         "actions": {
             "primaryAction": "主要操作指示器",
