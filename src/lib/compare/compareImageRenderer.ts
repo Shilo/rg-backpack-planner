@@ -323,19 +323,21 @@ export async function renderCompareImage(
             const pillX = diffColRight - pillW;
             const pillTop = y + (ROW_H - pillHeight) / 2;
 
-            ctx.save();
-            drawRoundedRect(ctx, pillX, pillTop, pillW, pillHeight, pillHeight / 2);
-            ctx.fillStyle = isEqual ? dimPillBg : pillBg;
-            ctx.fill();
-            ctx.strokeStyle = isEqual ? dimPillBorder : pillBorder;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            ctx.restore();
+            if (!isEqual) {
+                ctx.save();
+                drawRoundedRect(ctx, pillX, pillTop, pillW, pillHeight, pillHeight / 2);
+                ctx.fillStyle = pillBg;
+                ctx.fill();
+                ctx.strokeStyle = pillBorder;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.restore();
 
-            ctx.font = diffFont;
-            ctx.fillStyle = isEqual ? dimColor : mutedColor;
-            ctx.textAlign = "right";
-            ctx.fillText(diffText, diffColRight - PILL_H_PAD, rowMidY);
+                ctx.font = diffFont;
+                ctx.fillStyle = mutedColor;
+                ctx.textAlign = "right";
+                ctx.fillText(diffText, diffColRight - PILL_H_PAD, rowMidY);
+            }
 
             // Value A
             const indicator = getIndicator(row.valueA, row.valueB);
