@@ -13,8 +13,8 @@
  *                 meets glass tap. Pitch rises with progress through the current tier.
  *   level-down  — Same family as level-up but inverted: softer, lower pitch, tiny
  *                 descending frequency tail. Feels like "stepping back."
- *   tier-up     — Level-up's core click plus an added high crystalline partial.
- *                 Slightly more "event" than a normal level change.
+ *   tier-max    — Quick ascending arpeggio — a "collect" or "tier complete" sound.
+ *                 Three-note major triad with shimmer. Plays when a tier is maxed.
  *   reset-confirm — Soft downward cascade of 4 sine tones fired in rapid succession.
  *                   Like scattering. Brief, not dramatic.
  *
@@ -43,7 +43,10 @@ let masterGain: GainNode | null = null;
  * Returns a value from 0.95 (tier start) to 1.10 (tier upper), so successive
  * level-ups within a tier produce a rising pitch.
  */
-export function tierRelativePitch(level: number, maxLevel: Node["maxLevel"]): number {
+export function tierRelativePitch(
+    level: number,
+    maxLevel: Node["maxLevel"],
+): number {
     if (maxLevel <= 1) return 1.0;
 
     const tier = tierIndex(level, maxLevel);
@@ -66,7 +69,7 @@ export function randomPitch(range: number = 0.06): number {
 
 // --- Sound Types ---
 
-export type SoundId = "level-up" | "level-down" | "tier-up" | "reset-confirm";
+export type SoundId = "level-up" | "level-down" | "tier-max" | "reset-confirm";
 
 export interface PlaySoundOptions {
     level?: number;
@@ -106,7 +109,10 @@ function synthLevelUp(
     osc1.frequency.value = BASE_FREQ * pitch;
     gain1.gain.setValueAtTime(NEAR_ZERO, now);
     gain1.gain.linearRampToValueAtTime(PRIMARY_PEAK, now + ATTACK);
-    gain1.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + DECAY_END);
+    gain1.gain.exponentialRampToValueAtTime(
+        NEAR_ZERO,
+        now + ATTACK + DECAY_END,
+    );
     osc1.connect(gain1);
     gain1.connect(master);
     osc1.start(now);
@@ -119,7 +125,10 @@ function synthLevelUp(
     osc2.frequency.value = BASE_FREQ * 2 * pitch;
     gain2.gain.setValueAtTime(NEAR_ZERO, now);
     gain2.gain.linearRampToValueAtTime(SECONDARY_PEAK, now + ATTACK);
-    gain2.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + DECAY_END);
+    gain2.gain.exponentialRampToValueAtTime(
+        NEAR_ZERO,
+        now + ATTACK + DECAY_END,
+    );
     osc2.connect(gain2);
     gain2.connect(master);
     osc2.start(now);
@@ -139,10 +148,7 @@ function synthLevelUp(
  * frequency tail. Triangle at ~600Hz ramping down to ~550Hz over the decay.
  * Sine harmonic at 2× with 30% of primary gain. Random pitch variation.
  */
-function synthLevelDown(
-    ac: AudioContext,
-    master: GainNode,
-): void {
+function synthLevelDown(ac: AudioContext, master: GainNode): void {
     const now = ac.currentTime;
     const pitch = randomPitch();
 
@@ -159,10 +165,16 @@ function synthLevelDown(
     const gain1 = ac.createGain();
     osc1.type = "triangle";
     osc1.frequency.setValueAtTime(BASE_FREQ * pitch, now);
-    osc1.frequency.linearRampToValueAtTime(FREQ_END * pitch, now + ATTACK + DECAY_END);
+    osc1.frequency.linearRampToValueAtTime(
+        FREQ_END * pitch,
+        now + ATTACK + DECAY_END,
+    );
     gain1.gain.setValueAtTime(NEAR_ZERO, now);
     gain1.gain.linearRampToValueAtTime(PRIMARY_PEAK, now + ATTACK);
-    gain1.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + DECAY_END);
+    gain1.gain.exponentialRampToValueAtTime(
+        NEAR_ZERO,
+        now + ATTACK + DECAY_END,
+    );
     osc1.connect(gain1);
     gain1.connect(master);
     osc1.start(now);
@@ -175,7 +187,10 @@ function synthLevelDown(
     osc2.frequency.value = BASE_FREQ * 2 * pitch;
     gain2.gain.setValueAtTime(NEAR_ZERO, now);
     gain2.gain.linearRampToValueAtTime(SECONDARY_PEAK, now + ATTACK);
-    gain2.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + DECAY_END);
+    gain2.gain.exponentialRampToValueAtTime(
+        NEAR_ZERO,
+        now + ATTACK + DECAY_END,
+    );
     osc2.connect(gain2);
     gain2.connect(master);
     osc2.start(now);
@@ -188,73 +203,70 @@ function synthLevelDown(
 }
 
 /**
- * synthTierUp (~100–120ms)
+ * synthTierMax (~150–200ms)
  *
- * Level-up's core click (triangle ~800Hz + sine harmonic) plus an added high
- * crystalline partial at ~2400Hz that lingers ~40ms longer than the core.
- * Slightly more "event" than a normal level change. Random pitch variation.
+ * Quick ascending arpeggio — a "collect" or "tier complete" sound. Three sine
+ * tones at roughly a major triad (root, major third, fifth) fired in rapid
+ * succession, each staggered ~30ms apart. Each note has a fast attack and
+ * medium decay with a shimmer overlay (quiet high partial on the last note).
+ * Feels like picking up coins or completing a tier checkpoint.
+ * Distinctly different from level-up's single mechanical click.
  */
-function synthTierUp(
-    ac: AudioContext,
-    master: GainNode,
-): void {
-    const now = ac.currentTime;
+function synthTierMax(ac: AudioContext, master: GainNode): void {
     const pitch = randomPitch();
 
-    const BASE_FREQ = 800;
-    const PARTIAL_FREQ = 2400;
-    const PRIMARY_PEAK = 0.3;
-    const SECONDARY_PEAK = 0.12;
-    const PARTIAL_PEAK = 0.075;
+    // Major triad arpeggio: root (C5 ~523Hz), major third (E5 ~659Hz), fifth (G5 ~784Hz)
+    const FREQS = [523, 659, 784];
+    const DELAYS = [0, 30, 60];
+    const GAINS = [0.2, 0.18, 0.22];
     const ATTACK = 0.002;
-    const CORE_DECAY = 0.06;
-    const PARTIAL_DECAY = 0.1;
+    const DECAY = 0.1;
     const NEAR_ZERO = 0.001;
 
-    // Core — triangle at base frequency (same as level-up)
-    const osc1 = ac.createOscillator();
-    const gain1 = ac.createGain();
-    osc1.type = "triangle";
-    osc1.frequency.value = BASE_FREQ * pitch;
-    gain1.gain.setValueAtTime(NEAR_ZERO, now);
-    gain1.gain.linearRampToValueAtTime(PRIMARY_PEAK, now + ATTACK);
-    gain1.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + CORE_DECAY);
-    osc1.connect(gain1);
-    gain1.connect(master);
-    osc1.start(now);
-    osc1.stop(now + 0.08);
+    // Arpeggio — three ascending sine tones
+    FREQS.forEach((freq, i) => {
+        setTimeout(() => {
+            const now = ac.currentTime;
+            const osc = ac.createOscillator();
+            const gain = ac.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq * pitch;
+            gain.gain.setValueAtTime(NEAR_ZERO, now);
+            gain.gain.linearRampToValueAtTime(GAINS[i], now + ATTACK);
+            gain.gain.exponentialRampToValueAtTime(
+                NEAR_ZERO,
+                now + ATTACK + DECAY,
+            );
+            osc.connect(gain);
+            gain.connect(master);
+            osc.start(now);
+            osc.stop(now + ATTACK + DECAY + 0.01);
 
-    // Core harmonic — sine at 2× frequency
-    const osc2 = ac.createOscillator();
-    const gain2 = ac.createGain();
-    osc2.type = "sine";
-    osc2.frequency.value = BASE_FREQ * 2 * pitch;
-    gain2.gain.setValueAtTime(NEAR_ZERO, now);
-    gain2.gain.linearRampToValueAtTime(SECONDARY_PEAK, now + ATTACK);
-    gain2.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + CORE_DECAY);
-    osc2.connect(gain2);
-    gain2.connect(master);
-    osc2.start(now);
-    osc2.stop(now + 0.08);
+            setTimeout(() => {
+                gain.disconnect();
+            }, 130);
+        }, DELAYS[i]);
+    });
 
-    // Crystalline partial — sine at ~2400Hz, lingers longer
-    const osc3 = ac.createOscillator();
-    const gain3 = ac.createGain();
-    osc3.type = "sine";
-    osc3.frequency.value = PARTIAL_FREQ * pitch;
-    gain3.gain.setValueAtTime(NEAR_ZERO, now);
-    gain3.gain.linearRampToValueAtTime(PARTIAL_PEAK, now + ATTACK);
-    gain3.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + PARTIAL_DECAY);
-    osc3.connect(gain3);
-    gain3.connect(master);
-    osc3.start(now);
-    osc3.stop(now + 0.12);
-
+    // Shimmer — quiet high partial on the last note for sparkle
     setTimeout(() => {
-        gain1.disconnect();
-        gain2.disconnect();
-        gain3.disconnect();
-    }, 150);
+        const now = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = "sine";
+        osc.frequency.value = FREQS[2] * 2 * pitch;
+        gain.gain.setValueAtTime(NEAR_ZERO, now);
+        gain.gain.linearRampToValueAtTime(0.06, now + ATTACK);
+        gain.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + 0.12);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(now);
+        osc.stop(now + ATTACK + 0.12 + 0.01);
+
+        setTimeout(() => {
+            gain.disconnect();
+        }, 160);
+    }, DELAYS[2]);
 }
 
 /**
@@ -265,10 +277,7 @@ function synthTierUp(
  * per voice. Each voice has its own fast-attack/exponential-decay envelope
  * with decreasing gain. Like scattering. Brief, not dramatic.
  */
-function synthResetConfirm(
-    ac: AudioContext,
-    master: GainNode,
-): void {
+function synthResetConfirm(ac: AudioContext, master: GainNode): void {
     const FREQS = [700, 600, 500, 400];
     const GAINS = [0.2, 0.17, 0.14, 0.11];
     const DELAYS = [0, 15, 30, 45];
@@ -287,7 +296,10 @@ function synthResetConfirm(
             osc.frequency.value = freq * pitch;
             gain.gain.setValueAtTime(NEAR_ZERO, now);
             gain.gain.linearRampToValueAtTime(GAINS[i], now + ATTACK);
-            gain.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + DECAY);
+            gain.gain.exponentialRampToValueAtTime(
+                NEAR_ZERO,
+                now + ATTACK + DECAY,
+            );
             osc.connect(gain);
             gain.connect(master);
             osc.start(now);
@@ -308,7 +320,7 @@ const SYNTH_MAP: Record<
 > = {
     "level-up": synthLevelUp,
     "level-down": synthLevelDown,
-    "tier-up": synthTierUp,
+    "tier-max": synthTierMax,
     "reset-confirm": synthResetConfirm,
 };
 

@@ -682,14 +682,14 @@
         const targetNode = getNodeAt(index);
         const newLevel = getLevelFrom(nextLevels, index);
 
-        // Sound trigger — determine which sound to play based on tier crossing
+        // Sound trigger — tier-max when level hits tier upper, else level-up/down
         if (targetNode) {
-            const prevTier = tierIndex(currentLevel, targetNode.maxLevel);
-            const newTier = tierIndex(newLevel, targetNode.maxLevel);
-            if (newTier > prevTier && targetLevel > currentLevel) {
-                playSound("tier-up");
+            const ml = targetNode.maxLevel;
+            const newTier = tierIndex(newLevel, ml);
+            if (targetLevel > currentLevel && ml > 1 && newLevel === tierUpper(newTier, ml)) {
+                playSound("tier-max");
             } else if (targetLevel > currentLevel) {
-                playSound("level-up", { level: newLevel, maxLevel: targetNode.maxLevel });
+                playSound("level-up", { level: newLevel, maxLevel: ml });
             } else {
                 playSound("level-down");
             }
