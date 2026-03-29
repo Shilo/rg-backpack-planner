@@ -1,6 +1,7 @@
 <script lang="ts">
     import ShareBuildButton from "./buttons/ShareBuildButton.svelte";
     import Button from "./Button.svelte";
+    import ButtonGroup from "./ButtonGroup.svelte";
     import { EyeSlashIcon, ScalesIcon } from "phosphor-svelte";
     import { clearShareFromUrl } from "./buildData/url";
     import TechCrystalsButton from "./buttons/TechCrystalsButton.svelte";
@@ -52,14 +53,17 @@
     tooltipSubject={$t("techCrystals.subjectPreview")}
     buildName={$previewBuildName}
 />
-<CloneBuildButton description={$t("preview.clonePreviewBuildDescription")} />
-<Button
-    on:click={handleCompareClick}
-    icon={ScalesIcon}
-    arrow="right"
->
-    {$t("compare.compareWith")}
-</Button>
+<ButtonGroup fill>
+    <CloneBuildButton description={$t("preview.clonePreviewBuildDescription")} />
+    <Button
+        on:click={handleCompareClick}
+        icon={ScalesIcon}
+        description={$t("compare.compareWithDescription")}
+        arrow="right"
+    >
+        {$t("compare.compareWith")}
+    </Button>
+</ButtonGroup>
 <CompareBuildsMenu
     x={compareMenuX}
     y={compareMenuY}

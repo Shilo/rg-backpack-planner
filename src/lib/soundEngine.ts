@@ -333,13 +333,15 @@ export function playSound(id: SoundId, opts?: PlaySoundOptions): void {
             masterGain.connect(ctx.destination);
         }
 
-        // Resume if suspended (browser autoplay policy)
+        // Resume if suspended (browser autoplay policy).
+        // Skip this sound — next user gesture will play normally.
         if (ctx.state === "suspended") {
-            ctx.resume();
+            void ctx.resume();
+            return;
         }
 
         // Update master gain to current volume
-        masterGain!.gain.value = vol;
+        masterGain!.gain.setValueAtTime(vol, ctx.currentTime);
 
         // Dispatch to synthesis function
         const synth = SYNTH_MAP[id];

@@ -13,6 +13,8 @@
     import { t } from "svelte-whisper";
     import { TechCrystalIcon } from "../customIcons";
     import { activeTabs } from "../techCrystalStore";
+    import { activeBuildName } from "../buildPresetsStore";
+    import { toTitleCase } from "../stringUtil";
     import { decodeAndStartCompare } from "../compare/compareStore";
     import { mapRecommendedBuilds } from "../compare/compareStats";
 
@@ -72,7 +74,7 @@
         <div class="section-title">{$t("preview.recommended")}</div>
         <div class="premade-builds-list">
             {#each premadeBuilds as build}
-                <ButtonGroup>
+                <ButtonGroup fill>
                     <Button
                         icon={build.icon ?? ShareNetworkIcon}
                         tooltipText={$t("preview.previewBuildTooltip", {
@@ -89,7 +91,8 @@
                         {build.index}. {build.name}
                     </Button>
                     <Button
-                        tooltipText={$t("compare.compareWithActive")}
+                        class="compare-btn"
+                        tooltipText={$t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
                         icon={ScalesIcon}
                         on:click={() =>
                             handleCompareRecommended(build.code, build.name)}
@@ -122,6 +125,10 @@
         color: var(--text-disabled);
         padding-left: var(--spacing-sm);
         overflow-wrap: break-word;
+    }
+
+    :global(.compare-btn) {
+        flex: 0 0 auto !important;
     }
 
     .premade-builds-list {

@@ -84,6 +84,7 @@
     } from "./lib/input";
     import { recommendedBuilds } from "./lib/buildData/recommended";
     import { toggleFullscreen } from "./lib/fullscreen";
+    import { sideMenuOpenRequest } from "./lib/sideMenuOpenStore";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -165,6 +166,11 @@
 
     function closeMenu() {
         isMenuOpen = false;
+    }
+
+    $: if ($sideMenuOpenRequest) {
+        isMenuOpen = true;
+        sideMenuOpenRequest.set(false);
     }
 
     function resetSwipeState() {

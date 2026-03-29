@@ -18,7 +18,7 @@
     import ShareBuildButton from "./ShareBuildButton.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { buildPresetsStore } from "../buildPresetsStore";
+    import { buildPresetsStore, activeBuildName } from "../buildPresetsStore";
     import {
         setActivePresetId,
         updatePreset,
@@ -34,7 +34,7 @@
     import { applyBuildData } from "../buildData/applier";
     import { showToast } from "../toast";
     import { openModal } from "../modalStore";
-    import { truncateText } from "../stringUtil";
+    import { truncateText, toTitleCase } from "../stringUtil";
     import { guardianTree } from "../../config/guardianTree";
     import { vanguardTree } from "../../config/vanguardTree";
     import { cannonTree } from "../../config/cannonTree";
@@ -480,10 +480,11 @@
             {#if editMenuPresetId !== $buildPresetsStore.active}
                 <Button
                     on:click={() => handleCompareWithActive(editMenuPresetId!)}
-                    tooltipText={$t("compare.compareWithActive")}
+                    tooltipText={$t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
+                    description={$t("compare.compareWithDescription")}
                     icon={ScalesIcon}
                 >
-                    {$t("compare.compareWithActive")}
+                    {$t("compare.compareWithActive", { name: toTitleCase($activeBuildName) })}
                 </Button>
             {/if}
             <Button

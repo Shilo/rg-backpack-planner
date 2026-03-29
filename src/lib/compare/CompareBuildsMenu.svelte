@@ -4,7 +4,7 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { buildPresetsStore } from "../buildPresetsStore";
+    import { activeBuildName, buildPresetsStore } from "../buildPresetsStore";
     import { parseEncodedFromUserInput } from "../buildData/url";
     import { activeTabs } from "../techCrystalStore";
     import { showToast } from "../toast";
@@ -12,7 +12,7 @@
     import { t, tr } from "svelte-whisper";
     import { TechCrystalIcon } from "../customIcons";
     import { getDisplayPresetName } from "../i18n";
-    import { truncateText } from "../stringUtil";
+    import { truncateText, toTitleCase } from "../stringUtil";
     import { decodeAndStartCompare } from "./compareStore";
     import { mapRecommendedBuilds } from "./compareStats";
 
@@ -81,7 +81,7 @@
         {x}
         {y}
         {isOpen}
-        title={$t("compare.compareBuilds")}
+        title={$t("compare.compareBuildWith", { name: toTitleCase($activeBuildName) })}
         onClose={() => onClose?.()}
         anchorBelow
     >
@@ -92,6 +92,20 @@
         >
             {$t("compare.fromCode")}
         </Button>
+
+        {#if presets.length > 0}
+            <div class="section-title">{$t("compare.personalPresets")}</div>
+            <div class="compare-builds-list">
+                {#each presets as preset}
+                    <Button
+                        on:click={() =>
+                            handleBuildClick(preset.buildCode, preset.name)}
+                    >
+                        {truncateText(preset.name)}
+                    </Button>
+                {/each}
+            </div>
+        {/if}
 
         {#if premadeBuilds.length > 0}
             <div class="section-title">{$t("preview.recommended")}</div>
@@ -111,20 +125,6 @@
                             handleBuildClick(build.code, build.name)}
                     >
                         {build.index}. {build.name}
-                    </Button>
-                {/each}
-            </div>
-        {/if}
-
-        {#if presets.length > 0}
-            <div class="section-title">{$t("compare.personalPresets")}</div>
-            <div class="compare-builds-list">
-                {#each presets as preset}
-                    <Button
-                        on:click={() =>
-                            handleBuildClick(preset.buildCode, preset.name)}
-                    >
-                        {truncateText(preset.name)}
                     </Button>
                 {/each}
             </div>
@@ -157,8 +157,6 @@
     }
 
     .compare-builds-list {
-        max-height: min(300px, 30vh);
-        overflow-y: auto;
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);

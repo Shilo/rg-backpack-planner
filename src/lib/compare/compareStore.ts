@@ -7,6 +7,7 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import { applyBuildData } from "../buildData/applier";
 import { activeBuildName } from "../buildPresetsStore";
 import { setActiveTab } from "../sideMenuActiveTabStore";
+import { requestOpenSideMenu } from "../sideMenuOpenStore";
 
 export interface CompareBuild {
     data: BuildData;
@@ -57,6 +58,7 @@ function startCompare(buildData: BuildData, name: string): void {
     });
 
     setActiveTab("statistics");
+    requestOpenSideMenu();
 }
 
 export function stopCompare(): void {

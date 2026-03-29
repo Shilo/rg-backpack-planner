@@ -621,9 +621,6 @@
 
     .side-menu__compare-toggle {
         display: flex;
-        border: var(--border-width) solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
     }
 
     .compare-segment {
@@ -634,12 +631,18 @@
         gap: var(--spacing-xs);
         padding: var(--spacing-xs) var(--spacing-md);
         font-size: var(--font-sm);
-        border: none;
+        border: var(--border-width) solid var(--border);
+        border-right: none;
         cursor: pointer;
         min-height: 32px;
         background: transparent;
         color: var(--text-muted);
         font-family: inherit;
+    }
+
+    .compare-segment:first-child {
+        border-top-left-radius: var(--radius);
+        border-bottom-left-radius: var(--radius);
     }
 
     .compare-segment--active {
@@ -680,8 +683,9 @@
         align-items: center;
         justify-content: center;
         min-width: 44px;
-        border: none;
-        border-left: var(--border-width) solid var(--danger-border);
+        border: var(--border-width) solid var(--danger-border);
+        border-top-right-radius: var(--radius);
+        border-bottom-right-radius: var(--radius);
         background: var(--danger-bg);
         color: var(--danger-text);
         cursor: pointer;
