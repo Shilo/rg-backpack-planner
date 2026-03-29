@@ -335,7 +335,7 @@ export async function renderCompareImage(
             ctx.font = diffFont;
             ctx.fillStyle = isEqual ? dimColor : mutedColor;
             ctx.textAlign = "right";
-            ctx.fillText(diffText, diffColRight, rowMidY);
+            ctx.fillText(diffText, diffColRight - PILL_H_PAD, rowMidY);
 
             // Value A
             const indicator = getIndicator(row.valueA, row.valueB);
