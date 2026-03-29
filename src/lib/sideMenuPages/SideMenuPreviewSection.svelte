@@ -1,5 +1,6 @@
 <script lang="ts">
     import PreviewContextMenuList from "../PreviewContextMenuList.svelte";
+    import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
     import { isPreviewMode } from "../previewModeStore";
     import {
         previewBuildName,
@@ -7,6 +8,20 @@
     } from "../previewBuildNameStore";
     import SideMenuSection from "../SideMenuSection.svelte";
     import { t } from "svelte-whisper";
+
+    let compareMenuOpen = false;
+    let compareMenuX = 0;
+    let compareMenuY = 0;
+
+    function handleCompareOpen(x: number, y: number) {
+        compareMenuX = x;
+        compareMenuY = y;
+        compareMenuOpen = true;
+    }
+
+    function closeCompareMenu() {
+        compareMenuOpen = false;
+    }
 
     $: sectionTitle = $t("preview.buildTitle", {
         name: getPreviewTitle($previewBuildName),
@@ -16,9 +31,15 @@
 {#if $isPreviewMode}
     <div class="preview-section">
         <SideMenuSection title={sectionTitle}>
-            <PreviewContextMenuList />
+            <PreviewContextMenuList onCompareOpen={handleCompareOpen} />
         </SideMenuSection>
     </div>
+    <CompareBuildsMenu
+        x={compareMenuX}
+        y={compareMenuY}
+        isOpen={compareMenuOpen}
+        onClose={closeCompareMenu}
+    />
 {/if}
 
 <style>
