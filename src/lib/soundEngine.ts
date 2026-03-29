@@ -96,8 +96,8 @@ function synthLevelUp(
     const pitch = tierRelativePitch(level, maxLevel);
 
     const BASE_FREQ = 800;
-    const PRIMARY_PEAK = 0.3;
-    const SECONDARY_PEAK = 0.12;
+    const PRIMARY_PEAK = 0.18;
+    const SECONDARY_PEAK = 0.07;
     const ATTACK = 0.002;
     const DECAY_END = 0.06;
     const NEAR_ZERO = 0.001;
