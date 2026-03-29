@@ -367,7 +367,7 @@
         y={presetsMenuY}
         isOpen={presetsMenuOpen}
         title={$t("buildPresets.menuTitle")}
-        onClose={closePresetsMenu}
+        onClose={() => { if (!compareMenuOpen) closePresetsMenu(); }}
         anchorBelow
     >
         <div class="premade-builds-list">
@@ -521,6 +521,7 @@
     y={compareMenuY}
     isOpen={compareMenuOpen}
     onClose={closeCompareMenu}
+    onSelect={closePresetsMenu}
 />
 
 <style>

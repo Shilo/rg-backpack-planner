@@ -5,6 +5,7 @@
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
     import { activeBuildName, buildPresetsStore } from "../buildPresetsStore";
+    import { isPreviewMode } from "../previewModeStore";
     import { parseEncodedFromUserInput } from "../buildData/url";
     import { activeTabs } from "../techCrystalStore";
     import { showToast } from "../toast";
@@ -24,7 +25,7 @@
     export let onSelect: (() => void) | null = null;
 
     $: presets = $buildPresetsStore.presets
-        .filter((p) => p.id !== $buildPresetsStore.active)
+        .filter((p) => $isPreviewMode || p.id !== $buildPresetsStore.active)
         .map((p) => ({
             id: p.id,
             name: getDisplayPresetName(p.name),
