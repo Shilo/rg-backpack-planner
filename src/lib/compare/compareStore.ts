@@ -1,17 +1,35 @@
 import { writable, get } from "svelte/store";
-import type { BuildData } from "../buildData/encoder";
-import { decodeBuildData } from "../buildData/encoder";
+import {
+    encodeBuildData,
+    decodeBuildData,
+    type BuildData,
+} from "../buildData/encoder";
 import type { Node } from "../../types/tree";
 import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
-import { applyBuildData } from "../buildData/applier";
-import { activeBuildName } from "../buildPresetsStore";
+import { switchActivePreset } from "../buildData/applier";
+import {
+    activeBuildName,
+    getActivePresetId,
+    setActivePresetId,
+} from "../buildPresetsStore";
+import { isPreviewMode } from "../previewModeStore";
+import {
+    getEncodedFromUrl,
+    navigateToEncodedBuild,
+    navigateToPersonalMode,
+} from "../buildData/url";
 import { setActiveTab } from "../sideMenuActiveTabStore";
 import { requestOpenSideMenu } from "../sideMenuOpenStore";
+
+export type CompareBuildSource =
+    | { type: "preset"; id: string }
+    | { type: "preview"; encoded: string };
 
 export interface CompareBuild {
     data: BuildData;
     label: string;
+    source: CompareBuildSource;
 }
 
 export interface CompareState {
@@ -33,10 +51,23 @@ const initialState: CompareState = {
 
 export const compareState = writable<CompareState>(initialState);
 
-function startCompare(buildData: BuildData, name: string): void {
+function startCompare(
+    buildData: BuildData,
+    name: string,
+    source: CompareBuildSource,
+): void {
     const currentLevels = get(treeLevels);
     const currentOwned = get(techCrystalsOwned);
     const currentLabel = get(activeBuildName);
+
+    const currentSource: CompareBuildSource = get(isPreviewMode)
+        ? {
+              type: "preview",
+              encoded:
+                  getEncodedFromUrl() ??
+                  encodeBuildData({ trees: currentLevels, owned: currentOwned }),
+          }
+        : { type: "preset", id: getActivePresetId() };
 
     compareState.set({
         isComparing: true,
@@ -46,6 +77,7 @@ function startCompare(buildData: BuildData, name: string): void {
                 owned: currentOwned,
             },
             label: currentLabel,
+            source: currentSource,
         },
         buildB: {
             data: {
@@ -53,6 +85,7 @@ function startCompare(buildData: BuildData, name: string): void {
                 owned: buildData.owned,
             },
             label: name,
+            source,
         },
         activeSide: "a",
     });
@@ -69,7 +102,7 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
     const state = get(compareState);
     if (!state.isComparing || !state.buildA || !state.buildB) return;
 
-    // Snapshot current live build into the departing side
+    // Snapshot current live build into the departing side before switching
     const currentLevels = get(treeLevels);
     const currentOwned = get(techCrystalsOwned);
     const snapshot: BuildData = {
@@ -79,12 +112,6 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
 
     const newActiveSide = state.activeSide === "a" ? "b" : "a";
 
-    // Apply the target side's stored data
-    const targetData =
-        newActiveSide === "a" ? state.buildA.data : state.buildB.data;
-    applyBuildData(trees, targetData);
-
-    // Save snapshot into the departing side
     const updatedBuildA =
         state.activeSide === "a"
             ? { ...state.buildA, data: snapshot }
@@ -100,6 +127,22 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
         buildB: updatedBuildB,
         activeSide: newActiveSide,
     });
+
+    const targetSource =
+        newActiveSide === "a" ? state.buildA.source : state.buildB.source;
+
+    if (targetSource.type === "preview") {
+        // Any → Preview: triggers hashchange → initializeFromUrl enters preview mode
+        navigateToEncodedBuild(targetSource.encoded);
+    } else if (get(isPreviewMode)) {
+        // Preview → Preset: set active preset ID first so initializeFromUrl loads it,
+        // then clear the URL hash and dispatch hashchange to exit preview mode
+        setActivePresetId(targetSource.id);
+        navigateToPersonalMode();
+    } else {
+        // Personal → Preset: direct switch, no navigation needed
+        switchActivePreset(targetSource.id, trees);
+    }
 }
 
 /**
@@ -108,9 +151,10 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
 export function decodeAndStartCompare(
     buildCode: string,
     name: string,
+    source: CompareBuildSource,
 ): boolean {
     const buildData = decodeBuildData(buildCode);
     if (!buildData) return false;
-    startCompare(buildData, name);
+    startCompare(buildData, name, source);
     return true;
 }
