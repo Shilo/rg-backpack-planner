@@ -16,6 +16,7 @@
     import { truncateText, toTitleCase } from "../stringUtil";
     import { decodeAndStartCompare, type CompareBuildSource } from "./compareStore";
     import { mapRecommendedBuilds } from "./compareStats";
+    import { previewRecommendedBuild } from "../buildData/recommended";
 
     export let x = 0;
     export let y = 0;
@@ -32,7 +33,8 @@
             buildCode: p.buildCode,
         }));
 
-    $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
+    $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t)
+        .filter((b) => b.code !== $previewRecommendedBuild?.encoded);
 
     function handleBuildClick(
         buildCode: string,
