@@ -79,22 +79,27 @@
         ? $t("compare.compareStatistics")
         : $t("sideMenu.sections.statistics");
 
-    let compareAnimating = false;
-    let prevComparing = $compareState.isComparing;
-    let compareAnimTimer: ReturnType<typeof setTimeout> | null = null;
+    let statsBodyEl: HTMLElement | null = null;
+    let prevCompareKey = "";
+
+    function animateContentChange() {
+        if ($animationsDisabled || !statsBodyEl) return;
+        statsBodyEl.style.opacity = "0";
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (statsBodyEl) statsBodyEl.style.opacity = "1";
+            });
+        });
+    }
+
     $: {
-        const nowComparing = $compareState.isComparing;
-        if (nowComparing !== prevComparing) {
-            prevComparing = nowComparing;
-            if (!$animationsDisabled) {
-                if (compareAnimTimer) clearTimeout(compareAnimTimer);
-                compareAnimating = true;
-                compareAnimTimer = setTimeout(() => {
-                    compareAnimating = false;
-                    compareAnimTimer = null;
-                }, 200);
-            }
+        const key = $compareState.isComparing
+            ? `c:${$compareState.buildB?.label ?? ""}`
+            : "idle";
+        if (prevCompareKey !== "" && key !== prevCompareKey) {
+            animateContentChange();
         }
+        prevCompareKey = key;
     }
 
     $: {
@@ -435,7 +440,7 @@
             on:click={handleShareClick}
         />
     </div>
-    <div class="side-menu__stats-body" class:compare-anim={compareAnimating}>
+    <div class="side-menu__stats-body" bind:this={statsBodyEl}>
         {#if $compareState.isComparing && $compareState.buildA && $compareState.buildB}
             <div class="side-menu__compare-toggle">
                 <button
@@ -656,43 +661,36 @@
         color: var(--accent) !important;
     }
 
+    .compare-segment--reference:active {
+        filter: var(--brightness-hover);
+    }
+
+    .compare-segment--reference:active .compare-segment__label {
+        transform: scale(0.96);
+    }
+
     .compare-stop {
         display: flex;
         align-items: center;
         justify-content: center;
         min-width: 44px;
-        border: none;
-        border-left: var(--border-width) solid var(--border);
+        border: var(--border-width) solid var(--danger-border);
+        border-top: none;
+        border-bottom: none;
+        border-right: none;
         background: var(--danger-bg);
         color: var(--danger-text);
         cursor: pointer;
         font-family: inherit;
     }
 
-    .compare-stop:hover {
-        filter: brightness(1.1);
+    .compare-stop:active {
+        filter: var(--brightness-hover);
     }
 
     .side-menu__stats-body {
-        display: contents;
-    }
-
-    .side-menu__stats-body.compare-anim > * {
-        animation: compare-transition 200ms var(--ease-decel) both;
-    }
-
-    .side-menu__stats-body.compare-anim > :nth-child(2) {
-        animation-delay: 40ms;
-    }
-
-    @keyframes compare-transition {
-        from {
-            opacity: 0;
-            transform: translateX(5px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        display: grid;
+        gap: var(--spacing-md);
+        transition: opacity 150ms ease-out;
     }
 </style>
