@@ -218,7 +218,7 @@ function synthTierMax(ac: AudioContext, master: GainNode): void {
     // Major triad arpeggio: root (C5 ~523Hz), major third (E5 ~659Hz), fifth (G5 ~784Hz)
     const FREQS = [523, 659, 784];
     const DELAYS = [0, 30, 60];
-    const GAINS = [0.2, 0.18, 0.22]; // Staggered, peak per-voice ~0.22; shimmer adds 0.06
+    const GAINS = [0.24, 0.216, 0.264]; // Staggered, peak per-voice ~0.264; shimmer adds 0.072
     const ATTACK = 0.002;
     const DECAY = 0.1;
     const NEAR_ZERO = 0.001;
@@ -256,7 +256,7 @@ function synthTierMax(ac: AudioContext, master: GainNode): void {
         osc.type = "sine";
         osc.frequency.value = FREQS[2] * 2 * pitch;
         gain.gain.setValueAtTime(NEAR_ZERO, now);
-        gain.gain.linearRampToValueAtTime(0.06, now + ATTACK);
+        gain.gain.linearRampToValueAtTime(0.072, now + ATTACK);
         gain.gain.exponentialRampToValueAtTime(NEAR_ZERO, now + ATTACK + 0.12);
         osc.connect(gain);
         gain.connect(master);
@@ -334,9 +334,9 @@ const SYNTH_MAP: Record<
  */
 const MIX_LEVELS: Record<SoundId, number> = {
     "level-up": 1.0,
-    "level-down": 0.85,
-    "tier-max": 0.9,
-    "reset-confirm": 0.8,
+    "level-down": 1.0,
+    "tier-max": 1.0,
+    "reset-confirm": 1.0,
 };
 
 // --- Public API ---
