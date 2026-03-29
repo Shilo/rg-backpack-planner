@@ -90,6 +90,7 @@
         applyNodeOperation,
     } from "./input";
     import type { NodeOperationCallbacks } from "./input";
+    import { playSound } from "./soundEngine";
 
     export let nodes: NodeType[] = [];
     export let bottomInset = 0;
@@ -677,6 +678,22 @@
         }
         const prevLevels = levels;
         updateLevels(nextLevels);
+
+        // Sound trigger — determine which sound to play based on tier crossing
+        const soundNode = getNodeAt(index);
+        if (soundNode) {
+            const newLevel = getLevelFrom(nextLevels, index);
+            const prevTier = tierIndex(currentLevel, soundNode.maxLevel);
+            const newTier = tierIndex(newLevel, soundNode.maxLevel);
+            if (newTier > prevTier && targetLevel > currentLevel) {
+                playSound("tier-up");
+            } else if (targetLevel > currentLevel) {
+                playSound("level-up", { level: newLevel, maxLevel: soundNode.maxLevel });
+            } else {
+                playSound("level-down");
+            }
+        }
+
         if ($showLevelSplash && !prefersReducedMotion()) {
             const targetNode = getNodeAt(index);
             const newLevel = getLevelFrom(nextLevels, index);
