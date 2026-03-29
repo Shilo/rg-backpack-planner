@@ -26,7 +26,7 @@
                 x2="196"
                 y2="203"
                 stroke="black"
-                stroke-width="46"
+                stroke-width="60"
                 stroke-linecap="round"
             />
         </mask>
@@ -43,7 +43,7 @@
         y2="203"
         fill="none"
         stroke="currentColor"
-        stroke-width="16"
+        stroke-width="20"
         stroke-linecap="round"
     />
 </svg>
