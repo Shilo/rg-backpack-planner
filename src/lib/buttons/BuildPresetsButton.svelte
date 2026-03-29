@@ -41,7 +41,7 @@
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
-    import { startCompare } from "../compare/compareStore";
+    import { startCompare, stopCompare } from "../compare/compareStore";
 
     export let disabled: boolean | undefined = false;
 
@@ -142,6 +142,7 @@
     }
 
     function switchToPreset(presetId: string) {
+        stopCompare();
         const data = get(buildPresetsStore);
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
@@ -231,6 +232,7 @@
                 if (remaining.length === 0) {
                     handleAddBuild(true);
                 } else if (wasActive) {
+                    stopCompare();
                     const first = remaining[0];
                     setActivePresetId(first.id);
                     const buildData = decodeBuildData(first.buildCode);
@@ -243,6 +245,7 @@
     }
 
     function handleAddBuild(skipPrompt: boolean = false) {
+        stopCompare();
         const emptyTrees = tabs.map(() => []);
         const emptyOwned = 0;
         const buildCode = encodeBuildData({
