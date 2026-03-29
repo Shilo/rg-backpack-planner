@@ -8,6 +8,7 @@
         DotsThreeVerticalIcon,
         PencilSimpleIcon,
         PlusIcon,
+        ScalesIcon,
         ShareNetworkIcon,
         TrashSimpleIcon,
     } from "phosphor-svelte";
@@ -40,6 +41,7 @@
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
+    import { startCompare } from "../compare/compareStore";
 
     export let disabled: boolean | undefined = false;
 
@@ -317,6 +319,17 @@
         mouseEvent.stopPropagation();
         if (editMenuPresetId) movePresetDown(editMenuPresetId);
     }
+
+    function handleCompareWithActive(presetId: string) {
+        const data = get(buildPresetsStore);
+        const preset = data.presets.find((p) => p.id === presetId);
+        if (!preset) return;
+        const buildData = decodeBuildData(preset.buildCode);
+        if (!buildData) return;
+        startCompare(buildData, getDisplayPresetName(preset.name), "preset");
+        closeEditMenu();
+        closePresetsMenu();
+    }
 </script>
 
 <Button
@@ -460,6 +473,15 @@
                 tooltip={$t("buildPresets.clonePresetTooltip")}
                 on:click={closeEditMenu}
             />
+            {#if editMenuPresetId !== $buildPresetsStore.active}
+                <Button
+                    on:click={() => handleCompareWithActive(editMenuPresetId!)}
+                    tooltipText={$t("compare.compareWithActive")}
+                    icon={ScalesIcon}
+                >
+                    {$t("compare.compareWithActive")}
+                </Button>
+            {/if}
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
                 tooltipText={$t("buildPresets.removePresetTooltip")}
