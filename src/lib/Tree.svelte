@@ -686,7 +686,7 @@
         if (targetNode) {
             const ml = targetNode.maxLevel;
             const newTier = tierIndex(newLevel, ml);
-            if (targetLevel > currentLevel && ml > 1 && newLevel === tierUpper(newTier, ml)) {
+            if (targetLevel > currentLevel && (ml <= 1 || newLevel === tierUpper(newTier, ml))) {
                 playSound("tier-max");
             } else if (targetLevel > currentLevel) {
                 playSound("level-up", { level: newLevel, maxLevel: ml });

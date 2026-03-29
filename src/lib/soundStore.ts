@@ -75,11 +75,11 @@ export const soundMuted = createSoundMutedStore();
 /**
  * Returns the effective volume in 0–1 range for the sound engine.
  *
- * Applies a square root curve (x^0.5) to counteract the OS logarithmic volume
- * curve. This keeps sounds audible at lower system volumes without being louder
- * at max. Slider 50% → 0.71 effective, slider 30% → 0.55 effective.
+ * Applies an x^0.85 curve to counteract the OS logarithmic volume curve.
+ * This keeps sounds audible at lower system volumes without being louder
+ * at max. Slider 50% → 0.55 effective, slider 100% → 1.0 effective.
  */
 export function effectiveVolume(): number {
     if (get(soundMuted)) return 0;
-    return Math.sqrt(get(soundVolume) / 100);
+    return Math.pow(get(soundVolume) / 100, 0.85);
 }
