@@ -47,7 +47,7 @@
     } from "../composeFilename";
     import { compareState, stopCompare, swapBuilds } from "../compare/compareStore";
     import { computeCompareStats } from "../compare/compareStats";
-    import type { CompareSection } from "../compare/CompareTable.svelte";
+    import type { CompareSection } from "../compare/compareStats";
     import CompareTable from "../compare/CompareTable.svelte";
     import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
 

@@ -1,25 +1,9 @@
 <script lang="ts" context="module">
-    type SectionHeader = {
-        text: string;
-        icon?: any;
-        iconWeight?: string;
-    };
-
-    export interface CompareRow {
-        label: string;
-        valueA: number;
-        valueB: number;
-        format: "number" | "percent";
-    }
-
-    export interface CompareSection {
-        header: SectionHeader;
-        rows: CompareRow[];
-    }
+    export type { CompareRow, CompareSection } from "./compareStats";
 </script>
 
 <script lang="ts">
-    import { getIndicator } from "./compareStats";
+    import { getIndicator, type CompareSection } from "./compareStats";
     import { formatNumber, formatPercent, t } from "svelte-whisper";
     import { showToast } from "../toast";
     import { shareTextNative } from "../buildData/share";

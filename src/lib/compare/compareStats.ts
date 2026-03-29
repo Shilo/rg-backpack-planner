@@ -10,6 +10,22 @@ import { sumLevels } from "../treeLevelsStore";
 import { recommendedBuilds } from "../buildData/recommended";
 import { getRecommendedBuildIcon } from "../customIcons";
 
+export interface CompareRow {
+    label: string;
+    valueA: number;
+    valueB: number;
+    format: "number" | "percent";
+}
+
+export interface CompareSection {
+    header: {
+        text: string;
+        icon?: any;
+        iconWeight?: string;
+    };
+    rows: CompareRow[];
+}
+
 export interface CompareStats {
     skillBonuses: Map<SkillId, number>;
     techCrystalsSpent: number;
