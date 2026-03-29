@@ -680,7 +680,8 @@
         align-items: center;
         justify-content: center;
         min-width: 44px;
-        border: var(--border-width) solid var(--danger-border);
+        border: none;
+        border-left: var(--border-width) solid var(--danger-border);
         background: var(--danger-bg);
         color: var(--danger-text);
         cursor: pointer;
@@ -691,9 +692,13 @@
         filter: var(--brightness-hover);
     }
 
+    .compare-stop:active :global(svg) {
+        transform: scale(0.85);
+    }
+
     .side-menu__stats-body {
         display: grid;
         gap: var(--spacing-md);
-        transition: opacity 150ms ease-out;
+        transition: opacity var(--ease);
     }
 </style>
