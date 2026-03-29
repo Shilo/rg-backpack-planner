@@ -350,7 +350,8 @@ export async function renderCompareImage(
             ctx.textAlign = "right";
             ctx.fillText(formatValue(row.valueA, row.format), valueARight, rowMidY);
 
-            // Value B (always white)
+            // Value B — always neutral white. This image is a static snapshot:
+            // column A is always the perspective column regardless of activeSide.
             ctx.fillStyle = textColor;
             ctx.fillText(formatValue(row.valueB, row.format), valueBRight, rowMidY);
 
