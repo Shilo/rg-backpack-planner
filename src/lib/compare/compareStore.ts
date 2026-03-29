@@ -6,30 +6,57 @@ import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { applyBuildData } from "../buildData/applier";
 import { activeBuildName } from "../buildPresetsStore";
+import { setActiveTab } from "../sideMenuActiveTabStore";
+
+export interface CompareBuild {
+    data: BuildData;
+    label: string;
+}
 
 export interface CompareState {
     isComparing: boolean;
-    referenceBuild: BuildData | null;
-    referenceLabel: string;
+    /** Left segment — the build that was active when comparison started */
+    buildA: CompareBuild | null;
+    /** Right segment — the build chosen to compare against */
+    buildB: CompareBuild | null;
+    /** Which segment is currently the live/editable build */
+    activeSide: "a" | "b";
 }
 
 const initialState: CompareState = {
     isComparing: false,
-    referenceBuild: null,
-    referenceLabel: "",
+    buildA: null,
+    buildB: null,
+    activeSide: "a",
 };
 
 export const compareState = writable<CompareState>(initialState);
 
 function startCompare(buildData: BuildData, name: string): void {
+    const currentLevels = get(treeLevels);
+    const currentOwned = get(techCrystalsOwned);
+    const currentLabel = get(activeBuildName);
+
     compareState.set({
         isComparing: true,
-        referenceBuild: {
-            trees: buildData.trees.map((t) => [...t]),
-            owned: buildData.owned,
+        buildA: {
+            data: {
+                trees: currentLevels.map((t) => [...t]),
+                owned: currentOwned,
+            },
+            label: currentLabel,
         },
-        referenceLabel: name,
+        buildB: {
+            data: {
+                trees: buildData.trees.map((t) => [...t]),
+                owned: buildData.owned,
+            },
+            label: name,
+        },
+        activeSide: "a",
     });
+
+    setActiveTab("statistics");
 }
 
 export function stopCompare(): void {
@@ -38,25 +65,38 @@ export function stopCompare(): void {
 
 export function swapBuilds(trees: { nodes: Node[] }[]): void {
     const state = get(compareState);
-    if (!state.isComparing || !state.referenceBuild) return;
+    if (!state.isComparing || !state.buildA || !state.buildB) return;
 
-    // Snapshot current active build
+    // Snapshot current live build into the departing side
     const currentLevels = get(treeLevels);
     const currentOwned = get(techCrystalsOwned);
-    const currentLabel = get(activeBuildName);
     const snapshot: BuildData = {
         trees: currentLevels.map((t) => [...t]),
         owned: currentOwned,
     };
 
-    // Apply reference build as the new active build
-    applyBuildData(trees, state.referenceBuild);
+    const newActiveSide = state.activeSide === "a" ? "b" : "a";
 
-    // Store previous active as the new reference
+    // Apply the target side's stored data
+    const targetData =
+        newActiveSide === "a" ? state.buildA.data : state.buildB.data;
+    applyBuildData(trees, targetData);
+
+    // Save snapshot into the departing side
+    const updatedBuildA =
+        state.activeSide === "a"
+            ? { ...state.buildA, data: snapshot }
+            : state.buildA;
+    const updatedBuildB =
+        state.activeSide === "b"
+            ? { ...state.buildB, data: snapshot }
+            : state.buildB;
+
     compareState.set({
         isComparing: true,
-        referenceBuild: snapshot,
-        referenceLabel: currentLabel,
+        buildA: updatedBuildA,
+        buildB: updatedBuildB,
+        activeSide: newActiveSide,
     });
 }
 

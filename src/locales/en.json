@@ -461,6 +461,7 @@
     },
     "compare": {
         "compareBuilds": "Compare Builds",
+        "compareStatistics": "Compare Statistics",
         "compareTooltip": "Compare with another build",
         "stopCompareTooltip": "Stop comparing",
         "compareWithActive": "Compare with active",

@@ -161,17 +161,12 @@
 
     .codeblock-table__table td {
         border-top: var(--border-width) solid var(--border-subtle);
-        border-left: var(--border-width) solid var(--border-subtle);
         padding: var(--spacing-sm) var(--spacing-md);
         text-align: left;
     }
 
     .codeblock-table__table tbody tr:first-child td {
         border-top: none;
-    }
-
-    .codeblock-table__table td:first-child {
-        border-left: none;
     }
 
     .codeblock-table__table tbody {

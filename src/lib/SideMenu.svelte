@@ -162,9 +162,10 @@
         }
     }
 
-    // Use get() for one-time init instead of $sideMenuActiveTab auto-subscription.
-    // Tab changes are driven by direct assignment in handleSideMenuTabChange/openTab.
+    // Init from store, then stay in sync reactively so external code
+    // (e.g. compareStore navigating to statistics) can switch tabs.
     let activeTab: SideMenuTab = get(sideMenuActiveTab);
+    $: activeTab = $sideMenuActiveTab;
     $: void loadTabPage(activeTab);
     let scrollContentElement: HTMLElement | null = null;
     let animateContentIn = false;

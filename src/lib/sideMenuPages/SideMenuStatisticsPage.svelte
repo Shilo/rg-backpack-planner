@@ -13,6 +13,7 @@
         TextTIcon,
         ScalesIcon,
         PencilSimpleIcon,
+        XIcon,
     } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
     import { formatNumber, formatPercent } from "svelte-whisper";
@@ -72,6 +73,10 @@
         childMenuType === "image"
             ? $t("statistics.shareImage")
             : $t("statistics.shareText");
+
+    $: sectionTitle = $compareState.isComparing
+        ? $t("compare.compareStatistics")
+        : $t("sideMenu.sections.statistics");
 
     $: {
         const bonusRows: Array<[string, string]> = [];
@@ -234,10 +239,6 @@
     }
 
     function handleCompareClick() {
-        if ($compareState.isComparing) {
-            stopCompare();
-            return;
-        }
         if (!compareButtonElement) return;
         const rect = compareButtonElement.getBoundingClientRect();
         compareMenuX = rect.left + rect.width / 2;
@@ -254,40 +255,60 @@
     }
 
     $: compareSections = (() => {
-        if (!$compareState.isComparing || !$compareState.referenceBuild) return [];
+        const state = $compareState;
+        if (!state.isComparing || !state.buildA || !state.buildB) return [];
 
-        const refStats = computeCompareStats(
-            $compareState.referenceBuild,
-            $activeTabs,
-        );
+        // Compute stats for the non-active (frozen) side
+        const frozenData =
+            state.activeSide === "a" ? state.buildB.data : state.buildA.data;
+        const frozenStats = computeCompareStats(frozenData, $activeTabs);
 
-        const bonusSections: CompareSection["rows"] = [];
+        // Live values come from stores, frozen from computed stats
+        const liveSkills = $skillBonuses;
+        const liveTcSpent = $techCrystalsSpent;
+        const liveTcGuardian = $techCrystalsSpentGuardian;
+        const liveTcVanguard = $techCrystalsSpentVanguard;
+        const liveTcCannon = $techCrystalsSpentCannon;
+        const liveLevelsTotal = $treeLevelsTotal;
+        const liveLevelsGuardian = $treeLevelsGuardian;
+        const liveLevelsVanguard = $treeLevelsVanguard;
+        const liveLevelsCannon = $treeLevelsCannon;
+
+        // Helper: assign to fixed A/B columns
+        const val = (live: number, frozen: number) =>
+            state.activeSide === "a"
+                ? { valueA: live, valueB: frozen }
+                : { valueA: frozen, valueB: live };
+
+        const bonusRows: CompareSection["rows"] = [];
         for (const skillId of SKILL_DISPLAY_ORDER) {
-            const activeVal = $skillBonuses.get(skillId) ?? 0;
-            const refVal = refStats.skillBonuses.get(skillId) ?? 0;
-            if (activeVal > 0 || refVal > 0) {
-                bonusSections.push({
+            const liveVal = liveSkills.get(skillId) ?? 0;
+            const frozenVal = frozenStats.skillBonuses.get(skillId) ?? 0;
+            if (liveVal > 0 || frozenVal > 0) {
+                bonusRows.push({
                     label: $t(`skills.${skillId}`),
-                    activeValue: activeVal,
-                    referenceValue: refVal,
+                    ...val(liveVal, frozenVal),
                     format: "percent",
                 });
             }
         }
 
-        if (bonusSections.length === 0) {
-            bonusSections.push({
+        if (bonusRows.length === 0) {
+            bonusRows.push({
                 label: $t("common.none"),
-                activeValue: 0,
-                referenceValue: 0,
+                valueA: 0,
+                valueB: 0,
                 format: "number",
             });
         }
 
         const sections: CompareSection[] = [
             {
-                header: { text: $t("statistics.backpackBonus"), icon: TrendUpIcon },
-                rows: bonusSections,
+                header: {
+                    text: $t("statistics.backpackBonus"),
+                    icon: TrendUpIcon,
+                },
+                rows: bonusRows,
             },
             {
                 header: {
@@ -298,31 +319,36 @@
                 rows: [
                     {
                         label: $t("statistics.total"),
-                        activeValue: $techCrystalsSpent,
-                        referenceValue: refStats.techCrystalsSpent,
+                        ...val(liveTcSpent, frozenStats.techCrystalsSpent),
                         format: "number",
-                        invertIndicator: true,
+
                     },
                     {
                         label: $t("trees.guardian"),
-                        activeValue: $techCrystalsSpentGuardian,
-                        referenceValue: refStats.techCrystalsSpentByTree[0] ?? 0,
+                        ...val(
+                            liveTcGuardian,
+                            frozenStats.techCrystalsSpentByTree[0] ?? 0,
+                        ),
                         format: "number",
-                        invertIndicator: true,
+
                     },
                     {
                         label: $t("trees.vanguard"),
-                        activeValue: $techCrystalsSpentVanguard,
-                        referenceValue: refStats.techCrystalsSpentByTree[1] ?? 0,
+                        ...val(
+                            liveTcVanguard,
+                            frozenStats.techCrystalsSpentByTree[1] ?? 0,
+                        ),
                         format: "number",
-                        invertIndicator: true,
+
                     },
                     {
                         label: $t("trees.cannon"),
-                        activeValue: $techCrystalsSpentCannon,
-                        referenceValue: refStats.techCrystalsSpentByTree[2] ?? 0,
+                        ...val(
+                            liveTcCannon,
+                            frozenStats.techCrystalsSpentByTree[2] ?? 0,
+                        ),
                         format: "number",
-                        invertIndicator: true,
+
                     },
                 ],
             },
@@ -334,26 +360,31 @@
                 rows: [
                     {
                         label: $t("statistics.total"),
-                        activeValue: $treeLevelsTotal,
-                        referenceValue: refStats.treeLevelsTotal,
+                        ...val(liveLevelsTotal, frozenStats.treeLevelsTotal),
                         format: "number",
                     },
                     {
                         label: $t("trees.guardian"),
-                        activeValue: $treeLevelsGuardian,
-                        referenceValue: refStats.treeLevelsByTree[0] ?? 0,
+                        ...val(
+                            liveLevelsGuardian,
+                            frozenStats.treeLevelsByTree[0] ?? 0,
+                        ),
                         format: "number",
                     },
                     {
                         label: $t("trees.vanguard"),
-                        activeValue: $treeLevelsVanguard,
-                        referenceValue: refStats.treeLevelsByTree[1] ?? 0,
+                        ...val(
+                            liveLevelsVanguard,
+                            frozenStats.treeLevelsByTree[1] ?? 0,
+                        ),
                         format: "number",
                     },
                     {
                         label: $t("trees.cannon"),
-                        activeValue: $treeLevelsCannon,
-                        referenceValue: refStats.treeLevelsByTree[2] ?? 0,
+                        ...val(
+                            liveLevelsCannon,
+                            frozenStats.treeLevelsByTree[2] ?? 0,
+                        ),
                         format: "number",
                     },
                 ],
@@ -364,19 +395,15 @@
     })();
 </script>
 
-<SideMenuSection title={$t("sideMenu.sections.statistics")}>
+<SideMenuSection title={sectionTitle}>
     <div slot="action" class="side-menu__stats-actions">
         <Button
             bind:element={compareButtonElement}
             class="side-menu__stats-share {$compareState.isComparing ? 'compare-active' : ''}"
             small
             icon={ScalesIcon}
-            tooltipText={$compareState.isComparing
-                ? $t("compare.stopCompareTooltip")
-                : $t("compare.compareTooltip")}
-            aria-label={$compareState.isComparing
-                ? $t("compare.stopCompareTooltip")
-                : $t("compare.compareTooltip")}
+            tooltipText={$t("compare.compareTooltip")}
+            aria-label={$t("compare.compareTooltip")}
             on:click={handleCompareClick}
         />
         <Button
@@ -389,26 +416,57 @@
             on:click={handleShareClick}
         />
     </div>
-    {#if $compareState.isComparing && $compareState.referenceBuild}
+    {#if $compareState.isComparing && $compareState.buildA && $compareState.buildB}
         <div class="side-menu__compare-toggle">
             <button
-                class="compare-segment compare-segment--active"
-                on:click={() => {}}
-                disabled
+                class="compare-segment"
+                class:compare-segment--active={$compareState.activeSide === "a"}
+                class:compare-segment--reference={$compareState.activeSide !== "a"}
+                on:click={$compareState.activeSide !== "a" ? handleSwapBuilds : undefined}
+                disabled={$compareState.activeSide === "a"}
+                title={$compareState.activeSide === "a"
+                    ? $t("compare.editing")
+                    : $t("compare.swapTooltip")}
             >
-                <PencilSimpleIcon size={12} />
-                <span class="compare-segment__label">{$activeBuildName}</span>
+                {#if $compareState.activeSide === "a"}
+                    <PencilSimpleIcon size={12} />
+                {/if}
+                <span class="compare-segment__label"
+                    >{$compareState.buildA.label}</span
+                >
             </button>
             <button
-                class="compare-segment compare-segment--reference"
-                on:click={handleSwapBuilds}
-                title={$t("compare.swapTooltip")}
+                class="compare-segment"
+                class:compare-segment--active={$compareState.activeSide === "b"}
+                class:compare-segment--reference={$compareState.activeSide !== "b"}
+                on:click={$compareState.activeSide !== "b" ? handleSwapBuilds : undefined}
+                disabled={$compareState.activeSide === "b"}
+                title={$compareState.activeSide === "b"
+                    ? $t("compare.editing")
+                    : $t("compare.swapTooltip")}
             >
-                <span class="compare-segment__label">{$compareState.referenceLabel}</span>
+                {#if $compareState.activeSide === "b"}
+                    <PencilSimpleIcon size={12} />
+                {/if}
+                <span class="compare-segment__label"
+                    >{$compareState.buildB.label}</span
+                >
+            </button>
+            <button
+                class="compare-stop"
+                on:click={() => stopCompare()}
+                title={$t("compare.stopCompareTooltip")}
+            >
+                <XIcon size={14} />
             </button>
         </div>
         <div class="side-menu__stats-card">
-            <CompareTable sections={compareSections} />
+            <CompareTable
+                sections={compareSections}
+                activeSide={$compareState.activeSide}
+                labelA={$compareState.buildA.label}
+                labelB={$compareState.buildB.label}
+            />
         </div>
     {:else}
         <div class="side-menu__stats-card">
@@ -507,7 +565,7 @@
         }
     }
 
-    .stats-share-menu-portal {
+.stats-share-menu-portal {
         position: fixed;
         top: 0;
         left: 0;
@@ -525,11 +583,8 @@
     .side-menu__stats-actions {
         display: flex;
         gap: var(--spacing-xs);
+        align-items: center;
         justify-self: end;
-    }
-
-    :global(.side-menu__stats-share.compare-active) {
-        color: var(--accent) !important;
     }
 
     .side-menu__compare-toggle {
@@ -545,11 +600,11 @@
         align-items: center;
         justify-content: center;
         gap: var(--spacing-xs);
-        padding: var(--spacing-sm) var(--spacing-md);
+        padding: var(--spacing-xs) var(--spacing-md);
         font-size: var(--font-sm);
         border: none;
         cursor: pointer;
-        min-height: 44px;
+        min-height: 32px;
         background: transparent;
         color: var(--text-muted);
         font-family: inherit;
@@ -574,5 +629,26 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         max-width: 120px;
+    }
+
+    :global(.side-menu__stats-share.compare-active) {
+        color: var(--accent) !important;
+    }
+
+    .compare-stop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 var(--spacing-md);
+        border: none;
+        border-left: var(--border-width) solid var(--border);
+        background: transparent;
+        color: var(--negative);
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .compare-stop:hover {
+        background: var(--surface);
     }
 </style>
