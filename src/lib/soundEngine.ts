@@ -96,8 +96,8 @@ function synthLevelUp(
     const pitch = tierRelativePitch(level, maxLevel);
 
     const BASE_FREQ = 680;
-    const PRIMARY_PEAK = 0.16; // Combined peak: 0.195 (0.16 + 0.035)
-    const SECONDARY_PEAK = 0.035;
+    const PRIMARY_PEAK = 0.22; // Combined peak: 0.29 (0.22 + 0.07) — mix level handles balancing
+    const SECONDARY_PEAK = 0.07;
     const ATTACK = 0.002;
     const DECAY_END = 0.06;
     const NEAR_ZERO = 0.001;
@@ -324,6 +324,21 @@ const SYNTH_MAP: Record<
     "reset-confirm": synthResetConfirm,
 };
 
+/**
+ * Per-sound mix levels for perceived loudness normalization.
+ *
+ * Gain values alone don't determine perceived loudness — frequency, waveform,
+ * duration, and voice count all affect it. These scalars compensate so all
+ * sounds feel equally present at the same volume setting. Tune these by ear,
+ * not by matching gain numbers.
+ */
+const MIX_LEVELS: Record<SoundId, number> = {
+    "level-up": 1.0,
+    "level-down": 0.85,
+    "tier-max": 0.9,
+    "reset-confirm": 0.8,
+};
+
 // --- Public API ---
 
 /**
@@ -352,8 +367,8 @@ export function playSound(id: SoundId, opts?: PlaySoundOptions): void {
             return;
         }
 
-        // Update master gain to current volume
-        masterGain!.gain.setValueAtTime(vol, ctx.currentTime);
+        // Apply user volume × per-sound mix level
+        masterGain!.gain.setValueAtTime(vol * MIX_LEVELS[id], ctx.currentTime);
 
         // Dispatch to synthesis function
         const synth = SYNTH_MAP[id];
