@@ -7,29 +7,21 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import { applyBuildData } from "../buildData/applier";
 import { activeBuildName } from "../buildPresetsStore";
 
-export type CompareSource = "preset" | "preview" | "recommended";
-
 export interface CompareState {
     isComparing: boolean;
     referenceBuild: BuildData | null;
     referenceLabel: string;
-    referenceSource: CompareSource | null;
 }
 
 const initialState: CompareState = {
     isComparing: false,
     referenceBuild: null,
     referenceLabel: "",
-    referenceSource: null,
 };
 
 export const compareState = writable<CompareState>(initialState);
 
-export function startCompare(
-    buildData: BuildData,
-    name: string,
-    source: CompareSource,
-): void {
+export function startCompare(buildData: BuildData, name: string): void {
     compareState.set({
         isComparing: true,
         referenceBuild: {
@@ -37,7 +29,6 @@ export function startCompare(
             owned: buildData.owned,
         },
         referenceLabel: name,
-        referenceSource: source,
     });
 }
 
@@ -61,28 +52,23 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
     // Apply reference build as the new active build
     applyBuildData(trees, state.referenceBuild);
 
-    // Store previous active as the new reference.
-    // Clear referenceSource since the reference is now a snapshot of the
-    // former active build, not from any external source.
+    // Store previous active as the new reference
     compareState.set({
         isComparing: true,
         referenceBuild: snapshot,
         referenceLabel: currentLabel,
-        referenceSource: null,
     });
 }
 
 /**
  * Decodes a build code and starts comparison. Returns true on success.
- * Shows an error toast if the build code is invalid.
  */
 export function decodeAndStartCompare(
     buildCode: string,
     name: string,
-    source: CompareSource,
 ): boolean {
     const buildData = decodeBuildData(buildCode);
     if (!buildData) return false;
-    startCompare(buildData, name, source);
+    startCompare(buildData, name);
     return true;
 }

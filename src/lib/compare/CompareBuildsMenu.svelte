@@ -14,7 +14,7 @@
     import { TechCrystalIcon } from "../customIcons";
     import { getDisplayPresetName } from "../i18n";
     import { truncateText } from "../stringUtil";
-    import { startCompare, decodeAndStartCompare } from "./compareStore";
+    import { decodeAndStartCompare } from "./compareStore";
     import { mapRecommendedBuilds } from "./compareStats";
 
     export let x = 0;
@@ -33,7 +33,7 @@
     $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
 
     function handlePresetClick(buildCode: string, name: string) {
-        if (!decodeAndStartCompare(buildCode, name, "preset")) {
+        if (!decodeAndStartCompare(buildCode, name)) {
             showToast($t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
@@ -43,7 +43,7 @@
     }
 
     function handleRecommendedClick(buildCode: string, name: string) {
-        if (!decodeAndStartCompare(buildCode, name, "recommended")) {
+        if (!decodeAndStartCompare(buildCode, name)) {
             showToast($t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
@@ -77,7 +77,7 @@
                     });
                     return;
                 }
-                if (!decodeAndStartCompare(encoded, "Build", "preview")) {
+                if (!decodeAndStartCompare(encoded, "Build")) {
                     showToast(tr("preview.invalidBuildDataToast"), {
                         tone: "negative",
                     });

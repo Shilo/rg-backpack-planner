@@ -72,11 +72,10 @@ State:
 - `isComparing: boolean` — whether comparison mode is active
 - `referenceBuild: { trees: number[][], owned: number } | null` — decoded reference build data
 - `referenceLabel: string` — display name of the reference build
-- `referenceSource: "preset" | "preview" | "recommended" | null` — where the reference came from
 
 Actions:
 
-- `startCompare(buildData, name, source)` — sets `isComparing = true`, stores reference build data, label, and source
+- `startCompare(buildData, name)` — sets `isComparing = true`, stores reference build data and label
 - `stopCompare()` — sets `isComparing = false`, clears reference data
 - `swapBuilds(tabs)` — snapshots active, applies reference via `applyBuildData`, stores snapshot as new reference
 

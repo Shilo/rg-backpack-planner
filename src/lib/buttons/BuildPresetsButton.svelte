@@ -330,7 +330,6 @@
         decodeAndStartCompare(
             preset.buildCode,
             getDisplayPresetName(preset.name),
-            "preset",
         );
         closeEditMenu();
         closePresetsMenu();

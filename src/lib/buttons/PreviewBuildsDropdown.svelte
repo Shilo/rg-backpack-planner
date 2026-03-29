@@ -39,7 +39,7 @@
     }
 
     function handleCompareRecommended(buildCode: string, name: string) {
-        if (!decodeAndStartCompare(buildCode, name, "recommended")) {
+        if (!decodeAndStartCompare(buildCode, name)) {
             showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
             return;
         }

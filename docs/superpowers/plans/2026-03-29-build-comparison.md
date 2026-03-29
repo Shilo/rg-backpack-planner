@@ -65,20 +65,16 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import { applyBuildData } from "../buildData/applier";
 import { activeBuildName } from "../buildPresetsStore";
 
-export type CompareSource = "preset" | "preview" | "recommended";
-
 export interface CompareState {
     isComparing: boolean;
     referenceBuild: BuildData | null;
     referenceLabel: string;
-    referenceSource: CompareSource | null;
 }
 
 const initialState: CompareState = {
     isComparing: false,
     referenceBuild: null,
     referenceLabel: "",
-    referenceSource: null,
 };
 
 export const compareState = writable<CompareState>(initialState);
@@ -86,7 +82,6 @@ export const compareState = writable<CompareState>(initialState);
 export function startCompare(
     buildData: BuildData,
     name: string,
-    source: CompareSource,
 ): void {
     compareState.set({
         isComparing: true,
@@ -95,7 +90,6 @@ export function startCompare(
             owned: buildData.owned,
         },
         referenceLabel: name,
-        referenceSource: source,
     });
 }
 
@@ -124,7 +118,6 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
         isComparing: true,
         referenceBuild: snapshot,
         referenceLabel: currentLabel,
-        referenceSource: state.referenceSource,
     });
 }
 ```
