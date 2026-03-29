@@ -19,7 +19,7 @@
         decodeAndStartCompare,
         type CompareBuildSource,
     } from "../compare/compareStore";
-    import { mapRecommendedBuilds } from "../compare/compareStats";
+    import { mapRecommendedBuilds } from "../compare/compareBuilds";
 
     export let x = 0;
     export let y = 0;

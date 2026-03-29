@@ -1,14 +1,12 @@
 import type { BuildData } from "../buildData/encoder";
-import { decodeBuildData } from "../buildData/encoder";
 import type { TabConfig, SkillId } from "../../types/tree";
 import {
     calculateTechCrystalsSpent,
     calculateTreeTechCrystalsSpent,
 } from "../techCrystalStore";
-import { computeSkillBonuses } from "../skillBonusStore";
+import { computeSkillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
 import { sumLevels } from "../treeLevelsStore";
-import { recommendedBuilds } from "../buildData/recommended";
-import { getRecommendedBuildIcon } from "../customIcons";
+import type { CompareState } from "./compareStore";
 
 export interface CompareRow {
     label: string;
@@ -62,38 +60,6 @@ export function computeCompareStats(
     };
 }
 
-export interface RecommendedBuildEntry {
-    name: string;
-    icon: any;
-    code: string;
-    index: number;
-    tcSpent: number;
-}
-
-/**
- * Maps recommended builds with localized names and tech crystal costs.
- * Shared between CompareBuildsMenu and PreviewBuildsDropdown.
- */
-export function mapRecommendedBuilds(
-    tabs: TabConfig[],
-    translate: (key: string) => string,
-): RecommendedBuildEntry[] {
-    return recommendedBuilds.map((build) => {
-        const localizedName = translate(build.i18nKey) || build.displayName;
-        const buildData = decodeBuildData(build.encoded);
-        const tcSpent = buildData
-            ? calculateTechCrystalsSpent(buildData.trees, tabs)
-            : 0;
-        return {
-            name: localizedName,
-            icon: getRecommendedBuildIcon(build.iconName),
-            code: build.encoded,
-            index: build.index,
-            tcSpent,
-        };
-    });
-}
-
 export type Indicator = "higher" | "lower" | "equal";
 
 /**
@@ -107,4 +73,135 @@ export function getIndicator(
     if (activeValue > referenceValue) return "higher";
     if (activeValue < referenceValue) return "lower";
     return "equal";
+}
+
+/**
+ * Builds the sections array for comparison display.
+ * valueA always holds buildA's stats, valueB holds buildB's stats.
+ * activeSide determines which side reads from live store values vs computed snapshot.
+ */
+export function buildCompareSections(
+    state: CompareState,
+    tabs: TabConfig[],
+    live: {
+        skillBonuses: Map<SkillId, number>;
+        techCrystalsSpent: number;
+        techCrystalsSpentByTree: number[];
+        treeLevelsTotal: number;
+        treeLevelsByTree: number[];
+    },
+    translate: (key: string) => string,
+): CompareSection[] {
+    if (!state.isComparing || !state.buildA || !state.buildB) return [];
+
+    const frozenData =
+        state.activeSide === "a" ? state.buildB.data : state.buildA.data;
+    const frozenStats = computeCompareStats(frozenData, tabs);
+
+    const val = (liveVal: number, frozenVal: number) =>
+        state.activeSide === "a"
+            ? { valueA: liveVal, valueB: frozenVal }
+            : { valueA: frozenVal, valueB: liveVal };
+
+    const bonusRows: CompareSection["rows"] = [];
+    for (const skillId of SKILL_DISPLAY_ORDER) {
+        const liveVal = live.skillBonuses.get(skillId) ?? 0;
+        const frozenVal = frozenStats.skillBonuses.get(skillId) ?? 0;
+        if (liveVal > 0 || frozenVal > 0) {
+            bonusRows.push({
+                label: translate(`skills.${skillId}`),
+                ...val(liveVal, frozenVal),
+                format: "percent",
+            });
+        }
+    }
+
+    if (bonusRows.length === 0) {
+        bonusRows.push({
+            label: translate("common.none"),
+            valueA: 0,
+            valueB: 0,
+            format: "number",
+        });
+    }
+
+    return [
+        {
+            header: { text: translate("statistics.backpackBonus") },
+            rows: bonusRows,
+        },
+        {
+            header: {
+                text: translate("statistics.techCrystalsSpent"),
+                iconWeight: "fill",
+            },
+            rows: [
+                {
+                    label: translate("statistics.total"),
+                    ...val(live.techCrystalsSpent, frozenStats.techCrystalsSpent),
+                    format: "number",
+                },
+                {
+                    label: translate("trees.guardian"),
+                    ...val(
+                        live.techCrystalsSpentByTree[0] ?? 0,
+                        frozenStats.techCrystalsSpentByTree[0] ?? 0,
+                    ),
+                    format: "number",
+                },
+                {
+                    label: translate("trees.vanguard"),
+                    ...val(
+                        live.techCrystalsSpentByTree[1] ?? 0,
+                        frozenStats.techCrystalsSpentByTree[1] ?? 0,
+                    ),
+                    format: "number",
+                },
+                {
+                    label: translate("trees.cannon"),
+                    ...val(
+                        live.techCrystalsSpentByTree[2] ?? 0,
+                        frozenStats.techCrystalsSpentByTree[2] ?? 0,
+                    ),
+                    format: "number",
+                },
+            ],
+        },
+        {
+            header: {
+                text: translate("statistics.backpackNodeLevels"),
+            },
+            rows: [
+                {
+                    label: translate("statistics.total"),
+                    ...val(live.treeLevelsTotal, frozenStats.treeLevelsTotal),
+                    format: "number",
+                },
+                {
+                    label: translate("trees.guardian"),
+                    ...val(
+                        live.treeLevelsByTree[0] ?? 0,
+                        frozenStats.treeLevelsByTree[0] ?? 0,
+                    ),
+                    format: "number",
+                },
+                {
+                    label: translate("trees.vanguard"),
+                    ...val(
+                        live.treeLevelsByTree[1] ?? 0,
+                        frozenStats.treeLevelsByTree[1] ?? 0,
+                    ),
+                    format: "number",
+                },
+                {
+                    label: translate("trees.cannon"),
+                    ...val(
+                        live.treeLevelsByTree[2] ?? 0,
+                        frozenStats.treeLevelsByTree[2] ?? 0,
+                    ),
+                    format: "number",
+                },
+            ],
+        },
+    ];
 }

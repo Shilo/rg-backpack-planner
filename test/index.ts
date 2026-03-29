@@ -29,6 +29,7 @@ const TEST_FILES = [
     "buildDataApplier.test.ts",
     "skillBonusStore.test.ts",
     "calculateTechCrystalsSpent.test.ts",
+    "compareStats.test.ts",
     "budgetEnforcement.test.ts",
     "undoHistory.test.ts",
     "undoHistoryEdgeCases.test.ts",

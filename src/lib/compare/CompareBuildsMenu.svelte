@@ -15,7 +15,7 @@
     import { getDisplayPresetName } from "../i18n";
     import { truncateText, toTitleCase } from "../stringUtil";
     import { decodeAndStartCompare, type CompareBuildSource } from "./compareStore";
-    import { mapRecommendedBuilds } from "./compareStats";
+    import { mapRecommendedBuilds } from "./compareBuilds";
     import { previewRecommendedBuild } from "../buildData/recommended";
 
     export let x = 0;
