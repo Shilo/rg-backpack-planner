@@ -9,12 +9,12 @@
  * envelope completes, nodes are stopped and disconnected via setTimeout.
  *
  * Sound characters:
- *   level-up    — Soft mechanical click with tonal warmth. Tactile keyboard press
- *                 meets glass tap. Pitch rises with progress through the current tier.
- *   level-down  — Same family as level-up but inverted: softer, lower pitch, tiny
- *                 descending frequency tail. Feels like "stepping back."
- *   tier-max    — Quick ascending arpeggio — a "collect" or "tier complete" sound.
- *                 Three-note major triad with shimmer. Plays when a tier is maxed.
+ *   level-up      — Soft mechanical click with tonal warmth. Tactile keyboard press
+ *                   meets glass tap. Pitch rises with progress through the current tier.
+ *   level-down    — Same family as level-up but inverted: softer, lower pitch, tiny
+ *                   descending frequency tail. Feels like "stepping back."
+ *   tier-max      — Quick ascending arpeggio — a "collect" or "tier complete" sound.
+ *                   Three-note major triad with shimmer. Plays when a tier is maxed.
  *   reset-confirm — Soft downward cascade of 4 sine tones fired in rapid succession.
  *                   Like scattering. Brief, not dramatic.
  *
@@ -23,8 +23,15 @@
  *       based on the node's position within its current tier. Used by level-up so
  *       successive clicks rise in pitch across a tier, then reset at the next tier.
  *   randomPitch(range) — Small random pitch variation (default ±0.06) around 1.0.
- *       Used by level-down, tier-up, and reset-confirm for organic variation.
+ *       Used by level-down, tier-max, and reset-confirm for organic variation.
  *       NOT used by level-up (which uses tierRelativePitch instead).
+ *
+ * Volume & mixing:
+ *   effectiveVolume() (from soundStore) applies a sqrt curve to the user's slider
+ *   value to counteract the OS logarithmic volume curve — keeps sounds audible at
+ *   lower system volumes. MIX_LEVELS provides a per-sound scalar for perceived
+ *   loudness normalization, tuned by ear. The final gain applied to the master node
+ *   is: effectiveVolume() × MIX_LEVELS[id].
  */
 
 import type { Node } from "../types/tree";
