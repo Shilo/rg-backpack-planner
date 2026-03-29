@@ -426,7 +426,7 @@
             x={shareMenuX}
             y={shareMenuY}
             isOpen={shareMenuOpen}
-            title={$t("common.share")}
+            title={$compareState.isComparing ? $t("compare.shareComparison") : $t("common.share")}
             onClose={closeShareMenu}
             anchorBelow
         >
