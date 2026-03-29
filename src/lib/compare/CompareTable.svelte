@@ -183,7 +183,7 @@
     }
 
     .indicator-lower {
-        color: var(--negative);
+        color: var(--accent-danger);
     }
 
     .indicator-equal {

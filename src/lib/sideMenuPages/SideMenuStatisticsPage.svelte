@@ -32,7 +32,9 @@
     } from "../techCrystalStore";
     import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
     import { portal } from "../portal";
+    import { fly } from "svelte/transition";
     import { t } from "svelte-whisper";
+    import { animationsDisabled } from "../reduceMotionStore";
     import { showToast, dismissToast } from "../toast";
     import {
         copyImageBlobToClipboard,
@@ -416,63 +418,74 @@
             on:click={handleShareClick}
         />
     </div>
-    {#if $compareState.isComparing && $compareState.buildA && $compareState.buildB}
-        <div class="side-menu__compare-toggle">
-            <button
-                class="compare-segment"
-                class:compare-segment--active={$compareState.activeSide === "a"}
-                class:compare-segment--reference={$compareState.activeSide !== "a"}
-                on:click={$compareState.activeSide !== "a" ? handleSwapBuilds : undefined}
-                disabled={$compareState.activeSide === "a"}
-                title={$compareState.activeSide === "a"
-                    ? $t("compare.editing")
-                    : $t("compare.swapTooltip")}
+    {#key $compareState.isComparing}
+        {#if $compareState.isComparing && $compareState.buildA && $compareState.buildB}
+            <div
+                class="side-menu__compare-toggle"
+                in:fly={{ x: 5, duration: $animationsDisabled ? 0 : 180 }}
             >
-                {#if $compareState.activeSide === "a"}
-                    <PencilSimpleIcon size={12} />
-                {/if}
-                <span class="compare-segment__label"
-                    >{$compareState.buildA.label}</span
+                <button
+                    class="compare-segment"
+                    class:compare-segment--active={$compareState.activeSide === "a"}
+                    class:compare-segment--reference={$compareState.activeSide !== "a"}
+                    on:click={$compareState.activeSide !== "a" ? handleSwapBuilds : undefined}
+                    disabled={$compareState.activeSide === "a"}
+                    title={$compareState.activeSide === "a"
+                        ? $t("compare.editing")
+                        : $t("compare.swapTooltip")}
                 >
-            </button>
-            <button
-                class="compare-segment"
-                class:compare-segment--active={$compareState.activeSide === "b"}
-                class:compare-segment--reference={$compareState.activeSide !== "b"}
-                on:click={$compareState.activeSide !== "b" ? handleSwapBuilds : undefined}
-                disabled={$compareState.activeSide === "b"}
-                title={$compareState.activeSide === "b"
-                    ? $t("compare.editing")
-                    : $t("compare.swapTooltip")}
-            >
-                {#if $compareState.activeSide === "b"}
-                    <PencilSimpleIcon size={12} />
-                {/if}
-                <span class="compare-segment__label"
-                    >{$compareState.buildB.label}</span
+                    {#if $compareState.activeSide === "a"}
+                        <PencilSimpleIcon size={12} />
+                    {/if}
+                    <span class="compare-segment__label"
+                        >{$compareState.buildA.label}</span
+                    >
+                </button>
+                <button
+                    class="compare-segment"
+                    class:compare-segment--active={$compareState.activeSide === "b"}
+                    class:compare-segment--reference={$compareState.activeSide !== "b"}
+                    on:click={$compareState.activeSide !== "b" ? handleSwapBuilds : undefined}
+                    disabled={$compareState.activeSide === "b"}
+                    title={$compareState.activeSide === "b"
+                        ? $t("compare.editing")
+                        : $t("compare.swapTooltip")}
                 >
-            </button>
-            <button
-                class="compare-stop"
-                on:click={() => stopCompare()}
-                title={$t("compare.stopCompareTooltip")}
+                    {#if $compareState.activeSide === "b"}
+                        <PencilSimpleIcon size={12} />
+                    {/if}
+                    <span class="compare-segment__label"
+                        >{$compareState.buildB.label}</span
+                    >
+                </button>
+                <button
+                    class="compare-stop"
+                    on:click={() => stopCompare()}
+                    title={$t("compare.stopCompareTooltip")}
+                >
+                    <XIcon size={14} />
+                </button>
+            </div>
+            <div
+                class="side-menu__stats-card"
+                in:fly={{ x: 5, duration: $animationsDisabled ? 0 : 180, delay: 30 }}
             >
-                <XIcon size={14} />
-            </button>
-        </div>
-        <div class="side-menu__stats-card">
-            <CompareTable
-                sections={compareSections}
-                activeSide={$compareState.activeSide}
-                labelA={$compareState.buildA.label}
-                labelB={$compareState.buildB.label}
-            />
-        </div>
-    {:else}
-        <div class="side-menu__stats-card">
-            <CodeBlockTable bind:this={statsTable} rows={statsRows} />
-        </div>
-    {/if}
+                <CompareTable
+                    sections={compareSections}
+                    activeSide={$compareState.activeSide}
+                    labelA={$compareState.buildA.label}
+                    labelB={$compareState.buildB.label}
+                />
+            </div>
+        {:else}
+            <div
+                class="side-menu__stats-card"
+                in:fly={{ x: 5, duration: $animationsDisabled ? 0 : 180 }}
+            >
+                <CodeBlockTable bind:this={statsTable} rows={statsRows} />
+            </div>
+        {/if}
+    {/key}
 </SideMenuSection>
 
 <!-- Wrapper prevents the portaled div from being the component's last top-level DOM node.
@@ -639,11 +652,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 var(--spacing-md);
+        min-width: 44px;
         border: none;
         border-left: var(--border-width) solid var(--border);
         background: transparent;
-        color: var(--negative);
+        color: var(--accent-danger);
         cursor: pointer;
         font-family: inherit;
     }
