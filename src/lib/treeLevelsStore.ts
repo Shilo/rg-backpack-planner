@@ -1,5 +1,6 @@
-import { derived, writable } from "svelte/store";
+import { derived, get, writable } from "svelte/store";
 import type { Node, LevelsByIndex } from "../types/tree";
+import { playSound } from "./soundEngine";
 
 export const treeLevels = writable<LevelsByIndex[]>([]);
 export const TREE_BRANCH_KEYS = ["yellow", "orange", "blue"] as const;
@@ -106,26 +107,39 @@ export function setTreeLevels(index: number, levels: LevelsByIndex) {
 
 export function resetTreeLevels(index: number, trees: { nodes: Node[] }[]) {
     if (index < 0 || index >= trees.length) return;
+    const current = get(treeLevels);
+    if (index >= 0 && index < current.length && sumLevels(current[index]) > 0) {
+        playSound("reset-confirm");
+    }
     const nextLevels = initLevels(trees[index].nodes);
-    treeLevels.update((current) => {
-        if (index < 0 || index >= current.length) return current;
-        const next = current.slice();
+    treeLevels.update((cur) => {
+        if (index < 0 || index >= cur.length) return cur;
+        const next = cur.slice();
         next[index] = nextLevels;
         return next;
     });
 }
 
 export function resetTreeBranchLevels(index: number, branch: TreeBranchKey) {
-    treeLevels.update((current) => {
-        if (index < 0 || index >= current.length) return current;
-        const levels = current[index];
-        if (!levels) return current;
-        const next = current.slice();
+    const current = get(treeLevels);
+    if (index >= 0 && index < current.length && sumTreeBranchLevels(current[index], branch) > 0) {
+        playSound("reset-confirm");
+    }
+    treeLevels.update((cur) => {
+        if (index < 0 || index >= cur.length) return cur;
+        const levels = cur[index];
+        if (!levels) return cur;
+        const next = cur.slice();
         next[index] = withTreeBranchLevelsReset(levels, branch);
         return next;
     });
 }
 
 export function resetAllTreeLevels(trees: { nodes: Node[] }[]) {
+    const current = get(treeLevels);
+    const hadLevels = current.some((levels) => sumLevels(levels) > 0);
+    if (hadLevels) {
+        playSound("reset-confirm");
+    }
     treeLevels.set(trees.map((tree) => initLevels(tree.nodes)));
 }
