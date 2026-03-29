@@ -27,9 +27,7 @@
  *       NOT used by level-up (which uses tierRelativePitch instead).
  *
  * Volume & mixing:
- *   effectiveVolume() (from soundStore) applies an x^0.85 curve to the user's slider
- *   value to counteract the OS logarithmic volume curve — keeps sounds audible at
- *   lower system volumes (slider 50% → 0.55 effective). MIX_LEVELS provides a per-sound scalar for perceived
+ *   effectiveVolume() (from soundStore) maps the slider linearly to 0–1. MIX_LEVELS provides a per-sound scalar for perceived
  *   loudness normalization, tuned by ear. The final gain applied to the master node
  *   is: effectiveVolume() × MIX_LEVELS[id].
  */

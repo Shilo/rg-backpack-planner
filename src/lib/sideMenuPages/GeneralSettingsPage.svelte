@@ -128,8 +128,8 @@
             value={$soundMuted ? 0 : $soundVolume}
             min={0}
             max={100}
-            step={10}
-            defaultNotchIndex={5}
+            step={5}
+            defaultNotchIndex={10}
             formatValue={(v) => $soundMuted ? $t("settings.soundMuted") : `${v}%`}
             resetIcon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
             resetAriaLabel={$soundMuted ? "Unmute" : "Mute"}
