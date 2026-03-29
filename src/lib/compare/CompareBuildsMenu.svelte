@@ -13,7 +13,7 @@
     import { TechCrystalIcon } from "../customIcons";
     import { getDisplayPresetName } from "../i18n";
     import { truncateText, toTitleCase } from "../stringUtil";
-    import { decodeAndStartCompare } from "./compareStore";
+    import { decodeAndStartCompare, type CompareBuildSource } from "./compareStore";
     import { mapRecommendedBuilds } from "./compareStats";
 
     export let x = 0;
@@ -33,8 +33,12 @@
 
     $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
 
-    function handleBuildClick(buildCode: string, name: string) {
-        if (!decodeAndStartCompare(buildCode, name)) {
+    function handleBuildClick(
+        buildCode: string,
+        name: string,
+        source: CompareBuildSource,
+    ) {
+        if (!decodeAndStartCompare(buildCode, name, source)) {
             showToast($t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
@@ -70,7 +74,12 @@
                     });
                     return;
                 }
-                if (!decodeAndStartCompare(encoded, "Build")) {
+                if (
+                    !decodeAndStartCompare(encoded, "Build", {
+                        type: "preview",
+                        encoded,
+                    })
+                ) {
                     showToast(tr("preview.invalidBuildDataToast"), {
                         tone: "negative",
                     });
@@ -103,7 +112,10 @@
                 {#each presets as preset}
                     <Button
                         on:click={() =>
-                            handleBuildClick(preset.buildCode, preset.name)}
+                            handleBuildClick(preset.buildCode, preset.name, {
+                                type: "preset",
+                                id: preset.id,
+                            })}
                     >
                         {truncateText(preset.name)}
                     </Button>
@@ -126,7 +138,10 @@
                             ? TechCrystalIcon
                             : null}
                         on:click={() =>
-                            handleBuildClick(build.code, build.name)}
+                            handleBuildClick(build.code, build.name, {
+                                type: "preview",
+                                encoded: build.code,
+                            })}
                     >
                         {build.index}. {build.name}
                     </Button>
