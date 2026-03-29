@@ -154,8 +154,8 @@ function synthLevelDown(ac: AudioContext, master: GainNode): void {
 
     const BASE_FREQ = 600;
     const FREQ_END = 550;
-    const PRIMARY_PEAK = 0.24; // Combined peak: 0.31 (0.24 + 0.07)
-    const SECONDARY_PEAK = 0.07;
+    const PRIMARY_PEAK = 0.204; // Combined peak: 0.264 (0.204 + 0.06) — mix level handles balancing
+    const SECONDARY_PEAK = 0.06;
     const ATTACK = 0.002;
     const DECAY_END = 0.07;
     const NEAR_ZERO = 0.001;
