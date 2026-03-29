@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { LinkIcon, ShareNetworkIcon } from "phosphor-svelte";
+    import { LinkIcon, ScalesIcon, ShareNetworkIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
+    import ButtonGroup from "../ButtonGroup.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
     import {
@@ -14,6 +15,7 @@
     import { TechCrystalIcon, getRecommendedBuildIcon } from "../customIcons";
     import { calculateTechCrystalsSpent, activeTabs } from "../techCrystalStore";
     import { decodeBuildData } from "../buildData/encoder";
+    import { startCompare } from "../compare/compareStore";
 
     export let x = 0;
     export let y = 0;
@@ -50,6 +52,16 @@
         }
     }
 
+    function handleCompareRecommended(buildCode: string, name: string) {
+        const buildData = decodeBuildData(buildCode);
+        if (!buildData) {
+            showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
+            return;
+        }
+        startCompare(buildData, name, "recommended");
+        onClose?.();
+    }
+
     function handleOpenLoadModal() {
         onClose?.();
         openLoadBuildModal(() => onPreview?.());
@@ -76,21 +88,29 @@
         <div class="section-title">{$t("preview.recommended")}</div>
         <div class="premade-builds-list">
             {#each premadeBuilds as build}
-                <Button
-                    icon={build.icon ?? ShareNetworkIcon}
-                    tooltipText={$t("preview.previewBuildTooltip", {
-                        name: build.name,
-                    })}
-                    description={build.tcSpent > 0
-                        ? $t("preview.techCrystalsDescription", {
-                            count: build.tcSpent.toLocaleString(),
-                        })
-                        : undefined}
-                    descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}
-                    on:click={() => handlePremadeClick(build.code)}
-                >
-                    {build.index}. {build.name}
-                </Button>
+                <ButtonGroup>
+                    <Button
+                        icon={build.icon ?? ShareNetworkIcon}
+                        tooltipText={$t("preview.previewBuildTooltip", {
+                            name: build.name,
+                        })}
+                        description={build.tcSpent > 0
+                            ? $t("preview.techCrystalsDescription", {
+                                  count: build.tcSpent.toLocaleString(),
+                              })
+                            : undefined}
+                        descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}
+                        on:click={() => handlePremadeClick(build.code)}
+                    >
+                        {build.index}. {build.name}
+                    </Button>
+                    <Button
+                        tooltipText={$t("compare.compareWithActive")}
+                        icon={ScalesIcon}
+                        on:click={() =>
+                            handleCompareRecommended(build.code, build.name)}
+                    />
+                </ButtonGroup>
             {/each}
         </div>
     </ContextMenu>
