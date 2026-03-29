@@ -472,7 +472,7 @@
         "compareWithActive": "Compare With \"{name}\"",
         "compareWithActiveTooltip": "Compare with \"{name}\"",
         "compareWith": "Compare...",
-        "compareWithDescription": "Stat difference",
+        "compareWithDescription": "Stats difference",
         "personalPresets": "Your Builds",
         "fromCode": "From Link/Code",
         "swapTooltip": "Switch to this build",
