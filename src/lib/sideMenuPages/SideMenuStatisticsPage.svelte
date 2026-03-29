@@ -46,7 +46,7 @@
         createComposeImageFilenameSuffix,
     } from "../composeFilename";
     import { compareState, stopCompare, swapBuilds } from "../compare/compareStore";
-    import { computeCompareStats } from "../compare/compareStats";
+    import { buildCompareSections } from "../compare/compareStats";
     import type { CompareSection } from "../compare/compareStats";
     import CompareTable from "../compare/CompareTable.svelte";
     import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
@@ -294,140 +294,31 @@
     $: compareSections = (() => {
         const state = $compareState;
         if (!state.isComparing || !state.buildA || !state.buildB) return [];
-
-        // Compute stats for the non-active (frozen) side
-        const frozenData =
-            state.activeSide === "a" ? state.buildB.data : state.buildA.data;
-        const frozenStats = computeCompareStats(frozenData, $activeTabs);
-
-        // Live values come from stores, frozen from computed stats
-        const liveSkills = $skillBonuses;
-        const liveTcSpent = $techCrystalsSpent;
-        const liveTcGuardian = $techCrystalsSpentGuardian;
-        const liveTcVanguard = $techCrystalsSpentVanguard;
-        const liveTcCannon = $techCrystalsSpentCannon;
-        const liveLevelsTotal = $treeLevelsTotal;
-        const liveLevelsGuardian = $treeLevelsGuardian;
-        const liveLevelsVanguard = $treeLevelsVanguard;
-        const liveLevelsCannon = $treeLevelsCannon;
-
-        // Helper: assign to fixed A/B columns
-        const val = (live: number, frozen: number) =>
-            state.activeSide === "a"
-                ? { valueA: live, valueB: frozen }
-                : { valueA: frozen, valueB: live };
-
-        const bonusRows: CompareSection["rows"] = [];
-        for (const skillId of SKILL_DISPLAY_ORDER) {
-            const liveVal = liveSkills.get(skillId) ?? 0;
-            const frozenVal = frozenStats.skillBonuses.get(skillId) ?? 0;
-            if (liveVal > 0 || frozenVal > 0) {
-                bonusRows.push({
-                    label: $t(`skills.${skillId}`),
-                    ...val(liveVal, frozenVal),
-                    format: "percent",
-                });
-            }
-        }
-
-        if (bonusRows.length === 0) {
-            bonusRows.push({
-                label: $t("common.none"),
-                valueA: 0,
-                valueB: 0,
-                format: "number",
-            });
-        }
-
-        const sections: CompareSection[] = [
+        const sections = buildCompareSections(
+            state,
+            $activeTabs,
             {
-                header: {
-                    text: $t("statistics.backpackBonus"),
-                    icon: TrendUpIcon,
-                },
-                rows: bonusRows,
-            },
-            {
-                header: {
-                    text: $t("statistics.techCrystalsSpent"),
-                    icon: TechCrystalIcon,
-                    iconWeight: "fill",
-                },
-                rows: [
-                    {
-                        label: $t("statistics.total"),
-                        ...val(liveTcSpent, frozenStats.techCrystalsSpent),
-                        format: "number",
-
-                    },
-                    {
-                        label: $t("trees.guardian"),
-                        ...val(
-                            liveTcGuardian,
-                            frozenStats.techCrystalsSpentByTree[0] ?? 0,
-                        ),
-                        format: "number",
-
-                    },
-                    {
-                        label: $t("trees.vanguard"),
-                        ...val(
-                            liveTcVanguard,
-                            frozenStats.techCrystalsSpentByTree[1] ?? 0,
-                        ),
-                        format: "number",
-
-                    },
-                    {
-                        label: $t("trees.cannon"),
-                        ...val(
-                            liveTcCannon,
-                            frozenStats.techCrystalsSpentByTree[2] ?? 0,
-                        ),
-                        format: "number",
-
-                    },
+                skillBonuses: $skillBonuses,
+                techCrystalsSpent: $techCrystalsSpent,
+                techCrystalsSpentByTree: [
+                    $techCrystalsSpentGuardian,
+                    $techCrystalsSpentVanguard,
+                    $techCrystalsSpentCannon,
+                ],
+                treeLevelsTotal: $treeLevelsTotal,
+                treeLevelsByTree: [
+                    $treeLevelsGuardian,
+                    $treeLevelsVanguard,
+                    $treeLevelsCannon,
                 ],
             },
-            {
-                header: {
-                    text: $t("statistics.backpackNodeLevels"),
-                    icon: ArrowFatUpIcon,
-                },
-                rows: [
-                    {
-                        label: $t("statistics.total"),
-                        ...val(liveLevelsTotal, frozenStats.treeLevelsTotal),
-                        format: "number",
-                    },
-                    {
-                        label: $t("trees.guardian"),
-                        ...val(
-                            liveLevelsGuardian,
-                            frozenStats.treeLevelsByTree[0] ?? 0,
-                        ),
-                        format: "number",
-                    },
-                    {
-                        label: $t("trees.vanguard"),
-                        ...val(
-                            liveLevelsVanguard,
-                            frozenStats.treeLevelsByTree[1] ?? 0,
-                        ),
-                        format: "number",
-                    },
-                    {
-                        label: $t("trees.cannon"),
-                        ...val(
-                            liveLevelsCannon,
-                            frozenStats.treeLevelsByTree[2] ?? 0,
-                        ),
-                        format: "number",
-                    },
-                ],
-            },
-        ];
-
+            $t,
+        );
+        // Inject UI icons into section headers (buildCompareSections stays icon-free for Node.js test compatibility)
+        sections[0].header.icon = TrendUpIcon;
+        sections[1].header.icon = TechCrystalIcon;
+        sections[1].header.iconWeight = "fill";
+        sections[2].header.icon = ArrowFatUpIcon;
         return sections;
     })();
 </script>
