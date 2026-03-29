@@ -52,6 +52,7 @@
     import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
 
     let statsTable: CodeBlockTable | null = null;
+    let compareTableEl: CompareTable | null = null;
     let statsRows: Array<
         [string | { text: string; icon?: any; iconWeight?: string }, string]
     > = [];
@@ -258,12 +259,20 @@
 
     async function handleShareToApp() {
         closeShareMenu();
-        await statsTable?.share();
+        if ($compareState.isComparing) {
+            await compareTableEl?.share();
+        } else {
+            await statsTable?.share();
+        }
     }
 
     async function handleCopyStatistics() {
         closeShareMenu();
-        await statsTable?.copy();
+        if ($compareState.isComparing) {
+            await compareTableEl?.copy();
+        } else {
+            await statsTable?.copy();
+        }
     }
 
     function handleCompareClick() {
@@ -491,6 +500,7 @@
             </div>
             <div class="side-menu__stats-card">
                 <CompareTable
+                    bind:this={compareTableEl}
                     sections={compareSections}
                     activeSide={$compareState.activeSide}
                     labelA={$compareState.buildA.label}

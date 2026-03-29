@@ -20,12 +20,150 @@
 
 <script lang="ts">
     import { getIndicator } from "./compareStats";
-    import { formatNumber, formatPercent } from "svelte-whisper";
+    import { formatNumber, formatPercent, t } from "svelte-whisper";
+    import { showToast } from "../toast";
+    import { shareTextNative } from "../buildData/share";
+    import appPackage from "../../../package.json";
 
     export let sections: CompareSection[] = [];
     export let activeSide: "a" | "b" = "a";
     export let labelA: string = "";
     export let labelB: string = "";
+
+    const appProductionUrl = (appPackage?.app?.productionUrl ?? undefined) as
+        | string
+        | undefined;
+
+    $: localizedAppName = $t("app.name");
+    $: codeblockTitle = appProductionUrl
+        ? `[${localizedAppName}](${appProductionUrl})`
+        : localizedAppName;
+    $: codeblockHeader = `### 🎒 ${codeblockTitle} ${$t("statistics.header")}`;
+
+    function buildCompareText(
+        _sections: CompareSection[],
+        _activeSide: "a" | "b",
+        _labelA: string,
+        _labelB: string,
+    ): string {
+        const normalize = (v: string) =>
+            v.replace(/\r?\n/g, " ").replace(/\|/g, "\\|").trim();
+
+        // label and diffPart are kept separate so the diff can be right-aligned
+        // within the label column at render time.
+        type Row = { label: string; diffPart: string; c1: string; c2: string; isSection: boolean };
+        const rows: Row[] = [];
+
+        for (let si = 0; si < _sections.length; si++) {
+            const section = _sections[si];
+            rows.push({
+                label: normalize(section.header.text),
+                diffPart: "",
+                c1: si === 0 ? normalize(_labelA) : "",
+                c2: si === 0 ? normalize(_labelB) : "",
+                isSection: true,
+            });
+
+            for (const row of section.rows) {
+                // Always diff A (left) vs B (right) so the sign is unambiguous in text
+                const indicator = getIndicator(row.valueA, row.valueB);
+                const diff = Math.abs(row.valueA - row.valueB);
+                const diffText =
+                    row.format === "percent"
+                        ? formatPercent(diff)
+                        : formatNumber(diff);
+                // diff value is to the left of the arrow icon
+                const diffPart =
+                    indicator === "higher"
+                        ? `+${diffText} ▲`
+                        : indicator === "lower"
+                          ? `-${diffText} ▼`
+                          : "";
+                rows.push({
+                    label: normalize(row.label),
+                    diffPart,
+                    c1:
+                        row.format === "percent"
+                            ? formatPercent(row.valueA)
+                            : formatNumber(row.valueA),
+                    c2:
+                        row.format === "percent"
+                            ? formatPercent(row.valueB)
+                            : formatNumber(row.valueB),
+                    isSection: false,
+                });
+            }
+        }
+
+        // Column 0 width must fit: label + 1 gap + diffPart (or just label for equal/section rows)
+        const w0 = Math.max(
+            3,
+            ...rows.map((r) =>
+                r.diffPart ? r.label.length + 1 + r.diffPart.length : r.label.length,
+            ),
+        );
+        const w1 = Math.max(3, ...rows.map((r) => r.c1.length));
+        const w2 = Math.max(3, ...rows.map((r) => r.c2.length));
+        const divider = `| ${"-".repeat(w0)} | ${"-".repeat(w1)} | ${"-".repeat(w2)} |`;
+
+        // Render column 0: label left-aligned, diffPart right-aligned within w0
+        const renderC0 = (r: Row) =>
+            r.diffPart
+                ? r.label.padEnd(w0 - r.diffPart.length) + r.diffPart
+                : r.label.padEnd(w0);
+
+        const lines: string[] = [];
+        for (const row of rows) {
+            if (row.isSection) {
+                lines.push(divider);
+                lines.push(
+                    `| ${renderC0(row)} | ${row.c1.padEnd(w1)} | ${row.c2.padEnd(w2)} |`,
+                );
+                lines.push(divider);
+            } else {
+                lines.push(
+                    `| ${renderC0(row)} | ${row.c1.padEnd(w1)} | ${row.c2.padEnd(w2)} |`,
+                );
+            }
+        }
+        lines.push(divider);
+        return lines.join("\n");
+    }
+
+    $: compareText = buildCompareText(sections, activeSide, labelA, labelB);
+
+    $: codeblockFull = `${codeblockHeader}\n\`\`\`\n${compareText}\n\`\`\``;
+
+    export async function copy(): Promise<void> {
+        try {
+            await navigator.clipboard.writeText(codeblockFull);
+            showToast($t("toast.copied"));
+        } catch {
+            const fallback = document.createElement("textarea");
+            fallback.value = codeblockFull;
+            fallback.setAttribute("readonly", "true");
+            fallback.style.position = "fixed";
+            fallback.style.opacity = "0";
+            document.body.appendChild(fallback);
+            fallback.select();
+            const copied = document.execCommand("copy");
+            document.body.removeChild(fallback);
+            if (copied) {
+                showToast($t("toast.copied"));
+            } else {
+                showToast($t("toast.unableToCopy"), { tone: "negative" });
+            }
+        }
+    }
+
+    export async function share(): Promise<void> {
+        const result = await shareTextNative(codeblockFull);
+        if (result === "copied") {
+            showToast($t("share.fallbackCopiedToast"));
+        } else if (result === "failed") {
+            showToast($t("share.shareFailedToast"), { tone: "negative" });
+        }
+    }
 </script>
 
 <table
