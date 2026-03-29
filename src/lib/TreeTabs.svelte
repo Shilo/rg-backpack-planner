@@ -1,27 +1,62 @@
 <script lang="ts" context="module">
-    import type { TreeViewState } from "./Tree.svelte";
     import type { TabConfig } from "../types/tree";
+    import type { TreeViewState } from "./Tree.svelte";
 </script>
 
 <script lang="ts">
     import { ListIcon } from "phosphor-svelte";
-    import { getTreeIcon, TechCrystalIcon } from "./customIcons";
     import type { Component } from "svelte";
     import { onMount, tick } from "svelte";
     import { get } from "svelte/store";
+    import { getTreeIcon, TechCrystalIcon } from "./customIcons";
 
-    import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
+    import { formatNumber, t } from "svelte-whisper";
     import Button from "./Button.svelte";
+    import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
+    import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
+    import Starfield from "./Starfield.svelte";
     import Tree from "./Tree.svelte";
+    import TreeContextMenu from "./TreeContextMenu.svelte";
+    import { activeTabId, getActiveTabId } from "./activeTabStore";
+    import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
     import {
         registerTreeBridge,
-        unregisterTreeBridge,
         SNAPDOM_CAPTURE_CLASS,
+        unregisterTreeBridge,
     } from "./buildImageExport/treeBridge";
-    import TreeContextMenu from "./TreeContextMenu.svelte";
-    import Starfield from "./Starfield.svelte";
-    import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
-    import { secondary, getKeyboardActionLabel, getDeviceInputLabels, resolveKeyboardAction, isKeyboardAction, getCycleDirection, onKeyDown, triggerShortcutFlash } from "./input";
+    import FullscreenToggle from "./buttons/FullscreenToggle.svelte";
+    import {
+        hasOnboardingOverlay,
+        isFormField,
+        isKeyboardShortcutTarget,
+    } from "./domUtil";
+    import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
+    import { triggerHaptic } from "./hapticsStore";
+    import {
+        getCycleDirection,
+        getDeviceInputLabels,
+        getKeyboardActionLabel,
+        onKeyDown,
+        resolveKeyboardAction,
+        secondary,
+        triggerShortcutFlash,
+    } from "./input";
+    import { modalStore } from "./modalStore";
+    import {
+        isNodePrimaryAction,
+        nodePrimaryAction,
+        NodePrimaryAction,
+    } from "./nodePrimaryActionStore";
+    import { openResetTreeChoicesModal } from "./resetTreeModal";
+    import { soundMuted, soundVolume } from "./soundStore";
+    import { openTechCrystalsOwnedModal } from "./techCrystalModal";
+    import {
+        techCrystalsOwned,
+        techCrystalsSpentByTree,
+    } from "./techCrystalStore";
+    import { showToast } from "./toast";
+    import { hideTooltip } from "./tooltip";
+    import type { TreeBranchKey } from "./treeLevelsStore";
     import {
         ensureTreeLevels,
         resetAllTreeLevels,
@@ -32,28 +67,7 @@
         sumTreeBranchLevels,
         treeLevels,
     } from "./treeLevelsStore";
-    import type { TreeBranchKey } from "./treeLevelsStore";
-    import { openResetTreeChoicesModal } from "./resetTreeModal";
-    import { modalStore } from "./modalStore";
-    import { isKeyboardShortcutTarget, isFormField, hasOnboardingOverlay } from "./domUtil";
-    import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
-    import { countGlobalLeveledLeafNodesOutsideActiveTree } from "./globalLeafCap";
-    import { showToast } from "./toast";
-    import { hideTooltip } from "./tooltip";
-    import { activeTabId, getActiveTabId } from "./activeTabStore";
-    import { techCrystalsSpentByTree, techCrystalsOwned } from "./techCrystalStore";
-    import { openTechCrystalsOwnedModal } from "./techCrystalModal";
-    import { formatNumber } from "svelte-whisper";
-    import { t } from "svelte-whisper";
-    import { treeContextMenuOpen } from "./buildContextMenuOverlayRaiseStore";
     import { undoHistory } from "./undoHistoryStore";
-    import {
-        nodePrimaryAction,
-        NodePrimaryAction,
-        isNodePrimaryAction,
-    } from "./nodePrimaryActionStore";
-    import { triggerHaptic } from "./hapticsStore";
-    import { soundMuted, soundVolume, effectiveVolume } from "./soundStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -118,7 +132,13 @@
             case "cycle": {
                 if (!tabsRootEl || tabs.length <= 1) return;
                 if (isMenuOpen || $isComposeScreenshotOpen) return;
-                if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl)) return;
+                if (
+                    !isKeyboardShortcutTarget(
+                        document.activeElement,
+                        tabsRootEl,
+                    )
+                )
+                    return;
                 if (event.repeat) {
                     const now = performance.now();
                     if (now - lastTabCycleAt < TAB_CYCLE_REPEAT_MS) {
@@ -136,7 +156,13 @@
             case "back": {
                 if (!tabsRootEl) return;
                 if (isMenuOpen) return;
-                if (!isKeyboardShortcutTarget(document.activeElement, tabsRootEl)) return;
+                if (
+                    !isKeyboardShortcutTarget(
+                        document.activeElement,
+                        tabsRootEl,
+                    )
+                )
+                    return;
                 const levels = $treeLevels[activeIndex] ?? [];
                 if (sumLevels(levels) === 0) return;
                 if (event.repeat) return;
@@ -146,7 +172,8 @@
             }
             case "console": {
                 if (!tabsRootEl) return;
-                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore)
+                    return;
                 if (isFormField(document.activeElement)) return;
                 if (event.repeat) return;
                 event.preventDefault();
@@ -154,18 +181,25 @@
                     quickSettings = null;
                     return;
                 }
-                const rootEl = tabsRootEl.querySelector('[data-node-id="root"]');
+                const rootEl = tabsRootEl.querySelector(
+                    '[data-node-id="root"]',
+                );
                 if (!rootEl) return;
                 const rect = rootEl.getBoundingClientRect();
                 openRootQuickSettings(rect.left + rect.width / 2, rect.top);
                 break;
             }
             case "budget": {
-                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore)
+                    return;
                 if (isFormField(document.activeElement)) return;
                 if (event.repeat) return;
                 event.preventDefault();
-                openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeIndex);
+                openTechCrystalsOwnedModal(
+                    $techCrystalsOwned,
+                    undefined,
+                    activeIndex,
+                );
                 break;
             }
             case "cyclePrimaryAction": {
@@ -362,7 +396,8 @@
     function openTabMenu(_event: Event, tab: TabConfig, index: number) {
         hideTooltip();
         const buttons = tabsRootEl?.querySelectorAll(".tab-btn");
-        const el = buttons?.[index] instanceof HTMLElement ? buttons[index] : null;
+        const el =
+            buttons?.[index] instanceof HTMLElement ? buttons[index] : null;
         const rect = el?.getBoundingClientRect();
         const menuX = rect ? rect.left + rect.width / 2 : 0;
         const menuY = rect ? rect.top - TREE_MENU_GAP : 0;
@@ -538,6 +573,7 @@
                         iconSize={18}
                         iconClass="tree-tab-icon"
                         tooltipText={$t("trees.named", { label: tab.label })}
+                        tooltipHoverOnly
                         shortcut={mouse.secondary}
                         on:click={() => onTabClick(index)}
                         on:contextmenu={(event: Event) =>
@@ -568,8 +604,13 @@
         class="tabs-content"
         role="presentation"
         use:secondary={handleBackgroundSecondary}
-        on:pointerdown={(e) => { lastBackgroundPointerPos = { x: e.clientX, y: e.clientY }; lastBackgroundPointerTarget = e.target; }}
-        on:pointermove={(e) => { lastBackgroundPointerPos = { x: e.clientX, y: e.clientY }; }}
+        on:pointerdown={(e) => {
+            lastBackgroundPointerPos = { x: e.clientX, y: e.clientY };
+            lastBackgroundPointerTarget = e.target;
+        }}
+        on:pointermove={(e) => {
+            lastBackgroundPointerPos = { x: e.clientX, y: e.clientY };
+        }}
         use:bridgeAction
     >
         {#if tabs[activeIndex]}
@@ -644,11 +685,10 @@
         width: 100%;
         overflow: hidden;
         background: radial-gradient(
-                circle at 50%
-                    calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
-                var(--surface),
-                var(--bg) 100%
-            );
+            circle at 50% calc(50% - (var(--tab-height) + var(--bar-pad)) / 2),
+            var(--surface),
+            var(--bg) 100%
+        );
         position: relative;
     }
 
@@ -688,7 +728,6 @@
         z-index: var(--z-index-hud);
         transition: opacity 250ms ease;
     }
-
 
     /* Two-class specificity (0,2,0) reliably beats Button.svelte's scoped
        `button.svelte-hash` (0,1,1), so !important is not needed here. */
@@ -833,5 +872,4 @@
         flex: 1;
         min-height: 0;
     }
-
 </style>
