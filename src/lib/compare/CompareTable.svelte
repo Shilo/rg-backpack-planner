@@ -21,7 +21,6 @@
 </script>
 
 <script lang="ts">
-    import type { Indicator } from "./compareStats";
     import { getIndicator } from "./compareStats";
     import { formatNumber, formatPercent } from "svelte-whisper";
 
@@ -33,14 +32,16 @@
         {#each sections as section}
             <tr class="compare-table__header">
                 <td colspan="4">
-                    {#if section.header.icon}
-                        <svelte:component
-                            this={section.header.icon}
-                            weight={section.header.iconWeight ?? "regular"}
-                            size={16}
-                        />
-                    {/if}
-                    {section.header.text}
+                    <span class="compare-table__header-content">
+                        {#if section.header.icon}
+                            <svelte:component
+                                this={section.header.icon}
+                                weight={section.header.iconWeight ?? "regular"}
+                                size={16}
+                            />
+                        {/if}
+                        {section.header.text}
+                    </span>
                 </td>
             </tr>
             {#each section.rows as row}
@@ -91,6 +92,9 @@
         color: var(--text-muted);
         font-weight: 600;
         border-bottom: var(--border-width) solid var(--border);
+    }
+
+    .compare-table__header-content {
         display: flex;
         align-items: center;
         gap: var(--spacing-xs);
