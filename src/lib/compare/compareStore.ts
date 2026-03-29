@@ -146,6 +146,26 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
 }
 
 /**
+ * Updates the label and source of the currently active side without touching the frozen
+ * reference. Call this when the active build changes outside of the comparison swap flow
+ * (e.g. the user switches presets or navigates to a new preview build while comparing).
+ * No-op if not currently comparing.
+ */
+export function updateActiveSide(
+    label: string,
+    source: CompareBuildSource,
+): void {
+    compareState.update((state) => {
+        if (!state.isComparing || !state.buildA || !state.buildB) return state;
+        if (state.activeSide === "a") {
+            return { ...state, buildA: { ...state.buildA, label, source } };
+        } else {
+            return { ...state, buildB: { ...state.buildB, label, source } };
+        }
+    });
+}
+
+/**
  * Decodes a build code and starts comparison. Returns true on success.
  */
 export function decodeAndStartCompare(

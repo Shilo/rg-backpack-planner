@@ -16,6 +16,16 @@
     function isTopmostMenu(id: number): boolean {
         return openMenuStack.length === 0 || openMenuStack[openMenuStack.length - 1] === id;
     }
+
+    // Tracks pointer IDs whose pointerdown originated inside any context menu.
+    // Prevents parent menus from closing when a nested menu is torn down synchronously
+    // during click handling, before the parent's pointerup document handler fires.
+    const menuPointerTracker = new Set<number>();
+    if (typeof document !== "undefined") {
+        document.addEventListener("pointercancel", (e: PointerEvent) => {
+            menuPointerTracker.delete(e.pointerId);
+        }, { capture: true });
+    }
 </script>
 
 <script lang="ts">
@@ -77,6 +87,8 @@
     $: resolvedAriaLabel = ariaLabel || "Context menu";
 
     function handleDocumentPointerUp(event: PointerEvent) {
+        // Always clean up; returns true if this pointer started inside any context menu.
+        const pointerStartedInMenu = menuPointerTracker.delete(event.pointerId);
         if (!isOpen) return;
         // Don't close if we're dragging or if the pointer is within the menu
         if (isDragging || pointerId === event.pointerId) return;
@@ -112,6 +124,10 @@
             target.closest(ignoreCloseTargetSelector)
         )
             return;
+        // Don't close if this pointer started inside a context menu. Handles the case
+        // where a nested menu closes synchronously (Svelte 5 effects) before pointerup
+        // fires, making the target appear to be outside any menu.
+        if (pointerStartedInMenu) return;
 
         onClose?.();
     }
@@ -260,6 +276,7 @@
     }
 
     function handlePointerDown(event: PointerEvent) {
+        menuPointerTracker.add(event.pointerId);
         if (!menuEl) return;
         const interactiveTarget = isInteractiveElement(event.target);
         const dragHandleTarget = isDragHandleTarget(event.target);
