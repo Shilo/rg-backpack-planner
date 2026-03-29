@@ -137,7 +137,7 @@
         "showTier": "Show Tier Badge",
         "showLevelSplash": "Level-up Splash",
         "showSkillName": "Show Skill Name Badge",
-        "sound": "Sound Effects",
+        "sound": "Node Sound Effects",
         "soundDescription": "Adjust volume",
         "soundMuted": "Muted",
         "soundToast": "Sound: {value}",
