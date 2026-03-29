@@ -1,28 +1,59 @@
-# Strikethrough Pattern for "Ignore" and "Resistance" Icons
+# Icon Strikethrough Guide
 
 How to add a diagonal strikethrough to any node icon to create its "ignore" or "resistance" variant.
 
 ## Direction
 
-Top-left to bottom-right (`\` diagonal). All ignore/resistance icons use this same direction for consistency.
+Top-left to bottom-right (`\` diagonal) at **45 degrees**. All ignore/resistance icons use this same direction and angle for consistency.
 
-## Line Dimensions
+## Visual Consistency Across Icons
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Visible line width | `20` | Matches the base icon's stroke/arm weight |
-| Mask line width | `60` | Creates 20px gap on each side of the visible line (20 + 20 + 20) |
-| Gap around line | `20` per side | Matches the gap between strokes in the base icon |
+Icons have different viewBox sizes, but render at the same display size via `preserveAspectRatio="xMidYMid meet"`. Stroke widths and line positions must be **scaled per-icon** so the strikethrough looks identical across all icons.
 
-The gap around the strikethrough should always equal the gap between strokes/arms in the base icon. Formula:
+### Reference baseline
+
+IgnoreStun (viewBox 196-unit) is the reference. Its values:
+
+| Property | Value | Visual size |
+|----------|-------|-------------|
+| Visible line width | `20` | 10.2% of container |
+| Mask line width | `60` | 30.6% of container |
+| Gap per side | `20` | 10.2% of container |
+
+### Scaling formula
+
+For an icon with scale factor `S/D` where `D = max(viewBox width, viewBox height)`:
 
 ```
-mask-width = line-width + (2 × gap)
+visible_stroke = round(20 × D / 196)
+mask_stroke    = 3 × visible_stroke
 ```
 
-## Line Length
+The mask:visible ratio is always **3:1** (gap on each side equals the visible line width).
 
-The endpoints should sit just outside the base icon's content boundary, so only the very tips extend beyond the icon shape. The line should NOT span the full viewBox — it cuts through the icon, not past it.
+### Line position
+
+The line spans **7% to 93%** of the rendered container in both axes, centered on the icon. Convert container-space coordinates back to viewBox coordinates accounting for `xMidYMid meet` scaling and offset:
+
+```
+scale = min(container_size / vb_width, container_size / vb_height)
+offset_x = (container_size - vb_width × scale) / 2
+offset_y = (container_size - vb_height × scale) / 2
+
+vb_x = vb_origin_x + (container_pos - offset_x) / scale
+vb_y = vb_origin_y + (container_pos - offset_y) / scale
+```
+
+Ensure `Δx = Δy` (45 degrees). Line endpoints may extend outside the viewBox for narrow/tall icons — SVG clips naturally.
+
+### Current icon values
+
+| Icon | ViewBox | Scale (D) | Visible | Mask | Line |
+|------|---------|-----------|---------|------|------|
+| IgnoreStun | 30 30 196 196 | 196 | 20 | 60 | (44,44)→(212,212) |
+| IgnoreDodge | 0 0 411 400 | 411 | 42 | 126 | (29,23)→(382,376) |
+| PierceResistance | 0 0 372 465 | 465 | 48 | 144 | (-14,33)→(386,433) |
+| SkillCritResistance | 0 0 392 396 | 396 | 40 | 120 | (26,28)→(366,368) |
 
 ## Mask Technique
 
@@ -59,7 +90,7 @@ Apply the mask directly to the `<path>`:
             <rect x="VB_X" y="VB_Y" width="VB_W" height="VB_H" fill="white" />
             <!-- Black line = hide the strikethrough area from the base icon -->
             <line x1="X1" y1="Y1" x2="X2" y2="Y2"
-                  stroke="black" stroke-width="60" stroke-linecap="round" />
+                  stroke="black" stroke-width="MASK_WIDTH" stroke-linecap="round" />
         </mask>
     </defs>
 
@@ -68,7 +99,7 @@ Apply the mask directly to the `<path>`:
 
     <!-- Visible strikethrough line on top -->
     <line x1="X1" y1="Y1" x2="X2" y2="Y2"
-          fill="none" stroke="currentColor" stroke-width="20"
+          fill="none" stroke="currentColor" stroke-width="VISIBLE_WIDTH"
           stroke-linecap="round" />
 </svg>
 ```
@@ -86,7 +117,7 @@ Instead, wrap the transformed `<g>` in an **outer `<g>`** that carries the mask:
               x="VB_X" y="VB_Y" width="VB_W" height="VB_H">
             <rect x="VB_X" y="VB_Y" width="VB_W" height="VB_H" fill="white" />
             <line x1="X1" y1="Y1" x2="X2" y2="Y2"
-                  stroke="black" stroke-width="60" stroke-linecap="round" />
+                  stroke="black" stroke-width="MASK_WIDTH" stroke-linecap="round" />
         </mask>
     </defs>
 
@@ -99,7 +130,7 @@ Instead, wrap the transformed `<g>` in an **outer `<g>`** that carries the mask:
 
     <!-- Visible strikethrough line on top -->
     <line x1="X1" y1="Y1" x2="X2" y2="Y2"
-          fill="none" stroke="currentColor" stroke-width="20"
+          fill="none" stroke="currentColor" stroke-width="VISIBLE_WIDTH"
           stroke-linecap="round" />
 </svg>
 ```
@@ -125,7 +156,8 @@ Both `<line>` elements (mask and visible) use the **same endpoints** — only `s
 3. Check if the base icon uses `<g transform="...">` (Case A vs Case B)
 4. Apply the mask — on the `<path>` for Case A, on an **outer** `<g>` wrapper for Case B
 5. **Never** put `mask={...}` on the same `<g>` that has `transform`
-6. Add the mask `<defs>` block with the black line at `stroke-width="60"`
-7. Add the visible line at `stroke-width="20"`
-8. Position endpoints (`x1,y1,x2,y2`) so tips just extend past the icon boundary
+6. Compute stroke widths using the scaling formula (`visible = round(20 × D / 196)`, `mask = 3 × visible`)
+7. Compute line endpoints by mapping 7%→93% container position back to viewBox coordinates
+8. Ensure `Δx = Δy` for exact 45-degree angle
 9. Verify both ends of the `\` extend equally past the icon
+10. Compare visually against existing strikethrough icons at rendered size
