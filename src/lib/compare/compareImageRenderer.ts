@@ -251,7 +251,7 @@ export async function renderCompareImage(
     // Sections
     const valueARight = GAP + labelColW + GAP + diffColW + GAP + valueAColW;
     const valueBRight = cardWidth - GAP;
-    const diffColCenterX = GAP + labelColW + GAP + diffColW / 2;
+    const diffColRight = GAP + labelColW + GAP + diffColW;
     const pillHeight = DIFF_SIZE * 1.8;
 
     for (let si = 0; si < data.sections.length; si++) {
@@ -320,7 +320,7 @@ export async function renderCompareImage(
             const isEqual = row.valueA === row.valueB;
             const diffTextW = measureWidth(ctx, diffText, diffFont);
             const pillW = diffTextW + PILL_H_PAD * 2;
-            const pillX = diffColCenterX - pillW / 2;
+            const pillX = diffColRight - pillW;
             const pillTop = y + (ROW_H - pillHeight) / 2;
 
             ctx.save();
@@ -334,8 +334,8 @@ export async function renderCompareImage(
 
             ctx.font = diffFont;
             ctx.fillStyle = isEqual ? dimColor : mutedColor;
-            ctx.textAlign = "center";
-            ctx.fillText(diffText, diffColCenterX, rowMidY);
+            ctx.textAlign = "right";
+            ctx.fillText(diffText, diffColRight, rowMidY);
 
             // Value A
             const indicator = getIndicator(row.valueA, row.valueB);
