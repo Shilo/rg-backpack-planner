@@ -96,7 +96,7 @@ function synthLevelUp(
     const pitch = tierRelativePitch(level, maxLevel);
 
     const BASE_FREQ = 800;
-    const PRIMARY_PEAK = 0.18;
+    const PRIMARY_PEAK = 0.18; // Combined peak: 0.25 (0.18 + 0.07)
     const SECONDARY_PEAK = 0.07;
     const ATTACK = 0.002;
     const DECAY_END = 0.06;
@@ -154,7 +154,7 @@ function synthLevelDown(ac: AudioContext, master: GainNode): void {
 
     const BASE_FREQ = 600;
     const FREQ_END = 550;
-    const PRIMARY_PEAK = 0.24;
+    const PRIMARY_PEAK = 0.24; // Combined peak: 0.31 (0.24 + 0.07)
     const SECONDARY_PEAK = 0.07;
     const ATTACK = 0.002;
     const DECAY_END = 0.07;
@@ -218,7 +218,7 @@ function synthTierMax(ac: AudioContext, master: GainNode): void {
     // Major triad arpeggio: root (C5 ~523Hz), major third (E5 ~659Hz), fifth (G5 ~784Hz)
     const FREQS = [523, 659, 784];
     const DELAYS = [0, 30, 60];
-    const GAINS = [0.2, 0.18, 0.22];
+    const GAINS = [0.2, 0.18, 0.22]; // Staggered, peak per-voice ~0.22; shimmer adds 0.06
     const ATTACK = 0.002;
     const DECAY = 0.1;
     const NEAR_ZERO = 0.001;
@@ -279,7 +279,7 @@ function synthTierMax(ac: AudioContext, master: GainNode): void {
  */
 function synthResetConfirm(ac: AudioContext, master: GainNode): void {
     const FREQS = [700, 600, 500, 400];
-    const GAINS = [0.2, 0.17, 0.14, 0.11];
+    const GAINS = [0.2, 0.17, 0.14, 0.11]; // Staggered, peak per-voice ~0.2; voices overlap briefly
     const DELAYS = [0, 15, 30, 45];
     const ATTACK = 0.001;
     const DECAY = 0.08;
