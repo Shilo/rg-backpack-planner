@@ -679,24 +679,23 @@
         const prevLevels = levels;
         updateLevels(nextLevels);
 
+        const targetNode = getNodeAt(index);
+        const newLevel = getLevelFrom(nextLevels, index);
+
         // Sound trigger — determine which sound to play based on tier crossing
-        const soundNode = getNodeAt(index);
-        if (soundNode) {
-            const newLevel = getLevelFrom(nextLevels, index);
-            const prevTier = tierIndex(currentLevel, soundNode.maxLevel);
-            const newTier = tierIndex(newLevel, soundNode.maxLevel);
+        if (targetNode) {
+            const prevTier = tierIndex(currentLevel, targetNode.maxLevel);
+            const newTier = tierIndex(newLevel, targetNode.maxLevel);
             if (newTier > prevTier && targetLevel > currentLevel) {
                 playSound("tier-up");
             } else if (targetLevel > currentLevel) {
-                playSound("level-up", { level: newLevel, maxLevel: soundNode.maxLevel });
+                playSound("level-up", { level: newLevel, maxLevel: targetNode.maxLevel });
             } else {
                 playSound("level-down");
             }
         }
 
         if ($showLevelSplash && !prefersReducedMotion()) {
-            const targetNode = getNodeAt(index);
-            const newLevel = getLevelFrom(nextLevels, index);
             if (targetNode && newLevel !== currentLevel) {
                 const totalCrystalDelta =
                     targetLevel > currentLevel

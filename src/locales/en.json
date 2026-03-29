@@ -139,6 +139,7 @@
         "showSkillName": "Show Skill Name Badge",
         "sound": "Sound Effects",
         "soundDescription": "Adjust volume",
+        "soundMuted": "Muted",
         "haptics": "Haptic Feedback",
         "textSize": "Font Size",
         "treeZoom": "Tree Zoom",
@@ -463,6 +464,7 @@
     },
     "compare": {
         "compareBuilds": "Compare Builds",
+        "compareBuildWith": "Compare \"{name}\" with...",
         "compareStatistics": "Compare Statistics",
         "compareTooltip": "Compare with another build",
         "stopCompareTooltip": "Stop comparing",

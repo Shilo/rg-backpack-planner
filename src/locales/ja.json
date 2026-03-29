@@ -139,6 +139,7 @@
         "showSkillName": "スキル名バッジを表示",
         "sound": "サウンドエフェクト",
         "soundDescription": "音量を調整",
+        "soundMuted": "ミュート",
         "haptics": "触覚フィードバック",
         "textSize": "フォントサイズ",
         "treeZoom": "ツリーズーム",
