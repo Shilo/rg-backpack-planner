@@ -161,3 +161,35 @@ assertEqual(
     null,
     "Expected preview name to clear when URL build has no name",
 );
+
+// --- switchActivePreset tests ---
+import { addPreset, getActivePresetId } from "../src/lib/buildPresetsStore.ts";
+import { switchActivePreset } from "../src/lib/buildData/applier.ts";
+import { encodeBuildData } from "../src/lib/buildData/encoder.ts";
+
+{
+    // decodeBuildData always returns the game's actual tree structure.
+    // Reset treeLevels to 3 trees so applyBuildData length check passes.
+    treeLevels.set([[], [], []]);
+
+    const code = encodeBuildData({ trees: [[], [], []], owned: 42 });
+    const preset = addPreset("Swap Test", code);
+
+    // Pass [] for trees — no expansion needed; decoded data applied directly.
+    assertEqual(
+        switchActivePreset(preset.id, []),
+        true,
+        "switchActivePreset: returns true for valid preset",
+    );
+    assertEqual(
+        getActivePresetId(),
+        preset.id,
+        "switchActivePreset: updates active preset ID",
+    );
+    assertEqual(
+        switchActivePreset("no-such-id", []),
+        false,
+        "switchActivePreset: returns false for unknown preset",
+    );
+    console.log("✅ switchActivePreset tests passed");
+}

@@ -4,7 +4,9 @@
  */
 
 import type { BuildData } from "./encoder";
+import { decodeBuildData } from "./encoder";
 import type { Node } from "../../types/tree";
+import { getPresets, setActivePresetId } from "../buildPresetsStore";
 import { treeLevels, setTreeLevels } from "../treeLevelsStore";
 import { setTechCrystalsOwned } from "../techCrystalStore";
 import { expandTreeProgress } from "../treeProgressStore";
@@ -48,6 +50,25 @@ export function applyBuildData(
         console.error("Failed to apply build data:", error);
         return false;
     }
+}
+
+/**
+ * Switches the active preset and applies its stored build data to the tree stores.
+ * Use this instead of calling setActivePresetId + applyBuildData separately —
+ * it guarantees the active ID is set before stores are mutated, preventing the
+ * persistence subscription from saving data to the wrong preset.
+ * Returns false if the preset ID is not found or its build data cannot be decoded.
+ */
+export function switchActivePreset(
+    id: string,
+    trees: { nodes: Node[] }[],
+): boolean {
+    const preset = getPresets().find((p) => p.id === id);
+    if (!preset) return false;
+    const buildData = decodeBuildData(preset.buildCode);
+    if (!buildData) return false;
+    setActivePresetId(id);
+    return applyBuildData(trees, buildData);
 }
 
 /**
