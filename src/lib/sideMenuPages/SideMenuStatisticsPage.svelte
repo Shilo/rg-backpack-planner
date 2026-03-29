@@ -193,10 +193,18 @@
             durationMs: 30000,
         });
         try {
-            const { generateStatsImageBlob } = await import(
-                "../buildImageExport/statsImageGenerator"
-            );
-            const blob = await generateStatsImageBlob();
+            let blob: Blob | null;
+            if ($compareState.isComparing) {
+                const { generateCompareImageBlob } = await import(
+                    "../compare/compareImageGenerator"
+                );
+                blob = await generateCompareImageBlob();
+            } else {
+                const { generateStatsImageBlob } = await import(
+                    "../buildImageExport/statsImageGenerator"
+                );
+                blob = await generateStatsImageBlob();
+            }
             dismissToast(toastId);
             if (!blob) {
                 showToast($t("compose.statsErrorToast"), {
