@@ -465,3 +465,22 @@ export function navigateToEncodedBuild(encoded: string): void {
         }),
     );
 }
+
+/**
+ * Navigates to the personal (no-hash) URL and dispatches a synthetic hashchange event.
+ * App.svelte's initializeFromUrl fires, detects no hash, exits preview mode, and loads
+ * the currently active preset from localStorage.
+ * Call setActivePresetId() before this if you want a specific preset to be loaded.
+ */
+export function navigateToPersonalMode(): void {
+    if (typeof window === "undefined") return;
+    const oldURL = window.location.href;
+    const basePath = getBasePath();
+    window.history.pushState({}, "", basePath);
+    window.dispatchEvent(
+        new HashChangeEvent("hashchange", {
+            oldURL,
+            newURL: window.location.origin + basePath,
+        }),
+    );
+}
