@@ -129,6 +129,9 @@
 
     :global(.compare-btn) {
         flex: 0 0 auto !important;
+        width: 36px !important;
+        min-width: 36px !important;
+        background: var(--surface) !important;
     }
 
     .premade-builds-list {

@@ -42,6 +42,7 @@
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
     import { decodeAndStartCompare, stopCompare } from "../compare/compareStore";
+    import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
 
     export let disabled: boolean | undefined = false;
 
@@ -61,6 +62,10 @@
     let editMenuX = 0;
     let editMenuY = 0;
     let editIconElement: HTMLButtonElement | null = null;
+
+    let compareMenuOpen = false;
+    let compareMenuX = 0;
+    let compareMenuY = 0;
 
     $: editPreset = editMenuPresetId
         ? ($buildPresetsStore.presets.find(
@@ -323,6 +328,21 @@
         if (editMenuPresetId) movePresetDown(editMenuPresetId);
     }
 
+    function handleCompareClick(event: CustomEvent<MouseEvent> | MouseEvent) {
+        const mouseEvent = event instanceof CustomEvent ? event.detail : event;
+        const target = mouseEvent.currentTarget as HTMLElement | null;
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        compareMenuX = rect.left + rect.width / 2;
+        compareMenuY = rect.bottom + 8;
+        compareMenuOpen = true;
+        closeEditMenu();
+    }
+
+    function closeCompareMenu() {
+        compareMenuOpen = false;
+    }
+
     function handleCompareWithActive(presetId: string) {
         const data = get(buildPresetsStore);
         const preset = data.presets.find((p) => p.id === presetId);
@@ -477,11 +497,18 @@
                 tooltip={$t("buildPresets.clonePresetTooltip")}
                 on:click={closeEditMenu}
             />
-            {#if editMenuPresetId !== $buildPresetsStore.active}
+            {#if editMenuPresetId === $buildPresetsStore.active}
+                <Button
+                    on:click={handleCompareClick}
+                    icon={ScalesIcon}
+                    arrow="right"
+                >
+                    {$t("compare.compareWith")}
+                </Button>
+            {:else}
                 <Button
                     on:click={() => handleCompareWithActive(editMenuPresetId!)}
                     tooltipText={$t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
-                    description={$t("compare.compareWithDescription")}
                     icon={ScalesIcon}
                 >
                     {$t("compare.compareWithActive", { name: toTitleCase($activeBuildName) })}
@@ -499,6 +526,12 @@
         </ContextMenu>
     </div>
 {/if}
+<CompareBuildsMenu
+    x={compareMenuX}
+    y={compareMenuY}
+    isOpen={compareMenuOpen}
+    onClose={closeCompareMenu}
+/>
 
 <style>
     .preset-name {
@@ -555,6 +588,7 @@
 
     :global(.preset-edit-btn) {
         flex-shrink: 0;
+        background: var(--surface) !important;
     }
 
     :global(.add-new-build-btn) {

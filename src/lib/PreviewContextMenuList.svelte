@@ -11,6 +11,9 @@
     import { t } from "svelte-whisper";
     import CompareBuildsMenu from "./compare/CompareBuildsMenu.svelte";
 
+    /** Called to close a parent context menu (e.g. when opening a submenu). */
+    export let onCloseParent: (() => void) | null = null;
+
     let compareMenuOpen = false;
     let compareMenuX = 0;
     let compareMenuY = 0;
@@ -23,6 +26,7 @@
         compareMenuX = rect.left + rect.width / 2;
         compareMenuY = rect.bottom + 8;
         compareMenuOpen = true;
+        onCloseParent?.();
     }
 
     function closeCompareMenu() {

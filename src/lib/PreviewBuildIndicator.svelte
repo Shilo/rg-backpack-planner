@@ -86,7 +86,7 @@
                 onClose={closeMenu}
                 anchorBelow
             >
-                <PreviewContextMenuList />
+                <PreviewContextMenuList onCloseParent={closeMenu} />
             </ContextMenu>
         </div>
     {/if}
