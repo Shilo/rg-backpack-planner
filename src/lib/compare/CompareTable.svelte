@@ -74,6 +74,9 @@
                 {@const activeValue = activeSide === "a" ? row.valueA : row.valueB}
                 {@const referenceValue = activeSide === "a" ? row.valueB : row.valueA}
                 {@const indicator = getIndicator(activeValue, referenceValue)}
+                {@const cmp = row.valueA > row.valueB ? 1 : row.valueA < row.valueB ? -1 : 0}
+                {@const absDiff = Math.abs(row.valueA - row.valueB)}
+                {@const diffText = row.format === "percent" ? formatPercent(absDiff) : formatNumber(absDiff)}
                 <tr class="compare-table__row">
                     <td class="compare-table__label">{row.label}</td>
                     <td
@@ -82,14 +85,22 @@
                         class:indicator-lower={indicator === "lower"}
                         class:indicator-equal={indicator === "equal"}
                     >
-                        {#if indicator === "higher"}▲{:else if indicator === "lower"}▼{:else}–{/if}
+                        {#if indicator === "higher"}<span class="compare-table__indicator-inner"><span>+{diffText}</span><span>▲</span></span>{:else if indicator === "lower"}<span class="compare-table__indicator-inner"><span>-{diffText}</span><span>▼</span></span>{:else}–{/if}
                     </td>
-                    <td class="compare-table__value-a">
+                    <td
+                        class="compare-table__value-a"
+                        class:value-higher={cmp === 1}
+                        class:value-lower={cmp === -1}
+                    >
                         {row.format === "percent"
                             ? formatPercent(row.valueA)
                             : formatNumber(row.valueA)}
                     </td>
-                    <td class="compare-table__value-b">
+                    <td
+                        class="compare-table__value-b"
+                        class:value-higher={cmp === -1}
+                        class:value-lower={cmp === 1}
+                    >
                         {row.format === "percent"
                             ? formatPercent(row.valueB)
                             : formatNumber(row.valueB)}
@@ -195,10 +206,15 @@
     }
 
     .compare-table__indicator {
-        width: 1px;
         white-space: nowrap;
-        text-align: center;
+        text-align: right;
         font-size: var(--font-xs);
+    }
+
+    .compare-table__indicator-inner {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25em;
     }
 
     .indicator-higher {
@@ -223,16 +239,16 @@
         color: var(--text);
     }
 
-    /* Active column: surface background + accent text */
     .active-a .compare-table__value-a,
     .active-b .compare-table__value-b {
         background: var(--surface);
+    }
+
+    .value-higher {
         color: var(--accent);
     }
 
-    /* Inactive column: muted text */
-    .active-a .compare-table__value-b,
-    .active-b .compare-table__value-a {
-        color: var(--text-muted);
+    .value-lower {
+        color: var(--accent-danger);
     }
 </style>
