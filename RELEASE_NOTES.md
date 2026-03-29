@@ -1,13 +1,42 @@
+# What's New in v1.3.0
+
+-# Changes since v1.2.3
+https://rgbp.app
+
+Build planning is now much easier to compare and tune, with side-by-side stat comparisons, shareable comparison output, and optional sound feedback for level changes. The rest of the app also feels sharper through clearer skill visuals, smoother menus, and a round of reliability fixes across overlays, inputs, and screenshot capture.
+
+## New
+
+- Added a build comparison mode that lets you compare the active build against personal presets, recommended builds, or pasted codes with side-by-side stat differences and dedicated share output.
+- Added optional sound effects for leveling, tier completion, and resets, with mute controls, volume settings, and an `M` hotkey.
+
+## Improved
+
+- Improved node readability with full skill names in the tree menu, thicker borders on important nodes, dashed borders on unique nodes, and new stun, ignore, and resistance icons that are more consistent and easier to read.
+- Refined the starfield background behind the tree tabs with smoother diagonal drift and lighter motion.
+- Refined the interface with bolder statistics styling, smoother menu motion, better anchored compare menus, larger close controls, and more consistent hover behavior.
+
+## Fixed
+
+- Fixed build comparison edge cases that could hide compare entry points, keep menus open, swap the wrong side effects into the UI, or show the wrong share labels while comparing.
+- Fixed overlays and screenshot capture so menus stay above HUD elements, side panels avoid horizontal overflow, recover cleanly from load failures, and exported images keep the right unique-node styling.
+- Fixed numeric input modals to reject non-numeric key presses instead of letting invalid characters slip in.
+
+---
+
 # What's New in v1.2.3
+
 -# Changes since v1.2.0
 https://rgbp.app
 
 Completely overhauled the controls reference with an action-first layout, added a reduce motion accessibility setting, and brought major visual and physics polish to the skill tree with energy flow animations, a starfield background, and canvas physics — all backed by targeted performance optimizations for mobile and desktop.
 
 ## New
+
 - Added a **Reduce Motion** setting that disables all animations and transitions across the app for accessibility or preference.
 
 ## Improved
+
 - Redesigned the **Controls** page with an action-first layout, collapsible sections, and device-adaptive input chips that respond to your current input method.
 - Redesigned the **About** page with a cleaner accordion layout, improved accessibility, and full localization support.
 - Overhauled the **Quick Settings** panel with a refreshed visual design and bounded positioning within the HUD.
@@ -23,6 +52,7 @@ Completely overhauled the controls reference with an action-first layout, added 
 - Expanded **localization** for controls, about page, and onboarding across all supported languages.
 
 ## Fixed
+
 - Fixed the **Escape** key incorrectly closing the side menu while the color picker was open.
 - Fixed the **quick settings panel** sometimes extending beyond the HUD boundary.
 - Fixed the **active tree tab** not restoring correctly after completing onboarding.
@@ -33,43 +63,51 @@ Completely overhauled the controls reference with an action-first layout, added 
 ---
 
 # What's New in v1.2.0
+
 -# Changes since v1.1.6
 https://rgbp.app
 
 Japanese localization now matches Run! Goddess in-game terminology much more closely across the app, especially for Backpack Tech, Tech Crystals, class names, and skill names. Short Japanese skill labels were also tightened for compact UI spaces so they stay easier to scan without losing context.
 
 ## Improved
+
 - Improved Japanese class and system terminology so key game terms now match the official in-game wording more closely, including Backpack Tech, Tech Crystals, Guardian, Vanguard, and Cannon.
 - Improved Japanese skill names and descriptions to use the proper in-game terms for stats and effects such as Attack Boost, Global Attack, Global Defense, Global HP, Final Damage, Critical Hit, Counterattack Resistance, and Damage Reflection.
 - Improved Japanese wording across menus, onboarding, tooltips, reset prompts, share text, and Tech Crystal UI so the same terms stay consistent throughout the app instead of changing from screen to screen.
 - Improved compact Japanese short skill labels so they fit better in tight UI spaces while still clearly meaning the same stat as the full label.
 
 ## Fixed
+
 - Fixed Japanese translations that previously sounded like direct machine translations instead of the game's official wording.
 - Fixed several short Japanese skill labels that were longer than necessary or less clear at a glance in compact layouts.
 
 ## 日本語
+
 日本語ローカライズを全体的に見直し、バッグ研究、研究クリスタル、転職名、スキル名などの表記を『走れ！女神』のゲーム内用語により近づけました。あわせて、日本語の短縮スキル名も見直し、意味を保ったまま狭いUIでも読み取りやすい表記に調整しました。
 
 ### 改善
+
 - バッグ研究、研究クリスタル、近衛兵、先駆者、火砲などの重要な用語を、ゲーム内の正式な日本語表記により近い形へ統一しました。
 - 攻撃力強化、グローバル攻撃力、グローバル防御力、グローバルHP、最終ダメージ、通常攻撃クリティカル、反撃耐性、ダメージ反射率など、主要なスキル名と説明文をゲーム内用語に合わせて改善しました。
 - メニュー、オンボーディング、ツールチップ、リセット確認、共有文言、研究クリスタル関連UIなどでも表記をそろえ、画面ごとに用語がぶれないよう改善しました。
 - 日本語の短縮スキル名を、フル表記と同じ意味を保ちながら、狭いUIでも読みやすいコンパクトな表記に改善しました。
 
 ### 修正
+
 - これまで直訳寄りになっていた日本語表記を、ゲーム内の正式な言い回しに沿った表現へ修正しました。
 - 一部の日本語短縮スキル名について、長すぎたり瞬時に判別しづらかった表記を、より短く分かりやすい形へ修正しました。
 
 ---
 
 # What's New in v1.1.6
+
 -# Changes since v1.1.0
 https://rgbp.app
 
 Faster and more precise tech tree planning with a toggleable Primary Action Indicator, advanced keyboard shortcuts, and branch-specific resets.
 
 ## New
+
 - Added a **Primary Action Indicator** HUD button that displays the active node operation (+1, +10, +Tier); tap it to toggle the state or use the **[A]** hotkey to cycle modes.
 - Added **Unified Fullscreen** mode **[F11]** that provides a consistent immersive experience across all desktop browsers.
 - Added the **Tech Crystal Budget Hotkey** **[B]** to instantly open the budget input modal from anywhere.
@@ -83,6 +121,7 @@ Faster and more precise tech tree planning with a toggleable Primary Action Indi
     - **[Ctrl + Shift + Left Click]** or **[Ctrl + Middle Click]**: Reverse Alternate (Subtract by the alternate amount).
 
 ## Improved
+
 - Updated the **Controls & Shortcuts** page with more shortcuts and detailed node interaction descriptions.
 - Redesigned the **Node Context Menu** with a dedicated "-Tier" button and a more compact, thumb-friendly layout for one-handed use.
 - Improved **Undo & Redo** with repeat support; holding **[Ctrl + Z]** or **[Ctrl + Y]** now steps through multiple changes automatically.
@@ -93,22 +132,26 @@ Faster and more precise tech tree planning with a toggleable Primary Action Indi
 - Expanded **Haptic Feedback** to all interactive surfaces, including the theme picker, onboarding flow, and menu backdrops.
 
 ## Fixed
+
 - Fixed layout issues where toast notifications would occasionally overlap the HUD action indicators.
 - Fixed node menu positioning to ensure stable alignment and prevent layout shifting during rapid interaction.
 - Fixed missing haptic feedback in various menu backdrops and theme selection.
 - Fixed a race condition that could cause the level-up splash to overlap and block interaction with node context menus.
 
 ## Upcoming
+
 - **Controls Redesign**: Overhaul of the Controls & Shortcuts page will improve readability and simplicity with a more polished visual design.
 - **Onboarding Updates**: Interactive tutorial will include explicit guidance for the latest keyboard hotkeys and advanced node modifiers.
 
 ---
 
 # What's New in v1.1.0
+
 -# Changes since v1.0.0
 https://rgbp.app
 
 ## New
+
 - Added undo and redo support with a floating toolbar to step backward and forward through node level changes.
 - Added Ctrl+Z and Ctrl+Y keyboard shortcuts for undo and redo.
 - Added Tech Crystal budget enforcement that caps node upgrades when they would exceed your set budget, with a toast action to override.
@@ -117,6 +160,7 @@ https://rgbp.app
 - Added a debug information panel in the About settings page for troubleshooting device and app state.
 
 ## Improved
+
 - Improved budget enforcement to partially level nodes in sync lineage mode instead of blocking entirely when the budget would be exceeded.
 - Updated the onboarding tutorial to cover the new undo, redo, and reset toolbar.
 - Refined Tech Crystal display with unified animations for budget and spent changes.
@@ -127,6 +171,7 @@ https://rgbp.app
 - Improved toast notifications with a stacked layout, pill-shaped action buttons, and automatic deduplication.
 
 ## Fixed
+
 - Fixed dropdown menus sometimes appearing above their trigger buttons instead of below.
 - Fixed service worker updates not applying reliably.
 - Fixed nested context menus not handling backdrop clicks and Escape key correctly.
@@ -136,20 +181,24 @@ https://rgbp.app
 ---
 
 # What's New in v1.0.0
+
 -# Changes since v0.5.18
 https://rgbp.app
 
 ## Improved
+
 - Improved the recommended builds browser with a unified dropdown interface and richer build metadata.
 - Added French as a supported language alongside English, Japanese, and Simplified Chinese.
 
 ---
 
 # What's New in v0.5.12
+
 -# Changes since v0.4.15
 https://rgbp.app
 
 ## New
+
 - Added build sharing via custom URLs and high-quality image exports.
 - Added a tabbed interface for managing multiple planning trees simultaneously.
 - Added a guided onboarding tutorial flow for new players.
@@ -159,6 +208,7 @@ https://rgbp.app
 - Added full localization support for English, Japanese, and Simplified Chinese.
 
 ## Improved
+
 - Upgraded to an interactive image viewer with detailed metadata popovers.
 - Improved motion design with smooth exponential animations across the UI.
 - Improved mobile experience with larger touch targets and responsive layouts.
@@ -166,6 +216,7 @@ https://rgbp.app
 - Refined the OKLCH theme engine for better visual clarity and accessibility.
 
 ## Fixed
+
 - Fixed overlapping transitions between settings pages.
 - Fixed rendering issues with badges in mobile viewports.
 - Fixed mid-word hyphenation in modals, menus, and tooltips.
@@ -174,10 +225,12 @@ https://rgbp.app
 ---
 
 # What's New in v0.4.14
+
 -# Changes since v0.4.1
 https://rgbp.app
 
 ## New
+
 - Added navigable settings pages with General, Appearance, Node, and About sections.
 - Added level-up splash animation when upgrading skills.
 - Added tooltips that preview the next level and total cost before tapping.
@@ -187,6 +240,7 @@ https://rgbp.app
 - Added special skills summary in the tree info menu.
 
 ## Improved
+
 - Upgraded animations with smoother, spring-like motion across modals, menus, and toasts.
 - Added glass backdrop effects to modals, side menu, and context menus.
 - Improved tree region colors for better visual clarity on all displays.
@@ -195,6 +249,7 @@ https://rgbp.app
 - Added helpful descriptions below settings controls for easier understanding.
 
 ## Fixed
+
 - Fixed screenshot export showing a white background on iOS.
 - Fixed menus not closing in the correct order when pressing Escape.
 - Fixed tree view not resetting focus when resizing the window.

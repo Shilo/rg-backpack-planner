@@ -28,7 +28,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 
 ### Track Your Progress
 - **Tech Crystal tracking** — Enter how many crystals you own and see per-tree and total costs at a glance.
-- **Statistics** — View backpack bonuses, crystal spend, and node level totals. Copy stats as text or share as an image.
+- **Statistics and comparison** — View backpack bonuses, crystal spend, and node level totals. Compare two builds side by side, then copy or share the results as text or an image.
 - **Visual feedback** — Nodes show locked, available, active, and maxed states. Level-up splash animation on milestones.
 
 ### Save and Organize
@@ -42,6 +42,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 - **Recommended builds** — Browse premade builds for different stages of the game (Early Raid, Early PvE, Mid PvE, Late PvE, Late PvP).
 
 ### Customize
+- **Sound effects** — Optional synthesized feedback with volume control and one-tap mute.
 - **Theme colors** — Choose from preset accent colors (sky, cyan, green, rose, amber, neutral) or pick any custom color.
 - **Dark and light mode** — Switch freely; all colors adapt automatically.
 - **Colorblind tree colors** — Alternate palette shifts tree region hues for color vision accessibility.
@@ -84,6 +85,7 @@ Game: [Run! Goddess](https://rungoddess.topgamesinc.com)
 - **Backspace** — Reset the active tree.
 - **Escape** — Open or close the side menu.
 - **F9** — Open the screenshot composer.
+- **M** — Mute or unmute sound effects.
 
 ---
 
