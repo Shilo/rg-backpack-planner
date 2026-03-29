@@ -7,6 +7,7 @@
     import Button from "./Button.svelte";
     import ContextMenu from "./ContextMenu.svelte";
     import PreviewContextMenuList from "./PreviewContextMenuList.svelte";
+    import CompareBuildsMenu from "./compare/CompareBuildsMenu.svelte";
     import { portal } from "./portal";
     import { truncateText } from "./stringUtil";
     import { t } from "svelte-whisper";
@@ -15,6 +16,20 @@
     let menuOpen = false;
     let menuX = 0;
     let menuY = 0;
+    let compareMenuOpen = false;
+    let compareMenuX = 0;
+    let compareMenuY = 0;
+
+    function handleCompareOpen(x: number, y: number) {
+        compareMenuX = x;
+        compareMenuY = y;
+        compareMenuOpen = true;
+    }
+
+    function closeCompareMenu() {
+        compareMenuOpen = false;
+    }
+
     let devIndicatorState: {
         title: string;
         detail: string | null;
@@ -86,9 +101,16 @@
                 onClose={closeMenu}
                 anchorBelow
             >
-                <PreviewContextMenuList onCloseParent={closeMenu} />
+                <PreviewContextMenuList onCompareOpen={handleCompareOpen} />
             </ContextMenu>
         </div>
+        <CompareBuildsMenu
+            x={compareMenuX}
+            y={compareMenuY}
+            isOpen={compareMenuOpen}
+            onClose={closeCompareMenu}
+            onSelect={closeMenu}
+        />
     {/if}
 {/if}
 

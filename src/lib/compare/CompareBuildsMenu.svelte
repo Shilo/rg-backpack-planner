@@ -20,6 +20,8 @@
     export let y = 0;
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
+    /** Called when the user confirms a selection (distinct from dismissal). */
+    export let onSelect: (() => void) | null = null;
 
     $: presets = $buildPresetsStore.presets
         .filter((p) => p.id !== $buildPresetsStore.active)
@@ -38,10 +40,12 @@
             });
             return;
         }
+        onSelect?.();
         onClose?.();
     }
 
     function handleLoadFromCode() {
+        onSelect?.();
         onClose?.();
         openModal({
             type: "textInput",

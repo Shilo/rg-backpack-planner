@@ -9,28 +9,16 @@
     import { queueStoppedPreviewToast } from "./toast";
     import { previewBuildName } from "./previewBuildNameStore";
     import { t } from "svelte-whisper";
-    import CompareBuildsMenu from "./compare/CompareBuildsMenu.svelte";
 
-    /** Called to close a parent context menu (e.g. when opening a submenu). */
-    export let onCloseParent: (() => void) | null = null;
-
-    let compareMenuOpen = false;
-    let compareMenuX = 0;
-    let compareMenuY = 0;
+    /** Called when the compare button is clicked with the anchor position. */
+    export let onCompareOpen: ((x: number, y: number) => void) | null = null;
 
     function handleCompareClick(event: CustomEvent<MouseEvent> | MouseEvent) {
         const mouseEvent = event instanceof CustomEvent ? event.detail : event;
         const target = mouseEvent.currentTarget as HTMLElement | null;
         if (!target) return;
         const rect = target.getBoundingClientRect();
-        compareMenuX = rect.left + rect.width / 2;
-        compareMenuY = rect.bottom + 8;
-        compareMenuOpen = true;
-        onCloseParent?.();
-    }
-
-    function closeCompareMenu() {
-        compareMenuOpen = false;
+        onCompareOpen?.(rect.left + rect.width / 2, rect.bottom + 8);
     }
 
     function handleStopPreview() {
@@ -68,12 +56,6 @@
         {$t("compare.compareWith")}
     </Button>
 </ButtonGroup>
-<CompareBuildsMenu
-    x={compareMenuX}
-    y={compareMenuY}
-    isOpen={compareMenuOpen}
-    onClose={closeCompareMenu}
-/>
 <Button
     on:click={handleStopPreview}
     description={$t("preview.stopPreviewDescription")}
