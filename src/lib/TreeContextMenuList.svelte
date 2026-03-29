@@ -132,7 +132,7 @@
 </script>
 
 {#if !hideStats}
-    <div class="info-header">
+    <div class="info-header" data-context-menu-drag-handle>
         <div class="node-icon-wrapper">
             <svelte:component this={treeIcon} />
         </div>

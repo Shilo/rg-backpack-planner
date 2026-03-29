@@ -236,7 +236,7 @@
     ignoreCloseTargetSelector=".undo-redo-toolbar__group"
 >
     <div class="menu-content">
-        <div class="info-header">
+        <div class="info-header" data-context-menu-drag-handle>
             {#if nodeIcon}
                 <div class="node-icon-wrapper">
                     <svelte:component this={nodeIcon} />

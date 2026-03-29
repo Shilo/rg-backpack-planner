@@ -23,6 +23,10 @@
     import { triggerHaptic } from "./hapticsStore";
     import { t } from "svelte-whisper";
     import { isKeyboardAction, onKeyDown } from "./input";
+    import {
+        getContextMenuAnchorHeight,
+        shouldStartContextMenuDrag,
+    } from "./contextMenuBehavior";
 
     let myMenuId = -1;
 
@@ -45,10 +49,10 @@
     let menuEl: HTMLDivElement | null = null;
     let displayX = 0;
     let displayY = 0;
+    let anchorHeight = 0;
 
     const TOUCH_OFFSET_Y = 32;
     const DRAG_THRESHOLD = 5; // Minimum movement to start dragging
-    const MENU_MARGIN = 8;
 
     const isCoarsePointer = () =>
         window.matchMedia("(pointer: coarse)").matches;
@@ -164,22 +168,23 @@
         return Math.min(Math.max(value, min), max);
     }
 
-    function getSafeAreaInsets(): { top: number; right: number; bottom: number; left: number } {
+    function getHudMargins(): { top: number; right: number; bottom: number; left: number } {
         const root = document.documentElement;
         const s = getComputedStyle(root);
         const px = (key: string) => parseFloat(s.getPropertyValue(key)) || 0;
+        const barPad = px("--bar-pad") || 0;
         return {
-            top: px("--safe-top"),
-            right: px("--safe-right"),
-            bottom: px("--safe-bottom"),
-            left: px("--safe-left"),
+            top: Math.max(barPad, px("--safe-top")),
+            right: Math.max(barPad, px("--safe-right")),
+            bottom: Math.max(barPad, px("--safe-bottom")),
+            left: Math.max(barPad, px("--safe-left")),
         };
     }
 
     export function updatePosition() {
         const coarse = isCoarsePointer();
         const useTouchAbove = touchAnchorAbove && coarse;
-        const safe = getSafeAreaInsets();
+        const hud = getHudMargins();
 
         if (!menuEl) {
             const adjustedY = anchorAbove
@@ -201,6 +206,14 @@
         if (stableTop && anchorAbove && pinnedHeight === 0) {
             pinnedHeight = rect.height;
         }
+        anchorHeight = getContextMenuAnchorHeight({
+            menuHeight: rect.height,
+            viewportHeight: window.innerHeight,
+            hudTop: hud.top,
+            hudBottom: hud.bottom,
+            stableTop: stableTop && anchorAbove,
+            pinnedHeight,
+        });
         const offsetX = rect.width / 2;
         let baseX = x + dragOffset.x;
         let baseY: number;
@@ -209,24 +222,23 @@
 
         if (anchorAbove) {
             baseY = y + dragOffset.y;
-            const boundHeight = stableTop && pinnedHeight > 0 ? Math.max(pinnedHeight, rect.height) : rect.height;
-            minY = safe.top + MENU_MARGIN + boundHeight;
-            maxY = window.innerHeight - safe.bottom - MENU_MARGIN;
+            minY = hud.top + anchorHeight;
+            maxY = window.innerHeight - hud.bottom;
         } else if (useTouchAbove) {
             baseY = y - TOUCH_OFFSET_Y + dragOffset.y;
-            minY = safe.top + MENU_MARGIN + rect.height;
-            maxY = window.innerHeight - safe.bottom - MENU_MARGIN;
+            minY = hud.top + rect.height;
+            maxY = window.innerHeight - hud.bottom;
         } else {
             const offsetY = anchorBelow ? 0 : rect.height * 0.1;
             const adjustedY =
                 y + (anchorBelow ? 0 : coarse ? TOUCH_OFFSET_Y : 0) + dragOffset.y;
             baseY = adjustedY;
-            minY = safe.top + MENU_MARGIN + offsetY;
-            maxY = window.innerHeight - safe.bottom - MENU_MARGIN - (rect.height - offsetY);
+            minY = hud.top + offsetY;
+            maxY = window.innerHeight - hud.bottom - (rect.height - offsetY);
         }
 
-        const minX = safe.left + MENU_MARGIN + offsetX;
-        const maxX = window.innerWidth - safe.right - MENU_MARGIN - offsetX;
+        const minX = hud.left + offsetX;
+        const maxX = window.innerWidth - hud.right - offsetX;
         displayX = clamp(baseX, minX, maxX);
         displayY = clamp(baseY, minY, maxY);
     }
@@ -242,18 +254,30 @@
         return false;
     }
 
+    function isDragHandleTarget(target: EventTarget | null): boolean {
+        return target instanceof Element &&
+            target.closest("[data-context-menu-drag-handle]") !== null;
+    }
+
     function handlePointerDown(event: PointerEvent) {
         if (!menuEl) return;
-        // Only handle primary pointer (left mouse button or touch)
-        if (event.pointerType === "mouse" && event.button !== 0) return;
+        const interactiveTarget = isInteractiveElement(event.target);
+        const dragHandleTarget = isDragHandleTarget(event.target);
 
-        // Don't start drag if clicking on an interactive element - let it handle normally
-        if (isInteractiveElement(event.target)) {
-            // Still stop propagation to prevent document handler from closing menu
-            event.stopPropagation();
+        if (!shouldStartContextMenuDrag({
+            pointerType: event.pointerType,
+            button: event.button,
+            isInteractiveTarget: interactiveTarget,
+            isDragHandleTarget: dragHandleTarget,
+        })) {
+            if (interactiveTarget) {
+                // Keep button taps from bubbling into close handlers.
+                event.stopPropagation();
+            }
             return;
         }
 
+        // Don't start drag if clicking on an interactive element - let it handle normally
         // Stop propagation to prevent document handler from closing menu
         event.stopPropagation();
         menuEl.setPointerCapture(event.pointerId);
@@ -390,8 +414,8 @@
 
     $: transformOrigin =
         anchorAbove || (touchAnchorAbove && isCoarsePointer())
-            ? (stableTop && pinnedHeight > 0
-                ? `translate(-50%, -${pinnedHeight}px)`
+            ? (stableTop && anchorHeight > 0
+                ? `translate(-50%, -${anchorHeight}px)`
                 : "translate(-50%, -100%)")
             : anchorBelow
               ? "translate(-50%, 0)"
@@ -410,6 +434,7 @@
         pointerId = null;
         backdropHadPointerDown = false;
         pinnedHeight = 0;
+        anchorHeight = 0;
     }
 </script>
 
@@ -441,7 +466,9 @@
         on:pointercancel={handlePointerUp}
     >
         {#if resolvedTitle}
-            <div class="context-menu__title">{resolvedTitle}</div>
+            <div class="context-menu__title" data-context-menu-drag-handle>
+                {resolvedTitle}
+            </div>
         {/if}
         <slot />
     </div>
@@ -462,9 +489,19 @@
         gap: var(--spacing-md);
         z-index: var(--z-index-context-menu);
         width: max-content;
-        max-width: calc(100vw - 16px);
+        max-width: calc(
+            100vw - max(var(--bar-pad), var(--safe-left)) -
+                max(var(--bar-pad), var(--safe-right))
+        );
+        max-height: calc(
+            100vh - max(var(--bar-pad), var(--safe-top)) -
+                max(var(--bar-pad), var(--safe-bottom))
+        );
+        overflow: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         cursor: move;
-        touch-action: none;
+        touch-action: pan-x pan-y;
         user-select: none;
         box-shadow: var(--shadow), var(--shadow-lg);
         animation: ctx-menu-enter 0.15s cubic-bezier(0.05, 0.7, 0.1, 1) both;
@@ -476,6 +513,12 @@
         cursor: pointer;
         touch-action: auto;
         pointer-events: auto;
+    }
+
+    .context-menu :global([data-context-menu-drag-handle]) {
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .context-menu.dragging {
