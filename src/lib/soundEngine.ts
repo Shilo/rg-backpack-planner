@@ -27,6 +27,7 @@
  *       NOT used by level-up (which uses tierRelativePitch instead).
  */
 
+import type { Node } from "../types/tree";
 import { effectiveVolume } from "./soundStore";
 import { tierIndex, tierUpper } from "./tierLeveling";
 
@@ -42,7 +43,7 @@ let masterGain: GainNode | null = null;
  * Returns a value from 0.95 (tier start) to 1.10 (tier upper), so successive
  * level-ups within a tier produce a rising pitch.
  */
-export function tierRelativePitch(level: number, maxLevel: number): number {
+export function tierRelativePitch(level: number, maxLevel: Node["maxLevel"]): number {
     if (maxLevel <= 1) return 1.0;
 
     const tier = tierIndex(level, maxLevel);
@@ -69,7 +70,7 @@ export type SoundId = "level-up" | "level-down" | "tier-up" | "reset-confirm";
 
 export interface PlaySoundOptions {
     level?: number;
-    maxLevel?: number;
+    maxLevel?: Node["maxLevel"];
 }
 
 // --- Synthesis Functions ---
