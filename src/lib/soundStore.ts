@@ -1,7 +1,7 @@
 import { get, writable } from "svelte/store";
 import { getItem, setItem } from "./storage";
 
-const DEFAULT_SOUND_VOLUME = 30;
+const DEFAULT_SOUND_VOLUME = 50;
 const DEFAULT_SOUND_MUTED = false;
 
 function parseSoundVolume(storedValue: string | null): number | null {
@@ -72,7 +72,14 @@ function createSoundMutedStore() {
 
 export const soundMuted = createSoundMutedStore();
 
-/** Returns the effective volume in 0–1 range for the sound engine. */
+/**
+ * Returns the effective volume in 0–1 range for the sound engine.
+ *
+ * Applies a square root curve (x^0.5) to counteract the OS logarithmic volume
+ * curve. This keeps sounds audible at lower system volumes without being louder
+ * at max. Slider 50% → 0.71 effective, slider 30% → 0.55 effective.
+ */
 export function effectiveVolume(): number {
-    return get(soundMuted) ? 0 : get(soundVolume) / 100;
+    if (get(soundMuted)) return 0;
+    return Math.sqrt(get(soundVolume) / 100);
 }
