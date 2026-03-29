@@ -140,6 +140,7 @@
         "sound": "音效",
         "soundDescription": "调整音量",
         "soundMuted": "已静音",
+        "soundToast": "声音: {value}",
         "haptics": "触觉反馈",
         "textSize": "字体大小",
         "treeZoom": "技能树缩放",

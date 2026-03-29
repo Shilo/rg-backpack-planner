@@ -182,14 +182,14 @@
                 break;
             }
             case "toggleMute": {
-                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
                 if (isFormField(document.activeElement)) return;
                 if (event.repeat) return;
                 event.preventDefault();
                 const wasMuted = get(soundMuted);
                 soundMuted.set(!wasMuted);
                 const vol = wasMuted ? get(soundVolume) : 0;
-                showToast(`Sound: ${vol === 0 ? "Muted" : `${vol}%`}`);
+                const value = vol === 0 ? $t("settings.soundMuted") : `${vol}%`;
+                showToast($t("settings.soundToast", { value }));
                 triggerShortcutFlash("toggleMute");
                 break;
             }

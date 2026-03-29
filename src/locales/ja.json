@@ -140,6 +140,7 @@
         "sound": "サウンドエフェクト",
         "soundDescription": "音量を調整",
         "soundMuted": "ミュート",
+        "soundToast": "サウンド: {value}",
         "haptics": "触覚フィードバック",
         "textSize": "フォントサイズ",
         "treeZoom": "ツリーズーム",

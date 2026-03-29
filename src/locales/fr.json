@@ -140,6 +140,7 @@
         "sound": "Effets sonores",
         "soundDescription": "Régler le volume",
         "soundMuted": "Muet",
+        "soundToast": "Son : {value}",
         "haptics": "Retour haptique",
         "textSize": "Taille de police",
         "treeZoom": "Zoom de l'arbre",

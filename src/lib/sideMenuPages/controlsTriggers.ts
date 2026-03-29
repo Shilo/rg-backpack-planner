@@ -10,6 +10,7 @@ const KEYBOARD_TRIGGERS: Partial<Record<string, KeyboardActionType>> = {
     "hud-root-quick-settings": "console",
     "hud-screenshot": "screenshot",
     "hud-fullscreen": "fullscreen",
+    "hud-toggle-mute": "toggleMute",
 };
 
 const DOM_TRIGGERS: Record<string, () => void> = {

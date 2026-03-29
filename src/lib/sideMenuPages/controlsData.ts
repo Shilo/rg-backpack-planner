@@ -180,7 +180,9 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
             description: t("controls.actions.toggleMuteDesc"),
             icon: SpeakerHighIcon,
             inputs: [
+                { keys: mouse.primary, device: "mouse" },
                 { keys: kbd("toggleMute"), device: "keyboard" },
+                { keys: touch.primary, device: "touch" },
             ],
             section: "hud",
         },
