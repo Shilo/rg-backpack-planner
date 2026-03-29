@@ -85,6 +85,7 @@
     import { recommendedBuilds } from "./lib/buildData/recommended";
     import { toggleFullscreen } from "./lib/fullscreen";
     import { sideMenuOpenRequest } from "./lib/sideMenuOpenStore";
+    import { compareState } from "./lib/compare/compareStore";
 
     let tabsRef: {
         focusActiveTreeInView?: (announce?: boolean) => void;
@@ -452,17 +453,19 @@
                 shouldUsePreviewMode = true;
                 setPreviewMode(true);
 
-                // Select the first tab that has nodes leveled > 0
-                selectFirstTabWithLevels();
+                if (!get(compareState).isComparing) {
+                    // Select the first tab that has nodes leveled > 0
+                    selectFirstTabWithLevels();
 
-                // Show toast about preview mode
-                const title = getPreviewTitle(get(previewBuildName));
-                closeTransientUiForPreview();
-                showToastDelayed(
-                    $t("preview.viewingBuildToast", {
-                        name: title,
-                    }),
-                );
+                    // Show toast about preview mode
+                    const title = getPreviewTitle(get(previewBuildName));
+                    closeTransientUiForPreview();
+                    showToastDelayed(
+                        $t("preview.viewingBuildToast", {
+                            name: title,
+                        }),
+                    );
+                }
             } else {
                 // Treat unapplicable shared builds as invalid preview links
                 setPreviewMode(false);
@@ -514,8 +517,10 @@
             );
 
             // Check if we just stopped preview mode or cloned build
-            tryShowStoppedPreviewToast(activePreset?.name);
-            tryShowClonedBuildToast();
+            if (!get(compareState).isComparing) {
+                tryShowStoppedPreviewToast(activePreset?.name);
+                tryShowClonedBuildToast();
+            }
 
             const fallbackBuildData: BuildData = {
                 trees: tabs.map(() => []),
