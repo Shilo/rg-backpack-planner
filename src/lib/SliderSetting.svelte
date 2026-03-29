@@ -19,6 +19,9 @@
     export let onChange: ((value: number) => void) | null = null;
     export let tooltipText: string | undefined = undefined;
     export let description: string | undefined = undefined;
+    export let resetIcon: Component | null = null;
+    export let resetAriaLabel: string | undefined = undefined;
+    export let onReset: (() => void) | null = null;
 
     const DRAG_THRESHOLD_PX = 5;
 
@@ -138,6 +141,16 @@
             </div>
         {/if}
             <span class="slider-setting__value">{valueLabel}</span>
+            {#if resetIcon}
+                <button
+                    class="slider-setting__reset"
+                    type="button"
+                    aria-label={resetAriaLabel}
+                    on:click={() => onReset?.()}
+                >
+                    <svelte:component this={resetIcon} size={18} />
+                </button>
+            {/if}
         </div>
     {/if}
 
@@ -360,5 +373,34 @@
         white-space: normal;
         overflow-wrap: anywhere;
         user-select: none;
+    }
+
+    .slider-setting__reset {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+        transition: color var(--ease), background var(--ease);
+    }
+
+    .slider-setting__reset:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
+    @media (hover: hover) {
+        .slider-setting__reset:hover {
+            color: var(--text);
+            background: color-mix(in srgb, var(--bg-raised) 80%, var(--text) 20%);
+        }
     }
 </style>
