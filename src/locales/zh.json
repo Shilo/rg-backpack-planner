@@ -482,6 +482,8 @@
             "screenshotDesc": "预览并分享技能树图片",
             "fullscreen": "全屏",
             "fullscreenDesc": "切换全屏模式",
+            "toggleMute": "切换声音",
+            "toggleMuteDesc": "开启或关闭音效",
             "cycleTabs": "切换标签页",
             "cycleTabsDesc": "在侧边栏标签页之间切换",
             "previewIndicator": "预览构建指示器",
@@ -580,6 +582,7 @@
             "screenshot": "F9",
             "budget": "B",
             "cyclePrimaryAction": "A",
+            "toggleMute": "M",
             "focusTrap": "Tab",
             "fullscreen": "F11"
         },

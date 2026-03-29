@@ -38,6 +38,7 @@
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
     import { t, resetLocale } from "svelte-whisper";
+    import { getKeyboardActionLabel } from "../input";
 
     export let onBack: (() => void) | null = null;
     export let onClose: (() => void) | null = null;
@@ -132,6 +133,7 @@
             formatValue={(v) => $soundMuted ? $t("settings.soundMuted") : `${v}%`}
             resetIcon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
             resetAriaLabel={$soundMuted ? "Unmute" : "Mute"}
+            shortcut={getKeyboardActionLabel("toggleMute", $t)}
             onReset={() => soundMuted.set(!$soundMuted)}
             onChange={(v) => {
                 soundVolume.set(v);

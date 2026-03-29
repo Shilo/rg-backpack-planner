@@ -497,6 +497,8 @@
             "screenshotDesc": "Generate an image to export",
             "fullscreen": "Fullscreen",
             "fullscreenDesc": "Expand application to fill the screen",
+            "toggleMute": "Toggle Sound",
+            "toggleMuteDesc": "Mute or unmute sound effects",
             "cycleTabs": "Cycle Tabs",
             "cycleTabsDesc": "Navigate through trees or pages",
             "previewIndicator": "Preview Build Indicator",
@@ -595,6 +597,7 @@
             "screenshot": "F9",
             "budget": "B",
             "cyclePrimaryAction": "A",
+            "toggleMute": "M",
             "focusTrap": "Tab",
             "fullscreen": "F11"
         },

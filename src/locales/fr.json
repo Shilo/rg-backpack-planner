@@ -482,6 +482,8 @@
             "screenshotDesc": "Prévisualiser et partager une image de l'arbre",
             "fullscreen": "Plein écran",
             "fullscreenDesc": "Basculer en mode plein écran",
+            "toggleMute": "Activer/Désactiver le son",
+            "toggleMuteDesc": "Couper ou rétablir les effets sonores",
             "cycleTabs": "Changer d'onglet",
             "cycleTabsDesc": "Changer d'onglet dans le menu latéral",
             "previewIndicator": "Indicateur de build d'aperçu",
@@ -580,6 +582,7 @@
             "screenshot": "F9",
             "budget": "B",
             "cyclePrimaryAction": "A",
+            "toggleMute": "M",
             "focusTrap": "Tab",
             "fullscreen": "F11"
         },

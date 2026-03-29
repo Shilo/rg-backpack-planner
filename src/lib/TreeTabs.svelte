@@ -53,6 +53,7 @@
         isNodePrimaryAction,
     } from "./nodePrimaryActionStore";
     import { triggerHaptic } from "./hapticsStore";
+    import { soundMuted, soundVolume, effectiveVolume } from "./soundStore";
 
     export let tabs: TabConfig[] = [];
     export let onMenuClick: (() => void) | null = null;
@@ -178,6 +179,18 @@
                 nodePrimaryAction.set(next);
                 triggerHaptic();
                 triggerShortcutFlash("cyclePrimaryAction");
+                break;
+            }
+            case "toggleMute": {
+                if (isMenuOpen || $isComposeScreenshotOpen || $modalStore) return;
+                if (isFormField(document.activeElement)) return;
+                if (event.repeat) return;
+                event.preventDefault();
+                const wasMuted = get(soundMuted);
+                soundMuted.set(!wasMuted);
+                const vol = wasMuted ? get(soundVolume) : 0;
+                showToast(`Sound: ${vol === 0 ? "Muted" : `${vol}%`}`);
+                triggerShortcutFlash("toggleMute");
                 break;
             }
         }

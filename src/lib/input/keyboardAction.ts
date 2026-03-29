@@ -14,6 +14,7 @@
  * budget              — B (open tech crystal budget modal)
  * focusTrap           — Tab only (modal focus trapping — distinct from cycle which also matches ←/→)
  * cyclePrimaryAction  — A (cycle node primary action: +1 / +10 / +Tier)
+ * toggleMute          — M (toggle sound mute on/off)
  */
 export type KeyboardActionType =
     | "dismiss"
@@ -28,7 +29,8 @@ export type KeyboardActionType =
     | "budget"
     | "focusTrap"
     | "cyclePrimaryAction"
-    | "fullscreen";
+    | "fullscreen"
+    | "toggleMute";
 
 /** All KeyboardEvent.key values used in the app, in canonical form. */
 const Key = {
@@ -48,6 +50,7 @@ const Key = {
     y: "y",
     b: "b",
     a: "a",
+    m: "m",
 } as const;
 
 /**
@@ -87,6 +90,7 @@ export const KEYBOARD_ACTION_BINDINGS: readonly KeyBinding[] = [
     { action: "fullscreen", key: Key.F11 },
     { action: "budget", key: Key.b, ctrl: false },
     { action: "cyclePrimaryAction", key: Key.a, ctrl: false },
+    { action: "toggleMute", key: Key.m, ctrl: false },
     { action: "focusTrap", key: Key.Tab },
 ];
 

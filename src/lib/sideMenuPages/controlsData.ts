@@ -18,6 +18,7 @@ import {
     DotsThreeOutlineIcon,
     GraphIcon,
     ArrowCounterClockwiseIcon,
+    SpeakerHighIcon,
 } from "phosphor-svelte";
 import { TechCrystalIcon, RootNodeIcon, GuardianIcon } from "../customIcons";
 import { getDeviceInputLabels, getKeyboardActionLabel } from "../input";
@@ -170,6 +171,16 @@ export function getControlActions(t: TranslateFn): ControlAction[] {
                 { keys: mouse.primary, device: "mouse" },
                 { keys: kbd("fullscreen"), device: "keyboard" },
                 { keys: touch.primary, device: "touch" },
+            ],
+            section: "hud",
+        },
+        {
+            id: "hud-toggle-mute",
+            title: t("controls.actions.toggleMute"),
+            description: t("controls.actions.toggleMuteDesc"),
+            icon: SpeakerHighIcon,
+            inputs: [
+                { keys: kbd("toggleMute"), device: "keyboard" },
             ],
             section: "hud",
         },

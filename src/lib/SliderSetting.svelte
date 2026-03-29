@@ -3,6 +3,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { LONG_PRESS_MS } from "./input/longPress";
     import { tooltip } from "./tooltip";
+    import InputChip from "./InputChip.svelte";
 
     export let label = "";
     export let ariaLabel: string | undefined = undefined;
@@ -22,6 +23,7 @@
     export let resetIcon: Component | null = null;
     export let resetAriaLabel: string | undefined = undefined;
     export let onReset: (() => void) | null = null;
+    export let shortcut: string | undefined = undefined;
 
     const DRAG_THRESHOLD_PX = 5;
 
@@ -141,6 +143,11 @@
             </div>
         {/if}
             <span class="slider-setting__value">{valueLabel}</span>
+            {#if shortcut}
+                <span class="slider-setting__shortcut">
+                    <InputChip keys={shortcut} />
+                </span>
+            {/if}
             {#if resetIcon}
                 <button
                     class="slider-setting__reset"
@@ -241,6 +248,12 @@
         font-size: var(--font-sm);
         color: var(--text-muted);
         flex-shrink: 0;
+    }
+
+    .slider-setting__shortcut {
+        margin-left: auto;
+        flex: 0 0 auto;
+        font-size: var(--font-sm);
     }
 
     .slider-setting__body {
