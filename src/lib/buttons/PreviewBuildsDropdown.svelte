@@ -15,7 +15,10 @@
     import { activeTabs } from "../techCrystalStore";
     import { activeBuildName } from "../buildPresetsStore";
     import { toTitleCase } from "../stringUtil";
-    import { decodeAndStartCompare } from "../compare/compareStore";
+    import {
+        decodeAndStartCompare,
+        type CompareBuildSource,
+    } from "../compare/compareStore";
     import { mapRecommendedBuilds } from "../compare/compareStats";
 
     export let x = 0;
@@ -41,7 +44,8 @@
     }
 
     function handleCompareRecommended(buildCode: string, name: string) {
-        if (!decodeAndStartCompare(buildCode, name)) {
+        const source: CompareBuildSource = { type: "preview", encoded: buildCode };
+        if (!decodeAndStartCompare(buildCode, name, source)) {
             showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
             return;
         }
