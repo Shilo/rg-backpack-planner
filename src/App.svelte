@@ -64,7 +64,6 @@
     import { updateUrlWithCurrentBuild } from "./lib/buildData/url";
     import {
         showToastDelayed,
-        tryShowStoppedPreviewToast,
         tryShowClonedBuildToast,
     } from "./lib/toast";
     import {
@@ -516,9 +515,8 @@
                 (p) => p.id === presetsData.active,
             );
 
-            // Check if we just stopped preview mode or cloned build
+            // Check if we just cloned a build
             if (!get(compareState).isComparing) {
-                tryShowStoppedPreviewToast(activePreset?.name);
                 tryShowClonedBuildToast();
             }
 

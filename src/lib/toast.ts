@@ -104,24 +104,7 @@ export function checkSessionStorageAndShowToast(
     return true;
 }
 
-const STOPPED_PREVIEW_KEY = "stopped-preview-toast";
 const CLONED_BUILD_KEY = "cloned-build-toast";
-
-/**
- * Checks sessionStorage for stopped preview flag and shows toast.
- * @returns true if the flag was found and processed, false otherwise
- */
-export function tryShowStoppedPreviewToast(
-    presetName: string = DEFAULT_PRESET_NAME,
-): boolean {
-    return checkSessionStorageAndShowToast(
-        STOPPED_PREVIEW_KEY,
-        () =>
-            tr("preview.backToBuildToast", {
-                name: truncateText(getDisplayPresetName(presetName)),
-            }),
-    );
-}
 
 /**
  * Checks sessionStorage for cloned build flag and shows toast.
@@ -135,14 +118,6 @@ export function tryShowClonedBuildToast(): boolean {
               })
             : tr("preview.clonedPreviewBuildToast"),
     );
-}
-
-/**
- * Queues a stopped preview toast to be shown on next page load.
- * Sets a flag in sessionStorage that will be checked after reload.
- */
-export function queueStoppedPreviewToast(): void {
-    sessionSetItem(STOPPED_PREVIEW_KEY, true.toString());
 }
 
 /**

@@ -89,46 +89,48 @@
     function handleDocumentPointerUp(event: PointerEvent) {
         // Always clean up; returns true if this pointer started inside any context menu.
         const pointerStartedInMenu = menuPointerTracker.delete(event.pointerId);
-        if (!isOpen) return;
+        const dbgLabel = `ContextMenu[title="${resolvedTitle || ariaLabel}"]`;
+        if (!isOpen) { console.log(`[DEBUG] ${dbgLabel} pointerup — skipped (not open)`); return; }
+        console.log(`[DEBUG] ${dbgLabel} pointerup — isOpen=true, target=`, event.target, `pointerStartedInMenu=${pointerStartedInMenu}`);
         // Don't close if we're dragging or if the pointer is within the menu
-        if (isDragging || pointerId === event.pointerId) return;
+        if (isDragging || pointerId === event.pointerId) { console.log(`[DEBUG] ${dbgLabel} → skip: dragging/pointerId`); return; }
         const target = event.target;
-        if (target instanceof Node && menuEl?.contains(target)) return;
+        if (target instanceof Node && menuEl?.contains(target)) { console.log(`[DEBUG] ${dbgLabel} → skip: target inside menuEl`); return; }
         // Don't close if clicking on the backdrop (it handles its own close)
-        if (target instanceof Node && backdropEl?.contains(target)) return;
+        if (target instanceof Node && backdropEl?.contains(target)) { console.log(`[DEBUG] ${dbgLabel} → skip: target inside backdropEl`); return; }
         // Don't close if clicking on a nested context menu backdrop
         if (target instanceof Element) {
             const nestedBackdrop = target.closest(".context-menu-backdrop");
-            if (nestedBackdrop && nestedBackdrop !== backdropEl) return;
+            if (nestedBackdrop && nestedBackdrop !== backdropEl) { console.log(`[DEBUG] ${dbgLabel} → skip: nested backdrop`); return; }
         }
         // Don't close if interacting with a modal dialog
         if (target instanceof Element) {
             const modalElement = target.closest(
                 ".modal-backdrop, .modal-shell",
             );
-            if (modalElement) return;
+            if (modalElement) { console.log(`[DEBUG] ${dbgLabel} → skip: modal`); return; }
         }
         // Don't close if clicking on a nested context menu (ShareBuildButton's menu)
         if (target instanceof Element) {
             const nestedMenu = target.closest(".context-menu");
-            if (nestedMenu && nestedMenu !== menuEl) return;
+            if (nestedMenu && nestedMenu !== menuEl) { console.log(`[DEBUG] ${dbgLabel} → skip: nested context-menu`, nestedMenu); return; }
             const shareMenuPortal = target.closest(".share-menu-portal");
-            if (shareMenuPortal) return;
+            if (shareMenuPortal) { console.log(`[DEBUG] ${dbgLabel} → skip: share-menu-portal`); return; }
         }
         // Don't close on pointerup if it's the same pointer that started a drag
-        if (event.pointerId === pointerId) return;
+        if (event.pointerId === pointerId) { console.log(`[DEBUG] ${dbgLabel} → skip: same pointerId`); return; }
         // Don't close when target matches (e.g. tab bar - release from long-press on tab)
         if (
             ignoreCloseTargetSelector &&
             target instanceof Element &&
             target.closest(ignoreCloseTargetSelector)
-        )
-            return;
+        ) { console.log(`[DEBUG] ${dbgLabel} → skip: ignoreCloseTargetSelector`); return; }
         // Don't close if this pointer started inside a context menu. Handles the case
         // where a nested menu closes synchronously (Svelte 5 effects) before pointerup
         // fires, making the target appear to be outside any menu.
-        if (pointerStartedInMenu) return;
+        if (pointerStartedInMenu) { console.log(`[DEBUG] ${dbgLabel} → skip: pointerStartedInMenu`); return; }
 
+        console.log(`[DEBUG] ${dbgLabel} → CALLING onClose`);
         onClose?.();
     }
 
@@ -144,6 +146,7 @@
     }
 
     function handleBackdropPointerDown(event: PointerEvent) {
+        console.log(`[DEBUG] ContextMenu[title="${resolvedTitle}"] backdrop pointerdown`);
         event.stopPropagation();
         backdropHadPointerDown = true;
     }
@@ -151,7 +154,8 @@
     function handleBackdropClick(event: MouseEvent) {
         if (event.target !== event.currentTarget) return;
         // Only close if there was a pointerdown on backdrop first (avoids close from touch release after long-press)
-        if (!backdropHadPointerDown) return;
+        if (!backdropHadPointerDown) { console.log(`[DEBUG] ContextMenu[title="${resolvedTitle}"] backdrop click — skip: no prior pointerdown`); return; }
+        console.log(`[DEBUG] ContextMenu[title="${resolvedTitle}"] backdrop click → CALLING onClose`);
         event.preventDefault();
         event.stopPropagation();
         triggerHaptic();
@@ -277,6 +281,7 @@
 
     function handlePointerDown(event: PointerEvent) {
         menuPointerTracker.add(event.pointerId);
+        console.log(`[DEBUG] ContextMenu[title="${resolvedTitle}"] pointerdown — added pointerId=${event.pointerId}, tracker size=${menuPointerTracker.size}`);
         if (!menuEl) return;
         const interactiveTarget = isInteractiveElement(event.target);
         const dragHandleTarget = isDragHandleTarget(event.target);
