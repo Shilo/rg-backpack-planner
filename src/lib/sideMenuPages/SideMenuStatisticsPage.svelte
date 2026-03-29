@@ -80,26 +80,30 @@
         : $t("sideMenu.sections.statistics");
 
     let statsBodyEl: HTMLElement | null = null;
+    let mounted = false;
     let prevCompareKey = "";
 
     function animateContentChange() {
         if ($animationsDisabled || !statsBodyEl) return;
+        // Instantly hide: disable transition, set opacity 0
+        statsBodyEl.style.transition = "none";
         statsBodyEl.style.opacity = "0";
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                if (statsBodyEl) statsBodyEl.style.opacity = "1";
-            });
-        });
+        // Force browser to commit opacity:0 before re-enabling transition
+        void statsBodyEl.offsetHeight;
+        // Re-enable CSS transition and fade in
+        statsBodyEl.style.removeProperty("transition");
+        statsBodyEl.style.opacity = "1";
     }
 
     $: {
         const key = $compareState.isComparing
             ? `c:${$compareState.buildB?.label ?? ""}`
             : "idle";
-        if (prevCompareKey !== "" && key !== prevCompareKey) {
+        if (mounted && key !== prevCompareKey) {
             animateContentChange();
         }
         prevCompareKey = key;
+        mounted = true;
     }
 
     $: {
@@ -515,6 +519,7 @@
             isOpen={shareMenuOpen}
             title={$t("common.share")}
             onClose={closeShareMenu}
+            anchorBelow
         >
             <Button on:click={(e) => openChildMenu(e, "image")} icon={ImageIcon} arrow="right">
                 {$t("statistics.shareImage")}
@@ -536,6 +541,7 @@
                 isOpen={true}
                 title={childMenuTitle}
                 onClose={closeChildMenu}
+                anchorBelow
             >
                 {#if childMenuType === "image"}
                     <Button on:click={handleCopyImage} icon={CopySimpleIcon}>
@@ -675,9 +681,6 @@
         justify-content: center;
         min-width: 44px;
         border: var(--border-width) solid var(--danger-border);
-        border-top: none;
-        border-bottom: none;
-        border-right: none;
         background: var(--danger-bg);
         color: var(--danger-text);
         cursor: pointer;
