@@ -1,4 +1,4 @@
-# What's New in v1.3.0
+# What's New in v1.3.1
 
 -# Changes since v1.2.3
 https://rgbp.app
@@ -15,12 +15,15 @@ Build planning is now much easier to compare and tune, with side-by-side stat co
 - Improved node readability with full skill names in the tree menu, thicker borders on important nodes, dashed borders on unique nodes, and new stun, ignore, and resistance icons that are more consistent and easier to read.
 - Refined the starfield background behind the tree tabs with smoother diagonal drift and lighter motion.
 - Refined the interface with bolder statistics styling, smoother menu motion, better anchored compare menus, larger close controls, and more consistent hover behavior.
+- Improved UI visuals for readability.
 
 ## Fixed
 
+- Fixed build comparison overriding personal build when swapping comparisons.
 - Fixed build comparison edge cases that could hide compare entry points, keep menus open, swap the wrong side effects into the UI, or show the wrong share labels while comparing.
 - Fixed overlays and screenshot capture so menus stay above HUD elements, side panels avoid horizontal overflow, recover cleanly from load failures, and exported images keep the right unique-node styling.
 - Fixed numeric input modals to reject non-numeric key presses instead of letting invalid characters slip in.
+- Fixed build comparison screenshot truncating build name.
 
 ---
 

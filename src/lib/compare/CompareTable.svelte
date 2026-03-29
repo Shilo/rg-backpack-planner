@@ -3,11 +3,11 @@
 </script>
 
 <script lang="ts">
-    import { getIndicator, type CompareSection } from "./compareStats";
     import { formatNumber, formatPercent, t } from "svelte-whisper";
-    import { showToast } from "../toast";
-    import { shareTextNative } from "../buildData/share";
     import appPackage from "../../../package.json";
+    import { shareTextNative } from "../buildData/share";
+    import { showToast } from "../toast";
+    import { getIndicator, type CompareSection } from "./compareStats";
 
     export let sections: CompareSection[] = [];
     export let activeSide: "a" | "b" = "a";
@@ -35,7 +35,13 @@
 
         // label and diffPart are kept separate so the diff can be right-aligned
         // within the label column at render time.
-        type Row = { label: string; diffPart: string; c1: string; c2: string; isSection: boolean };
+        type Row = {
+            label: string;
+            diffPart: string;
+            c1: string;
+            c2: string;
+            isSection: boolean;
+        };
         const rows: Row[] = [];
 
         for (let si = 0; si < _sections.length; si++) {
@@ -83,7 +89,9 @@
         const w0 = Math.max(
             3,
             ...rows.map((r) =>
-                r.diffPart ? r.label.length + 1 + r.diffPart.length : r.label.length,
+                r.diffPart
+                    ? r.label.length + 1 + r.diffPart.length
+                    : r.label.length,
             ),
         );
         const w1 = Math.max(3, ...rows.map((r) => r.c1.length));
@@ -165,17 +173,22 @@
                                 {#if section.header.icon}
                                     <svelte:component
                                         this={section.header.icon}
-                                        weight={section.header.iconWeight ?? "regular"}
+                                        weight={section.header.iconWeight ??
+                                            "regular"}
                                         size="1.2em"
                                     />
                                 {/if}
                                 {section.header.text}
                             </span>
-                            <span class="compare-table__header-label-text">{labelA}</span>
+                            <span class="compare-table__header-label-a"
+                                >{labelA}</span
+                            >
                         </div>
                     </td>
-                    <td class="compare-table__header-label compare-table__header-label--right">
-                        <span class="compare-table__header-label-text">{labelB}</span>
+                    <td class="compare-table__header-label-td">
+                        <span class="compare-table__header-label-b"
+                            >{labelB}</span
+                        >
                     </td>
                 {:else}
                     <td colspan="4">
@@ -183,7 +196,8 @@
                             {#if section.header.icon}
                                 <svelte:component
                                     this={section.header.icon}
-                                    weight={section.header.iconWeight ?? "regular"}
+                                    weight={section.header.iconWeight ??
+                                        "regular"}
                                     size="1.2em"
                                 />
                             {/if}
@@ -193,20 +207,33 @@
                 {/if}
             </tr>
             {#each section.rows as row}
-                {@const activeValue = activeSide === "a" ? row.valueA : row.valueB}
-                {@const referenceValue = activeSide === "a" ? row.valueB : row.valueA}
+                {@const activeValue =
+                    activeSide === "a" ? row.valueA : row.valueB}
+                {@const referenceValue =
+                    activeSide === "a" ? row.valueB : row.valueA}
                 {@const indicator = getIndicator(activeValue, referenceValue)}
                 {@const absDiff = Math.abs(row.valueA - row.valueB)}
-                {@const diffText = row.format === "percent" ? formatPercent(absDiff) : formatNumber(absDiff)}
+                {@const diffText =
+                    row.format === "percent"
+                        ? formatPercent(absDiff)
+                        : formatNumber(absDiff)}
                 <tr class="compare-table__row">
                     <td class="compare-table__label">{row.label}</td>
                     <td class="compare-table__indicator">
-                        {#if indicator === "higher"}<span class="compare-table__indicator-inner"><span>+{diffText}</span><span>▲</span></span>{:else if indicator === "lower"}<span class="compare-table__indicator-inner"><span>-{diffText}</span><span>▼</span></span>{:else}–{/if}
+                        {#if indicator === "higher"}<span
+                                class="compare-table__indicator-inner"
+                                ><span>+{diffText}</span><span>▲</span></span
+                            >{:else if indicator === "lower"}<span
+                                class="compare-table__indicator-inner"
+                                ><span>-{diffText}</span><span>▼</span></span
+                            >{:else}–{/if}
                     </td>
                     <td
                         class="compare-table__value-a"
-                        class:value-higher={activeSide === "a" && indicator === "higher"}
-                        class:value-lower={activeSide === "a" && indicator === "lower"}
+                        class:value-higher={activeSide === "a" &&
+                            indicator === "higher"}
+                        class:value-lower={activeSide === "a" &&
+                            indicator === "lower"}
                     >
                         {row.format === "percent"
                             ? formatPercent(row.valueA)
@@ -214,8 +241,10 @@
                     </td>
                     <td
                         class="compare-table__value-b"
-                        class:value-higher={activeSide === "b" && indicator === "higher"}
-                        class:value-lower={activeSide === "b" && indicator === "lower"}
+                        class:value-higher={activeSide === "b" &&
+                            indicator === "higher"}
+                        class:value-lower={activeSide === "b" &&
+                            indicator === "lower"}
                     >
                         {row.format === "percent"
                             ? formatPercent(row.valueB)
@@ -268,7 +297,8 @@
         flex: 0 0 auto;
     }
 
-    .compare-table__first-header-inner .compare-table__header-label-text {
+    /* labelA: fills colspan=3 minus the section name, truncates only when pushed */
+    .compare-table__header-label-a {
         flex: 1 1 0;
         min-width: 0;
         overflow: hidden;
@@ -281,25 +311,17 @@
         letter-spacing: initial;
     }
 
-    .compare-table__header-label {
+    /* labelB td: overflow:hidden removes it from min-content width calc so the data rows
+       set the column width; content is clipped to that width via the span inside */
+    .compare-table__header-label-td {
+        max-width: 0;
+        overflow: hidden;
         text-align: right;
-        font-size: var(--font-sm);
-        font-weight: var(--weight-semibold);
-        color: var(--text-disabled);
         vertical-align: middle;
     }
 
-    /* Active label: accent color + bold */
-    .active-a .compare-table__first-header-inner .compare-table__header-label-text {
-        color: var(--accent);
-    }
-
-    .active-b .compare-table__header-label--right .compare-table__header-label-text {
-        color: var(--accent);
-    }
-
-    /* Right label: truncate with ellipsis */
-    .compare-table__header-label--right .compare-table__header-label-text {
+    /* labelB: fills its td so truncation aligns exactly with the column divider */
+    .compare-table__header-label-b {
         display: block;
         width: 100%;
         overflow: hidden;
@@ -309,6 +331,14 @@
         font-weight: var(--weight-semibold);
         color: var(--text-disabled);
         letter-spacing: initial;
+    }
+
+    .active-a .compare-table__header-label-a {
+        color: var(--accent);
+    }
+
+    .active-b .compare-table__header-label-b {
+        color: var(--accent);
     }
 
     .compare-table__row td {
@@ -334,10 +364,10 @@
         gap: 0.25em;
     }
 
-
     .compare-table__value-a,
     .compare-table__value-b {
         width: 1px;
+        min-width: 6rem;
         white-space: nowrap;
         text-align: right;
         font-weight: var(--weight-bold);

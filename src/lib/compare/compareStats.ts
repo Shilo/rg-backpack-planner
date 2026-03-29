@@ -109,7 +109,7 @@ export function buildCompareSections(
         const frozenVal = frozenStats.skillBonuses.get(skillId) ?? 0;
         if (liveVal > 0 || frozenVal > 0) {
             bonusRows.push({
-                label: translate(`skills.${skillId}`),
+                label: translate(`skills.short.${skillId}`),
                 ...val(liveVal, frozenVal),
                 format: "percent",
             });

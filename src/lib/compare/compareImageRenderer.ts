@@ -281,11 +281,13 @@ export async function renderCompareImage(
         ctx.fillText(section.header.text.toUpperCase(), GAP, sectionMidY);
 
         if (isFirst) {
+            const sectionTextW = measureWidth(ctx, section.header.text.toUpperCase(), sectionFont);
+            const labelAMaxW = Math.max(0, valueARight - GAP - sectionTextW - GAP);
             ctx.font = colLabelFont;
             ctx.fillStyle = accentColor;
             ctx.textAlign = "right";
             ctx.fillText(
-                truncateText(ctx, data.labelA, colLabelFont, valueAColW),
+                truncateText(ctx, data.labelA, colLabelFont, labelAMaxW),
                 valueARight,
                 sectionMidY,
             );
