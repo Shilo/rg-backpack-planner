@@ -47,10 +47,10 @@ No changes. Single-column stats table via `CodeBlockTable`. Compare icon is mute
 1. **Compare icon turns accent color** to indicate active state.
 2. **Segmented toggle** appears above the stats card: active build name (left, highlighted) | reference build name (right, muted). Tapping the inactive side triggers `swapBuilds()`.
 3. **`CompareTable` replaces `CodeBlockTable`** — 4-column layout:
-   - Column 1: Label (skill name, tree name, etc.)
-   - Column 2: Indicator — `▲` green (active higher), `▼` red (active lower), `•` muted (equal)
-   - Column 3: Active build value (accent color)
-   - Column 4: Reference build value (secondary color, lower opacity)
+    - Column 1: Label (skill name, tree name, etc.)
+    - Column 2: Indicator — `▲` green (active higher), `▼` red (active lower), `•` muted (equal)
+    - Column 3: Active build value (accent color)
+    - Column 4: Reference build value (secondary color, lower opacity)
 4. **Section headers** (Backpack Bonus, Tech Crystals Spent, Node Levels) span all columns.
 5. **Tech Crystals Spent inverts indicator color** — spending more is `▲` red (cost is negative), spending less is `▼` green.
 
@@ -72,10 +72,11 @@ State:
 - `isComparing: boolean` — whether comparison mode is active
 - `referenceBuild: { trees: number[][], owned: number } | null` — decoded reference build data
 - `referenceLabel: string` — display name of the reference build
+- `referenceSource: "preset" | "preview" | "recommended" | null` — where the reference came from
 
 Actions:
 
-- `startCompare(buildData, name)` — sets `isComparing = true`, stores reference build data and label
+- `startCompare(buildData, name, source)` — sets `isComparing = true`, stores reference build data, label, and source
 - `stopCompare()` — sets `isComparing = false`, clears reference data
 - `swapBuilds(tabs)` — snapshots active, applies reference via `applyBuildData`, stores snapshot as new reference
 
@@ -113,13 +114,13 @@ These are called reactively in the statistics page when `referenceBuild` changes
 
 ### Indicator symbols and colors
 
-| Condition | Symbol | Color |
-|-----------|--------|-------|
-| Active higher (bonuses/levels) | ▲ | Green |
-| Active lower (bonuses/levels) | ▼ | Red |
-| Equal | • | Muted/gray |
-| Active higher (TC spent) | ▲ | Red (spending more is negative) |
-| Active lower (TC spent) | ▼ | Green (spending less is positive) |
+| Condition                      | Symbol | Color                             |
+| ------------------------------ | ------ | --------------------------------- |
+| Active higher (bonuses/levels) | ▲      | Green                             |
+| Active lower (bonuses/levels)  | ▼      | Red                               |
+| Equal                          | •      | Muted/gray                        |
+| Active higher (TC spent)       | ▲      | Red (spending more is negative)   |
+| Active lower (TC spent)        | ▼      | Green (spending less is positive) |
 
 ### Segmented toggle
 
@@ -133,16 +134,6 @@ These are called reactively in the statistics page when `referenceBuild` changes
 - Same size and style as the existing share icon button (20x20, muted color, no background)
 - Turns accent color when comparison is active
 - Position: to the left of the share icon in the section header
-
-### Auto-exit comparison
-
-Comparison mode automatically exits (`stopCompare()`) when:
-
-- The user switches to a different preset via `BuildPresetsButton`
-- The user exits preview mode (page reload)
-- The user loads a build from code into preview mode
-
-This prevents stale reference data from persisting across build context changes.
 
 ### Mobile considerations
 
