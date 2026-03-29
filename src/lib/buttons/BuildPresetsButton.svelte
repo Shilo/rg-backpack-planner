@@ -40,7 +40,7 @@
     import { t } from "svelte-whisper";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
-    import { decodeAndStartCompare, stopCompare, updateActiveSide } from "../compare/compareStore";
+    import { decodeAndStartCompare, stopCompare } from "../compare/compareStore";
     import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
 
     export let disabled: boolean | undefined = false;
@@ -151,7 +151,6 @@
         );
         if (!switchActivePreset(presetId, tabs)) return;
         const displayName = getDisplayPresetName(preset?.name ?? presetId);
-        updateActiveSide(displayName, { type: "preset", id: presetId });
         undoHistory.clearHistory(0);
         showToast(
             $t("buildPresets.viewingPresetToast", {
@@ -279,7 +278,6 @@
                             value === displayName ? defaultName : value;
                         const preset = addPreset(name, buildCode);
                         switchActivePreset(preset.id, tabs);
-                        updateActiveSide(getDisplayPresetName(name), { type: "preset", id: preset.id });
                         closePresetsMenu();
                     }
                 },

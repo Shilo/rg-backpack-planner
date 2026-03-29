@@ -3,11 +3,14 @@
     import Button from "./Button.svelte";
     import ButtonGroup from "./ButtonGroup.svelte";
     import { EyeSlashIcon, ScalesIcon } from "phosphor-svelte";
-    import { clearShareFromUrl } from "./buildData/url";
+    import { navigateToPersonalMode } from "./buildData/url";
     import TechCrystalsButton from "./buttons/TechCrystalsButton.svelte";
     import CloneBuildButton from "./buttons/CloneBuildButton.svelte";
-    import { queueStoppedPreviewToast } from "./toast";
+    import { showToast } from "./toast";
     import { previewBuildName } from "./previewBuildNameStore";
+    import { activePresetName } from "./buildPresetsStore";
+    import { getDisplayPresetName } from "./i18n";
+    import { truncateText } from "./stringUtil";
     import { t } from "svelte-whisper";
 
     /** Called when the compare button is clicked with the anchor position. */
@@ -22,19 +25,9 @@
     }
 
     function handleStopPreview() {
-        // Remove build data from URL and reload to switch to personal mode
-        // This ensures a clean state transition with proper initialization
-        if (typeof window !== "undefined") {
-            // Set a flag to show toast after reload
-            queueStoppedPreviewToast();
-
-            // Clear share data from URL, leaving only base path
-            // Use pushState to preserve share link in history for back button
-            clearShareFromUrl(false);
-
-            // Reload to re-initialize in personal mode
-            window.location.reload();
-        }
+        const name = truncateText(getDisplayPresetName($activePresetName));
+        navigateToPersonalMode();
+        showToast($t("preview.backToBuildToast", { name }));
     }
 </script>
 

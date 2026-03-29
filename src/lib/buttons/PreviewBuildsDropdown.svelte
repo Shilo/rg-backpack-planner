@@ -17,7 +17,6 @@
     import { toTitleCase } from "../stringUtil";
     import {
         decodeAndStartCompare,
-        updateActiveSide,
         type CompareBuildSource,
     } from "../compare/compareStore";
     import { mapRecommendedBuilds } from "../compare/compareStats";
@@ -31,12 +30,11 @@
     // Read recommended builds from the shared registry so loading and sharing stay in sync.
     $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
 
-    function handlePremadeClick(buildCode: string, name: string) {
+    function handlePremadeClick(buildCode: string) {
         onClose?.();
         const encoded = parseEncodedFromUserInput(buildCode);
         if (encoded) {
             navigateToEncodedBuild(encoded);
-            updateActiveSide(name, { type: "preview", encoded });
             onPreview?.();
         } else {
             showToast($t("preview.invalidBuildDataToast"), {
@@ -92,7 +90,7 @@
                               })
                             : undefined}
                         descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}
-                        on:click={() => handlePremadeClick(build.code, build.name)}
+                        on:click={() => handlePremadeClick(build.code)}
                     >
                         {build.index}. {build.name}
                     </Button>

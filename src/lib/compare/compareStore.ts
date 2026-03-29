@@ -1,4 +1,4 @@
-import { writable, get } from "svelte/store";
+import { writable, derived, get } from "svelte/store";
 import {
     encodeBuildData,
     decodeBuildData,
@@ -9,11 +9,14 @@ import { treeLevels } from "../treeLevelsStore";
 import { techCrystalsOwned } from "../techCrystalStore";
 import { switchActivePreset } from "../buildData/applier";
 import {
+    buildPresetsStore,
     activeBuildName,
     getActivePresetId,
     setActivePresetId,
 } from "../buildPresetsStore";
+import { getDisplayPresetName } from "../i18n";
 import { isPreviewMode } from "../previewModeStore";
+import { previewLoadCount } from "../previewBuildNameStore";
 import {
     getEncodedFromUrl,
     navigateToEncodedBuild,
@@ -50,6 +53,61 @@ const initialState: CompareState = {
 };
 
 export const compareState = writable<CompareState>(initialState);
+
+// Whenever the active build identity changes (preset switch, preview navigation, etc.),
+// keep the active side's label and source in sync automatically.
+// buildPresetsStore.active is included so same-named presets still trigger an update.
+derived(
+    [activeBuildName, isPreviewMode, derived(buildPresetsStore, ($s) => $s.active), previewLoadCount],
+    ([$label, $isPreview]) => ({ label: $label, isPreview: $isPreview }),
+).subscribe(({ label, isPreview }) => {
+    compareState.update((state) => {
+        if (!state.isComparing || !state.buildA || !state.buildB) return state;
+        const source: CompareBuildSource = isPreview
+            ? {
+                  type: "preview",
+                  encoded:
+                      getEncodedFromUrl() ??
+                      encodeBuildData({
+                          trees: get(treeLevels),
+                          owned: get(techCrystalsOwned),
+                      }),
+              }
+            : { type: "preset", id: getActivePresetId() };
+        const activeBuild = state.activeSide === "a" ? state.buildA : state.buildB;
+        if (activeBuild.label === label && sourcesEqual(activeBuild.source, source)) return state;
+        return state.activeSide === "a"
+            ? { ...state, buildA: { ...state.buildA, label, source } }
+            : { ...state, buildB: { ...state.buildB, label, source } };
+    });
+});
+
+// When the frozen side's preset is renamed or deleted, keep its label in sync
+// or stop the comparison if the preset no longer exists.
+buildPresetsStore.subscribe(($store) => {
+    compareState.update((state) => {
+        if (!state.isComparing || !state.buildA || !state.buildB) return state;
+        const frozenSide = state.activeSide === "a" ? "b" : "a";
+        const frozenBuild = frozenSide === "a" ? state.buildA : state.buildB;
+        const { source } = frozenBuild;
+        if (source.type !== "preset") return state;
+        const preset = $store.presets.find((p) => p.id === source.id);
+        if (!preset) return initialState; // frozen preset deleted — end comparison
+        const newLabel = getDisplayPresetName(preset.name);
+        if (frozenBuild.label === newLabel) return state;
+        const updated = { ...frozenBuild, label: newLabel };
+        return frozenSide === "a"
+            ? { ...state, buildA: updated }
+            : { ...state, buildB: updated };
+    });
+});
+
+function sourcesEqual(a: CompareBuildSource, b: CompareBuildSource): boolean {
+    if (a.type !== b.type) return false;
+    if (a.type === "preset" && b.type === "preset") return a.id === b.id;
+    if (a.type === "preview" && b.type === "preview") return a.encoded === b.encoded;
+    return false;
+}
 
 function startCompare(
     buildData: BuildData,
@@ -143,26 +201,6 @@ export function swapBuilds(trees: { nodes: Node[] }[]): void {
         // Personal → Preset: direct switch, no navigation needed
         switchActivePreset(targetSource.id, trees);
     }
-}
-
-/**
- * Updates the label and source of the currently active side without touching the frozen
- * reference. Call this when the active build changes outside of the comparison swap flow
- * (e.g. the user switches presets or navigates to a new preview build while comparing).
- * No-op if not currently comparing.
- */
-export function updateActiveSide(
-    label: string,
-    source: CompareBuildSource,
-): void {
-    compareState.update((state) => {
-        if (!state.isComparing || !state.buildA || !state.buildB) return state;
-        if (state.activeSide === "a") {
-            return { ...state, buildA: { ...state.buildA, label, source } };
-        } else {
-            return { ...state, buildB: { ...state.buildB, label, source } };
-        }
-    });
 }
 
 /**

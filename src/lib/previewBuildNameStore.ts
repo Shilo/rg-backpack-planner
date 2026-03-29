@@ -9,10 +9,17 @@ import { tr } from "svelte-whisper";
 export const previewBuildName = writable<string | null>(null);
 
 /**
+ * Increments on every preview build load, including same-named builds.
+ * Used as a change signal when the build name alone is insufficient.
+ */
+export const previewLoadCount = writable(0);
+
+/**
  * Sets the preview build name
  */
 export function setPreviewBuildName(name: string | null): void {
     previewBuildName.set(name);
+    previewLoadCount.update((n) => n + 1);
 }
 
 /**
@@ -20,6 +27,7 @@ export function setPreviewBuildName(name: string | null): void {
  */
 export function clearPreviewBuildName(): void {
     previewBuildName.set(null);
+    previewLoadCount.update((n) => n + 1);
 }
 
 /**
