@@ -137,6 +137,8 @@
         "showTier": "Show Tier Badge",
         "showLevelSplash": "Level-up Splash",
         "showSkillName": "Show Skill Name Badge",
+        "sound": "Sound Effects",
+        "soundDescription": "Adjust volume",
         "haptics": "Haptic Feedback",
         "textSize": "Font Size",
         "treeZoom": "Tree Zoom",

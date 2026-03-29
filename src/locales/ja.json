@@ -137,6 +137,8 @@
         "showTier": "ティアバッジを表示",
         "showLevelSplash": "レベルアップ演出",
         "showSkillName": "スキル名バッジを表示",
+        "sound": "サウンドエフェクト",
+        "soundDescription": "音量を調整",
         "haptics": "触覚フィードバック",
         "textSize": "フォントサイズ",
         "treeZoom": "ツリーズーム",

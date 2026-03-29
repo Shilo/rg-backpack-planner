@@ -137,6 +137,8 @@
         "showTier": "显示阶级徽章",
         "showLevelSplash": "升级特效",
         "showSkillName": "显示技能名称徽章",
+        "sound": "音效",
+        "soundDescription": "调整音量",
         "haptics": "触觉反馈",
         "textSize": "字体大小",
         "treeZoom": "技能树缩放",

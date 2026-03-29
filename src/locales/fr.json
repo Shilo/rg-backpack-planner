@@ -137,6 +137,8 @@
         "showTier": "Afficher le badge de palier",
         "showLevelSplash": "Animation de montée de niveau",
         "showSkillName": "Afficher le badge du nom de compétence",
+        "sound": "Effets sonores",
+        "soundDescription": "Régler le volume",
         "haptics": "Retour haptique",
         "textSize": "Taille de police",
         "treeZoom": "Zoom de l'arbre",
