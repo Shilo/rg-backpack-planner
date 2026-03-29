@@ -82,6 +82,11 @@ html.snapdom-capture .button.node:not(.node-hexagon) {
     border-style: solid !important;
 }
 
+/* Global nodes: 1.5x border to match the live UI */
+html.snapdom-capture .node-wrapper-global .button.node:not(.node-hexagon) {
+    border-width: 3px !important;
+}
+
 /* Unique nodes: dashed border at 1.5× width */
 html.snapdom-capture .node-wrapper-unique .button.node:not(.node-hexagon) {
     border-width: 3px !important;

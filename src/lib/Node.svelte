@@ -66,6 +66,7 @@
     $: isImportantNode =
         skillId != null &&
         (skillId.startsWith("global_") || skillId.startsWith("final_"));
+    $: isGlobalNode = skillId != null && skillId.startsWith("global_");
 
     let hovered = false;
 
@@ -185,7 +186,9 @@
         ? 'node-wrapper-hex'
         : ''} {isImportantNode ? 'node-wrapper-important' : ''} {isUnique
         ? 'node-wrapper-unique'
-        : ''} {cursorNotAllowed ? 'cursor-not-allowed' : ''}"
+        : ''} {isGlobalNode ? 'node-wrapper-global' : ''} {cursorNotAllowed
+        ? 'cursor-not-allowed'
+        : ''}"
     role="group"
     data-node-id={String(id)}
     style="left: {x - NODE_RADIUS_PX * radius}px; top: {y -
@@ -717,6 +720,10 @@
         --hex-fill: var(--bg-active);
         --hex-border-color: var(--border-color-active);
         --node-icon-color: var(--border-color-active);
+    }
+
+    .node-wrapper-global :global(.button.node:not(.node-hexagon)) {
+        border-width: calc(var(--border-width) * 1.5);
     }
 
     /* Unique (class-specific) nodes: dashed border to distinguish from common skills */
