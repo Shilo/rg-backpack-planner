@@ -21,7 +21,7 @@ const initialState: CompareState = {
 
 export const compareState = writable<CompareState>(initialState);
 
-export function startCompare(buildData: BuildData, name: string): void {
+function startCompare(buildData: BuildData, name: string): void {
     compareState.set({
         isComparing: true,
         referenceBuild: {

@@ -5,7 +5,6 @@
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
     import { buildPresetsStore } from "../buildPresetsStore";
-    import { decodeBuildData } from "../buildData/encoder";
     import { parseEncodedFromUserInput } from "../buildData/url";
     import { activeTabs } from "../techCrystalStore";
     import { showToast } from "../toast";
@@ -32,17 +31,7 @@
 
     $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
 
-    function handlePresetClick(buildCode: string, name: string) {
-        if (!decodeAndStartCompare(buildCode, name)) {
-            showToast($t("preview.invalidBuildDataToast"), {
-                tone: "negative",
-            });
-            return;
-        }
-        onClose?.();
-    }
-
-    function handleRecommendedClick(buildCode: string, name: string) {
+    function handleBuildClick(buildCode: string, name: string) {
         if (!decodeAndStartCompare(buildCode, name)) {
             showToast($t("preview.invalidBuildDataToast"), {
                 tone: "negative",
@@ -119,7 +108,7 @@
                             ? TechCrystalIcon
                             : null}
                         on:click={() =>
-                            handleRecommendedClick(build.code, build.name)}
+                            handleBuildClick(build.code, build.name)}
                     >
                         {build.index}. {build.name}
                     </Button>
@@ -133,7 +122,7 @@
                 {#each presets as preset}
                     <Button
                         on:click={() =>
-                            handlePresetClick(preset.buildCode, preset.name)}
+                            handleBuildClick(preset.buildCode, preset.name)}
                     >
                         {truncateText(preset.name)}
                     </Button>
