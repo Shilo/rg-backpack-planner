@@ -1,6 +1,6 @@
 import type { CompareSection } from "./compareStats";
 import { getIndicator } from "./compareStats";
-import { formatNumber } from "svelte-whisper";
+import { formatNumber, formatPercent } from "svelte-whisper";
 import { EXPORT_DPR, EXPORT_MIME } from "../buildImageExport/imageFormat";
 
 export type CompareImageData = {
@@ -76,7 +76,7 @@ function measureWidth(
 }
 
 function formatValue(value: number, format: "number" | "percent"): string {
-    return format === "percent" ? formatNumber(value, { style: "percent" }) : formatNumber(value);
+    return format === "percent" ? formatPercent(value) : formatNumber(value);
 }
 
 function getDiffText(

@@ -16,7 +16,7 @@
         XIcon,
     } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
-    import { formatNumber, t, locale } from "svelte-whisper";
+    import { formatNumber, formatPercent, t, locale } from "svelte-whisper";
     import {
         treeLevelsTotal,
         treeLevelsGuardian,
@@ -111,7 +111,7 @@
         for (const skillId of SKILL_DISPLAY_ORDER) {
             const value = $skillBonuses.get(skillId);
             if (value !== undefined && value > 0) {
-                bonusRows.push([$t(`skills.${skillId}`), formatNumber(value, { style: "percent" }, $locale)]);
+                bonusRows.push([$t(`skills.${skillId}`), formatPercent(value, 0, $locale)]);
             }
         }
 

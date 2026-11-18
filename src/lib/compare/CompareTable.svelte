@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-    import { formatNumber, t, locale } from "svelte-whisper";
+    import { formatNumber, formatPercent, t, locale } from "svelte-whisper";
     import appPackage from "../../../package.json";
     import { shareTextNative } from "../buildData/share";
     import { showToast } from "../toast";
@@ -61,7 +61,7 @@
                 const diff = Math.abs(row.valueA - row.valueB);
                 const diffText =
                     row.format === "percent"
-                        ? formatNumber(diff, { style: "percent" }, _locale)
+                        ? formatPercent(diff, 0, _locale)
                         : formatNumber(diff, undefined, _locale);
                 // diff value is to the left of the arrow icon
                 const diffPart =
@@ -75,11 +75,11 @@
                     diffPart,
                     c1:
                         row.format === "percent"
-                            ? formatNumber(row.valueA, { style: "percent" }, _locale)
+                            ? formatPercent(row.valueA, 0, _locale)
                             : formatNumber(row.valueA, undefined, _locale),
                     c2:
                         row.format === "percent"
-                            ? formatNumber(row.valueB, { style: "percent" }, _locale)
+                            ? formatPercent(row.valueB, 0, _locale)
                             : formatNumber(row.valueB, undefined, _locale),
                     isSection: false,
                 });
@@ -216,7 +216,7 @@
                 {@const absDiff = Math.abs(row.valueA - row.valueB)}
                 {@const diffText =
                     row.format === "percent"
-                        ? formatNumber(absDiff, { style: "percent" }, $locale)
+                        ? formatPercent(absDiff, 0, $locale)
                         : formatNumber(absDiff, undefined, $locale)}
                 <tr class="compare-table__row">
                     <td class="compare-table__label">{row.label}</td>
@@ -237,7 +237,7 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatNumber(row.valueA, { style: "percent" }, $locale)
+                            ? formatPercent(row.valueA, 0, $locale)
                             : formatNumber(row.valueA, undefined, $locale)}
                     </td>
                     <td
@@ -248,7 +248,7 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatNumber(row.valueB, { style: "percent" }, $locale)
+                            ? formatPercent(row.valueB, 0, $locale)
                             : formatNumber(row.valueB, undefined, $locale)}
                     </td>
                 </tr>

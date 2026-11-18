@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { t, formatNumber } from "svelte-whisper";
+import { t, formatNumber, formatPercent } from "svelte-whisper";
 import { techCrystalsSpent } from "../techCrystalStore";
 import { treeLevelsTotal } from "../treeLevelsStore";
 import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
@@ -27,7 +27,7 @@ export async function generateStatsImageBlob(): Promise<Blob | null> {
         if (value !== undefined && value > 0) {
             bonuses.push({
                 label: t(`skills.${skillId}`),
-                value: formatNumber(value, { style: "percent" }),
+                value: formatPercent(value),
             });
         }
     }
