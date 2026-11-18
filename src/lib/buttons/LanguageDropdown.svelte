@@ -3,7 +3,7 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { t, getLocale, setLocale, getLocales, detectLocale, localeName } from "svelte-whisper";
+    import { t, locale, getLocales, detectLocale, localeName } from "svelte-whisper";
     import { FALLBACK_LOCALE } from "../i18n";
 
     let dropdownButtonElement: HTMLButtonElement | null = null;
@@ -27,7 +27,7 @@
     }
 
     function handleLanguageSelect(localeCode: string) {
-        void setLocale(localeCode);
+        void locale.set(localeCode);
         isOpen = false;
     }
 
@@ -46,13 +46,13 @@
     >
         <div class="button-content">
             <div class="label-group">
-                <span class="label">{t("settings.languageLabel")}</span>
-                <span class="description">{t("settings.languageDescription")}</span>
+                <span class="label">{$t("settings.languageLabel")}</span>
+                <span class="description">{$t("settings.languageDescription")}</span>
             </div>
             <div class="divider"></div>
             <div class="value-container">
                 <span class="language-value"
-                    >{localeName(getLocale())}</span
+                    >{localeName($locale)}</span
                 >
             </div>
         </div>
@@ -64,7 +64,7 @@
         {x}
         {y}
         {isOpen}
-        title={t("settings.languageLabel")}
+        title={$t("settings.languageLabel")}
         onClose={closeDropdown}
         anchorBelow
     >
@@ -72,10 +72,10 @@
             {#if preferredLocale}
                 <Button
                     on:click={() => handleLanguageSelect(preferredLocale)}
-                    class={getLocale() === preferredLocale
+                    class={$locale === preferredLocale
                         ? "selected-language"
                         : ""}
-                    icon={getLocale() === preferredLocale ? CheckIcon : null}
+                    icon={$locale === preferredLocale ? CheckIcon : null}
                 >
                     {localeName(preferredLocale)}
                 </Button>
@@ -87,10 +87,10 @@
                 {#if showFallback}
                     <Button
                         on:click={() => handleLanguageSelect(FALLBACK_LOCALE)}
-                        class={getLocale() === FALLBACK_LOCALE
+                        class={$locale === FALLBACK_LOCALE
                             ? "selected-language"
                             : ""}
-                        icon={getLocale() === FALLBACK_LOCALE
+                        icon={$locale === FALLBACK_LOCALE
                             ? CheckIcon
                             : null}
                     >
@@ -99,7 +99,7 @@
                 {/if}
 
                 {#each otherLocales as localeCode}
-                    {@const isSelected = getLocale() === localeCode}
+                    {@const isSelected = $locale === localeCode}
                     <Button
                         on:click={() => handleLanguageSelect(localeCode)}
                         class={isSelected ? "selected-language" : ""}

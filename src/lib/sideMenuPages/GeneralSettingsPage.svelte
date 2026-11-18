@@ -46,11 +46,11 @@
     function handleResetSettings() {
         openModal({
             type: "confirm",
-            title: t("modal.resetSettings.title"),
+            title: $t("modal.resetSettings.title"),
             titleIcon: ClockCounterClockwiseIcon as unknown as Component,
-            message: t("modal.resetSettings.message"),
-            confirmLabel: t("modal.resetSettings.confirmLabel"),
-            cancelLabel: t("common.cancel"),
+            message: $t("modal.resetSettings.message"),
+            confirmLabel: $t("modal.resetSettings.confirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 nodePrimaryAction.resetToDefault();
@@ -71,7 +71,7 @@
                 reduceMotion.resetToDefault();
                 void resetLocale();
 
-                showToast(t("modal.resetSettings.toast"));
+                showToast($t("modal.resetSettings.toast"));
                 onClose?.();
             },
         });
@@ -103,11 +103,11 @@
     function handleClearAllData() {
         openModal({
             type: "confirm",
-            title: t("modal.clearAllData.title"),
+            title: $t("modal.clearAllData.title"),
             titleIcon: TrashSimpleIcon as unknown as Component,
-            message: t("modal.clearAllData.message"),
-            confirmLabel: t("modal.clearAllData.confirmLabel"),
-            cancelLabel: t("common.cancel"),
+            message: $t("modal.clearAllData.message"),
+            confirmLabel: $t("modal.clearAllData.confirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 clearAll();
@@ -117,23 +117,23 @@
     }
 </script>
 
-<SettingsPage title={t("settings.pages.general")} {onBack}>
-    <SideMenuSection title={t("sideMenu.sections.accessibility")}>
+<SettingsPage title={$t("settings.pages.general")} {onBack}>
+    <SideMenuSection title={$t("sideMenu.sections.accessibility")}>
         <LanguageDropdown />
         <SliderSetting
-            label={t("settings.sound")}
-            ariaLabel={t("settings.sound")}
-            description={t("settings.soundDescription")}
+            label={$t("settings.sound")}
+            ariaLabel={$t("settings.sound")}
+            description={$t("settings.soundDescription")}
             icon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
             value={$soundMuted ? 0 : $soundVolume}
             min={0}
             max={100}
             step={5}
             defaultNotchIndex={10}
-            formatValue={(v) => $soundMuted ? t("settings.soundMuted") : `${v}%`}
+            formatValue={(v) => $soundMuted ? $t("settings.soundMuted") : `${v}%`}
             resetIcon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
             resetAriaLabel={$soundMuted ? "Unmute" : "Mute"}
-            shortcut={getKeyboardActionLabel("toggleMute", t)}
+            shortcut={getKeyboardActionLabel("toggleMute", $t)}
             onReset={() => soundMuted.set(!$soundMuted)}
             onChange={(v) => {
                 soundVolume.set(v);
@@ -143,23 +143,23 @@
         />
         <ToggleSwitch
             checked={$hapticsEnabled}
-            label={t("settings.haptics")}
-            ariaLabel={t("settings.haptics")}
-            description={t("settings.hapticsDescription")}
+            label={$t("settings.haptics")}
+            ariaLabel={$t("settings.haptics")}
+            description={$t("settings.hapticsDescription")}
             icon={VibrateIcon as unknown as Component}
             onToggle={() => hapticsEnabled.set(!$hapticsEnabled)}
         />
         <ToggleSwitch
             checked={$reduceMotion}
-            label={t("settings.reduceMotion")}
-            ariaLabel={t("settings.reduceMotion")}
-            description={t("settings.reduceMotionDescription")}
+            label={$t("settings.reduceMotion")}
+            ariaLabel={$t("settings.reduceMotion")}
+            description={$t("settings.reduceMotionDescription")}
             icon={WaveformSlashIcon as unknown as Component}
             onToggle={() => reduceMotion.set(!$reduceMotion)}
         />
     </SideMenuSection>
 
-    <SideMenuSection title={t("sideMenu.sections.application")}>
+    <SideMenuSection title={$t("sideMenu.sections.application")}>
         <FullscreenToggle />
         <InstallPwaButton title={true} />
         <Button
@@ -167,42 +167,42 @@
                 showOnboarding();
                 onClose?.();
             }}
-            description={t("onboarding.showTutorialDescription")}
+            description={$t("onboarding.showTutorialDescription")}
             icon={BookOpenTextIcon}
         >
-            {t("controls.tutorial")}
+            {$t("controls.tutorial")}
         </Button>
         <Button
             on:click={handleReloadWindow}
-            description={t("settings.reloadWindowDescription")}
+            description={$t("settings.reloadWindowDescription")}
             icon={ArrowClockwiseIcon}
         >
-            {t("settings.reloadWindow")}
+            {$t("settings.reloadWindow")}
         </Button>
     </SideMenuSection>
 
     <svelte:fragment slot="dangerZone">
         <div class="danger-zone">
             <div class="danger-zone-separator"></div>
-            <h3 class="danger-zone-label">{t("settings.storage")}</h3>
+            <h3 class="danger-zone-label">{$t("settings.storage")}</h3>
             <div class="danger-zone-content">
                 <Button
                     on:click={handleResetSettings}
-                    description={t("settings.resetSettingsDescription")}
+                    description={$t("settings.resetSettingsDescription")}
                     icon={ClockCounterClockwiseIcon}
                     arrow="right"
                     negative
                 >
-                    {t("settings.resetSettings")}
+                    {$t("settings.resetSettings")}
                 </Button>
                 <Button
                     on:click={handleClearAllData}
-                    description={t("settings.clearAllDataDescription")}
+                    description={$t("settings.clearAllDataDescription")}
                     icon={TrashSimpleIcon}
                     arrow="right"
                     negative
                 >
-                    {t("settings.clearAllData")}
+                    {$t("settings.clearAllData")}
                 </Button>
             </div>
         </div>

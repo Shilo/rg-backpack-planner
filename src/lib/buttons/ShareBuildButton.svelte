@@ -22,7 +22,6 @@
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
     import { t } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
     import { shareTooltip, type BuildSubject } from "../buildSubject";
     import { getKeyboardActionLabel } from "../input";
     import { isPreviewMode } from "../previewModeStore";
@@ -50,14 +49,8 @@
     let linkMenuAction: "share" | "copy" | null = null;
     let recommendedShareChoices: RecommendedShareUrlChoice[] | null = null;
     let shareButtonElement: HTMLButtonElement | null = null;
-    let resolvedMenuTitle = "";
-    watch(() => {
-        resolvedMenuTitle = menuTitle || t("share.buildButton");
-    });
-    let resolvedButtonTitle = "";
-    watch(() => {
-        resolvedButtonTitle = title ?? t("share.buildButton");
-    });
+    $: resolvedMenuTitle = menuTitle || $t("share.buildButton");
+    $: resolvedButtonTitle = title ?? $t("share.buildButton");
 
     // Use active preset name as default if buildName not provided
     $: effectiveBuildName = buildName ?? $activePresetName;
@@ -134,7 +127,7 @@
 
         closeShareMenu();
         const effectiveTitle =
-            shareTitle ?? resolvedButtonTitle ?? t("share.defaultShareTitle");
+            shareTitle ?? resolvedButtonTitle ?? $t("share.defaultShareTitle");
         const result = await shareBuildUrlNative({
             buildName: effectiveBuildName,
             title: effectiveTitle,
@@ -143,9 +136,9 @@
         });
 
         if (result === "copied") {
-            showToast(t("share.fallbackCopiedToast"));
+            showToast($t("share.fallbackCopiedToast"));
         } else if (result === "failed") {
-            showToast(t("share.shareFailedToast"), { tone: "negative" });
+            showToast($t("share.shareFailedToast"), { tone: "negative" });
         }
     }
 
@@ -160,9 +153,9 @@
             buildData ?? undefined,
         );
         if (success) {
-            showToast(t("share.shareLinkCopiedToast"));
+            showToast($t("share.shareLinkCopiedToast"));
         } else {
-            showToast(t("share.unableToCopyLinkToast"), { tone: "negative" });
+            showToast($t("share.unableToCopyLinkToast"), { tone: "negative" });
         }
     }
 
@@ -176,7 +169,7 @@
             const effectiveTitle =
                 shareTitle ??
                 resolvedButtonTitle ??
-                t("share.defaultShareTitle");
+                $t("share.defaultShareTitle");
             const result = await shareUrlNative({
                 url: choice.url,
                 title: effectiveTitle,
@@ -184,9 +177,9 @@
             });
 
             if (result === "copied") {
-                showToast(t("share.fallbackCopiedToast"));
+                showToast($t("share.fallbackCopiedToast"));
             } else if (result === "failed") {
-                showToast(t("share.shareFailedToast"), {
+                showToast($t("share.shareFailedToast"), {
                     tone: "negative",
                 });
             }
@@ -195,9 +188,9 @@
 
         const success = await copyShareUrl(choice.url);
         if (success) {
-            showToast(t("share.shareLinkCopiedToast"));
+            showToast($t("share.shareLinkCopiedToast"));
         } else {
-            showToast(t("share.unableToCopyLinkToast"), { tone: "negative" });
+            showToast($t("share.unableToCopyLinkToast"), { tone: "negative" });
         }
     }
 </script>
@@ -205,7 +198,7 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={description ? undefined : shareTooltip(subject)}
+    tooltipText={description ? undefined : shareTooltip(subject, $t)}
     {description}
     icon={ShareIcon}
     arrow="down"
@@ -226,32 +219,32 @@
         {#if showShareToApp}
             <Button
                 on:click={handleShareToApp}
-                tooltipText={t("share.shareViaAppsTooltip")}
+                tooltipText={$t("share.shareViaAppsTooltip")}
                 icon={ShareIcon}
                 arrow="right"
             >
-                {t("share.shareTo")}
+                {$t("share.shareTo")}
             </Button>
         {/if}
         {#if showCopyLink}
             <Button
                 on:click={handleCopyLink}
-                tooltipText={t("share.copyLinkTooltip")}
+                tooltipText={$t("share.copyLinkTooltip")}
                 icon={LinkSimpleIcon}
                 arrow={recommendedShareChoices ? "right" : undefined}
             >
-                {t("share.copyLink")}
+                {$t("share.copyLink")}
             </Button>
         {/if}
         {#if showScreenshot}
             <Button
                 on:click={handleComposeScreenshot}
-                tooltipText={t("share.copyScreenshotTooltip")}
-                shortcut={getKeyboardActionLabel("screenshot", t)}
+                tooltipText={$t("share.copyScreenshotTooltip")}
+                shortcut={getKeyboardActionLabel("screenshot", $t)}
                 icon={ImageIcon}
                 arrow="right"
             >
-                {t("share.copyScreenshot")}
+                {$t("share.copyScreenshot")}
             </Button>
         {/if}
     </ContextMenu>
@@ -265,8 +258,8 @@
             isOpen={true}
             title={
                 linkMenuAction === "copy"
-                    ? t("share.copyLink")
-                    : t("share.shareLinkMenuTitle")
+                    ? $t("share.copyLink")
+                    : $t("share.shareLinkMenuTitle")
             }
             onClose={closeLinkMenu}
             anchorBelow
@@ -283,8 +276,8 @@
                     }
                 >
                     {choice.id === "full"
-                        ? t("share.fullUrlChoice")
-                        : t("share.shortUrlChoice")}
+                        ? $t("share.fullUrlChoice")
+                        : $t("share.shortUrlChoice")}
                 </Button>
             {/each}
         </ContextMenu>

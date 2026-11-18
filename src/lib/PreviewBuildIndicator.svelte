@@ -11,7 +11,6 @@
     import { portal } from "./portal";
     import { truncateText } from "./stringUtil";
     import { t } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
 
     let buttonElement: HTMLButtonElement | null = null;
     let menuOpen = false;
@@ -49,31 +48,22 @@
         menuOpen = false;
     }
 
-    let menuTitle = "";
-    watch(() => {
-        menuTitle = t("preview.buildTitle", {
-            name: getPreviewTitle($previewBuildName),
-        });
+    $: menuTitle = $t("preview.buildTitle", {
+        name: getPreviewTitle($previewBuildName),
     });
     $: showIndicator =
         $isPreviewMode || (!$isPreviewMode && !!devIndicatorState);
-    let indicatorTitle = "";
-    watch(() => {
-        indicatorTitle = $isPreviewMode
-            ? t("preview.title")
-            : (devIndicatorState?.title ?? "");
-    });
+    $: indicatorTitle = $isPreviewMode
+        ? $t("preview.title")
+        : (devIndicatorState?.title ?? "");
     $: indicatorDetail = $isPreviewMode
         ? $previewRecommendedBuild
             ? `${$previewRecommendedBuild.index}. ${$previewBuildName ?? $previewRecommendedBuild.displayName}`
             : $previewBuildName
         : (devIndicatorState?.detail ?? null);
-    let indicatorTooltip = "";
-    watch(() => {
-        indicatorTooltip = $isPreviewMode
-            ? t("contextMenu.previewBuildOptions")
-            : (devIndicatorState?.tooltip ?? "");
-    });
+    $: indicatorTooltip = $isPreviewMode
+        ? $t("contextMenu.previewBuildOptions")
+        : (devIndicatorState?.tooltip ?? "");
 
     usePlaywrightIndicator((value) => {
         devIndicatorState = value;
@@ -107,7 +97,7 @@
                 y={menuY}
                 isOpen={menuOpen}
                 title={menuTitle}
-                ariaLabel={t("contextMenu.previewBuildOptions")}
+                ariaLabel={$t("contextMenu.previewBuildOptions")}
                 onClose={closeMenu}
                 anchorBelow
             >

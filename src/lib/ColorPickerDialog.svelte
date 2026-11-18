@@ -12,7 +12,6 @@
     } from "./useBackdropTextEntryDismiss";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
     import { isKeyboardAction } from "./input";
 
     export let isOpen = false;
@@ -27,6 +26,7 @@
     let isEditingHex = false;
     let wasOpen = false;
     let previewDark = true;
+    let translate = $t;
 
     // Pointer tracking
     let gridEl: HTMLDivElement | null = null;
@@ -66,11 +66,17 @@
         { max: 360, key: "theme.colorNames.red" },
     ];
 
-    function getColorName(hue: number): string {
+    function getColorName(
+        hue: number,
+        translate: (
+            key: string,
+            vars?: Record<string, unknown> | unknown[],
+        ) => string,
+    ): string {
         for (const entry of HUE_NAMES) {
-            if (hue <= entry.max) return t(entry.key);
+            if (hue <= entry.max) return translate(entry.key);
         }
-        return t("theme.colorNames.red");
+        return translate("theme.colorNames.red");
     }
 
     // ── Grid data ──
@@ -85,10 +91,11 @@
     // ── Accent lightness for current preview mode ──
     $: accentL = previewDark ? 0.7 : 0.45;
     $: previewHex = oklchToHex(selectedL, c, h);
-    let colorName = "";
-    watch(() => {
-        colorName = c < 0.015 ? t("theme.colorNames.gray") : getColorName(h);
-    });
+    $: translate = $t;
+    $: colorName =
+        c < 0.015
+            ? translate("theme.colorNames.gray")
+            : getColorName(h, translate);
 
     // Sync hex input when h/c change (but not during manual editing)
     // Strip '#' prefix — display only the 6-char hex value
@@ -383,7 +390,7 @@
                         </div>
                         <div class="hex-group">
                             <span class="hex-label"
-                                >{t("theme.colorPicker.hexLabel")}</span
+                                >{$t("theme.colorPicker.hexLabel")}</span
                             >
                             <input
                                 id="picker-hex-input"
@@ -433,10 +440,10 @@
                         </div>
                         <div class="actions-right">
                             <Button on:click={handleCancel}>
-                                {t("theme.colorPicker.cancel")}
+                                {$t("theme.colorPicker.cancel")}
                             </Button>
                             <Button positive on:click={handleApply}>
-                                {t("theme.colorPicker.apply")}
+                                {$t("theme.colorPicker.apply")}
                             </Button>
                         </div>
                     </div>

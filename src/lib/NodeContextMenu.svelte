@@ -14,8 +14,7 @@
     import ProgressBar from "./ProgressBar.svelte";
     import Button from "./Button.svelte";
     import { TechCrystalIcon } from "./customIcons";
-    import { formatNumber } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
+    import { formatNumber, t, locale } from "svelte-whisper";
     import { tierSize, nextTierTargetLevel, previousTierTargetLevel } from "./tierLeveling";
     import { GLOBAL_LEVELED_LEAF_NODE_CAP } from "./globalLeafCap";
     import type {
@@ -26,7 +25,6 @@
     } from "../types/tree";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import { getSkillLevelInfo } from "../config/skillMetadata";
-    import { t } from "svelte-whisper";
     import { getContext } from "svelte";
     import type { Writable } from "svelte/store";
     import { computeTotalCost } from "./nodeActionPreview";
@@ -55,10 +53,14 @@
     const treeData =
         getContext<Writable<{ nodes: Node[]; levels: LevelsByIndex }>>("tree");
 
-    function formatBonusValue(v: number): string {
-        if (v === 0) return "0";
-        if (Number.isInteger(v)) return formatNumber(v);
-        return formatNumber(v, { maximumSignificantDigits: 3 });
+    // Whole percentages in full, others to three significant digits.
+    function formatBonusPercent(fraction: number, locale: string): string {
+        const whole = Number.isInteger(Math.round(fraction * 1e6) / 1e4);
+        return formatNumber(
+            fraction,
+            { style: "percent", ...(whole ? {} : { maximumSignificantDigits: 3 }) },
+            locale,
+        );
     }
 
     function parseDescription(text: string): string {
@@ -186,21 +188,15 @@
         level === 0 &&
         isGlobalIncrementLocked;
 
-    let mouse!: ReturnType<typeof getDeviceInputLabels>;
-    watch(() => {
-        mouse = getDeviceInputLabels("mouse", t);
-    });
+    $: mouse = getDeviceInputLabels("mouse", $t);
 
     // Ctrl + Shift + Left Click (conventional order: Ctrl before Shift)
-    let reverseAlternatePrimary = "";
-    watch(() => {
-        reverseAlternatePrimary = (() => {
-            const sep = t("input.modifierSeparator");
-            return getModifierLabel("alternate", t) + sep
-                + getModifierLabel("reverse", t) + sep
-                + getButtonLabel("primary", "mouse", t);
-        })();
-    });
+    $: reverseAlternatePrimary = (() => {
+        const sep = $t("input.modifierSeparator");
+        return getModifierLabel("alternate", $t) + sep
+            + getModifierLabel("reverse", $t) + sep
+            + getButtonLabel("primary", "mouse", $t);
+    })();
 
     $: incrementOneShortcut = $nodePrimaryAction === NodePrimaryAction.IncrementOne
         ? mouse.primary
@@ -236,7 +232,7 @@
     y={menuY}
     {isOpen}
     title=""
-    ariaLabel={skillId ? t(`skills.${skillId}`) : "Node"}
+    ariaLabel={skillId ? $t(`skills.${skillId}`) : "Node"}
     {onClose}
     anchorAbove={true}
     stableTop
@@ -251,21 +247,17 @@
             {/if}
             <div class="info-header-text">
                 <span class="skill-name"
-                    >{skillId ? t(`skills.${skillId}`) : "Node"}</span
+                    >{skillId ? $t(`skills.${skillId}`) : "Node"}</span
                 >
                 {#if levelInfo}
                     <div class="bonus-display">
                         <span class="bonus-current"
-                            >{formatBonusValue(
-                                levelInfo.totalValue * 100,
-                            )}%</span
+                            >{formatBonusPercent(levelInfo.totalValue, $locale)}</span
                         >
                         {#if levelInfo.nextTotalValue !== null}
                             <span class="bonus-arrow">→</span>
                             <span class="bonus-next"
-                                >{formatBonusValue(
-                                    levelInfo.nextTotalValue * 100,
-                                )}%</span
+                                >{formatBonusPercent(levelInfo.nextTotalValue, $locale)}</span
                             >
                         {/if}
                     </div>
@@ -279,30 +271,30 @@
                     <Warning weight="bold" />
                 </div>
                 <span class="warning-text">
-                    {t("nodeMenu.leveledLeafCapWarning", {
+                    {$t("nodeMenu.leveledLeafCapWarning", {
                         count: GLOBAL_LEVELED_LEAF_NODE_CAP,
-                        cap: formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP),
+                        cap: formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP, undefined, $locale),
                     })}
                 </span>
             </div>
         {/if}
 
-        {#if skillId && t(`skillsDesc.${skillId}`)}
+        {#if skillId && $t(`skillsDesc.${skillId}`)}
             <div class="skill-desc">
-                {@html parseDescription(t(`skillsDesc.${skillId}`))}
+                {@html parseDescription($t(`skillsDesc.${skillId}`))}
             </div>
         {/if}
 
         <div class="meta-row">
             <div class="meta-item">
-                <span class="meta-label">{t("nodeMenu.level")}</span>
+                <span class="meta-label">{$t("nodeMenu.level")}</span>
                 <span class="meta-value"
-                    >{formatNumber(level)}<span class="meta-sep">/</span
-                    >{formatNumber(maxLevel)}</span
+                    >{formatNumber(level, undefined, $locale)}<span class="meta-sep">/</span
+                    >{formatNumber(maxLevel, undefined, $locale)}</span
                 >
             </div>
             <div class="meta-item">
-                <span class="meta-label">{t("nodeMenu.tier")}</span>
+                <span class="meta-label">{$t("nodeMenu.tier")}</span>
                 <span class="meta-value"
                     >{completedTiers}<span class="meta-sep">/</span
                     >{totalTiers}</span
@@ -316,7 +308,7 @@
             {#if !isSingleLevel}
                 <NodeContextButton
                     icon={CaretUpIcon}
-                    label={t("nodeMenu.incrementOne")}
+                    label={$t("nodeMenu.incrementOne")}
                     shortcut={incrementOneShortcut}
                     crystalValue={actionCosts?.increment1 ?? null}
                     positive
@@ -330,7 +322,7 @@
                 />
                 <NodeContextButton
                     icon={CaretDoubleUpIcon}
-                    label={t("nodeMenu.incrementTen")}
+                    label={$t("nodeMenu.incrementTen")}
                     shortcut={incrementTenShortcut}
                     crystalValue={actionCosts?.increment10 ?? null}
                     positive
@@ -346,8 +338,8 @@
             <NodeContextButton
                 icon={CaretLineUpIcon}
                 label={tierTargetLevel >= maxLevel
-                    ? t("nodeMenu.max")
-                    : t("nodeMenu.incrementTier")}
+                    ? $t("nodeMenu.max")
+                    : $t("nodeMenu.incrementTier")}
                 shortcut={incrementTierShortcut}
                 crystalValue={actionCosts?.incrementTier ?? null}
                 positive
@@ -362,7 +354,7 @@
             {#if !isSingleLevel}
                 <NodeContextButton
                     icon={CaretDownIcon}
-                    label={t("nodeMenu.decrementOne")}
+                    label={$t("nodeMenu.decrementOne")}
                     shortcut={decrementOneShortcut}
                     crystalValue={actionCosts?.decrement1 ?? null}
                     negative
@@ -374,7 +366,7 @@
                 />
                 <NodeContextButton
                     icon={CaretDoubleDownIcon}
-                    label={t("nodeMenu.decrementTen")}
+                    label={$t("nodeMenu.decrementTen")}
                     shortcut={decrementTenShortcut}
                     crystalValue={actionCosts?.decrement10 ?? null}
                     negative
@@ -388,8 +380,8 @@
             <NodeContextButton
                 icon={decrementTierIsReset ? ArrowCounterClockwiseIcon : CaretLineDownIcon}
                 label={decrementTierIsReset
-                    ? t("nodeMenu.reset")
-                    : t("nodeMenu.decrementTier")}
+                    ? $t("nodeMenu.reset")
+                    : $t("nodeMenu.decrementTier")}
                 shortcut={decrementTierShortcut}
                 crystalValue={actionCosts?.decrementTier ?? null}
                 negative
@@ -409,13 +401,13 @@
                 iconSize={16}
                 disabled={nodeIndex === null || level <= 0}
                 toastMessage={nodeIndex !== null && onReset
-                    ? t("nodeMenu.resetToast")
+                    ? $t("nodeMenu.resetToast")
                     : undefined}
                 on:click={() => {
                     if (nodeIndex !== null && onReset) onReset(nodeIndex);
                 }}
             >
-                {t("nodeMenu.reset")}{#if actionCosts?.reset != null}<span class="reset-crystal"><TechCrystalIcon weight="fill" size={12} aria-hidden={true} /> +{formatNumber(actionCosts.reset)}</span>{/if}
+                {$t("nodeMenu.reset")}{#if actionCosts?.reset != null}<span class="reset-crystal"><TechCrystalIcon weight="fill" size={12} aria-hidden={true} /> +{formatNumber(actionCosts.reset, undefined, $locale)}</span>{/if}
             </Button>
         {/if}
     </div>

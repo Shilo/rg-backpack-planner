@@ -22,8 +22,8 @@
     <TabBar {tabs} {activeTab} {onTabChange} />
     <button
         class="bottom-nav-bar__close-button"
-        aria-label={t("common.close")}
-        use:tooltip={buildShortcutTooltip(t("common.close"), getKeyboardActionLabel("dismiss", t))}
+        aria-label={$t("common.close")}
+        use:tooltip={buildShortcutTooltip($t("common.close"), getKeyboardActionLabel("dismiss", $t))}
         on:click={handleCloseClick}
         type="button"
     >

@@ -1,4 +1,4 @@
-import { init, registerLoader, t } from "svelte-whisper";
+import { init, registerLoader, t, type Translate } from "svelte-whisper";
 import { prefixKey } from "./storage";
 
 export const FALLBACK_LOCALE = "en";
@@ -13,27 +13,28 @@ export async function initializeI18n(): Promise<void> {
     });
 }
 
-export function getDisplayPresetName(name: string): string {
+/** Components without runes pass `$t` as `translate` so the name follows a language switch. */
+export function getDisplayPresetName(name: string, translate: Translate = t): string {
     const trimmed = name.trim();
 
     if (trimmed === "Default") {
-        return t("buildPresets.generated.default");
+        return translate("buildPresets.generated.default");
     }
     if (trimmed === "New") {
-        return t("buildPresets.generated.new");
+        return translate("buildPresets.generated.new");
     }
     if (trimmed === "Clone") {
-        return t("common.clone");
+        return translate("common.clone");
     }
 
     const newCount = trimmed.match(/^New\s+(\d+)$/i);
     if (newCount) {
-        return t("buildPresets.generated.newCount", { count: newCount[1] });
+        return translate("buildPresets.generated.newCount", { count: newCount[1] });
     }
 
     const cloneCount = trimmed.match(/^Clone\s+(\d+)$/i);
     if (cloneCount) {
-        return t("buildPresets.generated.cloneCount", { count: cloneCount[1] });
+        return translate("buildPresets.generated.cloneCount", { count: cloneCount[1] });
     }
 
     return name;

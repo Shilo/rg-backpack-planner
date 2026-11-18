@@ -15,8 +15,7 @@
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
     import { isFormField, hasOnboardingOverlay } from "./lib/domUtil";
-    import { t, getLocale } from "svelte-whisper";
-    import { watch } from "./lib/watch.svelte";
+    import { t, locale } from "svelte-whisper";
     import {
         treeLevels,
         setTreeLevels,
@@ -128,42 +127,34 @@
 
     const tabsForInit: TabConfig[] = baseTabs.map((tab) => ({
         ...tab,
-        label: t(`trees.${tab.id}`),
+        label: $t(`trees.${tab.id}`),
     }));
     initTechCrystalTrees(tabsForInit);
 
     let tabs: TabConfig[] = tabsForInit;
-    watch(() => {
-        tabs = baseTabs.map((tab) => ({
-            ...tab,
-            label: t(`trees.${tab.id}`),
-        }));
-    });
+    $: tabs = baseTabs.map((tab) => ({
+        ...tab,
+        label: $t(`trees.${tab.id}`),
+    }));
     $: if (!activeTreeName && tabs.length > 0) {
         activeTreeName = tabs[0].label;
     }
 
-    let appName = "";
-    let gameName = "";
-    watch(() => {
-        appName = t("app.name");
-        gameName = t("app.gameName");
-    });
+    $: appName = $t("app.name");
+    $: gameName = $t("app.gameName");
     $: appVersion = getCurrentVersion();
     $: appVersionLabel = appVersion === "unknown" ? "" : `v${appVersion}`;
-    let appTitle = "";
-    watch(() => {
-        appTitle = appVersionLabel.length > 0
-                ? t("app.titleFullWithVersion", {
-                      appName,
-                      gameName,
-                      version: appVersionLabel,
-                  })
-                : t("app.titleFull", {
-                      appName,
-                      gameName,
-                  });
-    });
+    $: appTitle =
+        appVersionLabel.length > 0
+            ? $t("app.titleFullWithVersion", {
+                  appName,
+                  gameName,
+                  version: appVersionLabel,
+              })
+            : $t("app.titleFull", {
+                  appName,
+                  gameName,
+              });
     $: if (typeof document !== "undefined") {
         document.title = appTitle;
     }
@@ -436,7 +427,7 @@
                 window.history.replaceState({}, "", basePath);
                 didNormalizeShareUrl = true;
                 // Show toast to inform user
-                showToastDelayed(t("preview.invalidShareLinkToast"), {
+                showToastDelayed($t("preview.invalidShareLinkToast"), {
                     tone: "negative",
                 });
             }
@@ -468,7 +459,7 @@
                     const title = getPreviewTitle(get(previewBuildName));
                     closeTransientUiForPreview();
                     showToastDelayed(
-                        t("preview.viewingBuildToast", {
+                        $t("preview.viewingBuildToast", {
                             name: title,
                         }),
                     );
@@ -482,7 +473,7 @@
                     window.history.replaceState({}, "", basePath);
                     didNormalizeShareUrl = true;
                 }
-                showToastDelayed(t("preview.invalidShareLinkToast"), {
+                showToastDelayed($t("preview.invalidShareLinkToast"), {
                     tone: "negative",
                 });
             }
@@ -713,7 +704,7 @@
                 markVersionAsSeen();
                 if (shouldShowUpdatedToast) {
                     showToastDelayed(
-                        t("toast.updatedVersionToast", {
+                        $t("toast.updatedVersionToast", {
                             version: getCurrentVersion(),
                         }),
                     );
@@ -751,7 +742,7 @@
 </script>
 
 <div
-    class="app app-shell locale-{getLocale()}"
+    class="app app-shell locale-{$locale || 'en'}"
     class:menu-open={isMenuOpen}
     role="application"
     use:useInputStore
@@ -815,7 +806,7 @@
     </div>
     <main class="app-main">
         <h1 class="visually-hidden">
-            {t("app.titleFull", { appName, gameName })}
+            {$t("app.titleFull", { appName, gameName })}
         </h1>
         <TreeTabs
             bind:this={tabsRef}

@@ -37,10 +37,11 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 
 ## Localization
 
-- i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`. Use `t("key", vars)` everywhere: markup, scripts and `.ts` modules. There is no `$t`, `tr()` or `$locale`; read the locale with `getLocale()` and switch with `setLocale()`.
-- Legacy-mode components: a `$:` statement does not re-run when the locale changes, because it only tracks the variables it names. Call `t()` in markup, or wrap the statement in `watch()` from `src/lib/watch.svelte.ts`.
+- i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`. `tr()` and `formatPercent()` no longer exist.
+- Components without runes (`export let`, `$:`), which is most of `src/lib/`: Svelte only follows stores there, so write `$t("key", vars)` and `$locale` (`$locale = id` or `locale.set(id)` to switch), and pass the locale to formatters: `formatNumber(n, options, $locale)`. A helper that translates or formats takes `$t` or `$locale` as an argument (`getDisplayPresetName(name, $t)`, `formatByteSize(bytes, $locale)`), otherwise its result goes stale after a language switch.
+- Runes components and `.ts` modules use the functions: `t("key")`, `getLocale()`, `setLocale(id)`, `formatNumber(n)`.
 - One sentence, one key: never join translated fragments. Use a plural group (`{ "one": …, "other": … }` selected by a numeric `count`) wherever a count is shown.
-- Format numbers in UI text with `formatNumber(value, intlOptions)`, never `toLocaleString()` or `toFixed()`.
+- Format numbers in UI text with `formatNumber`, never `toLocaleString()`, `toFixed()` or a hand-appended `%` (use `{ style: "percent" }`).
 - After changing `en.json`, translate with the `whisper-translate` skill (rules in `src/locales/TRANSLATING.md`) and confirm `npx svelte-whisper check --usage src` passes.
 
 ## Design

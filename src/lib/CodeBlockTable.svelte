@@ -3,7 +3,6 @@
     import { shareTextNative } from "./buildData/share";
     import appPackage from "../../package.json";
     import { t } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
 
     export let rows: Array<
         [string | { text: string; icon?: any; iconWeight?: string }, string]
@@ -33,10 +32,7 @@
         return widths;
     };
 
-    let resolvedEmptyMessage = "";
-    watch(() => {
-        resolvedEmptyMessage = emptyMessage || t("statistics.noData");
-    });
+    $: resolvedEmptyMessage = emptyMessage || $t("statistics.noData");
     $: displayRows = rows.length > 0 ? rows : [[resolvedEmptyMessage, ""]];
     $: firstSectionIndex = label
         ? displayRows.findIndex(([, second]) => second === "")
@@ -75,23 +71,17 @@
             ? [...markdownRows, dividerRow].join("\n")
             : dividerRow;
     const backpackIcon = "🎒";
-    let localizedAppName = "";
-    watch(() => {
-        localizedAppName = t("app.name");
-    });
+    $: localizedAppName = $t("app.name");
     $: codeblockTitle = appProductionUrl
         ? `[${localizedAppName}](${appProductionUrl})`
         : localizedAppName;
-    let codeblockHeader = "";
-    watch(() => {
-        codeblockHeader = `### ${backpackIcon} ${codeblockTitle} ${t("statistics.header")}`;
-    });
+    $: codeblockHeader = `### ${backpackIcon} ${codeblockTitle} ${$t("statistics.header")}`;
     $: codeblockText = `${codeblockHeader}\n\`\`\`\n${markdownTable}\n\`\`\``;
 
     async function copyCodeblock() {
         try {
             await navigator.clipboard.writeText(codeblockText);
-            showToast(t("toast.copied"));
+            showToast($t("toast.copied"));
         } catch (error) {
             const fallback = document.createElement("textarea");
             fallback.value = codeblockText;
@@ -103,9 +93,9 @@
             const copied = document.execCommand("copy");
             document.body.removeChild(fallback);
             if (copied) {
-                showToast(t("toast.copied"));
+                showToast($t("toast.copied"));
             } else {
-                showToast(t("toast.unableToCopy"), { tone: "negative" });
+                showToast($t("toast.unableToCopy"), { tone: "negative" });
             }
         }
     }
@@ -117,9 +107,9 @@
     export async function share() {
         const result = await shareTextNative(codeblockText);
         if (result === "copied") {
-            showToast(t("share.fallbackCopiedToast"));
+            showToast($t("share.fallbackCopiedToast"));
         } else if (result === "failed") {
-            showToast(t("share.shareFailedToast"), { tone: "negative" });
+            showToast($t("share.shareFailedToast"), { tone: "negative" });
         }
     }
 </script>

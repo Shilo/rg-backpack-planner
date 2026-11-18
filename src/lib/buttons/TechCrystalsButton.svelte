@@ -1,7 +1,7 @@
 <script lang="ts">
     import { TechCrystalIcon } from "../customIcons";
     import Button from "../Button.svelte";
-    import { formatNumber, t } from "svelte-whisper";
+    import { formatNumber, t, locale } from "svelte-whisper";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
     import { changeOwnedTooltip, type BuildSubject } from "../buildSubject";
     import {
@@ -29,7 +29,7 @@
     on:click={() => {
         openTechCrystalsOwnedModal(owned, subject, activeTreeIndex);
     }}
-    tooltipText={changeOwnedTooltip(subject)}
+    tooltipText={changeOwnedTooltip(subject, $t)}
     icon={TechCrystalIcon}
     iconClass="button-icon button-icon-filled"
     iconWeight="fill"
@@ -38,18 +38,18 @@
 >
     <span class="tc-layout">
         <span class="tc-header">
-            <span class="tc-title">{t("techCrystals.spentLabel")}</span>
-            <span class="tc-hint">{t("techCrystals.budgetHint")}</span>
+            <span class="tc-title">{$t("techCrystals.spentLabel")}</span>
+            <span class="tc-hint">{$t("techCrystals.budgetHint")}</span>
         </span>
         <span class="tc-values">
             <span
                 class="tech-crystals-spent"
                 class:is-negative={spent > owned && hasOwned}
             >
-                {formatNumber(spent)}
+                {formatNumber(spent, undefined, $locale)}
             </span>
             <span class="tech-crystals-separator"> / </span>
-            <span class="tech-crystals-owned">{formatNumber(owned)}</span>
+            <span class="tech-crystals-owned">{formatNumber(owned, undefined, $locale)}</span>
         </span>
     </span>
 </Button>

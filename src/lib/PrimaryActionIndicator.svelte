@@ -15,7 +15,6 @@
     } from "./nodePrimaryActionStore";
     import { triggerHaptic } from "./hapticsStore";
     import { t } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
     import {
         getInputLabel,
         getKeyboardActionLabel,
@@ -82,25 +81,16 @@
     ];
 
     $: icon = effective.icon;
-    let label = "";
-    watch(() => {
-        label = t(effective.labelKey);
-    });
-    let shortcutKey = "";
-    watch(() => {
-        shortcutKey = getKeyboardActionLabel("cyclePrimaryAction", t);
-    });
+    $: label = $t(effective.labelKey);
+    $: shortcutKey = getKeyboardActionLabel("cyclePrimaryAction", $t);
 
-    let settingLabel = "";
-    watch(() => {
-        settingLabel = t("settings.nodePrimaryActionTitle", {
-            primaryAction: getInputLabel(
-                "primary",
-                null,
-                $touchPrimary ? "touch" : "mouse",
-                t,
-            ),
-        });
+    $: settingLabel = $t("settings.nodePrimaryActionTitle", {
+        primaryAction: getInputLabel(
+            "primary",
+            null,
+            $touchPrimary ? "touch" : "mouse",
+            $t,
+        ),
     });
 
     $: ariaLabel = `${settingLabel}: ${label}`;

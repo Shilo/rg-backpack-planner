@@ -24,14 +24,14 @@
 
     async function handleToggleFullscreen() {
         if (!fullscreenSupported) {
-            showToast(t("fullscreen.unsupportedToast"));
+            showToast($t("fullscreen.unsupportedToast"));
             return;
         }
 
         const success = await toggleFullscreen();
 
         if (!success) {
-            showToast(t("fullscreen.failedToast"), {
+            showToast($t("fullscreen.failedToast"), {
                 tone: "negative",
             });
         }
@@ -68,18 +68,18 @@
             ? CornersInIcon
             : CornersOutIcon) as unknown as Component}
         tooltipText={isFullscreen
-            ? t("fullscreen.exitTooltip")
-            : t("fullscreen.enterTooltip")}
-        shortcut={getKeyboardActionLabel("fullscreen", t)}
+            ? $t("fullscreen.exitTooltip")
+            : $t("fullscreen.enterTooltip")}
+        shortcut={getKeyboardActionLabel("fullscreen", $t)}
         flashOnAction="fullscreen"
         on:click={handleToggleFullscreen}
     />
 {:else}
     <ToggleSwitch
         checked={isFullscreen}
-        label={t("fullscreen.label")}
+        label={$t("fullscreen.label")}
         ariaLabel="Toggle fullscreen mode"
-        description={t("settings.fullscreenDescription")}
+        description={$t("settings.fullscreenDescription")}
         icon={CornersOutIcon as unknown as Component}
         onToggle={handleToggleFullscreen}
     />

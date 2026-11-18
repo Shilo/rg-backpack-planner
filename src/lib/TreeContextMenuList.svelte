@@ -9,8 +9,7 @@
     import type { Node, LevelsByIndex } from "../types/tree";
     import type { TreeBranchKey } from "./treeLevelsStore";
     import { techCrystalsSpentByTree } from "./techCrystalStore";
-    import { formatNumber } from "svelte-whisper";
-    import { t } from "svelte-whisper";
+    import { formatNumber, t, locale } from "svelte-whisper";
 
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import type { SkillId } from "../types/tree";
@@ -124,10 +123,14 @@
         });
     })();
 
-    function formatBonusValue(v: number): string {
-        if (v === 0) return "0";
-        if (Number.isInteger(v)) return formatNumber(v);
-        return formatNumber(v, { maximumSignificantDigits: 3 });
+    // Whole percentages in full, others to three significant digits.
+    function formatBonusPercent(fraction: number, locale: string): string {
+        const whole = Number.isInteger(Math.round(fraction * 1e6) / 1e4);
+        return formatNumber(
+            fraction,
+            { style: "percent", ...(whole ? {} : { maximumSignificantDigits: 3 }) },
+            locale,
+        );
     }
 </script>
 
@@ -138,16 +141,14 @@
         </div>
         <div class="info-header-text">
             <span class="skill-name"
-                >{t("trees.named", { label: tabLabel })}</span
+                >{$t("trees.named", { label: tabLabel })}</span
             >
             <div class="bonus-display">
                 <span class="bonus-icon"
                     ><TechCrystalIcon size={14} weight="fill" /></span
                 >
                 <span class="bonus-current">
-                    {formatNumber(techCrystalsSpent)} / {formatNumber(
-                        totalTechCrystalsSpent,
-                    )}
+                    {formatNumber(techCrystalsSpent, undefined, $locale)} / {formatNumber(totalTechCrystalsSpent, undefined, $locale)}
                 </span>
             </div>
         </div>
@@ -161,10 +162,10 @@
                         <svelte:component this={skill.icon} />
                     </span>
                     <span class="meta-label"
-                        >{t(`skills.${skill.id}`)}</span
+                        >{$t(`skills.${skill.id}`)}</span
                     >
                     <span class="meta-value">
-                        {formatBonusValue(skill.currentValue * 100)}%
+                        {formatBonusPercent(skill.currentValue, $locale)}
                     </span>
                 </div>
             {/each}
@@ -174,14 +175,14 @@
     <div class="tree-stats">
         <div class="meta-row">
             <div class="meta-item">
-                <span class="meta-label">{t("nodeMenu.level")}</span>
+                <span class="meta-label">{$t("nodeMenu.level")}</span>
                 <span class="meta-value"
-                    >{formatNumber(currentLevel)}<span class="meta-sep">/</span
-                    >{formatNumber(maxLevel)}</span
+                    >{formatNumber(currentLevel, undefined, $locale)}<span class="meta-sep">/</span
+                    >{formatNumber(maxLevel, undefined, $locale)}</span
                 >
             </div>
             <div class="meta-item">
-                <span class="meta-label">{t("nodeMenu.tier")}</span>
+                <span class="meta-label">{$t("nodeMenu.tier")}</span>
                 <span class="meta-value"
                     >{treeTierInfo.completed}<span class="meta-sep">/</span
                     >{treeTierInfo.total}</span

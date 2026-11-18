@@ -1,9 +1,8 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { t } from "svelte-whisper";
+    import { t, formatNumber, locale } from "svelte-whisper";
     import { TextTIcon } from "phosphor-svelte";
     import SliderSetting from "./SliderSetting.svelte";
-    import { formatNumber } from "svelte-whisper";
     import {
         textSize,
         isTextSizeNotchIndex,
@@ -13,10 +12,9 @@
         getTextSizeScale,
     } from "./textSizeStore";
 
-    function formatTextSizeLabel(notchIndex: number): string {
-        const scale = getTextSizeScale(notchIndex);
-        return formatNumber(scale) + "x";
-    }
+    // Reactive, so SliderSetting receives a new formatter when the locale changes.
+    $: formatTextSizeLabel = (notchIndex: number): string =>
+        formatNumber(getTextSizeScale(notchIndex), undefined, $locale) + "x";
 
     function handleTextSizeChange(notchIndex: number) {
         if (!isTextSizeNotchIndex(notchIndex)) return;
@@ -25,8 +23,8 @@
 </script>
 
 <SliderSetting
-    label={t("settings.textSize")}
-    ariaLabel={t("settings.textSize")}
+    label={$t("settings.textSize")}
+    ariaLabel={$t("settings.textSize")}
     icon={TextTIcon as unknown as Component}
     min={TEXT_SIZE_NOTCH_MIN}
     max={TEXT_SIZE_NOTCH_MAX}
@@ -35,5 +33,5 @@
     defaultNotchIndex={DEFAULT_TEXT_SIZE_NOTCH}
     formatValue={formatTextSizeLabel}
     onChange={handleTextSizeChange}
-    description={t("settings.textSizeDescription")}
+    description={$t("settings.textSizeDescription")}
 />

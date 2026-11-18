@@ -6,7 +6,6 @@
     import type { ResetTreeChoiceConfig } from "../modalStore";
     import type { ResetTreeChoiceId } from "../resetTreeChoiceModel";
     import { t } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
 
     export let title = "";
     export let sheetIcon: Component | null = null;
@@ -16,10 +15,7 @@
     export let onConfirm: ((value: ResetTreeChoiceId) => void) | null = null;
     export let onCancel: (() => void) | null = null;
 
-    let resolvedCancelLabel = "";
-    watch(() => {
-        resolvedCancelLabel = cancelLabel || t("modal.cancelLabel");
-    });
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
     $: sheetChoices = choices.map((c): ActionSheetChoice => ({
         id: c.id,
         label: c.label,

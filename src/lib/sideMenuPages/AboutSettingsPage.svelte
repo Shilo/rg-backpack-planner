@@ -18,7 +18,6 @@
     import { getCurrentVersion } from "../latestUsedVersionStore";
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { t } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
 
     export let onBack: (() => void) | null = null;
     export let onClose: (() => void) | null = null;
@@ -59,14 +58,8 @@
         onAboutScrollHandled?.();
     }
 
-    let appName = "";
-    watch(() => {
-        appName = t("app.name");
-    });
-    let appDescription = "";
-    watch(() => {
-        appDescription = t("app.description");
-    });
+    $: appName = $t("app.name");
+    $: appDescription = $t("app.description");
     $: versionLabel = version === "unknown" ? "" : version;
     $: if (aboutScrollTarget === null) {
         handledAboutScrollTarget = null;
@@ -80,7 +73,7 @@
     }
 </script>
 
-<SettingsPage title={t("settings.pages.about")} {onBack} advancedTitle={t("settings.systemInformation")} advancedIcon={WrenchIcon} onAdvancedOpen={() => { advancedOpened = true; }}>
+<SettingsPage title={$t("settings.pages.about")} {onBack} advancedTitle={$t("settings.systemInformation")} advancedIcon={WrenchIcon} onAdvancedOpen={() => { advancedOpened = true; }}>
     <div class="about-card">
         <div class="about-app-row">
             <span class="about-app-icon" aria-hidden="true">
@@ -96,7 +89,7 @@
         {#if versionLabel}
             <div class="about-info-row">
                 <span class="about-info-label"
-                    >{t("settings.aboutVersion")}</span
+                    >{$t("settings.aboutVersion")}</span
                 >
                 <span class="about-info-value">{versionLabel}</span>
             </div>
@@ -107,7 +100,7 @@
         {#if authorUrl && authorName}
             <SettingsLinkItem
                 icon={UserIcon}
-                label={t("settings.aboutAuthor")}
+                label={$t("settings.aboutAuthor")}
                 value={authorName}
                 external
                 onClick={() => openUrl(authorUrl)}
@@ -116,7 +109,7 @@
         {#if sourceUrl}
             <SettingsLinkItem
                 icon={GithubLogoIcon}
-                label={t("settings.aboutSourceCode")}
+                label={$t("settings.aboutSourceCode")}
                 value="GitHub"
                 external
                 onClick={() => openUrl(sourceUrl)}
@@ -125,7 +118,7 @@
         {#if gameUrl && gameName}
             <SettingsLinkItem
                 icon={GameControllerIcon}
-                label={t("settings.aboutGame")}
+                label={$t("settings.aboutGame")}
                 value={gameName}
                 external
                 onClick={() => openUrl(gameUrl)}
@@ -135,18 +128,18 @@
 
     <Button
         on:click={handleTutorial}
-        description={t("onboarding.showTutorialDescription")}
+        description={$t("onboarding.showTutorialDescription")}
         icon={BookOpenTextIcon}
     >
-        {t("controls.tutorial")}
+        {$t("controls.tutorial")}
     </Button>
 
     <div bind:this={gameRulesSectionElement}>
-        <Accordion title={t("sideMenu.sections.instructions")} icon={InfoIcon} isOpen>
+        <Accordion title={$t("sideMenu.sections.instructions")} icon={InfoIcon} isOpen>
             {#each [0, 1, 2, 3, 4] as i}
                 <div class="rule-row">
                     <span class="rule-number">{i + 1}</span>
-                    <span class="rule-text">{t(`trees.rules.${i}`)}</span>
+                    <span class="rule-text">{$t(`trees.rules.${i}`)}</span>
                 </div>
             {/each}
         </Accordion>

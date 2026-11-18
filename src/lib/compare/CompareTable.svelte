@@ -3,8 +3,7 @@
 </script>
 
 <script lang="ts">
-    import { formatNumber, t } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
+    import { formatNumber, t, locale } from "svelte-whisper";
     import appPackage from "../../../package.json";
     import { shareTextNative } from "../buildData/share";
     import { showToast } from "../toast";
@@ -19,23 +18,18 @@
         | string
         | undefined;
 
-    let localizedAppName = "";
-    watch(() => {
-        localizedAppName = t("app.name");
-    });
+    $: localizedAppName = $t("app.name");
     $: codeblockTitle = appProductionUrl
         ? `[${localizedAppName}](${appProductionUrl})`
         : localizedAppName;
-    let codeblockHeader = "";
-    watch(() => {
-        codeblockHeader = `### 🎒 ${codeblockTitle} ${t("statistics.header")}`;
-    });
+    $: codeblockHeader = `### 🎒 ${codeblockTitle} ${$t("statistics.header")}`;
 
     function buildCompareText(
         _sections: CompareSection[],
         _activeSide: "a" | "b",
         _labelA: string,
         _labelB: string,
+        _locale: string,
     ): string {
         const normalize = (v: string) =>
             v.replace(/\r?\n/g, " ").replace(/\|/g, "\\|").trim();
@@ -67,8 +61,8 @@
                 const diff = Math.abs(row.valueA - row.valueB);
                 const diffText =
                     row.format === "percent"
-                        ? formatNumber(diff, { style: "percent" })
-                        : formatNumber(diff);
+                        ? formatNumber(diff, { style: "percent" }, _locale)
+                        : formatNumber(diff, undefined, _locale);
                 // diff value is to the left of the arrow icon
                 const diffPart =
                     indicator === "higher"
@@ -81,12 +75,12 @@
                     diffPart,
                     c1:
                         row.format === "percent"
-                            ? formatNumber(row.valueA, { style: "percent" })
-                            : formatNumber(row.valueA),
+                            ? formatNumber(row.valueA, { style: "percent" }, _locale)
+                            : formatNumber(row.valueA, undefined, _locale),
                     c2:
                         row.format === "percent"
-                            ? formatNumber(row.valueB, { style: "percent" })
-                            : formatNumber(row.valueB),
+                            ? formatNumber(row.valueB, { style: "percent" }, _locale)
+                            : formatNumber(row.valueB, undefined, _locale),
                     isSection: false,
                 });
             }
@@ -129,14 +123,14 @@
         return lines.join("\n");
     }
 
-    $: compareText = buildCompareText(sections, activeSide, labelA, labelB);
+    $: compareText = buildCompareText(sections, activeSide, labelA, labelB, $locale);
 
     $: codeblockFull = `${codeblockHeader}\n\`\`\`\n${compareText}\n\`\`\``;
 
     export async function copy(): Promise<void> {
         try {
             await navigator.clipboard.writeText(codeblockFull);
-            showToast(t("toast.copied"));
+            showToast($t("toast.copied"));
         } catch {
             const fallback = document.createElement("textarea");
             fallback.value = codeblockFull;
@@ -148,9 +142,9 @@
             const copied = document.execCommand("copy");
             document.body.removeChild(fallback);
             if (copied) {
-                showToast(t("toast.copied"));
+                showToast($t("toast.copied"));
             } else {
-                showToast(t("toast.unableToCopy"), { tone: "negative" });
+                showToast($t("toast.unableToCopy"), { tone: "negative" });
             }
         }
     }
@@ -158,9 +152,9 @@
     export async function share(): Promise<void> {
         const result = await shareTextNative(codeblockFull);
         if (result === "copied") {
-            showToast(t("share.fallbackCopiedToast"));
+            showToast($t("share.fallbackCopiedToast"));
         } else if (result === "failed") {
-            showToast(t("share.shareFailedToast"), { tone: "negative" });
+            showToast($t("share.shareFailedToast"), { tone: "negative" });
         }
     }
 </script>
@@ -222,8 +216,8 @@
                 {@const absDiff = Math.abs(row.valueA - row.valueB)}
                 {@const diffText =
                     row.format === "percent"
-                        ? formatNumber(absDiff, { style: "percent" })
-                        : formatNumber(absDiff)}
+                        ? formatNumber(absDiff, { style: "percent" }, $locale)
+                        : formatNumber(absDiff, undefined, $locale)}
                 <tr class="compare-table__row">
                     <td class="compare-table__label">{row.label}</td>
                     <td class="compare-table__indicator">
@@ -243,8 +237,8 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatNumber(row.valueA, { style: "percent" })
-                            : formatNumber(row.valueA)}
+                            ? formatNumber(row.valueA, { style: "percent" }, $locale)
+                            : formatNumber(row.valueA, undefined, $locale)}
                     </td>
                     <td
                         class="compare-table__value-b"
@@ -254,8 +248,8 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatNumber(row.valueB, { style: "percent" })
-                            : formatNumber(row.valueB)}
+                            ? formatNumber(row.valueB, { style: "percent" }, $locale)
+                            : formatNumber(row.valueB, undefined, $locale)}
                     </td>
                 </tr>
             {/each}

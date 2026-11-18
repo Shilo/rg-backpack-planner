@@ -16,7 +16,6 @@
     import FullscreenModal from "./FullscreenModal.svelte";
     import ImageViewer from "./ImageViewer.svelte";
     import type { TabBarItem } from "./TabBar.svelte";
-    import type { FabMenuAction } from "./FabMenu.svelte";
     import { showToast } from "./toast";
     import {
         copyImageBlobToClipboard,
@@ -30,8 +29,7 @@
         createComposeImageFilename,
         createComposeImageFilenameSuffix,
     } from "./composeFilename";
-    import { formatNumber, t } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
+    import { formatNumber, t, locale } from "svelte-whisper";
     import { get } from "svelte/store";
     import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
     import {
@@ -72,25 +70,23 @@ export let onClose: (() => void) | null = null;
     let imageNaturalHeight = 0;
 
     let tabs: TabBarItem[] = [];
-    watch(() => {
-        tabs = [
-            {
-                id: "all",
-                label: "",
-                icon: SquaresFourIcon,
-                tooltip: t("compose.tabs.all"),
-            },
-            {
-                id: "stats",
-                label: "",
-                icon: ChartBarIcon,
-                tooltip: t("compose.tabs.stats"),
-            },
-            { id: "guardian", label: t("trees.guardian"), icon: GuardianIcon },
-            { id: "vanguard", label: t("trees.vanguard"), icon: VanguardIcon },
-            { id: "cannon", label: t("trees.cannon"), icon: CannonIcon },
-        ];
-    });
+    $: tabs = [
+        {
+            id: "all",
+            label: "",
+            icon: SquaresFourIcon,
+            tooltip: $t("compose.tabs.all"),
+        },
+        {
+            id: "stats",
+            label: "",
+            icon: ChartBarIcon,
+            tooltip: $t("compose.tabs.stats"),
+        },
+        { id: "guardian", label: $t("trees.guardian"), icon: GuardianIcon },
+        { id: "vanguard", label: $t("trees.vanguard"), icon: VanguardIcon },
+        { id: "cannon", label: $t("trees.cannon"), icon: CannonIcon },
+    ];
 
     $: currentBlob =
         activeTab === "stats"
@@ -129,24 +125,24 @@ export let onClose: (() => void) | null = null;
                 ? {
                       treeCards: [
                           {
-                              title: t("trees.guardian"),
+                              title: $t("trees.guardian"),
                               techCrystalsSpent:
                                   $techCrystalsSpentGuardian > 0
-                                      ? formatNumber($techCrystalsSpentGuardian)
+                                      ? formatNumber($techCrystalsSpentGuardian, undefined, $locale)
                                       : undefined,
                           },
                           {
-                              title: t("trees.vanguard"),
+                              title: $t("trees.vanguard"),
                               techCrystalsSpent:
                                   $techCrystalsSpentVanguard > 0
-                                      ? formatNumber($techCrystalsSpentVanguard)
+                                      ? formatNumber($techCrystalsSpentVanguard, undefined, $locale)
                                       : undefined,
                           },
                           {
-                              title: t("trees.cannon"),
+                              title: $t("trees.cannon"),
                               techCrystalsSpent:
                                   $techCrystalsSpentCannon > 0
-                                      ? formatNumber($techCrystalsSpentCannon)
+                                      ? formatNumber($techCrystalsSpentCannon, undefined, $locale)
                                       : undefined,
                           },
                       ] as const,
@@ -157,7 +153,7 @@ export let onClose: (() => void) | null = null;
                                   : undefined,
                           techCrystalsSpent:
                               $techCrystalsSpent > 0
-                                  ? formatNumber($techCrystalsSpent)
+                                  ? formatNumber($techCrystalsSpent, undefined, $locale)
                                   : undefined,
                       },
                   }
@@ -167,13 +163,13 @@ export let onClose: (() => void) | null = null;
                 combinedBlob = result.combined;
                 [guardianBlob, vanguardBlob, cannonBlob] = result.trees;
             } else {
-                showToast(t("compose.captureErrorToast"), {
+                showToast($t("compose.captureErrorToast"), {
                     tone: "negative",
                 });
             }
         } catch (error) {
             console.error("Failed to capture tree images:", error);
-            showToast(t("compose.captureErrorToast"), {
+            showToast($t("compose.captureErrorToast"), {
                 tone: "negative",
             });
         } finally {
@@ -221,13 +217,13 @@ export let onClose: (() => void) | null = null;
             );
             statsBlob = await generateStatsImageBlob();
             if (!statsBlob) {
-                showToast(t("compose.statsErrorToast"), {
+                showToast($t("compose.statsErrorToast"), {
                     tone: "negative",
                 });
             }
         } catch (error) {
             console.error("Failed to generate stats image:", error);
-            showToast(t("compose.statsErrorToast"), {
+            showToast($t("compose.statsErrorToast"), {
                 tone: "negative",
             });
         } finally {
@@ -260,45 +256,42 @@ export let onClose: (() => void) | null = null;
         );
     }
 
-    let composeFabActions: FabMenuAction[] = [];
-    watch(() => {
-        composeFabActions = [
-            {
-                id: "view",
-                label: t("compose.viewInBrowser"),
-                icon: ArrowSquareOutIcon,
-                onClick: handleViewInBrowser,
-                disabled: isCurrentTabLoading,
-            },
-            {
-                id: "copy",
-                label: t("common.copy"),
-                icon: CopySimpleIcon,
-                onClick: handleCopy,
-                disabled: isCurrentTabLoading,
-            },
-            {
-                id: "download",
-                label: t("common.download"),
-                icon: DownloadSimpleIcon,
-                onClick: handleDownload,
-                disabled: isCurrentTabLoading,
-            },
-            {
-                id: "share",
-                label: t("share.shareTo"),
-                icon: ShareIcon,
-                onClick: handleShare,
-                disabled: isCurrentTabLoading,
-            },
-        ];
-    });
+    $: composeFabActions = [
+        {
+            id: "view",
+            label: $t("compose.viewInBrowser"),
+            icon: ArrowSquareOutIcon,
+            onClick: handleViewInBrowser,
+            disabled: isCurrentTabLoading,
+        },
+        {
+            id: "copy",
+            label: $t("common.copy"),
+            icon: CopySimpleIcon,
+            onClick: handleCopy,
+            disabled: isCurrentTabLoading,
+        },
+        {
+            id: "download",
+            label: $t("common.download"),
+            icon: DownloadSimpleIcon,
+            onClick: handleDownload,
+            disabled: isCurrentTabLoading,
+        },
+        {
+            id: "share",
+            label: $t("share.shareTo"),
+            icon: ShareIcon,
+            onClick: handleShare,
+            disabled: isCurrentTabLoading,
+        },
+    ];
 
     async function handleCopy() {
         if (!currentBlob) return;
         const success = await copyImageBlobToClipboard(currentBlob);
         showToast(
-            success ? t("compose.copiedToast") : t("compose.copyErrorToast"),
+            success ? $t("compose.copiedToast") : $t("compose.copyErrorToast"),
             { tone: success ? "positive" : "negative" },
         );
     }
@@ -307,7 +300,7 @@ export let onClose: (() => void) | null = null;
         if (!currentBlob) return;
         const filename = getDownloadFilename(activeTab);
         downloadImageBlob(currentBlob, filename);
-        showToast(t("compose.downloadedToast"));
+        showToast($t("compose.downloadedToast"));
     }
 
     async function handleShare() {
@@ -315,9 +308,9 @@ export let onClose: (() => void) | null = null;
         const filename = getDownloadFilename(activeTab);
         const result = await shareImageBlobNative(currentBlob, filename);
         if (result === "copied") {
-            showToast(t("share.fallbackCopiedToast"));
+            showToast($t("share.fallbackCopiedToast"));
         } else if (result === "failed") {
-            showToast(t("share.shareFailedToast"), {
+            showToast($t("share.shareFailedToast"), {
                 tone: "negative",
             });
         }
@@ -342,7 +335,7 @@ export let onClose: (() => void) | null = null;
             <div class="compose-loading-icon">
                 <ImageIcon size={42} weight="duotone" />
             </div>
-            <p class="compose-loading-text">{t("compose.loading")}</p>
+            <p class="compose-loading-text">{$t("compose.loading")}</p>
         </div>
     {:else}
         <ImageViewer
@@ -358,8 +351,8 @@ export let onClose: (() => void) | null = null;
                     <Button
                         class="compose-tool-btn"
                         type="button"
-                        aria-label={t("compose.refreshTooltip")}
-                        tooltipText={t("compose.refreshTooltip")}
+                        aria-label={$t("compose.refreshTooltip")}
+                        tooltipText={$t("compose.refreshTooltip")}
                         icon={ArrowClockwiseIcon}
                         iconSize={24}
                         disabled={isLoading}
@@ -384,7 +377,7 @@ export let onClose: (() => void) | null = null;
                 >
                     <FabMenu
                         actions={composeFabActions}
-                        ariaLabel={t("compose.shareTooltip")}
+                        ariaLabel={$t("compose.shareTooltip")}
                         fabIcon={ShareIcon}
                     />
                 </div>

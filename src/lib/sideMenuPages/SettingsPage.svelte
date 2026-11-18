@@ -24,7 +24,7 @@
             <button
                 class="settings-page-back"
                 type="button"
-                aria-label={t("settings.pages.backToSettings")}
+                aria-label={$t("settings.pages.backToSettings")}
                 bind:this={backButtonElement}
                 on:click={() => {
                     triggerHaptic();
@@ -43,7 +43,7 @@
 </div>
 
 {#if $$slots.advancedSettings}
-    <Accordion title={advancedTitle ?? t("settings.advanced")} icon={advancedIcon} on:toggle={(e) => { if (e.detail.isOpen) onAdvancedOpen?.(); }}>
+    <Accordion title={advancedTitle ?? $t("settings.advanced")} icon={advancedIcon} on:toggle={(e) => { if (e.detail.isOpen) onAdvancedOpen?.(); }}>
         <slot name="advancedSettings" />
     </Accordion>
 {/if}

@@ -46,7 +46,7 @@
     }
 </script>
 
-<SideMenuSection title={t("systemInfo.sectionPerformance")}>
+<SideMenuSection title={$t("systemInfo.sectionPerformance")}>
     <div class="info-card">
         {#each entries as entry, index}
             <div class="info-row">

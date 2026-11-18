@@ -10,7 +10,6 @@
     import { triggerHaptic } from "../hapticsStore";
     import type { IconWeight } from "phosphor-svelte";
     import { t } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
     import { scrollInputVisible } from "../viewportState";
     import { evaluateSimpleMath } from "../mathUtil";
     import { isKeyboardAction } from "../input";
@@ -41,18 +40,9 @@
 
     let valueText = `${Math.max(min, Math.floor(value))}`;
     let inputEl: HTMLInputElement | null = null;
-    let resolvedLabel = "";
-    watch(() => {
-        resolvedLabel = label || t("modal.valueLabel");
-    });
-    let resolvedConfirmLabel = "";
-    watch(() => {
-        resolvedConfirmLabel = confirmLabel || t("modal.saveLabel");
-    });
-    let resolvedCancelLabel = "";
-    watch(() => {
-        resolvedCancelLabel = cancelLabel || t("modal.cancelLabel");
-    });
+    $: resolvedLabel = label || $t("modal.valueLabel");
+    $: resolvedConfirmLabel = confirmLabel || $t("modal.saveLabel");
+    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
 
     function parseValue() {
         const result = evaluateSimpleMath(valueText);
@@ -205,7 +195,7 @@
             aria-label="Increase value by 100"
             on:click={() => handleStepperClick(() => stepValue(100))}
         >
-            {t("modal.input.plusHundred")}
+            {$t("modal.input.plusHundred")}
         </button>
     </div>
     <div class="modal-actions">

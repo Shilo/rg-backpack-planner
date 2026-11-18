@@ -1,6 +1,5 @@
 <script lang="ts">
     import { t } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
     import { RootNodeIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
     import { tooltip } from "./tooltip";
@@ -33,10 +32,7 @@
         openQuickSettings(event.currentTarget as HTMLElement);
     }
 
-    let rootTooltipContent!: ReturnType<typeof buildShortcutTooltip>;
-    watch(() => {
-        rootTooltipContent = buildShortcutTooltip(t("quickSettings.title"), getKeyboardActionLabel("console", t));
-    });
+    $: rootTooltipContent = buildShortcutTooltip($t("quickSettings.title"), getKeyboardActionLabel("console", $t));
     $: rootTooltipParam = rootTooltipContent != null ? { content: rootTooltipContent, hoverOnly: true } : undefined;
 </script>
 

@@ -413,7 +413,7 @@
         class:modal-backdrop--sheet={renderedModal.type === "resetTreeChoices"}
         role="button"
         tabindex="0"
-        aria-label={t("common.close")}
+        aria-label={$t("common.close")}
         transition:fade={{ duration: sheetSwipeDismissing || $animationsDisabled ? 0 : 140 }}
         on:outroend={handleBackdropOutroEnd}
         on:pointerdown={handleBackdropPointerDown}
@@ -448,9 +448,9 @@
                     titleIconWeight={renderedModal.titleIconWeight}
                     message={renderedModal.message}
                     confirmLabel={renderedModal.confirmLabel ??
-                        t("modal.confirmLabel")}
+                        $t("modal.confirmLabel")}
                     cancelLabel={renderedModal.cancelLabel ??
-                        t("modal.cancelLabel")}
+                        $t("modal.cancelLabel")}
                     confirmNegative={renderedModal.confirmNegative ?? false}
                     confirmPositive={renderedModal.confirmPositive ?? false}
                     onConfirm={handleConfirm}
@@ -463,7 +463,7 @@
                     titleIconClass={renderedModal.titleIconClass ?? ""}
                     titleIconWeight={renderedModal.titleIconWeight}
                     message={renderedModal.message}
-                    label={renderedModal.input?.label ?? t("modal.valueLabel")}
+                    label={renderedModal.input?.label ?? $t("modal.valueLabel")}
                     labelDetail={renderedModal.input?.labelDetail}
                     labelDetailIcon={renderedModal.input?.labelDetailIcon}
                     labelDetailIconWeight={renderedModal.input?.labelDetailIconWeight}
@@ -472,9 +472,9 @@
                     step={renderedModal.input?.step ?? 1}
                     footerButton={renderedModal.inputFooterButton ?? null}
                     confirmLabel={renderedModal.confirmLabel ??
-                        t("modal.saveLabel")}
+                        $t("modal.saveLabel")}
                     cancelLabel={renderedModal.cancelLabel ??
-                        t("modal.cancelLabel")}
+                        $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -486,14 +486,14 @@
                     titleIconWeight={renderedModal.titleIconWeight}
                     message={renderedModal.message}
                     label={renderedModal.textInput?.label ??
-                        t("modal.valueLabel")}
+                        $t("modal.valueLabel")}
                     value={renderedModal.textInput?.value ?? ""}
                     maxLength={renderedModal.textInput?.maxLength ?? 25}
                     placeholder={renderedModal.textInput?.placeholder ?? ""}
                     confirmLabel={renderedModal.confirmLabel ??
-                        t("modal.saveLabel")}
+                        $t("modal.saveLabel")}
                     cancelLabel={renderedModal.cancelLabel ??
-                        t("modal.cancelLabel")}
+                        $t("modal.cancelLabel")}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
                 />
@@ -505,9 +505,9 @@
                     titleIconWeight={renderedModal.titleIconWeight}
                     message={renderedModal.message}
                     confirmLabel={renderedModal.confirmLabel ??
-                        t("modal.previewBuildLabel")}
+                        $t("modal.previewBuildLabel")}
                     cancelLabel={renderedModal.cancelLabel ??
-                        t("modal.cancelLabel")}
+                        $t("modal.cancelLabel")}
                     onLoaded={() => handleConfirm()}
                     onCancel={handleCancel}
                 />
@@ -518,7 +518,7 @@
                     message={renderedModal.message}
                     choices={renderedModal.resetTreeChoices?.choices ?? []}
                     cancelLabel={renderedModal.cancelLabel ??
-                        t("modal.cancelLabel")}
+                        $t("modal.cancelLabel")}
                     onConfirm={(value) => handleConfirm(value)}
                     onCancel={handleCancel}
                 />

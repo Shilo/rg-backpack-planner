@@ -16,8 +16,7 @@
         XIcon,
     } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
-    import { formatNumber } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
+    import { formatNumber, t, locale } from "svelte-whisper";
     import {
         treeLevelsTotal,
         treeLevelsGuardian,
@@ -33,7 +32,6 @@
     } from "../techCrystalStore";
     import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
     import { portal } from "../portal";
-    import { t } from "svelte-whisper";
     import { animationsDisabled } from "../reduceMotionStore";
     import { showToast, dismissToast } from "../toast";
     import {
@@ -72,19 +70,14 @@
     let compareMenuY = 0;
     let compareButtonElement: HTMLButtonElement | null = null;
 
-    let childMenuTitle = "";
-    watch(() => {
-        childMenuTitle = childMenuType === "image"
-                ? t("statistics.shareImage")
-                : t("statistics.shareText");
-    });
+    $: childMenuTitle =
+        childMenuType === "image"
+            ? $t("statistics.shareImage")
+            : $t("statistics.shareText");
 
-    let sectionTitle = "";
-    watch(() => {
-        sectionTitle = $compareState.isComparing
-            ? t("compare.compareStatistics")
-            : t("sideMenu.sections.statistics");
-    });
+    $: sectionTitle = $compareState.isComparing
+        ? $t("compare.compareStatistics")
+        : $t("sideMenu.sections.statistics");
 
     let statsBodyEl: HTMLElement | null = null;
     let mounted = false;
@@ -113,47 +106,47 @@
         mounted = true;
     }
 
-    watch(() => {
+    $: {
         const bonusRows: Array<[string, string]> = [];
         for (const skillId of SKILL_DISPLAY_ORDER) {
             const value = $skillBonuses.get(skillId);
             if (value !== undefined && value > 0) {
-                bonusRows.push([t(`skills.${skillId}`), formatNumber(value, { style: "percent" })]);
+                bonusRows.push([$t(`skills.${skillId}`), formatNumber(value, { style: "percent" }, $locale)]);
             }
         }
 
         const bonusDisplay: Array<
             [string | { text: string; icon?: any; iconWeight?: string }, string]
-        > = bonusRows.length > 0 ? bonusRows : [[t("common.none"), "0"]];
+        > = bonusRows.length > 0 ? bonusRows : [[$t("common.none"), "0"]];
 
         statsRows = [
-            [{ text: t("statistics.backpackBonus"), icon: TrendUpIcon }, ""],
+            [{ text: $t("statistics.backpackBonus"), icon: TrendUpIcon }, ""],
             ...bonusDisplay,
             [
                 {
-                    text: t("statistics.techCrystalsSpent"),
+                    text: $t("statistics.techCrystalsSpent"),
                     icon: TechCrystalIcon,
                     iconWeight: "fill",
                 },
                 "",
             ],
-            [t("statistics.total"), formatNumber($techCrystalsSpent)],
-            [t("trees.guardian"), formatNumber($techCrystalsSpentGuardian)],
-            [t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard)],
-            [t("trees.cannon"), formatNumber($techCrystalsSpentCannon)],
+            [$t("statistics.total"), formatNumber($techCrystalsSpent, undefined, $locale)],
+            [$t("trees.guardian"), formatNumber($techCrystalsSpentGuardian, undefined, $locale)],
+            [$t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard, undefined, $locale)],
+            [$t("trees.cannon"), formatNumber($techCrystalsSpentCannon, undefined, $locale)],
             [
                 {
-                    text: t("statistics.backpackNodeLevels"),
+                    text: $t("statistics.backpackNodeLevels"),
                     icon: ArrowFatUpIcon,
                 },
                 "",
             ],
-            [t("statistics.total"), formatNumber($treeLevelsTotal)],
-            [t("trees.guardian"), formatNumber($treeLevelsGuardian)],
-            [t("trees.vanguard"), formatNumber($treeLevelsVanguard)],
-            [t("trees.cannon"), formatNumber($treeLevelsCannon)],
+            [$t("statistics.total"), formatNumber($treeLevelsTotal, undefined, $locale)],
+            [$t("trees.guardian"), formatNumber($treeLevelsGuardian, undefined, $locale)],
+            [$t("trees.vanguard"), formatNumber($treeLevelsVanguard, undefined, $locale)],
+            [$t("trees.cannon"), formatNumber($treeLevelsCannon, undefined, $locale)],
         ];
-    });
+    }
 
     function handleShareClick() {
         if (!shareButtonElement) return;
@@ -193,7 +186,7 @@
     }
 
     async function withStatsImage(action: (blob: Blob) => Promise<void>) {
-        const toastId = showToast(t("statistics.generatingImage"), {
+        const toastId = showToast($t("statistics.generatingImage"), {
             showSpinner: true,
             showIcon: false,
             durationMs: 30000,
@@ -213,7 +206,7 @@
             }
             dismissToast(toastId);
             if (!blob) {
-                showToast(t("compose.statsErrorToast"), {
+                showToast($t("compose.statsErrorToast"), {
                     tone: "negative",
                 });
                 return;
@@ -222,7 +215,7 @@
         } catch (error) {
             console.error("Failed to generate stats image:", error);
             dismissToast(toastId);
-            showToast(t("compose.statsErrorToast"), { tone: "negative" });
+            showToast($t("compose.statsErrorToast"), { tone: "negative" });
         }
     }
 
@@ -232,8 +225,8 @@
             const success = await copyImageBlobToClipboard(blob);
             showToast(
                 success
-                    ? t("compose.copiedToast")
-                    : t("compose.copyErrorToast"),
+                    ? $t("compose.copiedToast")
+                    : $t("compose.copyErrorToast"),
                 { tone: success ? "positive" : "negative" },
             );
         });
@@ -248,7 +241,7 @@
                 createComposeImageFilenameSuffix(),
             );
             downloadImageBlob(blob, filename);
-            showToast(t("compose.downloadedToast"));
+            showToast($t("compose.downloadedToast"));
         });
     }
 
@@ -262,9 +255,9 @@
             );
             const result = await shareImageBlobNative(blob, filename);
             if (result === "copied") {
-                showToast(t("share.fallbackCopiedToast"));
+                showToast($t("share.fallbackCopiedToast"));
             } else if (result === "failed") {
-                showToast(t("share.shareFailedToast"), {
+                showToast($t("share.shareFailedToast"), {
                     tone: "negative",
                 });
             }
@@ -305,39 +298,36 @@
         swapBuilds($activeTabs);
     }
 
-    let compareSections!: ReturnType<typeof buildCompareSections>;
-    watch(() => {
-        compareSections = (() => {
-            const state = $compareState;
-            if (!state.isComparing || !state.buildA || !state.buildB) return [];
-            const sections = buildCompareSections(
-                state,
-                $activeTabs,
-                {
-                    skillBonuses: $skillBonuses,
-                    techCrystalsSpent: $techCrystalsSpent,
-                    techCrystalsSpentByTree: [
-                        $techCrystalsSpentGuardian,
-                        $techCrystalsSpentVanguard,
-                        $techCrystalsSpentCannon,
-                    ],
-                    treeLevelsTotal: $treeLevelsTotal,
-                    treeLevelsByTree: [
-                        $treeLevelsGuardian,
-                        $treeLevelsVanguard,
-                        $treeLevelsCannon,
-                    ],
-                },
-                t,
-            );
-            // Inject UI icons into section headers (buildCompareSections stays icon-free for Node.js test compatibility)
-            sections[0].header.icon = TrendUpIcon;
-            sections[1].header.icon = TechCrystalIcon;
-            sections[1].header.iconWeight = "fill";
-            sections[2].header.icon = ArrowFatUpIcon;
-            return sections;
-        })();
-    });
+    $: compareSections = (() => {
+        const state = $compareState;
+        if (!state.isComparing || !state.buildA || !state.buildB) return [];
+        const sections = buildCompareSections(
+            state,
+            $activeTabs,
+            {
+                skillBonuses: $skillBonuses,
+                techCrystalsSpent: $techCrystalsSpent,
+                techCrystalsSpentByTree: [
+                    $techCrystalsSpentGuardian,
+                    $techCrystalsSpentVanguard,
+                    $techCrystalsSpentCannon,
+                ],
+                treeLevelsTotal: $treeLevelsTotal,
+                treeLevelsByTree: [
+                    $treeLevelsGuardian,
+                    $treeLevelsVanguard,
+                    $treeLevelsCannon,
+                ],
+            },
+            $t,
+        );
+        // Inject UI icons into section headers (buildCompareSections stays icon-free for Node.js test compatibility)
+        sections[0].header.icon = TrendUpIcon;
+        sections[1].header.icon = TechCrystalIcon;
+        sections[1].header.iconWeight = "fill";
+        sections[2].header.icon = ArrowFatUpIcon;
+        return sections;
+    })();
 </script>
 
 <SideMenuSection title={sectionTitle}>
@@ -347,8 +337,8 @@
             class="side-menu__stats-share {$compareState.isComparing ? 'compare-active' : ''}"
             small
             icon={ScalesIcon}
-            tooltipText={t("compare.compareTooltip")}
-            aria-label={t("compare.compareTooltip")}
+            tooltipText={$t("compare.compareTooltip")}
+            aria-label={$t("compare.compareTooltip")}
             on:click={handleCompareClick}
         />
         <Button
@@ -356,8 +346,8 @@
             class="side-menu__stats-share"
             small
             icon={ShareIcon}
-            tooltipText={$compareState.isComparing ? t("compare.shareComparison") : t("common.share")}
-            aria-label={$compareState.isComparing ? t("compare.shareComparison") : t("common.share")}
+            tooltipText={$compareState.isComparing ? $t("compare.shareComparison") : $t("common.share")}
+            aria-label={$compareState.isComparing ? $t("compare.shareComparison") : $t("common.share")}
             on:click={handleShareClick}
         />
     </div>
@@ -371,8 +361,8 @@
                     on:click={$compareState.activeSide !== "a" ? handleSwapBuilds : undefined}
                     disabled={$compareState.activeSide === "a"}
                     title={$compareState.activeSide === "a"
-                        ? t("compare.editing")
-                        : t("compare.swapTooltip")}
+                        ? $t("compare.editing")
+                        : $t("compare.swapTooltip")}
                 >
                     {#if $compareState.activeSide === "a"}
                         <PencilSimpleIcon size={12} />
@@ -388,8 +378,8 @@
                     on:click={$compareState.activeSide !== "b" ? handleSwapBuilds : undefined}
                     disabled={$compareState.activeSide === "b"}
                     title={$compareState.activeSide === "b"
-                        ? t("compare.editing")
-                        : t("compare.swapTooltip")}
+                        ? $t("compare.editing")
+                        : $t("compare.swapTooltip")}
                 >
                     {#if $compareState.activeSide === "b"}
                         <PencilSimpleIcon size={12} />
@@ -401,7 +391,7 @@
                 <button
                     class="compare-stop"
                     on:click={() => stopCompare()}
-                    title={t("compare.stopCompareTooltip")}
+                    title={$t("compare.stopCompareTooltip")}
                 >
                     <XIcon size={18} />
                 </button>
@@ -435,15 +425,15 @@
             x={shareMenuX}
             y={shareMenuY}
             isOpen={shareMenuOpen}
-            title={$compareState.isComparing ? t("compare.shareComparison") : t("common.share")}
+            title={$compareState.isComparing ? $t("compare.shareComparison") : $t("common.share")}
             onClose={closeShareMenu}
             anchorBelow
         >
             <Button on:click={(e) => openChildMenu(e, "image")} icon={ImageIcon} arrow="right">
-                {t("statistics.shareImage")}
+                {$t("statistics.shareImage")}
             </Button>
             <Button on:click={(e) => openChildMenu(e, "text")} icon={TextTIcon} arrow="right">
-                {t("statistics.shareText")}
+                {$t("statistics.shareText")}
             </Button>
         </ContextMenu>
     </div>
@@ -463,20 +453,20 @@
             >
                 {#if childMenuType === "image"}
                     <Button on:click={handleCopyImage} icon={CopySimpleIcon}>
-                        {t("common.copy")}
+                        {$t("common.copy")}
                     </Button>
                     <Button on:click={handleDownloadImage} icon={DownloadSimpleIcon}>
-                        {t("common.download")}
+                        {$t("common.download")}
                     </Button>
                     <Button on:click={handleShareImageToApp} icon={ShareIcon} arrow="right">
-                        {t("share.shareTo")}
+                        {$t("share.shareTo")}
                     </Button>
                 {:else}
                     <Button on:click={handleShareToApp} icon={ShareIcon} arrow="right">
-                        {t("share.shareTo")}
+                        {$t("share.shareTo")}
                     </Button>
                     <Button on:click={handleCopyStatistics} icon={CopySimpleIcon}>
-                        {t("statistics.copyStatistics")}
+                        {$t("statistics.copyStatistics")}
                     </Button>
                 {/if}
             </ContextMenu>

@@ -25,35 +25,35 @@
     }
 
     function handleStopPreview() {
-        const name = truncateText(getDisplayPresetName($activePresetName));
+        const name = truncateText(getDisplayPresetName($activePresetName, $t));
         navigateToPersonalMode();
-        showToast(t("preview.backToBuildToast", { name }));
+        showToast($t("preview.backToBuildToast", { name }));
     }
 </script>
 
 <TechCrystalsButton subject="preview" />
 <ShareBuildButton
-    title={t("preview.sharePreviewBuild")}
-    description={t("preview.sharePreviewBuildDescription")}
+    title={$t("preview.sharePreviewBuild")}
+    description={$t("preview.sharePreviewBuildDescription")}
     subject="preview"
     buildName={$previewBuildName}
 />
 <ButtonGroup fill>
-    <CloneBuildButton description={t("preview.clonePreviewBuildDescription")} />
+    <CloneBuildButton description={$t("preview.clonePreviewBuildDescription")} />
     <Button
         on:click={handleCompareClick}
         icon={ScalesIcon}
-        description={t("compare.compareWithDescription")}
+        description={$t("compare.compareWithDescription")}
         arrow="right"
     >
-        {t("compare.compareWith")}
+        {$t("compare.compareWith")}
     </Button>
 </ButtonGroup>
 <Button
     on:click={handleStopPreview}
-    description={t("preview.stopPreviewDescription")}
+    description={$t("preview.stopPreviewDescription")}
     icon={EyeSlashIcon}
     negative
 >
-    {t("preview.stopPreview")}
+    {$t("preview.stopPreview")}
 </Button>

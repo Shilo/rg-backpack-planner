@@ -135,12 +135,12 @@
         class={className}
         on:click={handleInstallClick}
         icon={DownloadSimpleIcon}
-        aria-label={t("install.description")}
-        tooltipText={title ? undefined : t("install.buttonLabel", { osName })}
-        description={title ? t("install.description") : undefined}
+        aria-label={$t("install.description")}
+        tooltipText={title ? undefined : $t("install.buttonLabel", { osName })}
+        description={title ? $t("install.description") : undefined}
     >
         {#if title}
-            {t("install.buttonLabel", { osName })}
+            {$t("install.buttonLabel", { osName })}
         {/if}
     </Button>
 {/if}

@@ -4,21 +4,16 @@
     import Button from "./Button.svelte";
     import { openTechCrystalsOwnedModal } from "./techCrystalModal";
     import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
-    import { formatNumber } from "svelte-whisper";
-    import { watch } from "./watch.svelte";
-    import { t } from "svelte-whisper";
+    import { formatNumber, t, locale } from "svelte-whisper";
     import { getKeyboardActionLabel } from "./input";
     import { appTitleVisible } from "./appTitleVisibleStore";
 
     export let activeTreeIndex = 0;
 
     $: hasOwned = $techCrystalsOwned > 0;
-    let tooltipText = "";
-    watch(() => {
-        tooltipText = hasOwned
-            ? t("techCrystals.displayTooltipSpentOwned")
-            : t("techCrystals.displayTooltipSpentOnly");
-    });
+    $: tooltipText = hasOwned
+        ? $t("techCrystals.displayTooltipSpentOwned")
+        : $t("techCrystals.displayTooltipSpentOnly");
 
     type AnimState = "" | "pulse" | "overspend";
     let animState: AnimState = "";
@@ -92,13 +87,13 @@
 
     // Full digits below a million, then the locale's compact form (1.234M, 123.4万),
     // truncated so a budget never reads higher than it is.
-    function formatOwned(owned: number): string {
-        if (owned < 1_000_000) return formatNumber(owned);
+    function formatOwned(owned: number, locale: string): string {
+        if (owned < 1_000_000) return formatNumber(owned, undefined, locale);
         return formatNumber(owned, {
             notation: "compact",
             maximumFractionDigits: 3,
             roundingMode: "trunc",
-        });
+        }, locale);
     }
 </script>
 
@@ -113,9 +108,9 @@
     <Button
         class="currency-display"
         type="button"
-        aria-label={t("techCrystals.displayTooltipSpentOwned")}
+        aria-label={$t("techCrystals.displayTooltipSpentOwned")}
         {tooltipText}
-        shortcut={getKeyboardActionLabel("budget", t)}
+        shortcut={getKeyboardActionLabel("budget", $t)}
         on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, "your", activeTreeIndex)}
         arrow="right"
     >
@@ -124,12 +119,12 @@
             class:is-negative={$techCrystalsSpent > $techCrystalsOwned &&
                 hasOwned}
         >
-            {formatNumber($techCrystalsSpent)}
+            {formatNumber($techCrystalsSpent, undefined, $locale)}
         </span>
         {#if hasOwned}
             <span class="currency-separator"> / </span>
             <span class="currency-owned"
-                >{formatOwned($techCrystalsOwned)}</span
+                >{formatOwned($techCrystalsOwned, $locale)}</span
             >
         {/if}
         <TechCrystalIcon

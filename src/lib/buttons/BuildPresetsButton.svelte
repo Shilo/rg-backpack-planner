@@ -38,7 +38,6 @@
     import { vanguardTree } from "../../config/vanguardTree";
     import { cannonTree } from "../../config/cannonTree";
     import { t } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
     import type { BuildSubject } from "../buildSubject";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
@@ -76,22 +75,17 @@
     $: editPresetBuildData = editPreset
         ? decodeBuildData(editPreset.buildCode)
         : null;
-    let editPresetShareTitle = "";
-    watch(() => {
-        editPresetShareTitle = editPreset?.name
-            ? t("preview.buildTitle", {
-                  name: getDisplayPresetName(editPreset.name),
-              })
-            : t("share.defaultShareTitle");
-    });
+    $: editPresetShareTitle = editPreset?.name
+        ? $t("preview.buildTitle", {
+              name: getDisplayPresetName(editPreset.name, $t),
+          })
+        : $t("share.defaultShareTitle");
     let editPresetSubject: BuildSubject = "your";
-    watch(() => {
-        editPresetSubject = editPreset?.name
-            ? { name: getDisplayPresetName(editPreset.name) }
-            : "your";
-    });
+    $: editPresetSubject = editPreset?.name
+        ? { name: getDisplayPresetName(editPreset.name, $t) }
+        : "your";
 
-    watch(() => {
+    $: {
         const index = editMenuPresetId
             ? $buildPresetsStore.presets.findIndex(
                   (p) => p.id === editMenuPresetId,
@@ -100,21 +94,21 @@
         const total = $buildPresetsStore.presets.length;
         editMenuTitle =
             editPreset?.name && index >= 0 && total > 1
-                ? t("buildPresets.editMenuTitleWithNameIndex", {
-                      name: truncateText(getDisplayPresetName(editPreset.name)),
+                ? $t("buildPresets.editMenuTitleWithNameIndex", {
+                      name: truncateText(getDisplayPresetName(editPreset.name, $t)),
                       index: index + 1,
                       total,
                   })
                 : editPreset?.name
-                  ? t("buildPresets.editMenuTitleWithName", {
+                  ? $t("buildPresets.editMenuTitleWithName", {
                         name: truncateText(
-                            getDisplayPresetName(editPreset.name),
+                            getDisplayPresetName(editPreset.name, $t),
                         ),
                     })
-                  : t("buildPresets.editMenuTitle");
+                  : $t("buildPresets.editMenuTitle");
         canMoveUp = total > 1 && index > 0;
         canMoveDown = total > 1 && index >= 0 && index < total - 1;
-    });
+    }
 
     let editMenuTitle = "";
     let canMoveUp = false;
@@ -158,10 +152,10 @@
             (p) => p.id === presetId,
         );
         if (!switchActivePreset(presetId, tabs)) return;
-        const displayName = getDisplayPresetName(preset?.name ?? presetId);
+        const displayName = getDisplayPresetName(preset?.name ?? presetId, $t);
         undoHistory.clearHistory(0);
         showToast(
-            t("buildPresets.viewingPresetToast", {
+            $t("buildPresets.viewingPresetToast", {
                 name: truncateText(displayName),
             }),
         );
@@ -196,19 +190,19 @@
         const preset = data.presets.find((p) => p.id === presetId);
         if (!preset) return;
         closeEditMenu();
-        const displayName = getDisplayPresetName(preset.name);
+        const displayName = getDisplayPresetName(preset.name, $t);
         openModal({
             type: "textInput",
-            title: t("buildPresets.renameModalTitle"),
+            title: $t("buildPresets.renameModalTitle"),
             titleIcon: PencilSimpleIcon,
-            message: t("buildPresets.renameModalMessage"),
+            message: $t("buildPresets.renameModalMessage"),
             textInput: {
-                label: t("buildPresets.presetNameLabel"),
+                label: $t("buildPresets.presetNameLabel"),
                 value: displayName,
                 maxLength: 25,
             },
-            confirmLabel: t("buildPresets.renameConfirmLabel"),
-            cancelLabel: t("common.cancel"),
+            confirmLabel: $t("buildPresets.renameConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             onConfirm: (value) => {
                 if (typeof value === "string") {
                     const name = value === displayName ? preset.name : value;
@@ -226,12 +220,12 @@
         closeEditMenu();
         openModal({
             type: "confirm",
-            title: t("buildPresets.deleteModalTitle"),
-            message: t("buildPresets.deleteModalMessage", {
-                name: getDisplayPresetName(preset.name),
+            title: $t("buildPresets.deleteModalTitle"),
+            message: $t("buildPresets.deleteModalMessage", {
+                name: getDisplayPresetName(preset.name, $t),
             }),
-            confirmLabel: t("buildPresets.deleteConfirmLabel"),
-            cancelLabel: t("common.cancel"),
+            confirmLabel: $t("buildPresets.deleteConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             titleIcon: TrashSimpleIcon,
             onConfirm: () => {
@@ -267,19 +261,19 @@
             closePresetsMenu();
         } else {
             const defaultName = getUniquePresetName("New", "New");
-            const displayName = getDisplayPresetName(defaultName);
+            const displayName = getDisplayPresetName(defaultName, $t);
             openModal({
                 type: "textInput",
-                title: t("buildPresets.newModalTitle"),
+                title: $t("buildPresets.newModalTitle"),
                 titleIcon: PlusIcon,
-                message: t("buildPresets.newModalMessage"),
+                message: $t("buildPresets.newModalMessage"),
                 textInput: {
-                    label: t("buildPresets.presetNameLabel"),
+                    label: $t("buildPresets.presetNameLabel"),
                     value: displayName,
                     maxLength: 25,
                 },
-                confirmLabel: t("buildPresets.createConfirmLabel"),
-                cancelLabel: t("common.cancel"),
+                confirmLabel: $t("buildPresets.createConfirmLabel"),
+                cancelLabel: $t("common.cancel"),
                 onConfirm: (value) => {
                     if (typeof value === "string") {
                         const name =
@@ -301,10 +295,10 @@
         }
         openModal({
             type: "confirm",
-            title: t("buildPresets.deleteAllModalTitle"),
-            message: t("buildPresets.deleteAllModalMessage"),
-            confirmLabel: t("buildPresets.deleteAllConfirmLabel"),
-            cancelLabel: t("common.cancel"),
+            title: $t("buildPresets.deleteAllModalTitle"),
+            message: $t("buildPresets.deleteAllModalMessage"),
+            confirmLabel: $t("buildPresets.deleteAllConfirmLabel"),
+            cancelLabel: $t("common.cancel"),
             confirmNegative: true,
             titleIcon: TrashSimpleIcon,
             onConfirm: () => {
@@ -346,7 +340,7 @@
         if (!preset) return;
         decodeAndStartCompare(
             preset.buildCode,
-            getDisplayPresetName(preset.name),
+            getDisplayPresetName(preset.name, $t),
             { type: "preset", id: presetId },
         );
         closeEditMenu();
@@ -357,14 +351,14 @@
 <Button
     bind:element={presetsButtonElement}
     on:click={openPresetsMenu}
-    tooltipText={t("buildPresets.changeTooltip")}
-    description={t("buildPresets.buttonDescription")}
+    tooltipText={$t("buildPresets.changeTooltip")}
+    description={$t("buildPresets.buttonDescription")}
     icon={ShareNetworkIcon}
     arrow="down"
     {disabled}
 >
-    {t("buildPresets.buttonLabel")} <span class="preset-name"
-        >{getDisplayPresetName($activePresetName)}</span
+    {$t("buildPresets.buttonLabel")} <span class="preset-name"
+        >{getDisplayPresetName($activePresetName, $t)}</span
     >
 </Button>
 
@@ -374,25 +368,25 @@
         x={presetsMenuX}
         y={presetsMenuY}
         isOpen={presetsMenuOpen}
-        title={t("buildPresets.menuTitle")}
+        title={$t("buildPresets.menuTitle")}
         onClose={() => { if (!compareMenuOpen) closePresetsMenu(); }}
         anchorBelow
     >
         <div class="premade-builds-list">
             {#each $buildPresetsStore.presets as preset (preset.id)}
                 {@const isActive = preset.id === $buildPresetsStore.active}
-                {@const presetDisplayName = getDisplayPresetName(preset.name)}
+                {@const presetDisplayName = getDisplayPresetName(preset.name, $t)}
                 <ButtonGroup class="preset-row" data-preset-id={preset.id}>
                     <Button
                         class={`preset-name-btn ${isActive ? "active" : ""}`}
                         tooltipText={isActive
-                            ? t("buildPresets.activePresetTooltip", {
+                            ? $t("buildPresets.activePresetTooltip", {
                                   name: truncateText(presetDisplayName),
                               })
-                            : t("buildPresets.switchToPresetTooltip", {
+                            : $t("buildPresets.switchToPresetTooltip", {
                                   name: truncateText(presetDisplayName),
                               })}
-                        aria-label={t("buildPresets.switchToPresetTooltip", {
+                        aria-label={$t("buildPresets.switchToPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
                         icon={isActive ? CheckIcon : null}
@@ -402,10 +396,10 @@
                     </Button>
                     <Button
                         class="preset-edit-btn"
-                        tooltipText={t("buildPresets.editPresetTooltip", {
+                        tooltipText={$t("buildPresets.editPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
-                        aria-label={t("buildPresets.editPresetTooltip", {
+                        aria-label={$t("buildPresets.editPresetTooltip", {
                             name: truncateText(presetDisplayName),
                         })}
                         icon={DotsThreeVerticalIcon}
@@ -418,15 +412,15 @@
             <Button
                 class="add-new-build-btn"
                 on:click={() => handleAddBuild()}
-                tooltipText={t("buildPresets.createEmptyTooltip")}
+                tooltipText={$t("buildPresets.createEmptyTooltip")}
                 icon={PlusIcon}
                 arrow="right"
             >
-                {t("buildPresets.addNew")}
+                {$t("buildPresets.addNew")}
             </Button>
             <Button
                 on:click={handleDeleteAllAndAddNew}
-                tooltipText={t("buildPresets.deleteAllAndCreateTooltip")}
+                tooltipText={$t("buildPresets.deleteAllAndCreateTooltip")}
                 icon={TrashSimpleIcon}
                 negative
             />
@@ -452,13 +446,13 @@
                 <ButtonGroup class="move-buttons-row">
                     <Button
                         on:click={handleMoveUp}
-                        tooltipText={t("buildPresets.movePresetUpTooltip")}
+                        tooltipText={$t("buildPresets.movePresetUpTooltip")}
                         icon={CaretUpIcon}
                         disabled={!canMoveUp}
                     />
                     <Button
                         on:click={handleMoveDown}
-                        tooltipText={t("buildPresets.movePresetDownTooltip")}
+                        tooltipText={$t("buildPresets.movePresetDownTooltip")}
                         icon={CaretDownIcon}
                         disabled={!canMoveDown}
                     />
@@ -466,22 +460,22 @@
             {/if}
             <Button
                 on:click={() => handleRename(editMenuPresetId!)}
-                tooltipText={t("buildPresets.editPresetNameTooltip")}
+                tooltipText={$t("buildPresets.editPresetNameTooltip")}
                 icon={PencilSimpleIcon}
                 arrow="right"
             >
-                {t("buildPresets.renameButton")}
+                {$t("buildPresets.renameButton")}
             </Button>
             <ShareBuildButton
-                title={t("common.share")}
+                title={$t("common.share")}
                 subject={editPresetSubject}
                 menuTitle={editPreset?.name
-                    ? t("buildPresets.shareMenuTitleWithName", {
+                    ? $t("buildPresets.shareMenuTitleWithName", {
                           name: truncateText(
-                              getDisplayPresetName(editPreset.name),
+                              getDisplayPresetName(editPreset.name, $t),
                           ),
                       })
-                    : t("buildPresets.shareMenuTitleFallback")}
+                    : $t("buildPresets.shareMenuTitleFallback")}
                 buildName={editPreset?.name}
                 buildData={editPresetBuildData}
                 shareTitle={editPresetShareTitle}
@@ -491,8 +485,8 @@
             <CloneBuildButton
                 name={editPreset?.name}
                 buildCode={editPreset?.buildCode}
-                label={t("common.clone")}
-                tooltip={t("buildPresets.clonePresetTooltip")}
+                label={$t("common.clone")}
+                tooltip={$t("buildPresets.clonePresetTooltip")}
                 on:click={closeEditMenu}
             />
             {#if editMenuPresetId === $buildPresetsStore.active}
@@ -501,25 +495,25 @@
                     icon={ScalesIcon}
                     arrow="right"
                 >
-                    {t("compare.compareWith")}
+                    {$t("compare.compareWith")}
                 </Button>
             {:else}
                 <Button
                     on:click={() => handleCompareWithActive(editMenuPresetId!)}
-                    tooltipText={t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
+                    tooltipText={$t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
                     icon={ScalesIcon}
                 >
-                    {t("compare.compareWithActive", { name: toTitleCase($activeBuildName) })}
+                    {$t("compare.compareWithActive", { name: toTitleCase($activeBuildName) })}
                 </Button>
             {/if}
             <Button
                 on:click={() => handleDelete(editMenuPresetId!)}
-                tooltipText={t("buildPresets.removePresetTooltip")}
+                tooltipText={$t("buildPresets.removePresetTooltip")}
                 icon={TrashSimpleIcon}
                 arrow="right"
                 negative
             >
-                {t("buildPresets.deleteButton")}
+                {$t("buildPresets.deleteButton")}
             </Button>
         </ContextMenu>
     </div>
