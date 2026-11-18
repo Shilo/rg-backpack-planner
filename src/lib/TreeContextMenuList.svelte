@@ -127,7 +127,7 @@
     function formatBonusValue(v: number): string {
         if (v === 0) return "0";
         if (Number.isInteger(v)) return formatNumber(v);
-        return String(parseFloat(v.toPrecision(3)));
+        return formatNumber(v, { maximumSignificantDigits: 3 });
     }
 </script>
 

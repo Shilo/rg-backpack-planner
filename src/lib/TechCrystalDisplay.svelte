@@ -7,7 +7,6 @@
     import { formatNumber } from "svelte-whisper";
     import { watch } from "./watch.svelte";
     import { t } from "svelte-whisper";
-    import { formatCompact } from "./mathUtil";
     import { getKeyboardActionLabel } from "./input";
     import { appTitleVisible } from "./appTitleVisibleStore";
 
@@ -90,6 +89,17 @@
         cancelAnimationFrame(overlapRafId);
         overlapping = false;
     }
+
+    // Full digits below a million, then the locale's compact form (1.234M, 123.4万),
+    // truncated so a budget never reads higher than it is.
+    function formatOwned(owned: number): string {
+        if (owned < 1_000_000) return formatNumber(owned);
+        return formatNumber(owned, {
+            notation: "compact",
+            maximumFractionDigits: 3,
+            roundingMode: "trunc",
+        });
+    }
 </script>
 
 <div
@@ -106,7 +116,7 @@
         aria-label={t("techCrystals.displayTooltipSpentOwned")}
         {tooltipText}
         shortcut={getKeyboardActionLabel("budget", t)}
-        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeTreeIndex)}
+        on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, "your", activeTreeIndex)}
         arrow="right"
     >
         <span
@@ -119,7 +129,7 @@
         {#if hasOwned}
             <span class="currency-separator"> / </span>
             <span class="currency-owned"
-                >{formatCompact($techCrystalsOwned)}</span
+                >{formatOwned($techCrystalsOwned)}</span
             >
         {/if}
         <TechCrystalIcon

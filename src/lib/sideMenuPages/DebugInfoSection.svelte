@@ -3,6 +3,7 @@
     import { getCurrentVersion, getStoredVersion } from "../latestUsedVersionStore";
     import { getLocale, t } from "svelte-whisper";
     import { watch } from "../watch.svelte";
+    import { formatByteSize } from "../formatByteSize";
     import { showToast } from "../toast";
     import { triggerHaptic } from "../hapticsStore";
     import { onMount } from "svelte";
@@ -46,7 +47,7 @@
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const onlineStatus = navigator.onLine;
 
-    function getLocalStorageSize(): string {
+    function getLocalStorageBytes(): number | null {
         try {
             let bytes = 0;
             for (let i = 0; i < localStorage.length; i++) {
@@ -55,14 +56,13 @@
                     bytes += (key.length + (localStorage.getItem(key)?.length ?? 0)) * 2;
                 }
             }
-            if (bytes < 1024) return `${bytes} B`;
-            return `${(bytes / 1024).toFixed(1)} KB`;
+            return bytes;
         } catch {
-            return "unavailable";
+            return null;
         }
     }
 
-    const localStorageSize = getLocalStorageSize();
+    const localStorageBytes = getLocalStorageBytes();
 
     let swStatus = "…";
     let deviceModel = "";
@@ -147,7 +147,7 @@
         appEntries = [
             { label: t("systemInfo.version"), value: version },
             { label: t("systemInfo.storedVersion"), value: storedVersion ?? "none" },
-            { label: t("systemInfo.localStorage"), value: localStorageSize },
+            { label: t("systemInfo.localStorage"), value: localStorageBytes === null ? "unavailable" : formatByteSize(localStorageBytes) },
             { label: t("systemInfo.locale"), value: getLocale() },
             { label: t("systemInfo.displayMode"), value: displayMode },
             { label: t("systemInfo.serviceWorker"), value: swStatus },

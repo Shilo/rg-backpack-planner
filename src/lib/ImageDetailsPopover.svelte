@@ -1,5 +1,6 @@
 <script lang="ts">
     import ContextMenu from "./ContextMenu.svelte";
+    import { formatByteSize } from "./formatByteSize";
     import { portal } from "./portal";
     import { t } from "svelte-whisper";
 
@@ -12,13 +13,6 @@
     export let naturalHeight = 0;
     export let fileSize = 0;
     export let mimeType = "";
-
-    function formatFileSize(bytes: number): string {
-        if (bytes <= 0) return "0 B";
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    }
 
     function formatMimeType(type: string): string {
         const map: Record<string, string> = {
@@ -68,7 +62,7 @@
                         >{t("compose.imageDetails.fileSize")}</span
                     >
                     <span class="image-details__value"
-                        >{formatFileSize(fileSize)}</span
+                        >{formatByteSize(fileSize)}</span
                     >
                 </div>
                 <div class="image-details__row">
