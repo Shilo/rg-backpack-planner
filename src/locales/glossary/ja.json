@@ -1,0 +1,147 @@
+{
+    "app": {
+        "gameName": "走れ！女神",
+        "description": "バッグ研究のビルドを計画・共有しましょう。"
+    },
+    "sideMenu": {
+        "tabs": {
+            "statistics": {
+                "tooltip": "スキル、レベル、研究クリスタルデータを表示"
+            }
+        }
+    },
+    "trees": {
+        "guardian": "近衛兵",
+        "vanguard": "先駆者",
+        "cannon": "火砲",
+        "rules": {
+            "0": "研究クリスタルを消費してバッグ研究を有効化またはアップグレードします。",
+            "2": "ブランチを選択した後、同じページの別のブランチを選択する前に、そのブランチの最終スキルを解放する必要があります。",
+            "3": "各転職には3つのブランチがあり、合計9つの最終スキルがあります。プレイヤーが習得できるのは3つまでです。",
+            "4": "リセットすると現在のページで消費された研究クリスタルが全額返還されます。リセット回数は無制限です。"
+        }
+    },
+    "skills": {
+        "attack_boost": "攻撃力強化",
+        "hp_boost": "HP強化",
+        "defense_boost": "防御力強化",
+        "global_def": "グローバル防御力",
+        "global_hp": "グローバルHP",
+        "final_damage_boost": "最終ダメージ",
+        "global_atk": "グローバル攻撃力",
+        "counterattack_resistance": "反撃耐性",
+        "critical_hit": "通常攻撃クリティカル",
+        "damage_reflection_chance": "ダメージ反射率",
+        "short": {
+            "attack_boost": "攻撃強化",
+            "hp_boost": "HP強化",
+            "defense_boost": "防御強化",
+            "global_def": "グロ防御",
+            "global_hp": "グロHP",
+            "final_damage_boost": "最終ダメ",
+            "global_atk": "グロ攻撃",
+            "skill_crit": "スキクリ",
+            "counterattack_resistance": "反撃耐性",
+            "critical_hit": "通常クリ",
+            "skill_crit_resistance": "スキクリ耐性",
+            "damage_reflection_chance": "ダメ反射"
+        }
+    },
+    "skillsDesc": {
+        "global_def": "**グローバル防御力**が乗算修正値によって増加します。",
+        "global_hp": "**グローバルHP**が乗算修正値によって増加します。",
+        "final_damage_boost": "**最終ダメージ**が最終乗算修正値によって増加します。",
+        "global_atk": "**グローバル攻撃力**が乗算修正値によって増加します。",
+        "skill_crit": "スキルが**スキルクリティカル**を発生させ、通常より高いダメージを与える確率があります。",
+        "critical_hit": "通常攻撃が**通常攻撃クリティカル**を発生させ、通常より高いダメージを与える確率があります。",
+        "skill_crit_resistance": "**スキルクリティカル**を受ける確率を減少させます。",
+        "damage_reflection_chance": "攻撃を受けた際、**ダメージ反射率**と攻撃力に基づいて攻撃者に追加ダメージを与えます。"
+    },
+    "settings": {
+        "ignoreTechCrystalBudget": "研究クリスタル予算を無視",
+        "resetTreeDescription": "研究クリスタルを返還しレベル0に戻す",
+        "resetAllTreesDescription": "全ツリーの研究クリスタルをすべて返還"
+    },
+    "techCrystals": {
+        "displayTooltipSpentOnly": "研究クリスタル\n消費済み",
+        "displayTooltipSpentOwned": "研究クリスタル\n消費 / 所持",
+        "spentLabel": "研究クリスタル消費 / 所持",
+        "changeOwnedTooltip": {
+            "your": "あなたの研究クリスタルの所持数（予算）を変更",
+            "preview": "プレビューの研究クリスタルの所持数（予算）を変更",
+            "named": "{name}の研究クリスタルの所持数（予算）を変更"
+        },
+        "ownedModalTitle": {
+            "your": "研究クリスタル所持数",
+            "preview": "研究クリスタル所持数（プレビュー）",
+            "named": "研究クリスタル所持数（{name}）"
+        },
+        "budgetReachedToast": "研究クリスタル予算に到達"
+    },
+    "share": {
+        "defaultShareTitle": "バッグ研究ツリービルド"
+    },
+    "preview": {
+        "techCrystalsDescription": {
+            "other": "{amount} 研究クリスタル"
+        }
+    },
+    "modal": {
+        "resetTree": {
+            "messageAll": "全ノードをレベル0に戻し、全研究クリスタルを返還します。"
+        }
+    },
+    "statistics": {
+        "techCrystalsSpent": "研究クリスタル消費"
+    },
+    "controls": {
+        "actions": {
+            "primaryAction": "プライマリアクション表示",
+            "primaryActionDesc": "ノードアクションモードを切り替える[[+1、+10、+ティア]]",
+            "budget": "研究クリスタル予算",
+            "budgetDesc": "消費予算を変更",
+            "sideMenu": "サイドメニュー",
+            "sideMenuDesc": "パネルを開閉する",
+            "resetTree": "アクティブツリーをリセット",
+            "resetTreeDesc": "ブランチまたはツリーの研究クリスタルを返還",
+            "undo": "元に戻す",
+            "undoDesc": "直前の変更を元に戻す",
+            "redo": "やり直す",
+            "redoDesc": "最後に元に戻した変更をやり直す",
+            "rootQuickSettings": "ルートノードクイック設定",
+            "rootQuickSettingsDesc": "便利でよく使う設定を表示",
+            "screenshot": "スクリーンショットを共有",
+            "screenshotDesc": "書き出し用の画像を生成",
+            "fullscreen": "フルスクリーン",
+            "fullscreenDesc": "アプリを画面いっぱいに表示",
+            "cycleTabs": "タブ切り替え",
+            "cycleTabsDesc": "ツリーやページを切り替える",
+            "previewIndicator": "プレビュービルド表示",
+            "previewIndicatorDesc": "共有ビルドを確認・変更",
+            "closeMenu": "サイドメニューまたはページを閉じる",
+            "closeMenuDesc": "前のページに戻るか、パネルを閉じる",
+            "levelUp": "レベルアップ",
+            "levelUpDesc": "ノードアクション設定でレベルを追加[[+1、+10、+ティア]]",
+            "levelUpAlt": "クイックレベルアップ",
+            "levelUpAltDesc": "代替の増分でレベルを追加[[+ティア、+1]]",
+            "levelDown": "レベルダウン",
+            "levelDownDesc": "ノードアクション設定でレベルを減らす[[-1、-10、-ティア]]",
+            "levelDownAlt": "クイックレベルダウン",
+            "levelDownAltDesc": "代替の増分でレベルを減らす[[-ティア、-1]]",
+            "nodeOptions": "ノードオプション",
+            "nodeTreeOptionsDesc": "統計と選択肢を表示",
+            "pan": "移動",
+            "panDesc": "表示領域を移動",
+            "zoom": "ズーム",
+            "zoomDesc": "表示倍率を調整",
+            "treeOptions": "ツリーオプション",
+            "tooltip": "ツールチップ",
+            "tooltipDesc": "状況に応じた詳細を表示"
+        },
+        "tutorial": "チュートリアル"
+    },
+    "onboarding": {
+        "hudSection": "研究クリスタル消費 / 予算",
+        "budgetIgnoreDesc": "サイドメニューで予算を無効化 [[設定 > ノード > 研究クリスタル予算を無視]]"
+    }
+}

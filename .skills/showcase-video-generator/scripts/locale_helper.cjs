@@ -1,8 +1,10 @@
 const path = require('path');
 const fs = require('fs');
-const { addDictionary, setLocale, tr, init } = require(path.join(__dirname, '..', '..', '..', 'showcase-video', 'node_modules', 'svelte-whisper'));
 
+// Showcase overlay text is a flat JSON file per locale with no placeholders,
+// so a plain lookup with an English fallback is all that is needed.
 const LOCALES_DIR = path.join(__dirname, '..', '..', '..', 'showcase-video', 'locales');
+const FALLBACK_LOCALE = 'en';
 
 const TRANSLATION_KEYS = [
     'forRunGoddess',
@@ -21,36 +23,22 @@ const TRANSLATION_KEYS = [
     'shareFeature3',
 ];
 
-let initialized = false;
-
-function initLocales() {
-    if (initialized) return;
-
-    const files = fs.readdirSync(LOCALES_DIR).filter(f => f.endsWith('.json'));
-    for (const file of files) {
-        const locale = path.basename(file, '.json');
-        const dict = JSON.parse(fs.readFileSync(path.join(LOCALES_DIR, file), 'utf-8'));
-        addDictionary(locale, dict);
-    }
-
-    init({ fallback: 'en', detect: false });
-    initialized = true;
+function readLocale(locale) {
+    const file = path.join(LOCALES_DIR, `${locale}.json`);
+    return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf-8')) : null;
 }
 
 function loadTranslations(locale) {
-    initLocales();
-
-    const localeFile = path.join(LOCALES_DIR, `${locale}.json`);
-    if (!fs.existsSync(localeFile)) {
-        console.warn(`[locale_helper] Locale "${locale}" not found, falling back to "en"`);
-        setLocale('en');
-    } else {
-        setLocale(locale);
+    const fallback = readLocale(FALLBACK_LOCALE) || {};
+    let dict = readLocale(locale);
+    if (!dict) {
+        console.warn(`[locale_helper] Locale "${locale}" not found, falling back to "${FALLBACK_LOCALE}"`);
+        dict = fallback;
     }
 
     const translations = {};
     for (const key of TRANSLATION_KEYS) {
-        translations[key] = tr(key);
+        translations[key] = dict[key] ?? fallback[key] ?? key;
     }
     return translations;
 }

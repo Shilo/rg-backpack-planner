@@ -8,7 +8,7 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
   - `buildData/`, `buildImageExport/`, `compare/`, `sideMenuPages/`, `onboarding/`, `modals/`, `input/`, `buttons/`, `icons/`, `migrations/`, `dev/`
   - `themeEngine.ts`, `themeApply.ts` — OKLCH color system and global theme reactivity
 - `src/config/` — Tree defs (base, guardian, vanguard, cannon), skill metadata/icons/values
-- `src/locales/` — App strings and locale-specific term mappings
+- `src/locales/` — App strings (`en.json` is the source), `glossary/` fixed in-game terms, `TRANSLATING.md` translation rules
 - `test/` — CLI test suites; see [test/README.md](test/README.md)
 
 ## Commands
@@ -16,9 +16,8 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 - `npm run dev` — Dev server
 - `npm run build` — Prod build + SPA 404 fallback
 - `npm run check` — svelte-check + tsc (no ESLint)
-- `npm test` — check + curated CLI suite
+- `npm test` — check + `svelte-whisper check --usage src` + curated CLI suite
 - `npm run test:ui` — Full Playwright UI sweep (only when explicitly requested)
-- `npm run test:ui:locale` — Playwright missing-locale-keys sweep (only when explicitly requested)
 - `npm run test:ui:tier` — Playwright tier UI (only when explicitly requested)
 - `npm run pwa:assets` — Regen PWA assets from `public/icon.svg`
 
@@ -34,7 +33,15 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 - `npm test` mirrors to `test/index.output.log` and exits 1 if any listed suite fails.
 - When committing, use `npm test` only. Skip `test:ui*` unless requested.
 - Client-only PWA, no backend. `npm run dev` is all needed.
-- Skills in `.skills/`.
+- Skills in `.skills/`. Localization skills ship with svelte-whisper in `node_modules/svelte-whisper/skills/` (`whisper-setup`, `whisper-translate`, `whisper-audit`); install them for your agent with `npx skills add Shilo/svelte-whisper`.
+
+## Localization
+
+- i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`. Use `t("key", vars)` everywhere: markup, scripts and `.ts` modules. There is no `$t`, `tr()` or `$locale`; read the locale with `getLocale()` and switch with `setLocale()`.
+- Legacy-mode components: a `$:` statement does not re-run when the locale changes, because it only tracks the variables it names. Call `t()` in markup, or wrap the statement in `watch()` from `src/lib/watch.svelte.ts`.
+- One sentence, one key: never join translated fragments. Use a plural group (`{ "one": …, "other": … }` selected by a numeric `count`) wherever a count is shown.
+- Format numbers in UI text with `formatNumber(value, intlOptions)`, never `toLocaleString()` or `toFixed()`.
+- After changing `en.json`, translate with the `whisper-translate` skill (rules in `src/locales/TRANSLATING.md`) and confirm `npx svelte-whisper check --usage src` passes.
 
 ## Design
 

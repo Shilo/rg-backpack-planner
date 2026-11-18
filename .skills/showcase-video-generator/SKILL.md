@@ -15,7 +15,7 @@ This skill automates the creation of professional 1080p landscape showcase video
 
 ## Locale System
 
-The showcase project has its own self-contained locale system using **svelte-whisper** (installed in `showcase-video/`). Translation files live in `showcase-video/locales/` and are loaded via `addDictionary()` + `tr()` in the Node.js scripts. The main app's locale files are not used.
+The showcase project has its own self-contained locale files in `showcase-video/locales/`: flat JSON, one file per locale, no placeholders. The Node.js scripts read them with a plain lookup that falls back to English. The main app's locale files are not used.
 
 - **Locale helper**: `.skills/showcase-video-generator/scripts/locale_helper.cjs` — reads locale JSONs dynamically from `showcase-video/locales/`, provides `loadTranslations(locale)` and `getAvailableLocales()`
 - **App locale switching**: Capture scripts set `localStorage.setItem('rg-backpack-planner-locale', locale)` via `addInitScript` — no UI interaction needed
@@ -62,7 +62,7 @@ Located at `.skills/showcase-video-generator/scripts/capture_all_locales.cjs`.
 
 ### 3. Locale Helper
 Located at `.skills/showcase-video-generator/scripts/locale_helper.cjs`.
-- Uses svelte-whisper (`addDictionary`, `setLocale`, `tr`) to load and resolve translations.
+- Reads the locale JSON and looks up each overlay key, falling back to `en` per key.
 - Dynamically reads all `*.json` files from `showcase-video/locales/`.
 - Falls back to `en` if a locale file doesn't exist.
 - Exports `loadTranslations(locale)` and `getAvailableLocales()`.
@@ -104,7 +104,7 @@ Located in `showcase-video/`.
 
 ### 6. Render All Script
 Located at `showcase-video/scripts/render_all_locales.cjs`.
-- Loads translations per locale via `locale_helper.cjs` using svelte-whisper.
+- Loads translations per locale via `locale_helper.cjs`.
 - Writes temp `_props.json` per locale to avoid Windows shell quoting issues.
 - Renders video + snapshot per locale via Remotion CLI with `--props`.
 - Outputs to `showcase-video/out/{locale}/`.
@@ -166,7 +166,7 @@ showcase-video/
 - Credit in `README.md` under Credits section.
 
 ## Guiding Principles
-- **Self-Contained Locales**: Showcase has its own `locales/` folder and svelte-whisper dependency. Main app locale files are not modified.
+- **Self-Contained Locales**: Showcase has its own `locales/` folder. Main app locale files are not modified.
 - **Dual Frames**: Every slide shows two portrait mobile frames (Pixel left, Apple right) for visual variety.
 - **Enabled Interface**: Always perform a real "Clone" sequence for settings screenshots.
 - **Index Navigation**: Use indices for tab navigation to ensure cross-locale compatibility.

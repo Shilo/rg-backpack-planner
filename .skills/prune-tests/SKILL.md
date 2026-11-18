@@ -49,7 +49,7 @@ assert.strictEqual(get(ja, "skills.attack_boost"), "攻撃力強化");
 
 **Includes:** Exact string matching per locale key, casing style enforcement, game terminology canonicalization, "Tech Crystal" prefix enforcement, short label length comparisons.
 
-**Exception:** Keep tests that validate locale *structure* (all keys present across locales, no missing interpolation variables) — those catch real bugs.
+**Also delete** hand-written locale *structure* tests (all keys present across locales, matching placeholders, undefined keys). `npx svelte-whisper check --usage src` already runs in `npm test` and covers them, including the glossary in `src/locales/glossary/`.
 
 ### 3. Component Structure / Wiring Tests
 
@@ -132,7 +132,7 @@ Ensure `npm test` in CI still works with the reduced suite.
 
 ## Borderline Cases
 
-**Locale structure validation** (all locales have same keys) → KEEP. Missing keys cause runtime errors.
+**Locale structure validation** (all locales have same keys) → DELETE in favour of `npx svelte-whisper check --usage src`, which `npm test` runs. KEEP a test only if it covers logic that builds keys or picks sentence variants in code.
 
 **Hotkey mapping tests** → KEEP if testing the mapping logic. DELETE if just checking an import exists.
 
