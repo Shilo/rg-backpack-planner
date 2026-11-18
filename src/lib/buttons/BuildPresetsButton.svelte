@@ -39,6 +39,7 @@
     import { cannonTree } from "../../config/cannonTree";
     import { t } from "svelte-whisper";
     import { watch } from "../watch.svelte";
+    import type { BuildSubject } from "../buildSubject";
     import { getDisplayPresetName } from "../i18n";
     import { undoHistory } from "../undoHistoryStore";
     import { decodeAndStartCompare, stopCompare } from "../compare/compareStore";
@@ -83,11 +84,11 @@
               })
             : t("share.defaultShareTitle");
     });
-    let editPresetTooltipSubject = "";
+    let editPresetSubject: BuildSubject = "your";
     watch(() => {
-        editPresetTooltipSubject = editPreset?.name
-            ? getDisplayPresetName(editPreset.name)
-            : t("techCrystals.subjectYour");
+        editPresetSubject = editPreset?.name
+            ? { name: getDisplayPresetName(editPreset.name) }
+            : "your";
     });
 
     watch(() => {
@@ -473,7 +474,7 @@
             </Button>
             <ShareBuildButton
                 title={t("common.share")}
-                tooltipSubject={editPresetTooltipSubject}
+                subject={editPresetSubject}
                 menuTitle={editPreset?.name
                     ? t("buildPresets.shareMenuTitleWithName", {
                           name: truncateText(

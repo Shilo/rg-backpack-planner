@@ -1,10 +1,4 @@
 {
-    "languageNames": {
-        "en": "English",
-        "ja": "Japanese (日本語)",
-        "zh": "Chinese (中文)",
-        "fr": "French (Français)"
-    },
     "app": {
         "name": "Backpack Planner",
         "gameName": "Run! Goddess",
@@ -215,7 +209,10 @@
         "decrementTen": "-10",
         "reset": "Reset",
         "resetToast": "Reset node",
-        "leveledLeafCapWarning": "Maximum of {cap} Final Damage nodes can be leveled."
+        "leveledLeafCapWarning": {
+            "one": "Maximum of {cap} Final Damage node can be leveled.",
+            "other": "Maximum of {cap} Final Damage nodes can be leveled."
+        }
     },
     "tree": {
         "focusedInViewToast": "Focused tree in view",
@@ -229,12 +226,21 @@
         "displayTooltipSpentOwned": "Tech Crystals\nspent / owned",
         "spentLabel": "Tech Crystals Spent and Owned",
         "budgetHint": "Change spending budget",
-        "changeOwnedTooltip": "Change {subject} Tech Crystal owned (budget)",
-        "ownedModalTitle": "Tech Crystals Owned",
-        "ownedModalTitleWithSubject": "Tech Crystals Owned ({subject})",
-        "ownedModalInput": "Set {subject} budget",
-        "subjectYour": "your",
-        "subjectPreview": "preview",
+        "changeOwnedTooltip": {
+            "your": "Change your Tech Crystal owned (budget)",
+            "preview": "Change preview Tech Crystal owned (budget)",
+            "named": "Change {name} Tech Crystal owned (budget)"
+        },
+        "ownedModalTitle": {
+            "your": "Tech Crystals Owned",
+            "preview": "Tech Crystals Owned (Preview)",
+            "named": "Tech Crystals Owned ({name})"
+        },
+        "ownedModalInput": {
+            "your": "Set your budget",
+            "preview": "Set preview budget",
+            "named": "Set {name} budget"
+        },
         "budgetReachedToast": "Tech Crystal budget reached",
         "budgetCappedToast": "Capped to level {level}",
         "budgetLineageToast": "Leveled lineage within budget",
@@ -288,7 +294,11 @@
     },
     "share": {
         "buildButton": "Share Build",
-        "shareTooltip": "Share {subject} build",
+        "shareTooltip": {
+            "your": "Share your build",
+            "preview": "Share preview build",
+            "named": "Share {name} build"
+        },
         "shareViaAppsTooltip": "Share via installed apps",
         "shareTo": "Share To...",
         "shareLinkMenuTitle": "Share Link",
@@ -348,9 +358,13 @@
         "recommended": "Recommended",
         "previewFromLinkTooltip": "Preview build from shareable link or code",
         "previewBuildTooltip": "Preview {name} build",
-        "techCrystalsDescription": "{count} Tech Crystals",
+        "techCrystalsDescription": {
+            "one": "{amount} Tech Crystal",
+            "other": "{amount} Tech Crystals"
+        },
         "clonePreviewBuild": "Clone Preview",
         "clonePreviewBuildDescription": "Copy to build",
+        "clonePreviewBuildTooltip": "Copy the preview build to a new preset",
         "cloneModalTitle": "Clone Preview Build",
         "cloneModalMessage": "Create a new preset named \"{name}\" from the preview build.",
         "invalidBuildDataToast": "Invalid build data",
@@ -394,9 +408,15 @@
             "optionsLabel": "Reset options for {treeName}",
             "choiceMessage": "Choose what to reset in {treeName}.",
             "choiceBranchLabel": "Reset {branchName} Branch",
-            "choiceBranchDescription": "Refund {amount} spent in the {branchName} branch only.",
+            "choiceBranchDescription": {
+                "one": "Refund {amount} spent in the {branchName} branch only.",
+                "other": "Refund {amount} spent in the {branchName} branch only."
+            },
             "choiceTreeLabel": "Reset Whole Tree",
-            "choiceTreeDescription": "Refund {amount} spent across every branch in this tree."
+            "choiceTreeDescription": {
+                "one": "Refund {amount} spent across every branch in this tree.",
+                "other": "Refund {amount} spent across every branch in this tree."
+            }
         },
         "resetSettings": {
             "title": "Reset Settings",

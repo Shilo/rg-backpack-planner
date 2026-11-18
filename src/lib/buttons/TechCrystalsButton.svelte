@@ -1,18 +1,17 @@
 <script lang="ts">
     import { TechCrystalIcon } from "../customIcons";
     import Button from "../Button.svelte";
-    import { formatNumber } from "svelte-whisper";
-    import { watch } from "../watch.svelte";
+    import { formatNumber, t } from "svelte-whisper";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
+    import { changeOwnedTooltip, type BuildSubject } from "../buildSubject";
     import {
         techCrystalsSpent,
         techCrystalsOwned,
         techCrystalsFromActivePreset,
     } from "../techCrystalStore";
-    import { t } from "svelte-whisper";
 
     export let disabled: boolean | undefined = false;
-    export let tooltipSubject = "";
+    export let subject: BuildSubject = "your";
     export let activeTreeIndex = 0;
 
     // When disabled (preview mode), read from active preset's stored buildCode
@@ -24,19 +23,13 @@
         ? $techCrystalsFromActivePreset.spent
         : $techCrystalsSpent;
     $: hasOwned = owned > 0;
-    let resolvedTooltipSubject = "";
-    watch(() => {
-        resolvedTooltipSubject = tooltipSubject || t("techCrystals.subjectYour");
-    });
 </script>
 
 <Button
     on:click={() => {
-        openTechCrystalsOwnedModal(owned, resolvedTooltipSubject, activeTreeIndex);
+        openTechCrystalsOwnedModal(owned, subject, activeTreeIndex);
     }}
-    tooltipText={t("techCrystals.changeOwnedTooltip", {
-        subject: resolvedTooltipSubject,
-    })}
+    tooltipText={changeOwnedTooltip(subject)}
     icon={TechCrystalIcon}
     iconClass="button-icon button-icon-filled"
     iconWeight="fill"

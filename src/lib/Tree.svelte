@@ -68,7 +68,7 @@
     import { guardianSkillIds } from "../config/guardianTree";
     import { vanguardSkillIds } from "../config/vanguardTree";
     import { cannonSkillIds } from "../config/cannonTree";
-    import { getLocale, t } from "svelte-whisper";
+    import { formatNumber, getLocale, t } from "svelte-whisper";
     import { watch } from "./watch.svelte";
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
@@ -590,7 +590,8 @@
             ) {
                 showToast(
                     t("nodeMenu.leveledLeafCapWarning", {
-                        cap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                        count: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                        cap: formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP),
                     }),
                     { tone: "negative" },
                 );

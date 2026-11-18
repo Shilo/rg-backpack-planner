@@ -3,31 +3,23 @@ import { TechCrystalIcon } from "./customIcons";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned, techCrystalsSpent } from "./techCrystalStore";
 import { undoHistory } from "./undoHistoryStore";
-import { t } from "svelte-whisper";
-import { formatNumber } from "svelte-whisper";
+import { t, formatNumber } from "svelte-whisper";
+import { ownedModalInput, ownedModalTitle, type BuildSubject } from "./buildSubject";
 
 export function openTechCrystalsOwnedModal(
     currentOwned: number,
-    tooltipSubject?: string,
+    subject: BuildSubject = "your",
     activeTreeIndex: number = 0,
 ) {
-    const defaultSubject = t("techCrystals.subjectYour");
-    const normalizedSubject = tooltipSubject || defaultSubject;
     const currentSpent = get(techCrystalsSpent);
     openModal({
         type: "input",
-        title: normalizedSubject !== defaultSubject
-            ? t("techCrystals.ownedModalTitleWithSubject", {
-                subject: normalizedSubject.charAt(0).toUpperCase() + normalizedSubject.slice(1),
-            })
-            : t("techCrystals.ownedModalTitle"),
+        title: ownedModalTitle(subject),
         titleIcon: TechCrystalIcon,
         titleIconWeight: "fill",
         wide: true,
         input: {
-            label: t("techCrystals.ownedModalInput", {
-                subject: normalizedSubject,
-            }),
+            label: ownedModalInput(subject),
             labelDetail: formatNumber(currentOwned),
             labelDetailIcon: TechCrystalIcon,
             labelDetailIconWeight: "fill",

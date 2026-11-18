@@ -1,10 +1,4 @@
 {
-    "languageNames": {
-        "en": "英语 (English)",
-        "ja": "日语 (日本語)",
-        "zh": "中文",
-        "fr": "法语 (Français)"
-    },
     "app": {
         "name": "Backpack Planner",
         "gameName": "Run! Goddess",
@@ -215,7 +209,9 @@
         "decrementTen": "-10",
         "reset": "重置",
         "resetToast": "重置节点",
-        "leveledLeafCapWarning": "最多可以升级{cap}个最终伤害节点。"
+        "leveledLeafCapWarning": {
+            "other": "最多可以升级{cap}个最终伤害节点。"
+        }
     },
     "tree": {
         "focusedInViewToast": "已聚焦技能树到视图",
@@ -229,12 +225,21 @@
         "displayTooltipSpentOwned": "科技水晶\n已消耗 / 拥有",
         "spentLabel": "科技水晶消耗 / 拥有",
         "budgetHint": "更改消费预算",
-        "changeOwnedTooltip": "更改{subject}科技水晶拥有量（预算）",
-        "ownedModalTitle": "拥有的科技水晶",
-        "ownedModalTitleWithSubject": "拥有的科技水晶（{subject}）",
-        "ownedModalInput": "设置{subject}预算",
-        "subjectYour": "你的",
-        "subjectPreview": "预览的",
+        "changeOwnedTooltip": {
+            "your": "更改你的科技水晶拥有量（预算）",
+            "preview": "更改预览的科技水晶拥有量（预算）",
+            "named": "更改{name}的科技水晶拥有量（预算）"
+        },
+        "ownedModalTitle": {
+            "your": "拥有的科技水晶",
+            "preview": "拥有的科技水晶（预览）",
+            "named": "拥有的科技水晶（{name}）"
+        },
+        "ownedModalInput": {
+            "your": "设置你的预算",
+            "preview": "设置预览的预算",
+            "named": "设置{name}的预算"
+        },
         "budgetReachedToast": "已达科技水晶预算上限",
         "budgetCappedToast": "已限制至等级{level}",
         "budgetLineageToast": "在预算内提升了血脉等级",
@@ -288,7 +293,11 @@
     },
     "share": {
         "buildButton": "分享构建",
-        "shareTooltip": "分享{subject}构建",
+        "shareTooltip": {
+            "your": "分享你的构建",
+            "preview": "分享预览的构建",
+            "named": "分享{name}的构建"
+        },
         "shareViaAppsTooltip": "通过已安装的应用分享",
         "shareTo": "分享到...",
         "shareLinkMenuTitle": "分享链接",
@@ -348,9 +357,12 @@
         "recommended": "推荐",
         "previewFromLinkTooltip": "从分享链接或代码预览构建",
         "previewBuildTooltip": "预览{name}构建",
-        "techCrystalsDescription": "{count} 科技水晶",
+        "techCrystalsDescription": {
+            "other": "{amount} 科技水晶"
+        },
         "clonePreviewBuild": "克隆预览构建",
         "clonePreviewBuildDescription": "复制到个人构建",
+        "clonePreviewBuildTooltip": "将预览构建复制到新预设",
         "cloneModalTitle": "克隆预览构建",
         "cloneModalMessage": "从预览构建创建名为\"{name}\"的新预设。",
         "invalidBuildDataToast": "无效的构建数据",
@@ -394,9 +406,13 @@
             "optionsLabel": "{treeName}重置选项",
             "choiceMessage": "选择要在{treeName}中重置的范围。",
             "choiceBranchLabel": "重置{branchName}分支",
-            "choiceBranchDescription": "仅返还{branchName}分支中消耗的{amount}。",
+            "choiceBranchDescription": {
+                "other": "仅返还{branchName}分支中消耗的{amount}。"
+            },
             "choiceTreeLabel": "重置整棵树",
-            "choiceTreeDescription": "返还这棵树所有分支中消耗的{amount}。"
+            "choiceTreeDescription": {
+                "other": "返还这棵树所有分支中消耗的{amount}。"
+            }
         },
         "resetSettings": {
             "title": "重置设置",

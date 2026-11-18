@@ -42,7 +42,6 @@
     const handleReset = () => {
         if (!onReset || !onResetBranch) return;
         openResetTreeChoicesModal(
-            t,
             treeLabel,
             levelsById,
             {

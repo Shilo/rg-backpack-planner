@@ -10,7 +10,7 @@
     import { activeTabs } from "../techCrystalStore";
     import { showToast } from "../toast";
     import { openModal } from "../modalStore";
-    import { t } from "svelte-whisper";
+    import { t, formatNumber } from "svelte-whisper";
     import { watch } from "../watch.svelte";
     import { TechCrystalIcon } from "../customIcons";
     import { getDisplayPresetName } from "../i18n";
@@ -138,7 +138,8 @@
                         icon={build.icon ?? ShareNetworkIcon}
                         description={build.tcSpent > 0
                             ? t("preview.techCrystalsDescription", {
-                                  count: build.tcSpent.toLocaleString(),
+                                  count: build.tcSpent,
+                                  amount: formatNumber(build.tcSpent),
                               })
                             : undefined}
                         descriptionIcon={build.tcSpent > 0

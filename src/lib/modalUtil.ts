@@ -1,15 +1,6 @@
 import type { Component } from "svelte";
 import { openModal } from "./modalStore";
 
-/**
- * Translation function used by modal and other i18n-aware utils.
- * Compatible with svelte-whisper's t() and similar.
- */
-export type TranslateFn = (
-    key: string,
-    opts?: Record<string, string>,
-) => string;
-
 export type ConfirmModalOptions = {
     title: string;
     message: string;

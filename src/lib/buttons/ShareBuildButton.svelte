@@ -21,15 +21,15 @@
     import { openComposeScreenshot } from "../ComposeScreenshot.svelte";
     import { activePresetName } from "../buildPresetsStore";
     import type { BuildData } from "../buildData/encoder";
-    import { truncateText } from "../stringUtil";
     import { t } from "svelte-whisper";
     import { watch } from "../watch.svelte";
+    import { shareTooltip, type BuildSubject } from "../buildSubject";
     import { getKeyboardActionLabel } from "../input";
     import { isPreviewMode } from "../previewModeStore";
 
     export let title: string | undefined;
     export let disabled: boolean | undefined = false;
-    export let tooltipSubject = "";
+    export let subject: BuildSubject = "your";
     export let menuTitle = "";
     export let buildName: string | null = null;
     export let buildData: BuildData | null = null;
@@ -50,10 +50,6 @@
     let linkMenuAction: "share" | "copy" | null = null;
     let recommendedShareChoices: RecommendedShareUrlChoice[] | null = null;
     let shareButtonElement: HTMLButtonElement | null = null;
-    let resolvedTooltipSubject = "";
-    watch(() => {
-        resolvedTooltipSubject = tooltipSubject || t("techCrystals.subjectYour");
-    });
     let resolvedMenuTitle = "";
     watch(() => {
         resolvedMenuTitle = menuTitle || t("share.buildButton");
@@ -61,12 +57,6 @@
     let resolvedButtonTitle = "";
     watch(() => {
         resolvedButtonTitle = title ?? t("share.buildButton");
-    });
-    let resolvedTooltip = "";
-    watch(() => {
-        resolvedTooltip = t("share.shareTooltip", {
-            subject: truncateText(resolvedTooltipSubject),
-        });
     });
 
     // Use active preset name as default if buildName not provided
@@ -215,7 +205,7 @@
 <Button
     bind:element={shareButtonElement}
     on:click={handleShareBuildClick}
-    tooltipText={description ? undefined : resolvedTooltip}
+    tooltipText={description ? undefined : shareTooltip(subject)}
     {description}
     icon={ShareIcon}
     arrow="down"

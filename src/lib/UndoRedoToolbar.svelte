@@ -99,7 +99,6 @@
     function handleReset() {
         if (!canResetTree || !onReset || !onResetBranch) return;
         openResetTreeChoicesModal(
-            t,
             treeLabel,
             activeLevels,
             { onResetTree: onReset, onResetBranch },

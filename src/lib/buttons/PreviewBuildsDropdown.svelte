@@ -10,7 +10,7 @@
     } from "../buildData/url";
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
-    import { t } from "svelte-whisper";
+    import { t, formatNumber } from "svelte-whisper";
     import { watch } from "../watch.svelte";
     import { TechCrystalIcon } from "../customIcons";
     import { activeTabs } from "../techCrystalStore";
@@ -90,7 +90,8 @@
                         })}
                         description={build.tcSpent > 0
                             ? t("preview.techCrystalsDescription", {
-                                  count: build.tcSpent.toLocaleString(),
+                                  count: build.tcSpent,
+                                  amount: formatNumber(build.tcSpent),
                               })
                             : undefined}
                         descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}

@@ -1,10 +1,4 @@
 {
-    "languageNames": {
-        "en": "Anglais (English)",
-        "ja": "Japonais (日本語)",
-        "zh": "Chinois (中文)",
-        "fr": "Français"
-    },
     "app": {
         "name": "Backpack Planner",
         "gameName": "Run! Goddess",
@@ -215,7 +209,10 @@
         "decrementTen": "-10",
         "reset": "Réinitialiser",
         "resetToast": "Nœud réinitialisé",
-        "leveledLeafCapWarning": "Un maximum de {cap} nœuds de Dégâts finaux peuvent être montés."
+        "leveledLeafCapWarning": {
+            "one": "Un maximum de {cap} nœud de Dégâts finaux peut être monté.",
+            "other": "Un maximum de {cap} nœuds de Dégâts finaux peuvent être montés."
+        }
     },
     "tree": {
         "focusedInViewToast": "Arbre centré dans la vue",
@@ -229,12 +226,21 @@
         "displayTooltipSpentOwned": "Cristaux Tech\ndépensés / possédés",
         "spentLabel": "Cristaux Tech dépensés / possédés",
         "budgetHint": "Modifier le budget de dépenses",
-        "changeOwnedTooltip": "Modifier les Cristaux Tech possédés ({subject}) (budget)",
-        "ownedModalTitle": "Cristaux Tech possédés",
-        "ownedModalTitleWithSubject": "Cristaux Tech possédés ({subject})",
-        "ownedModalInput": "Définir le budget {subject}",
-        "subjectYour": "votre",
-        "subjectPreview": "de l'aperçu",
+        "changeOwnedTooltip": {
+            "your": "Modifier vos Cristaux Tech possédés (budget)",
+            "preview": "Modifier les Cristaux Tech possédés de l'aperçu (budget)",
+            "named": "Modifier les Cristaux Tech possédés de {name} (budget)"
+        },
+        "ownedModalTitle": {
+            "your": "Cristaux Tech possédés",
+            "preview": "Cristaux Tech possédés (aperçu)",
+            "named": "Cristaux Tech possédés ({name})"
+        },
+        "ownedModalInput": {
+            "your": "Définir votre budget",
+            "preview": "Définir le budget de l'aperçu",
+            "named": "Définir le budget de {name}"
+        },
         "budgetReachedToast": "Budget de Cristaux Tech atteint",
         "budgetCappedToast": "Limité au niveau {level}",
         "budgetLineageToast": "Lignée nivelée dans le budget",
@@ -288,7 +294,11 @@
     },
     "share": {
         "buildButton": "Partager le build",
-        "shareTooltip": "Partager le build {subject}",
+        "shareTooltip": {
+            "your": "Partager votre build",
+            "preview": "Partager le build d'aperçu",
+            "named": "Partager le build {name}"
+        },
         "shareViaAppsTooltip": "Partager via les applications installées",
         "shareTo": "Partager vers...",
         "shareLinkMenuTitle": "Lien de partage",
@@ -348,9 +358,13 @@
         "recommended": "Recommandés",
         "previewFromLinkTooltip": "Prévisualiser un build depuis un lien de partage ou un code",
         "previewBuildTooltip": "Prévisualiser le build {name}",
-        "techCrystalsDescription": "{count} Cristaux Tech",
+        "techCrystalsDescription": {
+            "one": "{amount} Cristal Tech",
+            "other": "{amount} Cristaux Tech"
+        },
         "clonePreviewBuild": "Cloner le build d'aperçu",
         "clonePreviewBuildDescription": "Copier vers le build personnel",
+        "clonePreviewBuildTooltip": "Copier le build d'aperçu vers un nouveau preset",
         "cloneModalTitle": "Cloner le build d'aperçu",
         "cloneModalMessage": "Créer un nouveau preset nommé \"{name}\" à partir du build d'aperçu.",
         "invalidBuildDataToast": "Données de build invalides",
@@ -394,9 +408,15 @@
             "optionsLabel": "Options de réinitialisation pour {treeName}",
             "choiceMessage": "Choisissez ce que vous souhaitez réinitialiser dans {treeName}.",
             "choiceBranchLabel": "Réinitialiser la branche {branchName}",
-            "choiceBranchDescription": "Rembourser {amount} dépensés dans la branche {branchName} uniquement.",
+            "choiceBranchDescription": {
+                "one": "Rembourser {amount} dépensé dans la branche {branchName} uniquement.",
+                "other": "Rembourser {amount} dépensés dans la branche {branchName} uniquement."
+            },
             "choiceTreeLabel": "Réinitialiser tout l'arbre",
-            "choiceTreeDescription": "Rembourser {amount} dépensés dans toutes les branches de cet arbre."
+            "choiceTreeDescription": {
+                "one": "Rembourser {amount} dépensé dans toutes les branches de cet arbre.",
+                "other": "Rembourser {amount} dépensés dans toutes les branches de cet arbre."
+            }
         },
         "resetSettings": {
             "title": "Réinitialiser les paramètres",

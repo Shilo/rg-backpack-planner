@@ -1,5 +1,5 @@
 import type { Component } from "svelte";
-import { formatNumber } from "svelte-whisper";
+import { formatNumber, t } from "svelte-whisper";
 import type { LevelsByIndex, Node } from "../types/tree";
 import {
     calculateTreeBranchTechCrystalsSpent,
@@ -11,12 +11,10 @@ import {
     type ResetTreeChoiceId,
 } from "./resetTreeChoiceModel";
 import type { TreeBranchKey } from "./treeLevelsStore";
-import type { TranslateFn } from "./modalUtil";
 
 const REFUND_AMOUNT_TOKEN = "__amount__";
 
 export function openResetTreeChoicesModal(
-    t: TranslateFn,
     treeLabel: string,
     activeLevels: LevelsByIndex | null | undefined,
     handlers: {
@@ -56,14 +54,17 @@ export function openResetTreeChoicesModal(
         amount: number,
     ) => {
         const amountLabel = t("preview.techCrystalsDescription", {
-            count: formatNumber(amount),
+            count: amount,
+            amount: formatNumber(amount),
         });
         const description = t(key, {
             ...params,
+            count: amount,
             amount: amountLabel,
         });
         const tokenizedDescription = t(key, {
             ...params,
+            count: amount,
             amount: REFUND_AMOUNT_TOKEN,
         });
         const [descriptionPrefix = "", ...descriptionSuffixParts] =

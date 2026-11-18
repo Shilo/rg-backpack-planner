@@ -199,7 +199,7 @@
                 event.preventDefault();
                 openTechCrystalsOwnedModal(
                     $techCrystalsOwned,
-                    undefined,
+                    "your",
                     activeIndex,
                 );
                 break;
@@ -481,7 +481,6 @@
         const levels = $treeLevels[activeIndex];
         if (sumLevels(levels) === 0) return;
         openResetTreeChoicesModal(
-            t,
             tab.label,
             levels,
             {

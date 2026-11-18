@@ -1,10 +1,4 @@
 {
-    "languageNames": {
-        "en": "英語 (English)",
-        "ja": "日本語",
-        "zh": "中国語 (中文)",
-        "fr": "フランス語 (Français)"
-    },
     "app": {
         "name": "Backpack Planner",
         "gameName": "走れ！女神",
@@ -215,7 +209,9 @@
         "decrementTen": "-10",
         "reset": "リセット",
         "resetToast": "ノードをリセット",
-        "leveledLeafCapWarning": "最終ダメージノードのレベル上限は{cap}個です。"
+        "leveledLeafCapWarning": {
+            "other": "最終ダメージノードのレベル上限は{cap}個です。"
+        }
     },
     "tree": {
         "focusedInViewToast": "ツリーをビューに合わせました",
@@ -229,12 +225,21 @@
         "displayTooltipSpentOwned": "研究クリスタル\n消費 / 所持",
         "spentLabel": "研究クリスタル消費 / 所持",
         "budgetHint": "消費予算を変更",
-        "changeOwnedTooltip": "{subject}研究クリスタルの所持数（予算）を変更",
-        "ownedModalTitle": "研究クリスタル所持数",
-        "ownedModalTitleWithSubject": "研究クリスタル所持数（{subject}）",
-        "ownedModalInput": "{subject}の予算を設定",
-        "subjectYour": "あなたの",
-        "subjectPreview": "プレビューの",
+        "changeOwnedTooltip": {
+            "your": "あなたの研究クリスタル所持数（予算）を変更",
+            "preview": "プレビューの研究クリスタル所持数（予算）を変更",
+            "named": "{name}の研究クリスタル所持数（予算）を変更"
+        },
+        "ownedModalTitle": {
+            "your": "研究クリスタル所持数",
+            "preview": "研究クリスタル所持数（プレビュー）",
+            "named": "研究クリスタル所持数（{name}）"
+        },
+        "ownedModalInput": {
+            "your": "あなたの予算を設定",
+            "preview": "プレビューの予算を設定",
+            "named": "{name}の予算を設定"
+        },
         "budgetReachedToast": "研究クリスタル予算に到達",
         "budgetCappedToast": "レベル{level}に制限",
         "budgetLineageToast": "予算内で系統をレベルアップ",
@@ -288,7 +293,11 @@
     },
     "share": {
         "buildButton": "ビルドを共有",
-        "shareTooltip": "{subject}ビルドを共有",
+        "shareTooltip": {
+            "your": "あなたのビルドを共有",
+            "preview": "プレビューのビルドを共有",
+            "named": "{name}のビルドを共有"
+        },
         "shareViaAppsTooltip": "インストール済みアプリで共有",
         "shareTo": "共有先...",
         "shareLinkMenuTitle": "共有リンク",
@@ -348,9 +357,12 @@
         "recommended": "おすすめ",
         "previewFromLinkTooltip": "共有リンクまたはコードからビルドをプレビュー",
         "previewBuildTooltip": "{name}ビルドをプレビュー",
-        "techCrystalsDescription": "{count} 研究クリスタル",
+        "techCrystalsDescription": {
+            "other": "{amount} 研究クリスタル"
+        },
         "clonePreviewBuild": "プレビュービルドをクローン",
         "clonePreviewBuildDescription": "個人ビルドにコピー",
+        "clonePreviewBuildTooltip": "プレビュービルドを新しいプリセットにコピー",
         "cloneModalTitle": "プレビュービルドをクローン",
         "cloneModalMessage": "プレビュービルドから\"{name}\"という名前の新しいプリセットを作成します。",
         "invalidBuildDataToast": "無効なビルドデータ",
@@ -394,9 +406,13 @@
             "optionsLabel": "{treeName}のリセット項目",
             "choiceMessage": "{treeName}でリセットする範囲を選択してください。",
             "choiceBranchLabel": "{branchName}ブランチをリセット",
-            "choiceBranchDescription": "{branchName}ブランチで消費した{amount}のみを返還します。",
+            "choiceBranchDescription": {
+                "other": "{branchName}ブランチで消費した{amount}のみを返還します。"
+            },
             "choiceTreeLabel": "ツリー全体をリセット",
-            "choiceTreeDescription": "このツリーのすべてのブランチで消費した{amount}を返還します。"
+            "choiceTreeDescription": {
+                "other": "このツリーのすべてのブランチで消費した{amount}を返還します。"
+            }
         },
         "resetSettings": {
             "title": "設定をリセット",

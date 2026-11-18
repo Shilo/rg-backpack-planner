@@ -58,7 +58,7 @@
     function formatBonusValue(v: number): string {
         if (v === 0) return "0";
         if (Number.isInteger(v)) return formatNumber(v);
-        return String(parseFloat(v.toPrecision(3)));
+        return formatNumber(v, { maximumSignificantDigits: 3 });
     }
 
     function parseDescription(text: string): string {
@@ -280,7 +280,8 @@
                 </div>
                 <span class="warning-text">
                     {t("nodeMenu.leveledLeafCapWarning", {
-                        cap: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                        count: GLOBAL_LEVELED_LEAF_NODE_CAP,
+                        cap: formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP),
                     })}
                 </span>
             </div>

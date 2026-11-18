@@ -31,11 +31,11 @@
     }
 </script>
 
-<TechCrystalsButton tooltipSubject={t("techCrystals.subjectPreview")} />
+<TechCrystalsButton subject="preview" />
 <ShareBuildButton
     title={t("preview.sharePreviewBuild")}
     description={t("preview.sharePreviewBuildDescription")}
-    tooltipSubject={t("techCrystals.subjectPreview")}
+    subject="preview"
     buildName={$previewBuildName}
 />
 <ButtonGroup fill>
