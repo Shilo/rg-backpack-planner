@@ -5,15 +5,15 @@ Hand-written Node/TS test runners for Backpack Planner.
 ## Running Tests
 
 ```bash
-npm test                         # Type checks + curated CLI suite from test/index.ts
-npx tsx test/index.ts            # Curated CLI test runner only (skip type checks)
-npx tsx test/tierLeveling.test.ts   # Tier contract CLI suite
-npx tsx test/tierTargetLevelFns.test.ts  # Tier math helpers
-npx tsx test/compareStats.test.ts  # Compare statistics mapping suite
-npx tsx test/encoder.test.ts     # Build-data codec suite
-npx tsx test/shareUrl.test.ts    # Share URL encoding/decoding suite
+npm test                         # Type checks + locale check + curated CLI suite from test/index.ts
+npx svelte-whisper check --usage src  # Locale files complete, placeholders and glossary intact, no undefined keys
+npx tsx --import ./test/svelteModules.ts test/index.ts   # Curated CLI test runner only (skip type checks)
+npx tsx --import ./test/svelteModules.ts test/tierLeveling.test.ts   # Tier contract CLI suite
+npx tsx --import ./test/svelteModules.ts test/tierTargetLevelFns.test.ts  # Tier math helpers
+npx tsx --import ./test/svelteModules.ts test/compareStats.test.ts  # Compare statistics mapping suite
+npx tsx --import ./test/svelteModules.ts test/encoder.test.ts     # Build-data codec suite
+npx tsx --import ./test/svelteModules.ts test/shareUrl.test.ts    # Share URL encoding/decoding suite
 npm run test:ui:undo             # Headless undo/redo browser smoke test (only when requested)
-npm run test:ui:locale           # Headless missing-locale-keys sweep (only when requested)
 npm run test:ui:tier             # Headed Playwright tier UI suite (only when requested)
 npm run test:ui:capture          # Preview-build screenshot regression suite (only when requested)
 ```
@@ -27,6 +27,7 @@ npm run test:ui:capture          # Preview-build screenshot regression suite (on
 - A final summary always prints
 - Exit code is `1` if any listed suite fails
 - Playwright UI suites run separately via `npm run test:ui:*` and are not part of `npm test`
+- `test/svelteModules.ts` lets Node import Svelte runes modules (`*.svelte.js`/`*.svelte.ts`, including svelte-whisper) by compiling them with `svelte/compiler`; pass it with `--import` when running a suite directly
 
 ## Tier Leveling Contract
 
@@ -48,7 +49,6 @@ Contract coverage includes target clamping, directional reachability, boundary h
 - `test/tierLeveling.output.log` — CLI tier suite mirror
 - `test/tierLeveling.ui.output.log` — UI tier suite mirror
 - `test/captureScreenshot.ui.output.log` — Screenshot capture UI suite mirror
-- `test/missingLocaleKeys.ui.output.log` — Missing locale keys UI sweep mirror
 - `test/artifacts/tier-leveling-ui/` — Failure screenshots from UI suite
 
 ## Expected Console Errors
@@ -72,6 +72,6 @@ Update tests when changing:
 - Data migration logic in `src/lib/migrations/`
 - Reduce motion setting or animation guard behavior
 - Controls page data, input labels, or action resolution logic
-- Locale/i18n keys, term mappings, or casing conventions
+- i18n helpers that build keys or pick sentence variants (locale files themselves are checked by `svelte-whisper check`)
 
 When behavior changes intentionally, update `docs/behavior-contracts.md` and keep expectations explicit in `test/tierLeveling.shared.ts`.
