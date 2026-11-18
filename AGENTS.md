@@ -37,11 +37,12 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 
 ## Localization
 
-- i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`. `tr()` and `formatPercent()` no longer exist.
-- Components without runes (`export let`, `$:`), which is most of `src/lib/`: Svelte only follows stores there, so write `$t("key", vars)` and `$locale` (`$locale = id` or `locale.set(id)` to switch), and pass the locale to formatters: `formatNumber(n, options, $locale)`. A helper that translates or formats takes `$t` or `$locale` as an argument (`getDisplayPresetName(name, $t)`, `formatByteSize(bytes, $locale)`), otherwise its result goes stale after a language switch.
-- Runes components and `.ts` modules use the functions: `t("key")`, `getLocale()`, `setLocale(id)`, `formatNumber(n)`.
+- i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`.
+- The app's components do not use runes (`export let`, `$:`), and in those Svelte follows stores only. Write `$t("key", vars)` for text and `$locale` for the active locale (`bind:value={$locale}` or `locale.set(id)` to switch). A bare `t()` in a legacy component stays in the old language after a switch.
+- Pass the locale to formatters in legacy markup and `$:` statements: `formatNumber(n, options, $locale)`, `formatPercent(x, precision, $locale)`. Helpers in `.ts` modules that produce text for legacy markup take the locale (or `$t`) as a parameter.
+- Plain `.ts` modules and runes components use the functions: `t()`, `getLocale()`, `setLocale()`, `formatNumber()`.
 - One sentence, one key: never join translated fragments. Use a plural group (`{ "one": …, "other": … }` selected by a numeric `count`) wherever a count is shown.
-- Format numbers in UI text with `formatNumber`, never `toLocaleString()`, `toFixed()` or a hand-appended `%` (use `{ style: "percent" }`).
+- Format numbers in UI text with `formatNumber` / `formatPercent`, never `toLocaleString()` or `toFixed()`.
 - After changing `en.json`, translate with the `whisper-translate` skill (rules in `src/locales/TRANSLATING.md`) and confirm `npx svelte-whisper check --usage src` passes.
 
 ## Design
