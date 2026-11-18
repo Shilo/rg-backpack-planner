@@ -5,6 +5,7 @@
     import { NODE_RADIUS_PX } from "../Node.svelte";
     import { TREE_ROOT_X, TREE_ROOT_Y } from "../../config/baseTree";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import {
         getCycleDirection,
         getInputLabel,
@@ -88,19 +89,25 @@
         ? Math.max(8, panePadding - 2)
         : panePadding;
 
-    $: primaryInputLabel = getInputLabel(
-        "primary",
-        null,
-        isTouch ? "touch" : "mouse",
-        $t,
-    );
+    let primaryInputLabel = "";
+    watch(() => {
+        primaryInputLabel = getInputLabel(
+            "primary",
+            null,
+            isTouch ? "touch" : "mouse",
+            t,
+        );
+    });
 
-    $: steps = createOnboardingSteps({
-        translate: (key, params) => $t(key, params),
-        isTouch,
-        compactLayout,
-        targetRegion,
-        lockedNodeRegion,
+    let steps!: ReturnType<typeof createOnboardingSteps>;
+    watch(() => {
+        steps = createOnboardingSteps({
+            translate: (key, params) => t(key, params),
+            isTouch,
+            compactLayout,
+            targetRegion,
+            lockedNodeRegion,
+        });
     });
     $: if (steps.length === 0) {
         currentStepIndex = 0;
@@ -108,8 +115,11 @@
         currentStepIndex = steps.length - 1;
     }
     $: activeStep = steps[currentStepIndex] ?? null;
-    $: actionHint = $t("onboarding.continueAction", {
-        action: primaryInputLabel,
+    let actionHint = "";
+    watch(() => {
+        actionHint = t("onboarding.continueAction", {
+            action: primaryInputLabel,
+        });
     });
     $: stepTransitionDuration = $animationsDisabled ? 0 : 220;
     $: stepTransitionY = $animationsDisabled ? 0 : 16;
@@ -589,7 +599,7 @@
         <OnboardingFooterNote
             stepNumber={currentStepIndex + 1}
             stepCount={steps.length}
-            title={$t("onboarding.tutorialTitle")}
+            title={t("onboarding.tutorialTitle")}
             hintText={actionHint}
             compact={compactLayout}
             onSkip={dismissOnboarding}

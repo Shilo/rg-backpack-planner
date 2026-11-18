@@ -25,8 +25,8 @@
 </script>
 
 <SliderSetting
-    label={$t("settings.textSize")}
-    ariaLabel={$t("settings.textSize")}
+    label={t("settings.textSize")}
+    ariaLabel={t("settings.textSize")}
     icon={TextTIcon as unknown as Component}
     min={TEXT_SIZE_NOTCH_MIN}
     max={TEXT_SIZE_NOTCH_MAX}
@@ -35,5 +35,5 @@
     defaultNotchIndex={DEFAULT_TEXT_SIZE_NOTCH}
     formatValue={formatTextSizeLabel}
     onChange={handleTextSizeChange}
-    description={$t("settings.textSizeDescription")}
+    description={t("settings.textSizeDescription")}
 />

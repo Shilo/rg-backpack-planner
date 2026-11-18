@@ -61,32 +61,32 @@
 <SideMenuPreviewSection />
 
 <SettingsPage>
-    <SideMenuSection title={$t("sideMenu.sections.build")}>
+    <SideMenuSection title={t("sideMenu.sections.build")}>
         <TechCrystalsButton disabled={$isPreviewMode} {activeTreeIndex} />
         <BuildPresetsButton disabled={$isPreviewMode} />
         <ButtonGroup class="build-share-row" separatorSide="right">
             <ShareBuildButton
-                title={$t("settings.shareButton")}
-                description={$t("settings.shareDescription")}
+                title={t("settings.shareButton")}
+                description={t("settings.shareDescription")}
                 disabled={$isPreviewMode}
                 onComposeScreenshot={() => onClose?.()}
             />
             <Button
                 bind:element={previewButtonElement}
                 on:click={handlePreviewDropdownClick}
-                description={$t("settings.previewDescription")}
+                description={t("settings.previewDescription")}
                 icon={EyeIcon}
                 arrow="down"
             >
-                {$t("settings.previewButton")}
+                {t("settings.previewButton")}
             </Button>
         </ButtonGroup>
     </SideMenuSection>
 
     <SideMenuSection
         title={activeTreeName
-            ? $t("trees.named", { label: activeTreeName })
-            : $t("trees.generic")}
+            ? t("trees.named", { label: activeTreeName })
+            : t("trees.generic")}
     >
         <ResetTreeButton
             onReset={() => {
@@ -114,32 +114,32 @@
         />
     </SideMenuSection>
 
-    <SideMenuSection title={$t("sideMenu.tabs.settings.label")}>
+    <SideMenuSection title={t("sideMenu.tabs.settings.label")}>
         <SettingsNavButton
             icon={GearSixIcon}
-            title={$t("settings.pages.general")}
-            description={$t("settings.pages.generalDescription")}
+            title={t("settings.pages.general")}
+            description={t("settings.pages.generalDescription")}
             onClick={() => onNavigate?.("general")}
             data-page="general"
         />
         <SettingsNavButton
             icon={PaletteIcon}
-            title={$t("settings.pages.appearance")}
-            description={$t("settings.pages.appearanceDescription")}
+            title={t("settings.pages.appearance")}
+            description={t("settings.pages.appearanceDescription")}
             onClick={() => onNavigate?.("appearance")}
             data-page="appearance"
         />
         <SettingsNavButton
             icon={CirclesThreeIcon}
-            title={$t("settings.pages.node")}
-            description={$t("settings.pages.nodeDescription")}
+            title={t("settings.pages.node")}
+            description={t("settings.pages.nodeDescription")}
             onClick={() => onNavigate?.("node")}
             data-page="node"
         />
         <SettingsNavButton
             icon={InfoIcon}
-            title={$t("settings.pages.about")}
-            description={$t("settings.pages.aboutDescription")}
+            title={t("settings.pages.about")}
+            description={t("settings.pages.aboutDescription")}
             onClick={() => onNavigate?.("about")}
             data-page="about"
         />

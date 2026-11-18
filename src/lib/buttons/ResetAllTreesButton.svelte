@@ -20,11 +20,11 @@
         if (!onResetAll) return;
         openModal({
             type: "confirm",
-            title: $t("modal.resetTree.titleAll"),
+            title: t("modal.resetTree.titleAll"),
             titleIcon: ArrowsCounterClockwiseIcon as unknown as Component,
-            message: $t("modal.resetTree.messageAll"),
-            confirmLabel: $t("modal.resetTree.buttonLabelAll"),
-            cancelLabel: $t("common.cancel"),
+            message: t("modal.resetTree.messageAll"),
+            confirmLabel: t("modal.resetTree.buttonLabelAll"),
+            cancelLabel: t("common.cancel"),
             confirmNegative: true,
             onConfirm: () => {
                 onResetAll();
@@ -35,11 +35,11 @@
 
 <Button
     on:click={handleResetAll}
-    description={$t("settings.resetAllTreesDescription")}
+    description={t("settings.resetAllTreesDescription")}
     icon={ArrowsCounterClockwiseIcon}
     arrow="right"
     negative
     {disabled}
 >
-    {$t("modal.resetTree.buttonLabelAll")}
+    {t("modal.resetTree.buttonLabelAll")}
 </Button>

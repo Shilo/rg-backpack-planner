@@ -14,6 +14,7 @@
     import type { TreeViewState } from "../Tree.svelte";
     import { tick } from "svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { animationsDisabled } from "../reduceMotionStore";
     import SettingsPage from "./SettingsPage.svelte";
 
@@ -178,10 +179,12 @@
                   ? generalPageLoadState
                   : aboutPageLoadState;
 
-    $: currentPageTitle =
-        currentPage === "root"
-            ? undefined
-            : $t(`settings.pages.${currentPage}`);
+    let currentPageTitle: string | undefined;
+    watch(() => {
+        currentPageTitle = currentPage === "root"
+                ? undefined
+                : t(`settings.pages.${currentPage}`);
+    });
 
     $: currentComponent =
         currentPage === "root"

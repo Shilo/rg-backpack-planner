@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { InfoIcon, BookOpenTextIcon } from "phosphor-svelte";
     import type { AboutScrollTarget } from "./SideMenuSettingsPage.svelte";
     import Button from "../Button.svelte";
@@ -69,7 +70,10 @@
 
     onMount(detectInputSupport);
 
-    $: actions = getControlActions($t);
+    let actions!: ReturnType<typeof getControlActions>;
+    watch(() => {
+        actions = getControlActions(t);
+    });
     $: hasLevels = sumLevels($treeLevels?.[activeTreeIndex]) > 0;
 
     function getTrigger(actionId: string, levels: boolean, isPreview: boolean): (() => void) | undefined {
@@ -82,7 +86,7 @@
 
     $: grouped = SECTIONS.map((key) => ({
         key,
-        title: $t(`sideMenu.sections.${key}`),
+        title: t(`sideMenu.sections.${key}`),
         items: actions
             .filter((a) => a.section === key)
             .map((a) => ({
@@ -106,7 +110,7 @@
         iconSize={22}
         on:click={() => onOpenAbout?.("game-rules")}
     >
-        {$t("sideMenu.sections.instructions")}
+        {t("sideMenu.sections.instructions")}
     </Button>
     <Button
         small
@@ -114,7 +118,7 @@
         iconSize={22}
         on:click={handleTutorial}
     >
-        {$t("controls.tutorial")}
+        {t("controls.tutorial")}
     </Button>
 </ButtonGroup>
 <div class="controls-page">

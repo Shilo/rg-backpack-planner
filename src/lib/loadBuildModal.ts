@@ -1,16 +1,16 @@
 import { EyeIcon } from "phosphor-svelte";
 import type { Component } from "svelte";
 import { openModal } from "./modalStore";
-import { tr } from "svelte-whisper";
+import { t } from "svelte-whisper";
 
 export function openLoadBuildModal(onLoaded?: () => void) {
     openModal({
         type: "loadBuild",
-        title: tr("preview.loadModalTitle"),
+        title: t("preview.loadModalTitle"),
         titleIcon: EyeIcon as unknown as Component,
-        message: tr("preview.loadModalMessage"),
-        confirmLabel: tr("preview.loadModalConfirmLabel"),
-        cancelLabel: tr("common.cancel"),
+        message: t("preview.loadModalMessage"),
+        confirmLabel: t("preview.loadModalConfirmLabel"),
+        cancelLabel: t("common.cancel"),
         onConfirm: () => {
             onLoaded?.();
         },

@@ -8,6 +8,7 @@
     import type { Node } from "../../types/tree";
     import type { TreeBranchKey } from "../treeLevelsStore";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { getKeyboardActionLabel } from "../input";
 
     export let onReset: (() => void) | null = null;
@@ -24,18 +25,24 @@
         !onResetBranch ||
         (totalLevels !== null && totalLevels === 0);
     $: trimmedTreeLabel = treeLabel.trim();
-    $: treeName = trimmedTreeLabel
-        ? $t("trees.named", { label: trimmedTreeLabel })
-        : $t("trees.generic");
-    $: buttonText = trimmedTreeLabel
-        ? $t("modal.resetTree.buttonLabel", { treeName })
-        : $t("modal.resetTree.buttonLabelDefault");
+    let treeName = "";
+    watch(() => {
+        treeName = trimmedTreeLabel
+            ? t("trees.named", { label: trimmedTreeLabel })
+            : t("trees.generic");
+    });
+    let buttonText = "";
+    watch(() => {
+        buttonText = trimmedTreeLabel
+            ? t("modal.resetTree.buttonLabel", { treeName })
+            : t("modal.resetTree.buttonLabelDefault");
+    });
     $: treeIcon = getTreeIcon(treeId);
 
     const handleReset = () => {
         if (!onReset || !onResetBranch) return;
         openResetTreeChoicesModal(
-            $t,
+            t,
             treeLabel,
             levelsById,
             {
@@ -53,8 +60,8 @@
 
 <Button
     on:click={handleReset}
-    description={$t("settings.resetTreeDescription")}
-    shortcut={getKeyboardActionLabel("back", $t)}
+    description={t("settings.resetTreeDescription")}
+    shortcut={getKeyboardActionLabel("back", t)}
     icon={ArrowCounterClockwiseIcon}
     arrow="right"
     negative

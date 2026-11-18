@@ -2,6 +2,7 @@
     import { TechCrystalIcon } from "../customIcons";
     import Button from "../Button.svelte";
     import { formatNumber } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
     import {
         techCrystalsSpent,
@@ -23,15 +24,17 @@
         ? $techCrystalsFromActivePreset.spent
         : $techCrystalsSpent;
     $: hasOwned = owned > 0;
-    $: resolvedTooltipSubject =
-        tooltipSubject || $t("techCrystals.subjectYour");
+    let resolvedTooltipSubject = "";
+    watch(() => {
+        resolvedTooltipSubject = tooltipSubject || t("techCrystals.subjectYour");
+    });
 </script>
 
 <Button
     on:click={() => {
         openTechCrystalsOwnedModal(owned, resolvedTooltipSubject, activeTreeIndex);
     }}
-    tooltipText={$t("techCrystals.changeOwnedTooltip", {
+    tooltipText={t("techCrystals.changeOwnedTooltip", {
         subject: resolvedTooltipSubject,
     })}
     icon={TechCrystalIcon}
@@ -42,8 +45,8 @@
 >
     <span class="tc-layout">
         <span class="tc-header">
-            <span class="tc-title">{$t("techCrystals.spentLabel")}</span>
-            <span class="tc-hint">{$t("techCrystals.budgetHint")}</span>
+            <span class="tc-title">{t("techCrystals.spentLabel")}</span>
+            <span class="tc-hint">{t("techCrystals.budgetHint")}</span>
         </span>
         <span class="tc-values">
             <span

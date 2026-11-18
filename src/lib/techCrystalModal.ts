@@ -3,7 +3,7 @@ import { TechCrystalIcon } from "./customIcons";
 import { openModal } from "./modalStore";
 import { setTechCrystalsOwned, techCrystalsSpent } from "./techCrystalStore";
 import { undoHistory } from "./undoHistoryStore";
-import { tr } from "svelte-whisper";
+import { t } from "svelte-whisper";
 import { formatNumber } from "svelte-whisper";
 
 export function openTechCrystalsOwnedModal(
@@ -11,21 +11,21 @@ export function openTechCrystalsOwnedModal(
     tooltipSubject?: string,
     activeTreeIndex: number = 0,
 ) {
-    const defaultSubject = tr("techCrystals.subjectYour");
+    const defaultSubject = t("techCrystals.subjectYour");
     const normalizedSubject = tooltipSubject || defaultSubject;
     const currentSpent = get(techCrystalsSpent);
     openModal({
         type: "input",
         title: normalizedSubject !== defaultSubject
-            ? tr("techCrystals.ownedModalTitleWithSubject", {
+            ? t("techCrystals.ownedModalTitleWithSubject", {
                 subject: normalizedSubject.charAt(0).toUpperCase() + normalizedSubject.slice(1),
             })
-            : tr("techCrystals.ownedModalTitle"),
+            : t("techCrystals.ownedModalTitle"),
         titleIcon: TechCrystalIcon,
         titleIconWeight: "fill",
         wide: true,
         input: {
-            label: tr("techCrystals.ownedModalInput", {
+            label: t("techCrystals.ownedModalInput", {
                 subject: normalizedSubject,
             }),
             labelDetail: formatNumber(currentOwned),
@@ -40,7 +40,7 @@ export function openTechCrystalsOwnedModal(
                 label: formatNumber(currentSpent),
                 value: currentSpent,
                 icon: TechCrystalIcon,
-                tooltip: tr("techCrystals.setToSpentTooltip", {
+                tooltip: t("techCrystals.setToSpentTooltip", {
                     amount: formatNumber(currentSpent),
                 }),
             },

@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import Button from "./Button.svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import { getCurrentVersion } from "./latestUsedVersionStore";
     import { onboardingSeen } from "./onboarding/onboardingStore";
     import { activePresetName } from "./buildPresetsStore";
@@ -19,19 +20,26 @@
     const version = getCurrentVersion();
     $: $appTitleVisible = !hideForever && !waitingForOnboarding;
 
-    $: appName = $t("app.name");
+    let appName = "";
+    watch(() => {
+        appName = t("app.name");
+    });
     $: versionLabel = version === "unknown" ? "" : `v${version}`;
-    $: appDisplayName =
-        versionLabel.length > 0
-            ? $t("app.titleWithVersion", {
-                  appName,
-                  version: versionLabel,
-              })
-            : appName;
-    $: presetSubtitle =
-        !$isPreviewMode
-            ? $t("preview.buildTitle", { name: $activePresetName })
-            : "";
+    let appDisplayName = "";
+    watch(() => {
+        appDisplayName = versionLabel.length > 0
+                ? t("app.titleWithVersion", {
+                      appName,
+                      version: versionLabel,
+                  })
+                : appName;
+    });
+    let presetSubtitle = "";
+    watch(() => {
+        presetSubtitle = !$isPreviewMode
+                ? t("preview.buildTitle", { name: $activePresetName })
+                : "";
+    });
 
     let wrapperElement: HTMLDivElement;
 

@@ -16,6 +16,7 @@
     import ContextMenu from "./ContextMenu.svelte";
     import ColorPickerDialog from "./ColorPickerDialog.svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
 
     export let description: string | undefined = undefined;
 
@@ -37,11 +38,14 @@
         { h: 55, c: 0.24, labelKey: "theme.preset.amber" },
         { h: 260, c: 0.02, labelKey: "theme.preset.neutral" },
     ];
-    $: presetOptions = PRESETS.map((preset) => ({
-        ...preset,
-        label: $t(preset.labelKey),
-        hex: oklchToHex(0.65, preset.c, preset.h),
-    }));
+    let presetOptions: (typeof PRESETS[number] & { label: string; hex: string })[] = [];
+    watch(() => {
+        presetOptions = PRESETS.map((preset) => ({
+            ...preset,
+            label: t(preset.labelKey),
+            hex: oklchToHex(0.65, preset.c, preset.h),
+        }));
+    });
 
     let buttonEl: HTMLButtonElement | null = null;
     let dropdownOpen = false;
@@ -55,9 +59,12 @@
     $: selectedPreset = presetOptions.find(
         (p) => p.h === $themeColor.h && p.c === $themeColor.c,
     );
-    $: currentLabel = selectedPreset
-        ? selectedPreset.label
-        : $t("theme.custom");
+    let currentLabel = "";
+    watch(() => {
+        currentLabel = selectedPreset
+            ? selectedPreset.label
+            : t("theme.custom");
+    });
     $: isCustom = !selectedPreset;
 
     function openDropdown() {
@@ -109,14 +116,14 @@
     type="button"
     bind:this={buttonEl}
     aria-label="Theme: {currentLabel}"
-    use:tooltip={$t("theme.changeTooltip")}
+    use:tooltip={t("theme.changeTooltip")}
     on:click={openDropdown}
 >
     <span class="theme-button-icon">
         <PaletteIcon size={26} />
     </span>
     <div class="theme-button-label-group">
-        <span class="theme-button-label">{$t("theme.label")}</span>
+        <span class="theme-button-label">{t("theme.label")}</span>
         {#if description}
             <span class="theme-button-description">{description}</span>
         {/if}
@@ -130,7 +137,7 @@
         x={dropdownX}
         y={dropdownY}
         isOpen={dropdownOpen}
-        title={$t("theme.menuTitle")}
+        title={t("theme.menuTitle")}
         onClose={closeDropdown}
     >
         {#each presetOptions as preset}
@@ -158,7 +165,7 @@
                 class="preset-swatch preset-swatch-custom"
                 style="background: {isCustom ? currentHex : 'var(--border)'}"
             ></span>
-            <span class="preset-label">{$t("theme.customEllipsis")}</span>
+            <span class="preset-label">{t("theme.customEllipsis")}</span>
             {#if isCustom}
                 <span class="preset-check" aria-hidden="true"></span>
             {/if}

@@ -27,42 +27,35 @@
     import { darkMode } from "../darkModeStore";
     import { colorblindTreeColors } from "../colorblindTreeColorsStore";
     import { uppercaseText } from "../uppercaseTextStore";
-    import { t, locale } from "svelte-whisper";
+    import { t, formatNumber } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
 
     export let onBack: (() => void) | null = null;
 
     const ZOOM_LABEL_MAX_FRACTION_DIGITS = 1;
 
-    $: currentLocale = $locale || undefined;
     $: treeZoomSelectedIndex = $treeZoomScale;
-    $: treeZoomOptions = [
-        $t("settings.treeZoomFitOption", {
-            scale: formatZoomMultiplier(
-                getTreeZoomScaleValue(TreeZoomLevel.Fit),
-                currentLocale,
-            ),
-        }),
-        $t("settings.treeZoomCloseUpOption", {
-            scale: formatZoomMultiplier(
-                getTreeZoomScaleValue(TreeZoomLevel.CloseUp),
-                currentLocale,
-            ),
-        }),
-        $t("settings.treeZoomDetailOption", {
-            scale: formatZoomMultiplier(
-                getTreeZoomScaleValue(TreeZoomLevel.Detail),
-                currentLocale,
-            ),
-        }),
-    ];
+    let treeZoomOptions: string[] = [];
+    watch(() => {
+        treeZoomOptions = [
+            t("settings.treeZoomFitOption", {
+                scale: formatZoomMultiplier(getTreeZoomScaleValue(TreeZoomLevel.Fit)),
+            }),
+            t("settings.treeZoomCloseUpOption", {
+                scale: formatZoomMultiplier(getTreeZoomScaleValue(TreeZoomLevel.CloseUp)),
+            }),
+            t("settings.treeZoomDetailOption", {
+                scale: formatZoomMultiplier(getTreeZoomScaleValue(TreeZoomLevel.Detail)),
+            }),
+        ];
+    });
 
-    function formatZoomMultiplier(zoomScale: number, localeCode?: string) {
+    function formatZoomMultiplier(zoomScale: number) {
         const multiplier = zoomScale / getTreeZoomScaleValue(TreeZoomLevel.Fit);
-        const minimumFractionDigits = Number.isInteger(multiplier) ? 0 : 1;
-        const localizedMultiplier = new Intl.NumberFormat(localeCode, {
-            minimumFractionDigits,
+        const localizedMultiplier = formatNumber(multiplier, {
+            minimumFractionDigits: Number.isInteger(multiplier) ? 0 : 1,
             maximumFractionDigits: ZOOM_LABEL_MAX_FRACTION_DIGITS,
-        }).format(multiplier);
+        });
         return `${localizedMultiplier}x`;
     }
 
@@ -72,14 +65,14 @@
     }
 </script>
 
-<SettingsPage title={$t("settings.pages.appearance")} {onBack}>
-    <SideMenuSection title={$t("sideMenu.sections.lookAndFeel")}>
+<SettingsPage title={t("settings.pages.appearance")} {onBack}>
+    <SideMenuSection title={t("sideMenu.sections.lookAndFeel")}>
         <ButtonGroup class="theme-row">
-            <ThemeColorSelector description={$t("settings.themeDescription")} />
+            <ThemeColorSelector description={t("settings.themeDescription")} />
             <button
                 class="icon-button"
                 type="button"
-                use:tooltip={$t("settings.themeModeTooltip")}
+                use:tooltip={t("settings.themeModeTooltip")}
                 on:click={() => {
                     triggerHaptic();
                     darkMode.toggle();
@@ -98,30 +91,30 @@
         </ButtonGroup>
         <ToggleSwitch
             checked={$uppercaseText}
-            label={$t("settings.uppercaseText")}
-            ariaLabel={$t("settings.uppercaseText")}
-            description={$t("settings.uppercaseTextDescription")}
+            label={t("settings.uppercaseText")}
+            ariaLabel={t("settings.uppercaseText")}
+            description={t("settings.uppercaseTextDescription")}
             icon={TextAaIcon as unknown as Component}
             onToggle={() => uppercaseText.set(!$uppercaseText)}
         />
         <TextSizeSliderSetting />
     </SideMenuSection>
 
-    <SideMenuSection title={$t("sideMenu.sections.tree")}>
+    <SideMenuSection title={t("sideMenu.sections.tree")}>
         <SegmentedControl
-            label={$t("settings.treeZoom")}
-            ariaLabel={$t("settings.treeZoom")}
+            label={t("settings.treeZoom")}
+            ariaLabel={t("settings.treeZoom")}
             icon={MagnifyingGlassPlusIcon as unknown as Component}
             options={treeZoomOptions}
             selectedIndex={treeZoomSelectedIndex}
             onChange={handleTreeZoomChange}
-            description={$t("settings.treeZoomDescription")}
+            description={t("settings.treeZoomDescription")}
         />
         <ToggleSwitch
             checked={$colorblindTreeColors}
-            label={$t("settings.colorblindTreeColors")}
-            ariaLabel={$t("settings.colorblindTreeColors")}
-            description={$t("settings.colorblindTreeColorsDescription")}
+            label={t("settings.colorblindTreeColors")}
+            ariaLabel={t("settings.colorblindTreeColors")}
+            description={t("settings.colorblindTreeColorsDescription")}
             icon={PaletteIcon as unknown as Component}
             onToggle={() => colorblindTreeColors.set(!$colorblindTreeColors)}
         />

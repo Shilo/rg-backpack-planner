@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import Button from "../Button.svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { scrollInputVisible } from "../viewportState";
     import { isKeyboardAction } from "../input";
 
@@ -24,9 +25,18 @@
 
     let inputValue = value;
     let inputEl: HTMLInputElement | null = null;
-    $: resolvedLabel = label || $t("modal.valueLabel");
-    $: resolvedConfirmLabel = confirmLabel || $t("modal.saveLabel");
-    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
+    let resolvedLabel = "";
+    watch(() => {
+        resolvedLabel = label || t("modal.valueLabel");
+    });
+    let resolvedConfirmLabel = "";
+    watch(() => {
+        resolvedConfirmLabel = confirmLabel || t("modal.saveLabel");
+    });
+    let resolvedCancelLabel = "";
+    watch(() => {
+        resolvedCancelLabel = cancelLabel || t("modal.cancelLabel");
+    });
 
     $: isConfirmDisabled = inputValue.trim() === "";
 

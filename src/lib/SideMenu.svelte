@@ -24,32 +24,35 @@
         type SideMenuTab,
     } from "./sideMenuActiveTabStore";
     import { t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import { isFormField, hasOnboardingOverlay } from "./domUtil";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import { isKeyboardAction, getCycleDirection, onKeyDown } from "./input";
     import { animationsDisabled } from "./reduceMotionStore";
 
     let sideMenuTabs: TabBarItem[] = [];
-    $: sideMenuTabs = [
-        {
-            id: "statistics",
-            label: $t("sideMenu.tabs.statistics.label"),
-            icon: ChartBarIcon,
-            tooltip: $t("sideMenu.tabs.statistics.tooltip"),
-        },
-        {
-            id: "settings",
-            label: $t("sideMenu.tabs.settings.label"),
-            icon: GearSixIcon,
-            tooltip: $t("sideMenu.tabs.settings.tooltip"),
-        },
-        {
-            id: "controls",
-            label: $t("sideMenu.tabs.controls.label"),
-            icon: GameControllerIcon,
-            tooltip: $t("sideMenu.tabs.controls.tooltip"),
-        },
-    ];
+    watch(() => {
+        sideMenuTabs = [
+            {
+                id: "statistics",
+                label: t("sideMenu.tabs.statistics.label"),
+                icon: ChartBarIcon,
+                tooltip: t("sideMenu.tabs.statistics.tooltip"),
+            },
+            {
+                id: "settings",
+                label: t("sideMenu.tabs.settings.label"),
+                icon: GearSixIcon,
+                tooltip: t("sideMenu.tabs.settings.tooltip"),
+            },
+            {
+                id: "controls",
+                label: t("sideMenu.tabs.controls.label"),
+                icon: GameControllerIcon,
+                tooltip: t("sideMenu.tabs.controls.tooltip"),
+            },
+        ];
+    });
 
     export let isOpen = false;
     export let onClose: (() => void) | null = null;
@@ -295,7 +298,7 @@
 {#if isOpen}
     <button
         class="menu-backdrop backdrop"
-        aria-label={$t("common.close")}
+        aria-label={t("common.close")}
         on:click={handleBackdropClick}
         type="button"
         transition:fade={{ duration: $animationsDisabled ? 0 : 200 }}

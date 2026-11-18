@@ -1,14 +1,14 @@
-import { init, registerLoader, tr } from "svelte-whisper";
+import { init, registerLoader, t } from "svelte-whisper";
 import { prefixKey } from "./storage";
 
+export const FALLBACK_LOCALE = "en";
+
 export async function initializeI18n(): Promise<void> {
-    const localeModules = import.meta.glob("../locales/*.json");
-    for (const [path, loader] of Object.entries(localeModules)) {
-        const locale = path.match(/\/(\w+)\.json$/)?.[1];
-        if (locale) registerLoader(locale, loader as () => Promise<Record<string, unknown>>);
-    }
+    // One lazy chunk per locale file. The single `*` does not match glossary/.
+    registerLoader(import.meta.glob("../locales/*.json"));
 
     await init({
+        fallback: FALLBACK_LOCALE,
         persistKey: prefixKey("locale"),
     });
 }
@@ -17,23 +17,23 @@ export function getDisplayPresetName(name: string): string {
     const trimmed = name.trim();
 
     if (trimmed === "Default") {
-        return tr("buildPresets.generated.default");
+        return t("buildPresets.generated.default");
     }
     if (trimmed === "New") {
-        return tr("buildPresets.generated.new");
+        return t("buildPresets.generated.new");
     }
     if (trimmed === "Clone") {
-        return tr("common.clone");
+        return t("common.clone");
     }
 
     const newCount = trimmed.match(/^New\s+(\d+)$/i);
     if (newCount) {
-        return tr("buildPresets.generated.newCount", { count: newCount[1] });
+        return t("buildPresets.generated.newCount", { count: newCount[1] });
     }
 
     const cloneCount = trimmed.match(/^Clone\s+(\d+)$/i);
     if (cloneCount) {
-        return tr("buildPresets.generated.cloneCount", { count: cloneCount[1] });
+        return t("buildPresets.generated.cloneCount", { count: cloneCount[1] });
     }
 
     return name;

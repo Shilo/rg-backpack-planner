@@ -23,7 +23,6 @@ export async function generateCompareImageBlob(): Promise<Blob | null> {
     if (!state.isComparing || !state.buildA || !state.buildB) return null;
 
     const tabs = get(activeTabs);
-    const translate = get(t);
 
     const sections = buildCompareSections(
         state,
@@ -43,7 +42,7 @@ export async function generateCompareImageBlob(): Promise<Blob | null> {
                 get(treeLevelsCannon),
             ],
         },
-        translate,
+        t,
     );
 
     return renderCompareImage({

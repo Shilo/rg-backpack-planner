@@ -10,7 +10,8 @@
     import { activeTabs } from "../techCrystalStore";
     import { showToast } from "../toast";
     import { openModal } from "../modalStore";
-    import { t, tr } from "svelte-whisper";
+    import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { TechCrystalIcon } from "../customIcons";
     import { getDisplayPresetName } from "../i18n";
     import { truncateText, toTitleCase } from "../stringUtil";
@@ -33,8 +34,11 @@
             buildCode: p.buildCode,
         }));
 
-    $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t)
-        .filter((b) => b.code !== $previewRecommendedBuild?.encoded);
+    let premadeBuilds!: ReturnType<typeof mapRecommendedBuilds>;
+    watch(() => {
+        premadeBuilds = mapRecommendedBuilds($activeTabs, t)
+            .filter((b) => b.code !== $previewRecommendedBuild?.encoded);
+    });
 
     function handleBuildClick(
         buildCode: string,
@@ -42,7 +46,7 @@
         source: CompareBuildSource,
     ) {
         if (!decodeAndStartCompare(buildCode, name, source)) {
-            showToast($t("preview.invalidBuildDataToast"), {
+            showToast(t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
             return;
@@ -56,23 +60,23 @@
         onClose?.();
         openModal({
             type: "textInput",
-            title: tr("compare.compareBuilds"),
+            title: t("compare.compareBuilds"),
             titleIcon: ScalesIcon as unknown as Component,
-            message: tr("preview.loadModalMessage"),
+            message: t("preview.loadModalMessage"),
             textInput: {
-                label: tr("modal.loadBuild.inputLabel"),
+                label: t("modal.loadBuild.inputLabel"),
                 value: "",
-                placeholder: tr("modal.loadBuild.placeholder"),
+                placeholder: t("modal.loadBuild.placeholder"),
             },
-            confirmLabel: tr("compare.compareBuilds"),
-            cancelLabel: tr("common.cancel"),
+            confirmLabel: t("compare.compareBuilds"),
+            cancelLabel: t("common.cancel"),
             onConfirm: (value) => {
                 if (typeof value !== "string") return;
                 const raw = value.trim();
                 if (!raw) return;
                 const encoded = parseEncodedFromUserInput(raw);
                 if (!encoded) {
-                    showToast(tr("modal.loadBuild.invalidLinkOrDataToast"), {
+                    showToast(t("modal.loadBuild.invalidLinkOrDataToast"), {
                         tone: "negative",
                     });
                     return;
@@ -83,7 +87,7 @@
                         encoded,
                     })
                 ) {
-                    showToast(tr("preview.invalidBuildDataToast"), {
+                    showToast(t("preview.invalidBuildDataToast"), {
                         tone: "negative",
                     });
                 }
@@ -97,7 +101,7 @@
         {x}
         {y}
         {isOpen}
-        title={$t("compare.compareBuildWith", { name: toTitleCase($activeBuildName) })}
+        title={t("compare.compareBuildWith", { name: toTitleCase($activeBuildName) })}
         onClose={() => onClose?.()}
         anchorBelow
     >
@@ -106,11 +110,11 @@
             on:click={handleLoadFromCode}
             arrow="right"
         >
-            {$t("compare.fromCode")}
+            {t("compare.fromCode")}
         </Button>
 
         {#if presets.length > 0}
-            <div class="section-title">{$t("compare.personalPresets")}</div>
+            <div class="section-title">{t("compare.personalPresets")}</div>
             <div class="compare-builds-list">
                 {#each presets as preset}
                     <Button
@@ -127,13 +131,13 @@
         {/if}
 
         {#if premadeBuilds.length > 0}
-            <div class="section-title">{$t("preview.recommended")}</div>
+            <div class="section-title">{t("preview.recommended")}</div>
             <div class="compare-builds-list">
                 {#each premadeBuilds as build}
                     <Button
                         icon={build.icon ?? ShareNetworkIcon}
                         description={build.tcSpent > 0
-                            ? $t("preview.techCrystalsDescription", {
+                            ? t("preview.techCrystalsDescription", {
                                   count: build.tcSpent.toLocaleString(),
                               })
                             : undefined}

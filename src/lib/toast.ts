@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
 import { DEFAULT_PRESET_NAME } from "./buildPresetsStore";
-import { tr } from "svelte-whisper";
+import { t } from "svelte-whisper";
 import { getDisplayPresetName } from "./i18n";
 import { sessionGetItem, sessionRemoveItem, sessionSetItem } from "./storage";
 
@@ -113,10 +113,10 @@ const CLONED_BUILD_KEY = "cloned-build-toast";
 export function tryShowClonedBuildToast(): boolean {
     return checkSessionStorageAndShowToast(CLONED_BUILD_KEY, (previewName) =>
         previewName
-            ? tr("preview.clonedBuildToast", {
+            ? t("preview.clonedBuildToast", {
                   name: truncateText(getDisplayPresetName(previewName)),
               })
-            : tr("preview.clonedPreviewBuildToast"),
+            : t("preview.clonedPreviewBuildToast"),
     );
 }
 

@@ -25,29 +25,48 @@
     import { ignoreTechCrystalBudget } from "../ignoreTechCrystalBudgetStore";
     import { showSkillName } from "../showSkillNameStore";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { getKeyboardActionLabel, touchPrimary } from "../input";
 
     export let onBack: (() => void) | null = null;
 
-    $: nodePrimaryActionName = $t(
-        $touchPrimary ? "input.primary.touch" : "input.primary.mouse",
-    );
-    $: nodePrimaryActionLabel = $t("settings.nodePrimaryActionTitle", {
-        primaryAction: nodePrimaryActionName,
+    let nodePrimaryActionName = "";
+    watch(() => {
+        nodePrimaryActionName = t(
+            $touchPrimary ? "input.primary.touch" : "input.primary.mouse",
+        );
     });
-    $: nodePrimaryActionOptions = [
-        $t("nodeMenu.incrementOne"),
-        $t("nodeMenu.incrementTen"),
-        $t("nodeMenu.incrementTier"),
-    ];
+    let nodePrimaryActionLabel = "";
+    watch(() => {
+        nodePrimaryActionLabel = t("settings.nodePrimaryActionTitle", {
+            primaryAction: nodePrimaryActionName,
+        });
+    });
+    let nodePrimaryActionOptions: string[] = [];
+    watch(() => {
+        nodePrimaryActionOptions = [
+            t("nodeMenu.incrementOne"),
+            t("nodeMenu.incrementTen"),
+            t("nodeMenu.incrementTier"),
+        ];
+    });
     $: nodePrimaryActionSelectedIndex = $nodePrimaryAction;
-    $: nodeLevelBehaviorLabel = $t("settings.nodeLevelBehavior");
-    $: nodeLevelBehaviorOptions = [
-        $t("settings.nodeLevelBehaviorSolo"),
-        $t("settings.nodeLevelBehaviorSync"),
-    ];
+    let nodeLevelBehaviorLabel = "";
+    watch(() => {
+        nodeLevelBehaviorLabel = t("settings.nodeLevelBehavior");
+    });
+    let nodeLevelBehaviorOptions: string[] = [];
+    watch(() => {
+        nodeLevelBehaviorOptions = [
+            t("settings.nodeLevelBehaviorSolo"),
+            t("settings.nodeLevelBehaviorSync"),
+        ];
+    });
     $: nodeLevelBehaviorSelectedIndex = $nodeLevelBehavior;
-    $: keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", $t);
+    let keyCyclePrimaryAction = "";
+    watch(() => {
+        keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", t);
+    });
 
     function handleNodePrimaryActionChange(index: number) {
         if (!isNodePrimaryAction(index)) return;
@@ -60,8 +79,8 @@
     }
 </script>
 
-<SettingsPage title={$t("settings.pages.node")} {onBack}>
-    <SideMenuSection title={$t("sideMenu.sections.behavior")}>
+<SettingsPage title={t("settings.pages.node")} {onBack}>
+    <SideMenuSection title={t("sideMenu.sections.behavior")}>
         <SegmentedControl
             label={nodePrimaryActionLabel}
             ariaLabel={nodePrimaryActionLabel}
@@ -69,7 +88,7 @@
             options={nodePrimaryActionOptions}
             selectedIndex={nodePrimaryActionSelectedIndex}
             onChange={handleNodePrimaryActionChange}
-            description={$t("settings.nodePrimaryActionDescription", {
+            description={t("settings.nodePrimaryActionDescription", {
                 action: nodePrimaryActionName.toLowerCase(),
             })}
             shortcut={keyCyclePrimaryAction}
@@ -81,41 +100,41 @@
             options={nodeLevelBehaviorOptions}
             selectedIndex={nodeLevelBehaviorSelectedIndex}
             onChange={handleNodeLevelBehaviorChange}
-            description={$t("settings.nodeLevelBehaviorDescription")}
+            description={t("settings.nodeLevelBehaviorDescription")}
         />
         <ToggleSwitch
             checked={$ignoreTechCrystalBudget}
-            label={$t("settings.ignoreTechCrystalBudget")}
-            ariaLabel={$t("settings.ignoreTechCrystalBudget")}
-            description={$t("settings.ignoreTechCrystalBudgetDescription")}
+            label={t("settings.ignoreTechCrystalBudget")}
+            ariaLabel={t("settings.ignoreTechCrystalBudget")}
+            description={t("settings.ignoreTechCrystalBudgetDescription")}
             icon={CoinsIcon as unknown as Component}
             onToggle={() =>
                 ignoreTechCrystalBudget.set(!$ignoreTechCrystalBudget)}
         />
     </SideMenuSection>
 
-    <SideMenuSection title={$t("sideMenu.sections.display")}>
+    <SideMenuSection title={t("sideMenu.sections.display")}>
         <ToggleSwitch
             checked={$showSkillName}
-            label={$t("settings.showSkillName")}
-            ariaLabel={$t("settings.showSkillName")}
-            description={$t("settings.showSkillNameDescription")}
+            label={t("settings.showSkillName")}
+            ariaLabel={t("settings.showSkillName")}
+            description={t("settings.showSkillNameDescription")}
             icon={TagIcon as unknown as Component}
             onToggle={() => showSkillName.set(!$showSkillName)}
         />
         <ToggleSwitch
             checked={$showTier}
-            label={$t("settings.showTier")}
-            ariaLabel={$t("settings.showTier")}
-            description={$t("settings.showTierDescription")}
+            label={t("settings.showTier")}
+            ariaLabel={t("settings.showTier")}
+            description={t("settings.showTierDescription")}
             icon={MedalIcon as unknown as Component}
             onToggle={() => showTier.set(!$showTier)}
         />
         <ToggleSwitch
             checked={$showLevelSplash}
-            label={$t("settings.showLevelSplash")}
-            ariaLabel={$t("settings.showLevelSplash")}
-            description={$t("settings.showLevelSplashDescription")}
+            label={t("settings.showLevelSplash")}
+            ariaLabel={t("settings.showLevelSplash")}
+            description={t("settings.showLevelSplashDescription")}
             icon={SparkleIcon as unknown as Component}
             onToggle={() => showLevelSplash.set(!$showLevelSplash)}
         />

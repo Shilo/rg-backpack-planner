@@ -12,7 +12,7 @@ import { techCrystalsOwned } from "../techCrystalStore";
 import { EXPORT_MIME } from "../buildImageExport/imageFormat";
 import { get } from "svelte/store";
 import { showToast } from "../toast";
-import { tr } from "svelte-whisper";
+import { t } from "svelte-whisper";
 
 /**
  * Copies text to clipboard, with execCommand fallback.
@@ -173,8 +173,8 @@ export async function shareBuildAsImage(): Promise<void> {
     const showScreenshotToast = (success: boolean) => {
         showToast(
             success
-                ? tr("share.shareScreenshotCopiedToast")
-                : tr("share.unableToCopyScreenshotToast"),
+                ? t("share.shareScreenshotCopiedToast")
+                : t("share.unableToCopyScreenshotToast"),
             {
                 tone: success ? "positive" : "negative",
             },

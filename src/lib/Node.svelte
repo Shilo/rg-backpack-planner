@@ -9,6 +9,7 @@
     import type { Component } from "svelte";
     import { getContext } from "svelte";
     import { formatNumber, t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import type { Writable } from "svelte/store";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import type {
@@ -107,32 +108,35 @@
 
     /** When showSkillName is on, name is on the badge so tooltip omits it. */
     $: tooltipLine1 = showSkillName ? "" : label || String(id);
-    $: tooltipSections = (() => {
-        if ($touchPrimary) return [];
-        const sections: TooltipSection[] = [];
-        if (tooltipLine1) {
-            sections.push({ type: "text", value: tooltipLine1 });
-        }
-        if (state === "locked" && isGlobalIncrementLocked) return sections;
-
-        if (incrementPreview != null) {
-            sections.push({
-                type: "action-preview",
-                direction: "up",
-                targetLevel: incrementPreview.targetLevel,
-                crystalCost: formatNumber(incrementPreview.totalCost),
-            });
-        }
-        if (decrementPreview != null) {
-            sections.push({
-                type: "action-preview",
-                direction: "down",
-                targetLevel: decrementPreview.targetLevel,
-                crystalCost: formatNumber(decrementPreview.totalCost),
-            });
-        }
-        return sections;
-    })();
+    let tooltipSections: TooltipSection[] = [];
+    watch(() => {
+        tooltipSections = (() => {
+            if ($touchPrimary) return [];
+            const sections: TooltipSection[] = [];
+            if (tooltipLine1) {
+                sections.push({ type: "text", value: tooltipLine1 });
+            }
+            if (state === "locked" && isGlobalIncrementLocked) return sections;
+    
+            if (incrementPreview != null) {
+                sections.push({
+                    type: "action-preview",
+                    direction: "up",
+                    targetLevel: incrementPreview.targetLevel,
+                    crystalCost: formatNumber(incrementPreview.totalCost),
+                });
+            }
+            if (decrementPreview != null) {
+                sections.push({
+                    type: "action-preview",
+                    direction: "down",
+                    targetLevel: decrementPreview.targetLevel,
+                    crystalCost: formatNumber(decrementPreview.totalCost),
+                });
+            }
+            return sections;
+        })();
+    });
 
     $: tooltipParam =
         tooltipSections.length === 0
@@ -140,8 +144,10 @@
             : { content: tooltipSections, hoverOnly: true };
 
     /** Name badge text: short skill name when skillId is set, else label (tooltip/aria use full label). */
-    $: badgeLabel =
-        skillId != null ? $t(`skills.short.${skillId}`) || label : label;
+    let badgeLabel = "";
+    watch(() => {
+        badgeLabel = skillId != null ? t(`skills.short.${skillId}`) || label : label;
+    });
 
     $: isMaxed = level >= maxLevel && maxLevel > 0;
 

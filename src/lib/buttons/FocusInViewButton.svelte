@@ -30,9 +30,9 @@
         onPress?.();
         onFocusInView();
     }}
-    description={$t("settings.focusTreeInViewDescription")}
+    description={t("settings.focusTreeInViewDescription")}
     icon={CubeFocusIcon}
     {disabled}
 >
-    {$t("settings.focusTreeInView")}
+    {t("settings.focusTreeInView")}
 </Button>

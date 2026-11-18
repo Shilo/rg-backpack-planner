@@ -38,20 +38,20 @@
             {x}
             {y}
             {isOpen}
-            title={$t("compose.imageDetails.title")}
-            ariaLabel={$t("compose.imageDetails.title")}
+            title={t("compose.imageDetails.title")}
+            ariaLabel={t("compose.imageDetails.title")}
             {onClose}
         >
             <div class="image-details">
                 <div class="image-details__row">
                     <span class="image-details__label"
-                        >{$t("compose.imageDetails.name")}</span
+                        >{t("compose.imageDetails.name")}</span
                     >
                     <span class="image-details__value">{filename}</span>
                 </div>
                 <div class="image-details__row">
                     <span class="image-details__label"
-                        >{$t("compose.imageDetails.resolution")}</span
+                        >{t("compose.imageDetails.resolution")}</span
                     >
                     <span class="image-details__value"
                         >{naturalWidth} &times; {naturalHeight}</span
@@ -59,13 +59,13 @@
                 </div>
                 <div class="image-details__row">
                     <span class="image-details__label"
-                        >{$t("compose.imageDetails.dpr")}</span
+                        >{t("compose.imageDetails.dpr")}</span
                     >
                     <span class="image-details__value">{dpr}x</span>
                 </div>
                 <div class="image-details__row">
                     <span class="image-details__label"
-                        >{$t("compose.imageDetails.fileSize")}</span
+                        >{t("compose.imageDetails.fileSize")}</span
                     >
                     <span class="image-details__value"
                         >{formatFileSize(fileSize)}</span
@@ -73,7 +73,7 @@
                 </div>
                 <div class="image-details__row">
                     <span class="image-details__label"
-                        >{$t("compose.imageDetails.format")}</span
+                        >{t("compose.imageDetails.format")}</span
                     >
                     <span class="image-details__value"
                         >{formatMimeType(mimeType)}</span

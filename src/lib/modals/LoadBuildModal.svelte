@@ -11,6 +11,7 @@
     import { triggerHaptic } from "../hapticsStore";
     import type { IconWeight } from "phosphor-svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { scrollInputVisible } from "../viewportState";
     import { isKeyboardAction } from "../input";
 
@@ -28,10 +29,22 @@
     let inputText = "";
     let isLoading = false;
     let inputEl: HTMLInputElement | null = null;
-    $: resolvedTitle = title || $t("modal.loadBuild.title");
-    $: resolvedMessage = message ?? $t("modal.loadBuild.message");
-    $: resolvedConfirmLabel = confirmLabel || $t("modal.previewBuildLabel");
-    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
+    let resolvedTitle = "";
+    watch(() => {
+        resolvedTitle = title || t("modal.loadBuild.title");
+    });
+    let resolvedMessage = "";
+    watch(() => {
+        resolvedMessage = message ?? t("modal.loadBuild.message");
+    });
+    let resolvedConfirmLabel = "";
+    watch(() => {
+        resolvedConfirmLabel = confirmLabel || t("modal.previewBuildLabel");
+    });
+    let resolvedCancelLabel = "";
+    watch(() => {
+        resolvedCancelLabel = cancelLabel || t("modal.cancelLabel");
+    });
 
     function handleCancel() {
         onCancel?.();
@@ -43,7 +56,7 @@
             !navigator.clipboard ||
             typeof navigator.clipboard.readText !== "function"
         ) {
-            showToast($t("modal.loadBuild.clipboardUnavailableToast"), {
+            showToast(t("modal.loadBuild.clipboardUnavailableToast"), {
                 tone: "negative",
             });
             return;
@@ -53,7 +66,7 @@
             const text = await navigator.clipboard.readText();
             const trimmed = text.trim();
             if (!trimmed) {
-                showToast($t("modal.loadBuild.clipboardEmptyToast"), {
+                showToast(t("modal.loadBuild.clipboardEmptyToast"), {
                     tone: "negative",
                 });
                 return;
@@ -65,7 +78,7 @@
                 inputEl?.setSelectionRange(inputText.length, inputText.length);
             });
         } catch {
-            showToast($t("modal.loadBuild.clipboardReadFailedToast"), {
+            showToast(t("modal.loadBuild.clipboardReadFailedToast"), {
                 tone: "negative",
             });
         }
@@ -76,7 +89,7 @@
 
         const raw = inputText.trim();
         if (!raw) {
-            showToast($t("modal.loadBuild.typeLinkOrCodeToast"), {
+            showToast(t("modal.loadBuild.typeLinkOrCodeToast"), {
                 tone: "negative",
             });
             inputEl?.focus();
@@ -87,7 +100,7 @@
         try {
             const encoded = parseEncodedFromUserInput(raw);
             if (!encoded) {
-                showToast($t("modal.loadBuild.invalidLinkOrDataToast"), {
+                showToast(t("modal.loadBuild.invalidLinkOrDataToast"), {
                     tone: "negative",
                 });
                 inputEl?.focus();
@@ -144,18 +157,18 @@
     {/if}
 
     <label class="modal-label" for="load-build-input">
-        {$t("modal.loadBuild.inputLabel")}
+        {t("modal.loadBuild.inputLabel")}
     </label>
     <div class="modal-input-row">
         <Button on:click={handlePasteClick} icon={ClipboardIcon}>
-            {$t("common.paste")}
+            {t("common.paste")}
         </Button>
         <input
             id="load-build-input"
             class="modal-input"
             bind:this={inputEl}
             type="text"
-            placeholder={$t("modal.loadBuild.placeholder")}
+            placeholder={t("modal.loadBuild.placeholder")}
             inputmode="url"
             autocomplete="off"
             autocapitalize="off"

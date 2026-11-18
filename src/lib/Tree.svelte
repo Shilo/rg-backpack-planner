@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-    import { onMount, tick, setContext } from "svelte";
+    import { onMount, tick, setContext, untrack } from "svelte";
     import { writable } from "svelte/store";
     import { fade } from "svelte/transition";
     import Node, { type NodeState } from "./Node.svelte";
@@ -68,7 +68,8 @@
     import { guardianSkillIds } from "../config/guardianTree";
     import { vanguardSkillIds } from "../config/vanguardTree";
     import { cannonSkillIds } from "../config/cannonTree";
-    import { locale, t } from "svelte-whisper";
+    import { getLocale, t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import LevelUpSplash from "./LevelUpSplash.svelte";
     import { showLevelSplash } from "./showLevelSplashStore";
     import { sumDeltaCosts } from "./nodeActionPreview";
@@ -588,7 +589,7 @@
                 })
             ) {
                 showToast(
-                    $t("nodeMenu.leveledLeafCapWarning", {
+                    t("nodeMenu.leveledLeafCapWarning", {
                         cap: GLOBAL_LEVELED_LEAF_NODE_CAP,
                     }),
                     { tone: "negative" },
@@ -615,7 +616,7 @@
                         durationMs: 4500,
                         key: "budget",
                         action: {
-                            label: $t("techCrystals.ignoreBudgetAction"),
+                            label: t("techCrystals.ignoreBudgetAction"),
                             onClick: () => ignoreTechCrystalBudget.set(true),
                         },
                     };
@@ -632,9 +633,9 @@
                         deltas = capped.deltas;
                         targetLevel = cappedLevel;
                         showToast(
-                            $t("techCrystals.budgetReachedToast") +
+                            t("techCrystals.budgetReachedToast") +
                                 "\n" +
-                                $t("techCrystals.budgetCappedToast", {
+                                t("techCrystals.budgetCappedToast", {
                                     level: cappedLevel,
                                 }),
                             budgetToastOptions,
@@ -654,21 +655,21 @@
                             nextLevels = partial.levels;
                             deltas = partial.deltas;
                             showToast(
-                                $t("techCrystals.budgetReachedToast") +
+                                t("techCrystals.budgetReachedToast") +
                                     "\n" +
-                                    $t("techCrystals.budgetLineageToast"),
+                                    t("techCrystals.budgetLineageToast"),
                                 budgetToastOptions,
                             );
                         } else {
                             showToast(
-                                $t("techCrystals.budgetReachedToast"),
+                                t("techCrystals.budgetReachedToast"),
                                 budgetToastOptions,
                             );
                             return false;
                         }
                     } else {
                         showToast(
-                            $t("techCrystals.budgetReachedToast"),
+                            t("techCrystals.budgetReachedToast"),
                             budgetToastOptions,
                         );
                         return false;
@@ -1480,8 +1481,8 @@
             maxLevel: node.maxLevel,
             skillId: node.skillId,
             nameLabel:
-                $t(`skills.short.${node.skillId}`) ||
-                $t(`skills.${node.skillId}`),
+                t(`skills.short.${node.skillId}`) ||
+                t(`skills.${node.skillId}`),
         }));
 
         return getTreeWorldBounds(layoutNodes, {
@@ -1629,7 +1630,7 @@
 
         allowReactiveFocus = true;
         if (announce) {
-            showToast($t("tree.focusedInViewToast"));
+            showToast(t("tree.focusedInViewToast"));
         }
         return true;
     }
@@ -1671,6 +1672,25 @@
     let hasSeenInitialShowTier = false;
     let hasSeenInitialShowSkillName = false;
     let hasSeenInitialLocale = false;
+
+    // Skill-name badges change width with the language, so refit the tree.
+    watch(() => {
+        getLocale();
+        untrack(() => {
+            if (!hasSeenInitialLocale) {
+                hasSeenInitialLocale = true;
+                return;
+            }
+            if (!$showSkillName) return;
+            if (!allowReactiveFocus) return;
+            // Wait a frame so the translated badges are laid out before measuring.
+            requestAnimationFrame(() => {
+                if (!$showSkillName) return;
+                if (!allowReactiveFocus) return;
+                focusTreeInView(false);
+            });
+        });
+    });
 
     $: if (hasMounted && bottomInset !== lastAppliedBottomInset) {
         lastAppliedBottomInset = bottomInset;
@@ -1729,21 +1749,6 @@
             if (!allowReactiveFocus) return;
             focusTreeInView(false);
         });
-        const unsubscribeLocale = locale.subscribe(() => {
-            if (!hasSeenInitialLocale) {
-                hasSeenInitialLocale = true;
-                return;
-            }
-            if (!$showSkillName) return;
-            if (!allowReactiveFocus) return;
-            // Locale changes can arrive before translated badge text is fully
-            // reflected by `$t`, so defer one frame before recomputing bounds.
-            requestAnimationFrame(() => {
-                if (!$showSkillName) return;
-                if (!allowReactiveFocus) return;
-                focusTreeInView(false);
-            });
-        });
         const initializeView = async () => {
             await tick();
             if (initialViewState) {
@@ -1787,7 +1792,6 @@
             unsubscribeTextSize();
             unsubscribeShowTier();
             unsubscribeShowSkillName();
-            unsubscribeLocale();
             onOnboardingReadyChange?.(false);
         };
     });
@@ -1871,7 +1875,7 @@
                         id={nodeView.index}
                         x={nodeView.node.x}
                         y={nodeView.node.y}
-                        label={$t(`skills.${nodeView.node.skillId}`)}
+                        label={t(`skills.${nodeView.node.skillId}`)}
                         level={nodeView.level}
                         state={nodeView.state}
                         tier={nodeView.tier}
@@ -1918,7 +1922,7 @@
                         id={contextMenuRenderNode.index}
                         x={contextMenuRenderNode.node.x}
                         y={contextMenuRenderNode.node.y}
-                        label={$t(
+                        label={t(
                             `skills.${contextMenuRenderNode.node.skillId}`,
                         )}
                         level={contextMenuLevel}

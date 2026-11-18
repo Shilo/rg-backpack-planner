@@ -1,7 +1,8 @@
 <script lang="ts">
     import { CopySimpleIcon } from "phosphor-svelte";
     import { getCurrentVersion, getStoredVersion } from "../latestUsedVersionStore";
-    import { locale, t } from "svelte-whisper";
+    import { getLocale, t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { showToast } from "../toast";
     import { triggerHaptic } from "../hapticsStore";
     import { onMount } from "svelte";
@@ -132,49 +133,61 @@
         };
     });
 
-    $: performanceEntries = [
-        { label: $t("systemInfo.currentFps"), value: formatFps(currentFps) },
-        { label: $t("systemInfo.averageFps"), value: formatFps(averageFps) },
-        { label: $t("systemInfo.lowestFps"), value: formatFps(lowestFps) },
-    ] satisfies InfoEntry[];
+    let performanceEntries: InfoEntry[] = [];
+    watch(() => {
+        performanceEntries = [
+            { label: t("systemInfo.currentFps"), value: formatFps(currentFps) },
+            { label: t("systemInfo.averageFps"), value: formatFps(averageFps) },
+            { label: t("systemInfo.lowestFps"), value: formatFps(lowestFps) },
+        ] satisfies InfoEntry[];
+    });
 
-    $: appEntries = [
-        { label: $t("systemInfo.version"), value: version },
-        { label: $t("systemInfo.storedVersion"), value: storedVersion ?? "none" },
-        { label: $t("systemInfo.localStorage"), value: localStorageSize },
-        { label: $t("systemInfo.locale"), value: $locale ?? "unknown" },
-        { label: $t("systemInfo.displayMode"), value: displayMode },
-        { label: $t("systemInfo.serviceWorker"), value: swStatus },
-    ] satisfies InfoEntry[];
+    let appEntries: InfoEntry[] = [];
+    watch(() => {
+        appEntries = [
+            { label: t("systemInfo.version"), value: version },
+            { label: t("systemInfo.storedVersion"), value: storedVersion ?? "none" },
+            { label: t("systemInfo.localStorage"), value: localStorageSize },
+            { label: t("systemInfo.locale"), value: getLocale() },
+            { label: t("systemInfo.displayMode"), value: displayMode },
+            { label: t("systemInfo.serviceWorker"), value: swStatus },
+        ] satisfies InfoEntry[];
+    });
 
-    $: deviceEntries = [
-        ...(deviceModel ? [{ label: $t("systemInfo.device"), value: deviceModel }] : []),
-        ...(platformInfo ? [{ label: $t("systemInfo.platform"), value: platformInfo }] : []),
-        ...(browserVersion ? [{ label: $t("systemInfo.browser"), value: browserVersion }] : []),
-        { label: $t("systemInfo.screen"), value: screenInfo },
-        { label: $t("systemInfo.viewport"), value: viewport },
-        ...(deviceMemory != null
-            ? [{ label: $t("systemInfo.memory"), value: `${deviceMemory} GB` }]
-            : []),
-        ...(cpuCores != null
-            ? [{ label: $t("systemInfo.cpuCores"), value: String(cpuCores) }]
-            : []),
-        { label: $t("systemInfo.touchSupport"), value: touchSupport ? "yes" : "no" },
-    ] satisfies InfoEntry[];
+    let deviceEntries: InfoEntry[] = [];
+    watch(() => {
+        deviceEntries = [
+            ...(deviceModel ? [{ label: t("systemInfo.device"), value: deviceModel }] : []),
+            ...(platformInfo ? [{ label: t("systemInfo.platform"), value: platformInfo }] : []),
+            ...(browserVersion ? [{ label: t("systemInfo.browser"), value: browserVersion }] : []),
+            { label: t("systemInfo.screen"), value: screenInfo },
+            { label: t("systemInfo.viewport"), value: viewport },
+            ...(deviceMemory != null
+                ? [{ label: t("systemInfo.memory"), value: `${deviceMemory} GB` }]
+                : []),
+            ...(cpuCores != null
+                ? [{ label: t("systemInfo.cpuCores"), value: String(cpuCores) }]
+                : []),
+            { label: t("systemInfo.touchSupport"), value: touchSupport ? "yes" : "no" },
+        ] satisfies InfoEntry[];
+    });
 
-    $: envEntries = [
-        { label: $t("systemInfo.browserLang"), value: langsPref },
-        { label: $t("systemInfo.online"), value: onlineStatus ? "yes" : "no" },
-        { label: $t("systemInfo.network"), value: networkType },
-        { label: $t("systemInfo.reducedMotion"), value: reducedMotion ? "yes" : "no" },
-    ] satisfies InfoEntry[];
+    let envEntries: InfoEntry[] = [];
+    watch(() => {
+        envEntries = [
+            { label: t("systemInfo.browserLang"), value: langsPref },
+            { label: t("systemInfo.online"), value: onlineStatus ? "yes" : "no" },
+            { label: t("systemInfo.network"), value: networkType },
+            { label: t("systemInfo.reducedMotion"), value: reducedMotion ? "yes" : "no" },
+        ] satisfies InfoEntry[];
+    });
 
     function formatForClipboard(): string {
         const sections = [
-            { title: $t("systemInfo.sectionPerformance"), items: performanceEntries },
-            { title: $t("systemInfo.sectionApp"), items: appEntries },
-            { title: $t("systemInfo.sectionDevice"), items: deviceEntries },
-            { title: $t("systemInfo.sectionEnvironment"), items: envEntries },
+            { title: t("systemInfo.sectionPerformance"), items: performanceEntries },
+            { title: t("systemInfo.sectionApp"), items: appEntries },
+            { title: t("systemInfo.sectionDevice"), items: deviceEntries },
+            { title: t("systemInfo.sectionEnvironment"), items: envEntries },
         ];
 
         const allItems = sections.flatMap((s) => s.items);
@@ -187,7 +200,7 @@
             return `${s.title}\n${rows}`;
         });
 
-        const uaLabel = $t("systemInfo.userAgent");
+        const uaLabel = t("systemInfo.userAgent");
         parts.push(`${uaLabel}\n${userAgent}`);
 
         return "```\n" + parts.join("\n\n") + "\n```";
@@ -198,9 +211,9 @@
         const text = formatForClipboard();
         try {
             await navigator.clipboard.writeText(text);
-            showToast($t("systemInfo.copied"), { tone: "positive" });
+            showToast(t("systemInfo.copied"), { tone: "positive" });
         } catch {
-            showToast($t("systemInfo.copyFailed"), { tone: "negative" });
+            showToast(t("systemInfo.copyFailed"), { tone: "negative" });
         }
     }
 </script>
@@ -208,7 +221,7 @@
 <div class="system-info">
     <SystemInfoPerformanceSection entries={performanceEntries} />
 
-    <SideMenuSection title={$t("systemInfo.sectionApp")}>
+    <SideMenuSection title={t("systemInfo.sectionApp")}>
         <div class="info-card">
             {#each appEntries as entry}
                 <div class="info-row">
@@ -219,7 +232,7 @@
         </div>
     </SideMenuSection>
 
-    <SideMenuSection title={$t("systemInfo.sectionDevice")}>
+    <SideMenuSection title={t("systemInfo.sectionDevice")}>
         <div class="info-card">
             {#each deviceEntries as entry}
                 <div class="info-row">
@@ -230,7 +243,7 @@
         </div>
     </SideMenuSection>
 
-    <SideMenuSection title={$t("systemInfo.sectionEnvironment")}>
+    <SideMenuSection title={t("systemInfo.sectionEnvironment")}>
         <div class="info-card">
             {#each envEntries as entry}
                 <div class="info-row">
@@ -242,13 +255,13 @@
     </SideMenuSection>
 
     <div class="info-card ua-card">
-        <div class="ua-header">{$t("systemInfo.userAgent")}</div>
+        <div class="ua-header">{t("systemInfo.userAgent")}</div>
         <div class="ua-value">{userAgent}</div>
     </div>
 
     <button class="copy-btn" on:click={copySystemInfo}>
         <CopySimpleIcon size={16} weight="bold" />
-        {$t("systemInfo.copyAll")}
+        {t("systemInfo.copyAll")}
     </button>
 </div>
 

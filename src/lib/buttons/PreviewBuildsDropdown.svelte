@@ -11,6 +11,7 @@
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import { TechCrystalIcon } from "../customIcons";
     import { activeTabs } from "../techCrystalStore";
     import { activeBuildName } from "../buildPresetsStore";
@@ -28,7 +29,10 @@
     export let onPreview: (() => void) | null = null;
 
     // Read recommended builds from the shared registry so loading and sharing stay in sync.
-    $: premadeBuilds = mapRecommendedBuilds($activeTabs, $t);
+    let premadeBuilds!: ReturnType<typeof mapRecommendedBuilds>;
+    watch(() => {
+        premadeBuilds = mapRecommendedBuilds($activeTabs, t);
+    });
 
     function handlePremadeClick(buildCode: string) {
         onClose?.();
@@ -37,7 +41,7 @@
             navigateToEncodedBuild(encoded);
             onPreview?.();
         } else {
-            showToast($t("preview.invalidBuildDataToast"), {
+            showToast(t("preview.invalidBuildDataToast"), {
                 tone: "negative",
             });
         }
@@ -46,7 +50,7 @@
     function handleCompareRecommended(buildCode: string, name: string) {
         const source: CompareBuildSource = { type: "preview", encoded: buildCode };
         if (!decodeAndStartCompare(buildCode, name, source)) {
-            showToast($t("preview.invalidBuildDataToast"), { tone: "negative" });
+            showToast(t("preview.invalidBuildDataToast"), { tone: "negative" });
             return;
         }
         onClose?.();
@@ -63,29 +67,29 @@
         {x}
         {y}
         {isOpen}
-        title={$t("preview.previewBuildsTitle")}
+        title={t("preview.previewBuildsTitle")}
         onClose={() => onClose?.()}
         anchorBelow
     >
         <Button
             icon={LinkIcon}
-            tooltipText={$t("preview.previewFromLinkTooltip")}
+            tooltipText={t("preview.previewFromLinkTooltip")}
             on:click={handleOpenLoadModal}
             arrow="right"
         >
-            {$t("preview.fromLinkOrCode")}
+            {t("preview.fromLinkOrCode")}
         </Button>
-        <div class="section-title">{$t("preview.recommended")}</div>
+        <div class="section-title">{t("preview.recommended")}</div>
         <div class="premade-builds-list">
             {#each premadeBuilds as build}
                 <ButtonGroup fill>
                     <Button
                         icon={build.icon ?? ShareNetworkIcon}
-                        tooltipText={$t("preview.previewBuildTooltip", {
+                        tooltipText={t("preview.previewBuildTooltip", {
                             name: build.name,
                         })}
                         description={build.tcSpent > 0
-                            ? $t("preview.techCrystalsDescription", {
+                            ? t("preview.techCrystalsDescription", {
                                   count: build.tcSpent.toLocaleString(),
                               })
                             : undefined}
@@ -96,7 +100,7 @@
                     </Button>
                     <Button
                         class="compare-btn"
-                        tooltipText={$t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
+                        tooltipText={t("compare.compareWithActiveTooltip", { name: toTitleCase($activeBuildName) })}
                         icon={ScalesIcon}
                         on:click={() =>
                             handleCompareRecommended(build.code, build.name)}

@@ -23,6 +23,7 @@
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
     import { t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import {
         getInputLabel,
         getKeyboardActionLabel,
@@ -82,15 +83,21 @@
         };
     }
 
-    $: clickActionLabel = $t("settings.nodePrimaryActionTitle", {
-        primaryAction: getInputLabel(
-            "primary",
-            null,
-            $touchPrimary ? "touch" : "mouse",
-            $t,
-        ),
+    let clickActionLabel = "";
+    watch(() => {
+        clickActionLabel = t("settings.nodePrimaryActionTitle", {
+            primaryAction: getInputLabel(
+                "primary",
+                null,
+                $touchPrimary ? "touch" : "mouse",
+                t,
+            ),
+        });
     });
-    $: keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", $t);
+    let keyCyclePrimaryAction = "";
+    watch(() => {
+        keyCyclePrimaryAction = getKeyboardActionLabel("cyclePrimaryAction", t);
+    });
 
     /** (x, y) from parent: x = center of root, y = desired bottom edge of panel (e.g. rootTop - padding). */
     function updatePosition() {
@@ -138,17 +145,20 @@
         triggerHaptic();
         const label =
             action === NodePrimaryAction.IncrementOne
-                ? $t("nodeMenu.incrementOne")
+                ? t("nodeMenu.incrementOne")
                 : action === NodePrimaryAction.IncrementTen
-                  ? $t("nodeMenu.incrementTen")
-                  : $t("nodeMenu.incrementTier");
+                  ? t("nodeMenu.incrementTen")
+                  : t("nodeMenu.incrementTier");
         showSettingToast(clickActionLabel, label);
         onClose?.();
     }
 
     const BRANCHES: TreeBranchKey[] = ["orange", "blue", "yellow"];
 
-    $: resetLabel = $t("tree.resetBranchToast", { branchName: treeLabel });
+    let resetLabel = "";
+    watch(() => {
+        resetLabel = t("tree.resetBranchToast", { branchName: treeLabel });
+    });
 
     function isBranchEmpty(branch: TreeBranchKey): boolean {
         return sumTreeBranchLevels(activeLevels, branch) === 0;
@@ -175,9 +185,9 @@
         triggerHaptic();
         const label =
             behavior === NodeLevelBehavior.Solo
-                ? $t("settings.nodeLevelBehaviorSolo")
-                : $t("settings.nodeLevelBehaviorSync");
-        showSettingToast($t("settings.nodeLevelBehavior"), label);
+                ? t("settings.nodeLevelBehaviorSolo")
+                : t("settings.nodeLevelBehaviorSync");
+        showSettingToast(t("settings.nodeLevelBehavior"), label);
         onClose?.();
     }
 
@@ -317,7 +327,7 @@
         class="qs-backdrop backdrop"
         type="button"
         tabindex="0"
-        aria-label={$t("common.close")}
+        aria-label={t("common.close")}
         on:pointerdown={handleBackdropPointerDown}
         on:pointerup={handleBackdropPointerUp}
         on:click={handleBackdropClick}
@@ -339,7 +349,7 @@
     >
         <div class="qs-header">
             <RootNodeIcon class="qs-header-icon" aria-hidden="true" />
-            <span class="qs-header-title">{$t("quickSettings.title")}</span>
+            <span class="qs-header-title">{t("quickSettings.title")}</span>
         </div>
 
         <div class="qs-reset-row">
@@ -356,7 +366,7 @@
                         disabled={empty}
                         on:click={() => handleResetBranch(branch)}
                     >
-                        {$t(`theme.colorNames.${branch}`)}
+                        {t(`theme.colorNames.${branch}`)}
                     </button>
                 {/each}
                 <span class="qs-reset-divider"></span>
@@ -366,7 +376,7 @@
                     disabled={isTreeEmpty}
                     on:click={handleResetTree}
                 >
-                    {$t("modal.resetTree.choiceTreeLabel")}
+                    {t("modal.resetTree.choiceTreeLabel")}
                 </button>
             </div>
         </div>
@@ -374,12 +384,12 @@
         <div class="qs-rows">
             <span class="qs-label">
                 <GraphIcon size={14} weight="bold" />
-                {$t("settings.nodeLevelBehavior")}
+                {t("settings.nodeLevelBehavior")}
             </span>
             <div
                 class="qs-chips"
                 role="radiogroup"
-                aria-label={$t("settings.nodeLevelBehavior")}
+                aria-label={t("settings.nodeLevelBehavior")}
             >
                 {#each [NodeLevelBehavior.Solo, NodeLevelBehavior.Sync] as behavior (behavior)}
                     <button
@@ -391,8 +401,8 @@
                         on:click={() => selectLevelBehavior(behavior)}
                     >
                         {behavior === NodeLevelBehavior.Solo
-                            ? $t("settings.nodeLevelBehaviorSolo")
-                            : $t("settings.nodeLevelBehaviorSync")}
+                            ? t("settings.nodeLevelBehaviorSolo")
+                            : t("settings.nodeLevelBehaviorSync")}
                     </button>
                 {/each}
             </div>
@@ -419,10 +429,10 @@
                         on:click={() => selectPrimaryAction(action)}
                     >
                         {action === NodePrimaryAction.IncrementOne
-                            ? $t("nodeMenu.incrementOne")
+                            ? t("nodeMenu.incrementOne")
                             : action === NodePrimaryAction.IncrementTen
-                              ? $t("nodeMenu.incrementTen")
-                              : $t("nodeMenu.incrementTier")}
+                              ? t("nodeMenu.incrementTen")
+                              : t("nodeMenu.incrementTier")}
                     </button>
                 {/each}
             </div>

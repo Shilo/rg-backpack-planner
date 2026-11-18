@@ -11,6 +11,8 @@
     import { getTreeIcon, TechCrystalIcon } from "./customIcons";
 
     import { formatNumber, t } from "svelte-whisper";
+
+    import { watch } from "./watch.svelte";
     import Button from "./Button.svelte";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
@@ -222,8 +224,8 @@
                 const wasMuted = get(soundMuted);
                 soundMuted.set(!wasMuted);
                 const vol = wasMuted ? get(soundVolume) : 0;
-                const value = vol === 0 ? $t("settings.soundMuted") : `${vol}%`;
-                showToast($t("settings.soundToast", { value }));
+                const value = vol === 0 ? t("settings.soundMuted") : `${vol}%`;
+                showToast(t("settings.soundToast", { value }));
                 triggerShortcutFlash("toggleMute");
                 break;
             }
@@ -326,7 +328,10 @@
         }
     }
 
-    $: mouse = getDeviceInputLabels("mouse", $t);
+    let mouse!: ReturnType<typeof getDeviceInputLabels>;
+    watch(() => {
+        mouse = getDeviceInputLabels("mouse", t);
+    });
     $: ensureTreeLevels(tabs);
     $: globalLeveledLeafNodesOutsideActiveTreeCount =
         countGlobalLeveledLeafNodesOutsideActiveTree(
@@ -437,7 +442,7 @@
     }
 
     function getBranchName(branch: TreeBranchKey) {
-        return $t(`theme.colorNames.${branch}`);
+        return t(`theme.colorNames.${branch}`);
     }
 
     function resetBranchByIndex(index: number, branch: TreeBranchKey) {
@@ -445,7 +450,7 @@
         undoHistory.pushSnapshot(index);
         treeRef?.triggerFade?.();
         showToast(
-            $t("tree.resetBranchToast", {
+            t("tree.resetBranchToast", {
                 branchName: getBranchName(branch),
             }),
             { tone: "negative" },
@@ -456,7 +461,7 @@
         resetLevelsForTab(index);
         const tabLabel = tabs[index].label;
         showToast(
-            $t("tree.resetTreeToast", {
+            t("tree.resetTreeToast", {
                 treeLabel: tabLabel,
             }),
             { tone: "negative" },
@@ -476,7 +481,7 @@
         const levels = $treeLevels[activeIndex];
         if (sumLevels(levels) === 0) return;
         openResetTreeChoicesModal(
-            $t,
+            t,
             tab.label,
             levels,
             {
@@ -505,7 +510,7 @@
         if (tabs.length === 0) return;
         resetAllTreeLevels(tabs);
         undoHistory.pushSnapshot(activeIndex);
-        showToast($t("tree.resetAllTreesToast"), { tone: "negative" });
+        showToast(t("tree.resetAllTreesToast"), { tone: "negative" });
         treeRef?.triggerFade?.();
         closeTabMenu();
     }
@@ -572,7 +577,7 @@
                         icon={getTabIcon(tab.id)}
                         iconSize={18}
                         iconClass="tree-tab-icon"
-                        tooltipText={$t("trees.named", { label: tab.label })}
+                        tooltipText={t("trees.named", { label: tab.label })}
                         tooltipHoverOnly
                         shortcut={mouse.secondary}
                         on:click={() => onTabClick(index)}
@@ -591,8 +596,8 @@
         <Button
             class="menu-button"
             aria-label="Menu"
-            tooltipText={$t("tree.menuButtonTooltip")}
-            shortcut={getKeyboardActionLabel("dismiss", $t)}
+            tooltipText={t("tree.menuButtonTooltip")}
+            shortcut={getKeyboardActionLabel("dismiss", t)}
             on:click={() => onMenuClick?.()}
             icon={ListIcon}
             iconClass="menu-button-icon"

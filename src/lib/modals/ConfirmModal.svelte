@@ -3,6 +3,7 @@
     import type { IconWeight } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
 
     export let title = "";
     export let titleIcon: Component | null = null;
@@ -16,8 +17,14 @@
     export let confirmPositive = false;
     export let onConfirm: (() => void) | null = null;
     export let onCancel: (() => void) | null = null;
-    $: resolvedConfirmLabel = confirmLabel || $t("modal.confirmLabel");
-    $: resolvedCancelLabel = cancelLabel || $t("modal.cancelLabel");
+    let resolvedConfirmLabel = "";
+    watch(() => {
+        resolvedConfirmLabel = confirmLabel || t("modal.confirmLabel");
+    });
+    let resolvedCancelLabel = "";
+    watch(() => {
+        resolvedCancelLabel = cancelLabel || t("modal.cancelLabel");
+    });
 </script>
 
 <div class="modal-content">

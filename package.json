@@ -54,9 +54,9 @@
         "test:ui:locale": "tsx test/missingLocaleKeys.ui.test.ts",
         "test:ui:tier": "tsx test/tierLeveling.ui.test.ts",
         "test:ui:capture": "tsx test/captureScreenshot.ui.test.ts",
-        "test": "npm run check && tsx test/index.ts",
+        "test": "npm run check && tsx --import ./test/svelteModules.ts test/index.ts",
         "pwa:assets": "node scripts/generate-pwa-icons.mjs",
-        "update": "npx npm-check-updates -u --peer && npm install svelte-whisper@github:Shilo/svelte-whisper && npm install"
+        "update": "npx npm-check-updates -u --peer --reject svelte-whisper && npm install svelte-whisper@github:Shilo/svelte-whisper#v2.0.0 && npm install"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.4",
@@ -74,6 +74,6 @@
     },
     "dependencies": {
         "@zumer/snapdom": "^2.1.0",
-        "svelte-whisper": "github:Shilo/svelte-whisper"
+        "svelte-whisper": "file:../../../Users/shilo/.t3/worktrees/svelte-whisper/t3-4716423a-1c3e43df5ced266f"
     }
 }

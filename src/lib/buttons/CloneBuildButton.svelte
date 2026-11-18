@@ -36,18 +36,18 @@
 
         openModal({
             type: "confirm",
-            title: $t("preview.cloneModalTitle"),
+            title: t("preview.cloneModalTitle"),
             titleIcon: CopySimpleIcon as unknown as Component,
             message: name
-                ? $t("buildPresets.cloneModalMessage", {
+                ? t("buildPresets.cloneModalMessage", {
                       name: truncateText(uniqueDisplayName),
                       originalName: truncateText(getDisplayPresetName(name)),
                   })
-                : $t("preview.cloneModalMessage", {
+                : t("preview.cloneModalMessage", {
                       name: truncateText(uniqueDisplayName),
                   }),
-            confirmLabel: $t("common.clone"),
-            cancelLabel: $t("common.cancel"),
+            confirmLabel: t("common.clone"),
+            cancelLabel: t("common.cancel"),
             confirmPositive: true,
             onConfirm: () => {
                 const finalCode =
@@ -72,11 +72,11 @@
 
 <Button
     on:click={handleCloneBuild}
-    tooltipText={description ? undefined : (tooltip ?? $t("preview.clonePreviewBuildTooltip"))}
+    tooltipText={description ? undefined : (tooltip ?? t("preview.clonePreviewBuildTooltip"))}
     {description}
     icon={CopySimpleIcon}
     arrow="right"
     data-testid="clone-build-btn"
 >
-    {label ?? $t("preview.clonePreviewBuild")}
+    {label ?? t("preview.clonePreviewBuild")}
 </Button>

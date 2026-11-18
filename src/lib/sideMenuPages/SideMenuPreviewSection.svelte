@@ -8,6 +8,7 @@
     } from "../previewBuildNameStore";
     import SideMenuSection from "../SideMenuSection.svelte";
     import { t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
 
     let compareMenuOpen = false;
     let compareMenuX = 0;
@@ -23,8 +24,11 @@
         compareMenuOpen = false;
     }
 
-    $: sectionTitle = $t("preview.buildTitle", {
-        name: getPreviewTitle($previewBuildName),
+    let sectionTitle = "";
+    watch(() => {
+        sectionTitle = t("preview.buildTitle", {
+            name: getPreviewTitle($previewBuildName),
+        });
     });
 </script>
 

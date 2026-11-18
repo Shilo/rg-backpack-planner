@@ -1,5 +1,6 @@
 <script lang="ts">
     import { t } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import type { LevelsByIndex, Node } from "../types/tree";
     import ContextMenu from "./ContextMenu.svelte";
     import type { TreeViewState } from "./Tree.svelte";
@@ -28,9 +29,12 @@
         menuTabId = tabId;
     }
 
-    $: title = tabLabel
-        ? $t("trees.named", { label: tabLabel })
-        : $t("trees.generic");
+    let title = "";
+    watch(() => {
+        title = tabLabel
+            ? t("trees.named", { label: tabLabel })
+            : t("trees.generic");
+    });
 </script>
 
 <ContextMenu

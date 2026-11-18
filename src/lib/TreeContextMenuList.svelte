@@ -138,7 +138,7 @@
         </div>
         <div class="info-header-text">
             <span class="skill-name"
-                >{$t("trees.named", { label: tabLabel })}</span
+                >{t("trees.named", { label: tabLabel })}</span
             >
             <div class="bonus-display">
                 <span class="bonus-icon"
@@ -161,7 +161,7 @@
                         <svelte:component this={skill.icon} />
                     </span>
                     <span class="meta-label"
-                        >{$t(`skills.${skill.id}`)}</span
+                        >{t(`skills.${skill.id}`)}</span
                     >
                     <span class="meta-value">
                         {formatBonusValue(skill.currentValue * 100)}%
@@ -174,14 +174,14 @@
     <div class="tree-stats">
         <div class="meta-row">
             <div class="meta-item">
-                <span class="meta-label">{$t("nodeMenu.level")}</span>
+                <span class="meta-label">{t("nodeMenu.level")}</span>
                 <span class="meta-value"
                     >{formatNumber(currentLevel)}<span class="meta-sep">/</span
                     >{formatNumber(maxLevel)}</span
                 >
             </div>
             <div class="meta-item">
-                <span class="meta-label">{$t("nodeMenu.tier")}</span>
+                <span class="meta-label">{t("nodeMenu.tier")}</span>
                 <span class="meta-value"
                     >{treeTierInfo.completed}<span class="meta-sep">/</span
                     >{treeTierInfo.total}</span

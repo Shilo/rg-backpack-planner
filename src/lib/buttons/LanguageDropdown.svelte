@@ -3,42 +3,20 @@
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { t, locale, getLocales, getFallbackLocale } from "svelte-whisper";
-
-    const fallbackLocale = getFallbackLocale();
+    import { t, getLocale, setLocale, getLocales, detectLocale, localeName } from "svelte-whisper";
+    import { FALLBACK_LOCALE } from "../i18n";
 
     let dropdownButtonElement: HTMLButtonElement | null = null;
     let isOpen = false;
     let x = 0;
     let y = 0;
 
-    $: selectedLocale = $locale;
-
-    // Determine preferred locale based on browser settings
-    $: preferredLocale = (() => {
-        const available = getLocales();
-        if (typeof navigator === "undefined" || available.length === 0)
-            return available[0] || fallbackLocale;
-        for (const lang of navigator.languages || [navigator.language]) {
-            const base = lang.split("-")[0];
-            if (available.includes(lang)) return lang;
-            if (available.includes(base)) return base;
-        }
-        return available[0] || fallbackLocale;
-    })();
-
-    // Always sort the fallbackLocale to the top after preferredLocale
-    $: isFallbackPreferred = preferredLocale === fallbackLocale;
-    $: hasFallback = getLocales().includes(fallbackLocale);
-    $: showFallback = hasFallback && !isFallbackPreferred;
-
-    $: otherLocales = Array.from(new Set(getLocales()))
-        .filter((l) => l !== preferredLocale && l !== fallbackLocale)
-        .sort((a, b) => {
-            const nameA = $t(`languageNames.${a}`) || a;
-            const nameB = $t(`languageNames.${b}`) || b;
-            return nameA.localeCompare(nameB);
-        });
+    // Browser language first, then the fallback, then the rest by their own names.
+    const preferredLocale = detectLocale() || FALLBACK_LOCALE;
+    const showFallback = preferredLocale !== FALLBACK_LOCALE && getLocales().includes(FALLBACK_LOCALE);
+    const otherLocales = getLocales()
+        .filter((l) => l !== preferredLocale && l !== FALLBACK_LOCALE)
+        .sort((a, b) => localeName(a).localeCompare(localeName(b)));
 
     function handleDropdownClick() {
         if (!dropdownButtonElement) return;
@@ -49,7 +27,7 @@
     }
 
     function handleLanguageSelect(localeCode: string) {
-        void locale.set(localeCode);
+        void setLocale(localeCode);
         isOpen = false;
     }
 
@@ -68,13 +46,13 @@
     >
         <div class="button-content">
             <div class="label-group">
-                <span class="label">{$t("settings.languageLabel")}</span>
-                <span class="description">{$t("settings.languageDescription")}</span>
+                <span class="label">{t("settings.languageLabel")}</span>
+                <span class="description">{t("settings.languageDescription")}</span>
             </div>
             <div class="divider"></div>
             <div class="value-container">
                 <span class="language-value"
-                    >{$t(`languageNames.${selectedLocale}`)}</span
+                    >{localeName(getLocale())}</span
                 >
             </div>
         </div>
@@ -86,7 +64,7 @@
         {x}
         {y}
         {isOpen}
-        title={$t("settings.languageLabel")}
+        title={t("settings.languageLabel")}
         onClose={closeDropdown}
         anchorBelow
     >
@@ -94,12 +72,12 @@
             {#if preferredLocale}
                 <Button
                     on:click={() => handleLanguageSelect(preferredLocale)}
-                    class={selectedLocale === preferredLocale
+                    class={getLocale() === preferredLocale
                         ? "selected-language"
                         : ""}
-                    icon={selectedLocale === preferredLocale ? CheckIcon : null}
+                    icon={getLocale() === preferredLocale ? CheckIcon : null}
                 >
-                    {$t(`languageNames.${preferredLocale}`)}
+                    {localeName(preferredLocale)}
                 </Button>
             {/if}
 
@@ -108,26 +86,26 @@
 
                 {#if showFallback}
                     <Button
-                        on:click={() => handleLanguageSelect(fallbackLocale)}
-                        class={selectedLocale === fallbackLocale
+                        on:click={() => handleLanguageSelect(FALLBACK_LOCALE)}
+                        class={getLocale() === FALLBACK_LOCALE
                             ? "selected-language"
                             : ""}
-                        icon={selectedLocale === fallbackLocale
+                        icon={getLocale() === FALLBACK_LOCALE
                             ? CheckIcon
                             : null}
                     >
-                        {$t(`languageNames.${fallbackLocale}`)}
+                        {localeName(FALLBACK_LOCALE)}
                     </Button>
                 {/if}
 
                 {#each otherLocales as localeCode}
-                    {@const isSelected = selectedLocale === localeCode}
+                    {@const isSelected = getLocale() === localeCode}
                     <Button
                         on:click={() => handleLanguageSelect(localeCode)}
                         class={isSelected ? "selected-language" : ""}
                         icon={isSelected ? CheckIcon : null}
                     >
-                        {$t(`languageNames.${localeCode}`)}
+                        {localeName(localeCode)}
                     </Button>
                 {/each}
             {/if}

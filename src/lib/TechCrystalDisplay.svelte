@@ -5,6 +5,7 @@
     import { openTechCrystalsOwnedModal } from "./techCrystalModal";
     import { techCrystalsSpent, techCrystalsOwned } from "./techCrystalStore";
     import { formatNumber } from "svelte-whisper";
+    import { watch } from "./watch.svelte";
     import { t } from "svelte-whisper";
     import { formatCompact } from "./mathUtil";
     import { getKeyboardActionLabel } from "./input";
@@ -13,9 +14,12 @@
     export let activeTreeIndex = 0;
 
     $: hasOwned = $techCrystalsOwned > 0;
-    $: tooltipText = hasOwned
-        ? $t("techCrystals.displayTooltipSpentOwned")
-        : $t("techCrystals.displayTooltipSpentOnly");
+    let tooltipText = "";
+    watch(() => {
+        tooltipText = hasOwned
+            ? t("techCrystals.displayTooltipSpentOwned")
+            : t("techCrystals.displayTooltipSpentOnly");
+    });
 
     type AnimState = "" | "pulse" | "overspend";
     let animState: AnimState = "";
@@ -99,9 +103,9 @@
     <Button
         class="currency-display"
         type="button"
-        aria-label={$t("techCrystals.displayTooltipSpentOwned")}
+        aria-label={t("techCrystals.displayTooltipSpentOwned")}
         {tooltipText}
-        shortcut={getKeyboardActionLabel("budget", $t)}
+        shortcut={getKeyboardActionLabel("budget", t)}
         on:click={() => openTechCrystalsOwnedModal($techCrystalsOwned, undefined, activeTreeIndex)}
         arrow="right"
     >

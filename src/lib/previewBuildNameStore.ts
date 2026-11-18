@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { truncateText } from "./stringUtil";
-import { tr } from "svelte-whisper";
+import { t } from "svelte-whisper";
 
 /**
  * Store that tracks the name of the currently previewed build (if any)
@@ -34,5 +34,5 @@ export function clearPreviewBuildName(): void {
  * Returns the build name if it exists, otherwise returns localized preview title.
  */
 export function getPreviewTitle(buildName: string | null): string {
-    return buildName ? truncateText(buildName) : tr("preview.title");
+    return buildName ? truncateText(buildName) : t("preview.title");
 }

@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { t, formatNumber, formatPercent } from "svelte-whisper";
+import { t, formatNumber } from "svelte-whisper";
 import { techCrystalsSpent } from "../techCrystalStore";
 import { treeLevelsTotal } from "../treeLevelsStore";
 import { skillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
@@ -13,7 +13,6 @@ import { isDefaultPresetName } from "../buildData/url";
  */
 export async function generateStatsImageBlob(): Promise<Blob | null> {
     const { renderStatsImage } = await import("./statsImageRenderer");
-    const $t = get(t);
 
     const buildName = get(activeBuildName);
     const buildTitle =
@@ -27,16 +26,16 @@ export async function generateStatsImageBlob(): Promise<Blob | null> {
         const value = currentBonuses.get(skillId);
         if (value !== undefined && value > 0) {
             bonuses.push({
-                label: $t(`skills.${skillId}`),
-                value: formatPercent(value),
+                label: t(`skills.${skillId}`),
+                value: formatNumber(value, { style: "percent" }),
             });
         }
     }
     return renderStatsImage({
         buildTitle,
-        techCrystalsLabel: $t("statistics.techCrystalsSpent"),
+        techCrystalsLabel: t("statistics.techCrystalsSpent"),
         techCrystalsValue: formatNumber(get(techCrystalsSpent)),
-        nodeLevelsLabel: $t("statistics.backpackNodeLevels"),
+        nodeLevelsLabel: t("statistics.backpackNodeLevels"),
         nodeLevelsValue: formatNumber(get(treeLevelsTotal)),
         skillBonuses: bonuses,
     });

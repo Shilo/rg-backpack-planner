@@ -3,7 +3,8 @@
 </script>
 
 <script lang="ts">
-    import { formatNumber, formatPercent, t } from "svelte-whisper";
+    import { formatNumber, t } from "svelte-whisper";
+    import { watch } from "../watch.svelte";
     import appPackage from "../../../package.json";
     import { shareTextNative } from "../buildData/share";
     import { showToast } from "../toast";
@@ -18,11 +19,17 @@
         | string
         | undefined;
 
-    $: localizedAppName = $t("app.name");
+    let localizedAppName = "";
+    watch(() => {
+        localizedAppName = t("app.name");
+    });
     $: codeblockTitle = appProductionUrl
         ? `[${localizedAppName}](${appProductionUrl})`
         : localizedAppName;
-    $: codeblockHeader = `### 🎒 ${codeblockTitle} ${$t("statistics.header")}`;
+    let codeblockHeader = "";
+    watch(() => {
+        codeblockHeader = `### 🎒 ${codeblockTitle} ${t("statistics.header")}`;
+    });
 
     function buildCompareText(
         _sections: CompareSection[],
@@ -60,7 +67,7 @@
                 const diff = Math.abs(row.valueA - row.valueB);
                 const diffText =
                     row.format === "percent"
-                        ? formatPercent(diff)
+                        ? formatNumber(diff, { style: "percent" })
                         : formatNumber(diff);
                 // diff value is to the left of the arrow icon
                 const diffPart =
@@ -74,11 +81,11 @@
                     diffPart,
                     c1:
                         row.format === "percent"
-                            ? formatPercent(row.valueA)
+                            ? formatNumber(row.valueA, { style: "percent" })
                             : formatNumber(row.valueA),
                     c2:
                         row.format === "percent"
-                            ? formatPercent(row.valueB)
+                            ? formatNumber(row.valueB, { style: "percent" })
                             : formatNumber(row.valueB),
                     isSection: false,
                 });
@@ -129,7 +136,7 @@
     export async function copy(): Promise<void> {
         try {
             await navigator.clipboard.writeText(codeblockFull);
-            showToast($t("toast.copied"));
+            showToast(t("toast.copied"));
         } catch {
             const fallback = document.createElement("textarea");
             fallback.value = codeblockFull;
@@ -141,9 +148,9 @@
             const copied = document.execCommand("copy");
             document.body.removeChild(fallback);
             if (copied) {
-                showToast($t("toast.copied"));
+                showToast(t("toast.copied"));
             } else {
-                showToast($t("toast.unableToCopy"), { tone: "negative" });
+                showToast(t("toast.unableToCopy"), { tone: "negative" });
             }
         }
     }
@@ -151,9 +158,9 @@
     export async function share(): Promise<void> {
         const result = await shareTextNative(codeblockFull);
         if (result === "copied") {
-            showToast($t("share.fallbackCopiedToast"));
+            showToast(t("share.fallbackCopiedToast"));
         } else if (result === "failed") {
-            showToast($t("share.shareFailedToast"), { tone: "negative" });
+            showToast(t("share.shareFailedToast"), { tone: "negative" });
         }
     }
 </script>
@@ -215,7 +222,7 @@
                 {@const absDiff = Math.abs(row.valueA - row.valueB)}
                 {@const diffText =
                     row.format === "percent"
-                        ? formatPercent(absDiff)
+                        ? formatNumber(absDiff, { style: "percent" })
                         : formatNumber(absDiff)}
                 <tr class="compare-table__row">
                     <td class="compare-table__label">{row.label}</td>
@@ -236,7 +243,7 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatPercent(row.valueA)
+                            ? formatNumber(row.valueA, { style: "percent" })
                             : formatNumber(row.valueA)}
                     </td>
                     <td
@@ -247,7 +254,7 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatPercent(row.valueB)
+                            ? formatNumber(row.valueB, { style: "percent" })
                             : formatNumber(row.valueB)}
                     </td>
                 </tr>

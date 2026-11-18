@@ -15,7 +15,8 @@
     import type { TreeViewState } from "./lib/Tree.svelte";
     import { ensureInstallListeners } from "./lib/buttons/InstallPwaButton.svelte";
     import { isFormField, hasOnboardingOverlay } from "./lib/domUtil";
-    import { t, locale } from "svelte-whisper";
+    import { t, getLocale } from "svelte-whisper";
+    import { watch } from "./lib/watch.svelte";
     import {
         treeLevels,
         setTreeLevels,
@@ -73,7 +74,6 @@
     import { closeModal } from "./lib/modalStore";
     import { get } from "svelte/store";
     import { undoHistory, canUndo, canRedo } from "./lib/undoHistoryStore";
-    import { tr } from "svelte-whisper";
     import { useInputStore } from "./lib/input/inputStore";
     import {
         resolveKeyboardAction,
@@ -128,34 +128,42 @@
 
     const tabsForInit: TabConfig[] = baseTabs.map((tab) => ({
         ...tab,
-        label: tr(`trees.${tab.id}`),
+        label: t(`trees.${tab.id}`),
     }));
     initTechCrystalTrees(tabsForInit);
 
     let tabs: TabConfig[] = tabsForInit;
-    $: tabs = baseTabs.map((tab) => ({
-        ...tab,
-        label: $t(`trees.${tab.id}`),
-    }));
+    watch(() => {
+        tabs = baseTabs.map((tab) => ({
+            ...tab,
+            label: t(`trees.${tab.id}`),
+        }));
+    });
     $: if (!activeTreeName && tabs.length > 0) {
         activeTreeName = tabs[0].label;
     }
 
-    $: appName = $t("app.name");
-    $: gameName = $t("app.gameName");
+    let appName = "";
+    let gameName = "";
+    watch(() => {
+        appName = t("app.name");
+        gameName = t("app.gameName");
+    });
     $: appVersion = getCurrentVersion();
     $: appVersionLabel = appVersion === "unknown" ? "" : `v${appVersion}`;
-    $: appTitle =
-        appVersionLabel.length > 0
-            ? $t("app.titleFullWithVersion", {
-                  appName,
-                  gameName,
-                  version: appVersionLabel,
-              })
-            : $t("app.titleFull", {
-                  appName,
-                  gameName,
-              });
+    let appTitle = "";
+    watch(() => {
+        appTitle = appVersionLabel.length > 0
+                ? t("app.titleFullWithVersion", {
+                      appName,
+                      gameName,
+                      version: appVersionLabel,
+                  })
+                : t("app.titleFull", {
+                      appName,
+                      gameName,
+                  });
+    });
     $: if (typeof document !== "undefined") {
         document.title = appTitle;
     }
@@ -428,7 +436,7 @@
                 window.history.replaceState({}, "", basePath);
                 didNormalizeShareUrl = true;
                 // Show toast to inform user
-                showToastDelayed($t("preview.invalidShareLinkToast"), {
+                showToastDelayed(t("preview.invalidShareLinkToast"), {
                     tone: "negative",
                 });
             }
@@ -460,7 +468,7 @@
                     const title = getPreviewTitle(get(previewBuildName));
                     closeTransientUiForPreview();
                     showToastDelayed(
-                        $t("preview.viewingBuildToast", {
+                        t("preview.viewingBuildToast", {
                             name: title,
                         }),
                     );
@@ -474,7 +482,7 @@
                     window.history.replaceState({}, "", basePath);
                     didNormalizeShareUrl = true;
                 }
-                showToastDelayed($t("preview.invalidShareLinkToast"), {
+                showToastDelayed(t("preview.invalidShareLinkToast"), {
                     tone: "negative",
                 });
             }
@@ -705,7 +713,7 @@
                 markVersionAsSeen();
                 if (shouldShowUpdatedToast) {
                     showToastDelayed(
-                        $t("toast.updatedVersionToast", {
+                        t("toast.updatedVersionToast", {
                             version: getCurrentVersion(),
                         }),
                     );
@@ -743,7 +751,7 @@
 </script>
 
 <div
-    class="app app-shell locale-{$locale || 'en'}"
+    class="app app-shell locale-{getLocale()}"
     class:menu-open={isMenuOpen}
     role="application"
     use:useInputStore
@@ -807,7 +815,7 @@
     </div>
     <main class="app-main">
         <h1 class="visually-hidden">
-            {$t("app.titleFull", { appName, gameName })}
+            {t("app.titleFull", { appName, gameName })}
         </h1>
         <TreeTabs
             bind:this={tabsRef}

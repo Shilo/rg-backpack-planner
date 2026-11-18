@@ -444,7 +444,7 @@
             class:nested={isNested}
             type="button"
             tabindex="0"
-            aria-label={$t("common.close")}
+            aria-label={t("common.close")}
             bind:this={backdropEl}
             on:pointerdown={handleBackdropPointerDown}
             on:pointerup={handleBackdropPointerUp}
