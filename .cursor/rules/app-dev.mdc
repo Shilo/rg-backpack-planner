@@ -14,7 +14,7 @@ You are an expert in Svelte 5, TypeScript, and PWA development. When working on 
 - Ensure all interactive elements have unique IDs for testing.
 
 ## Localization
-- svelte-whisper 2.x. In components without runes (`export let`, `$:`) use `$t("key")`, `$locale` and `formatNumber(n, options, $locale)`; Svelte only tracks stores there. Runes components and `.ts` modules use `t()`, `getLocale()`, `setLocale()`, `formatNumber()`. No `tr()` or `formatPercent()`.
+- svelte-whisper 2.x. In components without runes (`export let`, `$:`) use `$t("key")`, `$locale`, `formatNumber(n, options, $locale)` and `formatPercent(x, precision, $locale)`; Svelte only tracks stores there. Runes components and `.ts` modules use `t()`, `getLocale()`, `setLocale()`, `formatNumber()`, `formatPercent()`. There is no `tr()`.
 - Keep each sentence in one key and use plural groups for counts. Translate with the svelte-whisper `whisper-translate` skill (`node_modules/svelte-whisper/skills/`), following `src/locales/TRANSLATING.md`.
 
 ## Sharing Logic
