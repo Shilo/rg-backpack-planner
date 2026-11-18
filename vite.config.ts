@@ -9,6 +9,13 @@ export default defineConfig({
     build: {
         rollupOptions: {
             output: {
+                // Locale chunks get a fixed prefix so the service worker can leave them
+                // out of the precache and fetch only the language in use.
+                chunkFileNames(chunk) {
+                    return chunk.facadeModuleId?.includes("/src/locales/")
+                        ? "assets/locale-[name]-[hash].js"
+                        : "assets/[name]-[hash].js";
+                },
                 manualChunks(id) {
                     if (id.includes("node_modules/svelte/")) {
                         return "svelte";
@@ -24,6 +31,21 @@ export default defineConfig({
         svelte(),
         VitePWA({
             registerType: "autoUpdate",
+            workbox: {
+                // Installing the app should not download every language. Each locale
+                // chunk is cached the first time it is used instead.
+                globIgnores: ["**/assets/locale-*.js"],
+                runtimeCaching: [
+                    {
+                        urlPattern: /\/assets\/locale-[\w-]+\.js$/,
+                        handler: "CacheFirst",
+                        options: {
+                            cacheName: "locales",
+                            expiration: { maxEntries: 20 },
+                        },
+                    },
+                ],
+            },
             includeAssets: [
                 "favicon.ico",
                 "icon.svg",
