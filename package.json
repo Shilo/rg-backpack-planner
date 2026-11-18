@@ -73,6 +73,6 @@
     },
     "dependencies": {
         "@zumer/snapdom": "^2.1.0",
-        "svelte-whisper": "file:../../../Users/shilo/.t3/worktrees/svelte-whisper/t3-4716423a-1c3e43df5ced266f"
+        "svelte-whisper": "github:Shilo/svelte-whisper#v2.0.0"
     }
 }
