@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
-    import { t, formatNumber, locale } from "svelte-whisper";
+    import { t, formatNumber } from "svelte-whisper";
     import { TextTIcon } from "phosphor-svelte";
     import SliderSetting from "./SliderSetting.svelte";
     import {
@@ -14,7 +14,7 @@
 
     // Reactive, so SliderSetting receives a new formatter when the locale changes.
     $: formatTextSizeLabel = (notchIndex: number): string =>
-        formatNumber(getTextSizeScale(notchIndex), undefined, $locale) + "x";
+        $formatNumber(getTextSizeScale(notchIndex)) + "x";
 
     function handleTextSizeChange(notchIndex: number) {
         if (!isTextSizeNotchIndex(notchIndex)) return;

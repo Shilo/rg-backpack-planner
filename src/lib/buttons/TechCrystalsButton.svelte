@@ -1,7 +1,7 @@
 <script lang="ts">
     import { TechCrystalIcon } from "../customIcons";
     import Button from "../Button.svelte";
-    import { formatNumber, t, locale } from "svelte-whisper";
+    import { formatNumber, t } from "svelte-whisper";
     import { openTechCrystalsOwnedModal } from "../techCrystalModal";
     import { changeOwnedTooltip, type BuildSubject } from "../buildSubject";
     import {
@@ -46,10 +46,10 @@
                 class="tech-crystals-spent"
                 class:is-negative={spent > owned && hasOwned}
             >
-                {formatNumber(spent, undefined, $locale)}
+                {$formatNumber(spent)}
             </span>
             <span class="tech-crystals-separator"> / </span>
-            <span class="tech-crystals-owned">{formatNumber(owned, undefined, $locale)}</span>
+            <span class="tech-crystals-owned">{$formatNumber(owned)}</span>
         </span>
     </span>
 </Button>

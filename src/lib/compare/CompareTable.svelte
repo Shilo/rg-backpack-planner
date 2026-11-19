@@ -216,8 +216,8 @@
                 {@const absDiff = Math.abs(row.valueA - row.valueB)}
                 {@const diffText =
                     row.format === "percent"
-                        ? formatPercent(absDiff, 0, $locale)
-                        : formatNumber(absDiff, undefined, $locale)}
+                        ? $formatPercent(absDiff)
+                        : $formatNumber(absDiff)}
                 <tr class="compare-table__row">
                     <td class="compare-table__label">{row.label}</td>
                     <td class="compare-table__indicator">
@@ -237,8 +237,8 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatPercent(row.valueA, 0, $locale)
-                            : formatNumber(row.valueA, undefined, $locale)}
+                            ? $formatPercent(row.valueA)
+                            : $formatNumber(row.valueA)}
                     </td>
                     <td
                         class="compare-table__value-b"
@@ -248,8 +248,8 @@
                             indicator === "lower"}
                     >
                         {row.format === "percent"
-                            ? formatPercent(row.valueB, 0, $locale)
-                            : formatNumber(row.valueB, undefined, $locale)}
+                            ? $formatPercent(row.valueB)
+                            : $formatNumber(row.valueB)}
                     </td>
                 </tr>
             {/each}

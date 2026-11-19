@@ -8,7 +8,7 @@
     import { CrownIcon } from "phosphor-svelte";
     import type { Component } from "svelte";
     import { getContext } from "svelte";
-    import { formatNumber, t, locale } from "svelte-whisper";
+    import { formatNumber, t } from "svelte-whisper";
     import type { Writable } from "svelte/store";
     import { SKILL_NODE_ICONS } from "../config/skillNodeIcons";
     import type {
@@ -120,7 +120,7 @@
                 type: "action-preview",
                 direction: "up",
                 targetLevel: incrementPreview.targetLevel,
-                crystalCost: formatNumber(incrementPreview.totalCost, undefined, $locale),
+                crystalCost: $formatNumber(incrementPreview.totalCost),
             });
         }
         if (decrementPreview != null) {
@@ -128,7 +128,7 @@
                 type: "action-preview",
                 direction: "down",
                 targetLevel: decrementPreview.targetLevel,
-                crystalCost: formatNumber(decrementPreview.totalCost, undefined, $locale),
+                crystalCost: $formatNumber(decrementPreview.totalCost),
             });
         }
         return sections;
@@ -262,7 +262,7 @@
                         {#if showTier}
                             <span>{"★".repeat(tier)}</span>
                         {/if}
-                        <span>{formatNumber(level, undefined, $locale)}</span>
+                        <span>{$formatNumber(level)}</span>
                     {/if}
                 </span>
             {/if}

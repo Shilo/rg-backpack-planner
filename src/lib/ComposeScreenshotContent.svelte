@@ -29,7 +29,7 @@
         createComposeImageFilename,
         createComposeImageFilenameSuffix,
     } from "./composeFilename";
-    import { formatNumber, t, locale } from "svelte-whisper";
+    import { formatNumber, t } from "svelte-whisper";
     import { get } from "svelte/store";
     import { showTier, DEFAULT_SHOW_TIER } from "./showTierStore";
     import {
@@ -128,21 +128,21 @@ export let onClose: (() => void) | null = null;
                               title: $t("trees.guardian"),
                               techCrystalsSpent:
                                   $techCrystalsSpentGuardian > 0
-                                      ? formatNumber($techCrystalsSpentGuardian, undefined, $locale)
+                                      ? $formatNumber($techCrystalsSpentGuardian)
                                       : undefined,
                           },
                           {
                               title: $t("trees.vanguard"),
                               techCrystalsSpent:
                                   $techCrystalsSpentVanguard > 0
-                                      ? formatNumber($techCrystalsSpentVanguard, undefined, $locale)
+                                      ? $formatNumber($techCrystalsSpentVanguard)
                                       : undefined,
                           },
                           {
                               title: $t("trees.cannon"),
                               techCrystalsSpent:
                                   $techCrystalsSpentCannon > 0
-                                      ? formatNumber($techCrystalsSpentCannon, undefined, $locale)
+                                      ? $formatNumber($techCrystalsSpentCannon)
                                       : undefined,
                           },
                       ] as const,
@@ -153,7 +153,7 @@ export let onClose: (() => void) | null = null;
                                   : undefined,
                           techCrystalsSpent:
                               $techCrystalsSpent > 0
-                                  ? formatNumber($techCrystalsSpent, undefined, $locale)
+                                  ? $formatNumber($techCrystalsSpent)
                                   : undefined,
                       },
                   }

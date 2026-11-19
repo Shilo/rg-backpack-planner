@@ -10,7 +10,7 @@
     } from "../buildData/url";
     import { showToast } from "../toast";
     import { openLoadBuildModal } from "../loadBuildModal";
-    import { t, formatNumber, locale } from "svelte-whisper";
+    import { t, formatNumber } from "svelte-whisper";
     import { TechCrystalIcon } from "../customIcons";
     import { activeTabs } from "../techCrystalStore";
     import { activeBuildName } from "../buildPresetsStore";
@@ -87,7 +87,7 @@
                         description={build.tcSpent > 0
                             ? $t("preview.techCrystalsDescription", {
                                   count: build.tcSpent,
-                                  amount: formatNumber(build.tcSpent, undefined, $locale),
+                                  amount: $formatNumber(build.tcSpent),
                               })
                             : undefined}
                         descriptionIcon={build.tcSpent > 0 ? TechCrystalIcon : null}

@@ -590,7 +590,7 @@
                 showToast(
                     $t("nodeMenu.leveledLeafCapWarning", {
                         count: GLOBAL_LEVELED_LEAF_NODE_CAP,
-                        cap: formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP, undefined, $locale),
+                        cap: $formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP),
                     }),
                     { tone: "negative" },
                 );

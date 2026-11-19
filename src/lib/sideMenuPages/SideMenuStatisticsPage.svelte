@@ -16,7 +16,7 @@
         XIcon,
     } from "phosphor-svelte";
     import { TechCrystalIcon } from "../customIcons";
-    import { formatNumber, formatPercent, t, locale } from "svelte-whisper";
+    import { formatNumber, formatPercent, t } from "svelte-whisper";
     import {
         treeLevelsTotal,
         treeLevelsGuardian,
@@ -111,7 +111,7 @@
         for (const skillId of SKILL_DISPLAY_ORDER) {
             const value = $skillBonuses.get(skillId);
             if (value !== undefined && value > 0) {
-                bonusRows.push([$t(`skills.${skillId}`), formatPercent(value, 0, $locale)]);
+                bonusRows.push([$t(`skills.${skillId}`), $formatPercent(value)]);
             }
         }
 
@@ -130,10 +130,10 @@
                 },
                 "",
             ],
-            [$t("statistics.total"), formatNumber($techCrystalsSpent, undefined, $locale)],
-            [$t("trees.guardian"), formatNumber($techCrystalsSpentGuardian, undefined, $locale)],
-            [$t("trees.vanguard"), formatNumber($techCrystalsSpentVanguard, undefined, $locale)],
-            [$t("trees.cannon"), formatNumber($techCrystalsSpentCannon, undefined, $locale)],
+            [$t("statistics.total"), $formatNumber($techCrystalsSpent)],
+            [$t("trees.guardian"), $formatNumber($techCrystalsSpentGuardian)],
+            [$t("trees.vanguard"), $formatNumber($techCrystalsSpentVanguard)],
+            [$t("trees.cannon"), $formatNumber($techCrystalsSpentCannon)],
             [
                 {
                     text: $t("statistics.backpackNodeLevels"),
@@ -141,10 +141,10 @@
                 },
                 "",
             ],
-            [$t("statistics.total"), formatNumber($treeLevelsTotal, undefined, $locale)],
-            [$t("trees.guardian"), formatNumber($treeLevelsGuardian, undefined, $locale)],
-            [$t("trees.vanguard"), formatNumber($treeLevelsVanguard, undefined, $locale)],
-            [$t("trees.cannon"), formatNumber($treeLevelsCannon, undefined, $locale)],
+            [$t("statistics.total"), $formatNumber($treeLevelsTotal)],
+            [$t("trees.guardian"), $formatNumber($treeLevelsGuardian)],
+            [$t("trees.vanguard"), $formatNumber($treeLevelsVanguard)],
+            [$t("trees.cannon"), $formatNumber($treeLevelsCannon)],
         ];
     }
 

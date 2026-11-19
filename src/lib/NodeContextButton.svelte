@@ -3,7 +3,7 @@
     import { TechCrystalIcon } from "./customIcons";
     import { triggerHaptic } from "./hapticsStore";
     import { showToast } from "./toast";
-    import { formatNumber, locale } from "svelte-whisper";
+    import { formatNumber } from "svelte-whisper";
     import { buildShortcutTooltip } from "./input";
     import { tooltip } from "./tooltip";
 
@@ -48,7 +48,7 @@
             <span class="icon-cell crystal-icon">
                 <TechCrystalIcon size={14} weight="fill" aria-hidden="true" />
             </span>
-            <span class="crystal-value">{positive ? "\u2212" : negative ? "+" : ""}{formatNumber(crystalValue, undefined, $locale)}</span>
+            <span class="crystal-value">{positive ? "\u2212" : negative ? "+" : ""}{$formatNumber(crystalValue)}</span>
         {/if}
     </span>
 </button>

@@ -10,7 +10,7 @@
     import { get } from "svelte/store";
     import { getTreeIcon, TechCrystalIcon } from "./customIcons";
 
-    import { formatNumber, t, locale } from "svelte-whisper";
+    import { formatNumber, t } from "svelte-whisper";
     import Button from "./Button.svelte";
     import { isComposeScreenshotOpen } from "./ComposeScreenshot.svelte";
     import RootNodeQuickSettings from "./RootNodeQuickSettings.svelte";
@@ -581,7 +581,7 @@
                         <span class="tab-label">{tab.label}</span>
                         <span class="tree-tab-crystals">
                             <TechCrystalIcon size={12} weight="fill" />
-                            {formatNumber($techCrystalsSpentByTree[index] || 0, undefined, $locale)}
+                            {$formatNumber($techCrystalsSpentByTree[index] || 0)}
                         </span>
                     </Button>
                 {/each}

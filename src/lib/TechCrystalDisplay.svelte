@@ -119,7 +119,7 @@
             class:is-negative={$techCrystalsSpent > $techCrystalsOwned &&
                 hasOwned}
         >
-            {formatNumber($techCrystalsSpent, undefined, $locale)}
+            {$formatNumber($techCrystalsSpent)}
         </span>
         {#if hasOwned}
             <span class="currency-separator"> / </span>

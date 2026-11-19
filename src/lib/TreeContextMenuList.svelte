@@ -148,7 +148,7 @@
                     ><TechCrystalIcon size={14} weight="fill" /></span
                 >
                 <span class="bonus-current">
-                    {formatNumber(techCrystalsSpent, undefined, $locale)} / {formatNumber(totalTechCrystalsSpent, undefined, $locale)}
+                    {$formatNumber(techCrystalsSpent)} / {$formatNumber(totalTechCrystalsSpent)}
                 </span>
             </div>
         </div>
@@ -177,8 +177,8 @@
             <div class="meta-item">
                 <span class="meta-label">{$t("nodeMenu.level")}</span>
                 <span class="meta-value"
-                    >{formatNumber(currentLevel, undefined, $locale)}<span class="meta-sep">/</span
-                    >{formatNumber(maxLevel, undefined, $locale)}</span
+                    >{$formatNumber(currentLevel)}<span class="meta-sep">/</span
+                    >{$formatNumber(maxLevel)}</span
                 >
             </div>
             <div class="meta-item">

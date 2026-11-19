@@ -273,7 +273,7 @@
                 <span class="warning-text">
                     {$t("nodeMenu.leveledLeafCapWarning", {
                         count: GLOBAL_LEVELED_LEAF_NODE_CAP,
-                        cap: formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP, undefined, $locale),
+                        cap: $formatNumber(GLOBAL_LEVELED_LEAF_NODE_CAP),
                     })}
                 </span>
             </div>
@@ -289,8 +289,8 @@
             <div class="meta-item">
                 <span class="meta-label">{$t("nodeMenu.level")}</span>
                 <span class="meta-value"
-                    >{formatNumber(level, undefined, $locale)}<span class="meta-sep">/</span
-                    >{formatNumber(maxLevel, undefined, $locale)}</span
+                    >{$formatNumber(level)}<span class="meta-sep">/</span
+                    >{$formatNumber(maxLevel)}</span
                 >
             </div>
             <div class="meta-item">
@@ -407,7 +407,7 @@
                     if (nodeIndex !== null && onReset) onReset(nodeIndex);
                 }}
             >
-                {$t("nodeMenu.reset")}{#if actionCosts?.reset != null}<span class="reset-crystal"><TechCrystalIcon weight="fill" size={12} aria-hidden={true} /> +{formatNumber(actionCosts.reset, undefined, $locale)}</span>{/if}
+                {$t("nodeMenu.reset")}{#if actionCosts?.reset != null}<span class="reset-crystal"><TechCrystalIcon weight="fill" size={12} aria-hidden={true} /> +{$formatNumber(actionCosts.reset)}</span>{/if}
             </Button>
         {/if}
     </div>

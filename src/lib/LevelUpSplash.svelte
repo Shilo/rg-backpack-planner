@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { formatNumber, locale } from "svelte-whisper";
+    import { formatNumber } from "svelte-whisper";
 
     export let x: number;
     export let y: number;
@@ -23,9 +23,9 @@
     let timer: ReturnType<typeof setTimeout> | null = null;
     let animKey = 0;
 
-    $: lvlText = "Lv " + formatNumber(level, undefined, $locale);
+    $: lvlText = "Lv " + $formatNumber(level);
     $: cSign = crystalDelta > 0 ? "\u2212" : crystalDelta < 0 ? "+" : "";
-    $: cText = cSign + formatNumber(Math.abs(crystalDelta), undefined, $locale);
+    $: cText = cSign + $formatNumber(Math.abs(crystalDelta));
     $: levelColor = isUp ? "var(--accent-light)" : "var(--accent-danger)";
     $: crystalColor = isUp ? "var(--accent-danger)" : "var(--success-text)";
     $: badgeScale = Math.max(1 / scale, 1);

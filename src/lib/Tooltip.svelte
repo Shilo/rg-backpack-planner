@@ -2,7 +2,7 @@
     import { onMount, tick } from "svelte";
     import { TechCrystalIcon } from "./customIcons";
     import { tooltipStore } from "./tooltip";
-    import { formatNumber, locale } from "svelte-whisper";
+    import { formatNumber } from "svelte-whisper";
     import InputChip from "./InputChip.svelte";
     import { portal } from "./portal";
     import { textSize } from "./textSizeStore";
@@ -183,7 +183,7 @@
                                             : "\u25BC"}</span
                                     >
                                     <span class="tooltip-action-level"
-                                        >Lv {formatNumber(section.targetLevel, undefined, $locale)}</span
+                                        >Lv {$formatNumber(section.targetLevel)}</span
                                     >
                                     <TechCrystalIcon
                                         size={14}
