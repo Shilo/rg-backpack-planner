@@ -37,11 +37,15 @@
     import { showOnboarding } from "../onboarding/onboardingStore";
     import { showToast } from "../toast";
     import { clearAll } from "../storage";
-    import { t, resetLocale } from "svelte-whisper";
+    import { t, formatPercent, resetLocale } from "svelte-whisper";
     import { getKeyboardActionLabel } from "../input";
 
     export let onBack: (() => void) | null = null;
     export let onClose: (() => void) | null = null;
+
+    // Rebuilt when the language or the mute state changes: the slider follows the callback, not the stores inside it.
+    $: formatSoundValue = (volume: number): string =>
+        $soundMuted ? $t("settings.soundMuted") : $formatPercent(volume / 100);
 
     function handleResetSettings() {
         openModal({
@@ -130,9 +134,9 @@
             max={100}
             step={5}
             defaultNotchIndex={10}
-            formatValue={(v) => $soundMuted ? $t("settings.soundMuted") : `${v}%`}
+            formatValue={formatSoundValue}
             resetIcon={$soundMuted ? SpeakerSlashIcon as unknown as Component : SpeakerHighIcon as unknown as Component}
-            resetAriaLabel={$soundMuted ? "Unmute" : "Mute"}
+            resetAriaLabel={$t("controls.actions.toggleMute")}
             shortcut={getKeyboardActionLabel("toggleMute", $t)}
             onReset={() => soundMuted.set(!$soundMuted)}
             onChange={(v) => {
