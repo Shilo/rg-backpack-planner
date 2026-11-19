@@ -6,11 +6,12 @@
         CaretRightIcon,
     } from "phosphor-svelte";
     import { triggerHaptic } from "../hapticsStore";
+    import { t } from "svelte-whisper";
 
     export let stepNumber = 1;
     export let stepCount = 1;
     export let compact = false;
-    export let title = "Tutorial";
+    export let title = "";
     export let hintText = "";
     export let onSkip: (() => void) | null = null;
     export let onBack: (() => void) | null = null;
@@ -39,7 +40,7 @@
         <button
             class="nav-button"
             type="button"
-            aria-label="Previous step"
+            aria-label={$t("onboarding.previousStep")}
             disabled={isFirstStep}
             on:click|stopPropagation={() => { triggerHaptic(); onBack?.(); }}
         >
@@ -49,7 +50,7 @@
         <button
             class="nav-button"
             type="button"
-            aria-label="Next step"
+            aria-label={$t("onboarding.nextStep")}
             on:click|stopPropagation={() => { triggerHaptic(); onForward?.(); }}
         >
             <CaretRightIcon size={navIconSize} weight="bold" />
@@ -60,7 +61,7 @@
                 <span class="title-icon" aria-hidden="true">
                     <BookOpenIcon size={compact ? 14 : 16} />
                 </span>
-                <span class="title-text">{title}</span>
+                <span class="title-text">{title || $t("onboarding.tutorialTitle")}</span>
                 <span class="step-count">{stepNumber} / {stepCount}</span>
             </div>
             {#if hintText}
@@ -72,7 +73,7 @@
             <button
                 class="nav-button nav-skip"
                 type="button"
-                aria-label="Skip tutorial"
+                aria-label={$t("onboarding.skipTutorial")}
                 on:click|stopPropagation={() => { triggerHaptic(); onSkip?.(); }}
             >
                 <CaretLineRightIcon size={navIconSize} weight="bold" />

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onDestroy, onMount, tick } from "svelte";
     import { fly } from "svelte/transition";
+    import { t } from "svelte-whisper";
     import {
         dismissToast,
         suppressedExitIds,
@@ -161,7 +162,7 @@
                     <div class="toast__action-row">
                         <button
                             class="toast__dismiss"
-                            aria-label="Dismiss"
+                            aria-label={$t("common.close")}
                             on:click|stopPropagation={() => {
                                 triggerHaptic();
                                 dismissToast(toast.id);

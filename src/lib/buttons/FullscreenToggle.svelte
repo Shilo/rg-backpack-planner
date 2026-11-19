@@ -78,7 +78,7 @@
     <ToggleSwitch
         checked={isFullscreen}
         label={$t("fullscreen.label")}
-        ariaLabel="Toggle fullscreen mode"
+        ariaLabel={$t("fullscreen.label")}
         description={$t("settings.fullscreenDescription")}
         icon={CornersOutIcon as unknown as Component}
         onToggle={handleToggleFullscreen}

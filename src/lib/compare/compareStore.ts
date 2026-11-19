@@ -14,7 +14,6 @@ import {
     getActivePresetId,
     setActivePresetId,
 } from "../buildPresetsStore";
-import { getDisplayPresetName } from "../i18n";
 import { isPreviewMode } from "../previewModeStore";
 import { previewLoadCount } from "../previewBuildNameStore";
 import {
@@ -93,7 +92,7 @@ buildPresetsStore.subscribe(($store) => {
         if (source.type !== "preset") return state;
         const preset = $store.presets.find((p) => p.id === source.id);
         if (!preset) return initialState; // frozen preset deleted — end comparison
-        const newLabel = getDisplayPresetName(preset.name);
+        const newLabel = preset.name;
         if (frozenBuild.label === newLabel) return state;
         const updated = { ...frozenBuild, label: newLabel };
         return frozenSide === "a"

@@ -344,7 +344,7 @@
             class="color-picker-backdrop backdrop"
             role="dialog"
             tabindex="-1"
-            aria-label="Custom color picker"
+            aria-label={$t("theme.colorPicker.title")}
             on:pointerdown={handleBackdropPointerDown}
             on:click={handleBackdropClick}
             on:keydown={handleBackdropKeydown}
@@ -354,7 +354,7 @@
                 <div
                     class="color-grid"
                     role="application"
-                    aria-label="Color selection grid"
+                    aria-label={$t("theme.colorPicker.grid")}
                     bind:this={gridEl}
                     on:pointerdown={handleGridPointerDown}
                     on:pointermove={handleGridPointerMove}
@@ -424,7 +424,8 @@
                                 small
                                 icon={ShuffleIcon}
                                 iconSize={18}
-                                aria-label="Random color"
+                                aria-label={$t("theme.colorPicker.randomColor")}
+                                tooltipText={$t("theme.colorPicker.randomColor")}
                                 on:click={handleRandom}
                                 negative
                             />
@@ -432,9 +433,12 @@
                                 small
                                 icon={previewDark ? MoonIcon : SunIcon}
                                 iconSize={18}
-                                aria-label="Toggle {previewDark
-                                    ? 'light'
-                                    : 'dark'} mode preview"
+                                aria-label={previewDark
+                                    ? $t("theme.colorPicker.previewLight")
+                                    : $t("theme.colorPicker.previewDark")}
+                                tooltipText={previewDark
+                                    ? $t("theme.colorPicker.previewLight")
+                                    : $t("theme.colorPicker.previewDark")}
                                 on:click={handleModeToggle}
                             />
                         </div>

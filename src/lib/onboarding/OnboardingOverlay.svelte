@@ -492,14 +492,13 @@
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- aria-label intentionally not localized to keep i18n minimal -->
 <div
     bind:this={overlayEl}
     class="onboarding-overlay"
     class:dismissing
     role="dialog"
     aria-modal="true"
-    aria-label="Controls tutorial"
+    aria-label={$t("onboarding.tutorialTitle")}
     tabindex="-1"
     bind:clientWidth={viewportWidth}
     bind:clientHeight={viewportHeight}

@@ -13,6 +13,7 @@
 
 <script lang="ts">
     import type { Component } from "svelte";
+    import { t } from "svelte-whisper";
     import { triggerHaptic } from "./hapticsStore";
     import { isKeyboardAction } from "./input";
     type FabMenuAction = {
@@ -25,7 +26,7 @@
     };
 
     export let actions: FabMenuAction[] = [];
-    export let ariaLabel = "Floating action menu";
+    export let ariaLabel: string;
     export let iconSize = 24;
     export let fabIcon: Component | null = null;
 
@@ -93,7 +94,7 @@
     <button
         type="button"
         class="fab-menu__trigger"
-        aria-label={isOpen ? "Close menu" : ariaLabel}
+        aria-label={isOpen ? $t("common.close") : ariaLabel}
         aria-expanded={isOpen}
         aria-haspopup="true"
         on:click={toggle}

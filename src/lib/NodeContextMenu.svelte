@@ -232,7 +232,7 @@
     y={menuY}
     {isOpen}
     title=""
-    ariaLabel={skillId ? $t(`skills.${skillId}`) : "Node"}
+    ariaLabel={skillId ? $t(`skills.${skillId}`) : $t("sideMenu.sections.node")}
     {onClose}
     anchorAbove={true}
     stableTop

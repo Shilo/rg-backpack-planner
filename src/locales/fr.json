@@ -163,6 +163,7 @@
         "colorblindTreeColorsDescription": "Couleurs de zones ajustées pour les déficiences visuelles",
         "focusTreeInViewDescription": "Réinitialiser le zoom et le déplacement pour ajuster",
         "languageDescription": "Langue d'affichage de l'application",
+        "languageLoadFailedToast": "Impossible de charger cette langue. Vérifiez votre connexion et réessayez.",
         "hapticsDescription": "Vibration sur les appareils compatibles",
         "reduceMotion": "Mouvement réduit",
         "reduceMotionDescription": "Désactiver les animations",
@@ -325,6 +326,8 @@
         "viewInBrowser": "Voir dans le navigateur",
         "shareTooltip": "Partager via l'application",
         "refreshTooltip": "Régénérer les captures d'écran",
+        "toggleLabels": "Afficher ou masquer les libellés",
+        "imageViewer": "Visionneuse d’images",
         "statsErrorToast": "Impossible de générer l'image des statistiques",
         "tabs": {
             "all": "Voir tous les arbres",
@@ -395,7 +398,11 @@
             "invalidLinkOrDataToast": "Lien ou données de build invalides"
         },
         "input": {
-            "plusHundred": "+100"
+            "plusHundred": "+100",
+            "resetValue": "Réinitialiser la valeur",
+            "decreaseValue": "Diminuer la valeur",
+            "increaseValue": "Augmenter la valeur",
+            "increaseByHundred": "Augmenter la valeur de 100"
         },
         "resetTree": {
             "title": "Réinitialiser {treeName}",
@@ -441,6 +448,7 @@
         "label": "Thème",
         "menuTitle": "Thème",
         "changeTooltip": "Changer le thème",
+        "current": "Thème : {name}",
         "custom": "Personnalisé",
         "customEllipsis": "Personnalisé...",
         "preset": {
@@ -466,6 +474,11 @@
             "gray": "Gris"
         },
         "colorPicker": {
+            "title": "Sélecteur de couleur personnalisée",
+            "grid": "Grille de sélection des couleurs",
+            "randomColor": "Couleur aléatoire",
+            "previewLight": "Aperçu du thème clair",
+            "previewDark": "Aperçu du thème sombre",
             "hexLabel": "HEX",
             "cancel": "Annuler",
             "apply": "Appliquer"
@@ -574,6 +587,9 @@
         "previewCloneDesc": "Copier en tant que nouveau build et conserver les modifications",
         "bottombarSwitchTree": "Changer l'arbre actif",
         "tutorialTitle": "Tutoriel",
+        "previousStep": "Étape précédente",
+        "nextStep": "Étape suivante",
+        "skipTutorial": "Passer le tutoriel",
         "showTutorialDescription": "Voir le guide des contrôles à l'écran"
     },
     "install": {

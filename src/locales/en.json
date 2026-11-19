@@ -163,6 +163,7 @@
         "colorblindTreeColorsDescription": "Adjusted region colors for color vision deficiencies",
         "focusTreeInViewDescription": "Reset zoom and pan to fit",
         "languageDescription": "Application display language",
+        "languageLoadFailedToast": "Could not load that language. Check your connection and try again.",
         "hapticsDescription": "Vibration on supported devices",
         "reduceMotion": "Reduce Motion",
         "reduceMotionDescription": "Disable animations and transitions",
@@ -325,6 +326,8 @@
         "viewInBrowser": "View in Browser",
         "shareTooltip": "Share via app",
         "refreshTooltip": "Regenerate screenshots",
+        "toggleLabels": "Toggle labels",
+        "imageViewer": "Image viewer",
         "statsErrorToast": "Unable to generate statistics image",
         "tabs": {
             "all": "View all trees",
@@ -395,7 +398,11 @@
             "invalidLinkOrDataToast": "Invalid link or build data"
         },
         "input": {
-            "plusHundred": "+100"
+            "plusHundred": "+100",
+            "resetValue": "Reset value",
+            "decreaseValue": "Decrease value",
+            "increaseValue": "Increase value",
+            "increaseByHundred": "Increase value by 100"
         },
         "resetTree": {
             "title": "Reset {treeName}",
@@ -441,6 +448,7 @@
         "label": "Theme",
         "menuTitle": "Theme",
         "changeTooltip": "Change theme",
+        "current": "Theme: {name}",
         "custom": "Custom",
         "customEllipsis": "Custom...",
         "preset": {
@@ -466,6 +474,11 @@
             "gray": "Gray"
         },
         "colorPicker": {
+            "title": "Custom color picker",
+            "grid": "Color selection grid",
+            "randomColor": "Random color",
+            "previewLight": "Preview light theme",
+            "previewDark": "Preview dark theme",
             "hexLabel": "HEX",
             "cancel": "Cancel",
             "apply": "Apply"
@@ -574,6 +587,9 @@
         "previewCloneDesc": "Copy as a new build and keep changes",
         "bottombarSwitchTree": "Switch active tree",
         "tutorialTitle": "Tutorial",
+        "previousStep": "Previous step",
+        "nextStep": "Next step",
+        "skipTutorial": "Skip tutorial",
         "showTutorialDescription": "View on-screen controls guide"
     },
     "install": {

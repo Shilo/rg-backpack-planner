@@ -340,7 +340,7 @@
         if (!preset) return;
         decodeAndStartCompare(
             preset.buildCode,
-            getDisplayPresetName(preset.name, $t),
+            preset.name,
             { type: "preset", id: presetId },
         );
         closeEditMenu();

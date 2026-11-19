@@ -589,7 +589,7 @@
         </div>
         <Button
             class="menu-button"
-            aria-label="Menu"
+            aria-label={$t("tree.menuButtonTooltip")}
             tooltipText={$t("tree.menuButtonTooltip")}
             shortcut={getKeyboardActionLabel("dismiss", $t)}
             on:click={() => onMenuClick?.()}

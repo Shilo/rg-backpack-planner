@@ -163,6 +163,7 @@
         "colorblindTreeColorsDescription": "为色觉障碍调整区域颜色",
         "focusTreeInViewDescription": "重置缩放和平移以适应视图",
         "languageDescription": "应用程序显示语言",
+        "languageLoadFailedToast": "无法加载该语言。请检查网络连接后重试。",
         "hapticsDescription": "支持设备上的振动",
         "reduceMotion": "减少动态效果",
         "reduceMotionDescription": "禁用动画效果",
@@ -324,6 +325,8 @@
         "viewInBrowser": "在浏览器中查看",
         "shareTooltip": "通过应用分享",
         "refreshTooltip": "重新生成截图",
+        "toggleLabels": "切换标签显示",
+        "imageViewer": "图片查看器",
         "statsErrorToast": "无法生成统计图片",
         "tabs": {
             "all": "查看所有技能树",
@@ -393,7 +396,11 @@
             "invalidLinkOrDataToast": "无效的链接或构建数据"
         },
         "input": {
-            "plusHundred": "+100"
+            "plusHundred": "+100",
+            "resetValue": "重置数值",
+            "decreaseValue": "减小数值",
+            "increaseValue": "增大数值",
+            "increaseByHundred": "数值增加 100"
         },
         "resetTree": {
             "title": "重置{treeName}",
@@ -437,6 +444,7 @@
         "label": "主题",
         "menuTitle": "主题",
         "changeTooltip": "更改主题",
+        "current": "主题：{name}",
         "custom": "自定义",
         "customEllipsis": "自定义...",
         "preset": {
@@ -462,6 +470,11 @@
             "gray": "灰色"
         },
         "colorPicker": {
+            "title": "自定义颜色选择器",
+            "grid": "颜色选择网格",
+            "randomColor": "随机颜色",
+            "previewLight": "预览浅色主题",
+            "previewDark": "预览深色主题",
             "hexLabel": "HEX",
             "cancel": "取消",
             "apply": "应用"
@@ -570,6 +583,9 @@
         "previewCloneDesc": "复制为新构建并保留更改",
         "bottombarSwitchTree": "切换当前技能树",
         "tutorialTitle": "教程",
+        "previousStep": "上一步",
+        "nextStep": "下一步",
+        "skipTutorial": "跳过教程",
         "showTutorialDescription": "查看屏幕操作指南"
     },
     "install": {

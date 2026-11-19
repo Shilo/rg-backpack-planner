@@ -256,7 +256,7 @@
                         <CrownIcon
                             class="node-level-badge-max"
                             weight="fill"
-                            aria-label="max"
+                            aria-label={$t("nodeMenu.max")}
                         />
                     {:else}
                         {#if showTier}

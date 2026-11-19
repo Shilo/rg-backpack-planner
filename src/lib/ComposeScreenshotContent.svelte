@@ -361,8 +361,8 @@ export let onClose: (() => void) | null = null;
                     <Button
                         class="compose-tool-btn {showLabels ? 'active' : ''}"
                         type="button"
-                        aria-label="Toggle labels"
-                        tooltipText="Toggle labels"
+                        aria-label={$t("compose.toggleLabels")}
+                        tooltipText={$t("compose.toggleLabels")}
                         icon={showLabels ? TextTIcon : TextTSlashIcon}
                         iconSize={24}
                         disabled={isLoading}

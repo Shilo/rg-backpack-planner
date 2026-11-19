@@ -6,7 +6,17 @@ import {
 } from "../techCrystalStore";
 import { computeSkillBonuses, SKILL_DISPLAY_ORDER } from "../skillBonusStore";
 import { sumLevels } from "../treeLevelsStore";
-import type { CompareState } from "./compareStore";
+import type { Translate } from "svelte-whisper";
+import { getRecommendedBuildForEncoded } from "../buildData/recommended";
+import { getDisplayPresetName } from "../i18n";
+import type { CompareBuild, CompareState } from "./compareStore";
+
+export function getCompareBuildLabel(build: CompareBuild | null, translate: Translate): string {
+    if (!build) return "";
+    if (build.source.type === "preset") return getDisplayPresetName(build.label, translate);
+    const recommended = getRecommendedBuildForEncoded(build.source.encoded);
+    return recommended ? translate(recommended.i18nKey) : build.label;
+}
 
 export interface CompareRow {
     label: string;

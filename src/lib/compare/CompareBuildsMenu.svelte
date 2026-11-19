@@ -29,7 +29,7 @@
         .filter((p) => $isPreviewMode || p.id !== $buildPresetsStore.active)
         .map((p) => ({
             id: p.id,
-            name: getDisplayPresetName(p.name, $t),
+            name: p.name,
             buildCode: p.buildCode,
         }));
 
@@ -120,7 +120,7 @@
                                 id: preset.id,
                             })}
                     >
-                        {truncateText(preset.name)}
+                        {truncateText(getDisplayPresetName(preset.name, $t))}
                     </Button>
                 {/each}
             </div>

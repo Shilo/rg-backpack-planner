@@ -151,7 +151,7 @@
         <button
             class="stepper stepper-icon reset-button"
             type="button"
-            aria-label="Reset value"
+            aria-label={$t("modal.input.resetValue")}
             disabled={isResetDisabled}
             on:click={() => handleStepperClick(handleReset)}
         >
@@ -163,7 +163,7 @@
         <button
             class="stepper stepper-icon"
             type="button"
-            aria-label="Decrease value"
+            aria-label={$t("modal.input.decreaseValue")}
             disabled={isDecreaseDisabled}
             on:click={() => handleStepperClick(() => stepValue(-step))}
         >
@@ -184,7 +184,7 @@
         <button
             class="stepper stepper-icon"
             type="button"
-            aria-label="Increase value"
+            aria-label={$t("modal.input.increaseValue")}
             on:click={() => handleStepperClick(() => stepValue(step))}
         >
             <PlusIcon class="stepper-icon__svg" aria-hidden="true" />
@@ -192,7 +192,7 @@
         <button
             class="stepper stepper-wide"
             type="button"
-            aria-label="Increase value by 100"
+            aria-label={$t("modal.input.increaseByHundred")}
             on:click={() => handleStepperClick(() => stepValue(100))}
         >
             {$t("modal.input.plusHundred")}

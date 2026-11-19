@@ -108,7 +108,7 @@
     class="theme-color-button"
     type="button"
     bind:this={buttonEl}
-    aria-label="Theme: {currentLabel}"
+    aria-label={$t("theme.current", { name: currentLabel })}
     use:tooltip={$t("theme.changeTooltip")}
     on:click={openDropdown}
 >

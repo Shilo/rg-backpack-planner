@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
+    import { t } from "svelte-whisper";
     import {
         clampImageViewerOffsets,
         computeImageViewerFitTransform,
@@ -466,7 +467,7 @@
 <div
     class="image-viewer"
     role="group"
-    aria-label="Image viewer"
+    aria-label={$t("compose.imageViewer")}
     bind:this={viewportEl}
     on:pointerdown={onPointerDown}
     on:pointermove={onPointerMove}

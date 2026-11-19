@@ -45,7 +45,7 @@
         createComposeImageFilenameSuffix,
     } from "../composeFilename";
     import { compareState, stopCompare, swapBuilds } from "../compare/compareStore";
-    import { buildCompareSections } from "../compare/compareStats";
+    import { buildCompareSections, getCompareBuildLabel } from "../compare/compareStats";
     import type { CompareSection } from "../compare/compareStats";
     import CompareTable from "../compare/CompareTable.svelte";
     import CompareBuildsMenu from "../compare/CompareBuildsMenu.svelte";
@@ -78,6 +78,9 @@
     $: sectionTitle = $compareState.isComparing
         ? $t("compare.compareStatistics")
         : $t("sideMenu.sections.statistics");
+
+    $: compareLabelA = getCompareBuildLabel($compareState.buildA, $t);
+    $: compareLabelB = getCompareBuildLabel($compareState.buildB, $t);
 
     let statsBodyEl: HTMLElement | null = null;
     let mounted = false;
@@ -368,7 +371,7 @@
                         <PencilSimpleIcon size={12} />
                     {/if}
                     <span class="compare-segment__label"
-                        >{$compareState.buildA.label}</span
+                        >{compareLabelA}</span
                     >
                 </button>
                 <button
@@ -385,7 +388,7 @@
                         <PencilSimpleIcon size={12} />
                     {/if}
                     <span class="compare-segment__label"
-                        >{$compareState.buildB.label}</span
+                        >{compareLabelB}</span
                     >
                 </button>
                 <button
@@ -401,8 +404,8 @@
                     bind:this={compareTableEl}
                     sections={compareSections}
                     activeSide={$compareState.activeSide}
-                    labelA={$compareState.buildA.label}
-                    labelB={$compareState.buildB.label}
+                    labelA={compareLabelA}
+                    labelB={compareLabelB}
                 />
             </div>
         {:else}

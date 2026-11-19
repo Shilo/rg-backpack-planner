@@ -46,7 +46,7 @@
         class="root-node-gear"
         data-node-id="root"
         tabindex="0"
-        aria-label="Quick settings"
+        aria-label={$t("quickSettings.title")}
         on:click|stopPropagation={handleClick}
         on:contextmenu|preventDefault|stopPropagation={handleContextMenu}
     >

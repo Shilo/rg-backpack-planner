@@ -15,7 +15,7 @@ import {
     treeLevelsVanguard,
     treeLevelsCannon,
 } from "../treeLevelsStore";
-import { buildCompareSections } from "./compareStats";
+import { buildCompareSections, getCompareBuildLabel } from "./compareStats";
 import { renderCompareImage } from "./compareImageRenderer";
 
 export async function generateCompareImageBlob(): Promise<Blob | null> {
@@ -46,8 +46,8 @@ export async function generateCompareImageBlob(): Promise<Blob | null> {
     );
 
     return renderCompareImage({
-        labelA: state.buildA.label,
-        labelB: state.buildB.label,
+        labelA: getCompareBuildLabel(state.buildA, t),
+        labelB: getCompareBuildLabel(state.buildB, t),
         sections,
     });
 }

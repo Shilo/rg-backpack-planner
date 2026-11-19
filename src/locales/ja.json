@@ -163,6 +163,7 @@
         "colorblindTreeColorsDescription": "色覚特性に合わせた色の調整",
         "focusTreeInViewDescription": "ズームとパンをリセットして収める",
         "languageDescription": "アプリケーションの表示言語",
+        "languageLoadFailedToast": "言語データを読み込めませんでした。通信環境を確認して、もう一度お試しください。",
         "hapticsDescription": "対応デバイスでの振動",
         "reduceMotion": "モーションを減らす",
         "reduceMotionDescription": "アニメーションを無効化",
@@ -210,7 +211,7 @@
         "reset": "リセット",
         "resetToast": "ノードをリセット",
         "leveledLeafCapWarning": {
-            "other": "最終ダメージノードのレベル上限は{cap}個です。"
+            "other": "レベルを上げられる最終ダメージノードは最大{cap}個です。"
         }
     },
     "tree": {
@@ -324,6 +325,8 @@
         "viewInBrowser": "ブラウザで表示",
         "shareTooltip": "アプリで共有",
         "refreshTooltip": "スクリーンショットを再生成",
+        "toggleLabels": "ラベルの表示を切り替え",
+        "imageViewer": "画像ビューア",
         "statsErrorToast": "統計画像を生成できません",
         "tabs": {
             "all": "すべてのツリーを表示",
@@ -393,7 +396,11 @@
             "invalidLinkOrDataToast": "無効なリンクまたはビルドデータ"
         },
         "input": {
-            "plusHundred": "+100"
+            "plusHundred": "+100",
+            "resetValue": "値をリセット",
+            "decreaseValue": "値を減らす",
+            "increaseValue": "値を増やす",
+            "increaseByHundred": "値を100増やす"
         },
         "resetTree": {
             "title": "{treeName}をリセット",
@@ -437,6 +444,7 @@
         "label": "テーマ",
         "menuTitle": "テーマ",
         "changeTooltip": "テーマを変更",
+        "current": "テーマ：{name}",
         "custom": "カスタム",
         "customEllipsis": "カスタム...",
         "preset": {
@@ -462,6 +470,11 @@
             "gray": "グレー"
         },
         "colorPicker": {
+            "title": "カスタムカラーの選択",
+            "grid": "カラー選択グリッド",
+            "randomColor": "ランダムな色",
+            "previewLight": "ライトテーマをプレビュー",
+            "previewDark": "ダークテーマをプレビュー",
             "hexLabel": "HEX",
             "cancel": "キャンセル",
             "apply": "適用"
@@ -570,6 +583,9 @@
         "previewCloneDesc": "新しいビルドとしてコピーして変更を保持",
         "bottombarSwitchTree": "アクティブツリーを切り替え",
         "tutorialTitle": "チュートリアル",
+        "previousStep": "前のステップ",
+        "nextStep": "次のステップ",
+        "skipTutorial": "チュートリアルをスキップ",
         "showTutorialDescription": "画面上の操作ガイドを見る"
     },
     "install": {

@@ -329,7 +329,7 @@
         bind:this={panelEl}
         role="dialog"
         tabindex="-1"
-        aria-label="Quick settings"
+        aria-label={$t("quickSettings.title")}
         style="transform: translate({displayX}px, {displayY}px);"
         on:keydown={handleKeydown}
         on:pointerdown={handlePointerDown}

@@ -56,7 +56,7 @@
             confirmLabel: $t("modal.resetSettings.confirmLabel"),
             cancelLabel: $t("common.cancel"),
             confirmNegative: true,
-            onConfirm: () => {
+            onConfirm: async () => {
                 nodePrimaryAction.resetToDefault();
                 nodeLevelBehavior.resetToDefault();
                 showTier.resetToDefault();
@@ -73,9 +73,9 @@
                 showLevelSplash.resetToDefault();
                 ignoreTechCrystalBudget.resetToDefault();
                 reduceMotion.resetToDefault();
-                void resetLocale();
+                await resetLocale();
 
-                showToast($t("modal.resetSettings.toast"));
+                showToast(t("modal.resetSettings.toast"));
                 onClose?.();
             },
         });

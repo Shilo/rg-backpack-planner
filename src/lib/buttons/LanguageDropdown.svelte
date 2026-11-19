@@ -1,10 +1,15 @@
+<script module lang="ts">
+    let latestChoice = 0;
+</script>
+
 <script lang="ts">
     import { TranslateIcon, CaretDownIcon, CheckIcon } from "phosphor-svelte";
     import Button from "../Button.svelte";
     import ContextMenu from "../ContextMenu.svelte";
     import { portal } from "../portal";
-    import { t, locale, getLocales, detectLocale, localeName } from "svelte-whisper";
+    import { t, locale, getLocale, getLocales, detectLocale, localeName, setLocale } from "svelte-whisper";
     import { FALLBACK_LOCALE } from "../i18n";
+    import { showToast } from "../toast";
 
     let dropdownButtonElement: HTMLButtonElement | null = null;
     let isOpen = false;
@@ -26,9 +31,12 @@
         isOpen = true;
     }
 
-    function handleLanguageSelect(localeCode: string) {
-        void locale.set(localeCode);
+    async function handleLanguageSelect(localeCode: string) {
+        const choice = ++latestChoice;
         isOpen = false;
+        if (!(await setLocale(localeCode)) && choice === latestChoice && getLocale() !== localeCode) {
+            showToast(t("settings.languageLoadFailedToast"), { tone: "negative" });
+        }
     }
 
     function closeDropdown() {

@@ -1,5 +1,6 @@
 import assert from "node:assert";
-import { buildCompareSections } from "../src/lib/compare/compareStats.ts";
+import { buildCompareSections, getCompareBuildLabel } from "../src/lib/compare/compareStats.ts";
+import { resolveRecommendedBuildEncoded } from "../src/lib/buildData/recommended.ts";
 import type { CompareState } from "../src/lib/compare/compareStore.ts";
 import type { TabConfig } from "../src/types/tree.ts";
 
@@ -19,6 +20,29 @@ const buildB = {
     label: "Build B",
     source: { type: "preset" as const, id: "b" },
 };
+
+{
+    const encoded = resolveRecommendedBuildEncoded("Late_PvP");
+    assert.ok(encoded);
+    const defaultBuild = { ...buildA, label: "Default" };
+    const recommendedBuild = {
+        ...buildB,
+        label: "Late PvP",
+        source: { type: "preview" as const, encoded },
+    };
+    const french: Record<string, string> = {
+        "buildPresets.generated.default": "Par défaut",
+        "preview.premade.Late_PvP": "PvP avancé",
+    };
+    const translate = (key: string) => french[key] ?? key;
+    assert.strictEqual(getCompareBuildLabel(defaultBuild, translate), "Par défaut");
+    assert.strictEqual(getCompareBuildLabel(recommendedBuild, translate), "PvP avancé");
+    assert.strictEqual(getCompareBuildLabel(buildA, translate), "Build A");
+    assert.strictEqual(
+        getCompareBuildLabel({ ...recommendedBuild, source: { type: "preview", encoded: "other" } }, translate),
+        "Late PvP",
+    );
+}
 
 // activeSide "a": live values → valueA, frozen → valueB
 {
