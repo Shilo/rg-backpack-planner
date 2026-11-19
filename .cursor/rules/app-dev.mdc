@@ -14,7 +14,7 @@ You are an expert in Svelte 5, TypeScript, and PWA development. When working on 
 - Ensure all interactive elements have unique IDs for testing.
 
 ## Localization
-- svelte-whisper 2.x. In components without runes (`export let`, `$:`) put `$` in front of `t`, `locale` and the formatters: `$t("key")`, `$locale`, `$formatNumber(n, options)`, `$formatPercent(x, precision)`; Svelte only tracks stores there, and only where the `$` form is written in the markup or the `$:` statement itself. A helper of your own is handed `$t`, `$locale` or the formatter as an argument. Runes components and `.ts` modules use `t()`, `getLocale()`, `setLocale()`, `formatNumber()`, `formatPercent()`. There is no `tr()`.
+- svelte-whisper 2.1 or later. In components without runes (`export let`, `$:`) put `$` in front of `t`, `locale` and the formatters: `$t("key")`, `$locale`, `$formatNumber(n, options)`, `$formatPercent(x, precision)`; Svelte only tracks stores there, and only where the `$` form is written in the markup or the `$:` statement itself. A helper of your own is handed `$t`, `$locale` or the formatter as an argument. Runes components and `.ts` modules use `t()`, `getLocale()`, `setLocale()`, `formatNumber()`, `formatPercent()`. There is no `tr()`.
 - Keep each sentence in one key and use plural groups for counts. Translate with the svelte-whisper `whisper-translate` skill (`node_modules/svelte-whisper/skills/`), following `src/locales/TRANSLATING.md`.
 
 ## Sharing Logic

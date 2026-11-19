@@ -37,7 +37,7 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 
 ## Localization
 
-- i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`.
+- i18n is svelte-whisper 2.1 or later (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`.
 - The app's components do not use runes (`export let`, `$:`), and in those Svelte follows stores only. Put `$` in front of `t`, `locale` and the formatters: `$t("key", vars)` for text, `$locale` for the active locale (`bind:value={$locale}` or `locale.set(id)` to switch), `$formatNumber(n, options)` and `$formatPercent(x, precision)` for numbers. A bare `t()` or `formatNumber()` in a legacy component stays in the old language after a switch.
 - Svelte follows a `$` form only where it is written in the markup or the `$:` statement itself, not inside a function the component calls, and only the library's exports have one. A helper of your own (in the component or a `.ts` module) that produces text for legacy markup is handed `$t`, `$locale` or the formatter as an argument: `{formatOwned(n, $locale)}`.
 - Plain `.ts` modules and runes components use the functions: `t()`, `getLocale()`, `setLocale()`, `formatNumber()`, `formatPercent()`.
