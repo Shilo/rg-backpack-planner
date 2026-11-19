@@ -38,9 +38,9 @@ Svelte 5 + TypeScript PWA for planning Run! Goddess Backpack Tech builds.
 ## Localization
 
 - i18n is svelte-whisper 2.x (see `node_modules/svelte-whisper/llms.txt`), set up in `src/lib/i18n.ts`.
-- The app's components do not use runes (`export let`, `$:`), and in those Svelte follows stores only. Write `$t("key", vars)` for text and `$locale` for the active locale (`bind:value={$locale}` or `locale.set(id)` to switch). A bare `t()` in a legacy component stays in the old language after a switch.
-- Pass the locale to formatters in legacy markup and `$:` statements: `formatNumber(n, options, $locale)`, `formatPercent(x, precision, $locale)`. Helpers in `.ts` modules that produce text for legacy markup take the locale (or `$t`) as a parameter.
-- Plain `.ts` modules and runes components use the functions: `t()`, `getLocale()`, `setLocale()`, `formatNumber()`.
+- The app's components do not use runes (`export let`, `$:`), and in those Svelte follows stores only. Put `$` in front of `t`, `locale` and the formatters: `$t("key", vars)` for text, `$locale` for the active locale (`bind:value={$locale}` or `locale.set(id)` to switch), `$formatNumber(n, options)` and `$formatPercent(x, precision)` for numbers. A bare `t()` or `formatNumber()` in a legacy component stays in the old language after a switch.
+- Svelte follows a `$` form only where it is written in the markup or the `$:` statement itself, not inside a function the component calls, and only the library's exports have one. A helper of your own (in the component or a `.ts` module) that produces text for legacy markup is handed `$t`, `$locale` or the formatter as an argument: `{formatOwned(n, $locale)}`.
+- Plain `.ts` modules and runes components use the functions: `t()`, `getLocale()`, `setLocale()`, `formatNumber()`, `formatPercent()`.
 - One sentence, one key: never join translated fragments. Use a plural group (`{ "one": …, "other": … }` selected by a numeric `count`) wherever a count is shown.
 - Format numbers in UI text with `formatNumber` / `formatPercent`, never `toLocaleString()` or `toFixed()`.
 - After changing `en.json`, translate with the `whisper-translate` skill (rules in `src/locales/TRANSLATING.md`) and confirm `npx svelte-whisper check --usage src` passes.
